@@ -2,6 +2,8 @@
 
 #include <windows.h>
 #include <QtWidgets/qwidget.h>
+#include <QtWidgets/qlabel.h>
+#include <QtWidgets/qlayout.h>
 #include <qpainter.h>
 #include <qevent.h>
 
@@ -17,8 +19,28 @@ public:
 
 	QKeyEdit(QWidget* parent = nullptr) {
 		setParent(parent);
+		setMinimumSize(QSize(48, 24));
 		setWindowFlags(Qt::FramelessWindowHint);
-		setMinimumSize(QSize(64, 24));
+		setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+
+		vBox = new QVBoxLayout(this);
+		vBox->setMargin(0);
+
+		lbText = new QLabel(this);
+		lbText->setAlignment(Qt::AlignCenter);
+		lbText->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		lbText->setText(text);
+
+		vBox->addWidget(lbText);
+	}
+
+	virtual void setText(const QString& text) {
+		lbText->setText(text);
+	}
+
+	virtual void setFont(const QFont& font)
+	{
+		lbText->setFont(font);
 	}
 
 	// 0: keybd, 1: mouse
@@ -170,30 +192,6 @@ public:
 		return (k2 << 16) | k1;
 	}
 
-	virtual void setStyleSheet(const QString& styleSheet)
-	{
-		QWidget::setStyleSheet("background-color:#FFF; border:1px solid #000");
-	}
-
-	virtual void setStyle(QStyle* style)
-	{
-	}
-
-	virtual void setDisabled(bool disable)
-	{
-		this->disable = disable;
-	}
-
-	virtual void setEnabled(bool enabled)
-	{
-		this->disable = !enabled;
-	}
-
-	virtual QSize sizeHint()
-	{
-		return QSize(100, 64);
-	}
-
 signals:
 
 	void changed();
@@ -209,8 +207,8 @@ private:
 		bool state = 0;
 	};
 
-	QColor border = QColor(0, 0, 0);
-	QColor background = QColor(255, 255, 255);
+	QVBoxLayout* vBox;
+	QLabel* lbText;
 	QString text = "None";
 	quint8 mode = 2; // 0: solid, 1: mod + key, 2: key + key
 	bool input = 0;
@@ -440,30 +438,30 @@ private:
 
 		case Qt::Key_QuoteLeft: return VK_OEM_3;
 		case Qt::Key_AsciiTilde: return VK_OEM_3;
-		case Qt::Key_1: if (m != Qt::KeypadModifier) return '1'; return VK_NUMPAD1;
+		case Qt::Key_1: if (m & Qt::KeypadModifier) return VK_NUMPAD1; return '1';
 		case Qt::Key_Exclam: return '1';
-		case Qt::Key_2: if (m != Qt::KeypadModifier) return '2'; return VK_NUMPAD2;
+		case Qt::Key_2: if (m & Qt::KeypadModifier) return VK_NUMPAD2; return '2';
 		case Qt::Key_At: return '2';
-		case Qt::Key_3: if (m != Qt::KeypadModifier) return '3'; return VK_NUMPAD3;
+		case Qt::Key_3: if (m & Qt::KeypadModifier) return VK_NUMPAD3; return '3';
 		case Qt::Key_NumberSign: return '3';
-		case Qt::Key_4: if (m != Qt::KeypadModifier) return '4'; return VK_NUMPAD4;
+		case Qt::Key_4: if (m & Qt::KeypadModifier) return VK_NUMPAD4; return '4';
 		case Qt::Key_Dollar: return '4';
-		case Qt::Key_5: if (m != Qt::KeypadModifier) return '5'; return VK_NUMPAD5;
+		case Qt::Key_5: if (m & Qt::KeypadModifier) return VK_NUMPAD5; return '5';
 		case Qt::Key_Percent: return '5';
-		case Qt::Key_6: if (m != Qt::KeypadModifier) return '6'; return VK_NUMPAD6;
+		case Qt::Key_6: if (m & Qt::KeypadModifier) return VK_NUMPAD6; return '6';
 		case Qt::Key_AsciiCircum: return '6';
-		case Qt::Key_7: if (m != Qt::KeypadModifier) return '7'; return VK_NUMPAD7;
+		case Qt::Key_7: if (m & Qt::KeypadModifier) return VK_NUMPAD7; return '7';
 		case Qt::Key_Ampersand: return '7';
-		case Qt::Key_8: if (m != Qt::KeypadModifier) return '8'; return VK_NUMPAD8;
-		case Qt::Key_Asterisk: if (m != Qt::KeypadModifier) return '8'; return VK_MULTIPLY;
-		case Qt::Key_9: if (m != Qt::KeypadModifier) return '9'; return VK_NUMPAD9;
+		case Qt::Key_8: if (m & Qt::KeypadModifier) return VK_NUMPAD8; return '8';
+		case Qt::Key_Asterisk: if (m & Qt::KeypadModifier) return VK_MULTIPLY; return '8';
+		case Qt::Key_9: if (m & Qt::KeypadModifier) return VK_NUMPAD9; return '9';
 		case Qt::Key_ParenLeft: return '9';
-		case Qt::Key_0: if (m != Qt::KeypadModifier) return '0'; return VK_NUMPAD0;
+		case Qt::Key_0: if (m & Qt::KeypadModifier) return VK_NUMPAD0; return '0';
 		case Qt::Key_ParenRight: return '0';
-		case Qt::Key_Minus: if (m != Qt::KeypadModifier) return VK_OEM_MINUS; return VK_SUBTRACT;
-		case Qt::Key_Underscore: if (m != Qt::KeypadModifier) return VK_OEM_MINUS; return VK_SUBTRACT;
-		case Qt::Key_Plus: if (m != Qt::KeypadModifier) return VK_OEM_PLUS; return VK_ADD;
-		case Qt::Key_Equal: if (m != Qt::KeypadModifier) return VK_OEM_PLUS; return VK_ADD;
+		case Qt::Key_Minus: if (m & Qt::KeypadModifier) return VK_SUBTRACT; return VK_OEM_MINUS;
+		case Qt::Key_Underscore: if (m & Qt::KeypadModifier) return VK_SUBTRACT; return VK_OEM_MINUS;
+		case Qt::Key_Plus: if (m & Qt::KeypadModifier) return VK_ADD; return VK_OEM_PLUS;
+		case Qt::Key_Equal: if (m & Qt::KeypadModifier) return VK_ADD; return VK_OEM_PLUS;
 		case Qt::Key_Backspace: return VK_BACK;
 
 
@@ -511,10 +509,10 @@ private:
 		case Qt::Key_M: return 'M';
 		case Qt::Key_Comma: return VK_OEM_COMMA;
 		case Qt::Key_Less: return VK_OEM_COMMA;
-		case Qt::Key_Period: if (m != Qt::KeypadModifier) return VK_OEM_PERIOD; return VK_DECIMAL;
-		case Qt::Key_Greater: if (m != Qt::KeypadModifier) return VK_OEM_PERIOD; return VK_DECIMAL;
-		case Qt::Key_Slash: if (m != Qt::KeypadModifier) return VK_OEM_2; return VK_DIVIDE;
-		case Qt::Key_Question: if (m != Qt::KeypadModifier) return VK_OEM_2; return VK_DIVIDE;
+		case Qt::Key_Period: if (m & Qt::KeypadModifier) return VK_DECIMAL; return VK_OEM_PERIOD;
+		case Qt::Key_Greater: if (m & Qt::KeypadModifier) return VK_DECIMAL; return VK_OEM_PERIOD;
+		case Qt::Key_Slash: if (m & Qt::KeypadModifier) return VK_DIVIDE; return VK_OEM_2;
+		case Qt::Key_Question: if (m & Qt::KeypadModifier) return VK_DIVIDE; return VK_OEM_2;
 
 		case Qt::Key_Control: return VK_CONTROL;
 		case Qt::Key_Alt: return VK_MENU;
@@ -685,17 +683,6 @@ private:
 
 private slots:
 
-	void paintEvent(QPaintEvent*) {
-		QPainter pt(this);
-
-		pt.fillRect(rect(), background);
-
-		pt.setPen(border);
-		pt.drawRect(0, 0, width() - 1, height() - 1);
-
-		pt.drawText(rect(), Qt::AlignCenter, text);
-	}
-
 	void Paint()
 	{
 		if (mode == 0)
@@ -710,7 +697,7 @@ private slots:
 					if (keys[0].wheel == 0) text += Name(VK_WHEELUP);
 					if (keys[0].wheel == 1) text += Name(VK_WHEELDOWN);
 				}
-				repaint();
+				lbText->setText(text);
 			}
 		}
 		else if (mode == 1)
@@ -725,7 +712,7 @@ private slots:
 					if (keys[0].mod & Qt::AltModifier) text += "Alt + ";
 					if (keys[0].key != Qt::Key_Control && keys[0].key != Qt::Key_Shift && keys[0].key != Qt::Key_Alt) text += Name(KeybdToVk(keys[0].key, keys[0].mod));
 				}
-				repaint();
+				lbText->setText(text);
 			}
 		}
 		else if (mode == 2)
@@ -763,7 +750,7 @@ private slots:
 						else text += Name(VK_WHEELDOWN);
 					}
 				}
-				repaint();
+				lbText->setText(text);
 			}
 		}
 	}
@@ -883,7 +870,7 @@ private slots:
 				keys[1].mouse = Qt::NoButton;
 				input = 1;
 				text = "...";
-				repaint();
+				lbText->setText(text);
 				grabKeyboard();
 				grabMouse();
 			}

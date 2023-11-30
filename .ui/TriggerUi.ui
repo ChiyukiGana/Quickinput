@@ -135,8 +135,14 @@ border:none;
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>20</number>
+    </property>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>5</number>
+      </property>
       <item>
        <widget class="QLabel" name="lbState">
         <property name="font">
@@ -179,15 +185,7 @@ border:none;
          <enum>Qt::ClickFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">QCheckBox::indicator {
-	background-color:#FFF;
-	width:18;
-	height:18;
-	border:1px solid #000;
-}
-QCheckBox::indicator:checked {
-	background-color:#888;
-}</string>
+         <string notr="true">QCheckBox::indicator {background-color:#FFF;width:20px;height:20px;}QCheckBox::indicator:checked {background-color:#888;}</string>
         </property>
         <property name="text">
          <string/>
@@ -209,41 +207,52 @@ QCheckBox::indicator:checked {
      </layout>
     </item>
     <item>
-     <widget class="QLabel" name="lbMode">
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-        <pointsize>10</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="spacing">
+       <number>5</number>
       </property>
-      <property name="text">
-       <string>触发模式</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QComboBox" name="cmbMode">
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-        <pointsize>10</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="focusPolicy">
-       <enum>Qt::ClickFocus</enum>
-      </property>
-      <property name="toolTip">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;长按：按下触发键将持续运行，松开停止&lt;/p&gt;&lt;p&gt;点击：点击触发将持续运行，再次点击取消&lt;/p&gt;&lt;p&gt;次数：点击触发键执行宏，直到宏执行完成指定的次数&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QComboBox {
+      <item>
+       <widget class="QLabel" name="lbMode">
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>触发模式</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="cmbMode">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;长按：按下触发键将持续运行，松开停止&lt;/p&gt;&lt;p&gt;点击：点击触发将持续运行，再次点击取消&lt;/p&gt;&lt;p&gt;次数：点击触发键执行宏，直到宏执行完成指定的次数&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QComboBox {
 	background-color:#FFF;
 	padding-left:3px;
-	border:1px solid #000;
+	border:none;
 } 
 QComboBox::drop-down {
 	background-color:#FFF;
@@ -252,87 +261,109 @@ QComboBox QAbstractItemView {
 	background-color:#FFF;
 	border:none;
 }</string>
-      </property>
-     </widget>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
-     <widget class="QLabel" name="lbTr">
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-        <pointsize>10</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="spacing">
+       <number>5</number>
       </property>
-      <property name="text">
-       <string>触发按键</string>
-      </property>
-     </widget>
+      <item>
+       <widget class="QLabel" name="lbTr">
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>触发按键</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QKeyEdit" name="hkTr" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>48</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color:white;</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
-     <widget class="QKeyEdit" name="hkTr" native="true">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>24</height>
-       </size>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <property name="spacing">
+       <number>5</number>
       </property>
-      <property name="styleSheet">
-       <string notr="true">background-color:#FFF; border:1px solid #000;</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLabel" name="lbCount">
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-        <pointsize>10</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>触发次数</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QLineEdit" name="etCount">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>24</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>微软雅黑</family>
-        <pointsize>9</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="focusPolicy">
-       <enum>Qt::ClickFocus</enum>
-      </property>
-      <property name="statusTip">
-       <string/>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background-color: #FFF; border:none;</string>
-      </property>
-      <property name="inputMask">
-       <string/>
-      </property>
-      <property name="dragEnabled">
-       <bool>false</bool>
-      </property>
-      <property name="placeholderText">
-       <string>0-1000</string>
-      </property>
-     </widget>
+      <item>
+       <widget class="QLabel" name="lbCount">
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>触发次数</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="etCount">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>9</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
+        </property>
+        <property name="statusTip">
+         <string/>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: #FFF; border:none;</string>
+        </property>
+        <property name="inputMask">
+         <string/>
+        </property>
+        <property name="dragEnabled">
+         <bool>false</bool>
+        </property>
+        <property name="placeholderText">
+         <string>0-1000</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <spacer name="verticalSpacer">

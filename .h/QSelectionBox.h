@@ -63,7 +63,7 @@ protected:
 
 	void mousePressEvent(QMouseEvent* et) { msBefore = et->pos(); GetCursorPos(&msBeforeRel); }
 
-	void mouseReleaseEvent(QMouseEvent* et) { releaseMouse(); close(); }
+	void mouseReleaseEvent(QMouseEvent* et) { mouseMoveEvent(et); releaseMouse(); close(); }
 
 	void mouseMoveEvent(QMouseEvent* et)
 	{

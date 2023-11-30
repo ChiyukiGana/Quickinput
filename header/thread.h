@@ -4,7 +4,9 @@
 #include <timeapi.h>
 #pragma comment(lib,"Winmm.lib")
 
+#ifndef sleep
 #define sleep(ms) ::Sleep(ms)
+#endif
 
 namespace CG {
 	class Thread {

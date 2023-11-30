@@ -30,30 +30,6 @@ public:
 		TbUpdate();
 	}
 
-	void TbUpdate()
-	{
-		ui.tbItem->clearMask();
-		ui.tbItem->setRowCount(scripts[0].len());
-		ui.tbItem->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-
-		for (uint32 u = 0; u < qis->scripts.len(); u++) {
-			ui.tbItem->setItem(u, 0, new QTableWidgetItem(QString::fromWCharArray(scripts[0][u].name.c_str())));
-			ui.tbItem->item(u, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-		}
-	}
-
-	void ResetControl()
-	{
-		ui.etName->setText("");
-		ui.tbItem->setCurrentItem(0);
-	}
-
-	void LockControl(bool state)
-	{
-		ui.etName->setDisabled(state);
-		ui.bnEdit->setDisabled(state);
-		ui.bnDel->setDisabled(state);
-	}
 
 private:
 
@@ -97,6 +73,32 @@ private:
 		connect(ui.bnAdd, SIGNAL(clicked()), this, SLOT(OnBnAdd()));
 		connect(ui.bnEdit, SIGNAL(clicked()), this, SLOT(OnBnEdit()));
 		connect(ui.bnDel, SIGNAL(clicked()), this, SLOT(OnBnDel()));
+	}
+
+	void ResetControl()
+	{
+		ui.etName->setText("");
+		ui.tbItem->setCurrentItem(0);
+	}
+
+	void LockControl(bool state)
+	{
+		ui.etName->setDisabled(state);
+		ui.bnEdit->setDisabled(state);
+		ui.bnDel->setDisabled(state);
+	}
+
+	void TbUpdate()
+	{
+		ui.tbItem->clearMask();
+		ui.tbItem->setRowCount(scripts[0].len());
+		ui.tbItem->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
+		ui.tbItem->verticalHeader()->setDefaultSectionSize(0);
+
+		for (uint32 u = 0; u < qis->scripts.len(); u++) {
+			ui.tbItem->setItem(u, 0, new QTableWidgetItem(QString::fromWCharArray(scripts[0][u].name.c_str())));
+			ui.tbItem->item(u, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		}
 	}
 
 private slots:

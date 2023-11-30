@@ -56,7 +56,7 @@
 QLabel:hover {color:#AA0000;}</string>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Release Date：2023-11-25&lt;/p&gt;&lt;p&gt;BiliBili：千雪加奈&lt;/p&gt;&lt;p&gt;QQ：314575508&lt;/p&gt;&lt;p&gt;chiyukigana-low@outlook.com&lt;/p&gt;&lt;p&gt;欢迎反馈问题喵ฅ⁠^千雪^ฅ&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Release Date：2023-11-30&lt;/p&gt;&lt;p&gt;bilibili：千雪加奈&lt;/p&gt;&lt;p&gt;QQ：314575508&lt;/p&gt;&lt;p&gt;chiyukigana-low@outlook.com&lt;/p&gt;&lt;p&gt;欢迎反馈问题喵ฅ⁠^千雪^ฅ&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>

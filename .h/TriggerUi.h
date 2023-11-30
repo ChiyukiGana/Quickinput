@@ -103,6 +103,7 @@ private:
 		ui.tbItem->clearMask();
 		ui.tbItem->setRowCount(scripts[0].len());
 		ui.tbItem->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
+		ui.tbItem->verticalHeader()->setDefaultSectionSize(0);
 
 		for (uint32 u = 0; u < qis->scripts.len(); u++) {
 			ui.tbItem->setItem(u, 0, new QTableWidgetItem(QString::fromWCharArray(scripts[0][u].name.c_str())));

@@ -50,13 +50,9 @@
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-     </layout>
-    </item>
+    <property name="spacing">
+     <number>20</number>
+    </property>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
@@ -79,40 +75,24 @@
       </item>
       <item>
        <widget class="QKeyEdit" name="hkSwitchKey" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>150</width>
           <height>24</height>
          </size>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>150</width>
-          <height>24</height>
-         </size>
-        </property>
         <property name="styleSheet">
-         <string notr="true">background-color:#FFF; border:1px solid #000;</string>
+         <string notr="true">background-color:#FFF;</string>
         </property>
        </widget>
       </item>
      </layout>
-    </item>
-    <item>
-     <widget class="Line" name="line_3">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>10</height>
-       </size>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">border:none;</string>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -161,15 +141,7 @@
          <enum>Qt::ClickFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">QCheckBox::indicator {
-	background-color:#FFF;
-	width:18;
-	height:18;
-	border:1px solid #000;
-}
-QCheckBox::indicator:checked {
-	background-color:#888;
-}</string>
+         <string notr="true">QCheckBox::indicator {background-color:#FFF;width:20px;height:20px;}QCheckBox::indicator:checked {background-color:#888;}</string>
         </property>
         <property name="text">
          <string/>
@@ -189,22 +161,6 @@ QCheckBox::indicator:checked {
        </widget>
       </item>
      </layout>
-    </item>
-    <item>
-     <widget class="Line" name="line">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>10</height>
-       </size>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">border:none;</string>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -253,15 +209,7 @@ QCheckBox::indicator:checked {
          <enum>Qt::ClickFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">QCheckBox::indicator {
-	background-color:#FFF;
-	width:18;
-	height:18;
-	border:1px solid #000;
-}
-QCheckBox::indicator:checked {
-	background-color:#888;
-}</string>
+         <string notr="true">QCheckBox::indicator {background-color:#FFF;width:20px;height:20px;}QCheckBox::indicator:checked {background-color:#888;}</string>
         </property>
         <property name="text">
          <string/>
@@ -281,22 +229,6 @@ QCheckBox::indicator:checked {
        </widget>
       </item>
      </layout>
-    </item>
-    <item>
-     <widget class="Line" name="line_2">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>10</height>
-       </size>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">border:none;</string>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -345,15 +277,7 @@ QCheckBox::indicator:checked {
          <enum>Qt::ClickFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">QCheckBox::indicator {
-	background-color:#FFF;
-	width:18;
-	height:18;
-	border:1px solid #000;
-}
-QCheckBox::indicator:checked {
-	background-color:#888;
-}</string>
+         <string notr="true">QCheckBox::indicator {background-color:#FFF;width:20px;height:20px;}QCheckBox::indicator:checked {background-color:#888;}</string>
         </property>
         <property name="text">
          <string/>
@@ -373,22 +297,6 @@ QCheckBox::indicator:checked {
        </widget>
       </item>
      </layout>
-    </item>
-    <item>
-     <widget class="Line" name="line_4">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>10</height>
-       </size>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">border:none;</string>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -437,15 +345,7 @@ QCheckBox::indicator:checked {
          <enum>Qt::ClickFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">QCheckBox::indicator {
-	background-color:#FFF;
-	width:18;
-	height:18;
-	border:1px solid #000;
-}
-QCheckBox::indicator:checked {
-	background-color:#888;
-}</string>
+         <string notr="true">QCheckBox::indicator {background-color:#FFF;width:20px;height:20px;}QCheckBox::indicator:checked {background-color:#888;}</string>
         </property>
         <property name="text">
          <string/>

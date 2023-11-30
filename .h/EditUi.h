@@ -131,14 +131,15 @@ private:
 		}
 		{
 			ui.lbEnd->setFont(UI::font1);
+			ui.lbEndLoop->setFont(UI::font1);
 			ui.bnEndAdd->setFont(UI::font1);
+			ui.bnEndLoopAdd->setFont(UI::font1);
 		}
 		{
 			ui.lbDelete->setFont(UI::font1);
 			ui.bnDel->setFont(UI::font1);
+			ui.bnDel->setText(UI::etDel);
 			ui.lbTips->setFont(UI::font1);
-			ui.lbTips2->setFont(UI::font1);
-			ui.lbTips3->setFont(UI::font1);
 		}
 	}
 
@@ -223,6 +224,7 @@ private:
 		connect(ui.bnColorRect, SIGNAL(clicked()), this, SLOT(OnBnColorRect()));
 		connect(ui.bnColorValue, SIGNAL(clicked()), this, SLOT(OnBnColorValue()));
 		connect(ui.bnEndAdd, SIGNAL(clicked()), this, SLOT(OnBnEndAdd()));
+		connect(ui.bnEndLoopAdd, SIGNAL(clicked()), this, SLOT(OnBnEndLoopAdd()));
 		connect(ui.rbPos, SIGNAL(toggled(bool)), this, SLOT(OnRbPos(bool)));
 		connect(ui.rbMove, SIGNAL(toggled(bool)), this, SLOT(OnRbMove(bool)));
 		connect(ui.rbColorGet, SIGNAL(toggled(bool)), this, SLOT(OnRbColor(bool)));
@@ -279,7 +281,9 @@ private:
 		int r = ui.etR->text().toInt();
 		int g = ui.etG->text().toInt();
 		int b = ui.etB->text().toInt();
-		int x = ui.etCX->text().toInt();
+		int x = 0;
+		if (ui.etCX->text() == "") x = 5;
+		else x = ui.etCX->text().toInt();
 		if (r > 255) r = 255;
 		if (g > 255) g = 255;
 		if (b > 255) b = 255;
@@ -364,6 +368,7 @@ private:
 			ui.bnTextAdd->setText(UI::etChange);
 			ui.bnColorAdd->setText(UI::etChange);
 			ui.bnEndAdd->setText(UI::etChange);
+			ui.bnEndLoopAdd->setText(UI::etChange);
 		}
 		else
 		{
@@ -374,6 +379,7 @@ private:
 			ui.bnTextAdd->setText(UI::etAdd);
 			ui.bnColorAdd->setText(UI::etAdd);
 			ui.bnEndAdd->setText(UI::etAdd);
+			ui.bnEndLoopAdd->setText(UI::etAdd);
 		}
 	}
 
@@ -382,13 +388,16 @@ private:
 		ui.tbItem->clearMask();
 		ui.tbItem->setRowCount(items[0].len());
 		ui.tbItem->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-		ui.tbItem->verticalHeader()->setDefaultSectionSize(22);
+		ui.tbItem->verticalHeader()->setDefaultSectionSize(0);
 
 		for (uint32 u = 0; u < items[0].len(); u++)
 		{
 			QString ps;
 			switch (items[0][u].type)
 			{
+			case -2:
+				ui.tbItem->setItem(u, 0, new QTableWidgetItem(UI::qiEndLoop));
+				break;
 			case -1:
 				ui.tbItem->setItem(u, 0, new QTableWidgetItem(UI::qiEnd));
 				break;
@@ -413,7 +422,7 @@ private:
 			case 4:
 				ui.tbItem->setItem(u, 0, new QTableWidgetItem(UI::qiMoveTo));
 				ps = QString::number(items[0][u].b);
-				ps += "ㅤㅤ";
+				ps += " - ";
 				ps += QString::number(items[0][u].c);
 				ps += "ㅤㅤ";
 				ps += QString::number(items[0][u].a);
@@ -428,14 +437,15 @@ private:
 				break;
 			case 6:
 				ui.tbItem->setItem(u, 0, new QTableWidgetItem(UI::qiText));
-				ps = QString::fromWCharArray(items[0][u].text.c_str());
+				ps = QString::fromWCharArray(items[0][u].text.substr(0, 32).c_str());
+				if (items[0][u].text.length() > 31) ps += "...";
 				break;
 			case 7:
 			{
 				ui.tbItem->setItem(u, 0, new QTableWidgetItem(UI::qiColor));
 				QColor color;
 				color.setRgba(items[0][u].a);
-				ps = "RECT(";
+				ps = "(";
 				ps += QString::number(HIWORD(items[0][u].b));
 				ps += ",";
 				ps += QString::number(LOWORD(items[0][u].b));
@@ -443,20 +453,22 @@ private:
 				ps += QString::number(HIWORD(items[0][u].c));
 				ps += ",";
 				ps += QString::number(LOWORD(items[0][u].c));
-				ps += ")";
-				ps += "RGB(";
+				ps += ")　(";
 				ps += QString::number(color.red());
 				ps += ",";
 				ps += QString::number(color.green());
 				ps += ",";
 				ps += QString::number(color.blue());
-				ps += ")";
+				ps += ",";
 				ps += QString::number(color.alpha());
+				if (items[0][u].text == L"N") ps += ")　未找到";
+				else ps += ")　找到";
 				break;
 			}
 			case 8:
 				ui.tbItem->setItem(u, 0, new QTableWidgetItem(UI::qiLoop));
-				ps = QString::number(items[0][u].b);
+				if (items[0][u].b == -1) ps = "无限";
+				else ps = QString::number(items[0][u].b);
 				break;
 			}
 			ui.tbItem->setItem(u, 1, new QTableWidgetItem(ps));
@@ -475,6 +487,9 @@ private:
 
 		switch (type)
 		{
+		case -2:
+			item.type = -2;
+			break;
 		case -1:
 			item.type = -1;
 			break;
@@ -528,6 +543,9 @@ private:
 
 		switch (type)
 		{
+		case -2:
+			items[0][pos].type = -2;
+			break;
 		case -1:
 			items[0][pos].type = -1;
 			break;
@@ -814,6 +832,12 @@ private slots:
 	{
 		if (changing) ChangeItem(-1);
 		else AddItem(-1);
+	}
+
+	void OnBnEndLoopAdd()
+	{
+		if (changing) ChangeItem(-2);
+		else AddItem(-2);
 	}
 
 	void OnRbPos(bool state)

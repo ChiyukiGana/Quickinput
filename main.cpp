@@ -21,6 +21,7 @@ QString UI::qiLoop;
 QString UI::qiText;
 QString UI::qiColor;
 QString UI::qiEnd;
+QString UI::qiEndLoop;
 std::wstring UI::qiOn;
 std::wstring UI::qiOff;
 QString UI::trOn;
@@ -83,7 +84,8 @@ void InitUI(bool zoom)
 			UI::qiText = u8"复制文本🅰";
 			UI::qiLoop = u8"循环♾️";
 			UI::qiColor = u8"查找颜色🌈";
-			UI::qiEnd = u8"结束🛑";
+			UI::qiEnd = u8"结束宏🛑";
+			UI::qiEndLoop = u8"结束循环🛑";
 			UI::trOn = u8"启用✅";
 			UI::trOff = u8"禁用⛔";
 			UI::etFunc = u8"功能⚙";
@@ -109,7 +111,8 @@ void InitUI(bool zoom)
 			UI::qiText = u8"复制文本";
 			UI::qiLoop = u8"循环↩";
 			UI::qiColor = u8"查找颜色☀";
-			UI::qiEnd = u8"结束Ⓢ";
+			UI::qiEnd = u8"结束宏Ⓢ";
+			UI::qiEndLoop = u8"结束循环Ⓢ";
 			UI::trOn = u8"启用✔";
 			UI::trOff = u8"禁用✘";
 			UI::etFunc = u8"功能✱";
@@ -125,14 +128,15 @@ void InitUI(bool zoom)
 	}
 }
 
-bool ExcItem(Item* it)
+uint8 ExcItem(Item* it)
 {
 	if (!qis.state) return 1;
 	switch (it->type)
 	{
+	case -2:
+		return 2;
 	case -1:
 		return 1;
-		break;
 	case 0:
 	{
 		if (it->c)
@@ -208,18 +212,24 @@ bool ExcItem(Item* it)
 		{
 			if (!result) break;
 		}
-		for (UINT u = 0; u < it->next.len(); u++) if (ExcItem(&it->next[u])) return 1;
+		for (uint32 u = 0; u < it->next.len(); u++)
+		{
+			uint8 r = ExcItem(&it->next[u]);
+			if (r) return r;
+		}
 		break;
 	}
 	case 8:
 	{
 		if (it->b > -1)
 		{
-			for (int32 i = 0; i < it->b; i++)
+			for (uint32 i = 0; i < it->b; i++)
 			{
-				for (UINT ix = 0; ix < it->next.len(); ix++)
+				for (uint32 ix = 0; ix < it->next.len(); ix++)
 				{
-					if (ExcItem(&it->next[ix])) return 1;
+					uint8 r = ExcItem(&it->next[ix]);
+					if (r == 1) return 1;
+					else if (r == 2) return 0;
 				}
 			}
 		}
@@ -227,9 +237,11 @@ bool ExcItem(Item* it)
 		{
 			while (1)
 			{
-				for (int32 ix = 0; ix < it->next.len(); ix++)
+				for (uint32 ix = 0; ix < it->next.len(); ix++)
 				{
-					if (ExcItem(&it->next[ix])) return 1;
+					uint8 r = ExcItem(&it->next[ix]);
+					if (r == 1) return 1;
+					else if (r == 2) return 0;
 				}
 			}
 		}
@@ -242,14 +254,18 @@ bool ExcItem(Item* it)
 DWORD CALLBACK ThreadQuickClick(LPVOID)
 {
 	srand(clock());
+	uint32 b = 0;
+	uint32 e = 0;
+	if (qis.fun.quickClick.delay > 99) b = 50, e = qis.fun.quickClick.delay - 50;
+	else if (qis.fun.quickClick.delay > 1) b = qis.fun.quickClick.delay / 2, e = b;
+	else e = qis.fun.quickClick.delay;
+
 	while (qis.state)
 	{
-
 		Input::State(qis.fun.quickClick.key, 1, 214);
-		if (qis.fun.quickClick.delay > 1) Thread::Sleep(qis.fun.quickClick.delay * 0.5);
+		Thread::Sleep(b);
 		Input::State(qis.fun.quickClick.key, 0, 214);
-		if (qis.fun.quickClick.delay > 1) Thread::Sleep(qis.fun.quickClick.delay * 0.5);
-		else Thread::Sleep(qis.fun.quickClick.delay);
+		Thread::Sleep(e);
 	}
 	return 0;
 }
@@ -554,7 +570,7 @@ void SetHookState(bool state)
 
 int main(int argc, char* argv[])
 {
-	if (Process::isRunning(File::PathToUrl(Process::runPath().c_str())))
+	if (Process::isRunning(File::PathToUrl(Process::runPath()).c_str()))
 	{
 		MsgBox::Warning(L"当文件夹的程序已经运行，若运行更多程序请复制此文件夹", L"提示");
 		exit(0);

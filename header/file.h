@@ -67,7 +67,7 @@ namespace CG {
 
 		static LPCWSTR PathChange(LPCWSTR absPath, LPCWSTR relPath) {
 			WCHAR path[MAX_PATH];
-			if (String::Compare(relPath, L"..")) swprintf_s(path, MAX_PATH, L"%s", PathLast(absPath));
+			if (String::Compare(relPath, L"..")) swprintf_s(path, MAX_PATH, L"%s", PathLast(absPath).c_str());
 			else {
 				swprintf_s(path, MAX_PATH, L"%s%s", absPath, relPath);
 			}
@@ -103,10 +103,10 @@ namespace CG {
 			return result;
 		}
 
-		static LPCWSTR PathToUrl(LPCWSTR path)
+		static std::wstring PathToUrl(std::wstring path)
 		{
 			WCHAR str[MAX_PATH];
-			wcscpy_s(str, path);
+			wcscpy_s(str, path.c_str());
 
 			for (UINT u = 0; u < MAX_PATH; u++)
 			{
@@ -123,10 +123,10 @@ namespace CG {
 			return str;
 		}
 
-		static LPCWSTR UrlToPath(LPCWSTR url)
+		static std::wstring UrlToPath(std::wstring url)
 		{
 			WCHAR str[MAX_PATH];
-			wcscpy_s(str, url);
+			wcscpy_s(str, url.c_str());
 
 			for (UINT u = 0; u < MAX_PATH; u++)
 			{

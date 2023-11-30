@@ -2,9 +2,15 @@
 
 #include <windows.h>
 
+#ifndef sleep
 #define sleep(ms) Sleep(ms)
+#endif
+#ifndef VK_WHEELUP
 #define VK_WHEELUP 0x0A
+#endif
+#ifndef VK_WHEELDOWN
 #define VK_WHEELDOWN 0x0B
+#endif
 
 namespace CG {
 	class Input

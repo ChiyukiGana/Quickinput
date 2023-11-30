@@ -1,7 +1,7 @@
 ﻿#pragma once
 #pragma execution_character_set("utf-8")
 #include <QString>
-#include "../header/cg.h"
+#include "X:/#Lib/C++/cg.h"
 #include "CJsonObject.h"
 #include "TipsWindow.h"
 
@@ -22,6 +22,7 @@ struct UI {
 	static QString qiText;
 	static QString qiColor;
 	static QString qiEnd;
+	static QString qiEndLoop;
 	static QString trOn;
 	static QString trOff;
 	static QString etChange;
@@ -37,7 +38,7 @@ struct UI {
 
 struct Item
 {
-	int type = 0; // 0: delay, 1: down, 2: up, 3: click, 4: moveTo, 5: move, 6: text, 7: color
+	int type = 0; //-2: endLoop, -1: end 0: delay, 1: down, 2: up, 3: click, 4: moveTo, 5: move, 6: text, 7: color
 	int a = 0;
 	int b = 0;
 	int c = 0;

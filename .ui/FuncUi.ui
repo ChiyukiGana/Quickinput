@@ -62,6 +62,9 @@
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>20</number>
+    </property>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
@@ -111,15 +114,7 @@
          <string/>
         </property>
         <property name="styleSheet">
-         <string notr="true">QCheckBox::indicator {
-	background-color:#FFF;
-	width:18;
-	height:18;
-	border:1px solid #000;
-}
-QCheckBox::indicator:checked {
-	background-color:#888;
-}</string>
+         <string notr="true">QCheckBox::indicator {background-color:#FFF;width:20px;height:20px;}QCheckBox::indicator:checked {background-color:#888;}</string>
         </property>
         <property name="text">
          <string/>
@@ -186,7 +181,7 @@ QCheckBox::indicator:checked {
          <enum>Qt::ClickFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color: #FFF; border:1px solid #000;</string>
+         <string notr="true">background-color: #FFF; border:none;</string>
         </property>
         <property name="text">
          <string/>
@@ -258,7 +253,7 @@ QCheckBox::indicator:checked {
          <string notr="true">QComboBox {
 	background-color:#FFF;
 	padding-left:3px;
-	border:1px solid #000;
+	border:none;
 } 
 QComboBox::drop-down {
 	background-color:#FFF;
@@ -296,9 +291,15 @@ QComboBox QAbstractItemView {
       </item>
       <item>
        <widget class="QKeyEdit" name="hkQkClick" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
-          <width>80</width>
+          <width>48</width>
           <height>24</height>
          </size>
         </property>
@@ -312,7 +313,7 @@ QComboBox QAbstractItemView {
          <string>点击后再按下鼠标或键盘</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color:#FFF; border:1px solid #000;</string>
+         <string notr="true">background-color:#FFF;</string>
         </property>
        </widget>
       </item>
@@ -330,22 +331,6 @@ QComboBox QAbstractItemView {
        </spacer>
       </item>
      </layout>
-    </item>
-    <item>
-     <widget class="Line" name="line_2">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>10</height>
-       </size>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">border:none;</string>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_5">
@@ -390,15 +375,7 @@ QComboBox QAbstractItemView {
          <string/>
         </property>
         <property name="styleSheet">
-         <string notr="true">QCheckBox::indicator {
-	background-color:#FFF;
-	width:18;
-	height:18;
-	border:1px solid #000;
-}
-QCheckBox::indicator:checked {
-	background-color:#888;
-}</string>
+         <string notr="true">QCheckBox::indicator {background-color:#FFF;width:20px;height:20px;}QCheckBox::indicator:checked {background-color:#888;}</string>
         </property>
         <property name="text">
          <string/>
@@ -459,7 +436,7 @@ QCheckBox::indicator:checked {
          <enum>Qt::ClickFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color: #FFF; border:1px solid #000;</string>
+         <string notr="true">background-color: #FFF; border:none;</string>
         </property>
         <property name="text">
          <string/>
@@ -525,7 +502,7 @@ QCheckBox::indicator:checked {
          <enum>Qt::ClickFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color:#FFF; border:1px solid #000;</string>
+         <string notr="true">background-color:#FFF; border:none;</string>
         </property>
         <property name="text">
          <string>+</string>
@@ -546,22 +523,6 @@ QCheckBox::indicator:checked {
        </spacer>
       </item>
      </layout>
-    </item>
-    <item>
-     <widget class="Line" name="line_3">
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>10</height>
-       </size>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">border:none;</string>
-      </property>
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
-      </property>
-     </widget>
     </item>
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -612,15 +573,7 @@ QCheckBox::indicator:checked {
          <string/>
         </property>
         <property name="styleSheet">
-         <string notr="true">QCheckBox::indicator {
-	background-color:#FFF;
-	width:18;
-	height:18;
-	border:1px solid #000;
-}
-QCheckBox::indicator:checked {
-	background-color:#888;
-}</string>
+         <string notr="true">QCheckBox::indicator {background-color:#FFF;width:20px;height:20px;}QCheckBox::indicator:checked {background-color:#888;}</string>
         </property>
         <property name="text">
          <string/>
@@ -665,9 +618,15 @@ QCheckBox::indicator:checked {
       </item>
       <item>
        <widget class="QKeyEdit" name="hkClock" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
-          <width>80</width>
+          <width>48</width>
           <height>24</height>
          </size>
         </property>
@@ -681,7 +640,7 @@ QCheckBox::indicator:checked {
          <string>点击后再按下鼠标或键盘</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color:#FFF; border:1px solid #000;</string>
+         <string notr="true">background-color:#FFF;</string>
         </property>
        </widget>
       </item>
