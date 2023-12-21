@@ -14,13 +14,10 @@ public:
 		this->qis = qis;
 
 		ui.setupUi(this);
-		setParent(parent);
 		setWindowFlags(Qt::FramelessWindowHint);
-		move(0, 40);
 
 		ControlInit();
 		ControlEvent();
-		FontResize();
 	}
 
 private:
@@ -28,35 +25,27 @@ private:
 	Ui::SettingsUiClass ui;
 
 	QuickInputStruct* qis;
-	CG::Task task;
-
-	void FontResize()
-	{
-		ui.lbSettings->setFont(UI::font3);
-		ui.lbSwitchKey->setFont(UI::font2);
-		ui.lbShowTips->setFont(UI::font2);
-		ui.lbMinMode->setFont(UI::font2);
-		ui.lbStart->setFont(UI::font2);
-		ui.lbZoom->setFont(UI::font2);
-		ui.hkSwitchKey->setFont(UI::font1);
-	}
 
 	void ControlInit()
 	{
-		ui.hkSwitchKey->Mode(2);
-		ui.hkSwitchKey->VirtualKey(qis->set.key);
-		ui.hkSwitchKey->VirtualKey(qis->set.key & 0xFFFF, qis->set.key >> 16);
+		ui.hkKey->Mode(2);
+		ui.hkRec->Mode(0);
+		ui.hkKey->VirtualKey(qis->set.key & 0xFFFF, qis->set.key >> 16);
+		ui.hkRec->VirtualKey(qis->set.recKey);
 
 		ui.chbShowTips->setChecked(qis->set.showTips);
+		ui.chbAudFx->setChecked(qis->set.audFx);
 		ui.chbMinMode->setChecked(qis->set.minMode);
-		ui.chbStart->setChecked(task.Find(L"QuickInput"));
+		ui.chbStart->setChecked(Task::Find(L"QuickInput").result);
 		ui.chbZoom->setChecked(qis->set.wndZoom);
 	}
 
 	void ControlEvent()
 	{
-		connect(ui.hkSwitchKey, SIGNAL(changed()), this, SLOT(OnHkChanged()));
+		connect(ui.hkKey, SIGNAL(changed()), this, SLOT(OnHkKey()));
+		connect(ui.hkRec, SIGNAL(changed()), this, SLOT(OnHkRec()));
 		connect(ui.chbShowTips, SIGNAL(clicked()), this, SLOT(OnShowTips()));
+		connect(ui.chbAudFx, SIGNAL(clicked()), this, SLOT(OnAud()));
 		connect(ui.chbMinMode, SIGNAL(clicked()), this, SLOT(OnMinMode()));
 		connect(ui.chbStart, SIGNAL(clicked()), this, SLOT(OnStart()));
 		connect(ui.chbZoom, SIGNAL(clicked()), this, SLOT(OnZoom()));
@@ -64,9 +53,21 @@ private:
 
 private slots:
 
-	void OnHkChanged()
+	void OnHkKey()
 	{
-		qis->set.key = ui.hkSwitchKey->virtualKey();
+		qis->set.key = ui.hkKey->virtualKey();
+		SaveJson(qis);
+	}
+
+	void OnHkRec()
+	{
+		qis->set.recKey = ui.hkRec->virtualKey();
+		SaveJson(qis);
+	}
+
+	void OnAud()
+	{
+		qis->set.audFx = ui.chbAudFx->isChecked();
 		SaveJson(qis);
 	}
 
@@ -84,21 +85,22 @@ private slots:
 
 	void OnStart()
 	{
-		if (task.Find(L"QuickInput"))
+		if (Task::Find(L"QuickInput").result)
 		{
-			if (!task.Delete(L"QuickInput"))
+			Task::TaskStruct ts = Task::Delete(L"QuickInput");
+			if (!ts.result)
 			{
-				MsgBox::Error(task.getLog().c_str(), L"错误");
+				MsgBox::Error(ts.log.c_str(), L"错误");
 			}
 		}
 		else
 		{
-			if (!task.Register(L"QuickInput"))
+			Task::TaskStruct ts = Task::Register(L"QuickInput");
+			if (!ts.result)
 			{
-				MsgBox::Error(task.getLog().c_str(), L"错误");
+				MsgBox::Error(ts.log.c_str(), L"错误");
 			}
 		}
-		task.Emplog();
 	}
 
 	void OnZoom()

@@ -2,21 +2,16 @@
 #include <qtextcodec.h>
 #include ".h/MainUi.h"
 #include ".h/TipsWindow.h"
-#include ".h/CJsonObject.cpp"
 #include ".h/QuickInputDef.h"
 
 QuickInputStruct qis;
 
-QFont UI::font1;
-QFont UI::font2;
-QFont UI::font3;
-QFont UI::font4;
 QString UI::qiWait;
 QString UI::qiDown;
 QString UI::qiUp;
 QString UI::qiClick;
+QString UI::qiPos;
 QString UI::qiMove;
-QString UI::qiMoveTo;
 QString UI::qiLoop;
 QString UI::qiText;
 QString UI::qiColor;
@@ -54,24 +49,7 @@ void InitUI(bool zoom)
 	}
 
 	{
-		UI::font1.setFamily("Microsoft YaHei");
-		UI::font2.setFamily("Microsoft YaHei");
-		UI::font3.setFamily("Microsoft YaHei");
-		UI::font4.setFamily("Microsoft YaHei");
-
-		UI::font1.setBold(1);
-		UI::font2.setBold(1);
-		UI::font3.setBold(1);
-		UI::font4.setBold(1);
-
-		UI::font1.setPixelSize(12);
-		UI::font2.setPixelSize(14);
-		UI::font3.setPixelSize(16);
-		UI::font4.setPixelSize(20);
-	}
-
-	{
-		if (System::Version().dwMajorVersion == 10)
+		if (System::Version().dwMajorVersion >= 10)
 		{
 			UI::qiOn = L"已启用✅";
 			UI::qiOff = L"已禁用⛔";
@@ -80,7 +58,7 @@ void InitUI(bool zoom)
 			UI::qiUp = u8"松开⬆";
 			UI::qiClick = u8"点击🔃";
 			UI::qiMove = u8"移动🔜";
-			UI::qiMoveTo = u8"位置🔝";
+			UI::qiPos = u8"位置🔝";
 			UI::qiText = u8"复制文本🅰";
 			UI::qiLoop = u8"循环♾️";
 			UI::qiColor = u8"查找颜色🌈";
@@ -107,7 +85,7 @@ void InitUI(bool zoom)
 			UI::qiUp = u8"松开↑";
 			UI::qiClick = u8"点击◈";
 			UI::qiMove = u8"移动↘";
-			UI::qiMoveTo = u8"位置↗";
+			UI::qiPos = u8"位置↗";
 			UI::qiText = u8"复制文本";
 			UI::qiLoop = u8"循环↩";
 			UI::qiColor = u8"查找颜色☀";
@@ -119,7 +97,7 @@ void InitUI(bool zoom)
 			UI::etParam = u8"参数※";
 			UI::etAdd = u8"添加✔";
 			UI::etDel = u8"删除✘";
-			UI::etChange = u8"修改◉";
+			UI::etChange = u8"修改◈";
 			UI::etEdit = u8"编辑▲";
 			UI::rcStart = u8"开始✔";
 			UI::rcStop = u8"停止✔";
@@ -133,12 +111,11 @@ uint8 ExcItem(Item* it)
 	if (!qis.state) return 1;
 	switch (it->type)
 	{
-	case -2:
+	case Item::endLoop:
 		return 2;
-	case -1:
+	case Item::end:
 		return 1;
-	case 0:
-	{
+	case Item::delay:
 		if (it->c)
 		{
 			int ms;
@@ -149,21 +126,20 @@ uint8 ExcItem(Item* it)
 		else {
 			Thread::Sleep(it->b);
 		}
-	}
-	break;
-	case 1:
+		break;
+	case Item::down:
 		Input::State(it->a, 1, 214);
 		break;
-	case 2:
+	case Item::up:
 		Input::State(it->a, 0, 214);
 		break;
-	case 3:
+	case Item::click:
 		Input::State(it->a, 1, 214);
 		sleep(10);
 		Input::State(it->a, 0, 214);
 		sleep(10);
 		break;
-	case 4:
+	case Item::pos:
 		sleep(10);
 		if (it->a)
 		{
@@ -177,7 +153,7 @@ uint8 ExcItem(Item* it)
 		}
 		sleep(10);
 		break;
-	case 5:
+	case Item::move:
 		if (it->a)
 		{
 			POINT pt;
@@ -189,10 +165,10 @@ uint8 ExcItem(Item* it)
 			Input::Move(it->b, it->c);
 		}
 		break;
-	case 6:
-		System::ClipBoardText(it->text.c_str());
+	case Item::text:
+		System::ClipBoardText(it->s.c_str());
 		break;
-	case 7:
+	case Item::color:
 	{
 		QColor color;
 		color.setRgba(QRgb(it->a));
@@ -204,13 +180,13 @@ uint8 ExcItem(Item* it)
 		rect.right = pos.x, rect.bottom = pos.y;
 
 		bool result = Color::FindOr(qis.hdc, rect, RGB(color.red(), color.green(), color.blue()), color.alpha()).x;
-		if (it->text == L"N")
+		if (it->d)
 		{
-			if (result) break;
+			if (!result) break;
 		}
 		else
 		{
-			if (!result) break;
+			if (result) break;
 		}
 		for (uint32 u = 0; u < it->next.len(); u++)
 		{
@@ -219,9 +195,9 @@ uint8 ExcItem(Item* it)
 		}
 		break;
 	}
-	case 8:
+	case Item::loop:
 	{
-		if (it->b > -1)
+		if (it->b)
 		{
 			for (uint32 i = 0; i < it->b; i++)
 			{
@@ -269,13 +245,20 @@ DWORD CALLBACK ThreadQuickClick(LPVOID)
 	}
 	return 0;
 }
-DWORD CALLBACK ThreadLoopSwitch(LPVOID lParam)
+DWORD CALLBACK ThreadMacro(LPVOID lParam)
 {
 	srand(clock());
-	UINT pos = (UINT)lParam;
+	uint32 pos = (UINT)lParam;
+	uint32 count = qis.scripts[pos].a;
+	uint32 n = 0;
 	while (qis.state)
 	{
-		for (UINT n = 0; n < qis.scripts[pos].items.len() && qis.state; n++)
+		if (count)
+		{
+			n++;
+			if (n > count) break;
+		}
+		for (uint32 n = 0; n < qis.scripts[pos].items.len() && qis.state; n++)
 		{
 			if (ExcItem(&qis.scripts[pos].items[n]))
 			{
@@ -287,28 +270,8 @@ DWORD CALLBACK ThreadLoopSwitch(LPVOID lParam)
 	qis.scripts[pos].thread = 0;
 	return 0;
 }
-DWORD CALLBACK ThreadCount(LPVOID lParam)
-{
-	srand(clock());
-	UINT pos = (UINT)lParam;
-	UINT count = qis.scripts[pos].mode >> 16;
-	for (UINT u = 0; u < count; u++)
-	{
-		for (UINT ux = 0; ux < qis.scripts[pos].items.len() && qis.state; ux++)
-		{
-			if (ExcItem(&qis.scripts[pos].items[ux]))
-			{
-				qis.scripts[pos].thread = 0;
-				return 0;
-			}
-		}
-	}
-	qis.scripts[pos].thread = 0;
-	return 0;
-}
 DWORD CALLBACK ThreadRelease(LPVOID key)
 {
-	srand(clock());
 	Input::State((BYTE)key, 0, 214);
 	return 0;
 }
@@ -346,10 +309,12 @@ DWORD CALLBACK ThreadWndActive(LPVOID lParam)
 	return 0;
 }
 
+byte block = 0;
+
 void SwitchKey(BYTE vk, bool state)
 {
 	if ((qis.set.key & 0xFFFF) == vk) qis.set.k1 = state;
-	if ((qis.set.key >> 16) == 0) qis.set.k2 = 1;
+	if (!(qis.set.key >> 16)) qis.set.k2 = 1;
 	else if ((qis.set.key >> 16) == vk) qis.set.k2 = state;
 
 	if (qis.set.k1 && qis.set.k2)
@@ -358,6 +323,8 @@ void SwitchKey(BYTE vk, bool state)
 		{
 			qis.state = 0;
 			TipsWindow::Popup(UI::qiOff, RGB(0xFF, 0x50, 0x50));
+
+			if (qis.set.audFx)Media::WavePlay(audfx.off);
 		}
 		else
 		{
@@ -369,6 +336,8 @@ void SwitchKey(BYTE vk, bool state)
 			else qis.fun.wndActive.active = 1;
 
 			TipsWindow::Popup(UI::qiOn);
+
+			if (qis.set.audFx)Media::WavePlay(audfx.on);
 		}
 		qis.set.k1 = 0, qis.set.k2 = 0;
 	}
@@ -376,10 +345,12 @@ void SwitchKey(BYTE vk, bool state)
 
 void TriggerKey(BYTE vk, bool state)
 {
+	std::wstring text;
+
 	if (qis.fun.showClock.state && qis.fun.showClock.key == vk)
 	{
 		System::TimeStruct ts = System::Time();
-		std::wstring text = String::toWString(ts.hour) + L" : " + String::toWString(ts.min) + L" - " + String::toWString(ts.sec);
+		text = String::toWString(ts.hour) + L" : " + String::toWString(ts.min) + L" - " + String::toWString(ts.sec);
 		TipsWindow::Popup(text);
 	}
 
@@ -388,7 +359,6 @@ void TriggerKey(BYTE vk, bool state)
 
 	if (qis.fun.quickClick.state && qis.fun.quickClick.key == vk)
 	{
-		// 点击模式
 		if (qis.fun.quickClick.mode)
 		{
 			if (!state)
@@ -434,61 +404,21 @@ void TriggerKey(BYTE vk, bool state)
 	{
 		if (qis.scripts[n].state)
 		{
-			if ((qis.scripts[n].key & 0xFFFF) == vk)
-			{
-				qis.scripts[n].k1 = state;
-			}
+			if ((qis.scripts[n].key & 0xFFFF) == vk) qis.scripts[n].k1 = state, qis.scripts[n].block ? block = vk : 0;
+			if ((qis.scripts[n].key >> 16) == 0) qis.scripts[n].k2 = 1;
+			else if ((qis.scripts[n].key >> 16) == vk) qis.scripts[n].k2 = state, qis.scripts[n].block ? block = vk : 0;
 
-			if ((qis.scripts[n].key >> 16) == 0)
-			{
-				qis.scripts[n].k2 = 1;
-			}
-			else if ((qis.scripts[n].key >> 16) == vk)
-			{
-				qis.scripts[n].k2 = state;
-			}
-
-			// Loop
-			if (qis.scripts[n].mode == 0)
+			if (qis.scripts[n].mode == Script::sw)
 			{
 				if (qis.scripts[n].k1 && qis.scripts[n].k2)
 				{
 					if (!qis.scripts[n].thread)
 					{
-						qis.scripts[n].thread = Thread::Start(ThreadLoopSwitch, (LPVOID)n);
+						qis.scripts[n].thread = Thread::Start(ThreadMacro, (LPVOID)n);
 						if (qis.set.showTips)
 						{
-							std::wstring str = qis.scripts[n].name + L"ㅤ执行中";
-							TipsWindow::Popup(str, RGB(0xFF, 0xFF, 0x60));
-						}
-					}
-				}
-				else
-				{
-					if (qis.scripts[n].thread)
-					{
-						TerminateThread(qis.scripts[n].thread, 0);
-						qis.scripts[n].thread = 0;
-						if (qis.set.showTips)
-						{
-							std::wstring str = qis.scripts[n].name + L"ㅤ结束";
-							TipsWindow::Popup(str, RGB(0xFF, 0xAA, 0xFF));
-						}
-					}
-				}
-			}
-			// Switch
-			else if (qis.scripts[n].mode == 1)
-			{
-				if (qis.scripts[n].k1 && qis.scripts[n].k2)
-				{
-					if (!qis.scripts[n].thread)
-					{
-						qis.scripts[n].thread = Thread::Start(ThreadLoopSwitch, (LPVOID)n);
-						if (qis.set.showTips)
-						{
-							std::wstring str = qis.scripts[n].name + L"ㅤ开始";
-							TipsWindow::Popup(str);
+							text = qis.scripts[n].name + L"ㅤ开始";
+							TipsWindow::Popup(text, RGB(0xFF, 0xAA, 0xFF));
 						}
 					}
 					else
@@ -497,24 +427,68 @@ void TriggerKey(BYTE vk, bool state)
 						qis.scripts[n].thread = 0;
 						if (qis.set.showTips)
 						{
-							std::wstring str = qis.scripts[n].name + L"ㅤ结束";
-							TipsWindow::Popup(str, RGB(0xFF, 0xAA, 0xFF));
+							text = qis.scripts[n].name + L"ㅤ结束";
+							TipsWindow::Popup(text, RGB(0xFF, 0xAA, 0x00));
 						}
 					}
 				}
 			}
-			// Count
-			else if ((qis.scripts[n].mode & 0xFFFF) == 2)
+			else if (qis.scripts[n].mode == Script::down)
 			{
 				if (qis.scripts[n].k1 && qis.scripts[n].k2)
 				{
 					if (!qis.scripts[n].thread)
 					{
-						qis.scripts[n].thread = Thread::Start(ThreadCount, (LPVOID)n);
+						qis.scripts[n].thread = Thread::Start(ThreadMacro, (LPVOID)n);
 						if (qis.set.showTips)
 						{
-							std::wstring str = qis.scripts[n].name + L"ㅤ执行";
-							TipsWindow::Popup(str, RGB(0xFF, 0xFF, 0xFF));
+							if (qis.scripts[n].a) text = qis.scripts[n].name + L"ㅤ" + String::toWString(qis.scripts[n].a) + L"次";
+							else text = qis.scripts[n].name + L"ㅤ循环";
+							TipsWindow::Popup(text, RGB(0x40, 0x60, 0xFF));
+						}
+					}
+				}
+				else
+				{
+					if (qis.scripts[n].thread && qis.scripts[n].a == 0)
+					{
+						TerminateThread(qis.scripts[n].thread, 0);
+						qis.scripts[n].thread = 0;
+						if (qis.set.showTips)
+						{
+							text = qis.scripts[n].name + L"ㅤ结束";
+							TipsWindow::Popup(text, RGB(0xFF, 0xAA, 0x00));
+						}
+					}
+				}
+			}
+			else if (qis.scripts[n].mode == Script::up)
+			{
+				if (qis.scripts[n].k1 && qis.scripts[n].k2)
+				{
+					qis.scripts[n].active = 1;
+					if (qis.scripts[n].thread && qis.scripts[n].a == 0)
+					{
+						TerminateThread(qis.scripts[n].thread, 0);
+						qis.scripts[n].thread = 0;
+						if (qis.set.showTips)
+						{
+							text = qis.scripts[n].name + L"ㅤ结束";
+							TipsWindow::Popup(text, RGB(0xFF, 0xAA, 0x00));
+						}
+					}
+				}
+				else if (qis.scripts[n].active)
+				{
+					qis.scripts[n].active = 0;
+					if (!qis.scripts[n].thread)
+					{
+						qis.scripts[n].thread = Thread::Start(ThreadMacro, (LPVOID)n);
+						if (qis.set.showTips)
+						{
+							if (qis.scripts[n].a) text = qis.scripts[n].name + L"ㅤ" + String::toWString(qis.scripts[n].a) + L"次";
+							else text = qis.scripts[n].name + L"ㅤ循环";
+							TipsWindow::Popup(text, RGB(0x40, 0xFF, 0x60));
 						}
 					}
 				}
@@ -522,8 +496,6 @@ void TriggerKey(BYTE vk, bool state)
 		}
 	}
 }
-
-bool keyst[255] = { 0 };
 
 InputHookProc()
 {
@@ -532,31 +504,37 @@ InputHookProc()
 		*exInfo = 0;
 		return 0;
 	}
-	else
+	else if (vk)
 	{
-		if (vk)
+		block = 0;
+		
+		if (state)
 		{
-			if (!keyst[vk])
+			if (qis.rec)
 			{
-				if (qis.rec) ((RecordUi*)qis.rec)->AddItems(1, Input::Convert(vk), msPt);
-				else
-				{
-					SwitchKey(Input::Convert(vk), state);
-					TriggerKey(Input::Convert(vk), 1);
-				}
-				keyst[vk] = 1;
+				if (((RecordUi*)qis.rec)->State()) ((RecordUi*)qis.rec)->AddItems(Item::down, Input::Convert(vk), msPt);
 			}
-			else if (!state)
+			else
 			{
-				if (qis.rec) ((RecordUi*)qis.rec)->AddItems(2, Input::Convert(vk), msPt);
-				else
-				{
-					SwitchKey(Input::Convert(vk), state);
-					TriggerKey(Input::Convert(vk), 0);
-				}
-				keyst[vk] = 0;
+				SwitchKey(Input::Convert(vk), state);
+				TriggerKey(Input::Convert(vk), 1);
 			}
 		}
+		else
+		{
+			if (qis.rec)
+			{
+				if (((RecordUi*)qis.rec)->State()) ((RecordUi*)qis.rec)->AddItems(Item::up, Input::Convert(vk), msPt);
+				if (qis.set.recKey == Input::Convert(vk)) ((RecordUi*)qis.rec)->EndRec();
+			}
+			else
+			{
+				SwitchKey(Input::Convert(vk), state);
+				TriggerKey(Input::Convert(vk), 0);
+			}
+		}
+
+		if (block == vk) return 1;
 	}
 
 	return 0;
@@ -564,8 +542,11 @@ InputHookProc()
 
 void SetHookState(bool state)
 {
-	if (state) InputHook::Start(InputHook::mouse | InputHook::keybd);
-	else InputHook::Stop(InputHook::mouse | InputHook::keybd);
+	if (state)
+	{
+		if (!InputHook::Start(InputHook::all, 1)) MsgBox::Error(L"创建输入Hook失败，检查是否管理员身份运行 或 是否被安全软件拦截。");
+	}
+	else InputHook::Stop(InputHook::all);
 }
 
 int main(int argc, char* argv[])
@@ -584,7 +565,7 @@ int main(int argc, char* argv[])
 	TipsWindow::screen = qis.screen;
 	LoadJson(&qis);
 
-	InitUI(qis.set.wndZoom);
+	InitUI(!qis.set.wndZoom);
 
 	QApplication app(argc, argv);
 	MainUi wnd(0, &qis);

@@ -1,7 +1,6 @@
 ﻿#pragma once
-#pragma execution_character_set("utf-8")
-#include "ui_AboutUi.h"
 #include "MoreUi.h"
+#include "ui_AboutUi.h"
 
 class AboutUi : public QWidget
 {
@@ -11,46 +10,26 @@ public:
 
 	AboutUi(QWidget* parent = 0) : QWidget(parent)
 	{
-		this->main = parent;
 		ui.setupUi(this);
-		setParent(parent);
 		setWindowFlags(Qt::FramelessWindowHint);
-		move(0, 40);
 
-		ControlEvent();
-		TextResize();
+		ui.lbText->installEventFilter(this);
 	}
 
 private:
 
 	Ui::AboutUiClass ui;
-	QWidget* main;
-	bool moreState = 0;
-
-	void TextResize()
-	{
-		ui.lbText->setFont(UI::font4);
-	}
-
-	void ControlEvent()
-	{
-		ui.lbText->installEventFilter(this);
-	}
+	MoreUi more;
 
 private slots:
 
+	void closeEvent(QCloseEvent*) { more.close(); }
+
 	bool eventFilter(QObject* obj, QEvent* et)
 	{
-
 		if (obj == ui.lbText && et->type() == QEvent::MouseButtonRelease)
 		{
-			if (!moreState)
-			{
-				moreState = 1;
-				MoreUi* more = new MoreUi(main, &moreState);
-				more->show();
-			}
-
+			more.show();
 			return 1;
 		}
 		return 0;

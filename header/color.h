@@ -12,7 +12,7 @@ namespace CG {
 
 		static COLORREF toColor(LPCWSTR code)
 		{
-			UINT len = wcslen(code);
+			size_t len = wcslen(code);
 			if (len < 1) return 0;
 			if (code[0] != '#') return 0;
 

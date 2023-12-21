@@ -14,7 +14,7 @@
    <string>Settings</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color:#CEF;</string>
+   <string notr="true">#SettingsUiClass{background-color:#CEF;border-bottom-left-radius:10px;border-bottom-right-radius:10px;}</string>
   </property>
   <widget class="QLabel" name="lbSettings">
    <property name="geometry">
@@ -27,14 +27,17 @@
    </property>
    <property name="font">
     <font>
-     <family>微软雅黑</family>
-     <pointsize>12</pointsize>
+     <family>Microsoft YaHei</family>
+     <pointsize>-1</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
    </property>
+   <property name="styleSheet">
+    <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:16px;</string>
+   </property>
    <property name="text">
-    <string>使用连点器需要最小化此窗口 ↗</string>
+    <string>使用连点器需隐藏窗口 （绿色/黄色按钮）</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>
@@ -56,17 +59,26 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QLabel" name="lbSwitchKey">
+       <widget class="QLabel" name="lbKey">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
-          <family>微软雅黑</family>
-          <pointsize>10</pointsize>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
         <property name="toolTip">
-         <string>通过该按键控制Quick input是否工作</string>
+         <string/>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:14px;</string>
         </property>
         <property name="text">
          <string>全局开关键</string>
@@ -74,7 +86,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QKeyEdit" name="hkSwitchKey" native="true">
+       <widget class="QKeyEdit" name="hkKey" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -87,8 +99,86 @@
           <height>24</height>
          </size>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="styleSheet">
-         <string notr="true">background-color:#FFF;</string>
+         <string notr="true">background-color:#FFF;font-family:&quot;Microsoft YaHei&quot;;font-size:12px;</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_7">
+      <item>
+       <widget class="QLabel" name="lbRec">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string/>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:14px;</string>
+        </property>
+        <property name="text">
+         <string>录制快捷键</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QKeyEdit" name="hkRec" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color:#FFF;font-family:&quot;Microsoft YaHei&quot;;font-size:12px;</string>
         </property>
        </widget>
       </item>
@@ -98,16 +188,25 @@
      <layout class="QHBoxLayout" name="horizontalLayout_5">
       <item>
        <widget class="QLabel" name="lbShowTips">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
-          <family>微软雅黑</family>
-          <pointsize>10</pointsize>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
         <property name="toolTip">
-         <string>弹出提示框并显示宏的触发状态</string>
+         <string/>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:14px;</string>
         </property>
         <property name="text">
          <string>显示触发状态提示</string>
@@ -115,20 +214,13 @@
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_3">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
        <widget class="QCheckBox" name="chbShowTips">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
           <family>微软雅黑</family>
@@ -139,6 +231,82 @@
         </property>
         <property name="focusPolicy">
          <enum>Qt::ClickFocus</enum>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QCheckBox::indicator {background-color:#FFF;width:20px;height:20px;}QCheckBox::indicator:checked {background-color:#888;}</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoRepeat">
+         <bool>false</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>false</bool>
+        </property>
+        <property name="tristate">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_8">
+      <item>
+       <widget class="QLabel" name="lbAudFx">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string/>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:14px;</string>
+        </property>
+        <property name="text">
+         <string>开关音效</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="chbAudFx">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
         </property>
         <property name="styleSheet">
          <string notr="true">QCheckBox::indicator {background-color:#FFF;width:20px;height:20px;}QCheckBox::indicator:checked {background-color:#888;}</string>
@@ -166,16 +334,25 @@
      <layout class="QHBoxLayout" name="horizontalLayout_4">
       <item>
        <widget class="QLabel" name="lbMinMode">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
-          <family>微软雅黑</family>
-          <pointsize>10</pointsize>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
         <property name="toolTip">
-         <string>最小化到任务栏的工具栏，点击图标显示窗口</string>
+         <string/>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:14px;</string>
         </property>
         <property name="text">
          <string>最小化到工具栏</string>
@@ -183,20 +360,13 @@
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
        <widget class="QCheckBox" name="chbMinMode">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
           <family>微软雅黑</family>
@@ -207,6 +377,9 @@
         </property>
         <property name="focusPolicy">
          <enum>Qt::ClickFocus</enum>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
         </property>
         <property name="styleSheet">
          <string notr="true">QCheckBox::indicator {background-color:#FFF;width:20px;height:20px;}QCheckBox::indicator:checked {background-color:#888;}</string>
@@ -234,16 +407,25 @@
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
        <widget class="QLabel" name="lbStart">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
-          <family>微软雅黑</family>
-          <pointsize>10</pointsize>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
         <property name="toolTip">
-         <string>开机时启动Quick input，如果更改了路径请重新勾选</string>
+         <string/>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:14px;</string>
         </property>
         <property name="text">
          <string>开机启动</string>
@@ -251,20 +433,13 @@
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
        <widget class="QCheckBox" name="chbStart">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
           <family>微软雅黑</family>
@@ -275,6 +450,9 @@
         </property>
         <property name="focusPolicy">
          <enum>Qt::ClickFocus</enum>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
         </property>
         <property name="styleSheet">
          <string notr="true">QCheckBox::indicator {background-color:#FFF;width:20px;height:20px;}QCheckBox::indicator:checked {background-color:#888;}</string>
@@ -302,37 +480,39 @@
      <layout class="QHBoxLayout" name="horizontalLayout_6">
       <item>
        <widget class="QLabel" name="lbZoom">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
-          <family>微软雅黑</family>
-          <pointsize>10</pointsize>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
         <property name="toolTip">
-         <string>低分辨率高DPI会显示过大，取消勾选会禁止放大</string>
+         <string/>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:14px;</string>
         </property>
         <property name="text">
-         <string>使用窗口缩放（显示过大可关闭，重启应用生效）</string>
+         <string>禁用窗口放大（重启应用生效）</string>
         </property>
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
        <widget class="QCheckBox" name="chbZoom">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
           <family>微软雅黑</family>
@@ -343,6 +523,9 @@
         </property>
         <property name="focusPolicy">
          <enum>Qt::ClickFocus</enum>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
         </property>
         <property name="styleSheet">
          <string notr="true">QCheckBox::indicator {background-color:#FFF;width:20px;height:20px;}QCheckBox::indicator:checked {background-color:#888;}</string>
@@ -371,10 +554,13 @@
       <property name="orientation">
        <enum>Qt::Vertical</enum>
       </property>
+      <property name="sizeType">
+       <enum>QSizePolicy::Expanding</enum>
+      </property>
       <property name="sizeHint" stdset="0">
        <size>
-        <width>20</width>
-        <height>40</height>
+        <width>0</width>
+        <height>0</height>
        </size>
       </property>
      </spacer>

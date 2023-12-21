@@ -20,6 +20,7 @@ public:
 	QKeyEdit(QWidget* parent = nullptr) {
 		setParent(parent);
 		setMinimumSize(QSize(48, 24));
+		setMaximumSize(QSize(16777215, 24));
 		setWindowFlags(Qt::FramelessWindowHint);
 		setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 

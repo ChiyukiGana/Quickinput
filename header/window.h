@@ -26,6 +26,8 @@ namespace CG {
 			return { client.x - window.left - 8, client.y - window.top };
 		}
 
+		static LRESULT CALLBACK DefWndProc(HWND wnd, UINT msg, WPARAM wp, LPARAM lp) { return DefWindowProcW(wnd, msg, wp, lp); }
+
 		static void Register(LPCWSTR className, WNDPROC wndProc, bool transparent = 0, COLORREF color = RGB(255, 255, 255), HICON icon = 0, INT menu = 0) {
 			WNDCLASSW wndClass = { 0 };
 			wndClass.lpszClassName = className;
@@ -40,9 +42,9 @@ namespace CG {
 		static HWND Create(
 			LPCWSTR wndName, LPCWSTR className, DWORD style = WS_OVERLAPPEDWINDOW, DWORD exStyle = 0,
 			int width = CW_USEDEFAULT, int height = CW_USEDEFAULT, int x = CW_USEDEFAULT, int y = CW_USEDEFAULT,
-			HWND main = 0, HMENU menu = 0, HINSTANCE instance = GetModuleHandleW(0)
+			HWND parent = 0, HMENU menu = 0, HINSTANCE instance = GetModuleHandleW(0)
 		) {
-			return CreateWindowExW(exStyle, className, wndName, style, x, y, width, height, main, menu, instance, 0);
+			return CreateWindowExW(exStyle, className, wndName, style, x, y, width, height, parent, menu, instance, 0);
 		}
 
 
@@ -60,8 +62,8 @@ namespace CG {
 		static RECT rect(HWND wnd) { RECT rect = { 0 }; DwmGetWindowAttribute(wnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(RECT)); return rect; }
 		static bool Rect(HWND wnd, RECT rect) { return SetWindowPos(wnd, 0, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER); }
 
+		static bool UnTop(HWND wnd) { return SetWindowPos(wnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE); }
 		static bool Top(HWND wnd) { return SetWindowPos(wnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE); }
-
 		static bool TopMost(HWND wnd) { if (SetWindowPos(wnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE)) return SetWindowPos(wnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE); return 0; }
 
 		static long style(HWND wnd) { return GetWindowLongW(wnd, GWL_STYLE); }

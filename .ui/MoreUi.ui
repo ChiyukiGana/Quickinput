@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>680</height>
+    <height>800</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -19,7 +19,7 @@
   <property name="maximumSize">
    <size>
     <width>800</width>
-    <height>16777215</height>
+    <height>800</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -30,173 +30,596 @@
     <normaloff>:/icon.png</normaloff>:/icon.png</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color:#CEF;</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
    <item>
-    <widget class="QScrollArea" name="saHowUse">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
+    <widget class="QWidget" name="client" native="true">
      <property name="styleSheet">
-      <string notr="true">border:1px solid #000000;</string>
+      <string notr="true">#client{background-color:#CEF;border:1px solid black;border-radius:10px;}</string>
      </property>
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAsNeeded</enum>
-     </property>
-     <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
-     </property>
-     <property name="widgetResizable">
-      <bool>true</bool>
-     </property>
-     <widget class="QWidget" name="scrollAreaWidgetContents_2">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>763</width>
-        <height>1682</height>
-       </rect>
+     <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,65535,65535,65535,65535">
+      <property name="spacing">
+       <number>0</number>
       </property>
-      <property name="styleSheet">
-       <string notr="true">border:none;</string>
+      <property name="leftMargin">
+       <number>1</number>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QLabel" name="lbHowUse">
-         <property name="font">
-          <font>
-           <family>微软雅黑</family>
-           <pointsize>12</pointsize>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
+      <property name="topMargin">
+       <number>1</number>
+      </property>
+      <property name="rightMargin">
+       <number>1</number>
+      </property>
+      <property name="bottomMargin">
+       <number>1</number>
+      </property>
+      <item>
+       <widget class="QWidget" name="title" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color:white;border-top-left-radius:10px;border-top-right-radius:10px;</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="spacing">
+          <number>10</number>
          </property>
-         <property name="text">
-          <string>使用方法</string>
+         <property name="leftMargin">
+          <number>5</number>
          </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
+         <property name="topMargin">
+          <number>5</number>
          </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="lbHowUseText">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
+         <property name="rightMargin">
+          <number>5</number>
          </property>
-         <property name="font">
-          <font>
-           <family>微软雅黑</family>
-           <pointsize>10</pointsize>
-          </font>
+         <property name="bottomMargin">
+          <number>5</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="lbIcon">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="mouseTracking">
+            <bool>true</bool>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background:none;border-image:url(:/icon.png);</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="lbTitle">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="mouseTracking">
+            <bool>true</bool>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background:none;font-family:&quot;Microsoft YaHei&quot;;
+font-size:14px;</string>
+           </property>
+           <property name="text">
+            <string>更多</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="titleSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="bnClose">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+             <horstretch>30</horstretch>
+             <verstretch>20</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>20</width>
+             <height>20</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::ClickFocus</enum>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton{background-color:#E00;width:20px;height:20px;border-radius:10px;}
+QPushButton:hover{background-color:#C00;}</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lbHowUse">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background:none;padding-top:12px;padding-bottom:5px;font-family:&quot;Microsoft YaHei&quot;;font-size:14px;</string>
+        </property>
+        <property name="text">
+         <string>使用方法</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QScrollArea" name="saHowUse">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background:#CEF;margin:10px;border:1px solid #888;</string>
+        </property>
+        <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="widgetResizable">
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="scrollAreaWidgetContents_2">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>776</width>
+           <height>1097</height>
+          </rect>
          </property>
          <property name="styleSheet">
-          <string notr="true">padding:5px; border:none;</string>
+          <string notr="true">border:none;</string>
          </property>
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&amp;lt;你可以在打开此窗口的情况下继续操作软件的其他功能&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;注意：任何点击操作均需要最小化窗口&amp;gt;&lt;/p&gt;&lt;p&gt;&amp;lt;CPS计算：1000 ÷ 间隔时间，50CPS = 1000 ÷ 20&amp;gt;&lt;/p&gt;&lt;p&gt;-&lt;/p&gt;&lt;p&gt;【基本设置】&lt;/p&gt;&lt;p&gt;初次打开时：&lt;/p&gt;&lt;p&gt;ㅤㅤ切换 [设置]ㅤ&amp;gt;ㅤ[全局开关键]ㅤ&amp;gt;ㅤ点击输入框后按下所需按键&lt;/p&gt;&lt;p&gt;简单设置连点器：&lt;/p&gt;&lt;p&gt;ㅤㅤ切换 [功能]ㅤ&amp;gt;ㅤ勾选快捷连点ㅤ&amp;gt;ㅤ点击输入框并按下所需按键ㅤ&amp;gt;ㅤ输入间隔时间（毫秒）越小越快ㅤ&amp;gt;ㅤ选择模式&lt;/p&gt;&lt;p&gt;通过宏实现更多功能：&lt;/p&gt;&lt;p&gt;ㅤㅤ1. 切换 [宏]ㅤ&amp;gt;ㅤ使用录制 / 添加：&lt;/p&gt;&lt;p&gt;ㅤㅤㅤㅤ[录制]：点击后将记录按键与鼠标位置ㅤ&amp;gt;ㅤ完成后关闭将自动保存一个宏&lt;/p&gt;&lt;p&gt;ㅤㅤㅤㅤ[添加]：点击后将添加一个空宏ㅤ&amp;gt;ㅤ选中宏后点击编辑ㅤ&amp;gt;ㅤ添加所需的功能ㅤ&amp;gt;ㅤ完成后关闭窗口将自动保存宏&lt;/p&gt;&lt;p&gt;ㅤㅤ2. 切换 [触发]：&lt;/p&gt;&lt;p&gt;ㅤㅤㅤㅤ选中一个宏ㅤ&amp;gt;ㅤ勾选启用ㅤ&amp;gt;ㅤ设置模式ㅤ&amp;gt;ㅤ点击输入框后按下所需按键&lt;/p&gt;&lt;p&gt;实现操作：&lt;/p&gt;&lt;p&gt;ㅤㅤ最小化窗口ㅤ&amp;gt;ㅤ按下 [全局开关键] 并且弹出 [已启用]ㅤ&amp;gt;ㅤ按下快捷连点 / 宏的设置的快捷键&lt;/p&gt;&lt;p&gt;-&lt;br/&gt;【编辑窗口】&lt;/p&gt;&lt;p&gt;ㅤㅤ1. 添加的宏将会添加到选中项之后，未选择将添加到底部&lt;/p&gt;&lt;p&gt;ㅤㅤ2. 双击宏列表的项目即可修改成任意功能&lt;/p&gt;&lt;p&gt;ㅤㅤ3. 使用Shift ↑↓移动宏位置，Shift ←删除宏&lt;/p&gt;&lt;p&gt;ㅤㅤ4. 每次关闭窗口自动保存，如果程序意外关闭将丢失数据&lt;/p&gt;&lt;p&gt;键盘/鼠标：&lt;/p&gt;&lt;p&gt;ㅤㅤ1. 点击输入框并按下一个键盘或鼠标按键&lt;/p&gt;&lt;p&gt;ㅤㅤ2. 选择需要的操作，按下，松开，点击&lt;/p&gt;&lt;p&gt;鼠标移动：&lt;/p&gt;&lt;p&gt;ㅤㅤ1. 在X，Y里面输入坐标或距离，X是水平方向，Y是垂直方向&lt;/p&gt;&lt;p&gt;ㅤㅤ2. 勾选位置，鼠标指针将会移动到对应的坐标；X，Y的最大值是10000，点击右侧的[+]可以获取坐标&lt;/p&gt;&lt;p&gt;ㅤㅤ3. 勾选移动，鼠标指针将会根据上一次的位置移动一段距离；X，Y按照屏幕分辨率来设置移动距离&lt;/p&gt;&lt;p&gt;等待：&lt;/p&gt;&lt;p&gt;ㅤㅤ1. 在时长输入所需时长，单位毫秒&lt;/p&gt;&lt;p&gt;ㅤㅤ2. 根据所需输入随机，用来防止检测，随机的时长会从0到输入的时长附加到等待时长里面&lt;/p&gt;&lt;p&gt;查找颜色：&lt;/p&gt;&lt;p&gt;ㅤㅤ1. 点击[获取]，指针的坐标及颜色将会显示到编辑框，点击对应的位置以完成获取&lt;/p&gt;&lt;p&gt;ㅤㅤ2. 若识别不到则添加误差，误差越大越容易识别成功&lt;/p&gt;&lt;p&gt;ㅤㅤ3. 选中添加的查找颜色，此时编辑按钮可用，点击编辑按钮以设置查找后的操作&lt;/p&gt;&lt;p&gt;ㅤㅤ4. 添加所需的宏，与之前的操作相同&lt;/p&gt;&lt;p&gt;输入到剪贴板&lt;/p&gt;&lt;p&gt;ㅤㅤ1. 在编辑框输入所需的文本&lt;/p&gt;&lt;p&gt;ㅤㅤ2. 执行后文本将复制到剪贴板，通过Ctrl + V的方式粘贴到对应的位置&lt;/p&gt;&lt;p&gt;-&lt;/p&gt;&lt;p&gt;【触发模式】&lt;/p&gt;&lt;p&gt;长按：&lt;/p&gt;&lt;p&gt;ㅤㅤ按下触发键执行宏，松开立刻停止&lt;/p&gt;&lt;p&gt;点击：&lt;/p&gt;&lt;p&gt;ㅤㅤ点击触发键执行宏，再次点击触发键停止&lt;/p&gt;&lt;p&gt;次数：&lt;/p&gt;&lt;p&gt;ㅤㅤ点击触发键执行宏，直到宏执行完成指定的次数&lt;/p&gt;&lt;p&gt;【功能】&lt;/p&gt;&lt;p&gt;窗口控制状态：&lt;/p&gt;&lt;p&gt;ㅤㅤ点击获取，切换到对应窗口，按下回车&lt;/p&gt;&lt;p&gt;ㅤㅤ之后当切换到对应窗口就会启用连点（先用开关键启用连点器）&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="lbHowUseText">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>Microsoft YaHei</family>
+              <pointsize>-1</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:12px;</string>
+            </property>
+            <property name="text">
+             <string>➤注意：任何点击操作均需要最小化窗口
+➤CPS计算：1000 ÷ 间隔时间，50CPS = 1000 ÷ 20
+
+
+————————————————————基本设置————————————————————
+
+➤初次打开时：切换 [设置] ➜ [全局开关键] ➜ 点击输入框后按下所需按键
+
+➤简单设置连点器：切换 [功能] ➜ 勾选快捷连点 ➜ 点击输入框并按下所需按键 ➜ 输入间隔时间（毫秒）越小越快 ➜ 选择模式
+
+➤通过宏实现更多功能：
+ㅤㅤ1.切换 [宏] ➜ 使用录制 / 添加：
+ㅤㅤㅤㅤ[录制]：点击后将记录按键与鼠标位置 ➜ 完成后关闭将自动保存一个宏
+ㅤㅤㅤㅤ[添加]：点击后将添加一个空宏 ➜ 选中宏后点击编辑 ➜ 添加所需的功能 ➜ 完成后关闭窗口将自动保存宏
+ㅤㅤ2.切换 [触发]：
+ㅤㅤㅤㅤ选中一个宏 ➜ 勾选启用 ➜ 设置模式 ➜ 点击输入框后按下所需按键 ➜ 输入次数
+
+➤开始使用：最小化窗口 ➜ 按下 [全局开关键] 并且弹出 [已启用] ➜ 按下快捷连点 / 宏的设置的快捷键
+
+
+————————————————————编辑窗口————————————————————
+
+➤键盘/鼠标：
+ㅤㅤ1.点击输入框并按下一个键盘或鼠标按键
+ㅤㅤ2.选择需要的操作，按下，松开，点击
+
+➤鼠标移动：
+ㅤㅤ1.在X，Y里面输入坐标或距离，X是水平方向，Y是垂直方向
+ㅤㅤ2.勾选位置，鼠标指针将会移动到对应的坐标；X，Y的最大值是10000，点击右侧的[+]可以获取坐标
+ㅤㅤ3.勾选移动，鼠标指针将会根据上一次的位置移动一段距离；X，Y按照屏幕分辨率来设置移动距离
+
+➤等待：
+ㅤㅤ1.在时长输入所需时长，单位毫秒
+ㅤㅤ2.根据所需输入随机，用来防止检测，随机的时长会从0到输入的时长附加到等待时长里面
+
+➤循环：
+ㅤㅤ1.输入循环次数
+ㅤㅤ2.添加后再点击一下宏项目，点击编辑，方法和外面一致
+
+➤输入到剪贴板
+ㅤㅤ1.在编辑框输入所需的文本
+ㅤㅤ2.执行后文本将复制到剪贴板，通过Ctrl + V的方式粘贴到对应的位置
+
+➤查找颜色：
+ㅤㅤ1.点击[获取]，指针的坐标及颜色将会显示到编辑框，点击对应的位置以完成获取
+ㅤㅤ2.若识别不到则添加误差，误差越大越容易识别成功
+ㅤㅤ3.添加后再点击一下宏项目，点击编辑，方法和外面一致
+
+
+————————————————————触发模式————————————————————
+
+➤切换：点击触发键执行宏，再次点击触发键停止
+
+➤按下：按下触发键执行宏，直到完成对应次数或松开
+
+➤松开：松开触发键执行宏，直到完成对应次数或按下
+
+
+————————————————————其他功能————————————————————
+
+➤窗口控制状态：点击 [+] 并根据提示操作，之后当切换到对应窗口就会启用连点（先用开关键启用连点器）
+
+➤显示当前时间：输入一个按键，之后点击会弹出当前时间</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::PlainText</enum>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
-       </item>
-      </layout>
-     </widget>
-    </widget>
-   </item>
-   <item>
-    <widget class="QScrollArea" name="saLog">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>300</height>
-      </size>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">border:1px solid #000000;</string>
-     </property>
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarAsNeeded</enum>
-     </property>
-     <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOff</enum>
-     </property>
-     <property name="widgetResizable">
-      <bool>true</bool>
-     </property>
-     <widget class="QWidget" name="scrollAreaWidgetContents">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>763</width>
-        <height>2500</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">border:none;</string>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QLabel" name="lbLog">
-         <property name="font">
-          <font>
-           <family>微软雅黑</family>
-           <pointsize>12</pointsize>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>修改日志</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="lbLogText">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="font">
-          <font>
-           <family>微软雅黑</family>
-           <pointsize>10</pointsize>
-          </font>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="lbLog">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background:none;padding-top:12px;padding-bottom:5px;font-family:&quot;Microsoft YaHei&quot;;font-size:14px;</string>
+        </property>
+        <property name="text">
+         <string>修改日志</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QScrollArea" name="saLog">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>300</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background:#CEF;margin:10px;border:1px solid #888;</string>
+        </property>
+        <property name="verticalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <property name="widgetResizable">
+         <bool>true</bool>
+        </property>
+        <widget class="QWidget" name="scrollAreaWidgetContents">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>776</width>
+           <height>2399</height>
+          </rect>
          </property>
          <property name="styleSheet">
-          <string notr="true">padding:5px; border:none;</string>
+          <string notr="true">border:none;</string>
          </property>
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;2023-11-30&lt;/p&gt;&lt;p&gt;ㅤㅤ1：修复Ctrl,Alt+数字组合键&lt;/p&gt;&lt;p&gt;ㅤㅤ2：调整界面&lt;/p&gt;&lt;p&gt;2023-11-29&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加结束循环功能，结束改为结束宏&lt;/p&gt;&lt;p&gt;ㅤㅤ2：修复颜色框选错误&lt;/p&gt;&lt;p&gt;2023-11-24&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加无限嵌套功能&lt;/p&gt;&lt;p&gt;ㅤㅤ2：增加结束功能&lt;/p&gt;&lt;p&gt;2023-11-24&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加查找颜色未找到的处理&lt;/p&gt;&lt;p&gt;2023-11-21&lt;/p&gt;&lt;p&gt;ㅤㅤ1：优化列表效率&lt;/p&gt;&lt;p&gt;2023-11-16&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加随机移动&lt;/p&gt;&lt;p&gt;2023-11-4&lt;/p&gt;&lt;p&gt;ㅤㅤ1：优化列表，UI缩放&lt;/p&gt;&lt;p&gt;2023-11-3&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加窗口控制状态，详细看使用方法&lt;/p&gt;&lt;p&gt;2023-11-2&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加自定义窗口放大&lt;/p&gt;&lt;p&gt;2023-10-30&lt;/p&gt;&lt;p&gt;ㅤㅤ1：优化性能，0ms以上的CPU占用更低&lt;/p&gt;&lt;p&gt;2023-10-29&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加触发的次数，可指定宏的执行次数&lt;/p&gt;&lt;p&gt;ㅤㅤ2：增加编辑的循环，可指定宏的执行次数&lt;/p&gt;&lt;p&gt;2023-10-28&lt;/p&gt;&lt;p&gt;ㅤㅤ1：修复CPS不准确，提高间隔时间的精度，但在16ms以下会增加CPU占用&lt;/p&gt;&lt;p&gt;2023-10-27&lt;/p&gt;&lt;p&gt;ㅤㅤ1：过滤录制的键盘重复按下&lt;/p&gt;&lt;p&gt;ㅤㅤ2：修复单个触发键会被其他键中断&lt;/p&gt;&lt;p&gt;ㅤㅤ3：增加编辑窗口宏列表使用Shift ↑↓移动宏位置，Shift ←删除宏&lt;/p&gt;&lt;p&gt;2023-10-21&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加录制的开始按钮&lt;/p&gt;&lt;p&gt;2023-10-20&lt;/p&gt;&lt;p&gt;ㅤㅤ1：修复组合触发键的误触发&lt;/p&gt;&lt;p&gt;2023-10-17&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加全局开关键组合键&lt;/p&gt;&lt;p&gt;ㅤㅤ2：优化颜色识别卡顿&lt;/p&gt;&lt;p&gt;2023-10-16&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加快捷连点模式&lt;/p&gt;&lt;p&gt;2023-10-14&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加显示时间开关&lt;/p&gt;&lt;p&gt;2023-10-10&lt;/p&gt;&lt;p&gt;ㅤㅤ1：修复缩放识别位置错误&lt;/p&gt;&lt;p&gt;2023-10-9&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加组合触发键，可输入两个按键来触发，也可输入一个&lt;/p&gt;&lt;p&gt;2023-10-5&lt;/p&gt;&lt;p&gt;ㅤㅤ1：修复缩放字体显示过大&lt;/p&gt;&lt;p&gt;2023-10-5&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加范围颜色查找功能&lt;/p&gt;&lt;p&gt;ㅤㅤ2：优化获取颜色，获取坐标&lt;/p&gt;&lt;p&gt;2023-10-5&lt;/p&gt;&lt;p&gt;ㅤㅤ1：修复查找颜色错误&lt;/p&gt;&lt;p&gt;2023-10-4&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加查找颜色功能，详细看使用方法&lt;/p&gt;&lt;p&gt;ㅤㅤ2： 优化列表显示效果&lt;/p&gt;&lt;p&gt;2023-10-3&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加编辑窗口的修改功能，双击列表的项目即可修改&lt;/p&gt;&lt;p&gt;ㅤㅤ2：增加多开功能，复制程序的文件夹就可以运行多个&lt;/p&gt;&lt;p&gt;2023-10-2&lt;/p&gt;&lt;p&gt;ㅤㅤ1：优化弹窗刷新，从透明度更改时刷新改为仅内容更改时刷新，提高效率&lt;/p&gt;&lt;p&gt;2023-9-30&lt;/p&gt;&lt;p&gt;ㅤㅤ1：使用Qt5.15.2并重新编译为32位程序、&lt;/p&gt;&lt;p&gt;ㅤㅤ2：增加宏触发状态显示，在屏幕的顶部将弹出提示&lt;/p&gt;&lt;p&gt;2023-9-28&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加显示当前时间功能&lt;/p&gt;&lt;p&gt;2023-9-27&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加快捷连点的间隔时间功能&lt;/p&gt;&lt;p&gt;ㅤㅤ2：修复快捷点击按键与宏触发键冲突导致程序失效&lt;/p&gt;&lt;p&gt;2023-9-24&lt;/p&gt;&lt;p&gt;ㅤㅤ1：增加随机等待功能，模拟真实点击时的速度差异&lt;/p&gt;&lt;p&gt;ㅤㅤ2：增加获取位置功能，点击获取后再点击目标位置&lt;/p&gt;&lt;p&gt;2023-9-23&lt;/p&gt;&lt;p&gt;ㅤㅤ1：修复按下开关键时按下其他键异常&lt;/p&gt;&lt;p&gt;ㅤㅤ2：增加对滚轮的支持&lt;/p&gt;&lt;p&gt;ㅤㅤ3：发布到bilibili&lt;/p&gt;&lt;p&gt;2023-9-21&lt;/p&gt;&lt;p&gt;ㅤㅤ1：第一个版本&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>10</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="lbLogText">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <family>Microsoft YaHei</family>
+              <pointsize>-1</pointsize>
+              <weight>50</weight>
+              <bold>false</bold>
+             </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:12px;</string>
+            </property>
+            <property name="text">
+             <string>2023-12-21
+ㅤㅤ1：修复创建开机任务（在使用电池时不启动）
+ㅤㅤ2：修复移动无法输入负数错误
+
+2023-12-17
+ㅤㅤ1：增加导入导出
+ㅤㅤ2：增加松开触发
+
+2023-12-14
+ㅤㅤ1：增加屏蔽触发键（仅窗口应用有效）
+ㅤㅤ2：修复时间过大导致内存溢出
+
+2023-12-11
+ㅤㅤ1：优化界面
+ㅤㅤ2：修复编辑界面删除宏导致崩溃
+
+2023-12-9
+ㅤㅤ1：优化界面
+
+2023-12-8
+ㅤㅤ1：优化列表间距
+
+2023-12-5
+ㅤㅤ1：增加移动宏功能
+ㅤㅤ2：优化宏列表备注
+
+2023-12-2
+ㅤㅤ1：增加备注功能
+
+2023-11-30
+ㅤㅤ1：修复Ctrl,Alt+数字组合键
+ㅤㅤ2：调整界面
+
+2023-11-29
+ㅤㅤ1：增加结束循环功能，结束改为结束宏
+ㅤㅤ2：修复颜色框选错误
+
+2023-11-25
+ㅤㅤ1：增加无限嵌套功能
+ㅤㅤ2：增加结束功能
+
+2023-11-24
+ㅤㅤ1：增加查找颜色未找到的处理
+
+2023-11-21
+ㅤㅤ1：优化列表效率
+
+2023-11-16
+ㅤㅤ1：增加随机移动
+
+2023-11-4
+ㅤㅤ1：优化列表，UI缩放
+
+2023-11-3
+ㅤㅤ1：增加窗口控制状态，详细看使用方法
+
+2023-11-2
+ㅤㅤ1：增加自定义窗口放大
+
+2023-10-30
+ㅤㅤ1：优化性能，0ms以上的CPU占用更低
+
+2023-10-29
+ㅤㅤ1：增加触发的次数，可指定宏的执行次数
+ㅤㅤ2：增加编辑的循环，可指定宏的执行次数
+
+2023-10-28
+ㅤㅤ1：修复CPS不准确，提高间隔时间的精度，但在16ms以下会增加CPU占用
+
+2023-10-27
+ㅤㅤ1：过滤录制的键盘重复按下
+ㅤㅤ2：修复单个触发键会被其他键中断
+ㅤㅤ3：增加编辑窗口宏列表使用Shift ↑↓移动宏位置，Shift ←删除宏
+
+2023-10-21
+ㅤㅤ1：增加录制的开始按钮
+
+2023-10-20
+ㅤㅤ1：修复组合触发键的误触发
+
+2023-10-17
+ㅤㅤ1：增加全局开关键组合键
+ㅤㅤ2：修复颜色识别卡顿
+
+2023-10-16
+ㅤㅤ1：增加快捷连点模式
+
+2023-10-14
+ㅤㅤ1：增加显示时间开关
+
+2023-10-10
+ㅤㅤ1：修复缩放识别位置错误
+
+2023-10-9
+ㅤㅤ1：增加组合触发键，可输入两个按键来触发，也可输入一个
+
+2023-10-5
+ㅤㅤ1：修复缩放字体显示过大
+
+2023-10-5
+ㅤㅤ1：增加范围颜色查找功能
+ㅤㅤ2：优化获取颜色，获取坐标
+
+2023-10-5
+ㅤㅤ1：修复查找颜色错误
+
+2023-10-4
+ㅤㅤ1：增加查找颜色功能，详细看使用方法
+ㅤㅤ2：优化列表显示效果
+
+2023-10-3
+ㅤㅤ1：增加编辑窗口的修改功能，双击列表的项目即可修改
+ㅤㅤ2：增加多开功能，复制程序的文件夹就可以运行多个
+
+2023-10-2
+ㅤㅤ1：优化弹窗刷新，从透明度更改时刷新改为仅内容更改时刷新，提高效率
+
+2023-9-30
+ㅤㅤ1：使用Qt5.15.2并重新编译为32位程序、
+ㅤㅤ2：增加宏触发状态显示，在屏幕的顶部将弹出提示
+
+2023-9-28
+ㅤㅤ1：增加显示当前时间功能
+
+2023-9-27
+ㅤㅤ1：增加快捷连点的间隔时间功能
+ㅤㅤ2：修复快捷点击按键与宏触发键冲突导致程序失效
+
+2023-9-24
+ㅤㅤ1：增加随机等待功能，模拟真实点击时的速度差异
+ㅤㅤ2：增加获取位置功能，点击获取后再点击目标位置
+
+2023-9-23
+ㅤㅤ1：修复按下开关键时按下其他键异常
+ㅤㅤ2：增加对滚轮的支持
+ㅤㅤ3：发布到bilibili
+
+2023-9-21
+ㅤㅤ1：第一个版本</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::PlainText</enum>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
-       </item>
-      </layout>
-     </widget>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>

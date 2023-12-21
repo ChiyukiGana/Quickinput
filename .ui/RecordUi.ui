@@ -51,20 +51,16 @@
    </property>
    <property name="font">
     <font>
-     <family>微软雅黑</family>
-     <pointsize>10</pointsize>
+     <family>Microsoft YaHei</family>
+     <pointsize>-1</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">QPushButton {
-	background-color: #ADE;
-	border:none;
-}
-QPushButton:hover {
-	background-color: #8F8;
-}</string>
+    <string notr="true">*{font-family:&quot;Microsoft YaHei&quot;;font-size:14px;}
+QPushButton{background-color:#ADE;border:none;}
+QPushButton:hover{background-color:#8F8;}</string>
    </property>
    <property name="text">
     <string>开始⭕</string>
@@ -93,20 +89,16 @@ QPushButton:hover {
    </property>
    <property name="font">
     <font>
-     <family>微软雅黑</family>
-     <pointsize>10</pointsize>
+     <family>Microsoft YaHei</family>
+     <pointsize>-1</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">QPushButton {
-	background-color: #ADE;
-	border:none;
-}
-QPushButton:hover {
-	background-color: #F88;
-}</string>
+    <string notr="true">*{font-family:&quot;Microsoft YaHei&quot;;font-size:14px;}
+QPushButton{background-color:#ADE;border:none;}
+QPushButton:hover{background-color:#8F8;}</string>
    </property>
    <property name="text">
     <string>取消❌</string>

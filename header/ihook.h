@@ -9,11 +9,12 @@
 class InputHook
 {
 public:
-	enum FLAGS
+	enum
 	{
 		none,
 		mouse,
-		keybd
+		keybd,
+		all = mouse | keybd
 	};
 
 	static void Stop(int flags)
@@ -26,11 +27,16 @@ public:
 		{
 			p.keybdState = 0;
 		}
+		memset(p.keys, 0, sizeof(p.keys));
 	}
 
-	static void Start(int flags)
+	static bool Start(int flags, bool blockRep = 0)
 	{
 		if (!p.thread) p.thread = CreateThread(0, 0, HookThread, 0, 0, 0);
+		if (!p.thread) return 0;
+		while (!p.createFlag) sleep(1);
+		if (!p.mouse) return 0;
+		if (!p.keybd) return 0;
 
 		if (flags & mouse)
 		{
@@ -40,6 +46,20 @@ public:
 		{
 			p.keybdState = 1;
 		}
+		memset(p.keys, 0, sizeof(p.keys));
+		BlockRep(blockRep);
+		return 1;
+	}
+
+	static void BlockRep(bool blockRep = 1)
+	{
+		p.blockRep = blockRep;
+	}
+
+	static void Wait()
+	{
+		if (!p.thread) return;
+		WaitForSingleObject(p.thread, INFINITE);
 	}
 
 	struct Param
@@ -47,8 +67,11 @@ public:
 		HANDLE thread = 0;
 		HHOOK mouse = 0;
 		HHOOK keybd = 0;
+		bool createFlag = 0;
 		bool mouseState = 0;
 		bool keybdState = 0;
+		bool blockRep = 0;
+		bool keys[255] = { 0 };
 	};
 
 	static Param p;
@@ -131,16 +154,22 @@ private:
 			switch (msg)
 			{
 			case WM_KEYDOWN:
+				if (p.keys[kb->vkCode]) break;
 				if (InputProc((BYTE)kb->vkCode, 1, { 0 }, &kb->dwExtraInfo)) return 1;
+				p.keys[kb->vkCode] = 1;
 				break;
 			case WM_KEYUP:
 				if (InputProc((BYTE)kb->vkCode, 0, { 0 }, &kb->dwExtraInfo)) return 1;
+				p.keys[kb->vkCode] = 0;
 				break;
 			case WM_SYSKEYDOWN:
+				if (p.keys[kb->vkCode]) break;
 				if (InputProc((BYTE)kb->vkCode, 1, { 0 }, &kb->dwExtraInfo)) return 1;
+				p.keys[kb->vkCode] = 1;
 				break;
 			case WM_SYSKEYUP:
 				if (InputProc((BYTE)kb->vkCode, 0, { 0 }, &kb->dwExtraInfo)) return 1;
+				p.keys[kb->vkCode] = 0;
 				break;
 			}
 		}
@@ -152,6 +181,7 @@ private:
 		MSG msg;
 		p.mouse = SetWindowsHookExW(WH_MOUSE_LL, MouseHook, GetModuleHandleW(0), 0);
 		p.keybd = SetWindowsHookExW(WH_KEYBOARD_LL, KeybdHook, GetModuleHandleW(0), 0);
+		p.createFlag = 1;
 		while (GetMessageW(&msg, 0, WM_KEYFIRST, WM_MOUSELAST))
 		{
 			TranslateMessage(&msg);

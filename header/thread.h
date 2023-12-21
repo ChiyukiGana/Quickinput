@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <timeapi.h>
 #pragma comment(lib,"Winmm.lib")
+#include "base.h"
 
 #ifndef sleep
 #define sleep(ms) ::Sleep(ms)
@@ -23,7 +24,7 @@ namespace CG {
 		}
 
 		// 1hs = 100ns
-		static void NanoSleep(int hs)
+		static void NanoSleep(LONGLONG hs)
 		{
 			HANDLE hTimer = 0;
 			LARGE_INTEGER liDueTime;
@@ -42,7 +43,8 @@ namespace CG {
 
 		static void Sleep(DWORD ms)
 		{
-			if (ms) NanoSleep(ms * 10000);
+			if (ms < 20) NanoSleep(ms * 10000);
+			else if (ms) sleep(ms);
 		}
 
 		static HANDLE Start(PTHREAD_START_ROUTINE pfunc, LPVOID lParam = 0) { return CreateThread(0, 0, pfunc, lParam, 0, 0); }

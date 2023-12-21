@@ -66,6 +66,7 @@ namespace CG
 		}
 
 		static SIZE screenVSize() { return { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) }; }
+		static SIZE screenVSize(HDC dc) { return { GetDeviceCaps(dc, HORZRES), GetDeviceCaps(dc, VERTRES) }; }
 
 		static double screenZoomRote() {
 			HWND wnd = GetDesktopWindow();

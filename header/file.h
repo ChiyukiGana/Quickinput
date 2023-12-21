@@ -25,7 +25,11 @@ namespace CG {
 		static bool FileState(std::wstring path) {
 			FILE* file = 0;
 			_wfopen_s(&file, path.c_str(), L"r");
-			if (file) return 1;
+			if (file)
+			{
+				fclose(file);
+				return 1;
+			}
 			return 0;
 		}
 
@@ -206,7 +210,11 @@ namespace CG {
 		static void OpenFileLocation(std::wstring path) {
 			HRESULT hr = CoInitialize(0);
 			LPITEMIDLIST item = ILCreateFromPathW(path.c_str());
-			if (item) SHOpenFolderAndSelectItems(item, 0, 0, 0);
+			if (item)
+			{
+				SHOpenFolderAndSelectItems(item, 0, 0, 0);
+				ILFree(item);
+			}
 			if (hr == S_FALSE) CoUninitialize();
 		}
 
@@ -247,7 +255,7 @@ namespace CG {
 			FindFileStruct files;
 			_wfinddata32_t file;
 			intptr_t pFind = _wfindfirst32(path, &file);
-			int state = pFind;
+			intptr_t state = pFind;
 
 			while (state != -1) {
 				files.Add();

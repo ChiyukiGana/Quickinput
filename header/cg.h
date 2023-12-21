@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "base.h"
+#include "list.h"
 #include "thread.h"
 #include "process.h"
 #include "string.h"
@@ -17,9 +18,6 @@
 #include "window.h"
 #include "msgbox.h"
 
-#include "debug.h"
-
-#include "ini.h"
 #include "task.h"
 
 using namespace CG;

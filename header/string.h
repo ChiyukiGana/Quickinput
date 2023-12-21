@@ -2,6 +2,7 @@
 
 #include <windows.h>
 #include <string>
+#include <sstream>
 #include <math.h>
 
 namespace CG {
@@ -29,18 +30,19 @@ namespace CG {
 			delete[] cache;
 			return str;
 		}
-		static std::string toString(signed char val) { char str[5]; sprintf_s(str, 5, "%d", val); return str; }
-		static std::string toString(unsigned char val) { char str[4]; sprintf_s(str, 4, "%u", val); return str; }
-		static std::string toString(short val) { char str[7]; sprintf_s(str, 7, "%d", val); return str; }
-		static std::string toString(unsigned short val) { char str[6]; sprintf_s(str, 6, "%u", val); return str; }
-		static std::string toString(int val) { char str[12]; sprintf_s(str, 12, "%d", val); return str; }
-		static std::string toString(unsigned int val) { char str[11]; sprintf_s(str, 11, "%u", val); return str; }
-		static std::string toString(long val) { char str[12]; sprintf_s(str, 12, "%ld", val); return str; }
-		static std::string toString(unsigned long val) { char str[11]; sprintf_s(str, 11, "%lu", val); return str; }
-		static std::string toString(long long val) { char str[22]; sprintf_s(str, 22, "%lld", val); return str; }
-		static std::string toString(unsigned long long val) { char str[21]; sprintf_s(str, 21, "%llu", val); return str; }
-		static std::string toString(float val) { char str[32]; sprintf_s(str, 32, "%g", val); return str; }
-		static std::string toString(double val) { char str[32]; sprintf_s(str, 32, "%g", val); return str; }
+		static std::string toString(bool val) { if (val) return "true"; return "false"; }
+		static std::string toString(int8 val) { return std::to_string((int32)val); }
+		static std::string toString(uint8 val) { return std::to_string((uint32)val); }
+		static std::string toString(int16 val) { return std::to_string((int32)val); }
+		static std::string toString(uint16 val) { return std::to_string((uint32)val); }
+		static std::string toString(int32 val) { return std::to_string(val); }
+		static std::string toString(uint32 val) { return std::to_string(val); }
+		static std::string toString(int64 val) { return std::to_string(val); }
+		static std::string toString(uint64 val) { return std::to_string(val); }
+		static std::string toString(float val) { return std::to_string(val); }
+		static std::string toString(double val) { return std::to_string(val); }
+		static std::string toString(long double val) { return std::to_string(val); }
+		static std::string toString(void* val) { std::stringstream ss; ss << val; return ss.str(); }
 
 		static std::wstring toWString(char val) { wchar_t str[] = { (wchar_t)val, L'\0' }; return str; }
 		static std::wstring toWString(wchar_t val) { wchar_t str[] = { val, L'\0' }; return str; }
@@ -52,6 +54,7 @@ namespace CG {
 			delete[] cache;
 			return str;
 		}
+		static std::wstring toWString(const wchar_t* val) { return val; }
 		static std::wstring toWString(std::string val) {
 			int len = MultiByteToWideChar(CP_ACP, 0, val.c_str(), -1, 0, 0);
 			wchar_t* cache = new wchar_t[len];
@@ -61,19 +64,21 @@ namespace CG {
 			return str;
 		}
 		static std::wstring toWString(std::wstring val) { return val; }
-		static std::wstring toWString(const wchar_t* val) { return val; }
-		static std::wstring toWString(signed char val) { wchar_t str[5]; swprintf_s(str, 5, L"%d", val); return str; }
-		static std::wstring toWString(unsigned char val) { wchar_t str[4]; swprintf_s(str, 4, L"%u", val); return str; }
-		static std::wstring toWString(short val) { wchar_t str[7]; swprintf_s(str, 7, L"%d", val); return str; }
-		static std::wstring toWString(unsigned short val) { wchar_t str[6]; swprintf_s(str, 6, L"%u", val); return str; }
-		static std::wstring toWString(int val) { wchar_t str[12]; swprintf_s(str, 12, L"%d", val); return str; }
-		static std::wstring toWString(unsigned int val) { wchar_t str[11]; swprintf_s(str, 11, L"%u", val); return str; }
-		static std::wstring toWString(long val) { wchar_t str[12]; swprintf_s(str, 12, L"%ld", val); return str; }
-		static std::wstring toWString(unsigned long val) { wchar_t str[11]; swprintf_s(str, 11, L"%lu", val); return str; }
-		static std::wstring toWString(long long val) { wchar_t str[22]; swprintf_s(str, 22, L"%lld", val); return str; }
-		static std::wstring toWString(unsigned long long val) { wchar_t str[21]; swprintf_s(str, 21, L"%llu", val); return str; }
-		static std::wstring toWString(float val) { wchar_t str[32]; swprintf_s(str, 32, L"%g", val); return str; }
-		static std::wstring toWString(double val) { wchar_t str[32]; swprintf_s(str, 32, L"%g", val); return str; }
+		static std::wstring toWString(bool val) { if (val) return L"true"; return L"false"; }
+		static std::wstring toWString(int8 val) { return std::to_wstring((int32)val); }
+		static std::wstring toWString(uint8 val) { return std::to_wstring((uint32)val); }
+		static std::wstring toWString(int16 val) { return std::to_wstring((int32)val); }
+		static std::wstring toWString(uint16 val) { return std::to_wstring((uint32)val); }
+		static std::wstring toWString(int32 val) { return std::to_wstring(val); }
+		static std::wstring toWString(uint32 val) { return std::to_wstring(val); }
+		static std::wstring toWString(signed long val) { return std::to_wstring(val); }
+		static std::wstring toWString(unsigned long val) { return std::to_wstring(val); }
+		static std::wstring toWString(int64 val) { return std::to_wstring(val); }
+		static std::wstring toWString(uint64 val) { return std::to_wstring(val); }
+		static std::wstring toWString(float val) { return std::to_wstring(val); }
+		static std::wstring toWString(double val) { return std::to_wstring(val); }
+		static std::wstring toWString(long double val) { return std::to_wstring(val); }
+		static std::wstring toWString(void* val) { std::wstringstream ss; ss << val; return ss.str(); }
 
 		static std::wstring toLower(std::wstring str)
 		{

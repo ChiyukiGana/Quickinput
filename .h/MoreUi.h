@@ -1,9 +1,7 @@
 ﻿#pragma once
-#pragma execution_character_set("utf-8")
-#include <qdesktopservices.h>
-#include <qurl.h>
-#include "ui_MoreUi.h"
+#include <qevent.h>
 #include "QuickInputDef.h"
+#include "ui_MoreUi.h"
 
 class MoreUi : public QDialog
 {
@@ -11,33 +9,33 @@ class MoreUi : public QDialog
 
 public:
 
-	MoreUi(QWidget* parent = 0, bool* pThis = 0) : QDialog(parent)
+	MoreUi(QWidget* parent = 0) : QDialog(parent)
 	{
-		this->state = pThis;
 		ui.setupUi(this);
-		setParent(0);
-		setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint);
-		FontResize();
+		setWindowFlags(Qt::FramelessWindowHint);
+		setAttribute(Qt::WA_TranslucentBackground);
+		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
 	}
 
 private:
 
 	Ui::MoreUiClass ui;
-	QLabel* bg;
-	bool* state = 0;
+	QPoint msPos;
 
-	void FontResize()
+	void mousePressEvent(QMouseEvent* et)
 	{
-		ui.lbHowUse->setFont(UI::font3);
-		ui.lbLog->setFont(UI::font3);
-		ui.lbHowUseText->setFont(UI::font1);
-		ui.lbLogText->setFont(UI::font1);
+		if (et->buttons() & Qt::LeftButton) msPos = et->pos();
+	}
+
+	void mouseMoveEvent(QMouseEvent* et)
+	{
+		if (et->buttons() & Qt::LeftButton) move(et->pos() + pos() - msPos);
 	}
 
 private slots:
 
-	void closeEvent(QCloseEvent*)
+	void OnBnClose()
 	{
-		*state = 0;
+		hide();
 	}
 };

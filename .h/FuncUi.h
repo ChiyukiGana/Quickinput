@@ -15,42 +15,16 @@ public:
 		this->qis = qis;
 
 		ui.setupUi(this);
-		setParent(parent);
 		setWindowFlags(Qt::FramelessWindowHint);
-		move(0, 40);
 
 		ControlInit();
 		ControlEvent();
-		FontResize();
 	}
 
 private:
 
 	Ui::FuncUiClass ui;
 	QuickInputStruct* qis;
-
-	void FontResize()
-	{
-		ui.lbOther->setFont(UI::font3);
-
-		ui.lbQkClick->setFont(UI::font2);
-		ui.lbQkDelay->setFont(UI::font2);
-		ui.lbQkMode->setFont(UI::font2);
-		ui.lbQkKey->setFont(UI::font2);
-		ui.cmbMode->setFont(UI::font2);
-		ui.etQkDelay->setFont(UI::font2);
-		ui.hkQkClick->setFont(UI::font2);
-
-		ui.lbWndActive->setFont(UI::font2);
-		ui.lbWndActiveName->setFont(UI::font2);
-		ui.lbWndActiveGet->setFont(UI::font2);
-		ui.bnWndActive->setFont(UI::font2);
-		ui.etWndActive->setFont(UI::font1);
-
-		ui.lbClock->setFont(UI::font2);
-		ui.lbClockKey->setFont(UI::font2);
-		ui.hkClock->setFont(UI::font2);
-	}
 
 	void ControlInit()
 	{
@@ -67,8 +41,8 @@ private:
 		ui.hkClock->Mode(0);
 		ui.hkClock->VirtualKey(qis->fun.showClock.key);
 
-		ui.cmbMode->addItem("长按");
-		ui.cmbMode->addItem("点击");
+		ui.cmbMode->addItem("按下");
+		ui.cmbMode->addItem("切换");
 		ui.cmbMode->setCurrentIndex(qis->fun.quickClick.mode);
 
 	}

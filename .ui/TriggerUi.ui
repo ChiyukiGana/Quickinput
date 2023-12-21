@@ -26,7 +26,7 @@
    <string>Trigger</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color:#CEF;</string>
+   <string notr="true">#TriggerUiClass{background-color:#CEF;border-bottom-left-radius:10px;border-bottom-right-radius:10px;}</string>
   </property>
   <widget class="QLabel" name="lbTrigger">
    <property name="geometry">
@@ -39,11 +39,14 @@
    </property>
    <property name="font">
     <font>
-     <family>微软雅黑</family>
-     <pointsize>12</pointsize>
+     <family>Microsoft YaHei</family>
+     <pointsize>-1</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:16px;</string>
    </property>
    <property name="text">
     <string>在此处设置宏的触发方式及按键</string>
@@ -61,10 +64,16 @@
      <height>391</height>
     </rect>
    </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="font">
     <font>
-     <family>微软雅黑</family>
-     <pointsize>10</pointsize>
+     <family>Microsoft YaHei</family>
+     <pointsize>-1</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
@@ -73,7 +82,8 @@
     <enum>Qt::LeftToRight</enum>
    </property>
    <property name="styleSheet">
-    <string notr="true">QTableWidget{
+    <string notr="true">*{font-family:&quot;Microsoft YaHei&quot;;font-size:12px;}
+QTableWidget{
 background-color: #FFF;
 border:none;
 outline:none;
@@ -144,17 +154,45 @@ border:none;
        <number>5</number>
       </property>
       <item>
-       <widget class="QLabel" name="lbState">
+       <widget class="QCheckBox" name="chbState">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
-          <family>微软雅黑</family>
-          <pointsize>10</pointsize>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::ClickFocus</enum>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">*{font-family:&quot;Microsoft YaHei&quot;;font-size:12px;}
+QCheckBox::indicator {background-color:#FFF;width:20px;height:20px;}QCheckBox::indicator:checked {background-color:#888;}</string>
+        </property>
         <property name="text">
          <string>启用</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
+        </property>
+        <property name="autoRepeat">
+         <bool>false</bool>
+        </property>
+        <property name="autoExclusive">
+         <bool>false</bool>
+        </property>
+        <property name="tristate">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -171,12 +209,25 @@ border:none;
         </property>
        </spacer>
       </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="spacing">
+       <number>5</number>
+      </property>
       <item>
-       <widget class="QCheckBox" name="chbState">
+       <widget class="QCheckBox" name="chbBlock">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
-          <family>微软雅黑</family>
-          <pointsize>10</pointsize>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -184,11 +235,15 @@ border:none;
         <property name="focusPolicy">
          <enum>Qt::ClickFocus</enum>
         </property>
+        <property name="layoutDirection">
+         <enum>Qt::RightToLeft</enum>
+        </property>
         <property name="styleSheet">
-         <string notr="true">QCheckBox::indicator {background-color:#FFF;width:20px;height:20px;}QCheckBox::indicator:checked {background-color:#888;}</string>
+         <string notr="true">*{font-family:&quot;Microsoft YaHei&quot;;font-size:12px;}
+QCheckBox::indicator {background-color:#FFF;width:20px;height:20px;}QCheckBox::indicator:checked {background-color:#888;}</string>
         </property>
         <property name="text">
-         <string/>
+         <string>屏蔽触发键</string>
         </property>
         <property name="checkable">
          <bool>true</bool>
@@ -204,6 +259,19 @@ border:none;
         </property>
        </widget>
       </item>
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
      </layout>
     </item>
     <item>
@@ -213,13 +281,22 @@ border:none;
       </property>
       <item>
        <widget class="QLabel" name="lbMode">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
-          <family>微软雅黑</family>
-          <pointsize>10</pointsize>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:14px;</string>
         </property>
         <property name="text">
          <string>触发模式</string>
@@ -228,6 +305,12 @@ border:none;
       </item>
       <item>
        <widget class="QComboBox" name="cmbMode">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -236,8 +319,8 @@ border:none;
         </property>
         <property name="font">
          <font>
-          <family>微软雅黑</family>
-          <pointsize>10</pointsize>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -246,10 +329,13 @@ border:none;
          <enum>Qt::ClickFocus</enum>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;长按：按下触发键将持续运行，松开停止&lt;/p&gt;&lt;p&gt;点击：点击触发将持续运行，再次点击取消&lt;/p&gt;&lt;p&gt;次数：点击触发键执行宏，直到宏执行完成指定的次数&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>切换：点击触发键执行宏，再次点击触发键停止
+按下：按下触发键执行宏，直到完成对应次数或松开
+松开：松开触发键执行宏，直到完成对应次数或按下</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">QComboBox {
+         <string notr="true">*{font-family:&quot;Microsoft YaHei&quot;;font-size:12px;}
+QComboBox {
 	background-color:#FFF;
 	padding-left:3px;
 	border:none;
@@ -273,13 +359,22 @@ QComboBox QAbstractItemView {
       </property>
       <item>
        <widget class="QLabel" name="lbTr">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
-          <family>微软雅黑</family>
-          <pointsize>10</pointsize>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:14px;</string>
         </property>
         <property name="text">
          <string>触发按键</string>
@@ -300,8 +395,22 @@ QComboBox QAbstractItemView {
           <height>24</height>
          </size>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>24</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="styleSheet">
-         <string notr="true">background-color:white;</string>
+         <string notr="true">background-color:white;font-family:&quot;Microsoft YaHei&quot;;font-size:12px;</string>
         </property>
        </widget>
       </item>
@@ -314,13 +423,22 @@ QComboBox QAbstractItemView {
       </property>
       <item>
        <widget class="QLabel" name="lbCount">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="font">
          <font>
-          <family>微软雅黑</family>
-          <pointsize>10</pointsize>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:14px;</string>
         </property>
         <property name="text">
          <string>触发次数</string>
@@ -329,6 +447,12 @@ QComboBox QAbstractItemView {
       </item>
       <item>
        <widget class="QLineEdit" name="etCount">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -337,8 +461,8 @@ QComboBox QAbstractItemView {
         </property>
         <property name="font">
          <font>
-          <family>微软雅黑</family>
-          <pointsize>9</pointsize>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
           <weight>75</weight>
           <bold>true</bold>
          </font>
@@ -350,7 +474,7 @@ QComboBox QAbstractItemView {
          <string/>
         </property>
         <property name="styleSheet">
-         <string notr="true">background-color: #FFF; border:none;</string>
+         <string notr="true">background-color: #FFF; border:none;font-family:&quot;Microsoft YaHei&quot;;font-size:12px;</string>
         </property>
         <property name="inputMask">
          <string/>
@@ -359,7 +483,7 @@ QComboBox QAbstractItemView {
          <bool>false</bool>
         </property>
         <property name="placeholderText">
-         <string>0-1000</string>
+         <string>0~9999（0 = 无限）</string>
         </property>
        </widget>
       </item>
@@ -372,8 +496,8 @@ QComboBox QAbstractItemView {
       </property>
       <property name="sizeHint" stdset="0">
        <size>
-        <width>20</width>
-        <height>40</height>
+        <width>0</width>
+        <height>0</height>
        </size>
       </property>
      </spacer>

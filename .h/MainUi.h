@@ -1,13 +1,13 @@
 ﻿#pragma once
 #pragma execution_character_set("utf-8")
 #include <qsystemtrayicon.h>
-#include "ui_MainUi.h"
 #include "MacroUi.h"
 #include "TriggerUi.h"
 #include "FuncUi.h"
 #include "SettingsUi.h"
 #include "AboutUi.h"
 #include "QuickInputDef.h"
+#include "ui_MainUi.h"
 
 class MainUi : public QMainWindow
 {
@@ -19,6 +19,8 @@ public:
 	{
 		this->qis = qis;
 		ui.setupUi(this);
+		setWindowFlags(Qt::FramelessWindowHint);
+		setAttribute(Qt::WA_TranslucentBackground);
 
 		{
 			tray = new QSystemTrayIcon(this);
@@ -30,10 +32,18 @@ public:
 			wf = new FuncUi(this, qis);
 			ws = new SettingsUi(this, qis);
 			wa = new AboutUi(this);
+			wm->move(1, 71);
+			wt->move(1, 71);
+			wf->move(1, 71);
+			ws->move(1, 71);
+			wa->move(1, 71);
 		}
 
 		{
 			connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(OnTrayClick(QSystemTrayIcon::ActivationReason)));
+			connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
+			connect(ui.bnMin, SIGNAL(clicked()), this, SLOT(OnBnMin()));
+			connect(ui.bnHide, SIGNAL(clicked()), this, SLOT(OnBnHide()));
 			connect(ui.bnScript, SIGNAL(clicked()), this, SLOT(OnBnScript()));
 			connect(ui.bnTrigger, SIGNAL(clicked()), this, SLOT(OnBnTrigger()));
 			connect(ui.bnFunc, SIGNAL(clicked()), this, SLOT(OnBnFunc()));
@@ -42,7 +52,6 @@ public:
 		}
 
 		ShowWnd(wm);
-		FontResize();
 	}
 
 private:
@@ -57,17 +66,11 @@ private:
 	QWidget* wa = 0;
 
 	QuickInputStruct* qis = 0;
-	QString styleOn = "QPushButton{background-color:#CCEEFF;padding:10px;border:none;}";
-	QString styleOff = "QPushButton{background-color:#AADDEE;padding:10px;border:none;}QPushButton:hover{background-color:#C0E2F2;}";
+	QString styleOn = R"(QPushButton{background-color:#CEF;border:none;font-family:"Microsoft YaHei";font-size:18px;})";
+	QString styleOff = R"(QPushButton{background-color:#ADE;border:none;font-family:"Microsoft YaHei";font-size:18px;}QPushButton:hover{background-color: #C0E2F2;})";
 
-	void FontResize()
-	{
-		ui.bnScript->setFont(UI::font4);
-		ui.bnTrigger->setFont(UI::font4);
-		ui.bnFunc->setFont(UI::font4);
-		ui.bnSettings->setFont(UI::font4);
-		ui.bnAbout->setFont(UI::font4);
-	}
+	QPoint msPos;
+	bool change = 1;
 
 	void ShowWnd(QWidget* wnd)
 	{
@@ -93,7 +96,16 @@ private:
 		wnd->show();
 	}
 
-private slots:
+	void mousePressEvent(QMouseEvent* et)
+	{
+		if (et->buttons() & Qt::LeftButton) msPos = et->pos();
+	}
+
+	void mouseMoveEvent(QMouseEvent* et)
+	{
+		if (et->buttons() & Qt::LeftButton) move(et->pos() + pos() - msPos);
+	}
+
 	void changeEvent(QEvent* et)
 	{
 		if (et->type() == QEvent::WindowStateChange)
@@ -106,10 +118,21 @@ private slots:
 			else if (windowState() == Qt::WindowMinimized)
 			{
 				qis->HookState(1);
-				if (qis->set.minMode) hide();
+				if (change && qis->set.minMode) hide();
 			}
 		}
 	}
+
+	void closeEvent(QCloseEvent*)
+	{
+		wm->close();
+		wt->close();
+		wf->close();
+		ws->close();
+		wa->close();
+	}
+
+private slots:
 
 	void OnTrayClick(QSystemTrayIcon::ActivationReason reason)
 	{
@@ -122,6 +145,23 @@ private slots:
 		}
 	}
 
+	void OnBnClose()
+	{
+		close();
+	}
+	void OnBnMin()
+	{
+		change = 0;
+		setWindowState(Qt::WindowMinimized);
+		change = 1;
+	}
+	void OnBnHide()
+	{
+		change = 0;
+		setWindowState(Qt::WindowMinimized);
+		hide();
+		change = 1;
+	}
 	void OnBnScript()
 	{
 		ShowWnd(wm);

@@ -25,8 +25,10 @@ public:
 		setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setMouseTracking(true);
 
+		ui.bnStart->setText(UI::rcStart);
+		ui.bnClose->setText(UI::rcClose);
+
 		ControlEvent();
-		FontResize();
 	}
 
 	void AddItems(BYTE type, BYTE vk, POINT pos)
@@ -60,6 +62,22 @@ public:
 		items[0].Add(item);
 	}
 
+	bool State() { return start; }
+
+	void EndRec()
+	{
+		if (start)
+		{
+			items[0].Add();
+			items[0].Add();
+		}
+		else
+		{
+			items[0].Emp();
+		}
+		OnBnStart();
+	}
+
 private:
 
 	Ui::RecordUiClass ui;
@@ -76,32 +94,24 @@ private:
 		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
 	}
 
-	void FontResize()
-	{
-		ui.bnStart->setFont(UI::font1);
-		ui.bnClose->setFont(UI::font1);
-		ui.bnStart->setText(UI::rcStart);
-		ui.bnClose->setText(UI::rcClose);
-	}
-
 	void mouseMoveEvent(QMouseEvent* et)
 	{
 		if (et->buttons() & Qt::LeftButton) move(et->pos() + pos() - QPoint(5, 15));
 	}
 
-private slots:
+public slots:
 
 	void OnBnStart()
 	{
 		if (start)
 		{
 			qis->rec = 0;
-			List<Item>& items = *this->items;
-			items.Del(items.len() - 1);
-			items.Del(items.len() - 1);
-			items.Del(items.len() - 1);
-			items.Del(items.len() - 1);
-			items.Del(items.len() - 1);
+			items[0].Del(items[0].len() - 1);
+			items[0].Del(items[0].len() - 1);
+			items[0].Del(items[0].len() - 1);
+			items[0].Del(items[0].len() - 1);
+			items[0].Del(items[0].len() - 1);
+			items[0].Del(items[0].len() - 1);
 
 			qis->scripts[qis->scripts.len() - 1].name = NameFilter(qis, L"录制");
 			SaveScript(qis->scripts[qis->scripts.len() - 1]);
@@ -109,6 +119,8 @@ private slots:
 		}
 		else
 		{
+			TipsWindow::Hide();
+			items[0].Emp();
 			ui.bnStart->setText(UI::rcStop);
 			start = 1;
 			qis->rec = this;
@@ -117,6 +129,7 @@ private slots:
 
 	void OnBnClose()
 	{
+		TipsWindow::Hide();
 		qis->rec = 0;
 		qis->scripts.Del(qis->scripts.len() - 1);
 		main->show();

@@ -26,45 +26,73 @@
    <string>About</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">border-image:url(:/about.png);</string>
+   <string notr="true">#AboutUiClass{Background-color:#CEF;border-bottom-left-radius:8px;border-bottom-right-radius:8px;}</string>
   </property>
-  <widget class="QLabel" name="lbText">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>640</width>
-     <height>440</height>
-    </rect>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
    </property>
-   <property name="font">
-    <font>
-     <family>微软雅黑</family>
-     <pointsize>12</pointsize>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
+   <property name="leftMargin">
+    <number>0</number>
    </property>
-   <property name="cursor">
-    <cursorShape>PointingHandCursor</cursorShape>
+   <property name="topMargin">
+    <number>0</number>
    </property>
-   <property name="layoutDirection">
-    <enum>Qt::LeftToRight</enum>
+   <property name="rightMargin">
+    <number>0</number>
    </property>
-   <property name="styleSheet">
-    <string notr="true">QLabel{background-color:transparent;color:#000;}
-QLabel:hover {color:#AA0000;}</string>
+   <property name="bottomMargin">
+    <number>0</number>
    </property>
-   <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Release Date：2023-11-30&lt;/p&gt;&lt;p&gt;bilibili：千雪加奈&lt;/p&gt;&lt;p&gt;QQ：314575508&lt;/p&gt;&lt;p&gt;chiyukigana-low@outlook.com&lt;/p&gt;&lt;p&gt;欢迎反馈问题喵ฅ⁠^千雪^ฅ&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-   </property>
-   <property name="textFormat">
-    <enum>Qt::AutoText</enum>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignCenter</set>
-   </property>
-  </widget>
+   <item>
+    <widget class="QLabel" name="lbText">
+     <property name="font">
+      <font>
+       <family>Microsoft YaHei</family>
+       <pointsize>-1</pointsize>
+       <weight>75</weight>
+       <italic>false</italic>
+       <bold>true</bold>
+       <underline>false</underline>
+       <strikeout>false</strikeout>
+       <stylestrategy>PreferDefault</stylestrategy>
+       <kerning>true</kerning>
+      </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLabel{
+border-image:url(:/about.png);
+padding-left:50px;
+border-bottom-left-radius:8px;
+border-bottom-right-radius:8px;
+font-family:&quot;Microsoft YaHei&quot;;
+font-size:18px;
+}
+QLabel:hover{color:#00F;}</string>
+     </property>
+     <property name="text">
+      <string>▍Release Date：2023-12-21
+▍bilibili：千雪加奈
+▍QQ：314575508
+▍chiyukigana-low@outlook.com
+▍欢迎反馈问题喵ฅ⁠^千雪^ฅ
+</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::PlainText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources>
   <include location="../.res/QuickInput.qrc"/>

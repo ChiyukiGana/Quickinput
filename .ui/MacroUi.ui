@@ -26,7 +26,7 @@
    <string>Macro</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color:#CEF;</string>
+   <string notr="true">#MacroUiClass{background-color:#CEF;border-bottom-left-radius:10px;border-bottom-right-radius:10px;}</string>
   </property>
   <widget class="QLabel" name="lbMacro">
    <property name="geometry">
@@ -39,11 +39,14 @@
    </property>
    <property name="font">
     <font>
-     <family>微软雅黑</family>
-     <pointsize>12</pointsize>
+     <family>Microsoft YaHei</family>
+     <pointsize>-1</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:16px;</string>
    </property>
    <property name="text">
     <string>在此处添加你的宏，然后在触发选择宏</string>
@@ -61,16 +64,26 @@
      <height>391</height>
     </rect>
    </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="font">
     <font>
-     <family>微软雅黑</family>
-     <pointsize>10</pointsize>
+     <family>Microsoft YaHei</family>
+     <pointsize>-1</pointsize>
      <weight>75</weight>
      <bold>true</bold>
     </font>
    </property>
+   <property name="focusPolicy">
+    <enum>Qt::ClickFocus</enum>
+   </property>
    <property name="styleSheet">
-    <string notr="true">QTableWidget{
+    <string notr="true">*{font-family:&quot;Microsoft YaHei&quot;;font-size:12px;}
+QTableWidget{
 background-color: #FFF;
 border:none;
 outline:none;
@@ -134,6 +147,12 @@ border:none;
     </property>
     <item>
      <widget class="QLineEdit" name="etName">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -142,17 +161,20 @@ border:none;
       </property>
       <property name="font">
        <font>
-        <family>微软雅黑</family>
-        <pointsize>10</pointsize>
+        <family>Microsoft YaHei</family>
+        <pointsize>-1</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::ClickFocus</enum>
       </property>
       <property name="toolTip">
        <string>按下回车应用更改</string>
       </property>
       <property name="styleSheet">
-       <string notr="true">background-color: #FFF; border:none; padding:6px;</string>
+       <string notr="true">background-color: #FFF;border:none;padding:6px;font-family:&quot;Microsoft YaHei&quot;;font-size:12px;</string>
       </property>
       <property name="inputMask">
        <string/>
@@ -170,6 +192,12 @@ border:none;
     </item>
     <item>
      <widget class="QPushButton" name="bnRec">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -178,8 +206,8 @@ border:none;
       </property>
       <property name="font">
        <font>
-        <family>微软雅黑</family>
-        <pointsize>12</pointsize>
+        <family>Microsoft YaHei</family>
+        <pointsize>-1</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -187,8 +215,12 @@ border:none;
       <property name="cursor">
        <cursorShape>PointingHandCursor</cursorShape>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::ClickFocus</enum>
+      </property>
       <property name="styleSheet">
-       <string notr="true">QPushButton{background-color: #ADE;border:none;}
+       <string notr="true">*{font-family:&quot;Microsoft YaHei&quot;;font-size:14px;}
+QPushButton{background-color: #ADE;border:none;}
 QPushButton:hover{background-color: #C0E2F2;}</string>
       </property>
       <property name="text">
@@ -198,6 +230,12 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
     </item>
     <item>
      <widget class="QPushButton" name="bnAdd">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -206,8 +244,8 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
       </property>
       <property name="font">
        <font>
-        <family>微软雅黑</family>
-        <pointsize>12</pointsize>
+        <family>Microsoft YaHei</family>
+        <pointsize>-1</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -215,8 +253,12 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
       <property name="cursor">
        <cursorShape>PointingHandCursor</cursorShape>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::ClickFocus</enum>
+      </property>
       <property name="styleSheet">
-       <string notr="true">QPushButton{background-color: #ADE;border:none;}
+       <string notr="true">*{font-family:&quot;Microsoft YaHei&quot;;font-size:14px;}
+QPushButton{background-color: #ADE;border:none;}
 QPushButton:hover{background-color: #C0E2F2;}</string>
       </property>
       <property name="text">
@@ -226,6 +268,12 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
     </item>
     <item>
      <widget class="QPushButton" name="bnEdit">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -234,8 +282,8 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
       </property>
       <property name="font">
        <font>
-        <family>微软雅黑</family>
-        <pointsize>12</pointsize>
+        <family>Microsoft YaHei</family>
+        <pointsize>-1</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -243,8 +291,12 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
       <property name="cursor">
        <cursorShape>PointingHandCursor</cursorShape>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::ClickFocus</enum>
+      </property>
       <property name="styleSheet">
-       <string notr="true">QPushButton{background-color: #ADE;border:none;}
+       <string notr="true">*{font-family:&quot;Microsoft YaHei&quot;;font-size:14px;}
+QPushButton{background-color: #ADE;border:none;}
 QPushButton:hover{background-color: #C0E2F2;}</string>
       </property>
       <property name="text">
@@ -253,7 +305,13 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="bnDel">
+     <widget class="QPushButton" name="bnExp">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="minimumSize">
        <size>
         <width>0</width>
@@ -262,8 +320,8 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
       </property>
       <property name="font">
        <font>
-        <family>微软雅黑</family>
-        <pointsize>12</pointsize>
+        <family>Microsoft YaHei</family>
+        <pointsize>-1</pointsize>
         <weight>75</weight>
         <bold>true</bold>
        </font>
@@ -271,8 +329,88 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
       <property name="cursor">
        <cursorShape>PointingHandCursor</cursorShape>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::ClickFocus</enum>
+      </property>
       <property name="styleSheet">
-       <string notr="true">QPushButton{background-color: #ADE;border:none;}
+       <string notr="true">*{font-family:&quot;Microsoft YaHei&quot;;font-size:14px;}
+QPushButton{background-color: #ADE;border:none;}
+QPushButton:hover{background-color: #C0E2F2;}</string>
+      </property>
+      <property name="text">
+       <string>导出</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="bnImp">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>35</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Microsoft YaHei</family>
+        <pointsize>-1</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="cursor">
+       <cursorShape>PointingHandCursor</cursorShape>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::ClickFocus</enum>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">*{font-family:&quot;Microsoft YaHei&quot;;font-size:14px;}
+QPushButton{background-color: #ADE;border:none;}
+QPushButton:hover{background-color: #C0E2F2;}</string>
+      </property>
+      <property name="text">
+       <string>导入</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="bnDel">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>35</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Microsoft YaHei</family>
+        <pointsize>-1</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="cursor">
+       <cursorShape>PointingHandCursor</cursorShape>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::ClickFocus</enum>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">*{font-family:&quot;Microsoft YaHei&quot;;font-size:14px;}
+QPushButton{background-color: #ADE;border:none;}
 QPushButton:hover{background-color: #C0E2F2;}</string>
       </property>
       <property name="text">

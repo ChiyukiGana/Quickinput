@@ -19,7 +19,7 @@ namespace CG {
 
 		static bool state(BYTE vk) { return GetAsyncKeyState(vk) & 0x8000; }
 
-		static void Loop(BYTE vk, UINT delay = 1) { while (GetAsyncKeyState(vk)) sleep(delay); }
+		static void Loop(BYTE vk, UINT delay = 10) { while (GetAsyncKeyState(vk)) sleep(delay); }
 
 		// flags: 1 = down, 0 = up
 		static void State(BYTE vk, bool state = 1, ULONG_PTR ex = 0) {
@@ -106,7 +106,7 @@ namespace CG {
 			}
 		}
 
-		static void Click(BYTE vk, UINT delay = 10, ULONGLONG ex = 0) {
+		static void Click(BYTE vk, UINT delay = 10, ULONG_PTR ex = 0) {
 			State(vk, 1, ex); sleep(delay); State(vk, 0, ex); sleep(delay);
 		}
 

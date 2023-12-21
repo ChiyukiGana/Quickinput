@@ -5,6 +5,9 @@
 #include <time.h>
 #include <windows.h>
 
+#define RGBA(r,g,b,a) ((COLORREF)((BYTE)(r)|((BYTE)(g)<<8)|((BYTE)(b)<<16)|((BYTE)(a)<<24)))
+#define GetAValue(rgba) ((BYTE)((rgba)>>24))
+
 typedef unsigned __int8 byte;
 typedef signed __int8 int8;
 typedef unsigned __int8 uint8;
@@ -12,25 +15,25 @@ typedef signed __int16 int16;
 typedef unsigned __int16 uint16;
 typedef signed __int32 int32;
 typedef unsigned __int32 uint32;
-#ifdef _WIN64
 typedef signed __int64 int64;
 typedef unsigned __int64 uint64;
-#endif
 
-#define RGBA(r,g,b,a) ((COLORREF)((BYTE)(r)|((BYTE)(g)<<8)|((BYTE)(b)<<16)|((BYTE)(a)<<24)))
-#define GetAValue(rgba) ((BYTE)((rgba)>>24))
+template<typename T>
+struct TPOINT {
+	T x;
+	T y;
+};
 
-typedef struct _FRECT {
-	double left;
-	double top;
-	double right;
-	double bottom;
-} FRECT, * PFRECT;
+template<typename T>
+struct TRECT {
+	T left;
+	T top;
+	T right;
+	T bottom;
+};
 
-typedef struct _FPOINT {
-	double x;
-	double y;
-} FPOINT, * PFPOINT;
+typedef TRECT<float> FRECT, * PFRECT;
+typedef TPOINT<float> FPOINT, * PFPOINT;
 
 namespace CG {
 	template <typename T>
@@ -128,229 +131,15 @@ namespace CG {
 
 		// rect: pixel
 		FRECT absolute(RECT& rect) {
-			return { (double)rect.left / cx, (double)rect.top / cy, (double)rect.right / cx, (double)rect.bottom / cy };
+			return { (float)(rect.left / cx), (float)(rect.top / cy), (float)(rect.right / cx), (float)(rect.bottom / cy) };
 		}
 		// rect: pixel
 		FRECT absolute(long left, long top, long right, long bottom) {
-			return { (double)left / cx, (double)top / cy, (double)right / cx, (double)bottom / cy };
+			return { (float)(left / cx), (float)(top / cy), (float)(right / cx), (float)(bottom / cy) };
 		}
 		// rect: pixel
 		FPOINT absolute(long x, long y) {
-			return { (double)x / cx, (double)y / cy, };
-		}
-	};
-
-	template <class ITEM>
-	class List
-	{
-	private:
-
-		ITEM* item = 0;
-		uint32 length = 0;
-
-	public:
-
-		ITEM& operator[](uint32 u) { return item[u]; }
-
-		void Add()
-		{
-			ITEM* cache = new ITEM[length + 1];
-			for (uint32 u = 0; u < length; u++) { cache[u] = item[u]; }
-
-			if (item) delete[] item;
-			item = cache;
-			length++;
-		}
-
-		void Add(ITEM val)
-		{
-			ITEM* cache = new ITEM[length + 1];
-			for (uint32 u = 0; u < length; u++) { cache[u] = item[u]; }
-
-			if (item) delete[] item;
-
-			cache[length] = val;
-			item = cache;
-			length++;
-		}
-
-		bool Ins(uint32 pos)
-		{
-			if (pos > length) return 0;
-			ITEM* cache = new ITEM[length + 1];
-			for (uint32 u = 0; u < pos && u < length; u++)
-			{
-				cache[u] = item[u];
-			}
-			for (uint32 u = pos; u < length; u++)
-			{
-				cache[u + 1] = item[u];
-			}
-
-			if (item) delete[] item;
-
-			item = cache;
-			length++;
-			return 0;
-		}
-
-		bool Ins(uint32 pos, ITEM val)
-		{
-			if (pos > length) return 0;
-			ITEM* cache = new ITEM[length + 1];
-			for (uint32 u = 0; u < pos && u < length; u++)
-			{
-				cache[u] = item[u];
-			}
-
-			cache[pos] = val;
-
-
-			for (uint32 u = pos; u < length; u++)
-			{
-				cache[u + 1] = item[u];
-			}
-
-			if (item) delete[] item;
-
-			item = cache;
-			length++;
-			return 1;
-		}
-
-		bool Swp(uint32 p1, uint32 p2)
-		{
-			if ((p1 < length) && (p2 < length) && (p1 != p2))
-			{
-				ITEM cache;
-				cache = item[p1];
-				item[p1] = item[p2];
-				item[p2] = cache;
-				return 1;
-			}
-			return 0;
-		}
-
-		bool Mov(uint32 before, uint32 after)
-		{
-			if (before > length || after > length) return 0;
-
-			if (before > after)
-			{
-				for (uint32 u = before; u > after; u--)
-				{
-					Swp(u, u - 1);
-				}
-				return 1;
-			}
-			else if (before < after)
-			{
-				for (uint32 u = before; u < after; u++)
-				{
-					Swp(u, u + 1);
-				}
-				return 1;
-			}
-			else return 1;
-		}
-
-		void Cop(List list)
-		{
-			Emp();
-			for (uint32 u = 0; u < list.len(); u++) Add(list.item[u]);
-		}
-
-		void Cop(List list, int begin, int end)
-		{
-			Emp();
-			for (; begin <= end && begin < list.len(); begin++) Add(list.item[begin]);
-		}
-
-		void Cut(List list)
-		{
-			for (uint32 u = 0; u < list.len(); u++) Add(list.item[u]);
-		}
-
-		void Cut(List list, int begin, int end)
-		{
-			for (; begin <= end && begin < list.len(); begin++) Add(list.item[begin]);
-		}
-
-		bool Del(uint32 pos)
-		{
-			if (length < 1) return 0;
-			if (pos > length - 1) return 0;
-
-			length--;
-
-			if (length == 0)
-			{
-				if (item) delete[] item;
-				item = 0;
-				return 1;
-			}
-
-			ITEM* cache = new ITEM[length];
-
-			for (uint32 u = 0; u < length + 1; u++)
-			{
-				if (u < pos) {
-					cache[u] = item[u];
-				}
-				else if (u > pos) {
-					cache[u - 1] = item[u];
-				}
-			}
-
-			if (item) delete[] item;
-			item = cache;
-
-			return 1;
-		}
-
-		void Emp()
-		{
-			if (item) delete[] item;
-			item = 0;
-			length = 0;
-		}
-
-		uint32 len() { return length; }
-	};
-
-	class TimeStamp
-	{
-	public:
-		struct Time
-		{
-			uint32 h;
-			uint32 m;
-			uint32 s;
-		};
-
-		static Time toTime(ULONG stamp)
-		{
-			double c;
-			uint32 h = 0, m = 0, s = 0;
-
-			c = (double)stamp / 3600.0;
-			h = c;
-
-			if (c > 0.0) c = c - (double)h;
-
-			c = (c + 0.0001) * 60;
-			m = c;
-
-			if (c > 0.0) c = c - (double)m;
-
-			c = (c + 0.01) * 60;
-			s = c;
-			return { h, m, s };
-		}
-
-		static ULONG toStamp(Time time)
-		{
-			return time.s + time.m * 60 + time.h * 3600;
+			return { (float)(x / cx), (float)(y / cy), };
 		}
 	};
 }

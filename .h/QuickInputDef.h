@@ -1,23 +1,58 @@
 ﻿#pragma once
 #pragma execution_character_set("utf-8")
 #include <QString>
-#include "X:/#Lib/C++/cg.h"
-#include "CJsonObject.h"
+#include <QFont>
+#include "../header/cg.h"
+#include "../header/CJsonObject.h"
 #include "TipsWindow.h"
 
+/*
+	ItemParam {
+		endLoop, end {
+			null
+		}
+
+		delay {
+			b = count
+			c = random
+		}
+
+		down, up, click {
+			a = key
+		}
+
+		pos, move {
+			a = random
+			b = y
+			c = y
+		}
+
+		text {
+			text = text
+		}
+
+		color {
+			a = RGB + Ex
+			b = left + top
+			c = right + bottom
+			d = isFind
+		}
+
+		loop {
+			b = count
+		}
+	}
+*/
+
 struct UI {
-	static QFont font1;
-	static QFont font2;
-	static QFont font3;
-	static QFont font4;
 	static std::wstring qiOn;
 	static std::wstring qiOff;
 	static QString qiWait;
 	static QString qiDown;
 	static QString qiUp;
 	static QString qiClick;
+	static QString qiPos;
 	static QString qiMove;
-	static QString qiMoveTo;
 	static QString qiLoop;
 	static QString qiText;
 	static QString qiColor;
@@ -38,44 +73,65 @@ struct UI {
 
 struct Item
 {
-	int type = 0; //-2: endLoop, -1: end 0: delay, 1: down, 2: up, 3: click, 4: moveTo, 5: move, 6: text, 7: color
-	int a = 0;
-	int b = 0;
-	int c = 0;
-	std::wstring text;
+	enum {
+		endLoop = -2,
+		end = -1,
+		delay = 0,
+		down = 1,
+		up = 2,
+		click = 3,
+		pos = 4,
+		move = 5,
+		text = 6,
+		color = 7,
+		loop = 8
+	};
+	int8 type = 0;
+	int32 a = 0;
+	int32 b = 0;
+	int32 c = 0;
+	int32 d = 0;
+	std::wstring s;
 	List<Item> next;
 };
 
 struct Script
 {
-	List<Item> items;
+	enum {
+		sw,
+		down,
+		up
+	};
+	bool state = 0;
+	bool block = 0;
+	bool k1 = 0, k2 = 0, active = 0;
+	uint8 mode = 0;
+	uint32 key = 0;
+	uint32 a = 0;
 	std::wstring name;
-	int state = 0;
-	int key = 0;
-	bool k1 = 0, k2 = 0;
-	int mode = 0; //0: Loop, 1: Switch, 2: Once
+	List<Item> items;
 	HANDLE thread = 0;
 };
 
 struct QuickClick
 {
-	UINT key = 0;
-	UINT state = 0;
-	UINT delay = 10;
-	UINT mode = 0;
+	bool state = 0;
+	uint8 mode = 0;
+	uint32 key = 0;
+	uint32 delay = 10;
 	HANDLE thread = 0;
 };
 
 struct ShowClock
 {
-	UINT key = 0;
-	UINT state = 0;
+	bool state = 0;
+	uint32 key = 0;
 };
 
 struct WndActive
 {
 	bool active = 0;
-	UINT state = 0;
+	bool state = 0;
 	HWND wnd = 0;
 	HANDLE thread = 0;
 	std::wstring name;
@@ -83,11 +139,13 @@ struct WndActive
 
 struct SettingsData
 {
-	UINT key = 0;
+	uint32 key = 0;
+	uint32 recKey = 0;
 	bool k1 = 0, k2 = 0;
-	UINT minMode = 0;
-	UINT showTips = 0;
-	UINT wndZoom = 0;
+	bool showTips = 0;
+	bool audFx = 0;
+	bool minMode = 0;
+	bool wndZoom = 0;
 };
 
 struct FuncData
@@ -138,16 +196,19 @@ static POINT AbsToRel(POINT abs)
 	return { (long)((double)scr.cx / 10000.0 * (double)abs.x), (long)((double)scr.cy / 10000.0 * (double)abs.y) };
 }
 
-static void SaveItem(neb::CJsonObject& jItems, List<Item> items)
+static void SaveItem(neb::CJsonObject& jItems, List<Item>& items)
 {
 	for (uint32 u = 0; u < items.len(); u++)
 	{
 		neb::CJsonObject jItem;
-		jItem.Add(items[u].type);
+		uint32 u32cache = 0;
+		std::string scache;
+		u32cache = (uint32)items[u].type; jItem.Add(u32cache);
 		jItem.Add(items[u].a);
 		jItem.Add(items[u].b);
 		jItem.Add(items[u].c);
-		jItem.Add(String::toString(items[u].text));
+		jItem.Add(items[u].d);
+		scache = String::toString(items[u].s); jItem.Add(scache);
 
 		if (items[u].type == 7 || items[u].type == 8)
 		{
@@ -163,10 +224,13 @@ static void SaveScript(Script& script)
 {
 	neb::CJsonObject json;
 	neb::CJsonObject jItems;
+	uint32 u32cache = 0;
 	SaveItem(jItems, script.items);
 	json.Add("state", script.state);
-	json.Add("mode", script.mode);
+	json.Add("block", script.block);
+	u32cache = script.mode; json.Add("mode", u32cache);
 	json.Add("key", script.key);
+	json.Add("a", script.a);
 	json.Add("items", jItems);
 
 	if (!File::FolderState(L"json"))
@@ -183,18 +247,22 @@ static void SaveScript(Script& script)
 static void SaveJson(QuickInputStruct* qis)
 {
 	neb::CJsonObject cfg;
+	uint32 u32cache = 0;
+	std::string scache;
 	cfg.Add("key", qis->set.key);
-	cfg.Add("minMode", qis->set.minMode);
+	cfg.Add("recKey", qis->set.recKey);
 	cfg.Add("showTips", qis->set.showTips);
+	cfg.Add("audFx", qis->set.audFx);
+	cfg.Add("minMode", qis->set.minMode);
 	cfg.Add("wndZoom", qis->set.wndZoom);
 	cfg.Add("quickClickKey", qis->fun.quickClick.key);
 	cfg.Add("quickClickState", qis->fun.quickClick.state);
 	cfg.Add("quickClickDelay", qis->fun.quickClick.delay);
-	cfg.Add("quickClickMode", qis->fun.quickClick.mode);
+	u32cache = (uint32)qis->fun.quickClick.mode; cfg.Add("quickClickMode", u32cache);
 	cfg.Add("showClockKey", qis->fun.showClock.key);
 	cfg.Add("showClockState", qis->fun.showClock.state);
 	cfg.Add("wndActiveState", qis->fun.wndActive.state);
-	cfg.Add("wndActiveName", String::toString(qis->fun.wndActive.name));
+	scache = String::toString(qis->fun.wndActive.name); cfg.Add("wndActiveName", scache);
 
 	File::TextSave(L"QuickInput.json", String::String::toWString(cfg.ToString()), "chinese");
 }
@@ -206,18 +274,19 @@ static void LoadItem(const neb::CJsonObject jItems, List<Item>& items)
 		Item item;
 		neb::CJsonObject jItem;
 		jItems.Get(u, jItem);
-		jItem.Get(0, item.type);
+		uint32 u32cache;
+		std::string scache;
+		jItem.Get(0, u32cache); item.type = u32cache;
 		jItem.Get(1, item.a);
 		jItem.Get(2, item.b);
 		jItem.Get(3, item.c);
-		std::string text;
-		jItem.Get(4, text);
-		item.text = String::toWString(text);
+		jItem.Get(4, item.d);
+		jItem.Get(5, scache); item.s = String::toWString(scache);
 
 		if (item.type == 7 || item.type == 8)
 		{
 			neb::CJsonObject jNext;
-			jItem.Get(5, jNext);
+			jItem.Get(6, jNext);
 			LoadItem(jNext, item.next);
 		}
 		items.Add(item);
@@ -228,25 +297,26 @@ static void LoadJson(QuickInputStruct* qis)
 {
 	qis->scripts.Emp();
 	neb::CJsonObject cfg(String::toString(File::TextLoad(L"QuickInput.json")));
+	uint32 u32cache = 0;
+	std::string scache;
 	cfg.Get("key", qis->set.key);
-	cfg.Get("minMode", qis->set.minMode);
+	cfg.Get("recKey", qis->set.recKey);
 	cfg.Get("showTips", qis->set.showTips);
+	cfg.Get("audFx", qis->set.audFx);
+	cfg.Get("minMode", qis->set.minMode);
 	cfg.Get("wndZoom", qis->set.wndZoom);
 	cfg.Get("quickClickKey", qis->fun.quickClick.key);
 	cfg.Get("quickClickState", qis->fun.quickClick.state);
 	cfg.Get("quickClickDelay", qis->fun.quickClick.delay);
-	cfg.Get("quickClickMode", qis->fun.quickClick.mode);
+	cfg.Get("quickClickMode", u32cache); qis->fun.quickClick.mode = (uint8)u32cache;
 	cfg.Get("showClockKey", qis->fun.showClock.key);
 	cfg.Get("showClockState", qis->fun.showClock.state);
 	cfg.Get("wndActiveState", qis->fun.wndActive.state);
-
-	std::string wndName;
-	cfg.Get("wndActiveName", wndName);
-	qis->fun.wndActive.name = String::toWString(wndName);
+	cfg.Get("wndActiveName", scache); qis->fun.wndActive.name = String::toWString(scache);
 
 	File::FindFileStruct files = File::FindFile(L"json\\*.json");
 
-	for (UINT u = 0; u < files.len(); u++) {
+	for (uint32 u = 0; u < files.len(); u++) {
 		qis->scripts.Add();
 		Script& script = qis->scripts[qis->scripts.len() - 1];
 		script.name = ((std::wstring)files[u].name).substr(0, wcslen(files[u].name) - 5);
@@ -254,8 +324,10 @@ static void LoadJson(QuickInputStruct* qis)
 		neb::CJsonObject jScript(String::toString(File::TextLoad(((std::wstring)L"json\\" + files[u].name), "chinese")));
 
 		jScript.Get("state", script.state);
-		jScript.Get("mode", script.mode);
+		jScript.Get("block", script.block);
+		jScript.Get("mode", u32cache); script.mode = u32cache;
 		jScript.Get("key", script.key);
+		jScript.Get("a", script.a);
 
 		neb::CJsonObject jItems;
 		jScript.Get("items", jItems);
@@ -266,9 +338,9 @@ static void LoadJson(QuickInputStruct* qis)
 
 static std::wstring NameFilter(QuickInputStruct* qis, std::wstring name)
 {
-	for (UINT n = 0;; n++)
+	for (uint32 n = 0;; n++)
 	{
-		for (UINT nx = 0; nx < qis->scripts.len(); nx++)
+		for (uint32 nx = 0; nx < qis->scripts.len(); nx++)
 		{
 			std::wstring find = name + L" " + String::toWString(n + 1);
 			if (qis->scripts[nx].name == find)
