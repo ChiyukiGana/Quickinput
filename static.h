@@ -147,12 +147,12 @@ static uint8 ExcItem(Action& item)
 		{
 			if (result.find)
 			{
+				if (item.color.move == 1) Input::MoveTo(result.pt.x, result.pt.y);
 				for (uint32 u = 0; u < item.color.next.size(); u++)
 				{
 					uint8 r = ExcItem(item.color.next[u]);
 					if (r) return r;
 				}
-				if (item.color.move == 1) Input::MoveTo(result.pt.x, result.pt.y);
 			}
 		}
 		return 0;
@@ -166,7 +166,7 @@ static uint8 ExcItem(Action& item)
 			{
 				for (uint32 ux = 0; ux < item.loop.next.size(); ux++)
 				{
-					uint8 r = ExcItem(item.loop.next[u]);
+					uint8 r = ExcItem(item.loop.next[ux]);
 					if (r == 1) return r;
 					else if (r == 2) return 0;
 				}
