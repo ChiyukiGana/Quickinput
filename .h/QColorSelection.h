@@ -1,12 +1,12 @@
 #pragma once
-
 #include <windows.h>
-#include <qapplication.h>
-#include <qdesktopwidget.h>
 #include <QtWidgets/qdialog.h>
 #include <qevent.h>
 #include <qpainter.h>
-#include <qbitmap.h>
+#include <qscreen.h>
+#include <qapplication.h>
+#include <qguiapplication.h>
+#include <qdesktopwidget.h>
 
 class QColorBox : public QWidget
 {
@@ -23,12 +23,17 @@ protected:
 class QColorSelection : public QDialog
 {
 	Q_OBJECT;
+	QColorBox colorBox;
+	QColor color;
+	QRect vrect;
+	HDC hdc = 0;
+	bool end = 0;
 
 public:
 
-	QColorSelection(QWidget* parent = 0) : QDialog(parent)
+	QColorSelection() : QDialog()
 	{
-		setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
+		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setAttribute(Qt::WA_TranslucentBackground);
 		setCursor(Qt::CrossCursor);
 		colorBox.setParent(this);
@@ -40,52 +45,33 @@ public:
 
 	QColor Start()
 	{
-		screen = QApplication::desktop()->screenGeometry();
-		setMinimumWidth(screen.width());
-		setMinimumHeight(screen.height());
-		setMaximumWidth(screen.width());
-		setMaximumHeight(screen.height());
-		move(0, 0);
-
 		hdc = GetDC(0);
-		colorBox.hide();
-		grabMouse();
+		end = 0;
+		vrect = QGuiApplication::primaryScreen()->geometry();
+		setGeometry(vrect);
+		grabMouse(), setMouseTracking(1);
 		exec();
+		ReleaseDC(0, hdc);
 		return color;
 	}
 
 private:
-	QColorBox colorBox;
-	QColor color;
-	QRect screen;
-	HDC hdc;
-	COLORREF rgb;
-
 	void SetColor(QMouseEvent* et)
 	{
-		QPoint ms = et->globalPos();
-		QPoint boxPos;
-		POINT pt;
-		GetCursorPos(&pt);
-		rgb = GetPixel(hdc, pt.x, pt.y);
-
-		if (ms.x() > screen.width() - 80) boxPos.setX(ms.x() - 30);
-		else boxPos.setX(ms.x() + 30);
-		if (ms.y() > screen.height() - 80) boxPos.setY(ms.y() - 30);
-		else boxPos.setY(ms.y() + 30);
-
+		QPoint ms = et->pos();
+		QPoint pt(ms.x() + 25, ms.y() + 25);
+		POINT ams; GetCursorPos(&ams);
+		COLORREF rgb = GetPixel(hdc, ams.x, ams.y);
+		if ((pt.x() > vrect.width() - 25) && (pt.y() > vrect.height() - 25)) pt.setX(ms.x() - 45), pt.setY(ms.y() - 45);
+		else { if (pt.x() > vrect.width() - 25) pt.setX(vrect.width() - 25); if (pt.y() > vrect.height() - 25) pt.setY(vrect.height() - 25); }
 		color = qRgb(GetRValue(rgb), GetGValue(rgb), GetBValue(rgb));
 		colorBox.setColor(color);
-		colorBox.move(boxPos);
-		colorBox.show();
+		colorBox.move(pt);
 	}
 
 protected:
-	void paintEvent(QPaintEvent*) { QPainter pa(this); pa.fillRect(this->rect(), QColor(127, 127, 127, 1)); }
-
+	void paintEvent(QPaintEvent*) { if (!end) { QPainter pa(this); pa.fillRect(this->rect(), QColor(127, 127, 127, 1)); } }
 	void mousePressEvent(QMouseEvent* et) { SetColor(et); }
-
-	void mouseReleaseEvent(QMouseEvent* et) { releaseMouse(); close(); }
-
+	void mouseReleaseEvent(QMouseEvent* et) { end = 1; repaint(); SetColor(et); releaseMouse(); close(); }
 	void mouseMoveEvent(QMouseEvent* et) { SetColor(et); }
 };

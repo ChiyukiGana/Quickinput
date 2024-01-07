@@ -43,9 +43,10 @@ namespace CG
 			if (p > std::vector<T>::size()) p = std::vector<T>::size();
 			std::vector<T>::insert(std::vector<T>::begin() + p, count, t);
 		}
-		bool Del(uint32 p)
+		bool Del(uint32 p = uint32Max)
 		{
-			if (p >= std::vector<T>::size()) return 0;
+			if (std::vector<T>::size() == 0) return 0;
+			if (p >= std::vector<T>::size()) p = std::vector<T>::size() - 1;
 			std::vector<T>::erase(std::vector<T>::begin() + p);
 			return 1;
 		}

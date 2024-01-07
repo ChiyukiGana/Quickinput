@@ -95,13 +95,13 @@
     <QtMoc Include=".h\QPointView.h">
       <Filter>Header Files\Wid</Filter>
     </QtMoc>
-    <QtMoc Include=".h\QPositionSelection.h">
+    <QtMoc Include=".h\QPointSelection.h">
       <Filter>Header Files\Wid</Filter>
     </QtMoc>
     <QtMoc Include=".h\QRectView.h">
       <Filter>Header Files\Wid</Filter>
     </QtMoc>
-    <QtMoc Include=".h\QSelectionBox.h">
+    <QtMoc Include=".h\QRectSelection.h">
       <Filter>Header Files\Wid</Filter>
     </QtMoc>
     <QtMoc Include=".h\TriggerUi.h">
@@ -117,9 +117,6 @@
     </ClInclude>
     <ClInclude Include="static.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TashMenu.h">
-      <Filter>Header Files\Ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

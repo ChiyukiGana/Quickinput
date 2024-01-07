@@ -1,15 +1,15 @@
 ﻿#pragma once
 #include <QString>
 #include <QFont>
-#include <qdesktopwidget.h>
-#include <qapplication.h>
-#include "D:/#CGDATA/Code/cpp/cg.h"
-#include "D:/#CGDATA/Code/cpp/CJsonObject.h"
+#include "../header/cg.h"
+#include "../header/CJsonObject.h"
 
 struct UI {
+	static float zoomRote;
 	static QString syOn;
 	static QString syOff;
 	static QString syOk;
+	static QString syYes;
 	static QString syNot;
 	static QString syStop;
 	static QString syShow;
@@ -60,9 +60,55 @@ struct UI {
 	static QString rcClose;
 };
 
+struct WndInput
+{
+	HWND wnd = 0;
+	POINT pt = { 0 };
+	WORD mk = 0;
+};
+struct WndInfo
+{
+	HWND wnd = 0;
+	std::wstring wndName;
+	std::wstring wndClass;
+	bool Update() { return wnd = FindWindowW(wndClass.c_str(), wndName.c_str()); }
+};
+struct WndLock
+{
+	static HANDLE thread;
+	static DWORD CALLBACK LockThread(PVOID wnd)
+	{
+		while (1) {
+			RECT rect = Window::rect((HWND)wnd);
+			ClipCursor(&rect);
+			sleep(10);
+		}
+		return 0;
+	}
+	static void Lock(HWND wnd)
+	{
+		UnLock();
+		thread = Thread::Start(LockThread, wnd);
+	}
+	static void UnLock()
+	{
+		if (thread)
+		{
+			TerminateThread(thread, 0);
+			thread = 0;
+		}
+		ClipCursor(0);
+	}
+};
+
 struct Action;
 typedef List<Action> Actions;
-
+struct QiDelay { uint32 ms; uint32 ex; };
+struct QiKey { enum { up, down, click }; uint32 vk = 0; uint32 state = up; };
+struct QiMouse { int32 x = 0; int32 y = 0; uint32 ex = 0; bool move = 0; };
+struct QiText { wcstring str; };
+struct QiColor { Rgba rgbe = 0; RECT rect = { 0 }; bool unfind = 0; bool move = 0; Actions next; };
+struct QiLoop { uint32 count; Actions next; };
 struct Action
 {
 	enum
@@ -78,22 +124,15 @@ struct Action
 		_loopEnd
 	};
 
-	struct Delay { uint32 ms; uint32 ex; };
-	struct Key { enum { up, down, click }; uint32 vk = 0; uint32 state = up; };
-	struct Mouse { uint32 x = 0; uint32 y = 0; uint32 ex = 0; bool move = 0; };
-	struct Text { String::wcstring str; };
-	struct Color { Rgba rgbe = 0; RECT rect = { 0 }; bool unfind = 0; bool move = 0; Actions next; };
-	struct Loop { uint32 count; Actions next; };
-
 	union
 	{
 		byte memsize[36];
-		Delay delay;
-		Key key;
-		Mouse mouse;
-		Text text;
-		Color color;
-		Loop loop;
+		QiDelay delay;
+		QiKey key;
+		QiMouse mouse;
+		QiText text;
+		QiColor color;
+		QiLoop loop;
 	};
 
 	uint32 type = _none;
@@ -127,24 +166,26 @@ struct Action
 	void Emp() {
 		if (type == _text) text.str.emp();
 		type = _none;
-		mark = L""; memset(&memsize, 0, 36);
+		mark = L""; memset(&memsize, 0, sizeof(memsize));
 	}
 };
 
-struct Script
+struct Macro
 {
 	enum { sw, down, up };
 	bool state = 0;
 	bool block = 0;
+	bool wndState = 0;
 	bool k1 = 0, k2 = 0, active = 0;
-	uint32 mode = 0;
 	uint32 key = 0;
-	uint32 a = 0;
+	uint32 mode = 0;
+	uint32 count = 0;
 	std::wstring name;
-	Actions actions;
+	WndInfo wi;
 	HANDLE thread = 0;
+	Actions actions;
 };
-typedef List<Script> Scripts;
+typedef List<Macro> Macros;
 
 struct QuickClick
 {
@@ -154,21 +195,17 @@ struct QuickClick
 	uint32 delay = 10;
 	HANDLE thread = 0;
 };
-
 struct ShowClock
 {
 	bool state = 0;
 	uint32 key = 0;
 };
-
 struct WndActive
 {
 	bool state = 0;
-	HWND wnd = 0;
+	WndInfo wi;
 	HANDLE thread = 0;
-	std::wstring name;
 };
-
 struct SettingsData
 {
 	uint32 key = 0;
@@ -181,7 +218,6 @@ struct SettingsData
 	bool minMode = 0;
 	bool zoomBlock = 0;
 };
-
 struct FuncData
 {
 	QuickClick quickClick;
@@ -191,26 +227,22 @@ struct FuncData
 
 struct QuickInputStruct
 {
-public:
 	bool state = 0;
 	bool run = 0;
-	Scripts scripts;
+	Macros macros;
 	FuncData fun;
 	SettingsData set;
-	LPVOID rec = 0;
+	PVOID rec = 0;
 
+	LPCWSTR path = L"macro\\";
 	HDC hdc = GetDC(0);
 	SIZE screen = System::screenSize();
-	SIZE vscreen = System::screenVSize();
 
 	void ReScreen()
 	{
 		ReleaseDC(0, hdc);
 		hdc = GetDC(0);
 		screen = System::screenSize();
-		QRect qr = QApplication::desktop()->screenGeometry();
-		vscreen.cx = qr.width();
-		vscreen.cy = qr.height();
 	}
 };
 
@@ -220,13 +252,16 @@ struct Global {
 	static byte blockRep[255];
 };
 
-static POINT RelToAbs(POINT rel) { return { (long)(((double)rel.x / ((double)Global::qi.screen.cx - 1.0)) * 10000.0), (long)(((double)rel.y / ((double)Global::qi.screen.cy - 1.0)) * 10000.0) }; }
+static POINT RTA(POINT rel) { return { (long)(((float)rel.x / (float)(Global::qi.screen.cx - 1)) * 10000.0f), (long)(((float)rel.y / (float)(Global::qi.screen.cy - 1)) * 10000.0f) }; }
+static RECT RTAR(RECT rel) { return { (long)(((float)rel.left / (float)(Global::qi.screen.cx - 1)) * 10000.0f), (long)(((float)rel.top / (float)(Global::qi.screen.cy - 1)) * 10000.0f), (long)(((float)rel.right / (float)(Global::qi.screen.cx - 1)) * 10000.0f), (long)(((float)rel.bottom / (float)(Global::qi.screen.cy - 1)) * 10000.0f) }; }
+static POINT ATR(POINT abs) { return { (long)((float)Global::qi.screen.cx / 10000.0f * (float)abs.x), (long)((float)Global::qi.screen.cy / 10000.0f * (float)abs.y) }; }
+static RECT ATRR(RECT abs) { return { (long)((float)Global::qi.screen.cx / 10000.0f * (float)abs.left), (long)((float)Global::qi.screen.cy / 10000.0f * (float)abs.top), (long)((float)Global::qi.screen.cx / 10000.0f * (float)abs.right), (long)((float)Global::qi.screen.cy / 10000.0f * (float)abs.bottom) }; }
+static POINT WRTA(POINT rel, HWND wnd) { SIZE size = Window::size(wnd); return { (long)(((float)rel.x / ((float)size.cx)) * 10000.0f), (long)(((float)rel.y / ((float)size.cy)) * 10000.0f) }; }
+static RECT WRTAR(RECT rel, HWND wnd) { SIZE size = Window::size(wnd); return { (long)(((float)rel.left / ((float)size.cx)) * 10000.0f), (long)(((float)rel.top / ((float)size.cy)) * 10000.0f), (long)(((float)rel.right / ((float)size.cx)) * 10000.0f), (long)(((float)rel.bottom / ((float)size.cy)) * 10000.0f) }; }
+static POINT WATR(POINT abs, HWND wnd) { SIZE size = Window::size(wnd); return { (long)((float)(size.cx + 1) / 10000.0f * (float)abs.x), (long)((float)(size.cy + 1) / 10000.0f * (float)abs.y) }; }
+static RECT WATRR(RECT abs, HWND wnd) { SIZE size = Window::size(wnd); return { (long)((float)(size.cx + 1) / 10000.0f * (float)abs.left), (long)((float)(size.cy + 1) / 10000.0f * (float)abs.top), (long)((float)(size.cx + 1) / 10000.0f * (float)abs.right), (long)((float)(size.cy + 1) / 10000.0f * (float)abs.bottom) }; }
 
-static POINT AbsToRel(POINT abs) { return { (long)((double)Global::qi.screen.cx / 10000.0 * (double)abs.x), (long)((double)Global::qi.screen.cy / 10000.0 * (double)abs.y) }; }
-
-static POINT AbsToVRel(POINT abs) { return { (long)((double)Global::qi.vscreen.cx / 10000.0 * (double)abs.x), (long)((double)Global::qi.vscreen.cy / 10000.0 * (double)abs.y) }; }
-
-static void _stdcall SaveItem(neb::CJsonObject& jActions, Actions& actions)
+static void _stdcall SaveAction(neb::CJsonObject& jActions, const Actions& actions)
 {
 	for (uint32 u = 0; u < actions.size(); u++)
 	{
@@ -282,7 +317,7 @@ static void _stdcall SaveItem(neb::CJsonObject& jActions, Actions& actions)
 			jItem.Add("right", (int32)actions[u].color.rect.right);
 			jItem.Add("bottom", (int32)actions[u].color.rect.bottom);
 			jItem.Add("rgbe", (uint32)actions[u].color.rgbe.toCOLORREF());
-			SaveItem(jNext, actions[u].color.next);
+			SaveAction(jNext, actions[u].color.next);
 			jItem.Add("next", jNext);
 		}
 		break;
@@ -290,7 +325,7 @@ static void _stdcall SaveItem(neb::CJsonObject& jActions, Actions& actions)
 		{
 			jItem.Add("type", Action::_loop);
 			jItem.Add("count", actions[u].loop.count);
-			SaveItem(jNext, actions[u].loop.next);
+			SaveAction(jNext, actions[u].loop.next);
 			jItem.Add("next", jNext);
 		}
 		break;
@@ -301,32 +336,29 @@ static void _stdcall SaveItem(neb::CJsonObject& jActions, Actions& actions)
 		jActions.Add(jItem);
 	}
 }
-
-static void SaveScript(Script& script)
+static void SaveMacro(Macro& macro)
 {
 	neb::CJsonObject json;
 	neb::CJsonObject jActions;
-	SaveItem(jActions, script.actions);
-	json.Add("documen_ charset", std::string("GB2312"));
-	json.Add("state", script.state);
-	json.Add("block", script.block);
-	json.Add("mode", script.mode);
-	json.Add("key", script.key);
-	json.Add("a", script.a);
+	SaveAction(jActions, macro.actions);
+	json.Add("documen_ charset", std::string("UTF8"));
+	json.Add("wndState", macro.wndState);
+	json.Add("wndName", String::toString(macro.wi.wndName));
+	json.Add("wndClass", String::toString(macro.wi.wndClass));
+	json.Add("state", macro.state);
+	json.Add("block", macro.block);
+	json.Add("mode", macro.mode);
+	json.Add("key", macro.key);
+	json.Add("count", macro.count);
 	json.Add("actions", jActions);
-
-	std::wstring path = L"macro\\";
-	path += script.name;
-	path += L".json";
 	File::FolderCreate(L"macro");
-	File::TextSave(path, String::String::toWString(json.ToString()), "chinese");
+	File::TextSave(String::toString(std::wstring(L"macro\\") + macro.name + std::wstring(L".json")), json.ToString());
 }
-
 static void SaveJson()
 {
 	neb::CJsonObject cfg;
-	std::string scache;
-	cfg.Add("document_charset", std::string("GB2312"));
+	std::string str;
+	cfg.Add("document_charset", std::string("UTF8"));
 	cfg.Add("defOn", Global::qi.set.defOn);
 	cfg.Add("key", Global::qi.set.key);
 	cfg.Add("recKey", Global::qi.set.recKey);
@@ -341,12 +373,11 @@ static void SaveJson()
 	cfg.Add("showClockKey", Global::qi.fun.showClock.key);
 	cfg.Add("showClockState", Global::qi.fun.showClock.state);
 	cfg.Add("wndActiveState", Global::qi.fun.wndActive.state);
-	scache = String::toString(Global::qi.fun.wndActive.name); cfg.Add("wndActiveName", scache);
-
-	File::TextSave(L"QuickInput.json", String::String::toWString(cfg.ToString()), "chinese");
+	cfg.Add("wndActiveName", String::toString(Global::qi.fun.wndActive.wi.wndName));
+	File::TextSave("QuickInput.json", cfg.ToString());
 }
 
-static void _stdcall LoadItem(const neb::CJsonObject jActions, Actions& actions)
+static void _stdcall LoadAction(const neb::CJsonObject jActions, Actions& actions)
 {
 	for (uint32 u = 0; u < jActions.GetArraySize(); u++)
 	{
@@ -404,7 +435,7 @@ static void _stdcall LoadItem(const neb::CJsonObject jActions, Actions& actions)
 				jItem.Get("bottom", (int32&)(action.color.rect.bottom));
 				jItem.Get("rgbe", ui32); action.color.rgbe.set(ui32);
 				jItem.Get("next", jNext);
-				LoadItem(jNext, action.color.next);
+				LoadAction(jNext, action.color.next);
 			}
 			break;
 			case Action::_loop:
@@ -412,7 +443,7 @@ static void _stdcall LoadItem(const neb::CJsonObject jActions, Actions& actions)
 				action.type = Action::_loop;
 				jItem.Get("count", action.loop.count);
 				jItem.Get("next", jNext);
-				LoadItem(jNext, action.loop.next);
+				LoadAction(jNext, action.loop.next);
 			}
 			break;
 			case Action::_loopEnd: action.type = Action::_loopEnd; break;
@@ -426,14 +457,38 @@ static void _stdcall LoadItem(const neb::CJsonObject jActions, Actions& actions)
 		}
 	}
 }
+static void LoadMacro()
+{
+	File::FindFileStruct files = File::FindFile(L"macro\\*.json");
+	for (uint32 u = 0; u < files.size(); u++) {
+		Global::qi.macros.AddNull();
+		Macro& macro = Global::qi.macros.Get();
+		macro.name = (std::wstring(files[u].name)).substr(0, wcslen(files[u].name) - 5);
 
+		neb::CJsonObject jMacro(File::TextLoad(std::string("macro\\") + String::toString(files[u].name)));
+		std::string str;
+		jMacro.Get("wndState", macro.wndState);
+		jMacro.Get("wndName", str); macro.wi.wndName = String::toWString(str);
+		jMacro.Get("wndClass", str); macro.wi.wndClass = String::toWString(str);
+		jMacro.Get("state", macro.state);
+		jMacro.Get("block", macro.block);
+		jMacro.Get("mode", macro.mode);
+		jMacro.Get("key", macro.key);
+		jMacro.Get("count", macro.count);
+
+		neb::CJsonObject jActions;
+		jMacro.Get("actions", jActions);
+
+		LoadAction(jActions, macro.actions);
+	}
+}
 static void LoadJson()
 {
-	Global::qi.scripts.clear();
+	Global::qi.macros.clear();
 	if (File::FileState(L"QuickInput.json"))
 	{
-		neb::CJsonObject cfg(String::toString(File::TextLoad(L"QuickInput.json")));
-		std::string scache;
+		neb::CJsonObject cfg(File::TextLoad("QuickInput.json"));
+		std::string str;
 		cfg.Get("defOn", Global::qi.set.defOn);
 		cfg.Get("key", Global::qi.set.key);
 		cfg.Get("recKey", Global::qi.set.recKey);
@@ -448,7 +503,7 @@ static void LoadJson()
 		cfg.Get("showClockState", Global::qi.fun.showClock.state);
 		cfg.Get("showClockKey", Global::qi.fun.showClock.key);
 		cfg.Get("wndActiveState", Global::qi.fun.wndActive.state);
-		cfg.Get("wndActiveName", scache); Global::qi.fun.wndActive.name = String::toWString(scache);
+		cfg.Get("wndActiveName", str); Global::qi.fun.wndActive.wi.wndName = String::toWString(str);
 	}
 	else
 	{
@@ -466,43 +521,23 @@ static void LoadJson()
 		Global::qi.fun.showClock.state = 0;
 		Global::qi.fun.showClock.key = VK_MENU;
 		Global::qi.fun.wndActive.state = 0;
-		Global::qi.fun.wndActive.name = L"";
+		Global::qi.fun.wndActive.wi.wndName = L"";
 	}
-
-	File::FindFileStruct files = File::FindFile(L"macro\\*.json");
-
-	for (uint32 u = 0; u < files.size(); u++) {
-		Global::qi.scripts.AddNull();
-		Script& script = Global::qi.scripts.Get();
-		script.name = ((std::wstring)files[u].name).substr(0, wcslen(files[u].name) - 5);
-
-		neb::CJsonObject jScript(String::toString(File::TextLoad(((std::wstring)L"macro\\" + files[u].name), "chinese")));
-
-		jScript.Get("state", script.state);
-		jScript.Get("block", script.block);
-		jScript.Get("mode", script.mode);
-		jScript.Get("key", script.key);
-		jScript.Get("a", script.a);
-
-		neb::CJsonObject jActions;
-		jScript.Get("actions", jActions);
-
-		LoadItem(jActions, script.actions);
-	}
+	LoadMacro();
 }
 
 static std::wstring NameFilter(std::wstring name)
 {
 	for (uint32 n = 0;; n++)
 	{
-		for (uint32 nx = 0; nx < Global::qi.scripts.size(); nx++)
+		for (uint32 nx = 0; nx < Global::qi.macros.size(); nx++)
 		{
 			std::wstring find = name + L" " + String::toWString(n + 1);
-			if (Global::qi.scripts[nx].name == find)
+			if (Global::qi.macros[nx].name == find)
 			{
 				break;
 			}
-			if (nx >= Global::qi.scripts.size() - 1)
+			if (nx >= Global::qi.macros.size() - 1)
 			{
 				return find;
 			}

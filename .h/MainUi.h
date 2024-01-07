@@ -12,7 +12,6 @@
 class MainUi : public QMainWindow
 {
 	Q_OBJECT;
-
 	Ui::MainUiClass ui;
 	QSystemTrayIcon* tray = 0;
 	QMenu* menu = 0;
@@ -82,6 +81,7 @@ private:
 			connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
 			connect(ui.bnMin, SIGNAL(clicked()), this, SLOT(OnBnMin()));
 			connect(ui.bnHide, SIGNAL(clicked()), this, SLOT(OnBnHide()));
+
 			connect(ui.bnScript, SIGNAL(clicked()), this, SLOT(OnBnScript()));
 			connect(ui.bnTrigger, SIGNAL(clicked()), this, SLOT(OnBnTrigger()));
 			connect(ui.bnFunc, SIGNAL(clicked()), this, SLOT(OnBnFunc()));
@@ -133,6 +133,7 @@ private:
 		}
 		return QWidget::event(et);
 	}
+	void showEvent(QShowEvent* et) { if (et->type() == Qt::WindowNoState) { Window::Top((HWND)QWidget::winId()); } }
 	void closeEvent(QCloseEvent*)
 	{
 		wm->close();
@@ -141,6 +142,7 @@ private:
 		ws->close();
 		wa->close();
 	}
+	// Move
 	void mousePressEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) msPos = et->pos(); }
 	void mouseMoveEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) move(et->pos() + pos() - msPos); }
 

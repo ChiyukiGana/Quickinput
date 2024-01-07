@@ -20,34 +20,6 @@ namespace CG
 			return info;
 		}
 
-		struct TimeStruct
-		{
-			UINT year;
-			UINT mon;
-			UINT day;
-			UINT hour;
-			UINT min;
-			UINT sec;
-		};
-
-		static TimeStruct Time()
-		{
-			TimeStruct t;
-
-			time_t ts = time(0);
-			tm tf;
-			localtime_s(&tf, &ts);
-
-			t.year = tf.tm_year + 1900;
-			t.mon = tf.tm_mon + 1;
-			t.day = tf.tm_mday;
-			t.hour = tf.tm_hour;
-			t.min = tf.tm_min;
-			t.sec = tf.tm_sec;
-
-			return t;
-		}
-
 		static SIZE screenSize()
 		{
 			HWND wnd = GetDesktopWindow();
@@ -68,7 +40,7 @@ namespace CG
 		static SIZE screenVSize() { return { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) }; }
 		static SIZE screenVSize(HDC dc) { return { GetDeviceCaps(dc, HORZRES), GetDeviceCaps(dc, VERTRES) }; }
 
-		static double screenZoomRote() {
+		static float screenZoomRote() {
 			HWND wnd = GetDesktopWindow();
 			HMONITOR mt = MonitorFromWindow(wnd, MONITOR_DEFAULTTONEAREST);
 
@@ -83,7 +55,7 @@ namespace CG
 			EnumDisplaySettingsW(mti.szDevice, ENUM_CURRENT_SETTINGS, &dm);
 			int yphy = dm.dmPelsHeight;
 
-			double v = (double)yphy / (double)ylogi;
+			float v = (float)yphy / (float)ylogi;
 			return v;
 		}
 

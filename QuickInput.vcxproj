@@ -129,13 +129,12 @@
     <QtMoc Include=".h\MainUi.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TashMenu.h" />
     <QtMoc Include=".h\QPointView.h" />
     <QtMoc Include=".h\QRectView.h" />
     <ClInclude Include="static.h" />
     <QtMoc Include=".h\QColorSelection.h" />
-    <QtMoc Include=".h\QPositionSelection.h" />
-    <QtMoc Include=".h\QSelectionBox.h" />
+    <QtMoc Include=".h\QPointSelection.h" />
+    <QtMoc Include=".h\QRectSelection.h" />
     <ClInclude Include=".h\TipsWindow.h" />
     <QtMoc Include=".h\EditUi.h" />
     <QtMoc Include=".h\MacroUi.h" />

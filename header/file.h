@@ -1,6 +1,4 @@
-﻿//Charset⭐
-
-#pragma once
+﻿#pragma once
 
 #ifndef __AFXWIN_H__
 #include <windows.h>
@@ -39,9 +37,10 @@ namespace CG {
 			return 0;
 		}
 
-		static bool FileDelete(LPCWSTR path) { if (!_wremove(path)) return 1; return 0; }
-
-		static bool FolderDelete(LPCWSTR path) { if (!_wrmdir(path)) return 1; return 0; }
+		static bool Rename(LPCWSTR path, LPCWSTR name) { if (_wrename(path, name)) return 0; return 1; }
+		
+		static bool FileDelete(LPCWSTR path) { if (_wremove(path)) return 0; return 1; }
+		static bool FolderDelete(LPCWSTR path) { if (_wrmdir(path)) return 0; return 1; }
 
 		static bool FolderCreate(LPCWSTR path) { if (CreateDirectoryW(path, 0)) return 1; if (GetLastError() == ERROR_ALREADY_EXISTS) return 1; return 0; }
 
@@ -200,25 +199,53 @@ namespace CG {
 			return cl;
 		}
 
-		//zh_CN.UTF8, zh_CN
-		static void TextSave(std::wstring path, std::wstring str, LPCSTR locale = "zh_CN") {
-			std::wofstream ofs(path, std::ios::out);
+		static bool TextSave(std::string path, std::string str, const char* locale = ".UTF8")
+		{
+			std::ofstream ofs;
+			ofs.imbue(std::locale(locale));
+			ofs.open(path, std::ios::out);
 			if (ofs.good())
 			{
-				ofs.imbue(std::locale(locale));
 				ofs << str;
 				ofs.close();
+				return 1;
 			}
+			return 0;
 		}
 
-		//zh_CN.UTF8, zh_CN
-		static std::wstring TextLoad(std::wstring path, LPCSTR locale = "zh_CN") {
-			std::wifstream ifs(path, std::ios::in);
+		static bool TextSave(std::wstring path, std::wstring str, const char* locale = ".UTF8") {
+			std::wofstream ofs;
+			ofs.imbue(std::locale(locale));
+			ofs.open(path, std::ios::out);
+			if (ofs.good())
+			{
+				ofs << str;
+				ofs.close();
+				return 1;
+			}
+			return 0;
+		}
+
+		static std::string TextLoad(std::string path, const char* locale = ".UTF8")
+		{
+			std::ifstream ifs;
+			ifs.imbue(std::locale(locale));
+			ifs.open(path, std::ios::in);
 			if (ifs.is_open())
 			{
 				ifs.imbue(std::locale(locale));
-				std::wstring text((std::istreambuf_iterator<wchar_t>(ifs)), std::istreambuf_iterator<wchar_t>());
-				return text;
+				return std::string((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+			}
+			return "";
+		}
+
+		static std::wstring TextLoad(std::wstring path, const char* locale = ".UTF8") {
+			std::wifstream ifs;
+			ifs.imbue(std::locale(locale));
+			ifs.open(path, std::ios::in);
+			if (ifs.is_open())
+			{
+				return std::wstring((std::istreambuf_iterator<wchar_t>(ifs)), std::istreambuf_iterator<wchar_t>());
 			}
 			return L"";
 		}

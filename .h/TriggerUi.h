@@ -4,10 +4,13 @@
 
 class TriggerUi : public QWidget
 {
-	Q_OBJECT
+	Q_OBJECT;
+	const int32 countMax = 9999;
+
+	Ui::TriggerUiClass ui;
+	Macros& macros = Global::qi.macros;
 
 public:
-
 	TriggerUi(QWidget* parent) : QWidget(parent)
 	{
 		ui.setupUi(this);
@@ -20,12 +23,6 @@ public:
 	}
 
 private:
-
-	const int32 countMax = 9999;
-
-	Ui::TriggerUiClass ui;
-	List<Script>& scripts = Global::qi.scripts;
-
 	void WidInit()
 	{
 		ui.hkTr->Mode(2);
@@ -64,7 +61,6 @@ private:
 			}
 		}
 	}
-
 	void WidEvent()
 	{
 		connect(ui.tbItem, SIGNAL(cellClicked(int, int)), this, SLOT(OnTbClicked(int, int)));
@@ -80,61 +76,6 @@ private:
 		ui.hkTr->VirtualKey(0);
 		ui.etCount->setText("");
 	}
-
-	void TbUpdate()
-	{
-		ui.tbItem->clearMask();
-		ui.tbItem->setRowCount(scripts.size());
-		ui.tbItem->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-		ui.tbItem->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
-		ui.tbItem->verticalHeader()->setDefaultSectionSize(0);
-
-		for (uint32 u = 0; u < scripts.size(); u++) {
-			ui.tbItem->setItem(u, 0, new QTableWidgetItem(QString::fromWCharArray(scripts[u].name.c_str())));
-			ui.tbItem->item(u, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			//
-			QString qs = u8"----";
-			if ((scripts[u].key & 0xFFFF) != 0)
-			{
-				qs = QString::fromWCharArray(Input::Name(scripts[u].key & 0xFFFF));
-				if ((scripts[u].key >> 16) != 0)
-				{
-					qs += u8" + ";
-					qs += QString::fromWCharArray(Input::Name(scripts[u].key >> 16));
-				}
-			}
-			ui.tbItem->setItem(u, 1, new QTableWidgetItem(qs));
-			ui.tbItem->item(u, 1)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			//
-			qs = "";
-			switch (scripts[u].mode)
-			{
-			case Script::sw:
-				qs = u8"切换";
-				break;
-			case Script::down:
-				qs = u8"按下(";
-				if (scripts[u].a) qs += QString::number(scripts[u].a);
-				else qs += u8"无限";
-				qs += u8")";
-				break;
-			case Script::up:
-				qs = u8"松开(";
-				if (scripts[u].a) qs += QString::number(scripts[u].a);
-				else qs += u8"无限";
-				qs += u8")";
-				break;
-			}
-			ui.tbItem->setItem(u, 2, new QTableWidgetItem(qs));
-			ui.tbItem->item(u, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			//
-			if (scripts[u].state) qs = UI::trOn;
-			else qs = UI::trOff;
-			ui.tbItem->setItem(u, 3, new QTableWidgetItem(qs));
-			ui.tbItem->item(u, 3)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-		}
-	}
-
 	void LockControl(bool state)
 	{
 		ui.chbBlock->setDisabled(state);
@@ -143,7 +84,59 @@ private:
 		if (state) ui.etCount->setDisabled(state);
 	}
 
-private slots:
+	void TbUpdate()
+	{
+		ui.tbItem->clearMask();
+		ui.tbItem->setRowCount(macros.size());
+		ui.tbItem->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
+		ui.tbItem->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+		ui.tbItem->verticalHeader()->setDefaultSectionSize(0);
+
+		for (uint32 u = 0; u < macros.size(); u++) {
+			ui.tbItem->setItem(u, 0, new QTableWidgetItem(QString::fromWCharArray(macros[u].name.c_str())));
+			ui.tbItem->item(u, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			//
+			QString qs = u8"----";
+			if ((macros[u].key & 0xFFFF) != 0)
+			{
+				qs = QString::fromWCharArray(Input::Name(macros[u].key & 0xFFFF));
+				if ((macros[u].key >> 16) != 0)
+				{
+					qs += u8" + ";
+					qs += QString::fromWCharArray(Input::Name(macros[u].key >> 16));
+				}
+			}
+			ui.tbItem->setItem(u, 1, new QTableWidgetItem(qs));
+			ui.tbItem->item(u, 1)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			//
+			qs = "";
+			switch (macros[u].mode)
+			{
+			case Macro::sw:
+				qs = u8"切换";
+				break;
+			case Macro::down:
+				qs = u8"按下(";
+				if (macros[u].count) qs += QString::number(macros[u].count);
+				else qs += u8"无限";
+				qs += u8")";
+				break;
+			case Macro::up:
+				qs = u8"松开(";
+				if (macros[u].count) qs += QString::number(macros[u].count);
+				else qs += u8"无限";
+				qs += u8")";
+				break;
+			}
+			ui.tbItem->setItem(u, 2, new QTableWidgetItem(qs));
+			ui.tbItem->item(u, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			//
+			if (macros[u].state) qs = UI::trOn;
+			else qs = UI::trOff;
+			ui.tbItem->setItem(u, 3, new QTableWidgetItem(qs));
+			ui.tbItem->item(u, 3)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		}
+	}
 
 	void showEvent(QShowEvent*)
 	{
@@ -153,49 +146,47 @@ private slots:
 		LockControl(1);
 	}
 
+private slots:
 	void OnTbClicked(int row, int column)
 	{
 		ResetControl();
 		LockControl(1);
 		if (row < 0) return;
 
-		if (column == 3) scripts[row].state ? scripts[row].state = 0 : scripts[row].state = 1;
-		ui.chbBlock->setChecked(scripts[row].block);
-		ui.cmbMode->setCurrentIndex(scripts[row].mode);
-		ui.hkTr->VirtualKey(scripts[row].key & 0xFFFF, scripts[row].key >> 16);
-		if (scripts[row].mode >= Script::down)
+		if (column == 3) macros[row].state ? macros[row].state = 0 : macros[row].state = 1;
+		ui.chbBlock->setChecked(macros[row].block);
+		ui.cmbMode->setCurrentIndex(macros[row].mode);
+		ui.hkTr->VirtualKey(macros[row].key & 0xFFFF, macros[row].key >> 16);
+		if (macros[row].mode >= Macro::down)
 		{
-			ui.etCount->setText(QString::number(scripts[row].a));
+			ui.etCount->setText(QString::number(macros[row].count));
 			ui.etCount->setDisabled(0);
 		}
 
 		LockControl(0);
 		TbUpdate();
-		SaveScript(scripts[row]);
+		SaveMacro(macros[row]);
 	}
-
 	void OnKeyChanged()
 	{
 		int pos = ui.tbItem->currentRow();
 		if (pos < 0) return;
 
-		scripts[pos].key = ui.hkTr->virtualKey();
+		macros[pos].key = ui.hkTr->virtualKey();
 
 		TbUpdate();
-		SaveScript(scripts[pos]);
+		SaveMacro(macros[pos]);
 	}
-
 	void OnChbBlock()
 	{
 		int pos = ui.tbItem->currentRow();
 		if (pos < 0) return;
 
-		scripts[pos].block = ui.chbBlock->isChecked();
+		macros[pos].block = ui.chbBlock->isChecked();
 
 		TbUpdate();
-		SaveScript(scripts[pos]);
+		SaveMacro(macros[pos]);
 	}
-
 	void OnCmbMode(int index)
 	{
 		int pos = ui.tbItem->currentRow();
@@ -203,30 +194,29 @@ private slots:
 
 		switch (index)
 		{
-		case Script::sw:
+		case Macro::sw:
 			ui.etCount->setText(u8"无限");
 			ui.etCount->setDisabled(1);
-			scripts[pos].a = 0;
-			scripts[pos].mode = Script::sw;
+			macros[pos].count = 0;
+			macros[pos].mode = Macro::sw;
 			break;
-		case Script::down:
+		case Macro::down:
 			ui.etCount->setText("");
 			ui.etCount->setDisabled(0);
-			scripts[pos].a = 1;
-			scripts[pos].mode = Script::down;
+			macros[pos].count = 1;
+			macros[pos].mode = Macro::down;
 			break;
-		case Script::up:
+		case Macro::up:
 			ui.etCount->setText("");
 			ui.etCount->setDisabled(0);
-			scripts[pos].a = 1;
-			scripts[pos].mode = Script::up;
+			macros[pos].count = 1;
+			macros[pos].mode = Macro::up;
 			break;
 		}
 
 		TbUpdate();
-		SaveScript(scripts[pos]);
+		SaveMacro(macros[pos]);
 	}
-
 	void OnEtCount(const QString& count)
 	{
 		int pos = ui.tbItem->currentRow();
@@ -234,9 +224,9 @@ private slots:
 
 		int i = count.toInt();
 		if (i > countMax) i = countMax;
-		scripts[pos].a = i;
+		macros[pos].count = i;
 
 		TbUpdate();
-		SaveScript(scripts[pos]);
+		SaveMacro(macros[pos]);
 	}
 };

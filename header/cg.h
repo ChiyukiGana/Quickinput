@@ -3,7 +3,7 @@
 #include "base.h"
 #include "list.h"
 #include "string.h"
-#include "timestamp.h"
+#include "time.h"
 
 #include "file.h"
 #include "system.h"
@@ -19,8 +19,6 @@
 
 #include "window.h"
 #include "msgbox.h"
-
-#include "debug.h"
 
 #include "ini.h"
 #include "task.h"

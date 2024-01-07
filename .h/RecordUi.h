@@ -5,12 +5,17 @@
 
 class RecordUi : public QDialog
 {
-	Q_OBJECT
+	Q_OBJECT;
+	Ui::RecordUiClass ui;
+	Actions* actions = 0;
+	HWND wnd = 0;
+	long long tim = 0;
+	bool start = 0, keyTrigger = 0;
 
 public:
-	RecordUi(Actions& actions) : QDialog()
+	RecordUi(Actions* actions) : QDialog()
 	{
-		this->actions = &actions;
+		this->actions = actions;
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setMouseTracking(true);
@@ -21,69 +26,79 @@ public:
 		WidEvent();
 	}
 
-	void AddItems(const byte vk, const bool state, POINT pt = { 0 })
+	void Start(HWND wnd)
 	{
-		Action action;
-
-		if (!begin)
+		if (Global::qi.set.recKey)
 		{
-			tim = clock();
-			begin = 1;
+			std::wstring text(L"按下");
+			text += Input::Name(Global::qi.set.recKey);
+			text += L"开始录制";
+			TipsWindow::Show(text, RGB(0x20, 0xFF, 0x20));
 		}
-		else
+
+		this->wnd = wnd;
+		tim = 0;
+		if (wnd)
+		{
+			POINT wpt = Window::pos(wnd);
+			move(wpt.x, wpt.y);
+			WndLock::Lock(wnd);
+			exec();
+			WndLock::UnLock();
+		}
+		else exec();
+	}
+
+	void AddItems(byte vk, bool state, POINT pt = { 0 })
+	{
+		if (!start) return;
+		if (tim)
 		{
 			// delay
-			action.type = Action::_delay;
-			action.delay.ms = clock() - tim;
-			actions->Add(action);
+			actions->AddNull();
+			actions->Get().type = Action::_delay;
+			actions->Get().delay.ms = clock() - tim;
 			tim = clock();
 		}
+		else tim = clock();
 
 		// pos
 		if (Input::Type(vk))
 		{
-			pt = RelToAbs(pt);
-			action.Emp();
-			action.type = Action::_mouse;
-			action.mouse.x = pt.x;
-			action.mouse.y = pt.y;
-			actions->Add(action);
+			actions->AddNull();
+			actions->Get().type = Action::_mouse;
+			if (wnd)
+			{
+				POINT wpt = Window::pos(wnd);
+				pt = WRTA({ pt.x - wpt.x, pt.y - wpt.y }, wnd);
+			}
+			else pt = RTA(pt);
+			actions->Get().mouse.x = pt.x;
+			actions->Get().mouse.y = pt.y;
 		}
 
 		// key
-		action.Emp();
-		action.type = Action::_key;
-		action.key.vk = vk;
-		if (state) action.key.state = Action::Key::down;
-		else action.key.state = Action::Key::up;
-		actions->Add(action);
+		{
+			actions->AddNull();
+			actions->Get().type = Action::_key;
+			actions->Get().key.vk = vk;
+			if (state) actions->Get().key.state = QiKey::down;
+			else actions->Get().key.state = QiKey::up;
+		}
 	}
 
 	bool State() const { return start; }
 
-	void EndRec()
-	{
-		click = 1;
-		OnBnStart();
-		click = 0;
-	}
+	void SetRec() { keyTrigger = 1; OnBnStart(); keyTrigger = 0; }
 
 private:
-	Ui::RecordUiClass ui;
-	Actions* actions = 0;
-	long long tim = 0;
-	bool start = 0, begin = 0, click = 0;
-
 	void WidEvent()
 	{
 		connect(ui.bnStart, SIGNAL(clicked()), this, SLOT(OnBnStart()));
 		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
 	}
 
-	void mouseMoveEvent(QMouseEvent* et)
-	{
-		if (et->buttons() & Qt::LeftButton) move(et->pos() + pos() - QPoint(5, 15));
-	}
+	void mouseMoveEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) move(et->pos() + pos() - QPoint(5, 15)); }
 
 public slots:
 	void OnBnStart()
@@ -91,27 +106,33 @@ public slots:
 		if (start)
 		{
 			Global::qi.rec = 0;
-			if (!click) actions->DelBack(6);
+			if (!keyTrigger) actions->DelBack(6);
 
-			Global::qi.scripts.Get().name = NameFilter(L"录制");
-			SaveScript(Global::qi.scripts.Get());
+			if (wnd) Global::qi.macros.Get().name = NameFilter(L"窗口录制");
+			else Global::qi.macros.Get().name = NameFilter(L"录制");
+			SaveMacro(Global::qi.macros.Get());
+			TipsWindow::Hide();
 			close();
 		}
 		else
 		{
-			TipsWindow::Hide();
-			actions->clear();
+			if (Global::qi.set.recKey)
+			{
+				std::wstring text(L"按下");
+				text += Input::Name(Global::qi.set.recKey);
+				text += L"停止录制";
+				TipsWindow::Show(text, RGB(0x20, 0xFF, 0x20));
+			}
+
 			ui.bnStart->setText(UI::rcStop);
 			start = 1;
-			Global::qi.rec = this;
 		}
 	}
-
 	void OnBnClose()
 	{
 		TipsWindow::Hide();
 		Global::qi.rec = 0;
-		Global::qi.scripts.DelBack();
+		Global::qi.macros.DelBack();
 		close();
 	}
 };

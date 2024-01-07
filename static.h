@@ -1,18 +1,22 @@
 ﻿#pragma once
-#include "D:/#CGDATA/Code/cpp/cg.h"
-#include "D:/#CGDATA/Code/cpp/CJsonObject.h"
 #include ".h/QuickInputDef.h"
 #include ".h/TipsWindow.h"
 
 static void InitUI(bool zoom)
 {
-	if (zoom && System::screenSize().cy > 1200) qputenv("QT_SCALE_FACTOR", QByteArray::number(System::screenZoomRote(), 10, 1));
+	UI::zoomRote = 1.0f;
+	if (zoom && System::screenSize().cy > 1200)
+	{
+		UI::zoomRote = System::screenZoomRote();
+		qputenv("QT_SCALE_FACTOR", QByteArray::number(UI::zoomRote, 10, 1));
+	}
 	{
 		if (System::Version().dwMajorVersion >= 10)
 		{
 			UI::syOn = u8"✅";
 			UI::syOff = u8"⛔";
 			UI::syOk = u8"⭕";
+			UI::syYes = u8"✔️";
 			UI::syNot = u8"❌";
 			UI::syStop = u8"🛑";
 			UI::syShow = u8"🔼";
@@ -37,9 +41,11 @@ static void InitUI(bool zoom)
 			UI::syOn = u8"✔";
 			UI::syOff = u8"✘";
 			UI::syOk = u8"✔";
+			UI::syYes = u8"✔";
 			UI::syNot = u8"✘";
 			UI::syStop = u8"Ⓢ";
 			UI::syShow = u8"▲";
+			UI::syHide = u8"▼";
 			UI::syOption = u8"✱";
 			UI::syLink = u8"※";
 			UI::syEdit = u8"▲";
@@ -78,7 +84,7 @@ static void InitUI(bool zoom)
 			UI::trOff = (QString::fromUtf8(u8"禁用") + UI::syOff);
 			UI::etFunc = (QString::fromUtf8(u8"动作") + UI::syOption);
 			UI::etParam = (QString::fromUtf8(u8"参数") + UI::syLink);
-			UI::etAdd = (QString::fromUtf8(u8"添加") + UI::syOk);
+			UI::etAdd = (QString::fromUtf8(u8"添加") + UI::syYes);
 			UI::etDel = (QString::fromUtf8(u8"删除") + UI::syNot);
 			UI::etChange = (QString::fromUtf8(u8"修改") + UI::syOk);
 			UI::etEdit = (QString::fromUtf8(u8"编辑") + UI::syEdit);
@@ -89,123 +95,181 @@ static void InitUI(bool zoom)
 	}
 }
 
-static uint8 ExcItem(Action& item)
+static WndInfo WindowSelection()
+{
+	WndInfo wi;
+	sleep(20);
+	TipsWindow::Show(L"按回车开始，在对应窗口中再按回车获取窗口", RGB(0x20, 0xFF, 0x20));
+	while (!Input::state(VK_RETURN)) sleep(10);
+	Input::Loop(VK_RETURN);
+	while (!Input::state(VK_RETURN))
+	{
+		wi.wnd = GetForegroundWindow();
+		wi.wndName = Window::text(wi.wnd);
+		wi.wndClass = Window::className(wi.wnd);
+		TipsWindow::Show(wi.wndName);
+		sleep(50);
+	}
+	TipsWindow::Popup(wi.wndName, RGB(0x20, 0xFF, 0x20));
+	return wi;
+}
+
+static uint8 ActionExecute(Action& action, WndInput* wi)
 {
 	if (!Global::qi.run) return 1;
-	switch (item.type)
+	switch (action.type)
 	{
 	case Action::_end: return 1;
 
 	case Action::_delay:
 	{
-		if (item.delay.ex)
+		if (action.delay.ex)
 		{
-			int32 ms;
-			ms = item.delay.ms + (Rand(item.delay.ex, item.delay.ex - (item.delay.ex * 2)));
+			int32 ms = action.delay.ms + (Rand(action.delay.ex, action.delay.ex - (action.delay.ex * 2)));
 			if (ms < 0) ms = 0;
 			Thread::Sleep(ms);
 		}
-		else Thread::Sleep(item.delay.ms);
+		else Thread::Sleep(action.delay.ms);
 		return 0;
 	}
 
 	case Action::_key:
 	{
-		if (item.key.state == Action::Key::up) Input::State(item.key.vk, 0, 214);
-		else if (item.key.state == Action::Key::down) Input::State(item.key.vk, 1, 214);
-		else if (item.key.state == Action::Key::click)
+		if (wi)
 		{
-			Thread::Sleep(10);
-			Input::State(item.key.vk, 1, 214);
-			Thread::Sleep(10);
-			Input::State(item.key.vk, 0, 214);
-			Thread::Sleep(10);
+			if (action.key.state == QiKey::up)
+			{
+				Input::State(wi->wnd, action.key.vk, wi->pt, 0);
+				if (action.key.vk == VK_LBUTTON) wi->mk &= ~MK_LBUTTON;
+				else if (action.key.vk == VK_RBUTTON) wi->mk &= ~MK_RBUTTON;
+				else if (action.key.vk == VK_MBUTTON) wi->mk &= ~MK_MBUTTON;
+				else if (action.key.vk == VK_XBUTTON1) wi->mk &= ~MK_XBUTTON1;
+				else if (action.key.vk == VK_XBUTTON2) wi->mk &= ~MK_XBUTTON2;
+				else if (action.key.vk == VK_CONTROL) wi->mk &= ~MK_CONTROL;
+				else if (action.key.vk == VK_SHIFT) wi->mk &= ~MK_SHIFT;
+			}
+			else if (action.key.state == QiKey::down)
+			{
+				Input::State(wi->wnd, action.key.vk, wi->pt, 1);
+				if (action.key.vk == VK_LBUTTON) wi->mk |= MK_LBUTTON;
+				else if (action.key.vk == VK_RBUTTON) wi->mk |= MK_RBUTTON;
+				else if (action.key.vk == VK_MBUTTON) wi->mk |= MK_MBUTTON;
+				else if (action.key.vk == VK_XBUTTON1) wi->mk |= MK_XBUTTON1;
+				else if (action.key.vk == VK_XBUTTON2) wi->mk |= MK_XBUTTON2;
+				else if (action.key.vk == VK_CONTROL) wi->mk |= MK_CONTROL;
+				else if (action.key.vk == VK_SHIFT) wi->mk |= MK_SHIFT;
+			}
+			else if (action.key.state == QiKey::click)
+			{
+				Input::Click (wi->wnd, action.key.vk, wi->pt, 10);
+				if (action.key.vk == VK_LBUTTON) wi->mk |= MK_LBUTTON;
+				else if (action.key.vk == VK_RBUTTON) wi->mk |= MK_RBUTTON;
+				else if (action.key.vk == VK_MBUTTON) wi->mk |= MK_MBUTTON;
+				else if (action.key.vk == VK_XBUTTON1) wi->mk |= MK_XBUTTON1;
+				else if (action.key.vk == VK_XBUTTON2) wi->mk |= MK_XBUTTON2;
+				else if (action.key.vk == VK_CONTROL) wi->mk |= MK_CONTROL;
+				else if (action.key.vk == VK_SHIFT) wi->mk |= MK_SHIFT;
+			}
+		}
+		else
+		{
+			if (action.key.state == QiKey::up) Input::State(action.key.vk, 0, 214);
+			else if (action.key.state == QiKey::down) Input::State(action.key.vk, 1, 214);
+			else if (action.key.state == QiKey::click) Input::Click(action.key.vk, 10, 214);
 		}
 		return 0;
 	}
 
 	case Action::_mouse:
 	{
-		Thread::Sleep(10);
-		if (item.mouse.ex)
+		if (wi)
 		{
-			POINT pt = { 0 };
-			pt.x = item.mouse.x + (Rand(item.mouse.ex, (~item.mouse.ex + 1)));
-			pt.y = item.mouse.y + (Rand(item.mouse.ex, (~item.mouse.ex + 1)));
-			if (item.mouse.move) Input::Move(pt.x, pt.y);
-			else Input::MoveToA(pt.x * 6.5535, pt.y * 6.5535);
-		}
-		else {
-			if (item.mouse.move) Input::Move(item.mouse.x, item.mouse.y);
-			else Input::MoveToA(item.mouse.x * 6.5535, item.mouse.y * 6.5535);
-		}
-		Thread::Sleep(10);
-		return 0;
-	}
-
-	case Action::_text: System::ClipBoardText(item.text.str.str); return 0;
-
-	case Action::_color:
-	{
-		RECT rect = { 0 };
-		POINT pt = { 0 };
-		pt = AbsToRel({ item.color.rect.left, item.color.rect.top });
-		rect.left = pt.x, rect.top = pt.y;
-		pt = AbsToRel({ item.color.rect.right, item.color.rect.bottom });
-		rect.right = pt.x, rect.bottom = pt.y;
-		RgbMap rgbMap;
-		Image::HdcRgbmap(Global::qi.hdc, Global::qi.screen, rgbMap);
-		Color::FindOrStatus result = Color::FindOr(rgbMap, rect, item.color.rgbe.toRgb(), item.color.rgbe.a);
-		if (item.color.unfind)
-		{
-			if (!result.find)
+			if (action.mouse.ex)
 			{
-				for (uint32 u = 0; u < item.color.next.size(); u++)
-				{
-					uint8 r = ExcItem(item.color.next[u]);
-					if (r) return r;
-				}
+				POINT pt = { 0 };
+				pt.x = action.mouse.x + (Rand(action.mouse.ex, (~action.mouse.ex + 1)));
+				pt.y = action.mouse.y + (Rand(action.mouse.ex, (~action.mouse.ex + 1)));
+				if (action.mouse.move) wi->pt.x += pt.x, wi->pt.y += pt.y;
+				else wi->pt = WATR({ pt.x, pt.y }, wi->wnd);
 			}
+			else {
+				if (action.mouse.move) wi->pt.x += action.mouse.x, wi->pt.y += action.mouse.y;
+				else wi->pt = WATR({ action.mouse.x, action.mouse.y }, wi->wnd);
+			}
+			Input::MoveTo(wi->wnd, wi->pt.x, wi->pt.y, wi->mk);
 		}
 		else
 		{
-			if (result.find)
+			if (action.mouse.ex)
 			{
-				if (item.color.move == 1) Input::MoveTo(result.pt.x, result.pt.y);
-				for (uint32 u = 0; u < item.color.next.size(); u++)
+				POINT pt = { 0 };
+				pt.x = action.mouse.x + (Rand(action.mouse.ex, (~action.mouse.ex + 1)));
+				pt.y = action.mouse.y + (Rand(action.mouse.ex, (~action.mouse.ex + 1)));
+				if (action.mouse.move) Input::Move(pt.x, pt.y);
+				else Input::MoveToA(pt.x * 6.5535, pt.y * 6.5535);
+			}
+			else {
+				if (action.mouse.move) Input::Move(action.mouse.x, action.mouse.y);
+				else Input::MoveToA(action.mouse.x * 6.5535f, action.mouse.y * 6.5535f);
+			}
+		}
+		return 0;
+	}
+
+	case Action::_text: System::ClipBoardText(action.text.str.str); return 0;
+
+	case Action::_color:
+	{
+		RgbMap rgbMap;
+		RECT rect;
+		if (wi)
+		{
+			HDC wdc = GetDC(wi->wnd);
+			Image::HdcRgbmap(wdc, Window::size(wi->wnd), rgbMap);
+			ReleaseDC(wi->wnd, wdc);
+			rect = WATRR(action.color.rect, wi->wnd);
+		}
+		else
+		{
+			Image::HdcRgbmap(Global::qi.hdc, Global::qi.screen, rgbMap);
+			rect = ATRR(action.color.rect);
+		}
+		Color::FindOrStatus result = Color::FindOr(rgbMap, rect, action.color.rgbe.toRgb(), action.color.rgbe.a);
+		if (action.color.unfind) if (result.find) return 0;
+		else
+		{
+			if (result.find) {
+				if (action.color.move == 1)
 				{
-					uint8 r = ExcItem(item.color.next[u]);
-					if (r) return r;
+					if (wi)
+					{
+						wi->pt = result.pt;
+						Input::MoveTo(wi->wnd, wi->pt.x, wi->pt.y, wi->mk);
+					}
+					else Input::MoveTo(result.pt.x, result.pt.y);
 				}
 			}
+			else return 0;
+		}
+		for (uint32 u = 0; u < action.color.next.size(); u++)
+		{
+			uint8 r = ActionExecute(action.color.next[u], wi);
+			if (r) return r;
 		}
 		return 0;
 	}
 
 	case Action::_loop:
 	{
-		if (item.loop.count)
+		uint32 n = 0;
+		while (Global::qi.run)
 		{
-			for (uint32 u = 0; u < item.loop.count; u++)
+			if (action.loop.count) { n++; if (n > action.loop.count) break; }
+			for (uint32 u = 0; u < action.loop.next.size(); u++)
 			{
-				for (uint32 ux = 0; ux < item.loop.next.size(); ux++)
-				{
-					uint8 r = ExcItem(item.loop.next[ux]);
-					if (r == 1) return r;
-					else if (r == 2) return 0;
-				}
-			}
-		}
-		else
-		{
-			while (1)
-			{
-				for (uint32 u = 0; u < item.loop.next.size(); u++)
-				{
-					uint8 r = ExcItem(item.loop.next[u]);
-					if (r == 1) return 1;
-					else if (r == 2) return 0;
-				}
+				uint8 r = ActionExecute(action.loop.next[u], wi);
+				if (r == 1) return 1;
+				else if (r == 2) return 0;
 			}
 		}
 		return 0;
@@ -215,6 +279,7 @@ static uint8 ExcItem(Action& item)
 	}
 	return 0;
 }
+
 static DWORD CALLBACK ThreadQuickClick(LPVOID)
 {
 	srand(clock());
@@ -237,25 +302,41 @@ static DWORD CALLBACK ThreadMacro(LPVOID lParam)
 {
 	srand(clock());
 	uint32 pos = (UINT)lParam;
-	uint32 count = Global::qi.scripts[pos].a;
 	uint32 n = 0;
+	WndInput wi;
+	if (Global::qi.macros[pos].wndState)
+	{
+		Global::qi.macros[pos].wi.wnd = FindWindowW(Global::qi.macros[pos].wi.wndClass.c_str(), Global::qi.macros[pos].wi.wndName.c_str());
+		if (!Global::qi.macros[pos].wi.wnd) Global::qi.macros[pos].wi = WindowSelection();
+	}
 	while (Global::qi.run)
 	{
-		if (count)
+		if (Global::qi.macros[pos].count) { n++; if (n > Global::qi.macros[pos].count) break; }
+		for (uint32 n = 0; n < Global::qi.macros[pos].actions.size() && Global::qi.run; n++)
 		{
-			n++;
-			if (n > count) break;
-		}
-		for (uint32 n = 0; n < Global::qi.scripts[pos].actions.size() && Global::qi.run; n++)
-		{
-			if (ExcItem(Global::qi.scripts[pos].actions[n]))
+			if (Global::qi.macros[pos].wndState)
 			{
-				Global::qi.scripts[pos].thread = 0;
-				return 0;
+				if (Global::qi.macros[pos].wi.wnd)
+				{
+					wi.wnd = Global::qi.macros[pos].wi.wnd;
+					if (ActionExecute(Global::qi.macros[pos].actions[n], &wi))
+					{
+						Global::qi.macros[pos].thread = 0;
+						return 0;
+					}
+				}
+			}
+			else
+			{
+				if (ActionExecute(Global::qi.macros[pos].actions[n], 0))
+				{
+					Global::qi.macros[pos].thread = 0;
+					return 0;
+				}
 			}
 		}
 	}
-	Global::qi.scripts[pos].thread = 0;
+	Global::qi.macros[pos].thread = 0;
 	return 0;
 }
 static DWORD CALLBACK ThreadRelease(LPVOID key)
@@ -267,10 +348,10 @@ static DWORD CALLBACK ThreadWndActive(LPVOID)
 {
 	while (Global::qi.state)
 	{
-		Global::qi.fun.wndActive.wnd = FindWindowW(0, Global::qi.fun.wndActive.name.c_str());
-		if (Global::qi.fun.wndActive.wnd)
+		Global::qi.fun.wndActive.wi.wnd = FindWindowW(0, Global::qi.fun.wndActive.wi.wndName.c_str());
+		if (Global::qi.fun.wndActive.wi.wnd)
 		{
-			bool active = (GetForegroundWindow() == Global::qi.fun.wndActive.wnd);
+			bool active = (GetForegroundWindow() == Global::qi.fun.wndActive.wi.wnd);
 			if (!Global::qi.run && active)
 			{
 				Global::qi.run = 1;
@@ -296,12 +377,12 @@ static DWORD CALLBACK ThreadWndActive(LPVOID)
 static void UpdateBlock()
 {
 	Global::trBlock.clear();
-	for (uint32 u = 0; u < Global::qi.scripts.size(); u++)
+	for (uint32 u = 0; u < Global::qi.macros.size(); u++)
 	{
-		if (Global::qi.scripts[u].state && Global::qi.scripts[u].block)
+		if (Global::qi.macros[u].state && Global::qi.macros[u].block)
 		{
-			if ((Global::qi.scripts[u].key & 0xFFFF)) Global::trBlock.Add((Global::qi.scripts[u].key & 0xFFFF));
-			if (Global::qi.scripts[u].key >> 16) Global::trBlock.Add(Global::qi.scripts[u].key >> 16);
+			if ((Global::qi.macros[u].key & 0xFFFF)) Global::trBlock.Add((Global::qi.macros[u].key & 0xFFFF));
+			if (Global::qi.macros[u].key >> 16) Global::trBlock.Add(Global::qi.macros[u].key >> 16);
 		}
 	}
 	memset(Global::blockRep, 0, sizeof(Global::blockRep));
@@ -321,9 +402,8 @@ static void QiState(bool state)
 		UpdateBlock();
 		Global::qi.state = 1;
 		Global::qi.ReScreen();
-		TipsWindow::screen = Global::qi.screen;
 		TipsWindow::Popup(UI::qiOn);
-		if (Global::qi.set.audFx)Media::WavePlay(audfx_on);
+		if (Global::qi.set.audFx) Media::WavePlay(audfx_on);
 		if (Global::qi.fun.wndActive.state) { if (!Global::qi.fun.wndActive.thread) Global::qi.fun.wndActive.thread = Thread::Start(ThreadWndActive); }
 		else Global::qi.run = 1;
 	}

@@ -19,42 +19,21 @@ namespace CG {
 
 		static bool state(BYTE vk) { return GetAsyncKeyState(vk) & 0x8000; }
 
-		static void Loop(BYTE vk, UINT delay = 10) { while (GetAsyncKeyState(vk)) sleep(delay); }
+		static void Loop(BYTE vk, UINT delay = 10) { while (state(vk)) sleep(delay); }
+		static void LoopU(BYTE vk, UINT delay = 10) { while (!state(vk)) sleep(delay); }
 
 		// flags: 1 = down, 0 = up
 		static void State(BYTE vk, bool state = 1, ULONG_PTR ex = 0) {
 			INPUT input = { 0 };
 			if (vk < 0x07 || vk == VK_WHEELUP || vk == VK_WHEELDOWN) {
 				input.type = INPUT_MOUSE;
-
-				if (vk == VK_LBUTTON)
-				{
-					if (state) input.mi = { 0, 0, 0, MOUSEEVENTF_LEFTDOWN, 0, ex }; else input.mi = { 0, 0, 0, MOUSEEVENTF_LEFTUP, 0, ex };
-				}
-				else if (vk == VK_RBUTTON)
-				{
-					if (state) input.mi = { 0, 0, 0, MOUSEEVENTF_RIGHTDOWN, 0, ex }; else input.mi = { 0, 0, 0, MOUSEEVENTF_RIGHTUP, 0, ex };
-				}
-				else if (vk == VK_MBUTTON)
-				{
-					if (state) input.mi = { 0, 0, 0, MOUSEEVENTF_MIDDLEDOWN, 0, ex }; else input.mi = { 0, 0, 0, MOUSEEVENTF_MIDDLEUP, 0, ex };
-				}
-				else if (vk == VK_XBUTTON1)
-				{
-					if (state) input.mi = { 0, 0, XBUTTON2, MOUSEEVENTF_XDOWN, 0, ex }; else input.mi = { 0, 0, XBUTTON2, MOUSEEVENTF_XUP, 0, ex };
-				}
-				else if (vk == VK_XBUTTON2)
-				{
-					if (state) input.mi = { 0, 0, XBUTTON2, MOUSEEVENTF_XDOWN, 0, ex }; else input.mi = { 0, 0, XBUTTON2, MOUSEEVENTF_XUP, 0, ex };
-				}
-				else if (vk == VK_WHEELUP)
-				{
-					input.mi = { 0, 0, (DWORD)(WHEEL_DELTA), MOUSEEVENTF_WHEEL, 0, ex };
-				}
-				else if (vk == VK_WHEELDOWN)
-				{
-					input.mi = { 0, 0, (DWORD)(-WHEEL_DELTA), MOUSEEVENTF_WHEEL, 0, ex };
-				}
+				if (vk == VK_LBUTTON) { if (state) input.mi = { 0, 0, 0, MOUSEEVENTF_LEFTDOWN, 0, ex }; else input.mi = { 0, 0, 0, MOUSEEVENTF_LEFTUP, 0, ex }; }
+				else if (vk == VK_RBUTTON) { if (state) input.mi = { 0, 0, 0, MOUSEEVENTF_RIGHTDOWN, 0, ex }; else input.mi = { 0, 0, 0, MOUSEEVENTF_RIGHTUP, 0, ex }; }
+				else if (vk == VK_MBUTTON) { if (state) input.mi = { 0, 0, 0, MOUSEEVENTF_MIDDLEDOWN, 0, ex }; else input.mi = { 0, 0, 0, MOUSEEVENTF_MIDDLEUP, 0, ex }; }
+				else if (vk == VK_XBUTTON1) { if (state) input.mi = { 0, 0, XBUTTON2, MOUSEEVENTF_XDOWN, 0, ex }; else input.mi = { 0, 0, XBUTTON2, MOUSEEVENTF_XUP, 0, ex }; }
+				else if (vk == VK_XBUTTON2) { if (state) input.mi = { 0, 0, XBUTTON2, MOUSEEVENTF_XDOWN, 0, ex }; else input.mi = { 0, 0, XBUTTON2, MOUSEEVENTF_XUP, 0, ex }; }
+				else if (vk == VK_WHEELUP) { input.mi = { 0, 0, (DWORD)(WHEEL_DELTA), MOUSEEVENTF_WHEEL, 0, ex }; }
+				else if (vk == VK_WHEELDOWN) { input.mi = { 0, 0, (DWORD)(-WHEEL_DELTA), MOUSEEVENTF_WHEEL, 0, ex }; }
 			}
 			else {
 				input.type = INPUT_KEYBOARD;
@@ -69,40 +48,34 @@ namespace CG {
 			{
 				if (vk == VK_LBUTTON)
 				{
-					if (state) SendMessageW(wnd, WM_LBUTTONDOWN, 0, (LONGLONG)(pos.y << 16 | pos.x));
-					else SendMessageW(wnd, WM_LBUTTONUP, 0, (LONGLONG)(pos.y << 16 | pos.x));
+					if (state) PostMessageW(wnd, WM_LBUTTONDOWN, 0, (LPARAM)pos.y << (LPARAM)16 | (LPARAM)pos.x);
+					else PostMessageW(wnd, WM_LBUTTONUP, 0, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
 				}
 				else if (vk == VK_RBUTTON)
 				{
-					if (state) SendMessageW(wnd, WM_RBUTTONDOWN, 0, (LONGLONG)(pos.y << 16 | pos.x));
-					else SendMessageW(wnd, WM_RBUTTONUP, 0, (LONGLONG)(pos.y << 16 | pos.x));
+					if (state) PostMessageW(wnd, WM_RBUTTONDOWN, 0, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
+					else PostMessageW(wnd, WM_RBUTTONUP, 0, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
 				}
 				else if (vk == VK_MBUTTON)
 				{
-					if (state) SendMessageW(wnd, WM_MBUTTONDOWN, 0, (LONGLONG)(pos.y << 16 | pos.x));
-					else SendMessageW(wnd, WM_MBUTTONUP, 0, (LONGLONG)(pos.y << 16 | pos.x));
+					if (state) PostMessageW(wnd, WM_MBUTTONDOWN, 0, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
+					else PostMessageW(wnd, WM_MBUTTONUP, 0, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
 				}
 				else if (vk == VK_XBUTTON1)
 				{
-					if (state) SendMessageW(wnd, WM_XBUTTONDOWN, MK_XBUTTON1 << 16, (LONGLONG)(pos.y << 16 | pos.x));
-					else SendMessageW(wnd, WM_XBUTTONUP, MK_XBUTTON1 << 16, (LONGLONG)(pos.y << 16 | pos.x));
+					if (state) PostMessageW(wnd, WM_XBUTTONDOWN, MK_XBUTTON1 << 16, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
+					else PostMessageW(wnd, WM_XBUTTONUP, MK_XBUTTON1 << 16, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
 				}
 				else if (vk == VK_XBUTTON2)
 				{
-					if (state) SendMessageW(wnd, WM_XBUTTONDOWN, MK_XBUTTON2 << 16, (LONGLONG)(pos.y << 16 | pos.x));
-					else SendMessageW(wnd, WM_XBUTTONUP, MK_XBUTTON2 << 16, (LONGLONG)(pos.y << 16 | pos.x));
+					if (state) PostMessageW(wnd, WM_XBUTTONDOWN, MK_XBUTTON2 << 16, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
+					else PostMessageW(wnd, WM_XBUTTONUP, MK_XBUTTON2 << 16, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
 				}
 			}
 			else
 			{
-				if (state)
-				{
-					SendMessageW(wnd, WM_KEYDOWN, vk, (LONGLONG)Input::ScanCode(vk) << 15ll);
-				}
-				else
-				{
-					SendMessageW(wnd, WM_KEYUP, vk, (LONGLONG)Input::ScanCode(vk) << 15ll);
-				}
+				if (state) PostMessageW(wnd, WM_KEYDOWN, vk, (LPARAM)Input::ScanCode(vk) << (LPARAM)16);
+				else PostMessageW(wnd, WM_KEYUP, vk, (LPARAM)Input::ScanCode(vk) << (LPARAM)16);
 			}
 		}
 
@@ -117,8 +90,11 @@ namespace CG {
 		// param: x, y = Pixel
 		static void Move(LONG x, LONG y) { INPUT input = { 0 }; MOUSEINPUT mouseInput = { x, y, 0, MOUSEEVENTF_MOVE, 0, 0 }; input.type = INPUT_MOUSE; input.mi = mouseInput; SendInput(1, &input, sizeof(input)); }
 
-		// param: x, y = 0~ScreenPixel
-		static void MoveTo(int x, int y) { SetCursorPos(x - 1, y - 1); }
+		// param: x, y = 0~ScreenPixel-1
+		static void MoveTo(int x, int y) { SetCursorPos(x, y); }
+
+		// param: x, y = WindowPixel
+		static void MoveTo(HWND wnd, int x, int y, WORD mk = 0) { PostMessageW(wnd, WM_MOUSEMOVE, mk, (LONGLONG)(y << 16 | x)); }
 
 		// param: x, y = 0~65535
 		static void MoveToA(LONG x, LONG y) { INPUT input = { 0 }; MOUSEINPUT mouseInput = { x, y, 0, MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE, 0, 0 }; input.type = INPUT_MOUSE; input.mi = mouseInput; SendInput(1, &input, sizeof(input)); }

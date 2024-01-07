@@ -5,6 +5,8 @@
 #pragma comment(lib, "dwmapi.lib") //DwmGetWindowAttribute
 
 #include "base.h"
+#include "list.h"
+#include "string.h"
 
 #define WndMain() int WINAPI wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE, _In_ LPWSTR cmdLine, _In_ INT cmdShow)
 #define PeekMsg(wnd) MSG msg; while(1) { if (PeekMessageW(&msg, wnd, 0, 0, PM_REMOVE)) TranslateMessage(&msg), DispatchMessageW(&msg); else
@@ -26,14 +28,6 @@ namespace CG {
 	class Window
 	{
 	public:
-
-		static POINT clientAbsPos(HWND wnd) {
-			POINT client = { 0 };
-			RECT window = { 0 };
-			ClientToScreen(wnd, &client);
-			GetWindowRect(wnd, &window);
-			return { client.x - window.left - 8, client.y - window.top };
-		}
 
 		static void Register(LPCWSTR className, WNDPROC wndProc, bool transparent = 0, COLORREF color = RGB(255, 255, 255), HICON icon = 0, INT menu = 0) {
 			WNDCLASSW wndClass = { 0 };
@@ -64,19 +58,35 @@ namespace CG {
 			return result;
 		}
 
-		//size: pixel, weight: 0 ~ 900, font: name
-		static HFONT setFont(UINT size, USHORT weight = 0, LPCWSTR font = L"Microsoft YaHei") {
-			return CreateFontW(size, 0, 0, 0, weight, 0, 0, 0, UNICODE, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, font);
+		static std::wstring className(HWND wnd)
+		{
+			LPWSTR name = new WCHAR[256];
+			GetClassNameW(wnd, name, 256);
+			std::wstring result = name;
+			delete[] name;
+			return result;
 		}
+
+		//size: pixel, weight: 0 ~ 900, font: name
+		static HFONT setFont(UINT size, USHORT weight = 0, LPCWSTR font = L"Microsoft YaHei") { return CreateFontW(size, 0, 0, 0, weight, 0, 0, 0, UNICODE, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, font); }
 
 		static bool Redraw(HWND wnd) { return RedrawWindow(wnd, 0, 0, RDW_ERASE | RDW_INVALIDATE); }
 
-		static bool Size(HWND wnd, int cx, int cy) { return SetWindowPos(wnd, 0, 0, 0, cx, cy, SWP_NOZORDER | SWP_NOMOVE); }
+		static SIZE size(HWND wnd) { RECT rect = { 0 }; DwmGetWindowAttribute(wnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(RECT)); return { rect.right - rect.left, rect.bottom - rect.top }; }
+		static bool Size(HWND wnd, SIZE size) { return SetWindowPos(wnd, 0, 0, 0, size.cx, size.cy, SWP_NOMOVE | SWP_NOZORDER); }
+		static bool Size(HWND wnd, int cx, int cy) { return SetWindowPos(wnd, 0, 0, 0, cx, cy, SWP_NOMOVE | SWP_NOZORDER); }
 
-		static bool Pos(HWND wnd, int x, int y) { return SetWindowPos(wnd, 0, x, y, 0, 0, SWP_NOZORDER | SWP_NOSIZE); }
+		static POINT pos(HWND wnd) { RECT rect = { 0 }; DwmGetWindowAttribute(wnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(RECT)); return { rect.left, rect.top }; }
+		static bool Pos(HWND wnd, POINT point) { return SetWindowPos(wnd, 0, point.x, point.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER); }
+		static bool Pos(HWND wnd, int x, int y) { return SetWindowPos(wnd, 0, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER); }
 
 		static RECT rect(HWND wnd) { RECT rect = { 0 }; DwmGetWindowAttribute(wnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(RECT)); return rect; }
 		static bool Rect(HWND wnd, RECT rect) { return SetWindowPos(wnd, 0, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER); }
+
+		static SIZE clientSize(HWND wnd) { RECT rect; GetClientRect(wnd, &rect); return { rect.right, rect.bottom }; }
+		static POINT clientPos(HWND wnd) { POINT client = { 0 }; ClientToScreen(wnd, &client); return client; }
+		static RECT clientRect(HWND wnd) { RECT rect; GetClientRect(wnd, &rect); return rect; }
+		static RECT clientRectA(HWND wnd) { POINT point; ClientToScreen(wnd, &point); RECT rect; GetClientRect(wnd, &rect); return { point.x, point.y, point.x + rect.right, point.y + rect.bottom }; }
 
 		static bool UnTop(HWND wnd) { return SetWindowPos(wnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE); }
 		static bool Top(HWND wnd) { return SetWindowPos(wnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE); }

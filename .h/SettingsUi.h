@@ -4,7 +4,9 @@
 
 class SettingsUi : public QWidget
 {
-	Q_OBJECT
+	Q_OBJECT;
+	Ui::SettingsUiClass ui;
+	SettingsData* sets = &Global::qi.set;
 
 public:
 	SettingsUi(QWidget* parent) : QWidget(parent)
@@ -17,9 +19,6 @@ public:
 	}
 
 private:
-	Ui::SettingsUiClass ui;
-	SettingsData* sets = &Global::qi.set;
-
 	void WidInit()
 	{
 		ui.hkKey->Mode(2);
@@ -49,65 +48,25 @@ private:
 
 private slots:
 
-	void OnHkKey()
-	{
-		sets->key = ui.hkKey->virtualKey();
-		SaveJson();
-	}
-
-	void OnHkRec()
-	{
-		sets->recKey = ui.hkRec->virtualKey();
-		SaveJson();
-	}
-
-	void OnDefOn()
-	{
-		sets->defOn = ui.chbDefOn->isChecked();
-		SaveJson();
-	}
-
-	void OnShowTips()
-	{
-		sets->showTips = ui.chbShowTips->isChecked();
-		SaveJson();
-	}
-
-	void OnAudFx()
-	{
-		sets->audFx = ui.chbAudFx->isChecked();
-		SaveJson();
-	}
-
-	void OnMinMode()
-	{
-		sets->minMode = ui.chbMinMode->isChecked();
-		SaveJson();
-	}
-
-	void OnZoomBlock()
-	{
-		sets->zoomBlock = ui.chbZoomBlock->isChecked();
-		SaveJson();
-	}
+	void OnHkKey() { sets->key = ui.hkKey->virtualKey(); SaveJson(); }
+	void OnHkRec() { sets->recKey = ui.hkRec->virtualKey(); SaveJson(); }
+	void OnDefOn() { sets->defOn = ui.chbDefOn->isChecked(); SaveJson(); }
+	void OnShowTips() { sets->showTips = ui.chbShowTips->isChecked(); SaveJson(); }
+	void OnAudFx() { sets->audFx = ui.chbAudFx->isChecked(); SaveJson(); }
+	void OnMinMode() { sets->minMode = ui.chbMinMode->isChecked(); SaveJson(); }
+	void OnZoomBlock() { sets->zoomBlock = ui.chbZoomBlock->isChecked(); SaveJson(); }
 
 	void OnStart()
 	{
 		if (Task::Find(L"QuickInput").result)
 		{
 			Task::TaskStruct ts = Task::Delete(L"QuickInput");
-			if (!ts.result)
-			{
-				MsgBox::Error(ts.log.c_str(), L"错误");
-			}
+			if (!ts.result) MsgBox::Error(ts.log.c_str(), L"错误");
 		}
 		else
 		{
 			Task::TaskStruct ts = Task::Register(L"QuickInput");
-			if (!ts.result)
-			{
-				MsgBox::Error(ts.log.c_str(), L"错误");
-			}
+			if (!ts.result) MsgBox::Error(ts.log.c_str(), L"错误");
 		}
 	}
 };

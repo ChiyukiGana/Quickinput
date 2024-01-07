@@ -8,7 +8,10 @@
 
 class MacroUi : public QWidget
 {
-	Q_OBJECT
+	Q_OBJECT;
+	Ui::MacroUiClass ui;
+	Macros& macros = Global::qi.macros;
+	QTimer* timer;
 
 public:
 	bool working = 0;
@@ -22,35 +25,30 @@ public:
 
 		WidInit();
 		WidEvent();
-		LockControl(1);
-		TbUpdate();
 	}
 
 private:
-
-	Ui::MacroUiClass ui;
-	Scripts& scripts = Global::qi.scripts;
-	QTimer* timer;
-
 	void WidInit()
 	{
 		timer = new QTimer(this);
 
-		//Table
+		// Table
 		{
 			ui.tbItem->setColumnCount(1);
 			QTableWidgetItem* tbi = new QTableWidgetItem(QString::fromUtf8(u8"名称"));
 			ui.tbItem->setHorizontalHeaderItem(0, tbi);
 			ui.tbItem->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Stretch);
 		}
+		LockControl(1);
+		TbUpdate();
 	}
-
 	void WidEvent()
 	{
 		connect(timer, SIGNAL(timeout()), this, SLOT(OnTimeOut()));
 		connect(ui.tbItem, SIGNAL(cellClicked(int, int)), this, SLOT(OnTbClicked(int, int)));
 		connect(ui.etName, SIGNAL(returnPressed()), this, SLOT(OnEtReturn()));
 		connect(ui.bnRec, SIGNAL(clicked()), this, SLOT(OnBnRec()));
+		connect(ui.bnWndRec, SIGNAL(clicked()), this, SLOT(OnBnWndRec()));
 		connect(ui.bnAdd, SIGNAL(clicked()), this, SLOT(OnBnAdd()));
 		connect(ui.bnEdit, SIGNAL(clicked()), this, SLOT(OnBnEdit()));
 		connect(ui.bnExp, SIGNAL(clicked()), this, SLOT(OnBnExp()));
@@ -63,7 +61,6 @@ private:
 		ui.etName->setText("");
 		ui.tbItem->setCurrentItem(0);
 	}
-
 	void LockControl(bool state)
 	{
 		ui.etName->setDisabled(state);
@@ -75,18 +72,44 @@ private:
 	void TbUpdate()
 	{
 		ui.tbItem->clearMask();
-		ui.tbItem->setRowCount(scripts.size());
+		ui.tbItem->setRowCount(macros.size());
 		ui.tbItem->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
 		ui.tbItem->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
 		ui.tbItem->verticalHeader()->setDefaultSectionSize(0);
 
-		for (uint32 u = 0; u < scripts.size(); u++) {
-			ui.tbItem->setItem(u, 0, new QTableWidgetItem(QString::fromWCharArray(scripts[u].name.c_str())));
+		for (uint32 u = 0; u < macros.size(); u++) {
+			ui.tbItem->setItem(u, 0, new QTableWidgetItem(QString::fromWCharArray(macros[u].name.c_str())));
 			ui.tbItem->item(u, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		}
 	}
 
-private slots:
+	void RecStart(bool wnd)
+	{
+		macros.AddNull();
+		macros.Get().mode = Macro::down;
+		macros.Get().count = 1;
+		RecordUi rw(&macros.Get().actions);
+		Global::qi.rec = &rw;
+		Global::qi.state = 0, Global::qi.run = 0;
+
+		HookState(1);
+		working = 1;
+		parentWidget()->hide();
+		if (wnd)
+		{
+			WndInfo wi = WindowSelection();
+			if (wi.wnd)
+			{
+				macros.Get().wndState = 1;
+				macros.Get().wi = wi;
+				rw.Start(wi.wnd);
+			}
+		}
+		else rw.Start(0);
+		working = 0;
+		parentWidget()->show();
+		HookState(0);
+	}
 
 	void showEvent(QShowEvent*)
 	{
@@ -95,13 +118,14 @@ private slots:
 		TbUpdate();
 	}
 
+private slots:
 	void OnTimeOut()
 	{
 		int pos = ui.tbItem->currentRow();
 		if (pos < 0) return;
 		timer->stop();
 		ui.etName->setDisabled(0);
-		ui.etName->setText(QString::fromWCharArray(scripts[pos].name.c_str()));
+		ui.etName->setText(QString::fromWCharArray(macros[pos].name.c_str()));
 	}
 
 	void OnTbClicked(int row, int column)
@@ -109,7 +133,7 @@ private slots:
 		LockControl(1);
 		if (row < 0) return;
 
-		ui.etName->setText(QString::fromWCharArray(scripts[row].name.c_str()));
+		ui.etName->setText(QString::fromWCharArray(macros[row].name.c_str()));
 
 		LockControl(0);
 	}
@@ -119,7 +143,9 @@ private slots:
 		int pos = ui.tbItem->currentRow();
 		if (pos < 0) return;
 
-		if (File::NameFilter((LPCWSTR)ui.etName->text().utf16()) == L"")
+		std::wstring name = (LPCWSTR)ui.etName->text().utf16();
+
+		if (!File::NameFilter(name).length())
 		{
 			timer->setSingleShot(1);
 			timer->start(1000);
@@ -129,11 +155,11 @@ private slots:
 			return;
 		}
 
-		std::wstring path = L"macro\\";
-		path += (LPCWSTR)ui.etName->text().utf16();
-		path += L".json";
+		std::wstring newPath(Global::qi.path);
+		newPath += name;
+		newPath += L".json";
 
-		if (File::FileState(path.c_str()))
+		if (File::FileState(newPath.c_str()))
 		{
 			timer->setSingleShot(1);
 			timer->start(1000);
@@ -143,13 +169,14 @@ private slots:
 			return;
 		}
 
-		path = L"macro\\" + scripts[pos].name + L".json";
-		File::FileDelete(path.c_str());
+		std::wstring oldPath(Global::qi.path);
+		oldPath += macros[pos].name;
+		oldPath += L".json";
 
-		scripts[pos].name = (LPCWSTR)ui.etName->text().utf16();
-		ui.etName->setText(QString::fromWCharArray(scripts[pos].name.c_str()));
+		macros[pos].name = name;
 
-		SaveScript(scripts[pos]);
+		File::Rename(oldPath.c_str(), newPath.c_str());
+
 		LoadJson();
 		TbUpdate();
 		ResetControl();
@@ -158,54 +185,42 @@ private slots:
 
 	void OnBnRec()
 	{
-		scripts.AddNull();
-		RecordUi rw(scripts.Get().actions);
-
-		HookState(1);
-		Global::qi.state = 0;
-		Global::qi.rec = &rw;
-		if (Global::qi.set.recKey & 0xFFFF)
-		{
-			std::wstring text = L"按下";
-			text += Input::Name(Global::qi.set.recKey & 0xFFFF);
-			text += L"开始/停止录制";
-			TipsWindow::Show(text, RGB(0x20, 0xFF, 0x20));
-		}
-
-		working = 1;
-		parentWidget()->hide();
-		rw.exec();
-		working = 0;
-		parentWidget()->show();
-		HookState(0);
+		RecStart(0);
 
 		LoadJson();
 		TbUpdate();
 		ResetControl();
 		LockControl(1);
 	}
+	void OnBnWndRec()
+	{
+		RecStart(1);
 
+		LoadJson();
+		TbUpdate();
+		ResetControl();
+		LockControl(1);
+	}
 	void OnBnAdd()
 	{
-		scripts.AddNull();
-		scripts.Get().name = NameFilter(L"宏");
-		scripts.Get().mode = 1;
-		scripts.Get().a = 1;
+		macros.AddNull();
+		macros.Get().name = NameFilter(L"宏");
+		macros.Get().mode = Macro::down;
+		macros.Get().count = 1;
 
-		SaveScript(scripts.Get());
+		SaveMacro(macros.Get());
 		LoadJson();
 		TbUpdate();
 		ResetControl();
 		LockControl(1);
 	}
-
 	void OnBnEdit()
 	{
 		int pos = ui.tbItem->currentRow();
 		if (pos < 0) return;
 
-		EditUi edit(scripts[pos].actions);
-		edit.setWindowTitle(u8"编辑 - " + QString::fromWCharArray(scripts[pos].name.c_str()));
+		EditUi edit(&macros[pos], &macros[pos].actions);
+		edit.setWindowTitle(u8"编辑 - " + QString::fromWCharArray(macros[pos].name.c_str()));
 
 		working = 1;
 		parentWidget()->hide();
@@ -213,23 +228,24 @@ private slots:
 		working = 0;
 		parentWidget()->show();
 
-		SaveScript(scripts[pos]);
+		SaveMacro(macros[pos]);
 		LoadJson();
 		TbUpdate();
 		ResetControl();
 		LockControl(1);
 	}
-
 	void OnBnExp()
 	{
 		int pos = ui.tbItem->currentRow();
 		if (pos < 0) return;
 
-		QString path = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, u8"导出到", QString::fromWCharArray((scripts[pos].name + L".json").c_str()), u8"Quick input macro (*.json)"));
-		if (path == "") return;
+		QString path = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, u8"导出到", QString::fromWCharArray((macros[pos].name + L".json").c_str()), u8"Quick input macro (*.json)"));
+		if (!path.length()) return;
 
-		std::wstring srcFile = L"macro\\" + scripts[pos].name + L".json";
-		std::wstring newFile = path.toStdWString();
+		std::wstring srcFile(Global::qi.path);
+		srcFile += macros[pos].name;
+		srcFile += L".json";
+		std::wstring newFile = (LPCWSTR)path.utf16();
 
 		CopyFileW(srcFile.c_str(), newFile.c_str(), 0);
 
@@ -238,22 +254,19 @@ private slots:
 		ResetControl();
 		LockControl(1);
 	}
-
 	void OnBnImp()
 	{
 		QString path = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, u8"导入", QString(), u8"Quick input macro (*.json)"));
 		if (path == "") return;
 
-		std::wstring srcFile = path.toStdWString();
-		std::wstring newFile = L"macro\\" + File::PathLast(srcFile);
+		std::wstring srcFile = (LPCWSTR)path.utf16();
+		std::wstring newFile(Global::qi.path);
+		newFile += File::PathLast(srcFile);
 
-		File::FolderCreate(L"macro");
+		File::FolderCreate(Global::qi.path);
 		if (File::FileState(newFile))
 		{
-			if (MsgBox::Warning(L"文件已存在，是否覆盖？", L"Warning", MB_YESNO | MB_ICONWARNING | MB_TOPMOST) == IDYES)
-			{
-				CopyFileW(srcFile.c_str(), newFile.c_str(), 0);
-			}
+			if (MsgBox::Warning(L"文件已存在，是否覆盖？", L"Warning", MB_YESNO | MB_ICONWARNING | MB_TOPMOST) == IDYES) CopyFileW(srcFile.c_str(), newFile.c_str(), 0);
 		}
 		else CopyFileW(srcFile.c_str(), newFile.c_str(), 0);
 
@@ -262,16 +275,17 @@ private slots:
 		ResetControl();
 		LockControl(1);
 	}
-
 	void OnBnDel()
 	{
 		int pos = ui.tbItem->currentRow();
 		if (pos < 0) return;
 
-		std::wstring name = L"macro\\" + scripts[pos].name + L".json";
-		scripts.Del(pos);
+		std::wstring path(Global::qi.path);
+		path += macros[pos].name;
+		path += L".json";
+		macros.Del(pos);
 
-		File::FileDelete(name.c_str());
+		File::FileDelete(path.c_str());
 		ui.tbItem->setCurrentItem(0);
 
 		LoadJson();

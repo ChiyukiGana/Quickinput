@@ -242,6 +242,44 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="bnWndRec">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>35</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Microsoft YaHei</family>
+           <pointsize>-1</pointsize>
+           <weight>75</weight>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::ClickFocus</enum>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">*{font-family:&quot;Microsoft YaHei&quot;;font-size:14px;}
+QPushButton{background-color: #ADE;border:none;}
+QPushButton:hover{background-color: #C0E2F2;}</string>
+         </property>
+         <property name="text">
+          <string>录制窗口</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="bnAdd">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">

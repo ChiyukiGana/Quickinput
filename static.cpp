@@ -5,17 +5,14 @@ QuickInputStruct Global::qi;
 List<byte> Global::trBlock;
 byte Global::blockRep[255];
 
-SIZE  TipsWindow::screen = { 0 };
-HANDLE TipsWindow::thread = 0;
-HWND TipsWindow::wnd = 0;
-UINT TipsWindow::time = 0;
-UINT TipsWindow::timeBegin = 0;
-COLORREF  TipsWindow::color = 0;
-std::wstring  TipsWindow::text;
+TipsWindow::Param  TipsWindow::p;
+HANDLE WndLock::thread = 0;
 
+float UI::zoomRote;
 QString UI::syOn;
 QString UI::syOff;
 QString UI::syOk;
+QString UI::syYes;
 QString UI::syNot;
 QString UI::syStop;
 QString UI::syShow;

@@ -5,10 +5,11 @@
 
 class MoreUi : public QDialog
 {
-	Q_OBJECT
+	Q_OBJECT;
+	Ui::MoreUiClass ui;
+	QPoint msPos;
 
 public:
-
 	MoreUi() : QDialog()
 	{
 		ui.setupUi(this);
@@ -18,21 +19,9 @@ public:
 	}
 
 private:
-
-	Ui::MoreUiClass ui;
-	QPoint msPos;
-
-	void mousePressEvent(QMouseEvent* et)
-	{
-		if (et->buttons() & Qt::LeftButton) msPos = et->pos();
-	}
-
-	void mouseMoveEvent(QMouseEvent* et)
-	{
-		if (et->buttons() & Qt::LeftButton) move(et->pos() + pos() - msPos);
-	}
+	void mousePressEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) msPos = et->pos(); }
+	void mouseMoveEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) move(et->pos() + pos() - msPos); }
 
 private slots:
-
 	void OnBnClose() { hide(); }
 };
