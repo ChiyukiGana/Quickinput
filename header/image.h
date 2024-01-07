@@ -55,7 +55,7 @@ namespace CG {
 			return 0;
 		}
 
-		static void HdcRgbmap(HDC hdc, SIZE size, RgbMap& rgbMap)
+		static void HdcRgbmap(HDC hdc, RgbMap& rgbMap, SIZE size, POINT lt = { 0, 0 })
 		{
 			rgbMap.create(size.cx, size.cy);
 			BITMAPINFO bitmapInfo = { 0 };
@@ -69,11 +69,13 @@ namespace CG {
 			{
 				HDC hdcMem = CreateCompatibleDC(hdc);
 				HGDIOBJ hGdiobj = SelectObject(hdcMem, hBitmap);
-				if (hGdiobj && hGdiobj != HGDI_ERROR && BitBlt(hdcMem, 0, 0, rgbMap.width(), rgbMap.height(), hdc, 0, 0, SRCCOPY)) GetBitmapBits(hBitmap, rgbMap.bytes(), rgbMap.accessMap());
+				if (hGdiobj && hGdiobj != HGDI_ERROR && BitBlt(hdcMem, 0, 0, rgbMap.width(), rgbMap.height(), hdc, lt.x, lt.y, SRCCOPY)) GetBitmapBits(hBitmap, rgbMap.bytes(), rgbMap.accessMap());
 				DeleteObject(hBitmap);
 				DeleteDC(hdcMem);
 			}
 		}
+
+		static void HdcRgbmap(HDC hdc, RgbMap& rgbMap, RECT rect) { HdcRgbmap(hdc, rgbMap, { rect.right - rect.left + 1, rect.bottom - rect.top + 1 }, { rect.left, rect.top }); }
 
 		static void ScreenRgbmap(RgbMap& rgbMap)
 		{
