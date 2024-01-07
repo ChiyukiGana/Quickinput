@@ -76,12 +76,12 @@ namespace CG {
 		static bool Find(HDC hdc, POINT pt, COLORREF color, byte extend = 10) { if (pt.x < 0 || pt.y < 0) return 0; return Equal(color, GetPixel(hdc, pt.x, pt.y), extend); }
 
 		// RECT: left/top >= 0, right/bottom >= left/top;
-		static FindOrStatus FindOr(RgbMap& map, RECT rect, Rgb rgb, byte extend = 10) {
+		static FindOrStatus FindOr(RgbMap& map, Rgb rgb, byte extend = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX }) {
 			if (rect.left < 0 || rect.top < 0 || rect.right <= rect.left || rect.bottom <= rect.top) return { 0 };
-			if (rect.right >= map.width()) rect.right = map.width() - 1;
-			if (rect.bottom >= map.height()) rect.bottom = map.height() - 1;
-			uint32 xmax = rect.right - rect.left;
-			uint32 ymax = rect.bottom - rect.top;
+			if (rect.right >= map.width()) rect.right = map.width();
+			if (rect.bottom >= map.height()) rect.bottom = map.height();
+			uint32 xmax = rect.right - rect.left + 1;
+			uint32 ymax = rect.bottom - rect.top + 1;
 			for (uint32 y = 0; y < ymax; y++) for (uint32 x = 0; x < xmax; x++) if (Equal(map[rect.top + y][rect.left + x], rgb, extend)) return { 1, rect.left + (LONG)x, rect.top + (LONG)y };
 			return { 0 };
 		}
@@ -109,9 +109,11 @@ namespace CG {
 		}
 
 		// RECT: left/top >= 0, right/bottom >= left/top
-		static bool FindAnd(RgbMap& map, RECT rect, Rgb rgb, byte extend = 10)
+		static bool FindAnd(RgbMap& map, Rgb rgb, byte extend = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
 		{
 			if (rect.left < 0 || rect.top < 0 || rect.right <= rect.left || rect.bottom <= rect.top) return { 0 };
+			if (rect.right > map.width()) rect.right = map.width();
+			if (rect.bottom > map.height()) rect.bottom = map.height();
 			uint32 xmax = rect.right - rect.left;
 			uint32 ymax = rect.bottom - rect.top;
 			for (uint32 y = 0; y < ymax; y++) for (uint32 x = 0; x < xmax; x++) if (!Equal(map[rect.top + y][rect.left + x], rgb, extend)) return { 0 };
