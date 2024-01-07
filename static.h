@@ -235,7 +235,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 			rect = ATRR(action.color.rect);
 		}
 		Color::FindOrStatus result = Color::FindOr(rgbMap, rect, action.color.rgbe.toRgb(), action.color.rgbe.a);
-		if (action.color.unfind) if (result.find) return 0;
+		if (action.color.unfind) { if (result.find) return 0; }
 		else
 		{
 			if (result.find) {
