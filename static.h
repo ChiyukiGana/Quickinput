@@ -225,16 +225,16 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 		if (wi)
 		{
 			HDC wdc = GetDC(wi->wnd);
-			Image::HdcRgbmap(wdc, Window::size(wi->wnd), rgbMap);
-			ReleaseDC(wi->wnd, wdc);
 			rect = WATRR(action.color.rect, wi->wnd);
+			Image::HdcRgbmap(wdc, rgbMap, rect);
+			ReleaseDC(wi->wnd, wdc);
 		}
 		else
 		{
-			Image::HdcRgbmap(Global::qi.hdc, Global::qi.screen, rgbMap);
 			rect = ATRR(action.color.rect);
+			Image::HdcRgbmap(Global::qi.hdc, rgbMap, rect);
 		}
-		Color::FindOrStatus result = Color::FindOr(rgbMap, rect, action.color.rgbe.toRgb(), action.color.rgbe.a);
+		Color::FindOrStatus result = Color::FindOr(rgbMap, action.color.rgbe.toRgb(), action.color.rgbe.a);
 		if (action.color.unfind) { if (result.find) return 0; }
 		else
 		{
