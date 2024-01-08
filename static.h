@@ -225,22 +225,23 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 		if (wi)
 		{
 			HDC wdc = GetDC(wi->wnd);
-			Image::HdcRgbmap(wdc, Window::size(wi->wnd), rgbMap);
-			ReleaseDC(wi->wnd, wdc);
 			rect = WATRR(action.color.rect, wi->wnd);
+			Image::HdcRgbmap(wdc, rgbMap, rect);
+			ReleaseDC(wi->wnd, wdc);
 		}
 		else
 		{
-			Image::HdcRgbmap(Global::qi.hdc, Global::qi.screen, rgbMap);
 			rect = ATRR(action.color.rect);
+			Image::HdcRgbmap(Global::qi.hdc, rgbMap, rect);
 		}
-		Color::FindOrStatus result = Color::FindOr(rgbMap, rect, action.color.rgbe.toRgb(), action.color.rgbe.a);
-		if (action.color.unfind) if (result.find) return 0;
+		Color::FindOrStatus result = Color::FindOr(rgbMap, action.color.rgbe.toRgb(), action.color.rgbe.a);
+		if (action.color.unfind) { if (result.find) return 0; }
 		else
 		{
 			if (result.find) {
 				if (action.color.move == 1)
 				{
+					result.pt.x += rect.left, result.pt.y += rect.top;
 					if (wi)
 					{
 						wi->pt = result.pt;
@@ -280,13 +281,12 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 	return 0;
 }
 
-static DWORD CALLBACK ThreadQuickClick(LPVOID)
+static DWORD CALLBACK ThreadQuickClick(PVOID)
 {
 	srand(clock());
-	uint32 b = 0;
-	uint32 e = 0;
-	if (Global::qi.fun.quickClick.delay > 99) b = 50, e = Global::qi.fun.quickClick.delay - 50;
-	else if (Global::qi.fun.quickClick.delay > 1) b = Global::qi.fun.quickClick.delay / 2, e = b;
+	uint32 b, e;
+	if (Global::qi.fun.quickClick.delay > 99) b = Rand(70, 30), e = Global::qi.fun.quickClick.delay - Rand(70, 30);
+	else if (Global::qi.fun.quickClick.delay > 1) b = Rand(Global::qi.fun.quickClick.delay, Global::qi.fun.quickClick.delay >> 2), e = Rand(Global::qi.fun.quickClick.delay, Global::qi.fun.quickClick.delay >> 2);
 	else e = Global::qi.fun.quickClick.delay;
 
 	while (Global::qi.run)
@@ -298,53 +298,42 @@ static DWORD CALLBACK ThreadQuickClick(LPVOID)
 	}
 	return 0;
 }
-static DWORD CALLBACK ThreadMacro(LPVOID lParam)
+static DWORD CALLBACK ThreadMacro(PVOID pMacro)
 {
 	srand(clock());
-	uint32 pos = (UINT)lParam;
-	uint32 n = 0;
+	Macro* macro = (Macro*)pMacro;
 	WndInput wi;
-	if (Global::qi.macros[pos].wndState)
+	WndInput* pWi = 0;
+	if (macro->wndState)
 	{
-		Global::qi.macros[pos].wi.wnd = FindWindowW(Global::qi.macros[pos].wi.wndClass.c_str(), Global::qi.macros[pos].wi.wndName.c_str());
-		if (!Global::qi.macros[pos].wi.wnd) Global::qi.macros[pos].wi = WindowSelection();
+		macro->wi.wnd = FindWindowW(macro->wi.wndClass.c_str(), macro->wi.wndName.c_str());
+		if (!macro->wi.wnd) macro->wi = WindowSelection();
+		wi.wnd = macro->wi.wnd;
+		pWi = &wi;
 	}
+
+	uint32 count = 0;
 	while (Global::qi.run)
 	{
-		if (Global::qi.macros[pos].count) { n++; if (n > Global::qi.macros[pos].count) break; }
-		for (uint32 n = 0; n < Global::qi.macros[pos].actions.size() && Global::qi.run; n++)
+		if (macro->count) { count++; if (count > macro->count) break; } // if count = 0 then while is infinite
+		for (uint32 n = 0; n < macro->actions.size() && Global::qi.run; n++)
 		{
-			if (Global::qi.macros[pos].wndState)
+			if (ActionExecute(macro->actions[n], pWi))
 			{
-				if (Global::qi.macros[pos].wi.wnd)
-				{
-					wi.wnd = Global::qi.macros[pos].wi.wnd;
-					if (ActionExecute(Global::qi.macros[pos].actions[n], &wi))
-					{
-						Global::qi.macros[pos].thread = 0;
-						return 0;
-					}
-				}
-			}
-			else
-			{
-				if (ActionExecute(Global::qi.macros[pos].actions[n], 0))
-				{
-					Global::qi.macros[pos].thread = 0;
-					return 0;
-				}
+				macro->thread = 0;
+				return 0;
 			}
 		}
 	}
-	Global::qi.macros[pos].thread = 0;
+	macro->thread = 0;
 	return 0;
 }
-static DWORD CALLBACK ThreadRelease(LPVOID key)
+static DWORD CALLBACK ThreadRelease(PVOID key)
 {
 	Input::State((BYTE)key, 0, 214);
 	return 0;
 }
-static DWORD CALLBACK ThreadWndActive(LPVOID)
+static DWORD CALLBACK ThreadWndActive(PVOID)
 {
 	while (Global::qi.state)
 	{

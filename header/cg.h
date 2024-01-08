@@ -20,7 +20,6 @@
 #include "window.h"
 #include "msgbox.h"
 
-#include "ini.h"
 #include "task.h"
 
 using namespace CG;

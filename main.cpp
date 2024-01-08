@@ -23,52 +23,48 @@ void SwitchKey(BYTE vk, bool state)
 
 void TriggerKey(BYTE vk, bool state)
 {
-	std::wstring text;
-
 	// show clock
 	if (Global::qi.fun.showClock.state && Global::qi.fun.showClock.key == vk && state) { TipsWindow::Popup(Time::toWStringT()); }
 
 	if (!Global::qi.run) return;
-	
+
 	// quick click
 	if (Global::qi.fun.quickClick.state && Global::qi.fun.quickClick.key == vk)
 	{
-		if (Global::qi.fun.quickClick.mode) // click mode
+		if (state)
 		{
-			if (!state)
-			{
-				if (!Global::qi.fun.quickClick.thread)
-				{
-					Global::qi.fun.quickClick.thread = Thread::Start(ThreadQuickClick);
-					if (Global::qi.set.showTips) TipsWindow::Popup(std::wstring(Input::Name(Global::qi.fun.quickClick.key)) + std::wstring(L"ㅤ连点开始"), RGB(0xFF, 0xAF, 0xEF));
-				}
-				else
-				{
-					Thread::Start(ThreadRelease, (LPVOID)Global::qi.fun.quickClick.key);
-					TerminateThread(Global::qi.fun.quickClick.thread, 0);
-					Global::qi.fun.quickClick.thread = 0;
-					if (Global::qi.set.showTips) TipsWindow::Popup(std::wstring(Input::Name(Global::qi.fun.quickClick.key)) + std::wstring(L"ㅤ连点结束"), RGB(0xFF, 0xFF, 0x60));
-				}
-			}
-		}
-		else // press mode
-		{
-			if (state)
-			{
-				if (!Global::qi.fun.quickClick.thread)
-				{
-					Global::qi.fun.quickClick.thread = Thread::Start(ThreadQuickClick);
-					if (Global::qi.set.showTips) TipsWindow::Popup(std::wstring(Input::Name(Global::qi.fun.quickClick.key)) + std::wstring(L"ㅤ连点开始"), RGB(0x20, 0xFF, 0x40));
-				}
-			}
-			else
+			if (Global::qi.fun.quickClick.mode) // switch mode
 			{
 				if (Global::qi.fun.quickClick.thread)
 				{
+					TerminateThread(Global::qi.fun.quickClick.thread, 0); Global::qi.fun.quickClick.thread = 0;
+					Thread::Start(ThreadRelease, (PVOID)Global::qi.fun.quickClick.key);
+					if (Global::qi.set.showTips) TipsWindow::Popup(std::wstring(Input::Name(Global::qi.fun.quickClick.key)) + L"ㅤ连点结束", RGB(0xFF, 0xFF, 0x60));
+				}
+				else
+				{
+					Global::qi.fun.quickClick.thread = Thread::Start(ThreadQuickClick);
+					if (Global::qi.set.showTips) TipsWindow::Popup(std::wstring(Input::Name(Global::qi.fun.quickClick.key)) + L"ㅤ连点开始", RGB(0xFF, 0xAF, 0xEF));
+				}
+			}
+			else // press mode
+			{
+				if (!Global::qi.fun.quickClick.thread)
+				{
+					Global::qi.fun.quickClick.thread = Thread::Start(ThreadQuickClick);
+					if (Global::qi.set.showTips) TipsWindow::Popup(std::wstring(Input::Name(Global::qi.fun.quickClick.key)) + L"ㅤ连点开始", RGB(0x20, 0xFF, 0x40));
+				}
+			}
+		}
+		else
+		{
+			if (!Global::qi.fun.quickClick.mode) // press mode
+			{
+				if (Global::qi.fun.quickClick.thread)
+				{
+					TerminateThread(Global::qi.fun.quickClick.thread, 0); Global::qi.fun.quickClick.thread = 0;
 					Thread::Start(ThreadRelease, (LPVOID)Global::qi.fun.quickClick.key);
-					TerminateThread(Global::qi.fun.quickClick.thread, 0);
-					Global::qi.fun.quickClick.thread = 0;
-					if (Global::qi.set.showTips) TipsWindow::Popup(std::wstring(Input::Name(Global::qi.fun.quickClick.key)) + std::wstring(L"ㅤ连点结束"), RGB(0xFF, 0xFF, 0x60));
+					if (Global::qi.set.showTips) TipsWindow::Popup(std::wstring(Input::Name(Global::qi.fun.quickClick.key)) + L"ㅤ连点结束", RGB(0xFF, 0xFF, 0x60));
 				}
 			}
 		}
@@ -80,92 +76,87 @@ void TriggerKey(BYTE vk, bool state)
 		if (Global::qi.macros[n].state)
 		{
 			if ((Global::qi.macros[n].key & 0xFFFF) == vk) Global::qi.macros[n].k1 = state;
-			if ((Global::qi.macros[n].key >> 16) == 0) Global::qi.macros[n].k2 = 1;
+			if ((Global::qi.macros[n].key >> 16) == 0) Global::qi.macros[n].k2 = true; // is not double keys
 			else if ((Global::qi.macros[n].key >> 16) == vk) Global::qi.macros[n].k2 = state;
 
-			if (Global::qi.macros[n].mode == Macro::sw)
+			if (Global::qi.macros[n].k1 && Global::qi.macros[n].k2) // trigger keys is pressed
 			{
-				if (Global::qi.macros[n].k1 && Global::qi.macros[n].k2)
+				switch (Global::qi.macros[n].mode)
+				{
+				case Macro::sw:
 				{
 					if (!Global::qi.macros[n].thread)
 					{
-						Global::qi.macros[n].thread = Thread::Start(ThreadMacro, (LPVOID)n);
-						if (Global::qi.set.showTips)
-						{
-							text = Global::qi.macros[n].name + L"ㅤ开始";
-							TipsWindow::Popup(text, RGB(0xFF, 0xAF, 0xEF));
-						}
+						Global::qi.macros[n].thread = Thread::Start(ThreadMacro, (PVOID)&Global::qi.macros[n]);
+						if (Global::qi.set.showTips) TipsWindow::Popup(Global::qi.macros[n].name + L"ㅤ开始", RGB(0xFF, 0xAF, 0xEF));
 					}
 					else
 					{
-						TerminateThread(Global::qi.macros[n].thread, 0);
-						Global::qi.macros[n].thread = 0;
-						if (Global::qi.set.showTips)
-						{
-							text = Global::qi.macros[n].name + L"ㅤ结束";
-							TipsWindow::Popup(text, RGB(0xFF, 0xFF, 0x60));
-						}
+						TerminateThread(Global::qi.macros[n].thread, 0); Global::qi.macros[n].thread = 0;
+						if (Global::qi.set.showTips) TipsWindow::Popup(Global::qi.macros[n].name + L"ㅤ结束", RGB(0xFF, 0xFF, 0x60));
 					}
 				}
-			}
-			else if (Global::qi.macros[n].mode == Macro::down)
-			{
-				if (Global::qi.macros[n].k1 && Global::qi.macros[n].k2)
+				break;
+
+				case Macro::down:
 				{
 					if (!Global::qi.macros[n].thread)
 					{
-						Global::qi.macros[n].thread = Thread::Start(ThreadMacro, (LPVOID)n);
+						Global::qi.macros[n].thread = Thread::Start(ThreadMacro, (PVOID)&Global::qi.macros[n]);
 						if (Global::qi.set.showTips)
 						{
-							if (Global::qi.macros[n].count) text = Global::qi.macros[n].name + L"ㅤ" + String::toWString(Global::qi.macros[n].count) + L"次";
-							else text = Global::qi.macros[n].name + L"ㅤ循环";
-							TipsWindow::Popup(text, RGB(0x20, 0xFF, 0x40));
+							if (Global::qi.macros[n].count) TipsWindow::Popup(Global::qi.macros[n].name + L"ㅤ" + String::toWString(Global::qi.macros[n].count) + L"次", RGB(0x20, 0xFF, 0x40));
+							else TipsWindow::Popup(Global::qi.macros[n].name + L"ㅤ循环", RGB(0x20, 0xFF, 0x40));
 						}
 					}
 				}
-				else
+				break;
+
+				case Macro::up:
 				{
+					Global::qi.macros[n].active = true;
 					if (Global::qi.macros[n].thread && Global::qi.macros[n].count == 0)
 					{
-						TerminateThread(Global::qi.macros[n].thread, 0);
-						Global::qi.macros[n].thread = 0;
-						if (Global::qi.set.showTips)
-						{
-							text = Global::qi.macros[n].name + L"ㅤ结束";
-							TipsWindow::Popup(text, RGB(0xFF, 0xFF, 0x60));
-						}
+						TerminateThread(Global::qi.macros[n].thread, 0); Global::qi.macros[n].thread = 0;
+						if (Global::qi.set.showTips) TipsWindow::Popup(Global::qi.macros[n].name + L"ㅤ结束", RGB(0xFF, 0xFF, 0x60));
 					}
+				}
+				break;
+
 				}
 			}
-			else if (Global::qi.macros[n].mode == Macro::up)
+			else // trigger keys is released
 			{
-				if (Global::qi.macros[n].k1 && Global::qi.macros[n].k2)
+				switch (Global::qi.macros[n].mode)
 				{
-					Global::qi.macros[n].active = 1;
+				case Macro::down:
+				{
 					if (Global::qi.macros[n].thread && Global::qi.macros[n].count == 0)
 					{
-						TerminateThread(Global::qi.macros[n].thread, 0);
-						Global::qi.macros[n].thread = 0;
-						if (Global::qi.set.showTips)
+						TerminateThread(Global::qi.macros[n].thread, 0); Global::qi.macros[n].thread = 0;
+						if (Global::qi.set.showTips) TipsWindow::Popup(Global::qi.macros[n].name + L"ㅤ结束", RGB(0xFF, 0xFF, 0x60));
+					}
+				}
+				break;
+
+				case Macro::up:
+				{
+					if (Global::qi.macros[n].active)
+					{
+						Global::qi.macros[n].active = false;
+						if (!Global::qi.macros[n].thread)
 						{
-							text = Global::qi.macros[n].name + L"ㅤ结束";
-							TipsWindow::Popup(text, RGB(0xFF, 0xFF, 0x60));
+							Global::qi.macros[n].thread = Thread::Start(ThreadMacro, (PVOID)&Global::qi.macros[n]);
+							if (Global::qi.set.showTips)
+							{
+								if (Global::qi.macros[n].count) TipsWindow::Popup(Global::qi.macros[n].name + L"ㅤ" + String::toWString(Global::qi.macros[n].count) + L"次", RGB(0xA0, 0xFF, 0x50));
+								else TipsWindow::Popup(Global::qi.macros[n].name + L"ㅤ循环", RGB(0xA0, 0xFF, 0x50));
+							}
 						}
 					}
 				}
-				else if (Global::qi.macros[n].active)
-				{
-					Global::qi.macros[n].active = 0;
-					if (!Global::qi.macros[n].thread)
-					{
-						Global::qi.macros[n].thread = Thread::Start(ThreadMacro, (LPVOID)n);
-						if (Global::qi.set.showTips)
-						{
-							if (Global::qi.macros[n].count) text = Global::qi.macros[n].name + L"ㅤ" + String::toWString(Global::qi.macros[n].count) + L"次";
-							else text = Global::qi.macros[n].name + L"ㅤ循环";
-							TipsWindow::Popup(text, RGB(0xA0, 0xFF, 0x50));
-						}
-					}
+				break;
+
 				}
 			}
 		}
@@ -221,7 +212,7 @@ int main(int argc, char* argv[])
 {
 	std::locale::global(std::locale(".UTF8")); // set utf8 for all streams
 	std::wstring mutex = File::PathToUrl(Process::runPath()); // convert '\' to '/' to support  mutex name
-	
+
 	if (Process::isRunning(mutex.c_str())) { MsgBox::Warning(L"当前文件夹的程序已经运行，若运行更多程序请复制此文件夹", L"提示"); return 0; }
 	CreateMutexW(0, 0, mutex.c_str()); // create mutex if this Quick input is not running
 	timeBeginPeriod(1); // set clock accuracy, default is 16ms: sleep(1) = sleep(16)

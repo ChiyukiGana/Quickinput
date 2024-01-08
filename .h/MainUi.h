@@ -152,9 +152,9 @@ private slots:
 	void OnMenuTnoff() { QiState(0); HookState(0); }
 	void OnMenuShow() { setWindowState(Qt::WindowNoState), show(), Window::Top((HWND)QWidget::winId()); }
 	void OnMenuHide() { hide(); }
-	void OnMenuExit() { close(); }
+	void OnMenuExit() { exit(0); }
 
-	void OnBnClose() { close(); }
+	void OnBnClose() { exit(0); }
 	void OnBnMin() { setWindowState(Qt::WindowMinimized); }
 	void OnBnHide() { hide(); }
 	void OnBnScript() { ShowWnd(wm); }
