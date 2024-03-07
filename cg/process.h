@@ -15,7 +15,10 @@ namespace CG {
 
 		static std::wstring runPath() { WCHAR path[MAX_PATH]; GetCurrentDirectoryW(MAX_PATH, path); return path; }
 
-		static bool RunPath(std::wstring path) { return SetCurrentDirectoryW(path.c_str()); }
+		static bool RunPath(std::wstring path = L"") {
+			if (path.size()) return SetCurrentDirectoryW(path.c_str());
+			else return SetCurrentDirectoryW(Path::RemoveFile(exePath()).c_str());
+		}
 
 		static std::wstring exePath() { WCHAR path[MAX_PATH]; GetModuleFileNameW(0, path, MAX_PATH); return path; }
 

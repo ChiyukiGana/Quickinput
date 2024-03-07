@@ -317,7 +317,7 @@ InputHookProc()
 int main(int argc, char* argv[])
 {
 	std::locale::global(std::locale(".UTF8")); // set utf8 for all streams
-	Process::RunPath(Path::RemoveFile(Process::exePath())); // reset work path to exe path
+	Process::RunPath(); // reset work path to exe path
 
 	// mutex
 	std::wstring mutex = Path::PathToUrl(Process::runPath()); // convert '\' to '/' to support  mutex name

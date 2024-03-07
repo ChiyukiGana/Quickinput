@@ -111,8 +111,8 @@ struct QiKey { enum { up, down, click }; uint32 vk = 0; uint32 state = down; };
 struct QiMouse { int32 x = 0; int32 y = 0; uint32 ex = 0; bool move = false; };
 struct QiText { wcstring str; };
 struct QiColor { Rgba rgbe = 0; RECT rect = { 0 }; bool unfind = false; bool move = false; Actions next; };
-struct QiLoop { uint32 count; Actions next; };
-struct QiKeyState { uint32 vk; bool state = true; Actions next; };
+struct QiLoop { uint32 count = 0; uint32 rand = 0; Actions next; };
+struct QiKeyState { uint32 vk = 0; bool state = true; Actions next; };
 struct Action
 {
 	enum

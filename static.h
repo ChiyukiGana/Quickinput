@@ -84,6 +84,7 @@ static void SaveAction(neb::CJsonObject& jActions, const Actions& actions)
 		{
 			jItem.Add("type", Action::_loop);
 			jItem.Add("count", actions[u].loop.count);
+			jItem.Add("rand", actions[u].loop.rand);
 			SaveAction(jNext, actions[u].loop.next);
 			jItem.Add("next", jNext);
 		}
@@ -226,6 +227,7 @@ static void LoadAction(const neb::CJsonObject jActions, Actions& actions)
 			{
 				action.type = Action::_loop;
 				jItem.Get("count", action.loop.count);
+				jItem.Get("rand", action.loop.rand);
 				jItem.Get("next", jNext);
 				LoadAction(jNext, action.loop.next);
 			}
@@ -502,9 +504,17 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 	case Action::_loop:
 	{
 		uint32 n = 0;
+		uint32 e = 0;
+		bool uloop = false;
+		if (action.loop.count) uloop = true, e = action.loop.count;
+		if (action.loop.rand) uloop = true, e = Rand(action.loop.rand, action.loop.count);
 		while (Global::qi.run)
 		{
-			if (action.loop.count) { n++; if (n > action.loop.count) break; }
+			if (uloop)
+			{
+				n++;
+				if (n > e) break;
+			}
 			for (uint32 u = 0; u < action.loop.next.size(); u++)
 			{
 				uint8 r = ActionExecute(action.loop.next[u], wi);

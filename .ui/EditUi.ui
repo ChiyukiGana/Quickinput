@@ -705,7 +705,7 @@ border:none;
          <item>
           <layout class="QVBoxLayout" name="box1">
            <property name="spacing">
-            <number>26</number>
+            <number>20</number>
            </property>
            <property name="bottomMargin">
             <number>0</number>
@@ -1527,7 +1527,72 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
                   <bool>false</bool>
                  </property>
                  <property name="placeholderText">
-                  <string>0~9999（0 = 无限）</string>
+                  <string>0~9999（次数0 &amp; 随机0 = 无限）</string>
+                 </property>
+                 <property name="clearButtonEnabled">
+                  <bool>false</bool>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="loopParamBox_2">
+               <property name="spacing">
+                <number>5</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="lbCountRand">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="toolTip">
+                  <string/>
+                 </property>
+                 <property name="text">
+                  <string>随机</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="etCountRand">
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>24</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Microsoft YaHei</family>
+                   <pointsize>-1</pointsize>
+                   <weight>75</weight>
+                   <bold>true</bold>
+                  </font>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::ClickFocus</enum>
+                 </property>
+                 <property name="statusTip">
+                  <string/>
+                 </property>
+                 <property name="inputMask">
+                  <string/>
+                 </property>
+                 <property name="dragEnabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="placeholderText">
+                  <string>0 = 不随机，否则次数为最小，随机为最大</string>
                  </property>
                  <property name="clearButtonEnabled">
                   <bool>false</bool>
