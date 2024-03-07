@@ -2,8 +2,8 @@
 #include <QString>
 #include <QFont>
 #include <QWidget>
-#include "../cg/cg.h"
-#include "../cg/CJsonObject.h"
+#include "D:/#CGDATA/Code/cg/cg.h"
+#include "D:/#CGDATA/Code/cg/CJsonObject.h"
 
 struct UI
 {
@@ -80,11 +80,12 @@ struct WndLock
 	static HANDLE thread;
 	static DWORD CALLBACK LockThread(PVOID wnd)
 	{
-		while (1) {
+		while (IsWindowVisible((HWND)wnd)) {
 			RECT rect = Window::rect((HWND)wnd);
 			ClipCursor(&rect);
 			sleep(10);
 		}
+		thread = 0;
 		return 0;
 	}
 	static void Lock(HWND wnd)
