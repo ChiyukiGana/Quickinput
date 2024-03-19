@@ -86,7 +86,7 @@ namespace CG {
 		static bool TextSave(std::string path, std::string str, const char* locale = ".UTF8")
 		{
 			std::ofstream ofs;
-			//ofs.imbue(std::locale(locale));
+			ofs.imbue(std::locale(locale));
 			ofs.open(path, std::ios::out);
 			if (ofs.good())
 			{
@@ -99,7 +99,7 @@ namespace CG {
 
 		static bool TextSave(std::wstring path, std::wstring str, const char* locale = ".UTF8") {
 			std::wofstream ofs;
-			//ofs.imbue(std::locale(locale));
+			ofs.imbue(std::locale(locale));
 			ofs.open(path, std::ios::out);
 			if (ofs.good())
 			{
@@ -113,7 +113,7 @@ namespace CG {
 		static std::string TextLoad(std::string path, const char* locale = ".UTF8")
 		{
 			std::ifstream ifs;
-			//ifs.imbue(std::locale(locale));
+			ifs.imbue(std::locale(locale));
 			ifs.open(path, std::ios::in);
 			if (ifs.is_open())
 			{
@@ -124,7 +124,7 @@ namespace CG {
 
 		static std::wstring TextLoad(std::wstring path, const char* locale = ".UTF8") {
 			std::wifstream ifs;
-			//ifs.imbue(std::locale(locale));
+			ifs.imbue(std::locale(locale));
 			ifs.open(path, std::ios::in);
 			if (ifs.is_open())
 			{

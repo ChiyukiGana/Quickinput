@@ -10,7 +10,7 @@ class RecordUi : public QDialog
 	Macro macro;
 	HWND wnd = 0;
 	long long tim = 0;
-	bool start = 0, keyTrigger = 0;
+	bool start = false, keyTrigger = false;
 
 public:
 	RecordUi() : QDialog()
@@ -27,7 +27,7 @@ public:
 		WidEvent();
 	}
 
-	void Start(HWND wnd)
+	void Start(WndInfo* wi)
 	{
 		if (Global::qi.set.recKey)
 		{
@@ -37,17 +37,26 @@ public:
 			TipsWindow::Show(text, RGB(0x20, 0xFF, 0x20));
 		}
 
-		this->wnd = wnd;
+		macro.mode = Macro::down;
+		macro.count = 1;
 		tim = 0;
-		if (wnd)
+		if (wi)
 		{
+			wnd = wi->wnd;
+			macro.wi = *wi;
+			macro.wndState = true;
+			macro.name = NameFilter(L"窗口录制");
 			POINT wpt = Window::pos(wnd);
 			move(wpt.x, wpt.y);
 			WndLock::Lock(wnd);
 			exec();
 			WndLock::UnLock();
 		}
-		else exec();
+		else
+		{
+			macro.name = NameFilter(L"录制");
+			exec();
+		}
 	}
 
 	void AddItems(byte vk, bool state, POINT pt = { 0 })
@@ -99,7 +108,7 @@ public:
 
 	bool State() const { return start; }
 
-	void BeginRec() { keyTrigger = 1; OnBnStart(); keyTrigger = 0; }
+	void BeginRec() { keyTrigger = true; OnBnStart(); keyTrigger = false; }
 
 private:
 	void WidEvent()
@@ -117,24 +126,32 @@ public slots:
 		if (start)
 		{
 			Global::qi.rec = 0;
-			
+
+#ifdef _DEBUG
+			MsgWnd::log(L"Rec ending");
+#endif // _DEBUG
+
+			TipsWindow::Hide();
 			if (!keyTrigger) macro.actions.DelBack(6);
-			if (wnd) macro.name = NameFilter(L"窗口录制");
-			else macro.name = NameFilter(L"录制");
-			macro.mode = Macro::down;
-			macro.count = 1;
 			Global::qi.macros.Add(macro);
 			SaveMacro(Global::qi.macros.Get());
 
-			TipsWindow::Hide();
+#ifdef _DEBUG
+			MsgWnd::log(L"Rec saved");
+#endif // _DEBUG
+
 			close();
 		}
 		// start
 		else
 		{
+
+#ifdef _DEBUG
+			MsgWnd::log(L"Rec starting");
+#endif // _DEBUG
+
 			if (wnd && !IsWindowVisible(wnd))
 			{
-				start = false;
 				Global::qi.rec = 0;
 				TipsWindow::Hide();
 				MsgBox::Error(L"窗口已失效");
@@ -149,11 +166,16 @@ public slots:
 			}
 
 			ui.bnStart->setText(UI::rcStop);
-			start = 1;
+			start = true;
 		}
 	}
 	void OnBnClose()
 	{
+
+#ifdef _DEBUG
+		MsgWnd(L"Rec close");
+#endif // _DEBUG
+
 		TipsWindow::Hide();
 		Global::qi.rec = 0;
 		Global::qi.macros.DelBack();

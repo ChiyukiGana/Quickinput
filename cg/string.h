@@ -34,12 +34,13 @@ namespace CG {
 			int length = WideCharToMultiByte(codePage, 0, val, -1, 0, 0, 0, 0);
 			if (length > 0)
 			{
-				char* tar = new char[length];
+				char* tar = new char[length + 1];
 				if (WideCharToMultiByte(codePage, 0, val, -1, tar, length, 0, 0) > 0)
 				{
+					tar[length] = 0;
 					std::string result(tar);
 					delete[] tar;
-					return result.substr(0, length);
+					return result;
 				}
 			}
 			return "";
@@ -75,9 +76,9 @@ namespace CG {
 		static std::string toString(double val) { return std::to_string(val); }
 		static std::string toString(long double val) { return std::to_string(val); }
 		static std::string toString(void* val) { char str[] = "0xFFFFFFFFFFFFFFFF"; sprintf_s(str, 19, "%p", val); return str; }
-		static std::string toString(SIZE val) { return std::to_string(val.cx) + std::string(", ") + std::to_string(val.cy); }
-		static std::string toString(POINT val) { return std::to_string(val.x) + std::string(", ") + std::to_string(val.y); }
-		static std::string toString(RECT val) { return std::to_string(val.left) + std::string(", ") + std::to_string(val.top) + std::string(", ") + std::to_string(val.right) + std::string(", ") + std::to_string(val.bottom); }
+		static std::string toString(SIZE& val) { return std::to_string(val.cx) + std::string(", ") + std::to_string(val.cy); }
+		static std::string toString(POINT& val) { return std::to_string(val.x) + std::string(", ") + std::to_string(val.y); }
+		static std::string toString(RECT& val) { return std::to_string(val.left) + std::string(", ") + std::to_string(val.top) + std::string(", ") + std::to_string(val.right) + std::string(", ") + std::to_string(val.bottom); }
 		template<typename T>
 		static std::string toString(T* arr, uint32 len) { std::string str; for (uint32 p = 0; p < len - 1; p++) str += toString(arr[p]) + ", "; str += toString(arr[len - 1]); return str; }
 
@@ -105,12 +106,13 @@ namespace CG {
 			int length = MultiByteToWideChar(codePage, 0, val.c_str(), val.size(), 0, 0);
 			if (length > 0)
 			{
-				wchar_t* tar = new wchar_t[length];
+				wchar_t* tar = new wchar_t[length + 1];
 				if (MultiByteToWideChar(codePage, 0, val.c_str(), val.size(), tar, length) > 0)
 				{
+					tar[length] = 0;
 					std::wstring result(tar);
 					delete[] tar;
-					return result.substr(0, length);
+					return result;
 				}
 			}
 			return L"";
@@ -131,9 +133,9 @@ namespace CG {
 		static std::wstring toWString(double val) { return std::to_wstring(val); }
 		static std::wstring toWString(long double val) { return std::to_wstring(val); }
 		static std::wstring toWString(void* val) { wchar_t str[] = L"0xFFFFFFFFFFFFFFFF"; swprintf_s(str, 19, L"%p", val); return str; }
-		static std::wstring toWString(SIZE val) { return std::to_wstring(val.cx) + std::wstring(L", ") + std::to_wstring(val.cy); }
-		static std::wstring toWString(POINT val) { return std::to_wstring(val.x) + std::wstring(L", ") + std::to_wstring(val.y); }
-		static std::wstring toWString(RECT val) { return std::to_wstring(val.left) + std::wstring(L", ") + std::to_wstring(val.top) + std::wstring(L", ") + std::to_wstring(val.right) + std::wstring(L", ") + std::to_wstring(val.bottom); }
+		static std::wstring toWString(SIZE& val) { return std::to_wstring(val.cx) + std::wstring(L", ") + std::to_wstring(val.cy); }
+		static std::wstring toWString(POINT& val) { return std::to_wstring(val.x) + std::wstring(L", ") + std::to_wstring(val.y); }
+		static std::wstring toWString(RECT& val) { return std::to_wstring(val.left) + std::wstring(L", ") + std::to_wstring(val.top) + std::wstring(L", ") + std::to_wstring(val.right) + std::wstring(L", ") + std::to_wstring(val.bottom); }
 		template<typename T>
 		static std::wstring toWString(T* arr, uint32 len) { std::wstring str; for (uint32 p = 0; p < len - 1; p++) str += toWString(arr[p]) + L", "; str += toWString(arr[len - 1]); return str; }
 

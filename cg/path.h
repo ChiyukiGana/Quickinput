@@ -1,7 +1,9 @@
 #pragma once
 
 #include "shlwapi.h"
+#include "pathcch.h"
 #include "string.h"
+#pragma comment(lib,"pathcch.lib")
 
 class Path
 {
@@ -12,12 +14,33 @@ public:
         wchar_t s[MAX_PATH]; wcscpy_s(s, MAX_PATH, path.c_str());
         return PathGetArgsW(s);
     }
+    /* "C:\A\1.exe"  >  C:\A\1.exe */
+    static std::wstring RemoveMark(std::wstring path)
+    {
+        std::wstring r = Path::RemoveBlanks(path);
+        if (r[0] == L'\"')
+        {
+            size_t p = r.find_first_of(L'"', 1);
+            if (p != std::wstring::npos) return r.substr(1, p - 1);
+        }
+        else if (r[0] == L'\'')
+        {
+            size_t p = r.find_first_of(L'\'', 1);
+            if (p != std::wstring::npos) return r.substr(1, p - 1);
+        }
+        return path;
+    }
     /* "C:\A\1.exe"  >  "C:\A" */
     static std::wstring RemoveFile(std::wstring path)
     {
-        wchar_t s[MAX_PATH]; wcscpy_s(s, MAX_PATH, path.c_str());
-        PathRemoveFileSpecW(s);
-        return s;
+        std::wstring r = RemoveMark(path);
+        size_t size = r.size() + 1;
+        wchar_t* s = new wchar_t[size];
+        wcscpy_s(s, size, r.c_str());
+        PathCchRemoveFileSpec(s, size);
+        r.assign(s);
+        delete[] s;
+        return r;
     }
     /* "C:\A\1.exe" -n  >  "C:\A\1.exe" */
     static std::wstring RemoveArgs(std::wstring path)
@@ -36,9 +59,13 @@ public:
     /* "C:\A\"  >  "C:\A" */
     static std::wstring RemoveBackslash(std::wstring path)
     {
-        wchar_t s[MAX_PATH]; wcscpy_s(s, MAX_PATH, path.c_str());
-        PathRemoveBackslashW(s);
-        return s;
+        size_t size = path.size() + 1;
+        wchar_t* s = new wchar_t[size];
+        wcscpy_s(s, size, path.c_str());
+        PathCchRemoveBackslash(s, size);
+        std::wstring r(s);
+        delete[] s;
+        return r;
     }
     /* "C:\A\1.exe"  >  "C:/A/1.exe" */
     static std::wstring PathToUrl(std::wstring path)

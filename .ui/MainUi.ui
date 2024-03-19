@@ -288,6 +288,9 @@ QPushButton:hover{background-color:#0B0}</string>
         <bold>true</bold>
        </font>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::ClickFocus</enum>
+      </property>
       <property name="styleSheet">
        <string notr="true">QTabBar::tab{width:128px;height:40px;font-size:18px;}
 QTabBar::tab{background-color:#ADE;}

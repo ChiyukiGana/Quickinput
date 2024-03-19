@@ -2,6 +2,10 @@
 #include ".h/MainUi.h"
 #include "static.h"
 
+#ifdef _DEBUG
+DMsgWnd();
+#endif // _DEBUG
+
 void InitUI(bool zoom)
 {
 	// enlarge high resolution screen
@@ -276,7 +280,7 @@ InputHookProc()
 	if (*exInfo == 214) // from Quick input
 	{
 		*exInfo = 0; // clear ex info
-		return 0;
+		return false;
 	}
 	else if (key) // other input
 	{
@@ -316,6 +320,11 @@ InputHookProc()
 
 int main(int argc, char* argv[])
 {
+
+#ifdef _DEBUG
+	MsgWnd::msg(L"Debug");
+#endif // _DEBUG
+
 	std::locale::global(std::locale(".UTF8")); // set utf8 for all streams
 	Process::RunPath(); // reset work path to exe path
 

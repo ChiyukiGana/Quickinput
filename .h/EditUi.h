@@ -170,6 +170,7 @@ private:
 		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
 		connect(ui.bnWnd, SIGNAL(clicked()), this, SLOT(OnBnWnd()));
 		connect(ui.chbWnd, SIGNAL(clicked()), this, SLOT(OnChbWnd()));
+		connect(ui.chbChildWnd, SIGNAL(clicked()), this, SLOT(OnChbChildWnd()));
 		
 		// Table
 		ui.tbActions->installEventFilter(this);
@@ -215,9 +216,8 @@ private:
 	void SetTitle()
 	{
 		ui.chbWnd->setChecked(ep.macro->wndState); OnChbWnd();
-		ui.etWndId->setText(QString::fromWCharArray(String::toWString((void*)ep.macro->wi.wnd).c_str()));
+		ui.chbChildWnd->setChecked(ep.macro->wi.child);
 		ui.etWndName->setText(QString::fromWCharArray(ep.macro->wi.wndName.c_str()));
-		ui.etWndClass->setText(QString::fromWCharArray(ep.macro->wi.wndClass.c_str()));
 	}
 	// Button state
 	void ActionBnState()
@@ -567,20 +567,22 @@ private slots:
 	{
 		if (ui.chbWnd->isChecked())
 		{
-			ep.macro->wndState = 1;
-			ui.bnWnd->setDisabled(0);
-			ui.etWndId->setDisabled(0);
-			ui.etWndName->setDisabled(0);
-			ui.etWndClass->setDisabled(0);
+			ep.macro->wndState = true;
+			ui.bnWnd->setDisabled(false);
+			ui.chbChildWnd->setDisabled(false);
+			ui.etWndName->setDisabled(false);
 		}
 		else
 		{
-			ep.macro->wndState = 0;
-			ui.bnWnd->setDisabled(1);
-			ui.etWndId->setDisabled(1);
-			ui.etWndName->setDisabled(1);
-			ui.etWndClass->setDisabled(1);
+			ep.macro->wndState = false;
+			ui.bnWnd->setDisabled(true);
+			ui.chbChildWnd->setDisabled(true);
+			ui.etWndName->setDisabled(true);
 		}
+	}
+	void OnChbChildWnd()
+	{
+		ep.macro->wi.child = ui.chbChildWnd->isChecked();
 	}
 	//////////////////////////// #Title
 
