@@ -129,7 +129,7 @@ public slots:
 
 #ifdef _DEBUG
 			MsgWnd::log(L"Rec ending");
-#endif // _DEBUG
+#endif
 
 			TipsWindow::Hide();
 			if (!keyTrigger) macro.actions.DelBack(6);
@@ -138,7 +138,7 @@ public slots:
 
 #ifdef _DEBUG
 			MsgWnd::log(L"Rec saved");
-#endif // _DEBUG
+#endif
 
 			close();
 		}
@@ -148,7 +148,7 @@ public slots:
 
 #ifdef _DEBUG
 			MsgWnd::log(L"Rec starting");
-#endif // _DEBUG
+#endif
 
 			if (wnd && !IsWindowVisible(wnd))
 			{
@@ -174,7 +174,7 @@ public slots:
 
 #ifdef _DEBUG
 		MsgWnd(L"Rec close");
-#endif // _DEBUG
+#endif
 
 		TipsWindow::Hide();
 		Global::qi.rec = 0;

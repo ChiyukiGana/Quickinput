@@ -1,4 +1,5 @@
 #pragma once
+#include <algorithm>
 #include <vector>
 #include "base.h"
 
@@ -67,6 +68,16 @@ namespace CG
 			if (p >= std::vector<T>::size()) p = std::vector<T>::size();
 			if ((p + count) >= std::vector<T>::size()) count = std::vector<T>::size() - p;
 			std::vector<T>::erase(std::vector<T>::begin() + p, std::vector<T>::begin() + (p + count));
+			return true;
+		}
+		bool Del(List<uint32>& ps)
+		{
+			if (std::vector<T>::size() == 0) return false;
+			std::sort(ps.begin(), ps.end());
+			for (uint32 n = 0; n < ps.size(); n++)
+			{
+				std::vector<T>::erase(std::vector<T>::begin() + ps[n] - n);
+			}
 			return true;
 		}
 		bool Swp(uint32 p1, uint32 p2)

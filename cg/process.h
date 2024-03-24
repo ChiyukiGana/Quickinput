@@ -55,7 +55,7 @@ namespace CG {
 			return pids;
 		}
 		/* file: C:\A\1.exe, args : -p */
-		static bool Open(std::wstring file, LPCWSTR args, UINT show = SW_SHOW, LPCWSTR workPath = 0) {
+		static bool Open(std::wstring file, LPCWSTR args = 0, UINT show = SW_SHOW, LPCWSTR workPath = 0) {
 			if (workPath) return ShellExecuteW(0, L"open", file.c_str(), args, workPath, show);
 			else return ShellExecuteW(0, L"open", file.c_str(), args, Path::RemoveFile(file).c_str(), show);
 		}
@@ -67,7 +67,7 @@ namespace CG {
 			else return ShellExecuteW(0, L"open", file.c_str(), args.c_str(), Path::RemoveFile(file).c_str(), show);
 		}
 		/* file: C:\A\1.exe, args: -p */
-		static bool Start(std::wstring file, LPCWSTR args, UINT show = SW_SHOW, LPCWSTR workPath = 0, DWORD creationFlags = CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT)
+		static bool Start(std::wstring file, LPCWSTR args = 0, UINT show = SW_SHOW, LPCWSTR workPath = 0, DWORD creationFlags = CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT)
 		{
 			STARTUPINFO si = {}; si.cb = sizeof(STARTUPINFO); si.wShowWindow = show;
 			PROCESS_INFORMATION pi = {};

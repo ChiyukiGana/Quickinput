@@ -118,6 +118,7 @@
     <QtUic Include=".ui\AboutUi.ui" />
     <QtUic Include=".ui\EditUi.ui" />
     <QtUic Include=".ui\FuncUi.ui" />
+    <QtUic Include=".ui\InstallUi.ui" />
     <QtUic Include=".ui\MacroUi.ui" />
     <QtUic Include=".ui\MainUi.ui" />
     <QtUic Include=".ui\MoreUi.ui" />
@@ -131,6 +132,7 @@
   <ItemGroup>
     <QtMoc Include=".h\QPointView.h" />
     <QtMoc Include=".h\QRectView.h" />
+    <QtMoc Include=".h\InstallUi.h" />
     <ClInclude Include="static.h" />
     <QtMoc Include=".h\QColorSelection.h" />
     <QtMoc Include=".h\QPointSelection.h" />

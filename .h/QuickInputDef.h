@@ -2,7 +2,7 @@
 #include <QString>
 #include <QFont>
 #include <QWidget>
-#include "../cg/cg.h"
+#include "D:/#CGDATA/Code/cg/cg.h"
 
 #define _NDEBUG
 
@@ -246,7 +246,7 @@ struct QuickInputStruct
 {
 	bool state = 0;
 	bool run = 0;
-	Action clipboard;
+	Actions clipboard;
 	Macros macros;
 	FuncData fun;
 	SettingsData set;

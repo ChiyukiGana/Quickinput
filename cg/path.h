@@ -1,9 +1,11 @@
 #pragma once
-
 #include "shlwapi.h"
 #include "pathcch.h"
 #include "string.h"
 #pragma comment(lib,"pathcch.lib")
+
+#define EnvUser L"%UserProFile%"
+#define EnvProgram L"%ProgramFiles%"
 
 class Path
 {
@@ -14,6 +16,23 @@ public:
         wchar_t s[MAX_PATH]; wcscpy_s(s, MAX_PATH, path.c_str());
         return PathGetArgsW(s);
     }
+
+    /* C:\A + 1.exe  >  C:\A\1.exe */
+    static std::wstring Append(std::wstring path, std::wstring append)
+    {
+        wchar_t s[MAX_PATH]; wcscpy_s(s, MAX_PATH, path.c_str());
+        PathCchAppend(s, MAX_PATH, append.c_str());
+        return s;
+    }
+
+    /* 1.exe  >  1 */
+    static std::wstring RemoveExtension(std::wstring file)
+    {
+        wchar_t s[MAX_PATH]; wcscpy_s(s, MAX_PATH, file.c_str());
+        PathRemoveExtensionW(s);
+        return s;
+    }
+
     /* "C:\A\1.exe"  >  C:\A\1.exe */
     static std::wstring RemoveMark(std::wstring path)
     {
@@ -35,8 +54,7 @@ public:
     {
         std::wstring r = RemoveMark(path);
         size_t size = r.size() + 1;
-        wchar_t* s = new wchar_t[size];
-        wcscpy_s(s, size, r.c_str());
+        wchar_t* s = new wchar_t[size]; wcscpy_s(s, size, r.c_str());
         PathCchRemoveFileSpec(s, size);
         r.assign(s);
         delete[] s;
@@ -60,8 +78,7 @@ public:
     static std::wstring RemoveBackslash(std::wstring path)
     {
         size_t size = path.size() + 1;
-        wchar_t* s = new wchar_t[size];
-        wcscpy_s(s, size, path.c_str());
+        wchar_t* s = new wchar_t[size]; wcscpy_s(s, size, path.c_str());
         PathCchRemoveBackslash(s, size);
         std::wstring r(s);
         delete[] s;
@@ -92,6 +109,14 @@ public:
         return url;
     }
 
+    /* %ProgramFiles%  >  C:\Program Files */
+    static std::wstring expandEnvironment(std::wstring envString = L"%ProgramFiles%")
+    {
+        wchar_t str[MAX_PATH];
+        ExpandEnvironmentStringsW(envString.c_str(), str, MAX_PATH);
+        return str;
+    }
+    
     static bool PathState(std::wstring path) { if (_waccess(path.c_str(), 0)) return false; return true; }
 
     /* "C:\A\1.exe"  >  "1.exe" */

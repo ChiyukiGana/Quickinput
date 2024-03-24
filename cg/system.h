@@ -1,5 +1,5 @@
 ﻿#pragma once
-#pragma warning(disable: 4996)
+#pragma warning(disable:4996)
 #include <windows.h>
 #include <WtsApi32.h> // IsScreenLocked
 #include <VersionHelpers.h> // Version
@@ -58,6 +58,13 @@ namespace CG
 		}
 
 		static std::wstring environmentVariable(LPCWSTR name) { WCHAR str[MAX_PATH]; GetEnvironmentVariableW(name, str, MAX_PATH); return str; }
+
+		static std::wstring folderPath(int csidl = CSIDL_DESKTOP)
+		{
+			wchar_t s[MAX_PATH];
+			SHGetFolderPathW(0, csidl, 0, SHGFP_TYPE_CURRENT, s);
+			return s;
+		}
 
 		static bool isScreenLocked() {
 			typedef BOOL(PASCAL* WTSQuerySessionInformationW)(HANDLE hServer, DWORD SessionId, WTS_INFO_CLASS WTSInfoClass, LPWSTR* ppBuffer, DWORD* pBytesReturned);
