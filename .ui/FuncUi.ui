@@ -44,7 +44,7 @@ QPushButton{background-color:white;border:none;width:20px;height:20px;font-size:
 
 QCheckBox{font-size:14px}
 QCheckBox::indicator{background-color:#FFF;width:20px;height:20px;}
-QCheckBox::indicator:checked{background-color:#888;}
+QCheckBox::indicator:checked{background-color:white;image:url(:/checked.png);}
 
 QComboBox{background-color:white;padding-left:3px;border:none;font-size:12px;}
 QComboBox::drop-down{background-color:#FFF;}
@@ -690,6 +690,8 @@ QLineEdit{background-color:white;border:none;font-size:12px;}</string>
    <header>QKeyEdit.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../.res/QuickInput.qrc"/>
+ </resources>
  <connections/>
 </ui>

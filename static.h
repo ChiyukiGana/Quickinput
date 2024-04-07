@@ -61,7 +61,7 @@ static void SaveAction(neb::CJsonObject& jActions, const Actions& actions)
 		case Action::_text:
 		{
 			jItem.Add("type", Action::_text);
-			jItem.Add("text", String::toString(actions[u].text.str.str));
+			jItem.Add("text", String::toString(actions[u].text.str.str()));
 		}
 		break;
 
@@ -564,7 +564,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 		MsgWnd::msg(L"Action::Text");
 #endif
 
-		System::ClipBoardText(action.text.str.str);
+		System::ClipBoardText(action.text.str.str());
 	}
 	return 0;
 
@@ -685,7 +685,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 }
 
 //////////////////////////// Threads
-static DWORD CALLBACK ThreadQuickClick(PVOID)
+static DWORD _stdcall ThreadQuickClick(PVOID)
 {
 	srand(clock());
 	uint32 b, e;
@@ -702,7 +702,7 @@ static DWORD CALLBACK ThreadQuickClick(PVOID)
 	}
 	return 0;
 }
-static DWORD CALLBACK ThreadMacroEnding(PVOID pMacro)
+static DWORD _stdcall ThreadMacroEnding(PVOID pMacro)
 {
 	srand(clock());
 	Macro* macro = (Macro*)pMacro;
@@ -730,7 +730,7 @@ static DWORD CALLBACK ThreadMacroEnding(PVOID pMacro)
 	macro->threadEnding = 0;
 	return 0;
 }
-static DWORD CALLBACK ThreadMacro(PVOID pMacro)
+static DWORD _stdcall ThreadMacro(PVOID pMacro)
 {
 	srand(clock());
 	Macro* macro = (Macro*)pMacro;
@@ -785,12 +785,12 @@ static DWORD CALLBACK ThreadMacro(PVOID pMacro)
 	if (macro->actionsEnding.size()) macro->threadEnding = Thread::Start(ThreadMacroEnding, macro);
 	return 0;
 }
-static DWORD CALLBACK ThreadRelease(PVOID key)
+static DWORD _stdcall ThreadRelease(PVOID key)
 {
 	Input::State((BYTE)key, 0, 214);
 	return 0;
 }
-static DWORD CALLBACK ThreadWndActive(PVOID)
+static DWORD _stdcall ThreadWndActive(PVOID)
 {
 	while (Global::qi.state)
 	{
@@ -852,9 +852,20 @@ static void HookState(bool state)
 {
 	if (state)
 	{
-		if (!InputHook::Start(InputHook::all)) MsgBox::Error(L"创建输入Hook失败，检查是否管理员身份运行 或 是否被安全软件拦截。");
+		if (!InputHook::State())
+		{
+			timeBeginPeriod(1); // set clock accuracy, default is 16ms: sleep(1) = sleep(16)
+			if (!InputHook::Start(InputHook::all)) MsgBox::Error(L"创建输入Hook失败，检查是否管理员身份运行 或 是否被安全软件拦截。");
+		}
 	}
-	else InputHook::Stop(InputHook::all);
+	else
+	{
+		if (InputHook::State())
+		{
+			timeEndPeriod(1); // reset clock accuracy
+			InputHook::Stop(InputHook::all);
+		}
+	}
 }
 static void QiState(bool state)
 {

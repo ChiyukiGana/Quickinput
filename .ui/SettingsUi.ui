@@ -24,7 +24,7 @@
 #SettingsUiClass{background-color:#CEF;}
 
 QCheckBox::indicator{background-color:#FFF;width:20px;height:20px;}
-QCheckBox::indicator:checked{background-color:#888;}
+QCheckBox::indicator:checked{background-color:white;image:url(:/checked.png);}
 
 QLineEdit{background-color:white;border:none;font-size:12px;}</string>
   </property>
@@ -627,6 +627,8 @@ QLineEdit{background-color:white;border:none;font-size:12px;}</string>
    <header>QKeyEdit.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../.res/QuickInput.qrc"/>
+ </resources>
  <connections/>
 </ui>

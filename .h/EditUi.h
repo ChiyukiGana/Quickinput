@@ -299,7 +299,7 @@ private:
 			case Action::_text:
 			{
 				ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acText));
-				std::wstring text = ep.actions[0][u].text.str.str;
+				std::wstring text = ep.actions[0][u].text.str.str();
 				ps = QString::fromWCharArray(text.substr(0, 32).c_str());
 				if (text.length() > 31) ps += u8"...";
 			}
@@ -1017,7 +1017,7 @@ private: // Widget data
 		SetEtPos({ (long)action.mouse.x, (long)action.mouse.y, (long)action.mouse.ex, 0 });
 	}
 	void LoadDelay(const Action& action) { SetEtDelay({ (long)action.delay.ms, (long)action.delay.ex }); }
-	void LoadText(const Action& action) { ui.etText->setText(QString::fromWCharArray(action.text.str.str)); }
+	void LoadText(const Action& action) { ui.etText->setText(QString::fromWCharArray(action.text.str.str())); }
 	void LoadColor(const Action& action) { SetRbColorMode(action.color.unfind); SetChbColorMove(action.color.move); SetEtColorRect(action.color.rect); SetEtColorValue(action.color.rgbe); }
 	void LoadLoop(const Action& action) { SetEtLoopCount(action.loop.count); SetEtLoopCountRand(action.loop.rand); }
 };

@@ -280,7 +280,7 @@ InputHookProc()
 	BYTE key = Input::Convert(vk);
 	if (*exInfo == 214) // from Quick input
 	{
-		*exInfo = 0; // clear ex info
+		*exInfo = 0; // remove ex info
 		return false;
 	}
 	else if (key) // other input
@@ -359,7 +359,6 @@ int main(int argc, char* argv[])
 
 	std::locale::global(std::locale(".UTF8")); // set utf8 for all streams
 	Process::RunPath(); // reset work path to exe path
-	timeBeginPeriod(1); // set clock accuracy, default is 16ms: sleep(1) = sleep(16)
 
 	// mutex
 	std::wstring mutex = Path::PathToUrl(Process::runPath()); // convert '\' to '/' to support  mutex name
@@ -387,6 +386,5 @@ int main(int argc, char* argv[])
 	else wnd.show();
 	app.exec();
 
-	timeEndPeriod(1); // reset clock accuracy
 	return 0;
 }

@@ -146,35 +146,98 @@ namespace CG {
 	template<class T>
 	struct xcstring
 	{
-		T* str = 0;
-		uint32 len = 0;
+	protected:
+		T* p_str = 0;
+		uint32 n_size = 0;
+	public:
+		xcstring() {};
+		xcstring(const T* res) { cpy(res); }
+		xcstring(const xcstring& res) { cpy(res); }
 		~xcstring() { emp(); }
 
-		void operator=(const T* res) { cpy(res); }
-		void cpy(const T* res)
+		xcstring operator+(const T* res) { xcstring xcstr; xcstr.cpy(*this); xcstr.app(res); return xcstr; }
+		xcstring operator+(const xcstring& res) { xcstring xcstr; xcstr.cpy(*this); xcstr.app(res); return xcstr; }
+		xcstring& operator+=(const T* res) { app(res); return *this; }
+		xcstring& operator+=(const xcstring& res) { app(res); *this; }
+		xcstring& operator=(const T* res) { cpy(res); return *this; }
+		xcstring& operator=(const xcstring& res) { cpy(res); return *this; }
+		const T* operator*() const { return p_str; }
+		const uint32 operator&() const { return n_size; }
+
+		const T* str() const { return p_str; }
+		const uint32 size() const { return n_size; }
+		const uint32 length() const { return n_size - 1; }
+
+		const uint32 cpy(const T* res)
 		{
 			emp();
-			len = String::Length(res) + 1;
-			str = new T[len];
-			String::Copy(str, len, res);
+			n_size = String::Length(res) + 1;
+			p_str = new T[n_size];
+			String::Copy(p_str, n_size, res);
+			return n_size;
 		}
-		void cpy(const xcstring& res)
+		const uint32 cpy(const xcstring& res)
 		{
 			emp();
-			len = res.len;
-			str = new T[len];
-			String::Copy(str, len, res.str);
+			n_size = res.n_size;
+			p_str = new T[n_size];
+			String::Copy(p_str, n_size, res.p_str);
+			return n_size;
+		}
+		const uint32 app(const T* res)
+		{
+			uint32 size = n_size;
+			if (size)
+			{
+				T* tmp = new T[size];
+				String::Copy(tmp, size, p_str);
+				emp();
+
+				size += String::Length(res);
+				p_str = new T[size];
+				String::Copy(p_str, size, tmp);
+				String::Cat(p_str, size, res);
+				delete[] tmp;
+				n_size = size;
+			}
+			else
+			{
+				cpy(res);
+			}
+			return n_size;
+		}
+		const uint32 app(const xcstring& res)
+		{
+			uint32 size = n_size;
+			if (size)
+			{
+				T* tmp = new T[size];
+				String::Copy(tmp, size, p_str);
+				emp();
+
+				size += res.n_size;
+				p_str = new T[size];
+				String::Copy(p_str, size, tmp);
+				String::Cat(p_str, size, res.p_str);
+				delete[] tmp;
+				n_size = size;
+			}
+			else
+			{
+				cpy(res);
+			}
+			return n_size;
 		}
 		void emp()
 		{
-			if (str) { delete[] str; str = 0; }
-			len = 0;
+			if (p_str) { delete[] p_str; p_str = 0; }
+			n_size = 0;
 		}
 		void resize(uint32 size)
 		{
 			emp();
-			len = size;
-			new T[len];
+			n_size = size;
+			if (n_size) new T[n_size];
 		}
 	};
 

@@ -62,9 +62,9 @@ namespace CG {
 		static bool FileNameUsable(std::wstring file)
 		{
 			for (UINT n = 0; n < file.length(); n++) {
-				if (file[n] == L'\\' || file[n] == L'/' || file[n] == L':' || file[n] == L'*' || file[n] == L'?' || file[n] == L'\"' || file[n] == L'<' || file[n] == L'>' || file[n] == L'|') return 0;
+				if (file[n] == L'\\' || file[n] == L'/' || file[n] == L':' || file[n] == L'*' || file[n] == L'?' || file[n] == L'\"' || file[n] == L'<' || file[n] == L'>' || file[n] == L'|') return false;
 			}
-			return 1;
+			return true;
 		}
 
 		static bool CreateShortcut(std::wstring path, std::wstring srcPath, std::wstring workPath = L"", std::wstring iconPath = L"")
@@ -72,7 +72,7 @@ namespace CG {
 			CoInitialize(0);
 			IShellLinkW* link = 0;
 			HRESULT hr = 0;
-			hr = CoCreateInstance(CLSID_ShellLink, 0, CLSCTX_ALL, IID_IShellLinkW, (void**)&link);
+			hr = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_ALL, IID_IShellLinkW, (void**)&link);
 			if (FAILED(hr)) return false;
 			link->SetPath(srcPath.c_str());
 			link->SetDescription(path.c_str());

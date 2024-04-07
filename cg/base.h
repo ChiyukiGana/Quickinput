@@ -5,8 +5,6 @@
 #include <time.h>
 #include <windows.h>
 
-#define DeclareBytes(name, size) struct name { byte bytes[size]; }
-
 #define cfor(count) for (uint32 c = 0; c < count; c++)
 
 #define RGBA(r,g,b,a) ((COLORREF)((BYTE)(r)|((BYTE)(g)<<8)|((BYTE)(b)<<16)|((BYTE)(a)<<24)))
