@@ -2054,7 +2054,7 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
             </property>
             <property name="text">
              <string>位置：鼠标拖动，上移Shift　↑，下移Shift　↓
-多选：Shift　A，按住Ctrl或Shift点击项目
+多选：Ctrl　A，按住Ctrl或Shift点击项目
 复制：Ctrl　C，Ctrl　V，Ctrl　X
 删除：Shift　←
 修改：双击项目</string>
@@ -2776,7 +2776,7 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
             </property>
             <property name="text">
              <string>位置：鼠标拖动，上移Shift　↑，下移Shift　↓
-多选：Shift　A，按住Ctrl或Shift点击项目
+多选：Ctrl　A，按住Ctrl或Shift点击项目
 复制：Ctrl　C，Ctrl　V，Ctrl　X
 删除：Shift　←
 修改：双击项目</string>
@@ -2965,7 +2965,7 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
             </property>
             <property name="text">
              <string>位置：鼠标拖动，上移Shift　↑，下移Shift　↓
-多选：Shift　A，按住Ctrl或Shift点击项目
+多选：Ctrl　A，按住Ctrl或Shift点击项目
 复制：Ctrl　C，Ctrl　V，Ctrl　X
 删除：Shift　←
 修改：双击项目</string>

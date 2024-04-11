@@ -333,20 +333,20 @@ static void LoadJson()
 	}
 	else
 	{
-		Global::qi.set.defOn = 1;
+		Global::qi.set.defOn = true;
 		Global::qi.set.key = VK_F8;
 		Global::qi.set.recKey = VK_F8;
-		Global::qi.set.showTips = 1;
-		Global::qi.set.audFx = 0;
-		Global::qi.set.minMode = 0;
-		Global::qi.set.zoomBlock = 0;
-		Global::qi.fun.quickClick.state = 1;
+		Global::qi.set.showTips = true;
+		Global::qi.set.audFx = false;
+		Global::qi.set.minMode = false;
+		Global::qi.set.zoomBlock = false;
+		Global::qi.fun.quickClick.state = false;
 		Global::qi.fun.quickClick.key = VK_LBUTTON;
 		Global::qi.fun.quickClick.delay = 200;
 		Global::qi.fun.quickClick.mode = 0;
-		Global::qi.fun.showClock.state = 0;
+		Global::qi.fun.showClock.state = false;
 		Global::qi.fun.showClock.key = VK_MENU;
-		Global::qi.fun.wndActive.state = 0;
+		Global::qi.fun.wndActive.state = false;
 		Global::qi.fun.wndActive.wi.wndName = L"";
 	}
 	LoadMacro();
