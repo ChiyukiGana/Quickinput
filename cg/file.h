@@ -1,8 +1,6 @@
 ﻿#pragma once
 
-#ifndef __AFXWIN_H__
 #include <windows.h>
-#endif
 #include <fstream>
 #include <ShlObj.h> //FindFolderWindow
 #include <codecvt>

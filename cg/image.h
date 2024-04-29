@@ -37,25 +37,25 @@ namespace CG {
 			if (rect.top < 0) rect.top = 0;
 			if (rect.right > scr.cx) rect.right = scr.cx;
 			if (rect.bottom > scr.cy) rect.bottom = scr.cy;
-			if (rect.right < 0) return 0;
-			if (rect.bottom < 0) return 0;
-			if (rect.left > scr.cx) return 0;
-			if (rect.top > scr.cy) return 0;
+			if (rect.right < 0) return false;
+			if (rect.bottom < 0) return false;
+			if (rect.left > scr.cx) return false;
+			if (rect.top > scr.cy) return false;
 
 			if (image.Create(rect.right - rect.left, rect.bottom - rect.top, GetDeviceCaps(hScr, BITSPIXEL))) {
 				if (BitBlt(image.GetDC(), 0, 0, rect.right - rect.left, rect.bottom - rect.top, hScr, rect.left, rect.top, SRCCOPY)) {
 					ReleaseDC(0, hScr);
 					image.ReleaseDC();
 					image.Save(path);
-					return 1;
+					return true;
 				}
 			}
 			ReleaseDC(0, hScr);
 			image.ReleaseDC();
-			return 0;
+			return false;
 		}
 
-		static bool HdcRgbmap(HDC hdc, RgbMap& rgbMap, SIZE size, POINT lt = { 0, 0 })
+		static bool HdcRgbmap(HDC hdc, RgbMap& rgbMap, const SIZE& size, const POINT& lt = { 0, 0 })
 		{
 			rgbMap.create(size.cx, size.cy);
 			BITMAPINFO bitmapInfo = { 0 };
@@ -78,7 +78,7 @@ namespace CG {
 			return false;
 		}
 
-		static bool HdcRgbmap(HDC hdc, RgbMap& rgbMap, RECT rect) { return HdcRgbmap(hdc, rgbMap, { rect.right - rect.left, rect.bottom - rect.top }, { rect.left, rect.top }); }
+		static bool HdcRgbmap(HDC hdc, RgbMap& rgbMap, const RECT& rect) { return HdcRgbmap(hdc, rgbMap, { rect.right - rect.left, rect.bottom - rect.top }, { rect.left, rect.top }); }
 
 		static void ScreenRgbmap(RgbMap& rgbMap)
 		{

@@ -24,7 +24,7 @@ public:
 
 	void WidInit()
 	{
-		program = QString::fromWCharArray(Path::expandEnvironment(L"%ProgramFiles%").c_str());
+		program = QString::fromWCharArray(Path::ExpandEnvironment(EnvProgram).c_str());
 		ui.etPath->setText(program + u8"\\QuickInput");
 		ui.ckDesktop->setChecked(true);
 		ui.ckStart->setChecked(true);

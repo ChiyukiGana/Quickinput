@@ -15,6 +15,12 @@ public:
 		setWindowFlags(Qt::FramelessWindowHint);
 
 		ui.lbText->installEventFilter(this);
+		ReStyle();
+	}
+
+	void ReStyle()
+	{
+		more.ReStyle();
 	}
 
 private slots:

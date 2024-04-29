@@ -84,7 +84,7 @@ namespace CG {
 			if (rect.bottom >= map.height()) rect.bottom = map.height();
 			uint32 xmax = rect.right - rect.left;
 			uint32 ymax = rect.bottom - rect.top;
-			for (uint32 y = 0; y < ymax; y++) for (uint32 x = 0; x < xmax; x++) if (Equal(map[rect.top + y][rect.left + x], rgb, extend)) return { 1, rect.left + (LONG)x, rect.top + (LONG)y };
+			for (uint32 y = 0; y < ymax; y++) for (uint32 x = 0; x < xmax; x++) if (Equal(map[rect.top + y][rect.left + x], rgb, extend)) return { true, rect.left + (LONG)x, rect.top + (LONG)y };
 			return { 0 };
 		}
 		// RECT: left/top >= 0, right/bottom >= left/top;
@@ -94,7 +94,7 @@ namespace CG {
 			if (rect.bottom >= map.height()) rect.bottom = map.height();
 			uint32 xmax = rect.right - rect.left;
 			uint32 ymax = rect.bottom - rect.top;
-			for (uint32 y = 0; y < ymax; y++) for (uint32 x = 0; x < xmax; x++) if (Equal(map[rect.top + y][rect.left + x], min, max)) return { 1, rect.left + (LONG)x, rect.top + (LONG)y };
+			for (uint32 y = 0; y < ymax; y++) for (uint32 x = 0; x < xmax; x++) if (Equal(map[rect.top + y][rect.left + x], min, max)) return { true, rect.left + (LONG)x, rect.top + (LONG)y };
 			return { 0 };
 		}
 		// RECT: left/top >= 0, right/bottom >= left/top;
@@ -105,7 +105,7 @@ namespace CG {
 			BitBlt(image.GetDC(), 0, 0, rect.right - rect.left, rect.bottom - rect.top, hdc, rect.left, rect.top, SRCCOPY);
 			uint32 xmax = rect.right - rect.left;
 			uint32 ymax = rect.bottom - rect.top;
-			for (uint32 y = 0; y < ymax; y++) for (uint32 x = 0; x < xmax; x++) if (Equal(image.GetPixel(x, y), rgb, extend)) { image.ReleaseDC(); return { 1, rect.left + (LONG)x, rect.top + (LONG)y }; }
+			for (uint32 y = 0; y < ymax; y++) for (uint32 x = 0; x < xmax; x++) if (Equal(image.GetPixel(x, y), rgb, extend)) { image.ReleaseDC(); return { true, rect.left + (LONG)x, rect.top + (LONG)y }; }
 			image.ReleaseDC();
 			return { 0 };
 		}
@@ -117,7 +117,7 @@ namespace CG {
 			BitBlt(image.GetDC(), 0, 0, rect.right - rect.left, rect.bottom - rect.top, hdc, rect.left, rect.top, SRCCOPY);
 			uint32 xmax = rect.right - rect.left;
 			uint32 ymax = rect.bottom - rect.top;
-			for (uint32 y = 0; y < ymax; y++) for (uint32 x = 0; x < xmax; x++) if (Equal(image.GetPixel(x, y), min, max)) { image.ReleaseDC(); return { 1, rect.left + (LONG)x, rect.top + (LONG)y }; }
+			for (uint32 y = 0; y < ymax; y++) for (uint32 x = 0; x < xmax; x++) if (Equal(image.GetPixel(x, y), min, max)) { image.ReleaseDC(); return { true, rect.left + (LONG)x, rect.top + (LONG)y }; }
 			image.ReleaseDC();
 			return { 0 };
 		}

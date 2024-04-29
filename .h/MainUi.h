@@ -16,11 +16,11 @@ class MainUi : public QMainWindow
 	QSystemTrayIcon* tray = 0;
 	QMenu* menu = 0;
 
-	QWidget* wm = 0;
-	QWidget* wt = 0;
-	QWidget* wf = 0;
-	QWidget* ws = 0;
-	QWidget* wa = 0;
+	MacroUi* wm = 0;
+	TriggerUi* wt = 0;
+	FuncUi* wf = 0;
+	SettingsUi* ws = 0;
+	AboutUi* wa = 0;
 
 	QPoint msPos;
 
@@ -30,6 +30,20 @@ public:
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		WidInit();
+		ReStyle();
+	}
+
+	void ReStyle()
+	{
+		setStyleSheet("");
+		setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
+		
+		menu->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
+		wm->ReStyle();
+		wt->ReStyle();
+		wf->ReStyle();
+		ws->ReStyle();
+		wa->ReStyle();
 	}
 
 private:
@@ -78,7 +92,11 @@ private:
 
 	bool event(QEvent* et)
 	{
-		if (et->type() == QEvent::WindowActivate)
+		if (et->type() == QEvent::User)
+		{
+			ReStyle();
+		}
+		else if (et->type() == QEvent::WindowActivate)
 		{
 			if (Global::qi.state) QiState(0);
 			HookState(0);
@@ -93,16 +111,16 @@ private:
 		}
 		return QWidget::event(et);
 	}
-	void showEvent(QShowEvent* et) { if (et->type() == Qt::WindowNoState) { Window::Top((HWND)QWidget::winId()); } }
+	void showEvent(QShowEvent* et) { SetForegroundWindow((HWND)QWidget::winId()); }
 	// Move
 	void mousePressEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) msPos = et->pos(); }
 	void mouseMoveEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) move(et->pos() + pos() - msPos); }
 
 private slots:
-	void OnTrayClick(QSystemTrayIcon::ActivationReason reason) { if (reason == QSystemTrayIcon::Trigger) setWindowState(Qt::WindowNoState), show(), Window::Top((HWND)winId()); }
+	void OnTrayClick(QSystemTrayIcon::ActivationReason reason) { if (reason == QSystemTrayIcon::Trigger) setWindowState(Qt::WindowNoState), show(); }
 	void OnMenuTnon() { if (!((MacroUi*)wm)->working && !((FuncUi*)wf)->working) QiState(1), HookState(1); }
 	void OnMenuTnoff() { QiState(0); HookState(0); }
-	void OnMenuShow() { setWindowState(Qt::WindowNoState), show(), Window::Top((HWND)winId()); }
+	void OnMenuShow() { setWindowState(Qt::WindowNoState), show(); }
 	void OnMenuHide() { hide(); }
 	void OnMenuExit() { exit(0); }
 

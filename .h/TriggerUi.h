@@ -20,6 +20,13 @@ public:
 		WidEvent();
 		LockControl(1);
 		TbUpdate();
+		ReStyle();
+	}
+
+	void ReStyle()
+	{
+		ui.clientWidget->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
+		ui.hkTr->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
 	}
 
 private:
@@ -136,6 +143,8 @@ private:
 			ui.tbActions->setItem(u, 3, new QTableWidgetItem(qs));
 			ui.tbActions->item(u, 3)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		}
+
+		ui.tbActions->setStyleSheet(u8"QHeaderView::section,QScrollBar{background:transparent}");
 	}
 
 	void showEvent(QShowEvent*)

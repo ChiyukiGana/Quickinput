@@ -5,8 +5,6 @@
 #include <time.h>
 #include <windows.h>
 
-#define cfor(count) for (uint32 c = 0; c < count; c++)
-
 #define RGBA(r,g,b,a) ((COLORREF)((BYTE)(r)|((BYTE)(g)<<8)|((BYTE)(b)<<16)|((BYTE)(a)<<24)))
 #define GetAValue(rgba) ((BYTE)((rgba)>>24))
 
@@ -169,6 +167,6 @@ namespace CG {
 	};
 }
 
-#define SleepRun(ms) CG::TimeOut timeOut(ms); while (timeOut.state())
-#define SleepSet(ms) timeOut.set(ms);  //### Set in SleepRun inner ###
-#define SleepOut() if (timeOut.timeOut)  //### Set in SleepRun outer ###
+#define TimerPut(ms) CG::TimeOut timeOut(ms); while (timeOut.state())
+#define TimerSet(ms) timeOut.set(ms);  //### Set in PutTimer inner ###
+#define TimerOut() if (timeOut.timeOut)  //### Set in PutTimer outer ###

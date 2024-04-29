@@ -11,7 +11,7 @@ class MacroUi : public QWidget
 	Q_OBJECT;
 	Ui::MacroUiClass ui;
 	Macros& macros = Global::qi.macros;
-	QTimer* timer;
+	QTimer* timer = 0;
 
 public:
 	bool working = 0;
@@ -25,6 +25,12 @@ public:
 
 		WidInit();
 		WidEvent();
+		ReStyle();
+	}
+
+	void ReStyle()
+	{
+		ui.clientWidget->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
 	}
 
 private:
@@ -82,6 +88,8 @@ private:
 			ui.tbActions->setItem(u, 0, new QTableWidgetItem(QString::fromWCharArray(macros[u].name.c_str())));
 			ui.tbActions->item(u, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		}
+
+		ui.tbActions->setStyleSheet(u8"QHeaderView::section,QScrollBar{background:transparent}");
 	}
 
 	void RecStart(bool wnd)

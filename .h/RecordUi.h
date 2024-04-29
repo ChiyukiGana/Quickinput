@@ -15,8 +15,6 @@ class RecordUi : public QDialog
 public:
 	RecordUi() : QDialog()
 	{
-
-
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setMouseTracking(true);
@@ -25,6 +23,13 @@ public:
 		ui.bnClose->setText(UI::rcClose);
 
 		WidEvent();
+		ReStyle();
+	}
+
+	void ReStyle()
+	{
+		setStyleSheet("");
+		setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
 	}
 
 	void Start(WndInfo* wi)

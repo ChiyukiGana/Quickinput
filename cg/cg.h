@@ -27,4 +27,6 @@
 #include "ini.h"
 #include "CJsonObject.h"
 
+#include "auddv.h"
+
 using namespace CG;

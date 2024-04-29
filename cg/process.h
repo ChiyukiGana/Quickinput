@@ -61,15 +61,15 @@ namespace CG {
 		}
 		/* cmdLine: "C:\A\1.exe" -p */
 		static bool OpenC(std::wstring cmdLine, UINT show = SW_SHOW, LPCWSTR workPath = 0) {
-			std::wstring file = Path::RemoveArgs(cmdLine);
-			std::wstring args = Path::args(cmdLine);
+			std::wstring file = Path::RemoveArgs(cmdLine, false);
+			std::wstring args = Path::GetArgs(cmdLine);
 			if (workPath) return ShellExecuteW(0, L"open", file.c_str(), args.c_str(), workPath, show);
 			else return ShellExecuteW(0, L"open", file.c_str(), args.c_str(), Path::RemoveFile(file).c_str(), show);
 		}
 		/* file: C:\A\1.exe, args: -p */
 		static bool Start(std::wstring file, LPCWSTR args = 0, UINT show = SW_SHOW, LPCWSTR workPath = 0, DWORD creationFlags = CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT)
 		{
-			STARTUPINFO si = {}; si.cb = sizeof(STARTUPINFO); si.wShowWindow = show;
+			STARTUPINFOW si = {}; si.cb = sizeof(STARTUPINFOW); si.dwFlags = STARTF_USESHOWWINDOW; si.wShowWindow = show;
 			PROCESS_INFORMATION pi = {};
 			BOOL b = 0;
 			if (workPath) b = CreateProcessW(file.c_str(), (LPWSTR)args, 0, 0, 0, creationFlags, 0, workPath, &si, &pi);
@@ -84,11 +84,11 @@ namespace CG {
 		}
 		/* cmdLine: "C:\A\1.exe" - p */
 		static bool StartC(std::wstring cmdLine, UINT show = SW_SHOW, LPCWSTR workPath = 0, DWORD creationFlags = CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT) {
-			STARTUPINFO si = {}; si.cb = sizeof(STARTUPINFO); si.wShowWindow = show;
+			STARTUPINFOW si = {}; si.cb = sizeof(STARTUPINFOW); si.dwFlags = STARTF_USESHOWWINDOW; si.wShowWindow = show;
 			PROCESS_INFORMATION pi = {};
 			BOOL b = 0;
 			if (workPath) b = CreateProcessW(0, (LPWSTR)cmdLine.c_str(), 0, 0, 0, creationFlags, 0, workPath, &si, &pi);
-			else b = (CreateProcessW(0, (LPWSTR)cmdLine.c_str(), 0, 0, 0, creationFlags, 0, Path::RemoveFile(Path::RemoveArgs(cmdLine)).c_str(), &si, &pi));
+			else b = (CreateProcessW(0, (LPWSTR)cmdLine.c_str(), 0, 0, 0, creationFlags, 0, Path::RemoveFile(Path::RemoveArgs(cmdLine, false), false).c_str(), &si, &pi));
 			if (b)
 			{
 				CloseHandle(pi.hThread);

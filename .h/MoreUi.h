@@ -15,6 +15,14 @@ public:
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
+		ReStyle();
+	}
+
+	void ReStyle()
+	{
+		setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
+		ui.lbHowUseText->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
+		ui.lbLogText->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
 	}
 
 private:
