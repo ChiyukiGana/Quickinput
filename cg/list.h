@@ -117,5 +117,46 @@ namespace CG
 				CallBack(std::vector<T>::operator[](p));
 			}
 		}
+		/* return left < right: asc, return left > right: desc */
+		void Sort(bool(&CallBack)(const T& left, const T& right))
+		{
+			size_t size = std::vector<T>::size();
+			if (size < 2) return;
+			size--;
+			bool b;
+			do
+			{
+				b = false;
+				for (size_t p = 0; p < size; p++)
+				{
+					if (CallBack(std::vector<T>::operator[](p + 1), std::vector<T>::operator[](p)))
+					{
+						std::swap(std::vector<T>::operator[](p + 1), std::vector<T>::operator[](p));
+						b = true;
+					}
+				}
+			} while (b);
+		}
+		/* return left < right: asc, return left > right: desc */
+		void Sort(bool(&CallBack)(const T& left, const T& right), List<T>& list)
+		{
+			list = *this;
+			size_t size = list.size();
+			if (size < 2) return;
+			size--;
+			bool b;
+			do
+			{
+				b = false;
+				for (size_t p = 0; p < size; p++)
+				{
+					if (CallBack(list[p + 1], list[p]))
+					{
+						std::swap(list[p + 1], list[p]);
+						b = true;
+					}
+				}
+			} while (b);
+		}
 	};
 }

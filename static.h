@@ -105,6 +105,11 @@ static void SaveAction(neb::CJsonObject& jActions, const Actions& actions)
 			jItem.Add("next", jNext);
 		}
 		break;
+
+		case Action::_revocerPos:
+		{
+			jItem.Add("type", Action::_revocerPos);
+		}
 		}
 		jActions.Add(jItem);
 	}
@@ -257,6 +262,12 @@ static void LoadAction(const neb::CJsonObject jActions, Actions& actions)
 			}
 			break;
 
+			case Action::_revocerPos:
+			{
+				action.type = Action::_revocerPos;
+			}
+			break;
+
 			default: action.type = Action::_none; break;
 			}
 
@@ -378,7 +389,7 @@ static WndInfo WindowSelection()
 	TipsWindow::Popup(wi.wndName, RGB(0x20, 0xFF, 0x20));
 	return wi;
 }
-static uint8 ActionExecute(Action& action, WndInput* wi)
+static uint8 ActionExecute(const Action& action, const Macro& macro, WndInput* wi)
 {
 	if (!Global::qi.run) return 1;
 
@@ -386,19 +397,11 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 	{
 	case Action::_end:
 	{
-#ifdef _DEBUG
-		MsgWnd::msg(L"Action::End");
-#endif
+		return 1;
 	}
-	return 1;
 
 	case Action::_delay:
 	{
-
-#ifdef _DEBUG
-		MsgWnd::msg(L"Action::Delay");
-#endif
-
 		if (action.delay.ex)
 		{
 			int32 ms = action.delay.ms + (Rand(action.delay.ex, action.delay.ex - (action.delay.ex * 2)));
@@ -413,11 +416,6 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 	{
 		if (wi)
 		{
-
-#ifdef _DEBUG
-			MsgWnd::msg(L"Action-Wnd::Key");
-#endif
-
 			if (action.key.state == QiKey::up)
 			{
 				Input::State(wi->current, action.key.vk, wi->pt, 0);
@@ -454,11 +452,6 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 		}
 		else
 		{
-
-#ifdef _DEBUG
-			MsgWnd::msg(L"Action::Key");
-#endif
-
 			if (action.key.state == QiKey::up) Input::State(action.key.vk, 0, 214);
 			else if (action.key.state == QiKey::down) Input::State(action.key.vk, 1, 214);
 			else if (action.key.state == QiKey::click) Input::Click(action.key.vk, 10, 214);
@@ -470,11 +463,6 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 	{
 		if (wi)
 		{
-
-#ifdef _DEBUG
-			MsgWnd::msg(L"Action-Wnd::Mouse");
-#endif
-
 			if (action.mouse.ex)
 			{
 				POINT pt = {};
@@ -494,19 +482,8 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 				if (InRect(wi->children[u].rect, wi->pt)) cws.Add(wi->children[u]);
 				if (u == 0) break;
 			}
-
-#ifdef _DEBUG
-			MsgWnd::str(L"ChildCount: ", 1);
-			MsgWnd::log(cws.size());
-#endif
-
 			if (cws.size())
 			{
-
-#ifdef _DEBUG
-				MsgWnd::log(L"Currented: ChildWindow", 1);
-#endif
-
 				// select minimum window
 				ChildWindow min = {};
 				uint64 minArea = uint64Max;
@@ -522,27 +499,12 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 			}
 			else
 			{
-
-#ifdef _DEBUG
-				MsgWnd::log(L"Currented: ParentWindow", 1);
-#endif
-
 				wi->current = wi->wnd;
 			}
-
-#ifdef _DEBUG
-			MsgWnd::log(Window::text(wi->current), 2);
-#endif
-
 			Input::MoveTo(wi->wnd, wi->pt.x, wi->pt.y, wi->mk);
 		}
 		else
 		{
-
-#ifdef _DEBUG
-			MsgWnd::msg(L"Action::Mouse");
-#endif
-
 			if (action.mouse.ex)
 			{
 				POINT pt = { 0 };
@@ -561,14 +523,9 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 
 	case Action::_text:
 	{
-
-#ifdef _DEBUG
-		MsgWnd::msg(L"Action::Text");
-#endif
-
 		System::ClipBoardText(action.text.str.str());
+		return 0;
 	}
-	return 0;
 
 	case Action::_color:
 	{
@@ -576,11 +533,6 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 		RECT rect;
 		if (wi)
 		{
-
-#ifdef _DEBUG
-			MsgWnd::msg(L"Action-Wnd::Mouse");
-#endif
-
 			HDC wdc = GetDC(wi->wnd);
 			rect = WATRR(action.color.rect, wi->wnd);
 			Image::HdcRgbmap(wdc, rgbMap, rect);
@@ -588,11 +540,6 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 		}
 		else
 		{
-
-#ifdef _DEBUG
-			MsgWnd::msg(L"Action::Color");
-#endif
-
 			rect = ATRR(action.color.rect);
 			Image::HdcRgbmap(Global::qi.hdc, rgbMap, rect);
 		}
@@ -616,7 +563,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 		}
 		for (uint32 u = 0; u < action.color.next.size(); u++)
 		{
-			uint8 r = ActionExecute(action.color.next[u], wi);
+			uint8 r = ActionExecute(action.color.next[u], macro, wi);
 			if (r) return r;
 		}
 		return 0;
@@ -624,11 +571,6 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 
 	case Action::_loop:
 	{
-
-#ifdef _DEBUG
-		MsgWnd::msg(L"Action::Loop");
-#endif
-
 		uint32 n = 0;
 		uint32 e = 0;
 		bool uloop = false;
@@ -643,7 +585,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 			}
 			for (uint32 u = 0; u < action.loop.next.size(); u++)
 			{
-				uint8 r = ActionExecute(action.loop.next[u], wi);
+				uint8 r = ActionExecute(action.loop.next[u], macro, wi);
 				if (r == 1) return 1;
 				else if (r == 2) return 0;
 			}
@@ -653,19 +595,11 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 
 	case Action::_loopEnd:
 	{
-#ifdef _DEBUG
-		MsgWnd::msg(L"Action::LoopEnd");
-#endif
+		return 2;
 	}
-	return 2;
 
 	case Action::_keyState:
 	{
-
-#ifdef _DEBUG
-		MsgWnd::msg(L"Action::KeyState");
-#endif
-
 		if (action.keyState.state)
 		{
 			if (!Input::state(action.keyState.vk)) return 0;
@@ -676,12 +610,18 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 		}
 		for (uint32 u = 0; u < action.keyState.next.size(); u++)
 		{
-			uint8 r = ActionExecute(action.keyState.next[u], wi);
+			uint8 r = ActionExecute(action.keyState.next[u], macro, wi);
 			if (r == 1) return 1;
 			else if (r == 2) return 0;
 		}
+		return 0;
 	}
-	break;
+	
+	case Action::_revocerPos:
+	{
+		Input::MoveTo(macro.originPos.x, macro.originPos.y);
+		return 0;
+	}
 	}
 	return 0;
 }
@@ -714,21 +654,14 @@ static DWORD _stdcall ThreadMacroEnding(PVOID pMacro)
 	{
 		// window is not found
 		macro->wi.wnd = FindWindowW(macro->wi.wndClass.c_str(), macro->wi.wndName.c_str());
-		if (!macro->wi.wnd)
-		{
-			macro->threadEnding = 0;
-			return 0;
-		}
+		if (!macro->wi.wnd) goto breakLoop;
 	}
 
 	for (uint32 n = 0; n < macro->actionsEnding.size(); n++)
 	{
-		if (ActionExecute(macro->actionsEnding[n], pWi))
-		{
-			macro->threadEnding = 0;
-			return 0;
-		}
+		if (ActionExecute(macro->actionsEnding[n], *macro, pWi)) goto breakLoop;
 	}
+	breakLoop:
 	macro->threadEnding = 0;
 	return 0;
 }
@@ -769,20 +702,21 @@ static DWORD _stdcall ThreadMacro(PVOID pMacro)
 		pWi = &wi;
 	}
 
+	GetCursorPos(&macro->originPos);
+
 	uint32 count = 0;
 	while (Global::qi.run)
 	{
 		if (macro->count) { count++; if (count > macro->count) break; } // if count = 0 then while is infinite
 		for (uint32 n = 0; n < macro->actions.size(); n++)
 		{
-			if (ActionExecute(macro->actions[n], pWi))
+			if (ActionExecute(macro->actions[n], *macro, pWi))
 			{
-				macro->thread = 0;
-				if (macro->actionsEnding.size()) macro->threadEnding = Thread::Start(ThreadMacroEnding, macro);
-				return 0;
+				goto breakLoop;
 			}
 		}
 	}
+	breakLoop:
 	macro->thread = 0;
 	if (macro->actionsEnding.size()) macro->threadEnding = Thread::Start(ThreadMacroEnding, macro);
 	return 0;

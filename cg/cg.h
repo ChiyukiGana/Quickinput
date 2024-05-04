@@ -4,6 +4,7 @@
 #include "list.h"
 #include "string.h"
 #include "time.h"
+#include "timer.h"
 
 #include "path.h"
 #include "file.h"

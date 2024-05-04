@@ -148,7 +148,7 @@ namespace CG {
 	{
 	protected:
 		T* p_str = 0;
-		uint32 n_size = 0;
+		size_t n_size = 0;
 	public:
 		xcstring() {};
 		xcstring(const T* res) { cpy(res); }
@@ -162,21 +162,25 @@ namespace CG {
 		xcstring operator=(const T* res) { cpy(res); return *this; }
 		xcstring operator=(const xcstring& res) { cpy(res); return *this; }
 		const T* operator*() const { return p_str; }
-		const uint32 operator&() const { return n_size; }
+		const size_t operator&() const { return n_size; }
 
 		const T* str() const { return p_str; }
-		const uint32 size() const { return n_size; }
-		const uint32 length() const { return n_size - 1; }
+		const size_t size() const { return n_size - 1; }
+		const size_t length() const { return n_size - 1; }
+		const size_t arr_size() const { return n_size; }
+		const size_t arr_length() const { return n_size; }
 
-		uint32 cpy(const T* res)
+		size_t cpy(const T* res)
 		{
 			emp();
-			n_size = String::Length(res) + 1;
+			n_size = String::Length(res);
+			if (!n_size) return 0;
+			n_size++;
 			p_str = new T[n_size];
 			String::Copy(p_str, n_size, res);
 			return n_size;
 		}
-		uint32 cpy(const xcstring& res)
+		size_t cpy(const xcstring& res)
 		{
 			emp();
 			n_size = res.n_size;
@@ -184,16 +188,18 @@ namespace CG {
 			String::Copy(p_str, n_size, res.p_str);
 			return n_size;
 		}
-		uint32 app(const T* res)
+		size_t app(const T* res)
 		{
-			uint32 size = n_size;
-			if (size)
+			if (n_size)
 			{
-				T* tmp = new T[size];
-				String::Copy(tmp, size, p_str);
+				size_t resSize = String::Length(res);
+				if (!resSize) return 0;
+
+				T* tmp = new T[n_size];
+				String::Copy(tmp, n_size, p_str);
 				emp();
 
-				size += String::Length(res);
+				size_t size = n_size + resSize;
 				p_str = new T[size];
 				String::Copy(p_str, size, tmp);
 				String::Cat(p_str, size, res);
@@ -206,16 +212,17 @@ namespace CG {
 			}
 			return n_size;
 		}
-		uint32 app(const xcstring& res)
+		size_t app(const xcstring& res)
 		{
-			uint32 size = n_size;
-			if (size)
+			if (n_size)
 			{
-				T* tmp = new T[size];
-				String::Copy(tmp, size, p_str);
+				if (!res.n_size) return 0;
+
+				T* tmp = new T[n_size];
+				String::Copy(tmp, n_size, p_str);
 				emp();
 
-				size += res.n_size;
+				size_t size = n_size + res.n_size;
 				p_str = new T[size];
 				String::Copy(p_str, size, tmp);
 				String::Cat(p_str, size, res.p_str);
@@ -233,7 +240,7 @@ namespace CG {
 			if (p_str) { delete[] p_str; p_str = 0; }
 			n_size = 0;
 		}
-		void resize(uint32 size)
+		void resize(size_t size)
 		{
 			emp();
 			n_size = size;
