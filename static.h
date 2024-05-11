@@ -18,98 +18,100 @@ static void SaveAction(neb::CJsonObject& jActions, const Actions& actions)
 {
 	for (uint32 u = 0; u < actions.size(); u++)
 	{
+		const Action& action = actions[u];
 		neb::CJsonObject jItem;
 		neb::CJsonObject jNext;
 
-		std::string str = String::toString(actions[u].mark);
+		std::string str = String::toString(action.mark.str());
 		jItem.Add("mark", str);
+		jItem.Add("type", action.type);
 
-		switch (actions[u].type)
+		switch (action.type)
 		{
-		case Action::_end:
-		{
-			jItem.Add("type", Action::_end);
-		}
-		break;
-
 		case Action::_delay:
 		{
-			jItem.Add("type", Action::_delay);
-			jItem.Add("ms", actions[u].delay.ms);
-			jItem.Add("ex", actions[u].delay.ex);
+			jItem.Add("ms", action.d.delay.ms);
+			jItem.Add("ex", action.d.delay.ex);
 		}
 		break;
 
 		case Action::_key:
 		{
-			jItem.Add("type", Action::_key);
-			jItem.Add("state", actions[u].key.state);
-			jItem.Add("vk", actions[u].key.vk);
+			jItem.Add("state", action.d.key.state);
+			jItem.Add("vk", action.d.key.vk);
 		}
 		break;
 
 		case Action::_mouse:
 		{
-			jItem.Add("type", Action::_mouse);
-			jItem.Add("move", actions[u].mouse.move);
-			jItem.Add("x", actions[u].mouse.x);
-			jItem.Add("y", actions[u].mouse.y);
-			jItem.Add("ex", actions[u].mouse.ex);
+			jItem.Add("move", action.d.mouse.move, true);
+			jItem.Add("x", action.d.mouse.x);
+			jItem.Add("y", action.d.mouse.y);
+			jItem.Add("ex", action.d.mouse.ex);
 		}
 		break;
 
 		case Action::_text:
 		{
-			jItem.Add("type", Action::_text);
-			jItem.Add("text", String::toString(actions[u].text.str.str()));
+			jItem.Add("text", String::toString(action.d.text.str.str()));
 		}
 		break;
 
 		case Action::_color:
 		{
-			jItem.Add("type", Action::_color);
-			jItem.Add("unfind", actions[u].color.unfind);
-			jItem.Add("move", actions[u].color.move);
-			jItem.Add("left", (int32)actions[u].color.rect.left);
-			jItem.Add("top", (int32)actions[u].color.rect.top);
-			jItem.Add("right", (int32)actions[u].color.rect.right);
-			jItem.Add("bottom", (int32)actions[u].color.rect.bottom);
-			jItem.Add("rgbe", (uint32)actions[u].color.rgbe.toCOLORREF());
-			SaveAction(jNext, actions[u].color.next);
-			jItem.Add("next", jNext);
+			jItem.Add("unfind", action.d.color.unfind, true);
+			jItem.Add("move", action.d.color.move, true);
+			jItem.Add("left", (int32)action.d.color.rect.left);
+			jItem.Add("top", (int32)action.d.color.rect.top);
+			jItem.Add("right", (int32)action.d.color.rect.right);
+			jItem.Add("bottom", (int32)action.d.color.rect.bottom);
+			jItem.Add("rgbe", (uint32)action.d.color.rgbe.toCOLORREF());
+			SaveAction(jNext, action.next), jItem.Add("next", jNext);
 		}
 		break;
 
 		case Action::_loop:
 		{
-			jItem.Add("type", Action::_loop);
-			jItem.Add("count", actions[u].loop.count);
-			jItem.Add("rand", actions[u].loop.rand);
-			SaveAction(jNext, actions[u].loop.next);
-			jItem.Add("next", jNext);
-		}
-		break;
-
-		case Action::_loopEnd:
-		{
-			jItem.Add("type", Action::_loopEnd);
+			jItem.Add("count", action.d.loop.count);
+			jItem.Add("rand", action.d.loop.rand);
+			SaveAction(jNext, action.next), jItem.Add("next", jNext);
 		}
 		break;
 
 		case Action::_keyState:
 		{
-			jItem.Add("type", Action::_keyState);
-			jItem.Add("state", actions[u].keyState.state);
-			jItem.Add("vk", actions[u].keyState.vk);
-			SaveAction(jNext, actions[u].keyState.next);
-			jItem.Add("next", jNext);
+			jItem.Add("state", action.d.keyState.state);
+			jItem.Add("vk", action.d.keyState.vk);
+			SaveAction(jNext, action.next), jItem.Add("next", jNext);
 		}
 		break;
 
-		case Action::_revocerPos:
+		case Action::_image:
 		{
-			jItem.Add("type", Action::_revocerPos);
+			jItem.Add("unfind", action.d.image.unfind, true);
+			jItem.Add("move", action.d.image.move, true);
+			jItem.Add("left", (int32)(action.d.image.rect.left));
+			jItem.Add("top", (int32)(action.d.image.rect.top));
+			jItem.Add("right", (int32)(action.d.image.rect.right));
+			jItem.Add("bottom", (int32)(action.d.image.rect.bottom));
+			jItem.Add("sim", action.d.image.sim);
+
+			jItem.Add("width", action.d.image.map.width());
+			jItem.Add("height", action.d.image.map.height());
+			size_t size = Base64::EncodedLength(action.d.image.map.bytes());
+			std::string data = base64_encode((byte*)action.d.image.map.data(), action.d.image.map.bytes());
+			if (data.size()) jItem.Add("data", data);
+			SaveAction(jNext, action.next), jItem.Add("next", jNext);
 		}
+		break;
+
+		case Action::_popText:
+		{
+			jItem.Add("text", String::toString(action.d.popText.str.str()));
+			jItem.Add("time", action.d.popText.time);
+		}
+		break;
+
 		}
 		jActions.Add(jItem);
 	}
@@ -121,26 +123,30 @@ static void SaveMacro(Macro& macro)
 	neb::CJsonObject jActionsEnding;
 	SaveAction(jActions, macro.actions);
 	SaveAction(jActionsEnding, macro.actionsEnding);
-	json.Add("documen_ charset", std::string("UTF8"));
+	json.Add("document_ charset", std::string("UTF8"));
+	json.Add("type", std::string("QuickInputMacro"));
 	json.Add("wndState", macro.wndState);
 	json.Add("wndChild", macro.wi.child);
 	json.Add("wndName", String::toString(macro.wi.wndName));
 	json.Add("wndClass", String::toString(macro.wi.wndClass));
-	json.Add("state", macro.state);
-	json.Add("block", macro.block);
+	json.Add("state", macro.state, true);
+	json.Add("block", macro.block, true);
 	json.Add("mode", macro.mode);
 	json.Add("key", macro.key);
 	json.Add("count", macro.count);
 	json.Add("actions", jActions);
 	json.Add("actionsEnding", jActionsEnding);
+	std::string jstr = json.ToString();
 	File::FolderCreate(L"macro");
-	File::TextSave(String::toString(std::wstring(L"macro\\") + macro.name + std::wstring(L".json")), json.ToString());
+	std::wstring path = Path::Append(Path::Append(Process::runPath(), L"macro"), macro.name + L".json");
+	File::TextSaveU(path, jstr);
 }
 static void SaveJson()
 {
 	neb::CJsonObject cfg;
 	std::string str;
 	cfg.Add("document_charset", std::string("UTF8"));
+	cfg.Add("type", std::string("QuickInputConfig"));
 	cfg.Add("theme", Global::qi.set.style);
 	cfg.Add("key", Global::qi.set.key);
 	cfg.Add("recKey", Global::qi.set.recKey);
@@ -157,194 +163,196 @@ static void SaveJson()
 	cfg.Add("showClockState", Global::qi.fun.showClock.state);
 	cfg.Add("wndActiveState", Global::qi.fun.wndActive.state);
 	cfg.Add("wndActiveName", String::toString(Global::qi.fun.wndActive.wi.wndName));
-	File::TextSave("QuickInput.json", cfg.ToString());
+	File::TextSaveU(L"QuickInput.json", cfg.ToString());
 }
 static void LoadAction(const neb::CJsonObject jActions, Actions& actions)
 {
-
-#ifdef _DEBUG
-	MsgWnd::str(L"Child count: ", 1);
-	MsgWnd::log(jActions.GetArraySize());
-#endif
-
-	for (uint32 u = 0; u < jActions.GetArraySize(); u++)
+	actions.resize(jActions.GetArraySize());
+	for (uint32 i = 0; i < jActions.GetArraySize(); i++)
 	{
-		Action action;
+		Action& action = actions.at(i);
 		neb::CJsonObject jItem;
 		neb::CJsonObject jNext;
-		jActions.Get(u, jItem);
+		jActions.Get(i, jItem);
 
 		uint32 ui32 = 0;
+		std::string str;
 		jItem.Get("type", ui32);
 		if (ui32)
 		{
 			switch (ui32)
 			{
-			case Action::_end:
+			case Action::_end: action.type = Action::_end;
+				break;
+
+			case Action::_delay: action.type = Action::_delay;
 			{
-				action.type = Action::_end;
+				jItem.Get("ms", action.d.delay.ms);
+				jItem.Get("ex", action.d.delay.ex);
 			}
 			break;
 
-			case Action::_delay:
+			case Action::_key: action.type = Action::_key;
 			{
-				action.type = Action::_delay;
-				jItem.Get("ms", action.delay.ms);
-				jItem.Get("ex", action.delay.ex);
+				jItem.Get("state", action.d.key.state);
+				jItem.Get("vk", action.d.key.vk);
 			}
 			break;
 
-			case Action::_key:
+			case Action::_mouse: action.type = Action::_mouse;
 			{
-				action.type = Action::_key;
-				jItem.Get("state", action.key.state);
-				jItem.Get("vk", action.key.vk);
+				jItem.Get("move", action.d.mouse.move);
+				jItem.Get("x", action.d.mouse.x);
+				jItem.Get("y", action.d.mouse.y);
+				jItem.Get("ex", action.d.mouse.ex);
 			}
 			break;
 
-			case Action::_mouse:
+			case Action::_text: action.type = Action::_text;
 			{
-				action.type = Action::_mouse;
-				jItem.Get("move", action.mouse.move);
-				jItem.Get("x", action.mouse.x);
-				jItem.Get("y", action.mouse.y);
-				jItem.Get("ex", action.mouse.ex);
-			}
-			break;
-
-			case Action::_text:
-			{
-				std::string str;
 				jItem.Get("text", str);
-				action.type = Action::_text;
-				action.text.str = String::toWString(str).c_str();
+				action.d.text.str.cpy(String::toWString(str).c_str());
 			}
 			break;
 
-			case Action::_color:
+			case Action::_color: action.type = Action::_color;
 			{
-				action.type = Action::_color;
-				jItem.Get("unfind", action.color.unfind);
-				jItem.Get("move", action.color.move);
-				jItem.Get("left", (int32&)(action.color.rect.left));
-				jItem.Get("top", (int32&)(action.color.rect.top));
-				jItem.Get("right", (int32&)(action.color.rect.right));
-				jItem.Get("bottom", (int32&)(action.color.rect.bottom));
-				jItem.Get("rgbe", ui32); action.color.rgbe.set(ui32);
+				jItem.Get("unfind", action.d.color.unfind);
+				jItem.Get("move", action.d.color.move);
+				jItem.Get("left", (int32&)(action.d.color.rect.left));
+				jItem.Get("top", (int32&)(action.d.color.rect.top));
+				jItem.Get("right", (int32&)(action.d.color.rect.right));
+				jItem.Get("bottom", (int32&)(action.d.color.rect.bottom));
+				jItem.Get("rgbe", ui32); action.d.color.rgbe.set(ui32);
 				jItem.Get("next", jNext);
-				LoadAction(jNext, action.color.next);
+				LoadAction(jNext, action.next);
 			}
 			break;
 
-			case Action::_loop:
+			case Action::_loop: action.type = Action::_loop;
 			{
-				action.type = Action::_loop;
-				jItem.Get("count", action.loop.count);
-				jItem.Get("rand", action.loop.rand);
+				jItem.Get("count", action.d.loop.count);
+				jItem.Get("rand", action.d.loop.rand);
 				jItem.Get("next", jNext);
-				LoadAction(jNext, action.loop.next);
+				LoadAction(jNext, action.next);
 			}
 			break;
 
-			case Action::_loopEnd:
-			{
-				action.type = Action::_loopEnd;
-			}
-			break;
+			case Action::_loopEnd: action.type = Action::_loopEnd;
+				break;
 
-			case Action::_keyState:
+			case Action::_keyState: action.type = Action::_keyState;
 			{
-				action.type = Action::_keyState;
-				jItem.Get("state", action.keyState.state);
-				jItem.Get("vk", action.keyState.vk);
+				jItem.Get("state", action.d.keyState.state);
+				jItem.Get("vk", action.d.keyState.vk);
 				jItem.Get("next", jNext);
-				LoadAction(jNext, action.keyState.next);
+				LoadAction(jNext, action.next);
 			}
 			break;
 
-			case Action::_revocerPos:
+			case Action::_revocerPos: action.type = Action::_revocerPos;
+				break;
+
+			case Action::_image: action.type = Action::_image;
 			{
-				action.type = Action::_revocerPos;
+				jItem.Get("unfind", action.d.image.unfind);
+				jItem.Get("move", action.d.image.move);
+				jItem.Get("left", (int32&)(action.d.image.rect.left));
+				jItem.Get("top", (int32&)(action.d.image.rect.top));
+				jItem.Get("right", (int32&)(action.d.image.rect.right));
+				jItem.Get("bottom", (int32&)(action.d.image.rect.bottom));
+				jItem.Get("sim", action.d.image.sim);
+
+				uint32 width, height;
+				jItem.Get("width", width);
+				jItem.Get("height", height);
+				if (width && height)
+				{
+					action.d.image.map.create(width, height);
+					std::string str; jItem.Get("data", str);
+					if (!Base64::Decode(str.c_str(), str.size(), (char*)action.d.image.map.data(), action.d.image.map.bytes())) action.d.image.map.release();
+				}
+				jItem.Get("next", jNext);
+				LoadAction(jNext, action.next);
+			}
+			break;
+
+			case Action::_popText: action.type = Action::_popText;
+			{
+				jItem.Get("text", str);
+				jItem.Get("time", action.d.popText.time);
+				action.d.popText.str.cpy(String::toWString(str).c_str());
 			}
 			break;
 
 			default: action.type = Action::_none; break;
 			}
 
-			std::string str;
 			jItem.Get("mark", str);
-			action.mark = String::toWString(str);
-			actions.Add(action);
+			action.mark.cpy(String::toWString(str).c_str());
 		}
 	}
 }
 static void LoadMacro()
 {
+	Global::qi.macros.clear();
 	File::FileList files = File::FindFile(L"macro\\*.json");
+	for (uint32 i = 0; i < files.size(); i++) {
+		std::wstring path = Path::Append(Path::Append(Process::runPath(), L"macro"), files[i].name);
+		Macro& macro = Global::qi.macros.AddNull(); macro.name = Path::RemoveExtension(files[i].name);
 
-#ifdef _DEBUG
-	MsgWnd::msg(L"Load Macros");
-	MsgWnd::str(L"Macro count: ", 1);
-	MsgWnd::log(files.size());
-#endif
+		std::string jstr = File::TextReadU(path);
+		if (jstr.size())
+		{
+			neb::CJsonObject jMacro(jstr);
+			std::string str;
+			jMacro.Get("wndState", macro.wndState);
+			jMacro.Get("wndChild", macro.wi.child);
+			jMacro.Get("wndName", str); macro.wi.wndName = String::toWString(str);
+			jMacro.Get("wndClass", str); macro.wi.wndClass = String::toWString(str);
+			jMacro.Get("state", macro.state);
+			jMacro.Get("block", macro.block);
+			jMacro.Get("mode", macro.mode);
+			jMacro.Get("key", macro.key);
+			jMacro.Get("count", macro.count);
 
-	for (uint32 u = 0; u < files.size(); u++) {
-		Global::qi.macros.AddNull();
-		Macro& macro = Global::qi.macros.Get();
-		macro.name = (std::wstring(files[u].name)).substr(0, wcslen(files[u].name) - 5);
-
-		neb::CJsonObject jMacro(File::TextLoad(std::string("macro\\") + String::toString(files[u].name)));
-		std::string str;
-		jMacro.Get("wndState", macro.wndState);
-		jMacro.Get("wndChild", macro.wi.child);
-		jMacro.Get("wndName", str); macro.wi.wndName = String::toWString(str);
-		jMacro.Get("wndClass", str); macro.wi.wndClass = String::toWString(str);
-		jMacro.Get("state", macro.state);
-		jMacro.Get("block", macro.block);
-		jMacro.Get("mode", macro.mode);
-		jMacro.Get("key", macro.key);
-		jMacro.Get("count", macro.count);
-
-		neb::CJsonObject jActions;
-		neb::CJsonObject jActionsEnding;
-		jMacro.Get("actions", jActions);
-		jMacro.Get("actionsEnding", jActionsEnding);
-
-#ifdef _DEBUG
-		MsgWnd::log(L"Load Actions");
-		MsgWnd::str(L"Action count: ", 1);
-		MsgWnd::log(jActions.GetArraySize());
-#endif
-
-		LoadAction(jActions, macro.actions);
-		LoadAction(jActionsEnding, macro.actionsEnding);
+			neb::CJsonObject jActions; jMacro.Get("actions", jActions);
+			neb::CJsonObject jActionsEnding; jMacro.Get("actionsEnding", jActionsEnding);
+			LoadAction(jActions, macro.actions);
+			LoadAction(jActionsEnding, macro.actionsEnding);
+		}
 	}
 }
 static void LoadJson()
 {
-	Global::qi.macros.clear();
-	if (File::FileState(L"QuickInput.json"))
+	std::wstring path = Path::Append(Process::runPath(), L"QuickInput.json");
+	if (File::FileState(path))
 	{
-		neb::CJsonObject cfg(File::TextLoad("QuickInput.json"));
-		std::string str;
-		cfg.Get("theme", Global::qi.set.style);
-		cfg.Get("key", Global::qi.set.key);
-		cfg.Get("recKey", Global::qi.set.recKey);
-		cfg.Get("defOn", Global::qi.set.defOn);
-		cfg.Get("showTips", Global::qi.set.showTips);
-		cfg.Get("audFx", Global::qi.set.audFx);
-		cfg.Get("minMode", Global::qi.set.minMode);
-		cfg.Get("zoomBlock", Global::qi.set.zoomBlock);
-		cfg.Get("quickClickState", Global::qi.fun.quickClick.state);
-		cfg.Get("quickClickKey", Global::qi.fun.quickClick.key);
-		cfg.Get("quickClickDelay", Global::qi.fun.quickClick.delay);
-		cfg.Get("quickClickMode", Global::qi.fun.quickClick.mode);
-		cfg.Get("showClockState", Global::qi.fun.showClock.state);
-		cfg.Get("showClockKey", Global::qi.fun.showClock.key);
-		cfg.Get("wndActiveState", Global::qi.fun.wndActive.state);
-		cfg.Get("wndActiveName", str); Global::qi.fun.wndActive.wi.wndName = String::toWString(str);
+		std::string jstr = File::TextReadU(path);
+		if (jstr.size())
+		{
+			neb::CJsonObject cfg(jstr);
+			std::string str;
+			cfg.Get("theme", Global::qi.set.style);
+			cfg.Get("key", Global::qi.set.key);
+			cfg.Get("recKey", Global::qi.set.recKey);
+			cfg.Get("defOn", Global::qi.set.defOn);
+			cfg.Get("showTips", Global::qi.set.showTips);
+			cfg.Get("audFx", Global::qi.set.audFx);
+			cfg.Get("minMode", Global::qi.set.minMode);
+			cfg.Get("zoomBlock", Global::qi.set.zoomBlock);
+			cfg.Get("quickClickState", Global::qi.fun.quickClick.state);
+			cfg.Get("quickClickKey", Global::qi.fun.quickClick.key);
+			cfg.Get("quickClickDelay", Global::qi.fun.quickClick.delay);
+			cfg.Get("quickClickMode", Global::qi.fun.quickClick.mode);
+			cfg.Get("showClockState", Global::qi.fun.showClock.state);
+			cfg.Get("showClockKey", Global::qi.fun.showClock.key);
+			cfg.Get("wndActiveState", Global::qi.fun.wndActive.state);
+			cfg.Get("wndActiveName", str); Global::qi.fun.wndActive.wi.wndName = String::toWString(str);
+			LoadMacro();
+			return;
+		}
 	}
-	else
 	{
 		Global::qi.set.defOn = true;
 		Global::qi.set.key = VK_F8;
@@ -374,7 +382,7 @@ static WndInfo WindowSelection()
 	while (true)
 	{
 		if (Input::state(VK_RETURN)) break;
-		if (Input::state(VK_ESCAPE)) { TipsWindow::Hide(); return wi; }
+		if (Input::state(VK_ESCAPE)) { TipsWindow::Hide(); return {}; }
 		sleep(10);
 	}
 	Input::Loop(VK_RETURN);
@@ -402,13 +410,13 @@ static uint8 ActionExecute(const Action& action, const Macro& macro, WndInput* w
 
 	case Action::_delay:
 	{
-		if (action.delay.ex)
+		if (action.d.delay.ex)
 		{
-			int32 ms = action.delay.ms + (Rand(action.delay.ex, action.delay.ex - (action.delay.ex * 2)));
+			int32 ms = action.d.delay.ms + (Rand(action.d.delay.ms + action.d.delay.ex, (int32)action.d.delay.ms - (int32)action.d.delay.ex));
 			if (ms < 0) ms = 0;
 			Thread::Sleep(ms);
 		}
-		else Thread::Sleep(action.delay.ms);
+		else Thread::Sleep(action.d.delay.ms);
 		return 0;
 	}
 
@@ -416,45 +424,45 @@ static uint8 ActionExecute(const Action& action, const Macro& macro, WndInput* w
 	{
 		if (wi)
 		{
-			if (action.key.state == QiKey::up)
+			if (action.d.key.state == QiKey::up)
 			{
-				Input::State(wi->current, action.key.vk, wi->pt, 0);
-				if (action.key.vk == VK_LBUTTON) wi->mk &= ~MK_LBUTTON;
-				else if (action.key.vk == VK_RBUTTON) wi->mk &= ~MK_RBUTTON;
-				else if (action.key.vk == VK_MBUTTON) wi->mk &= ~MK_MBUTTON;
-				else if (action.key.vk == VK_XBUTTON1) wi->mk &= ~MK_XBUTTON1;
-				else if (action.key.vk == VK_XBUTTON2) wi->mk &= ~MK_XBUTTON2;
-				else if (action.key.vk == VK_CONTROL) wi->mk &= ~MK_CONTROL;
-				else if (action.key.vk == VK_SHIFT) wi->mk &= ~MK_SHIFT;
+				Input::State(wi->current, action.d.key.vk, wi->pt, 0);
+				if (action.d.key.vk == VK_LBUTTON) wi->mk &= ~MK_LBUTTON;
+				else if (action.d.key.vk == VK_RBUTTON) wi->mk &= ~MK_RBUTTON;
+				else if (action.d.key.vk == VK_MBUTTON) wi->mk &= ~MK_MBUTTON;
+				else if (action.d.key.vk == VK_XBUTTON1) wi->mk &= ~MK_XBUTTON1;
+				else if (action.d.key.vk == VK_XBUTTON2) wi->mk &= ~MK_XBUTTON2;
+				else if (action.d.key.vk == VK_CONTROL) wi->mk &= ~MK_CONTROL;
+				else if (action.d.key.vk == VK_SHIFT) wi->mk &= ~MK_SHIFT;
 			}
-			else if (action.key.state == QiKey::down)
+			else if (action.d.key.state == QiKey::down)
 			{
-				Input::State(wi->current, action.key.vk, wi->pt, 1);
-				if (action.key.vk == VK_LBUTTON) wi->mk |= MK_LBUTTON;
-				else if (action.key.vk == VK_RBUTTON) wi->mk |= MK_RBUTTON;
-				else if (action.key.vk == VK_MBUTTON) wi->mk |= MK_MBUTTON;
-				else if (action.key.vk == VK_XBUTTON1) wi->mk |= MK_XBUTTON1;
-				else if (action.key.vk == VK_XBUTTON2) wi->mk |= MK_XBUTTON2;
-				else if (action.key.vk == VK_CONTROL) wi->mk |= MK_CONTROL;
-				else if (action.key.vk == VK_SHIFT) wi->mk |= MK_SHIFT;
+				Input::State(wi->current, action.d.key.vk, wi->pt, 1);
+				if (action.d.key.vk == VK_LBUTTON) wi->mk |= MK_LBUTTON;
+				else if (action.d.key.vk == VK_RBUTTON) wi->mk |= MK_RBUTTON;
+				else if (action.d.key.vk == VK_MBUTTON) wi->mk |= MK_MBUTTON;
+				else if (action.d.key.vk == VK_XBUTTON1) wi->mk |= MK_XBUTTON1;
+				else if (action.d.key.vk == VK_XBUTTON2) wi->mk |= MK_XBUTTON2;
+				else if (action.d.key.vk == VK_CONTROL) wi->mk |= MK_CONTROL;
+				else if (action.d.key.vk == VK_SHIFT) wi->mk |= MK_SHIFT;
 			}
-			else if (action.key.state == QiKey::click)
+			else if (action.d.key.state == QiKey::click)
 			{
-				Input::Click(wi->current, action.key.vk, wi->pt, 10);
-				if (action.key.vk == VK_LBUTTON) wi->mk |= MK_LBUTTON;
-				else if (action.key.vk == VK_RBUTTON) wi->mk |= MK_RBUTTON;
-				else if (action.key.vk == VK_MBUTTON) wi->mk |= MK_MBUTTON;
-				else if (action.key.vk == VK_XBUTTON1) wi->mk |= MK_XBUTTON1;
-				else if (action.key.vk == VK_XBUTTON2) wi->mk |= MK_XBUTTON2;
-				else if (action.key.vk == VK_CONTROL) wi->mk |= MK_CONTROL;
-				else if (action.key.vk == VK_SHIFT) wi->mk |= MK_SHIFT;
+				Input::Click(wi->current, action.d.key.vk, wi->pt, 10);
+				if (action.d.key.vk == VK_LBUTTON) wi->mk |= MK_LBUTTON;
+				else if (action.d.key.vk == VK_RBUTTON) wi->mk |= MK_RBUTTON;
+				else if (action.d.key.vk == VK_MBUTTON) wi->mk |= MK_MBUTTON;
+				else if (action.d.key.vk == VK_XBUTTON1) wi->mk |= MK_XBUTTON1;
+				else if (action.d.key.vk == VK_XBUTTON2) wi->mk |= MK_XBUTTON2;
+				else if (action.d.key.vk == VK_CONTROL) wi->mk |= MK_CONTROL;
+				else if (action.d.key.vk == VK_SHIFT) wi->mk |= MK_SHIFT;
 			}
 		}
 		else
 		{
-			if (action.key.state == QiKey::up) Input::State(action.key.vk, 0, 214);
-			else if (action.key.state == QiKey::down) Input::State(action.key.vk, 1, 214);
-			else if (action.key.state == QiKey::click) Input::Click(action.key.vk, 10, 214);
+			if (action.d.key.state == QiKey::up) Input::State(action.d.key.vk, 0, 214);
+			else if (action.d.key.state == QiKey::down) Input::State(action.d.key.vk, 1, 214);
+			else if (action.d.key.state == QiKey::click) Input::Click(action.d.key.vk, 10, 214);
 		}
 		return 0;
 	}
@@ -463,17 +471,17 @@ static uint8 ActionExecute(const Action& action, const Macro& macro, WndInput* w
 	{
 		if (wi)
 		{
-			if (action.mouse.ex)
+			if (action.d.mouse.ex)
 			{
 				POINT pt = {};
-				pt.x = action.mouse.x + (Rand(action.mouse.ex, (~action.mouse.ex + 1)));
-				pt.y = action.mouse.y + (Rand(action.mouse.ex, (~action.mouse.ex + 1)));
-				if (action.mouse.move) wi->pt.x += pt.x, wi->pt.y += pt.y;
+				pt.x = action.d.mouse.x + (Rand(action.d.mouse.ex, (~action.d.mouse.ex + 1)));
+				pt.y = action.d.mouse.y + (Rand(action.d.mouse.ex, (~action.d.mouse.ex + 1)));
+				if (action.d.mouse.move) wi->pt.x += pt.x, wi->pt.y += pt.y;
 				else wi->pt = WATR({ pt.x, pt.y }, wi->wnd);
 			}
 			else {
-				if (action.mouse.move) wi->pt.x += action.mouse.x, wi->pt.y += action.mouse.y;
-				else wi->pt = WATR({ action.mouse.x, action.mouse.y }, wi->wnd);
+				if (action.d.mouse.move) wi->pt.x += action.d.mouse.x, wi->pt.y += action.d.mouse.y;
+				else wi->pt = WATR({ action.d.mouse.x, action.d.mouse.y }, wi->wnd);
 			}
 			wi->current = 0;
 			List<ChildWindow> cws;
@@ -505,17 +513,17 @@ static uint8 ActionExecute(const Action& action, const Macro& macro, WndInput* w
 		}
 		else
 		{
-			if (action.mouse.ex)
+			if (action.d.mouse.ex)
 			{
 				POINT pt = { 0 };
-				pt.x = action.mouse.x + (Rand(action.mouse.ex, (~action.mouse.ex + 1)));
-				pt.y = action.mouse.y + (Rand(action.mouse.ex, (~action.mouse.ex + 1)));
-				if (action.mouse.move) Input::Move(pt.x, pt.y);
+				pt.x = action.d.mouse.x + (Rand(action.d.mouse.ex, (~action.d.mouse.ex + 1)));
+				pt.y = action.d.mouse.y + (Rand(action.d.mouse.ex, (~action.d.mouse.ex + 1)));
+				if (action.d.mouse.move) Input::Move(pt.x, pt.y);
 				else Input::MoveToA(pt.x * 6.5535, pt.y * 6.5535);
 			}
 			else {
-				if (action.mouse.move) Input::Move(action.mouse.x, action.mouse.y);
-				else Input::MoveToA(action.mouse.x * 6.5535f, action.mouse.y * 6.5535f);
+				if (action.d.mouse.move) Input::Move(action.d.mouse.x, action.d.mouse.y);
+				else Input::MoveToA(action.d.mouse.x * 6.5535f, action.d.mouse.y * 6.5535f);
 			}
 		}
 		return 0;
@@ -523,7 +531,7 @@ static uint8 ActionExecute(const Action& action, const Macro& macro, WndInput* w
 
 	case Action::_text:
 	{
-		System::ClipBoardText(action.text.str.str());
+		System::ClipBoardText(action.d.text.str.str());
 		return 0;
 	}
 
@@ -534,37 +542,36 @@ static uint8 ActionExecute(const Action& action, const Macro& macro, WndInput* w
 		if (wi)
 		{
 			HDC wdc = GetDC(wi->wnd);
-			rect = WATRR(action.color.rect, wi->wnd);
+			rect = WATRR(action.d.color.rect, wi->wnd);
 			Image::HdcRgbmap(wdc, rgbMap, rect);
 			ReleaseDC(wi->wnd, wdc);
 		}
 		else
 		{
-			rect = ATRR(action.color.rect);
+			rect = ATRR(action.d.color.rect);
 			Image::HdcRgbmap(Global::qi.hdc, rgbMap, rect);
 		}
-		Color::FindOrStatus result = Color::FindOr(rgbMap, action.color.rgbe.toRgb(), action.color.rgbe.a);
-		if (action.color.unfind) { if (result.find) return 0; }
-		else
+		Color::FindResult result = Color::FindOr(rgbMap, action.d.color.rgbe.toRgb(), action.d.color.rgbe.a);
+		if (action.d.color.unfind && result.find) return 0;
+		else if (result.find)
 		{
-			if (result.find) {
-				if (action.color.move == 1)
+			if (action.d.color.move)
+			{
+				result.pt.x += rect.left, result.pt.y += rect.top;
+				if (wi)
 				{
-					result.pt.x += rect.left, result.pt.y += rect.top;
-					if (wi)
-					{
-						wi->pt = result.pt;
-						Input::MoveTo(wi->wnd, wi->pt.x, wi->pt.y, wi->mk);
-					}
-					else Input::MoveTo(result.pt.x, result.pt.y);
+					wi->pt = result.pt;
+					Input::MoveTo(wi->wnd, wi->pt.x, wi->pt.y, wi->mk);
 				}
+				else Input::MoveTo(result.pt.x, result.pt.y);
 			}
-			else return 0;
 		}
-		for (uint32 u = 0; u < action.color.next.size(); u++)
+		else return 0;
+		for (uint32 i = 0; i < action.next.size(); i++)
 		{
-			uint8 r = ActionExecute(action.color.next[u], macro, wi);
-			if (r) return r;
+			uint8 r = ActionExecute(action.next.at(i), macro, wi);
+			if (r == 1) return 1;
+			else if (r == 2) return 2;
 		}
 		return 0;
 	}
@@ -574,8 +581,8 @@ static uint8 ActionExecute(const Action& action, const Macro& macro, WndInput* w
 		uint32 n = 0;
 		uint32 e = 0;
 		bool uloop = false;
-		if (action.loop.count) uloop = true, e = action.loop.count;
-		if (action.loop.rand) uloop = true, e = Rand(action.loop.rand, action.loop.count);
+		if (action.d.loop.count) uloop = true, e = action.d.loop.count;
+		if (action.d.loop.rand) uloop = true, e = Rand(action.d.loop.rand, action.d.loop.count);
 		while (Global::qi.run)
 		{
 			if (uloop)
@@ -583,9 +590,9 @@ static uint8 ActionExecute(const Action& action, const Macro& macro, WndInput* w
 				n++;
 				if (n > e) break;
 			}
-			for (uint32 u = 0; u < action.loop.next.size(); u++)
+			for (uint32 i = 0; i < action.next.size(); i++)
 			{
-				uint8 r = ActionExecute(action.loop.next[u], macro, wi);
+				uint8 r = ActionExecute(action.next.at(i), macro, wi);
 				if (r == 1) return 1;
 				else if (r == 2) return 0;
 			}
@@ -600,26 +607,73 @@ static uint8 ActionExecute(const Action& action, const Macro& macro, WndInput* w
 
 	case Action::_keyState:
 	{
-		if (action.keyState.state)
+		if (action.d.keyState.state)
 		{
-			if (!Input::state(action.keyState.vk)) return 0;
+			if (!Input::state(action.d.keyState.vk)) return 0;
 		}
 		else
 		{
-			if (Input::state(action.keyState.vk)) return 0;
+			if (Input::state(action.d.keyState.vk)) return 0;
 		}
-		for (uint32 u = 0; u < action.keyState.next.size(); u++)
+		for (uint32 i = 0; i < action.next.size(); i++)
 		{
-			uint8 r = ActionExecute(action.keyState.next[u], macro, wi);
+			uint8 r = ActionExecute(action.next.at(i), macro, wi);
 			if (r == 1) return 1;
-			else if (r == 2) return 0;
+			else if (r == 2) return 2;
 		}
 		return 0;
 	}
-	
+
 	case Action::_revocerPos:
 	{
 		Input::MoveTo(macro.originPos.x, macro.originPos.y);
+		return 0;
+	}
+
+	case Action::_image:
+	{
+		RgbMap rgbMap;
+		RECT rect;
+		if (wi)
+		{
+			HDC wdc = GetDC(wi->wnd);
+			rect = WATRR(action.d.image.rect, wi->wnd);
+			Image::HdcRgbmap(wdc, rgbMap, rect);
+			ReleaseDC(wi->wnd, wdc);
+		}
+		else
+		{
+			rect = ATRR(action.d.image.rect);
+			Image::HdcRgbmap(Global::qi.hdc, rgbMap, rect);
+		}
+		Image::FindResult result = Image::Find(rgbMap, action.d.image.map, action.d.image.sim, 10);
+		if (action.d.image.unfind && result.find) return 0;
+		else if (result.find)
+		{
+			if (action.d.image.move)
+			{
+				result.pt.x += rect.left, result.pt.y += rect.top;
+				if (wi)
+				{
+					wi->pt = result.pt;
+					Input::MoveTo(wi->wnd, wi->pt.x, wi->pt.y, wi->mk);
+				}
+				else Input::MoveTo(result.pt.x, result.pt.y);
+			}
+		}
+		else return 0;
+		for (uint32 i = 0; i < action.next.size(); i++)
+		{
+			uint8 r = ActionExecute(action.next.at(i), macro, wi);
+			if (r == 1) return 1;
+			else if (r == 2) return 2;
+		}
+		return 0;
+	}
+
+	case Action::_popText:
+	{
+		TipsWindow::Popup(action.d.popText.str.str(), RGB(223, 223, 223), action.d.popText.time);
 		return 0;
 	}
 	}
@@ -654,14 +708,21 @@ static DWORD _stdcall ThreadMacroEnding(PVOID pMacro)
 	{
 		// window is not found
 		macro->wi.wnd = FindWindowW(macro->wi.wndClass.c_str(), macro->wi.wndName.c_str());
-		if (!macro->wi.wnd) goto breakLoop;
+		if (!macro->wi.wnd)
+		{
+			macro->threadEnding = 0;
+			return 0;
+		}
 	}
 
 	for (uint32 n = 0; n < macro->actionsEnding.size(); n++)
 	{
-		if (ActionExecute(macro->actionsEnding[n], *macro, pWi)) goto breakLoop;
+		if (ActionExecute(macro->actionsEnding.at(n), *macro, pWi))
+		{
+			macro->threadEnding = 0;
+			return 0;
+		}
 	}
-	breakLoop:
 	macro->threadEnding = 0;
 	return 0;
 }
@@ -689,36 +750,34 @@ static DWORD _stdcall ThreadMacro(PVOID pMacro)
 		{
 			Window::HWNDS wnds; Window::FindChild(wi.wnd, wnds);
 			wi.children.resize(wnds.size());
-			for (uint32 u = 0; u < wnds.size(); u++)
+			for (uint32 i = 0; i < wnds.size(); i++)
 			{
-				if (IsWindowVisible(wnds[u]))
+				if (IsWindowVisible(wnds.at(1)))
 				{
-					wi.children[u].wnd = wnds[u];
-					wi.children[u].rect = Window::childRect(wi.wnd, wi.children[u].wnd);
+					wi.children.at(i).wnd = wnds[i];
+					wi.children.at(i).rect = Window::childRect(wi.wnd, wi.children.at(i).wnd);
 				}
 			}
 		}
-		
+
 		pWi = &wi;
 	}
 
 	GetCursorPos(&macro->originPos);
-
 	uint32 count = 0;
 	while (Global::qi.run)
 	{
 		if (macro->count) { count++; if (count > macro->count) break; } // if count = 0 then while is infinite
-		for (uint32 n = 0; n < macro->actions.size(); n++)
+		for (uint32 i = 0; i < macro->actions.size(); i++)
 		{
-			if (ActionExecute(macro->actions[n], *macro, pWi))
+			if (ActionExecute(macro->actions.at(i), *macro, pWi))
 			{
-				goto breakLoop;
+				macro->thread = 0;
+				return 0;
 			}
 		}
 	}
-	breakLoop:
 	macro->thread = 0;
-	if (macro->actionsEnding.size()) macro->threadEnding = Thread::Start(ThreadMacroEnding, macro);
 	return 0;
 }
 static DWORD _stdcall ThreadRelease(PVOID key)

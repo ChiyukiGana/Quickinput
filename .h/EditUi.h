@@ -1,9 +1,12 @@
 ﻿#pragma once
+#include <QtWinExtras/qwinfunctions.h>
+#include <qbuttongroup.h>
 #include <qcolordialog.h>
+#include <qpixmap.h>
+#include <qimage.h>
 #include <qevent.h>
 #include <qtimer.h>
 #include <qmenu.h>
-#include <qbuttongroup.h>
 #include "QColorSelection.h"
 #include "QPointSelection.h"
 #include "QRectSelection.h"
@@ -14,10 +17,9 @@
 
 struct EditParam
 {
-	Macro* macro = 0; // all
-	Actions* actions = 0; // currented
-	bool firstLayer = false; // false: Running only / Ending only
-	bool prevState = true; // false: Running state / true: Ending state
+	Macro* macro = 0;
+	Actions* actions = 0;
+	bool child = false;
 };
 
 class EditUi : public QDialog
@@ -31,6 +33,8 @@ class EditUi : public QDialog
 	const int32 delayRandMax = 9999;
 	const int32 loopCountMax = 9999;
 	const int32 colorMax = 255;
+	const int32 imageSimMax = 99;
+	const int32 popTextTimeMax = 9999;
 
 	Ui::EditUiClass ui;
 
@@ -43,16 +47,20 @@ class EditUi : public QDialog
 
 	QPointView pv;
 	QRectView rv;
-	QPoint msPos; // window move
+	QPoint msPos;
 
-	EditParam ep; // this Edit
-	bool changing = false; // change state
+	RgbMap rgbMap;
+
+	Macro* macro = 0;
+	Actions* actions = 0;
+	bool child = false;
+	bool changing = false;
 
 public:
-	// Actions is 0 = first layer
 	EditUi(EditParam ep) : QDialog()
 	{
-		this->ep = ep;
+		macro = ep.macro, actions = ep.actions, child = ep.child;
+
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 
@@ -84,17 +92,43 @@ private:
 			ui.bnLoopAdd->setText(UI::etAdd);
 			ui.bnTextAdd->setText(UI::etAdd);
 			ui.bnColorAdd->setText(UI::etAdd);
+			ui.bnImageAdd->setText(UI::etAdd);
 			ui.bnEndAdd->setText(UI::etAdd);
 			ui.bnEndLoopAdd->setText(UI::etAdd);
-
 			ui.bnStateEdit->setText(UI::etEdit);
 			ui.bnLoopEdit->setText(UI::etEdit);
 			ui.bnColorEdit->setText(UI::etEdit);
+			ui.bnImageEdit->setText(UI::etEdit);
 			ui.bnDel->setText(UI::etDel);
+			// no shortcut key
+			ui.bnClose->setShortcut(Qt::Key_unknown);
+			ui.bnRun->setShortcut(Qt::Key_unknown);
+			ui.bnPos->setShortcut(Qt::Key_unknown);
+			ui.bnColorRect->setShortcut(Qt::Key_unknown);
+			ui.bnColorValue->setShortcut(Qt::Key_unknown);
+			ui.bnImageRect->setShortcut(Qt::Key_unknown);
+			ui.bnImageShot->setShortcut(Qt::Key_unknown);
+
+			ui.bnKeyAdd->setShortcut(Qt::Key_unknown);
+			ui.bnStateAdd->setShortcut(Qt::Key_unknown);
+			ui.bnMoveAdd->setShortcut(Qt::Key_unknown);
+			ui.bnDelayAdd->setShortcut(Qt::Key_unknown);
+			ui.bnLoopAdd->setShortcut(Qt::Key_unknown);
+			ui.bnTextAdd->setShortcut(Qt::Key_unknown);
+			ui.bnColorAdd->setShortcut(Qt::Key_unknown);
+			ui.bnImageAdd->setShortcut(Qt::Key_unknown);
+			ui.bnEndAdd->setShortcut(Qt::Key_unknown);
+			ui.bnEndLoopAdd->setShortcut(Qt::Key_unknown);
+			ui.bnStateEdit->setShortcut(Qt::Key_unknown);
+			ui.bnLoopEdit->setShortcut(Qt::Key_unknown);
+			ui.bnColorEdit->setShortcut(Qt::Key_unknown);
+			ui.bnImageEdit->setShortcut(Qt::Key_unknown);
+			ui.bnDel->setShortcut(Qt::Key_unknown);
 			// edit button is default disabled
 			ui.bnStateEdit->setDisabled(true);
 			ui.bnLoopEdit->setDisabled(true);
 			ui.bnColorEdit->setDisabled(true);
+			ui.bnImageEdit->setDisabled(true);
 		}
 		// RadioButton group
 		{
@@ -120,9 +154,14 @@ private:
 			ui.rbPos->setChecked(true);
 
 			QButtonGroup* colorRbs = new QButtonGroup(this);
-			colorRbs->addButton(ui.rbColorGet);
-			colorRbs->addButton(ui.rbColorNot);
-			ui.rbColorGet->setChecked(true);
+			colorRbs->addButton(ui.rbColorFind);
+			colorRbs->addButton(ui.rbColorNFind);
+			ui.rbColorFind->setChecked(true);
+
+			QButtonGroup* imageRbs = new QButtonGroup(this);
+			imageRbs->addButton(ui.rbImageFind);
+			imageRbs->addButton(ui.rbImageNFind);
+			ui.rbImageFind->setChecked(true);
 		}
 		// Value range
 		{
@@ -133,14 +172,20 @@ private:
 			ui.etDelayRand->setValidator(new QIntValidator(0, delayRandMax, this));
 			ui.etCount->setValidator(new QIntValidator(0, loopCountMax, this));
 			ui.etCountRand->setValidator(new QIntValidator(0, loopCountMax, this));
-			ui.etR->setValidator(new QIntValidator(0, colorMax, this));
-			ui.etG->setValidator(new QIntValidator(0, colorMax, this));
-			ui.etB->setValidator(new QIntValidator(0, colorMax, this));
-			ui.etCX->setValidator(new QIntValidator(0, colorMax, this));
+			ui.etColorRed->setValidator(new QIntValidator(0, colorMax, this));
+			ui.etColorGreen->setValidator(new QIntValidator(0, colorMax, this));
+			ui.etColorBlue->setValidator(new QIntValidator(0, colorMax, this));
+			ui.etColorSim->setValidator(new QIntValidator(0, colorMax, this));
 			ui.etColorL->setValidator(new QIntValidator(0, posMax, this));
 			ui.etColorT->setValidator(new QIntValidator(0, posMax, this));
 			ui.etColorR->setValidator(new QIntValidator(0, posMax, this));
 			ui.etColorB->setValidator(new QIntValidator(0, posMax, this));
+			ui.etImageL->setValidator(new QIntValidator(0, posMax, this));
+			ui.etImageT->setValidator(new QIntValidator(0, posMax, this));
+			ui.etImageR->setValidator(new QIntValidator(0, posMax, this));
+			ui.etImageB->setValidator(new QIntValidator(0, posMax, this));
+			ui.etImageSim->setValidator(new QIntValidator(0, imageSimMax, this));
+			ui.etPopTextTime->setValidator(new QIntValidator(0, popTextTimeMax, this));
 		}
 		// Table Menu
 		{
@@ -197,24 +242,21 @@ private:
 			ui.hkKey->VirtualKey(VK_LBUTTON);
 			ui.hkState->VirtualKey(VK_LBUTTON);
 		}
+
+		ui.lbImageView->setScaledContents(true);
 		////////// #Set default state
-
+		
 		// load Window mode
-		if (ep.macro->wndState) ep.macro->wi.Update(), SetTitle();
+		if (macro->wndState) macro->wi.Update(), SetTitle();
 
-		// load Actions state
-		if (!ep.firstLayer)
-		{
-			if (ep.prevState) ui.rbEnding->setChecked(true);
-			else ui.rbRunning->setChecked(true);
-			ui.rbRunning->setDisabled(true);
-			ui.rbEnding->setDisabled(true);
-		}
+		// is child
+		if (child) ui.rbRunning->setVisible(false), ui.rbEnding->setVisible(false);
 	}
 	void WidEvent()
 	{
 		// Title
 		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
+		connect(ui.bnRun, SIGNAL(clicked()), this, SLOT(OnBnRun()));
 		connect(ui.bnWnd, SIGNAL(clicked()), this, SLOT(OnBnWnd()));
 		connect(ui.chbWnd, SIGNAL(clicked()), this, SLOT(OnChbWnd()));
 		connect(ui.chbChildWnd, SIGNAL(clicked()), this, SLOT(OnChbChildWnd()));
@@ -260,58 +302,100 @@ private:
 		connect(ui.bnEndLoopAdd, SIGNAL(clicked()), this, SLOT(OnBnEndLoopAdd()));
 		// RecoverPos
 		connect(ui.bnRecoverPosAdd, SIGNAL(clicked()), this, SLOT(OnBnRecoverPosAdd()));
+		// Image
+		connect(ui.bnImageAdd, SIGNAL(clicked()), this, SLOT(OnBnImageAdd()));
+		connect(ui.bnImageEdit, SIGNAL(clicked()), this, SLOT(OnBnImageEdit()));
+		connect(ui.bnImageRect, SIGNAL(clicked()), this, SLOT(OnBnImageRect()));
+		connect(ui.bnImageShot, SIGNAL(clicked()), this, SLOT(OnBnImageShot()));
+		// PopText
+		connect(ui.bnPopTextAdd, SIGNAL(clicked()), this, SLOT(OnBnPopTextAdd()));
+	}
+
+	// Window title
+	void SetTitle()
+	{
+		ui.chbWnd->setChecked(macro->wndState); OnChbWnd();
+		ui.chbChildWnd->setChecked(macro->wi.child);
+		ui.etWndName->setText(QString::fromWCharArray(macro->wi.wndName.c_str()));
+	}
+
+	void NextEdit()
+	{
+		int p = ui.tbActions->currentRow(); if (p < 0) return;
+		QString title;
+		switch (actions->at(p).type)
+		{
+		case Action::_loop: title = u8"编辑 - 循环"; break;
+		case Action::_color: title = u8"编辑 - 查找颜色"; break;
+		case Action::_keyState: title = u8"编辑 - 按键状态"; break;
+		case Action::_image: title = u8"编辑 - 查找图片"; break;
+		}
+		EditParam epc;
+		epc.macro = macro;
+		epc.child = true;
+		epc.actions = &actions->at(p).next;
+		EditUi edit(epc); edit.setWindowTitle(title);
+		QPoint pt = pos();
+		move(-10000, -10000);
+		edit.move(pt);
+		edit.exec();
+		move(pt);
 	}
 
 	void TbUpdate()
 	{
 		disconnect(ui.tbActions, SIGNAL(cellChanged(int, int)), this, SLOT(OnTbChanged(int, int)));
 		ui.tbActions->clearMask();
-		ui.tbActions->setRowCount(ep.actions->size());
+		ui.tbActions->setRowCount(actions->size());
 		ui.tbActions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
 		ui.tbActions->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
 		ui.tbActions->verticalHeader()->setDefaultSectionSize(0);
-
-		for (uint32 u = 0; u < ep.actions->size(); u++)
+		for (size_t i = 0; i < actions->size(); i++)
 		{
 			QString ps;
-			switch (ep.actions[0][u].type)
+			switch (actions->at(i).type)
 			{
-			case Action::_end: ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acEnd)); break;
+			case Action::_end: ui.tbActions->setItem(i, 0, new QTableWidgetItem(UI::acEnd)); break;
 
 			case Action::_delay:
 			{
-				ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acWait));
-				ps = QString::number(ep.actions[0][u].delay.ms);
-				ps += u8"ㅤㅤ";
-				ps += QString::number(ep.actions[0][u].delay.ex);
+				ui.tbActions->setItem(i, 0, new QTableWidgetItem(UI::acWait));
+				if (actions->at(i).d.delay.ex)
+				{
+					int ms = (int32)actions->at(i).d.delay.ms - (int32)actions->at(i).d.delay.ex; if (ms < 0) ms = 0;
+					ps += QString::number(ms);
+					ps += u8" ~ ";
+					ps += QString::number(actions->at(i).d.delay.ms + actions->at(i).d.delay.ex);
+				}
+				else ps = QString::number(actions->at(i).d.delay.ms);
 			}
 			break;
 
 			case Action::_key:
 			{
-				if (ep.actions[0][u].key.state == QiKey::up) ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acUp));
-				else if (ep.actions[0][u].key.state == QiKey::down) ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acDown));
-				else if (ep.actions[0][u].key.state == QiKey::click) ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acClick));
-				ps = QString::fromWCharArray(Input::Name(ep.actions[0][u].key.vk));
+				if (actions->at(i).d.key.state == QiKey::up) ui.tbActions->setItem(i, 0, new QTableWidgetItem(UI::acUp));
+				else if (actions->at(i).d.key.state == QiKey::down) ui.tbActions->setItem(i, 0, new QTableWidgetItem(UI::acDown));
+				else if (actions->at(i).d.key.state == QiKey::click) ui.tbActions->setItem(i, 0, new QTableWidgetItem(UI::acClick));
+				ps = QString::fromWCharArray(Input::Name(actions->at(i).d.key.vk));
 			}
 			break;
 
 			case Action::_mouse:
 			{
-				if (ep.actions[0][u].mouse.move) ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acMove));
-				else ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acPos));
-				ps = QString::number(ep.actions[0][u].mouse.x);
+				if (actions->at(i).d.mouse.move) ui.tbActions->setItem(i, 0, new QTableWidgetItem(UI::acMove));
+				else ui.tbActions->setItem(i, 0, new QTableWidgetItem(UI::acPos));
+				ps = QString::number(actions->at(i).d.mouse.x);
 				ps += u8", ";
-				ps += QString::number(ep.actions[0][u].mouse.y);
+				ps += QString::number(actions->at(i).d.mouse.y);
 				ps += u8"ㅤㅤ";
-				ps += QString::number(ep.actions[0][u].mouse.ex);
+				ps += QString::number(actions->at(i).d.mouse.ex);
 			}
 			break;
 
 			case Action::_text:
 			{
-				ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acText));
-				std::wstring text = ep.actions[0][u].text.str.str();
+				ui.tbActions->setItem(i, 0, new QTableWidgetItem(UI::acText));
+				std::wstring text = actions->at(i).d.text.str.str();
 				ps = QString::fromWCharArray(text.substr(0, 32).c_str());
 				if (text.length() > 31) ps += u8"...";
 			}
@@ -319,28 +403,28 @@ private:
 
 			case Action::_color:
 			{
-				ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acColor));
+				ui.tbActions->setItem(i, 0, new QTableWidgetItem(UI::acColor));
 				ps = u8"(";
-				ps += QString::number(ep.actions[0][u].color.rect.left);
+				ps += QString::number(actions->at(i).d.color.rect.left);
 				ps += u8",";
-				ps += QString::number(ep.actions[0][u].color.rect.top);
+				ps += QString::number(actions->at(i).d.color.rect.top);
 				ps += u8",";
-				ps += QString::number(ep.actions[0][u].color.rect.right);
+				ps += QString::number(actions->at(i).d.color.rect.right);
 				ps += u8",";
-				ps += QString::number(ep.actions[0][u].color.rect.bottom);
+				ps += QString::number(actions->at(i).d.color.rect.bottom);
 				ps += u8")　(";
-				ps += QString::number(ep.actions[0][u].color.rgbe.r);
+				ps += QString::number(actions->at(i).d.color.rgbe.r);
 				ps += u8",";
-				ps += QString::number(ep.actions[0][u].color.rgbe.g);
+				ps += QString::number(actions->at(i).d.color.rgbe.g);
 				ps += u8",";
-				ps += QString::number(ep.actions[0][u].color.rgbe.b);
+				ps += QString::number(actions->at(i).d.color.rgbe.b);
 				ps += u8",";
-				ps += QString::number(ep.actions[0][u].color.rgbe.a);
-				if (ep.actions[0][u].color.unfind) ps += u8")　未找到";
+				ps += QString::number(actions->at(i).d.color.rgbe.a);
+				if (actions->at(i).d.color.unfind) ps += u8")　未找到";
 				else
 				{
 					ps += u8")　找到";
-					if (ep.actions[0][u].color.move) ps += u8"并移动";
+					if (actions->at(i).d.color.move) ps += u8"并移动";
 					else ps += u8"不移动";
 				}
 			}
@@ -348,56 +432,81 @@ private:
 
 			case Action::_loop:
 			{
-				ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acLoop));
-				if (ep.actions[0][u].loop.count)
+				ui.tbActions->setItem(i, 0, new QTableWidgetItem(UI::acLoop));
+				if (actions->at(i).d.loop.count || actions->at(i).d.loop.rand)
 				{
-					ps = QString::number(ep.actions[0][u].loop.count);
-					if (ep.actions[0][u].loop.rand)
+					if (actions->at(i).d.loop.count == actions->at(i).d.loop.rand)
 					{
-						ps += u8" ~ ";
-						ps += QString::number(ep.actions[0][u].loop.rand);
+						ps = QString::number(actions->at(i).d.loop.count);
 					}
-				}
-				else if (ep.actions[0][u].loop.rand)
-				{
-					ps += u8"0 ~ ";
-					ps += QString::number(ep.actions[0][u].loop.rand);
+					else
+					{
+						ps = QString::number(actions->at(i).d.loop.count);
+						ps += u8" ~ ";
+						ps += QString::number(actions->at(i).d.loop.rand);
+					}
 				}
 				else ps = u8"无限";
 			}
 			break;
 
-			case Action::_loopEnd: ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acEndLoop)); break;
+			case Action::_loopEnd: ui.tbActions->setItem(i, 0, new QTableWidgetItem(UI::acEndLoop)); break;
 
 			case Action::_keyState:
 			{
-				ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acKeyState));
-				if (ep.actions[0][u].keyState.state) ps = u8"按下了　";
+				ui.tbActions->setItem(i, 0, new QTableWidgetItem(UI::acKeyState));
+				if (actions->at(i).d.keyState.state) ps = u8"按下了　";
 				else ps = u8"松开了　";
-				ps += QString::fromWCharArray(Input::Name(ep.actions[0][u].keyState.vk));
+				ps += QString::fromWCharArray(Input::Name(actions->at(i).d.keyState.vk));
 			}
 			break;
 
-			case Action::_revocerPos: ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acRecoverPos)); break;
+			case Action::_revocerPos: ui.tbActions->setItem(i, 0, new QTableWidgetItem(UI::acRecoverPos)); break;
 
-			default: ui.tbActions->setItem(u, 0, new QTableWidgetItem(u8"加载失败")); break;
+			case Action::_image:
+			{
+				ui.tbActions->setItem(i, 0, new QTableWidgetItem(UI::acImage));
+				ps = u8"(";
+				ps += QString::number(actions->at(i).d.image.rect.left);
+				ps += u8",";
+				ps += QString::number(actions->at(i).d.image.rect.top);
+				ps += u8",";
+				ps += QString::number(actions->at(i).d.image.rect.right);
+				ps += u8",";
+				ps += QString::number(actions->at(i).d.image.rect.bottom);
+				ps += u8")　(";
+				ps += QString::number(actions->at(i).d.image.map.width());
+				ps += u8"x";
+				ps += QString::number(actions->at(i).d.image.map.height());
+				ps += u8")　";
+				ps += QString::number(actions->at(i).d.image.sim);
+				if (actions->at(i).d.image.unfind) ps += u8"　未找到";
+				else
+				{
+					ps += u8"　找到";
+					if (actions->at(i).d.image.move) ps += u8"并移动";
+					else ps += u8"不移动";
+				}
 			}
-			ui.tbActions->setItem(u, 1, new QTableWidgetItem(ps));
-			ui.tbActions->setItem(u, 2, new QTableWidgetItem(QString::fromWCharArray(ep.actions[0][u].mark.c_str())));
-			ui.tbActions->item(u, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			ui.tbActions->item(u, 1)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			ui.tbActions->item(u, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			break;
+
+			case Action::_popText:
+			{
+				ui.tbActions->setItem(i, 0, new QTableWidgetItem(UI::acPopText));
+				ps += actions->at(i).d.popText.str.str();
+			}
+			break;
+
+			default: ui.tbActions->setItem(i, 0, new QTableWidgetItem(u8"加载失败")); break;
+			}
+			ui.tbActions->setItem(i, 1, new QTableWidgetItem(ps));
+			ui.tbActions->setItem(i, 2, new QTableWidgetItem(QString::fromWCharArray(actions->at(i).mark.str())));
+			ui.tbActions->item(i, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			ui.tbActions->item(i, 1)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			ui.tbActions->item(i, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		}
 		connect(ui.tbActions, SIGNAL(cellChanged(int, int)), this, SLOT(OnTbChanged(int, int)));
 		ui.tbActions->setStyleSheet(u8"QHeaderView::section,QScrollBar{background:transparent}");
-	}
-
-	// Window title
-	void SetTitle()
-	{
-		ui.chbWnd->setChecked(ep.macro->wndState); OnChbWnd();
-		ui.chbChildWnd->setChecked(ep.macro->wi.child);
-		ui.etWndName->setText(QString::fromWCharArray(ep.macro->wi.wndName.c_str()));
 	}
 
 private: // Event
@@ -473,7 +582,7 @@ private: // Event
 
 				if (after < 0) return 0;
 
-				ep.actions->Mov(before, after);
+				actions->Mov(before, after);
 				TbUpdate();
 				ui.tbActions->setCurrentItem(ui.tbActions->item(after, 0));
 				return true;
@@ -490,32 +599,49 @@ private: // Event
 private slots:
 	//////////////////////////// Title
 	void OnBnClose() { close(); }
+	void OnBnRun()
+	{
+		ui.bnRun->setDisabled(true);
+		uint32 count = macro->count;
+		macro->count = 1;
+		Global::qi.run = true;
+		macro->thread = Thread::Start(ThreadMacro, macro);
+		while (macro->thread) {
+			if (GetAsyncKeyState(VK_SHIFT) && GetAsyncKeyState(VK_F10))
+			{
+				Thread::Close(macro->thread);
+				break;
+			}
+			Thread::Sleep(10);
+		}
+		Global::qi.run = false;
+		macro->count = count;
+		Thread::Sleep(300);
+		ui.bnRun->setEnabled(true);
+	}
 	void OnBnWnd()
 	{
-		ep.macro->wi = WindowSelection();
+		macro->wi = WindowSelection();
 		SetTitle();
 	}
 	void OnChbWnd()
 	{
 		if (ui.chbWnd->isChecked())
 		{
-			ep.macro->wndState = true;
+			macro->wndState = true;
 			ui.bnWnd->setDisabled(false);
 			ui.chbChildWnd->setDisabled(false);
 			ui.etWndName->setDisabled(false);
 		}
 		else
 		{
-			ep.macro->wndState = false;
+			macro->wndState = false;
 			ui.bnWnd->setDisabled(true);
 			ui.chbChildWnd->setDisabled(true);
 			ui.etWndName->setDisabled(true);
 		}
 	}
-	void OnChbChildWnd()
-	{
-		ep.macro->wi.child = ui.chbChildWnd->isChecked();
-	}
+	void OnChbChildWnd() { macro->wi.child = ui.chbChildWnd->isChecked(); }
 	//////////////////////////// #Title
 
 
@@ -531,17 +657,17 @@ private slots:
 	//////////////////////////// Table
 	void OnRbRunning(bool state)
 	{
-		if (state && ep.firstLayer)
+		if (state && (!child))
 		{
-			ep.actions = &ep.macro->actions;
+			actions = &macro->actions;
 			TbUpdate();
 		}
 	}
 	void OnRbEnding(bool state)
 	{
-		if (state && ep.firstLayer)
+		if (state && (!child))
 		{
-			ep.actions = &ep.macro->actionsEnding;
+			actions = &macro->actionsEnding;
 			TbUpdate();
 		}
 	}
@@ -549,66 +675,94 @@ private slots:
 	{
 		if (row < 0) return;
 		if (column != 2) return;
-		ep.actions[0][row].mark = (LPCWSTR)(ui.tbActions->item(row, 2)->text().utf16());
+		actions->at(row).mark = (PCWSTR)(ui.tbActions->item(row, 2)->text().utf16());
 	}
 	void OnTbClicked(int row, int column)
 	{
 		ui.bnColorEdit->setDisabled(true);
 		ui.bnLoopEdit->setDisabled(true);
 		ui.bnStateEdit->setDisabled(true);
+		ui.bnImageEdit->setDisabled(true);
 
 		if (row < 0) return;
 		if (column == 2) ui.tbActions->editItem(ui.tbActions->item(row, column));
 		else
 		{
-			if (ep.actions[0][row].type == Action::_mouse && !ep.actions[0][row].mouse.move)
+			switch (actions->at(row).type)
 			{
-				rv.hide();
-				POINT pt;
-				if (ep.macro->wndState)
+			case Action::_mouse:
+				if (!actions->at(row).d.mouse.move)
 				{
-					if (!ep.macro->wi.Update()) { ep.macro->wi = WindowSelection(); SetTitle(); }
-					POINT rpt = WATR({ ep.actions[0][row].mouse.x, ep.actions[0][row].mouse.y }, ep.macro->wi.wnd);
-					pt = Window::pos(ep.macro->wi.wnd);
-					pt.x += rpt.x, pt.y += rpt.y;
+					rv.hide();
+					POINT pt;
+					if (macro->wndState)
+					{
+						if (!macro->wi.Update()) { macro->wi = WindowSelection(); SetTitle(); }
+						POINT rpt = WATR({ actions->at(row).d.mouse.x, actions->at(row).d.mouse.y }, macro->wi.wnd);
+						pt = Window::pos(macro->wi.wnd);
+						pt.x += rpt.x, pt.y += rpt.y;
+					}
+					else
+					{
+						pt = ATR({ actions->at(row).d.mouse.x, actions->at(row).d.mouse.y });
+					}
+					pv.Show(pt);
 				}
-				else
-				{
-					pt = ATR({ ep.actions[0][row].mouse.x, ep.actions[0][row].mouse.y });
-				}
-				pv.Show(pt);
-			}
-			else if (ep.actions[0][row].type == Action::_color)
+				break;
+			case Action::_text:
+				ui.extabBox->setCurrentIndex(3);
+				break;
+			case Action::_color:
 			{
 				pv.hide();
 				RECT rect;
-				if (ep.macro->wndState)
+				if (macro->wndState)
 				{
-					if (!ep.macro->wi.Update()) { ep.macro->wi = WindowSelection(); SetTitle(); }
-					rect = WATRR(ep.actions[0][row].color.rect, ep.macro->wi.wnd);
-					POINT pt = Window::pos(ep.macro->wi.wnd);
+					if (!macro->wi.Update()) { macro->wi = WindowSelection(); SetTitle(); }
+					rect = WATRR(actions->at(row).d.color.rect, macro->wi.wnd);
+					POINT pt = Window::pos(macro->wi.wnd);
 					rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 				}
 				else
 				{
-					rect = ATRR(ep.actions[0][row].color.rect);
+					rect = ATRR(actions->at(row).d.color.rect);
 				}
 				rv.Show(rect);
-				ui.bnColorEdit->setDisabled(false);
+				ui.bnColorEdit->setEnabled(true);
 				ui.extabBox->setCurrentIndex(1);
 			}
-			else if (ep.actions[0][row].type == Action::_loop)
-			{
-				ui.bnLoopEdit->setDisabled(false);
-			}
-			else if (ep.actions[0][row].type == Action::_keyState)
-			{
-				ui.bnStateEdit->setDisabled(false);
+				break;
+			case Action::_loop:
+				ui.bnLoopEdit->setEnabled(true);
+				break;
+			case Action::_keyState:
+				ui.bnStateEdit->setEnabled(true);
 				ui.extabBox->setCurrentIndex(0);
-			}
-			else if (ep.actions[0][row].type == Action::_text)
+				break;
+			case Action::_image:
 			{
+				pv.hide();
+				RECT rect;
+				if (macro->wndState)
+				{
+					if (!macro->wi.Update()) { macro->wi = WindowSelection(); SetTitle(); }
+					rect = WATRR(actions->at(row).d.image.rect, macro->wi.wnd);
+					POINT pt = Window::pos(macro->wi.wnd);
+					rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
+				}
+				else
+				{
+					rect = ATRR(actions->at(row).d.image.rect);
+				}
+				rv.Show(rect);
+				ui.bnImageEdit->setEnabled(true);
 				ui.extabBox->setCurrentIndex(2);
+				SetLbImageView(actions->at(row).d.image.map);
+			}
+				break;
+			case Action::_popText:
+				ui.extabBox->setCurrentIndex(3);
+				break;
 			}
 		}
 	}
@@ -632,14 +786,8 @@ private slots:
 			muCopy->setDisabled(true);
 		}
 
-		if (Global::qi.clipboard.size())
-		{
-			muPaste->setEnabled(true);
-		}
-		else
-		{
-			muPaste->setDisabled(true);
-		}
+		if (Global::qi.clipboard.size()) muPaste->setEnabled(true);
+		else muPaste->setDisabled(true);
 
 		menu->exec(QCursor::pos());
 	}
@@ -647,37 +795,25 @@ private slots:
 
 
 	//////////////////////////// Action Button
+	// Delete
+	void OnBnDel() { ItemDel(); }
 	// Key
 	void OnBnKeyAdd() { if (changing) ItemChange(Action::_key); else ItemAdd(Action::_key); }
 	// Key state
 	void OnBnKeyStateAdd() { if (changing) ItemChange(Action::_keyState); else ItemAdd(Action::_keyState); }
-	void OnBnKeyStateEdit() {
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) return;
-
-		if (ep.actions[0][pos].type != Action::_keyState) return;
-		EditParam epc;
-		epc.macro = ep.macro;
-		epc.actions = &ep.actions[0][pos].keyState.next;
-		epc.firstLayer = false;
-		epc.prevState = ui.rbEnding->isChecked();
-		EditUi edit(epc);
-		edit.setWindowTitle(u8"编辑 - 按键状态");
-		edit.exec();
-		SetTitle();
-	}
+	void OnBnKeyStateEdit() { NextEdit(); }
 	// Mouse
 	void OnBnMoveAdd() { if (changing) ItemChange(Action::_mouse); else ItemAdd(Action::_mouse); }
 	void OnBnPos()
 	{
 		QPointSelection ps;
 		POINT pt;
-		if (ep.macro->wndState)
+		if (macro->wndState)
 		{
-			if (!ep.macro->wi.Update()) { ep.macro->wi = WindowSelection(); SetTitle(); }
-			RECT wrect = Window::rect(ep.macro->wi.wnd);
+			if (!macro->wi.Update()) { macro->wi = WindowSelection(); SetTitle(); }
+			RECT wrect = Window::rect(macro->wi.wnd);
 			pt = ps.Start(wrect);
-			pt = WRTA({ pt.x, pt.y }, ep.macro->wi.wnd);
+			pt = WRTA({ pt.x, pt.y }, macro->wi.wnd);
 		}
 		else
 		{
@@ -705,7 +841,7 @@ private slots:
 			ui.etX->setValidator(new QIntValidator(posMin, posMax, this));
 			ui.etY->setValidator(new QIntValidator(posMin, posMax, this));
 			ui.bnPos->setText(u8"×");
-			ui.bnPos->setDisabled(1);
+			ui.bnPos->setDisabled(true);
 		}
 	}
 	// Delay
@@ -714,51 +850,21 @@ private slots:
 	void OnBnTextAdd() { if (changing) ItemChange(Action::_text); else ItemAdd(Action::_text); }
 	// Loop
 	void OnBnLoopAdd() { if (changing) ItemChange(Action::_loop); else ItemAdd(Action::_loop); }
-	void OnBnLoopEdit()
-	{
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) return;
-
-		if (ep.actions[0][pos].type != Action::_loop) return;
-		EditParam epc;
-		epc.macro = ep.macro;
-		epc.actions = &ep.actions[0][pos].loop.next;
-		epc.firstLayer = false;
-		epc.prevState = ui.rbEnding->isChecked();
-		EditUi edit(epc);
-		edit.setWindowTitle(u8"编辑 - 循环");
-		edit.exec();
-		SetTitle();
-	}
+	void OnBnLoopEdit() { NextEdit(); }
 	// Color
 	void OnBnColorAdd() { if (changing) ItemChange(Action::_color); else ItemAdd(Action::_color); }
-	void OnBnColorEdit()
-	{
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) return;
-
-		if (ep.actions[0][pos].type != Action::_color) return;
-		EditParam epc;
-		epc.macro = ep.macro;
-		epc.actions = &ep.actions[0][pos].color.next;
-		epc.firstLayer = false;
-		epc.prevState = ui.rbEnding->isChecked();
-		EditUi edit(epc);
-		edit.setWindowTitle(u8"编辑 - 查找颜色");
-		edit.exec();
-		SetTitle();
-	}
+	void OnBnColorEdit() { NextEdit(); }
 	void OnBnColorRect()
 	{
 		QRectSelection rs;
 		RECT rect;
 
-		if (ep.macro->wndState)
+		if (macro->wndState)
 		{
-			if (!ep.macro->wi.Update()) { ep.macro->wi = WindowSelection(); SetTitle(); }
-			RECT wrect = Window::rect(ep.macro->wi.wnd);
+			if (!macro->wi.Update()) { macro->wi = WindowSelection(); SetTitle(); }
+			RECT wrect = Window::rect(macro->wi.wnd);
 			rect = rs.Start(wrect);
-			rect = WRTAR(rect, ep.macro->wi.wnd);
+			rect = WRTAR(rect, macro->wi.wnd);
 		}
 		else
 		{
@@ -771,18 +877,48 @@ private slots:
 	void OnBnColorValue()
 	{
 		QColorSelection cs;
-		QColorDialog cd(cs.Start(), this);
+		QColorDialog cd(cs.Start());
 		cd.exec();
 		SetColor(RGB(cd.currentColor().red(), cd.currentColor().green(), cd.currentColor().blue()));
 	}
-	// Delete
-	void OnBnDel() { ItemDel(); }
 	// End
 	void OnBnEndAdd() { if (changing) ItemChange(Action::_end); else ItemAdd(Action::_end); }
 	// EndLoop
 	void OnBnEndLoopAdd() { if (changing) ItemChange(Action::_loopEnd); else ItemAdd(Action::_loopEnd); }
 	// RecoverPos
 	void OnBnRecoverPosAdd() { if (changing) ItemChange(Action::_revocerPos); else ItemAdd(Action::_revocerPos); }
+	// Image
+	void OnBnImageAdd() { if (changing) ItemChange(Action::_image); else ItemAdd(Action::_image); }
+	void OnBnImageEdit() { NextEdit(); }
+	void OnBnImageRect()
+	{
+		QRectSelection rs;
+		RECT rect;
+
+		if (macro->wndState)
+		{
+			if (!macro->wi.Update()) { macro->wi = WindowSelection(); SetTitle(); }
+			RECT wrect = Window::rect(macro->wi.wnd);
+			rect = rs.Start(wrect);
+			rect = WRTAR(rect, macro->wi.wnd);
+		}
+		else
+		{
+			rect = rs.Start();
+			rect = RTAR(rect);
+		}
+
+		SetEtImageRect(rect);
+	}
+	void OnBnImageShot()
+	{
+		QRectSelection rs;
+		RECT rect = rs.Start();
+		Image::ScreenRgbmap(rgbMap, rect);
+		SetLbImageView();
+	}
+	// PopText
+	void OnBnPopTextAdd() { if (changing) ItemChange(Action::_popText); else ItemAdd(Action::_popText); }
 	//////////////////////////// #Action Button
 
 private: // Widget data
@@ -791,11 +927,8 @@ private: // Widget data
 	{
 		if (state)
 		{
-			int pos = ui.tbActions->currentRow();
-			if (pos < 0) return;
-
-			ItemGet(pos);
-
+			int p = ui.tbActions->currentRow();  if (p < 0) return;
+			ItemGet(p);
 			changing = state;
 			{
 				ui.bnKeyAdd->setText(UI::etChange);
@@ -808,6 +941,8 @@ private: // Widget data
 				ui.bnEndAdd->setText(UI::etChange);
 				ui.bnEndLoopAdd->setText(UI::etChange);
 				ui.bnRecoverPosAdd->setText(UI::etChange);
+				ui.bnImageAdd->setText(UI::etChange);
+				ui.bnPopTextAdd->setText(UI::etChange);
 			}
 		}
 		else
@@ -824,41 +959,46 @@ private: // Widget data
 				ui.bnEndAdd->setText(UI::etAdd);
 				ui.bnEndLoopAdd->setText(UI::etAdd);
 				ui.bnRecoverPosAdd->setText(UI::etAdd);
+				ui.bnImageAdd->setText(UI::etAdd);
+				ui.bnPopTextAdd->setText(UI::etAdd);
 			}
 		}
 	}
 	void ItemMove(bool up)
 	{
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) return;
+		int p = ui.tbActions->currentRow();
+		if (p < 0) return;
 
-		if (up && ((pos - 1) >= 0))
+		if (up && ((p - 1) >= 0))
 		{
-			ep.actions->Swp(pos, pos - 1);
-			ui.tbActions->setCurrentItem(ui.tbActions->item(pos - 1, 0));
+			actions->Swp(p, p - 1);
+			ui.tbActions->setCurrentItem(ui.tbActions->item(p - 1, 0));
 		}
-		else if (!up && (pos + 1) < ui.tbActions->rowCount())
+		else if (!up && (p + 1) < ui.tbActions->rowCount())
 		{
-			ep.actions->Swp(pos, pos + 1);
-			ui.tbActions->setCurrentItem(ui.tbActions->item(pos + 1, 0));
+			actions->Swp(p, p + 1);
+			ui.tbActions->setCurrentItem(ui.tbActions->item(p + 1, 0));
 		}
 		TbUpdate();
 	}
-	void ItemGet(int32 pos)
+	void ItemGet(int32 p)
 	{
-		switch (ep.actions[0][pos].type)
+		switch (actions->at(p).type)
 		{
-		case Action::_delay: LoadDelay(ep.actions[0][pos]); break;
-		case Action::_key: LoadKey(ep.actions[0][pos]); break;
-		case Action::_mouse: LoadMouse(ep.actions[0][pos]); break;
-		case Action::_text: LoadText(ep.actions[0][pos]); break;
-		case Action::_color: LoadColor(ep.actions[0][pos]); break;
-		case Action::_loop: LoadLoop(ep.actions[0][pos]); break;
-		case Action::_keyState: LoadKeyState(ep.actions[0][pos]); break;
+		case Action::_delay: LoadDelay(actions->at(p)); break;
+		case Action::_key: LoadKey(actions->at(p)); break;
+		case Action::_mouse: LoadMouse(actions->at(p)); break;
+		case Action::_text: LoadText(actions->at(p)); break;
+		case Action::_color: LoadColor(actions->at(p)); break;
+		case Action::_loop: LoadLoop(actions->at(p)); break;
+		case Action::_keyState: LoadKeyState(actions->at(p)); break;
+		case Action::_image: LoadImg(actions->at(p)); break;
+		case Action::_popText: LoadPopText(actions->at(p)); break;
 		}
 	}
-	void ItemSet(Action::ActionType type, int32 pos)
+	void ItemSet(Action::ActionType type, int32 p)
 	{
+		wcstring mark(actions->at(p).mark);
 		Action action;
 		switch (type)
 		{
@@ -872,64 +1012,30 @@ private: // Widget data
 		case Action::_loopEnd: action.type = Action::_loopEnd; break;
 		case Action::_keyState: action = GetKeyState(); break;
 		case Action::_revocerPos: action.type = Action::_revocerPos; break;
+		case Action::_image: action = GetImg(); break;
+		case Action::_popText: action = GetPopText(); break;
 		default: action.type = Action::_none; break;
 		}
-
-		// Save child
-		if (ep.actions[0][pos].type == Action::_color)
-		{
-			if (type == Action::_color) action.color.next = ep.actions[0][pos].color.next;
-			if (type == Action::_loop) action.loop.next = ep.actions[0][pos].color.next;
-			if (type == Action::_keyState) action.keyState.next = ep.actions[0][pos].color.next;
-		}
-		else if (ep.actions[0][pos].type == Action::_loop)
-		{
-			if (type == Action::_color) action.color.next = ep.actions[0][pos].loop.next;
-			if (type == Action::_loop) action.loop.next = ep.actions[0][pos].loop.next;
-			if (type == Action::_keyState) action.loop.next = ep.actions[0][pos].loop.next;
-		}
-		else if (ep.actions[0][pos].type == Action::_keyState)
-		{
-			if (type == Action::_color) action.color.next = ep.actions[0][pos].keyState.next;
-			if (type == Action::_loop) action.loop.next = ep.actions[0][pos].keyState.next;
-			if (type == Action::_keyState) action.keyState.next = ep.actions[0][pos].keyState.next;
-		}
-		ep.actions[0][pos] = action;
+		action.mark.cpy(mark);
+		action.next = actions->at(p).next;
+		actions->at(p) = action;
 	}
 	void ItemAdd(Action::ActionType type)
 	{
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) pos = ep.actions->size();
-		else if ((pos + 1) <= ep.actions->size()) pos++;
-
-		ep.actions->InsNull(pos);
-		ItemSet(type, pos);
+		int p = ui.tbActions->currentRow();
+		if (p < 0) p = actions->size();
+		else p++;
+		actions->InsNull(p);
+		ItemSet(type, p);
 		TbUpdate();
-		ui.tbActions->setCurrentItem(ui.tbActions->item(pos, 0));
-	}
-	void ItemAdd(Action& action)
-	{
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) pos = ep.actions->size();
-		else if ((pos + 1) <= ep.actions->size()) pos++;
-
-		ep.actions->Ins(action, pos);
-
-		TbUpdate();
-		ui.tbActions->setCurrentItem(ui.tbActions->item(pos, 0));
+		ui.tbActions->setCurrentItem(ui.tbActions->item(p, 0));
 	}
 	void ItemChange(Action::ActionType type)
 	{
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) return;
-
-		std::wstring mark = ep.actions[0][pos].mark;
-		ItemSet(type, pos);
-		ep.actions[0][pos].mark = mark;
-
+		int p = ui.tbActions->currentRow(); if (p < 0) return;
+		ItemSet(type, p);
 		TbUpdate();
 		ui.tbActions->setCurrentItem(0);
-
 		Changing(false);
 	}
 	void ItemDel()
@@ -937,9 +1043,9 @@ private: // Widget data
 		QList<QTableWidgetItem*> items = ui.tbActions->selectedItems();
 		if (!items.size()) return;
 
-		List<uint32> itemPos;
-		for (uint32 u = 0; u < items.size(); u++) if (items[u]->column() == 0) itemPos.Add(items[u]->row());
-		ep.actions->Del(itemPos);
+		List<size_t> itemPos;
+		for (size_t i = 0; i < items.size(); i++) if (!items[i]->column()) itemPos.Add(items[i]->row());
+		actions->Del(itemPos);
 
 		TbUpdate();
 		ui.tbActions->setCurrentItem(0);
@@ -952,7 +1058,7 @@ private: // Widget data
 		if (!items.size()) return;
 
 		Global::qi.clipboard.resize(0);
-		for (uint32 u = 0; u < items.size(); u++) if (items[u]->column() == 0) Global::qi.clipboard.Add(ep.actions[0][items[u]->row()]);
+		for (size_t i = 0; i < items.size(); i++) if (items[i]->column() == 0) Global::qi.clipboard.Add(actions->at(items[i]->row()));
 
 		ItemDel();
 	}
@@ -962,39 +1068,33 @@ private: // Widget data
 		if (!items.size()) return;
 
 		Global::qi.clipboard.resize(0);
-		for (uint32 u = 0; u < items.size(); u++) if (items[u]->column() == 0) Global::qi.clipboard.Add(ep.actions[0][items[u]->row()]);
+		for (size_t i = 0; i < items.size(); i++) if (items[i]->column() == 0) Global::qi.clipboard.Add(actions->at(items[i]->row()));
 	}
 	void ItemPaste()
 	{
-		int pos = ui.tbActions->currentRow();
+		int p = ui.tbActions->currentRow();
 
-		if (pos < 0) pos = ep.actions->size();
-		else if ((pos + 1) <= ep.actions->size()) pos++;
+		if (p < 0) p = actions->size();
+		else if ((p + 1) <= actions->size()) p++;
 
-		for (uint32 u = 0; u < Global::qi.clipboard.size(); u++)
-		{
-			ep.actions->Ins(Global::qi.clipboard[u], pos);
-			pos++;
-		}
+		for (uint32 i = 0; i < Global::qi.clipboard.size(); i++) actions->Ins(Global::qi.clipboard[i], p);
 		TbUpdate();
 	}
 
 	// Set Wid data
 	void SetHkKey(byte key) { ui.hkKey->VirtualKey(key); }
 	void SetHkState(byte key) { ui.hkState->VirtualKey(key); }
-	void SetEtPos(RECT pt) { ui.etX->setText(QString::number(pt.left)); ui.etY->setText(QString::number(pt.top)); if (pt.right > -1) ui.etMoveRand->setText(QString::number(pt.right)); }
-	void SetEtDelay(POINT pt) { ui.etTime->setText(QString::number(pt.x)); ui.etDelayRand->setText(QString::number(pt.y)); }
-	void SetRbColorMode(bool mode) { if (mode) ui.rbColorNot->setChecked(1); else ui.rbColorGet->setChecked(1); }
+	void SetEtPos(const RECT& pt) { ui.etX->setText(QString::number(pt.left)); ui.etY->setText(QString::number(pt.top)); if (pt.right > -1) ui.etMoveRand->setText(QString::number(pt.right)); }
+	void SetEtDelay(const POINT& pt) { ui.etTime->setText(QString::number(pt.x)); ui.etDelayRand->setText(QString::number(pt.y)); }
+	
+	void SetRbColorMode(bool mode) { if (mode) ui.rbColorNFind->setChecked(true); else ui.rbColorFind->setChecked(true); }
 	void SetChbColorMove(bool state) { ui.chbColorMove->setChecked(state); }
-	void SetEtColorRect(RECT rect) { ui.etColorL->setText(QString::number(rect.left)); ui.etColorT->setText(QString::number(rect.top)); ui.etColorR->setText(QString::number(rect.right)); ui.etColorB->setText(QString::number(rect.bottom)); }
-	void SetEtColorValue(Rgba color) {
-		SetColor(color);
-		ui.etCX->setText(QString::number(color.a));
-	}
-	void SetColor(Rgba color) {
-		ui.etR->setText(QString::number(color.r));
-		ui.etG->setText(QString::number(color.g));
-		ui.etB->setText(QString::number(color.b));
+	void SetEtColorRect(const RECT& rect) { ui.etColorL->setText(QString::number(rect.left)); ui.etColorT->setText(QString::number(rect.top)); ui.etColorR->setText(QString::number(rect.right)); ui.etColorB->setText(QString::number(rect.bottom)); }
+	void SetEtColorValue(const Rgba& color) { SetColor(color); ui.etColorSim->setText(QString::number(color.a)); }
+	void SetColor(const Rgba& color) {
+		ui.etColorRed->setText(QString::number(color.r));
+		ui.etColorGreen->setText(QString::number(color.g));
+		ui.etColorBlue->setText(QString::number(color.b));
 		QString style = u8"background-color:rgb(";
 		style += QString::number(color.r);
 		style += u8",";
@@ -1004,27 +1104,38 @@ private: // Widget data
 		style += u8");";
 		ui.bnColorValue->setStyleSheet(style);
 	}
-	void SetEtLoopCount(uint32 count) { ui.etCount->setText(QString::number(count)); }
-	void SetEtLoopCountRand(uint32 count) { ui.etCountRand->setText(QString::number(count)); }
+	
+	void SetEtLoopCount(const uint32& count) { ui.etCount->setText(QString::number(count)); }
+	void SetEtLoopCountRand(const uint32& count) { ui.etCountRand->setText(QString::number(count)); }
+
+	void SetRbImageMode(bool mode) { if (mode) ui.rbImageNFind->setChecked(true); else ui.rbImageFind->setChecked(true); }
+	void SetChbImageMove(bool state) { ui.chbImageMove->setChecked(state); }
+	void SetEtImageRect(const RECT& rect) { ui.etImageL->setText(QString::number(rect.left)); ui.etImageT->setText(QString::number(rect.top)); ui.etImageR->setText(QString::number(rect.right)); ui.etImageB->setText(QString::number(rect.bottom)); }
+	void SetLbImageView() { HBITMAP hbmp = BITMAPTool::FromRgbMap(rgbMap); if (hbmp) ui.lbImageView->setPixmap(QtWin::fromHBITMAP(hbmp)); }
+	void SetLbImageView(const RgbMap& map) { rgbMap.copy(map); SetLbImageView(); }
+	void SetEtImageSim(byte sim) { ui.etImageSim->setText(QString::number((int)sim)); }
+
+	void SetEtPopText(QString text) { ui.etPopText->setText(text); }
+	void SetEtPopTextTime(uint32 time) { ui.etPopTextTime->setText(QString::number(time)); }
 
 	// Get data by Wid
 	Action GetKey() {
 		Action action(Action::_key);
-		if (ui.rbDown->isChecked()) action.key.state = QiKey::down;
-		else if (ui.rbUp->isChecked()) action.key.state = QiKey::up;
-		else if (ui.rbClick->isChecked()) action.key.state = QiKey::click;
-		action.key.vk = ui.hkKey->virtualKey();
+		if (ui.rbDown->isChecked()) action.d.key.state = QiKey::down;
+		else if (ui.rbUp->isChecked()) action.d.key.state = QiKey::up;
+		else if (ui.rbClick->isChecked()) action.d.key.state = QiKey::click;
+		action.d.key.vk = ui.hkKey->virtualKey();
 		return action;
 	}
 	Action GetKeyState() {
 		Action action(Action::_keyState);
-		action.keyState.state = ui.rbStateDown->isChecked();
-		action.keyState.vk = ui.hkState->virtualKey();
+		action.d.keyState.state = ui.rbStateDown->isChecked();
+		action.d.keyState.vk = ui.hkState->virtualKey();
 		return action;
 	}
 	Action GetMouse() {
 		Action action(Action::_mouse);
-		action.mouse.move = ui.rbMove->isChecked();
+		action.d.mouse.move = ui.rbMove->isChecked();
 		int x = ui.etX->text().toInt();
 		int y = ui.etY->text().toInt();
 		int ex = ui.etMoveRand->text().toInt();
@@ -1033,9 +1144,9 @@ private: // Widget data
 		if (ex > posMax) ex = posMax;
 		if (x < posMin) x = posMin;
 		if (y < posMin) y = posMin;
-		action.mouse.x = x;
-		action.mouse.y = y;
-		action.mouse.ex = ex;
+		action.d.mouse.x = x;
+		action.d.mouse.y = y;
+		action.d.mouse.ex = ex;
 		return action;
 	}
 	Action GetDelay() {
@@ -1044,19 +1155,19 @@ private: // Widget data
 		int ex = ui.etDelayRand->text().toInt();
 		if (ms > delayMax) ms = delayMax;
 		if (ex > delayMax) ex = delayRandMax;
-		action.delay.ms = ms;
-		action.delay.ex = ex;
+		action.d.delay.ms = ms;
+		action.d.delay.ex = ex;
 		return action;
 	}
 	Action GetText() {
 		Action action(Action::_text);
-		action.text.str.cpy((LPCWSTR)(ui.etText->toPlainText().utf16()));
+		action.d.text.str.cpy((PCWSTR)(ui.etText->toPlainText().utf16()));
 		return action;
 	}
 	Action GetColor() {
 		Action action(Action::_color);
-		action.color.unfind = ui.rbColorNot->isChecked();
-		action.color.move = ui.chbColorMove->isChecked();
+		action.d.color.unfind = ui.rbColorNFind->isChecked();
+		action.d.color.move = ui.chbColorMove->isChecked();
 		{
 			int l = ui.etColorL->text().toInt();
 			int t = ui.etColorT->text().toInt();
@@ -1066,20 +1177,20 @@ private: // Widget data
 			if (t > posMax) t = posMax;
 			if (r > posMax) r = posMax;
 			if (b > posMax) b = posMax;
-			action.color.rect = { l, t, r, b };
+			action.d.color.rect = { l, t, r, b };
 		}
 		{
-			int r = ui.etR->text().toInt();
-			int g = ui.etG->text().toInt();
-			int b = ui.etB->text().toInt();
+			int r = ui.etColorRed->text().toInt();
+			int g = ui.etColorGreen->text().toInt();
+			int b = ui.etColorBlue->text().toInt();
 			int ex = 0;
-			if (ui.etCX->text() == "") ex = 5;
-			else ex = ui.etCX->text().toInt();
+			if (ui.etColorSim->text() == "") ex = 5;
+			else ex = ui.etColorSim->text().toInt();
 			if (r > colorMax) r = colorMax;
 			if (g > colorMax) g = colorMax;
 			if (b > colorMax) b = colorMax;
 			if (ex > colorMax) ex = colorMax;
-			action.color.rgbe.set(r, g, b, ex);
+			action.d.color.rgbe.set(r, g, b, ex);
 		}
 		return action;
 	}
@@ -1090,33 +1201,70 @@ private: // Widget data
 			int i = 1;
 			if (ui.etCount->text() != "") i = ui.etCount->text().toInt();
 			if (i > loopCountMax) i = loopCountMax;
-			action.loop.count = i;
+			action.d.loop.count = i;
 		}
 		{
 			int i = 0;
 			if (ui.etCountRand->text() != "") i = ui.etCountRand->text().toInt();
 			if (i > loopCountMax) i = loopCountMax;
-			if (i < action.loop.count) i = action.loop.count;
-			action.loop.rand = i;
+			if (i < action.d.loop.count) i = action.d.loop.count;
+			action.d.loop.rand = i;
 		}
+		return action;
+	}
+	Action GetImg()
+	{
+		Action action(Action::_image);
+		action.d.image.unfind = ui.rbImageNFind->isChecked();
+		action.d.image.move = ui.chbImageMove->isChecked();
+		{
+			int l = ui.etImageL->text().toInt();
+			int t = ui.etImageT->text().toInt();
+			int r = ui.etImageR->text().toInt();
+			int b = ui.etImageB->text().toInt();
+			if (l > posMax) l = posMax;
+			if (t > posMax) t = posMax;
+			if (r > posMax) r = posMax;
+			if (b > posMax) b = posMax;
+			action.d.image.rect = { l, t, r, b };
+		}
+		{
+			int s;
+			if (ui.etImageSim->text() == "") s = 80;
+			else s = ui.etImageSim->text().toInt();
+			if (s > imageSimMax) s = imageSimMax;
+			action.d.image.sim = s;
+		}
+		action.d.image.map = rgbMap;
+		return action;
+	}
+	Action GetPopText()
+	{
+		Action action(Action::_popText);
+		action.d.popText.str.cpy((PCWSTR)(ui.etPopText->text().utf16()));
+		int time;
+		if (ui.etPopTextTime->text() == "") time = 1000;
+		else time = ui.etPopTextTime->text().toInt();
+		if (time > popTextTimeMax) time = popTextTimeMax;
+		action.d.popText.time = time;
 		return action;
 	}
 
 	// Set Wid data by Action
 	void LoadKey(const Action& action) {
-		if (action.key.state == QiKey::down) ui.rbDown->setChecked(1);
-		else if (action.key.state == QiKey::up) ui.rbUp->setChecked(1);
-		else if (action.key.state == QiKey::click) ui.rbClick->setChecked(1);
-		SetHkKey(action.key.vk);
+		if (action.d.key.state == QiKey::down) ui.rbDown->setChecked(1);
+		else if (action.d.key.state == QiKey::up) ui.rbUp->setChecked(1);
+		else if (action.d.key.state == QiKey::click) ui.rbClick->setChecked(1);
+		SetHkKey(action.d.key.vk);
 	}
 	void LoadKeyState(const Action& action)
 	{
-		if (action.keyState.state) ui.rbStateDown->setChecked(true);
-		if (!action.keyState.state) ui.rbStateUp->setChecked(true);
-		SetHkState(action.keyState.vk);
+		if (action.d.keyState.state) ui.rbStateDown->setChecked(true);
+		if (!action.d.keyState.state) ui.rbStateUp->setChecked(true);
+		SetHkState(action.d.keyState.vk);
 	}
 	void LoadMouse(const Action& action) {
-		if (action.mouse.move)
+		if (action.d.mouse.move)
 		{
 			ui.rbMove->setChecked(1);
 			OnRbMove(1);
@@ -1126,10 +1274,12 @@ private: // Widget data
 			ui.rbPos->setChecked(1);
 			OnRbPos(1);
 		}
-		SetEtPos({ (long)action.mouse.x, (long)action.mouse.y, (long)action.mouse.ex, 0 });
+		SetEtPos({ (long)action.d.mouse.x, (long)action.d.mouse.y, (long)action.d.mouse.ex, 0 });
 	}
-	void LoadDelay(const Action& action) { SetEtDelay({ (long)action.delay.ms, (long)action.delay.ex }); }
-	void LoadText(const Action& action) { ui.etText->setText(QString::fromWCharArray(action.text.str.str())); }
-	void LoadColor(const Action& action) { SetRbColorMode(action.color.unfind); SetChbColorMove(action.color.move); SetEtColorRect(action.color.rect); SetEtColorValue(action.color.rgbe); }
-	void LoadLoop(const Action& action) { SetEtLoopCount(action.loop.count); SetEtLoopCountRand(action.loop.rand); }
+	void LoadDelay(const Action& action) { SetEtDelay({ (long)action.d.delay.ms, (long)action.d.delay.ex }); }
+	void LoadText(const Action& action) { ui.etText->setText(QString::fromWCharArray(action.d.text.str.str())); }
+	void LoadColor(const Action& action) { SetRbColorMode(action.d.color.unfind); SetChbColorMove(action.d.color.move); SetEtColorRect(action.d.color.rect); SetEtColorValue(action.d.color.rgbe); }
+	void LoadLoop(const Action& action) { SetEtLoopCount(action.d.loop.count); SetEtLoopCountRand(action.d.loop.rand); }
+	void LoadImg(const Action& action) { SetRbImageMode(action.d.image.unfind); SetChbImageMove(action.d.image.move); SetEtImageRect(action.d.image.rect); SetEtImageSim(action.d.image.sim); }
+	void LoadPopText(const Action& action) { SetEtPopText(QString::fromWCharArray(action.d.popText.str.str())); SetEtPopTextTime(action.d.popText.time); }
 };

@@ -1,54 +1,50 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<!--
-***************************************************************************************************
- Copyright (C) 2023 The Qt Company Ltd.
- SPDX-License-Identifier: LicenseRef-Qt-Commercial OR LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only
-***************************************************************************************************
--->
 <Project DefaultTargets="Build" ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
-    <ProjectConfiguration Include="Debug|Win32">
-      <Configuration>Debug</Configuration>
-      <Platform>Win32</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{F25A234B-7F84-44E8-ADE1-627441CE0A15}</ProjectGuid>
+    <ProjectGuid>{B5F846DC-C58C-4472-A29B-DDB9B0EF0E07}</ProjectGuid>
     <Keyword>QtVS_v304</Keyword>
-    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">10.0</WindowsTargetPlatformVersion>
     <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'">10.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">10.0</WindowsTargetPlatformVersion>
     <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v143</PlatformToolset>
+    <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="QtSettings">
-    <QtInstall>5.15.2_32bit</QtInstall>
-    <QtModules>core;gui;widgets</QtModules>
-    <QtBuildConfig>debug</QtBuildConfig>
-    <QtToolsDesignTime>false</QtToolsDesignTime>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'" Label="QtSettings">
-    <QtInstall>5.15.11_32bit_static</QtInstall>
-    <QtModules>core;gui;widgets</QtModules>
+    <QtInstall>5.15.11s</QtInstall>
+    <QtModules>core;widgets</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
-    <QtToolsDesignTime>false</QtToolsDesignTime>
+    <QtPlugin>true</QtPlugin>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="QtSettings">
+    <QtInstall>5.15.2</QtInstall>
+    <QtModules>core;widgets</QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
     <QtPlugin>true</QtPlugin>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
@@ -56,67 +52,77 @@
   </Target>
   <ImportGroup Label="ExtensionSettings" />
   <ImportGroup Label="Shared" />
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(QtMsBuild)\Qt.props" />
-  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(QtMsBuild)\Qt.props" />
   </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'">
+    <OutDir>$(Configuration)\Application</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">
+    <OutDir>$(Configuration)\Application</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Link>
+      <AdditionalManifestDependencies>
+      </AdditionalManifestDependencies>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+    </Link>
     <ClCompile>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <LanguageStandard>Default</LanguageStandard>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Manifest>
+      <AdditionalManifestFiles>manifest.xml</AdditionalManifestFiles>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
     <Manifest>
-      <AdditionalManifestFiles>manifest.xml %(AdditionalManifestFiles)</AdditionalManifestFiles>
+      <AdditionalManifestFiles>manifest.xml</AdditionalManifestFiles>
     </Manifest>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'" Label="Configuration">
+    <ClCompile>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+    </ClCompile>
     <Link>
-      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
     </Link>
-    <Manifest>
-      <AdditionalManifestFiles>manifest.xml %(AdditionalManifestFiles)</AdditionalManifestFiles>
-    </Manifest>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="Configuration">
     <ClCompile>
-      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <Optimization>Disabled</Optimization>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'" Label="Configuration">
-    <ClCompile>
-      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <DebugInformationFormat>None</DebugInformationFormat>
-      <Optimization>MaxSpeed</Optimization>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="static.cpp" />
-  </ItemGroup>
   <ItemGroup>
     <QtUic Include=".ui\AboutUi.ui" />
     <QtUic Include=".ui\EditUi.ui" />
@@ -130,27 +136,66 @@
     <QtUic Include=".ui\TriggerUi.ui" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include=".h\AboutUi.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".h\EditUi.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".h\FuncUi.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".h\InstallUi.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".h\MacroUi.h" />
+  </ItemGroup>
+  <ItemGroup>
     <QtMoc Include=".h\MainUi.h" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include=".h\QPointView.h" />
-    <QtMoc Include=".h\QRectView.h" />
-    <QtMoc Include=".h\InstallUi.h" />
-    <ClInclude Include="static.h" />
-    <QtMoc Include=".h\QColorSelection.h" />
-    <QtMoc Include=".h\QPointSelection.h" />
-    <QtMoc Include=".h\QRectSelection.h" />
-    <ClInclude Include=".h\TipsWindow.h" />
-    <QtMoc Include=".h\EditUi.h" />
-    <QtMoc Include=".h\MacroUi.h" />
-    <QtMoc Include=".h\RecordUi.h" />
-    <QtMoc Include=".h\TriggerUi.h" />
-    <QtMoc Include=".h\FuncUi.h" />
-    <QtMoc Include=".h\SettingsUi.h" />
-    <QtMoc Include=".h\QKeyEdit.h" />
     <QtMoc Include=".h\MoreUi.h" />
-    <QtMoc Include=".h\AboutUi.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".h\QColorSelection.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".h\QKeyEdit.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".h\QPointSelection.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".h\QPointView.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".h\QRectSelection.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".h\QRectView.h" />
+  </ItemGroup>
+  <ItemGroup>
     <ClInclude Include=".h\QuickInputDef.h" />
+    <ClInclude Include=".h\TipsWindow.h" />
+    <ClInclude Include="static.h" />
+    <QtMoc Include=".h\TriggerUi.h" />
+    <QtMoc Include=".h\SettingsUi.h" />
+    <QtMoc Include=".h\RecordUi.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="static.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include=".res\about.png" />
+    <Image Include=".res\checked.png" />
+    <Image Include=".res\icon.ico" />
+    <Image Include=".res\icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".res\dark.css" />
+    <None Include=".res\light.css" />
+    <None Include=".res\pink.css" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include=".res\QuickInput.qrc" />

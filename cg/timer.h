@@ -1,4 +1,8 @@
+#pragma once
 #include <windows.h>
+#define BeginSpeedTest() { LARGE_INTEGER f, b, a; QueryPerformanceFrequency(&f); QueryPerformanceCounter(&b);
+#define EndSpeedTest() QueryPerformanceCounter(&a); MsgBox::Message(String::markNumber((a.QuadPart - b.QuadPart) / (f.QuadPart / 1000000)), L"time (us)"); }
+
 namespace CG
 {
     class Timer

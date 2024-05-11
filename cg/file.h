@@ -32,24 +32,24 @@ namespace CG {
 			return 0;
 		}
 
-		static bool Rename(LPCWSTR path, LPCWSTR name) { if (_wrename(path, name)) return 0; return 1; }
+		static bool Rename(std::wstring path, std::wstring name) { if (_wrename(path.c_str(), name.c_str())) return false; return true; }
 		
-		static bool FileDelete(LPCWSTR path) { if (_wremove(path)) return 0; return 1; }
-		static bool FolderDelete(LPCWSTR path) { if (_wrmdir(path)) return 0; return 1; }
+		static bool FileDelete(std::wstring path) { if (_wremove(path.c_str())) return false; return true; }
+		static bool FolderDelete(std::wstring path) { if (_wrmdir(path.c_str())) return false; return true; }
 
-		static bool FolderCreate(LPCWSTR path) { if (CreateDirectoryW(path, 0)) return 1; if (GetLastError() == ERROR_ALREADY_EXISTS) return 1; return 0; }
+		static bool FolderCreate(std::wstring path) { if (CreateDirectoryW(path.c_str(), 0)) return true; if (GetLastError() == ERROR_ALREADY_EXISTS) return true; return false; }
 
-		static bool FileCreate(LPCWSTR path) {
+		static bool FileCreate(std::wstring path) {
 			if (!FileState(path)) {
-				HANDLE handle = CreateFileW(path, GENERIC_ALL, FILE_SHARE_WRITE | FILE_SHARE_DELETE, 0, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, 0);
+				HANDLE handle = CreateFileW(path.c_str(), GENERIC_ALL, FILE_SHARE_WRITE | FILE_SHARE_DELETE, 0, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, 0);
 				if (handle == INVALID_HANDLE_VALUE) return 0;
 				CloseHandle(handle);
 			}
 			return 1;
 		}
 
-		static DWORD FileSize(LPCWSTR path) {
-			HANDLE handle = CreateFileW(path, FILE_READ_EA, FILE_SHARE_WRITE | FILE_SHARE_DELETE, 0, OPEN_EXISTING, 0, 0);
+		static DWORD FileSize(std::wstring path) {
+			HANDLE handle = CreateFileW(path.c_str(), FILE_READ_EA, FILE_SHARE_WRITE | FILE_SHARE_DELETE, 0, OPEN_EXISTING, 0, 0);
 			if (handle != INVALID_HANDLE_VALUE) {
 				DWORD size = GetFileSize(handle, 0);
 				CloseHandle(handle);
@@ -90,52 +90,67 @@ namespace CG {
 			return true;
 		}
 
-		static bool TextSave(std::string path, std::string str, const char* locale = ".UTF8")
+		static bool FileSave(std::wstring path, const void* data, size_t bytes)
 		{
-			std::ofstream ofs;
-			ofs.imbue(std::locale(locale));
-			ofs.open(path, std::ios::out);
-			if (ofs.good())
+			FileDelete(path);
+			HANDLE hFile = CreateFileW(path.c_str(), GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+			if (hFile)
 			{
-				ofs << str;
-				ofs.close();
-				return 1;
+				DWORD bytesWrited;
+				BOOL b = WriteFile(hFile, data, bytes, &bytesWrited, 0);
+				CloseHandle(hFile);
+				return b;
 			}
-			return 0;
+			return false;
 		}
 
-		static bool TextSave(std::wstring path, std::wstring str, const char* locale = ".UTF8") {
-			std::wofstream ofs;
-			ofs.imbue(std::locale(locale));
-			ofs.open(path, std::ios::out);
-			if (ofs.good())
+		static bool FileRead(std::wstring path, void* data, size_t bytes)
+		{
+			HANDLE hFile = CreateFileW(path.c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+			if (hFile)
 			{
-				ofs << str;
-				ofs.close();
-				return 1;
+				DWORD bytesReaded;
+				BOOL b = ReadFile(hFile, data, bytes, &bytesReaded, 0);
+				CloseHandle(hFile);
+				return b;
 			}
-			return 0;
+			return false;
 		}
 
-		static std::string TextLoad(std::string path, const char* locale = ".UTF8")
+		static bool TextSaveU(std::wstring path, std::string str)
 		{
-			std::ifstream ifs;
-			ifs.imbue(std::locale(locale));
-			ifs.open(path, std::ios::in);
-			if (ifs.is_open())
+			return FileSave(String::toWString(path), str.c_str(), str.size());
+		}
+
+		static bool TextSaveW(std::wstring path, std::wstring str)
+		{
+			return FileSave(path, str.c_str(), str.size() * sizeof(wchar_t));
+		}
+
+		static std::string TextReadU(std::wstring path)
+		{
+			size_t size = FileSize(String::toWString(path));
+			if (size)
 			{
-				return std::string((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+				size++;
+				char* buffer = new char[size];
+				FileRead(String::toWString(path), buffer, size);
+				std::string str = buffer;
+				delete[] buffer;
+				return str;
 			}
 			return "";
 		}
 
-		static std::wstring TextLoad(std::wstring path, const char* locale = ".UTF8") {
-			std::wifstream ifs;
-			ifs.imbue(std::locale(locale));
-			ifs.open(path, std::ios::in);
-			if (ifs.is_open())
+		static std::wstring TextReadW(std::wstring path) {
+			size_t size = FileSize(path);
+			if (size)
 			{
-				return std::wstring((std::istreambuf_iterator<wchar_t>(ifs)), std::istreambuf_iterator<wchar_t>());
+				wchar_t* buffer = new wchar_t[size >> 1];
+				FileRead(String::toWString(path), buffer, size);
+				std::wstring str(buffer, size >> 1);
+				delete[] buffer;
+				return str;
 			}
 			return L"";
 		}

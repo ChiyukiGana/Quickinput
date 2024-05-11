@@ -5,9 +5,6 @@
 #include <time.h>
 #include <windows.h>
 
-#define RGBA(r,g,b,a) ((COLORREF)((BYTE)(r)|((BYTE)(g)<<8)|((BYTE)(b)<<16)|((BYTE)(a)<<24)))
-#define GetAValue(rgba) ((BYTE)((rgba)>>24))
-
 typedef unsigned __int8 byte;
 typedef signed __int8 int8;
 typedef unsigned __int8 uint8;
@@ -30,6 +27,12 @@ typedef unsigned __int64 uint64;
 #define int64Max ((int64)0x7FFFFFFFFFFFFFFF)
 #define int64Min ((int64)0x8000000000000000)
 #define uint64Max ((uint64)0xFFFFFFFFFFFFFFFF)
+
+#define forlt(xmax, ymax) for (int32 x = 0, y = 0, xs = 0, ys = 0, xm = xmax, ym = ymax; x <= xm && y <= ym; xs < xm -1?xs++:ys++) for (x = xs, y = ys; x >= 0 && x < xm && y < ym; x--, y++)
+#define forltx(xnam, ynam, xmin, ymin, xmax, ymax) for (int32 xnam = 0, ynam = 0, xs = xmin, ys = ymin, xm = xmax, ym = ymax; xnam <= xm && ynam <= ym; xs < xm -1?xs++:ys++) for (xnam = xs, ynam = ys; xnam >= 0 && xnam < xm && ynam < ym; xnam--, ynam++)
+
+#define RGBA(r,g,b,a) ((COLORREF)((BYTE)(r)|((BYTE)(g)<<8)|((BYTE)(b)<<16)|((BYTE)(a)<<24)))
+#define GetAValue(rgba) ((BYTE)((rgba)>>24))
 
 template<typename T>
 struct TPOINT {
@@ -98,7 +101,7 @@ namespace CG {
 		else rect.right -= rect.left;
 		if (rect.top > rect.bottom) rect.bottom = rect.top - rect.bottom;
 		else rect.bottom -= rect.top;
-		return { rect.right, rect.bottom };
+		return { rect.right + 1, rect.bottom + 1 };
 	}
 
 	static uint32 RectArea(RECT rect)

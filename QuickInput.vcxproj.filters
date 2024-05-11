@@ -17,50 +17,46 @@
       <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
       <Extensions>ui</Extensions>
     </Filter>
+    <Filter Include="Translation Files">
+      <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
+      <Extensions>ts</Extensions>
+    </Filter>
     <Filter Include="Header Files\Ui">
-      <UniqueIdentifier>{07c1369c-2ad4-45fb-a654-29b8da67b9ae}</UniqueIdentifier>
+      <UniqueIdentifier>{0fcea71a-e405-4d96-a6b7-fb71eb6b55f2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Wid">
-      <UniqueIdentifier>{bf7d2e0d-ad34-4ce4-9af7-149d85d64823}</UniqueIdentifier>
+      <UniqueIdentifier>{b862ec47-62e3-48be-a171-c33c646e1dd7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="static.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <QtUic Include=".ui\MainUi.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
     <QtUic Include=".ui\AboutUi.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include=".ui\MoreUi.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include=".ui\SettingsUi.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include=".ui\FuncUi.ui">
-      <Filter>Form Files</Filter>
-    </QtUic>
-    <QtUic Include=".ui\TriggerUi.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include=".ui\EditUi.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include=".ui\FuncUi.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include=".ui\InstallUi.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
     <QtUic Include=".ui\MacroUi.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include=".ui\MainUi.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include=".ui\MoreUi.ui">
       <Filter>Form Files</Filter>
     </QtUic>
     <QtUic Include=".ui\RecordUi.ui">
       <Filter>Form Files</Filter>
     </QtUic>
-    <QtUic Include=".ui\InstallUi.ui">
+    <QtUic Include=".ui\SettingsUi.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include=".ui\TriggerUi.ui">
       <Filter>Form Files</Filter>
     </QtUic>
   </ItemGroup>
@@ -74,13 +70,16 @@
     <QtMoc Include=".h\FuncUi.h">
       <Filter>Header Files\Ui</Filter>
     </QtMoc>
+    <QtMoc Include=".h\InstallUi.h">
+      <Filter>Header Files\Ui</Filter>
+    </QtMoc>
     <QtMoc Include=".h\MacroUi.h">
       <Filter>Header Files\Ui</Filter>
     </QtMoc>
-    <QtMoc Include=".h\MoreUi.h">
+    <QtMoc Include=".h\MainUi.h">
       <Filter>Header Files\Ui</Filter>
     </QtMoc>
-    <QtMoc Include=".h\MainUi.h">
+    <QtMoc Include=".h\MoreUi.h">
       <Filter>Header Files\Ui</Filter>
     </QtMoc>
     <QtMoc Include=".h\RecordUi.h">
@@ -89,29 +88,26 @@
     <QtMoc Include=".h\SettingsUi.h">
       <Filter>Header Files\Ui</Filter>
     </QtMoc>
+    <QtMoc Include=".h\TriggerUi.h">
+      <Filter>Header Files\Ui</Filter>
+    </QtMoc>
     <QtMoc Include=".h\QColorSelection.h">
       <Filter>Header Files\Wid</Filter>
     </QtMoc>
     <QtMoc Include=".h\QKeyEdit.h">
       <Filter>Header Files\Wid</Filter>
     </QtMoc>
-    <QtMoc Include=".h\QPointView.h">
-      <Filter>Header Files\Wid</Filter>
-    </QtMoc>
     <QtMoc Include=".h\QPointSelection.h">
       <Filter>Header Files\Wid</Filter>
     </QtMoc>
-    <QtMoc Include=".h\QRectView.h">
+    <QtMoc Include=".h\QPointView.h">
       <Filter>Header Files\Wid</Filter>
     </QtMoc>
     <QtMoc Include=".h\QRectSelection.h">
       <Filter>Header Files\Wid</Filter>
     </QtMoc>
-    <QtMoc Include=".h\TriggerUi.h">
-      <Filter>Header Files\Ui</Filter>
-    </QtMoc>
-    <QtMoc Include=".h\InstallUi.h">
-      <Filter>Header Files\Ui</Filter>
+    <QtMoc Include=".h\QRectView.h">
+      <Filter>Header Files\Wid</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -124,6 +120,39 @@
     <ClInclude Include="static.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="static.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include=".res\about.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include=".res\checked.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include=".res\icon.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include=".res\icon.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".res\dark.css">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include=".res\light.css">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include=".res\pink.css">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include=".res\QuickInput.qrc">

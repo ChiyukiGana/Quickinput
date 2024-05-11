@@ -48,7 +48,7 @@ namespace CG {
 		}
 
 		static HANDLE Start(PTHREAD_START_ROUTINE pfunc, LPVOID lParam = 0) { return CreateThread(0, 0, pfunc, lParam, 0, 0); }
-		static BOOL Close(HANDLE hThread, DWORD exitCode = 0) { return TerminateThread(hThread, exitCode); }
+		static BOOL Close(HANDLE hThread, DWORD exitCode = 0) { if (hThread) return TerminateThread(hThread, exitCode); return TRUE; }
 
 		// return: exitCode
 		static DWORD Wait(HANDLE hThread, bool zero = 1) {

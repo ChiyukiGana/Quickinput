@@ -32,6 +32,8 @@ public:
 private:
 	void WidInit()
 	{
+		ui.bnWndActive->setShortcut(Qt::Key_unknown);
+
 		ui.hkQkClick->Mode(0);
 		ui.etQkDelay->setValidator(new QIntValidator(0, 99999, this));
 		ui.cmbMode->addItem(u8"按下");
