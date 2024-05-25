@@ -147,7 +147,7 @@ void WriteDefaultMacro()
 		File::TextSaveU(Path::Append(path, L"macro\\连点.json"), click);
 		File::TextSaveU(Path::Append(path, L"macro\\长按.json"), state);
 		File::TextSaveU(Path::Append(path, L"macro\\压枪.json"), pullDown);
-		File::TextSaveU(Path::Append(path, L"macro\\后台.json"), window);
+		File::TextSaveU(Path::Append(path, L"macro\\消息.json"), message);
 	}
 }
 

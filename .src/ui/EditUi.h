@@ -914,7 +914,7 @@ private slots:
 	{
 		QRectSelection rs;
 		RECT rect = rs.Start();
-		Image::ScreenRgbmap(rgbMap, rect);
+		Image::ScreenRgbMap(rgbMap, rect);
 		SetLbImageView();
 	}
 	// PopText
@@ -1111,7 +1111,7 @@ private: // Widget data
 	void SetRbImageMode(bool mode) { if (mode) ui.rbImageNFind->setChecked(true); else ui.rbImageFind->setChecked(true); }
 	void SetChbImageMove(bool state) { ui.chbImageMove->setChecked(state); }
 	void SetEtImageRect(const RECT& rect) { ui.etImageL->setText(QString::number(rect.left)); ui.etImageT->setText(QString::number(rect.top)); ui.etImageR->setText(QString::number(rect.right)); ui.etImageB->setText(QString::number(rect.bottom)); }
-	void SetLbImageView() { HBITMAP hbmp = BITMAPTool::FromRgbMap(rgbMap); if (hbmp) ui.lbImageView->setPixmap(QtWin::fromHBITMAP(hbmp)); }
+	void SetLbImageView() { HBITMAP hbmp = Image::toBmp32(rgbMap); if (hbmp) ui.lbImageView->setPixmap(QtWin::fromHBITMAP(hbmp)); }
 	void SetLbImageView(const RgbMap& map) { rgbMap.copy(map); SetLbImageView(); }
 	void SetEtImageSim(byte sim) { ui.etImageSim->setText(QString::number((int)sim)); }
 

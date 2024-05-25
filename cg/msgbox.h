@@ -22,6 +22,6 @@ namespace CG {
 		static void FPoint(const FPOINT& fpoint) { MessageBoxW(0, (std::to_wstring(fpoint.x) + std::wstring(L", ") + std::to_wstring(fpoint.y)).c_str(), L"FPoint", MB_TOPMOST); }
 		static void Rect(const RECT& rect) { MessageBoxW(0, (std::to_wstring(rect.left) + std::wstring(L", ") + std::to_wstring(rect.top) + std::wstring(L", ") + std::to_wstring(rect.right) + std::wstring(L", ") + std::to_wstring(rect.bottom)).c_str(), L"Rect", MB_TOPMOST); }
 		static void FRect(const FRECT& frect) { MessageBoxW(0, (std::to_wstring(frect.left) + std::wstring(L", ") + std::to_wstring(frect.top) + std::wstring(L", ") + std::to_wstring(frect.right) + std::wstring(L", ") + std::to_wstring(frect.bottom)).c_str(), L"FRect", MB_TOPMOST); }
-		static void Color(const COLORREF& color) { MessageBoxW(0, (std::to_wstring(GetRValue(color)) + std::wstring(L", ") + std::to_wstring(GetGValue(color)) + std::wstring(L", ") + std::to_wstring(GetBValue(color))).c_str(), L"Color", MB_TOPMOST); }
+		static void Color(const COLORREF& color) { MessageBoxW(0, (std::to_wstring(GetRValue(color)) + std::wstring(L", ") + std::to_wstring(GetGValue(color)) + std::wstring(L", ") + std::to_wstring(GetBValue(color)) + std::wstring(L", ") + std::to_wstring(GetAValue(color))).c_str(), L"Color", MB_TOPMOST); }
 	};
 }

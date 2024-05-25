@@ -17,12 +17,14 @@
 
 #include "color.h"
 #include "image.h"
+#include "dximage.h"
 #include "media.h"
 #include "auddv.h"
 
 #include "window.h"
 #include "msgbox.h"
 #include "msgwnd.h"
+#include "mapview.h"
 
 #include "task.h"
 

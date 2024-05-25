@@ -1707,7 +1707,7 @@ QPushButton:hover{background-color:#C00;}</string>
          <enum>Qt::NoFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">QTabBar::tab,QTabBar::tab::first,QTabBar::tab::last{width:52px;height:24px}
+         <string notr="true">QTabBar::tab,QTabBar::tab::first,QTabBar::tab::last{width:52px;height:24px;padding:0px;font-size:12px}
 #extab0,#extab1,#extab2,#extab3{background:transparent}</string>
         </property>
         <property name="tabShape">

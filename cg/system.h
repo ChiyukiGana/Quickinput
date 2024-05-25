@@ -5,34 +5,31 @@
 #include <VersionHelpers.h> // Version
 #include <time.h>
 #include <string>
-
 namespace CG
 {
 	class System
 	{
 	public:
 
+		// need manifest to support
 		static OSVERSIONINFOW Version()
 		{
-			OSVERSIONINFOW info = { 0 };
-			info.dwOSVersionInfoSize = sizeof(OSVERSIONINFOW);
-			GetVersionExW(&info);
+			OSVERSIONINFOW info = { sizeof(OSVERSIONINFOW) }; GetVersionExW(&info);
 			return info;
 		}
 
 		static SIZE screenSize()
 		{
-			HWND wnd = GetDesktopWindow();
-			HMONITOR mt = MonitorFromWindow(wnd, MONITOR_DEFAULTTONEAREST);
-
-			MONITORINFOEXW mti = {};
-			mti.cbSize = sizeof(MONITORINFOEXW);
-			GetMonitorInfoW(mt, &mti);
-
-			DEVMODEW dm = {};
-			dm.dmSize = sizeof(DEVMODEW);
-			EnumDisplaySettingsW(mti.szDevice, ENUM_CURRENT_SETTINGS, &dm);
-
+			HMONITOR hmt = MonitorFromWindow(nullptr, MONITOR_DEFAULTTOPRIMARY);
+			MONITORINFOEXW mti = { sizeof(MONITORINFOEXW) }; GetMonitorInfoW(hmt, &mti);
+			DEVMODEW dm = { sizeof(DEVMODEW) }; EnumDisplaySettingsW(mti.szDevice, ENUM_CURRENT_SETTINGS, &dm);
+			return { (LONG)dm.dmPelsWidth, (LONG)dm.dmPelsHeight };
+		}
+		static SIZE screenSize(DWORD id)
+		{
+			DISPLAY_DEVICEW device = { sizeof(DISPLAY_DEVICEW) };
+			EnumDisplayDevicesW(nullptr, id, &device, 0);
+			DEVMODEW dm = { sizeof(DEVMODEW) }; EnumDisplaySettingsW(device.DeviceName, ENUM_CURRENT_SETTINGS, &dm);
 			return { (LONG)dm.dmPelsWidth, (LONG)dm.dmPelsHeight };
 		}
 
@@ -40,31 +37,14 @@ namespace CG
 		static SIZE screenVSize(HDC dc) { return { GetDeviceCaps(dc, HORZRES), GetDeviceCaps(dc, VERTRES) }; }
 
 		static float screenZoomRote() {
-			HWND wnd = GetDesktopWindow();
-			HMONITOR mt = MonitorFromWindow(wnd, MONITOR_DEFAULTTONEAREST);
-
-			MONITORINFOEXW mti = {};
-			mti.cbSize = sizeof(MONITORINFOEXW);
-			GetMonitorInfoW(mt, &mti);
-			int ylogi = mti.rcMonitor.bottom - mti.rcMonitor.top;
-
-			DEVMODEW dm = {};
-			dm.dmSize = sizeof(DEVMODEW);
-			EnumDisplaySettingsW(mti.szDevice, ENUM_CURRENT_SETTINGS, &dm);
-			int yphy = dm.dmPelsHeight;
-
-			float v = (float)yphy / (float)ylogi;
-			return v;
+			HMONITOR hmt = MonitorFromWindow(nullptr, MONITOR_DEFAULTTOPRIMARY);
+			MONITORINFOEXW mti = { sizeof(MONITORINFOEXW) }; GetMonitorInfoW(hmt, &mti);
+			DEVMODEW dm = { sizeof(DEVMODEW) }; EnumDisplaySettingsW(mti.szDevice, ENUM_CURRENT_SETTINGS, &dm);
+			return (float)(dm.dmPelsHeight) / (float)(mti.rcMonitor.bottom - mti.rcMonitor.top);
 		}
 
-		static std::wstring environmentVariable(LPCWSTR name) { WCHAR str[MAX_PATH]; GetEnvironmentVariableW(name, str, MAX_PATH); return str; }
-
-		static std::wstring folderPath(int csidl = CSIDL_DESKTOP)
-		{
-			wchar_t s[MAX_PATH];
-			SHGetFolderPathW(0, csidl, 0, SHGFP_TYPE_CURRENT, s);
-			return s;
-		}
+		static std::wstring environmentVariable(LPCWSTR name) { wchar_t str[MAX_PATH]; GetEnvironmentVariableW(name, str, MAX_PATH); return str; }
+		static std::wstring folderPath(int csidl = CSIDL_DESKTOP) { wchar_t s[MAX_PATH]; SHGetFolderPathW(0, csidl, 0, SHGFP_TYPE_CURRENT, s); return s; }
 
 		static bool isScreenLocked() {
 			typedef BOOL(PASCAL* WTSQuerySessionInformationW)(HANDLE hServer, DWORD SessionId, WTS_INFO_CLASS WTSInfoClass, LPWSTR* ppBuffer, DWORD* pBytesReturned);
@@ -116,23 +96,23 @@ namespace CG
 		}
 
 		static bool ClipBoardText(LPCWSTR str) {
-			size_t len = (wcslen(str) + 1) * sizeof(wchar_t);
-			HANDLE hGlobalMemory = GlobalAlloc(GMEM_MOVEABLE, len);
-			if (!hGlobalMemory) return 0;
+			size_t size = (wcslen(str) + 1) * sizeof(wchar_t);
+			HANDLE hGlobalMemory = GlobalAlloc(GMEM_MOVEABLE, size);
+			if (!hGlobalMemory) return false;
 
 			HANDLE pGlobalMemory = GlobalLock(hGlobalMemory);
-			if (!pGlobalMemory) return 0;
+			if (!pGlobalMemory) return false;
 
-			wcscpy_s((LPWSTR)pGlobalMemory, len, str);
+			wcscpy_s((wchar_t*)pGlobalMemory, size, str);
 			GlobalUnlock(pGlobalMemory);
 
-			if (!OpenClipboard(0)) return 0;
+			if (!OpenClipboard(nullptr)) return 0;
 
 			EmptyClipboard();
 			SetClipboardData(CF_UNICODETEXT, hGlobalMemory);
 			CloseClipboard();
 
-			return 1;
+			return true;
 		}
 	};
 }

@@ -1,7 +1,8 @@
 #pragma once
 #include <windows.h>
+#include "string.h"
 #define BeginSpeedTest() { LARGE_INTEGER f, b, a; QueryPerformanceFrequency(&f); QueryPerformanceCounter(&b);
-#define EndSpeedTest() QueryPerformanceCounter(&a); MsgBox::Message(String::markNumber((a.QuadPart - b.QuadPart) / (f.QuadPart / 1000000)), L"time (us)"); }
+#define EndSpeedTest() QueryPerformanceCounter(&a); MessageBoxW(nullptr, String::markNumber((a.QuadPart - b.QuadPart) / (f.QuadPart / 1000000)).c_str(), L"time (us)", MB_OK); }
 
 namespace CG
 {

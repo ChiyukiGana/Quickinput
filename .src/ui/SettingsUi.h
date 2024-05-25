@@ -72,19 +72,23 @@ private slots:
 		}
 	}
 	void OnHkKey() {
-		sets->key = ui.hkKey->virtualKey();
-		if (ui.hkKey->virtualKey() == VK_LBUTTON)
+		DWORD vk = ui.hkKey->virtualKey();
+		if (vk == VK_LBUTTON)
 		{
 			ui.hkKey->VirtualKey(VK_F8);
+			vk = VK_F8;
 		}
+		qis.set.key = vk;
 		QiFn::SaveJson();
 	}
 	void OnHkRec() {
-		sets->recKey = ui.hkRec->virtualKey();
-		if (ui.hkRec->virtualKey() == VK_LBUTTON)
+		DWORD vk = ui.hkRec->virtualKey();
+		if (vk == VK_LBUTTON)
 		{
 			ui.hkRec->VirtualKey(VK_F8);
+			vk = VK_F8;
 		}
+		qis.set.recKey = vk;
 		QiFn::SaveJson();
 	}
 	void OnDefOn() { sets->defOn = ui.chbDefOn->isChecked(); QiFn::SaveJson(); }
