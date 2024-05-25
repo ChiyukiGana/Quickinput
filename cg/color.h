@@ -35,7 +35,7 @@ namespace CG {
 		bool equal(const Rgba& rgba, const byte& extend = 10) const { return (InRange(r, rgba.r, extend) && InRange(g, rgba.g, extend) && InRange(b, rgba.b, extend) && InRange(a, rgba.a, extend)); }
 		bool equal(const COLORREF& rgba, const byte& extend = 10) const { return (InRange(r, GetRValue(rgba), extend) && InRange(g, GetRValue(rgba), extend) && InRange(b, GetBValue(rgba), extend) && InRange(a, GetAValue(rgba), extend)); }
 		Rgb toRgb() const { return { r, g, b }; }
-		COLORREF toCOLORREF() const { return RGBA(a, b, g, r); }
+		COLORREF toCOLORREF() const { return RGBA(r, g, b, a); }
 	};
 
 	template<class T>

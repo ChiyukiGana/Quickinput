@@ -80,15 +80,11 @@ namespace CG {
 		}
 	}
 
-	static bool InRange(int num, int _min, int _max, int extent) { return ((num >= _min - extent) && (num <= _max + extent)); }
-	static bool InRange(int num, int refer, int extend) { return (num <= (refer + extend)) && (num >= (refer - extend)); }
-	static bool InRect(RECT rect, int x, int y, int extend = 0) { if (x >= rect.left - extend && x <= rect.right + extend && y >= rect.top - extend && y <= rect.bottom + extend) return true; return false; }
-	static bool InRect(RECT rect, POINT pt, int extend = 0) { if (pt.x >= rect.left - extend && pt.x <= rect.right + extend && pt.y >= rect.top - extend && pt.y <= rect.bottom + extend) return true; return false; }
-	static POINT PointInRect(RECT rect, POINT pt, int extend = 0) {
-		if (pt.x >= rect.left - extend && pt.x <= rect.right + extend && pt.y >= rect.top - extend && pt.y <= rect.bottom + extend)
-			return { pt.x - rect.left, pt.y - rect.top };
-		return { -1, -1 };
-	}
+	static bool InRange(const int& num, const int& _min, const int& _max, const int& extent) { return ((num >= _min - extent) && (num <= _max + extent)); }
+	static bool InRange(const int& num, const int& refer, const int& extend) { return (num <= (refer + extend)) && (num >= (refer - extend)); }
+	static bool InRect(const RECT& rect, const int& x, const int& y, const int& extend = 0) { if (x >= rect.left - extend && x <= rect.right + extend && y >= rect.top - extend && y <= rect.bottom + extend) return true; return false; }
+	static bool InRect(const RECT& rect, const POINT& pt, const int& extend = 0) { if (pt.x >= rect.left - extend && pt.x <= rect.right + extend && pt.y >= rect.top - extend && pt.y <= rect.bottom + extend) return true; return false; }
+	static POINT PointInRect(const RECT& rect, const POINT& pt, int extend = 0) { if (pt.x >= rect.left - extend && pt.x <= rect.right + extend && pt.y >= rect.top - extend && pt.y <= rect.bottom + extend) return { pt.x - rect.left, pt.y - rect.top }; return { -1, -1 }; }
 	
 	static RECT RectAbs(RECT rect) {
 		if (rect.left > rect.right) std::swap(rect.left, rect.right);
@@ -104,7 +100,7 @@ namespace CG {
 		return { rect.right + 1, rect.bottom + 1 };
 	}
 
-	static uint32 RectArea(RECT rect)
+	static uint32 RectArea(const RECT& rect)
 	{
 		SIZE size = RectSize(rect);
 		return size.cx * size.cy;

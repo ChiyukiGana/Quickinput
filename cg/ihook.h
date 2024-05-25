@@ -1,26 +1,18 @@
 #pragma once
-
 #include <windows.h>
-
 #define VK_WHEELUP 0x0A
 #define VK_WHEELDOWN 0x0B
-#define InputHookProc() InputHook::Param InputHook::p; bool InputHook::InputProc(BYTE vk, bool state, POINT msPt, PULONG_PTR exInfo)
 
 class InputHook
 {
-	struct Param
-	{
-		HANDLE thread = 0;
-		HHOOK mouse = 0;
-		HHOOK keybd = 0;
-		bool createFlag = false;
-		bool mouseState = false;
-		bool keybdState = false;
-		bool blockRep = false;
-		bool keys[255] = {};
-	};
-
-	static Param p;
+	static inline HANDLE thread = 0;
+	static inline HHOOK mouseHook = 0;
+	static inline HHOOK keybdHook = 0;
+	static inline bool createFlag = false;
+	static inline bool mouseState = false;
+	static inline bool keybdState = false;
+	static inline bool blockRep = false;
+	static inline bool keys[255] = {};
 
 	//return false: call next hook, return true: block
 	static bool CALLBACK InputProc(BYTE vk, bool state, POINT msPt, PULONG_PTR exInfo);
@@ -28,7 +20,7 @@ class InputHook
 	static LRESULT CALLBACK MouseHook(int code, WPARAM msg, LPARAM param)
 	{
 		PMSLLHOOKSTRUCT ms = (PMSLLHOOKSTRUCT)param;
-		if (p.mouseState)
+		if (mouseState)
 		{
 			switch (msg)
 			{
@@ -87,46 +79,45 @@ class InputHook
 				break;
 			}
 		}
-		return CallNextHookEx(p.mouse, code, msg, param);
+		return CallNextHookEx(mouseHook, code, msg, param);
 	}
 
 	static LRESULT CALLBACK KeybdHook(int code, WPARAM msg, LPARAM param)
 	{
 		PKBDLLHOOKSTRUCT kb = (PKBDLLHOOKSTRUCT)param;
-		if (p.keybdState)
+		if (keybdState)
 		{
 			if (msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN)
 			{
-				if (p.blockRep && p.keys[kb->vkCode]);
+				if (blockRep && keys[kb->vkCode]);
 				else
 				{
 					if (InputProc((BYTE)kb->vkCode, true, {}, &kb->dwExtraInfo)) return 1;
-					if (p.blockRep) p.keys[kb->vkCode] = true;
+					if (blockRep) keys[kb->vkCode] = true;
 				}
 			}
 			else if (msg == WM_KEYUP || msg == WM_SYSKEYUP)
 			{
 				if (InputProc((BYTE)kb->vkCode, false, {}, &kb->dwExtraInfo)) return 1;
-				if (p.blockRep) p.keys[kb->vkCode] = false;
+				if (blockRep) keys[kb->vkCode] = false;
 			}
 		}
-		return CallNextHookEx(p.keybd, code, msg, param);
+		return CallNextHookEx(keybdHook, code, msg, param);
 	}
 
 	static DWORD CALLBACK HookThread(PVOID)
 	{
-		p.mouse = SetWindowsHookExW(WH_MOUSE_LL, MouseHook, GetModuleHandleW(0), 0);
-		p.keybd = SetWindowsHookExW(WH_KEYBOARD_LL, KeybdHook, GetModuleHandleW(0), 0);
-		p.createFlag = true;
+		mouseHook = SetWindowsHookExW(WH_MOUSE_LL, MouseHook, GetModuleHandleW(0), 0);
+		keybdHook = SetWindowsHookExW(WH_KEYBOARD_LL, KeybdHook, GetModuleHandleW(0), 0);
+		createFlag = true;
 		MSG msg; while (GetMessageW(&msg, 0, WM_KEYFIRST, WM_MOUSELAST)) DispatchMessageW(&msg);
 		return 0;
 	}
 
-
 public:
-	typedef unsigned __int8 HookType;
+	typedef unsigned __int8 Type;
 
-	enum HookTypes
+	enum Types
 	{
 		none = (unsigned __int8)0,
 		mouse = (unsigned __int8)1,
@@ -134,62 +125,60 @@ public:
 		all = mouse | keybd
 	};
 
-	static void BlockRep(bool blockRep = true)
+	static void BlockRepeat(bool blockRepeat = true)
 	{
-		p.blockRep = blockRep;
+		blockRep = blockRepeat;
 	}
 
-	static bool IsRunning()
-	{
-		return p.thread;
-	}
+	static bool IsRunning() { return thread; }
 
-	static bool State()
-	{
-		if (p.thread && (p.mouseState || p.keybdState)) return true;
-		return false;
-	}
+	static bool State() { if (thread && (mouseState || keybdState)) return true; return false; }
 
-	static bool Start(HookType flags = HookTypes::all, bool blockRep = false)
+	static bool Start(Type flags = Types::all, bool blockRepeat = false)
 	{
-		if (!p.thread)
+		if (!thread)
 		{
-			p.thread = CreateThread(0, 0, HookThread, 0, 0, 0);
-			if (p.thread)
+			thread = CreateThread(0, 0, HookThread, 0, 0, 0);
+			if (thread)
 			{
-				while (!p.createFlag) Sleep(0);
-				if (p.mouse && p.keybd);
+				while (!createFlag) Sleep(0);
+				if (mouse && keybd);
 				else return false;
 			}
 			else return false;
 		}
 
-		BlockRep(blockRep);
-		memset(p.keys, 0, sizeof(p.keys));
-		p.mouseState = (flags & mouse);
-		p.keybdState = (flags & keybd);
+		BlockRepeat(blockRepeat);
+		memset(keys, 0, sizeof(keys));
+		mouseState = (flags & mouse);
+		keybdState = (flags & keybd);
 		return true;
 	}
 
-	static void Stop(HookType flags = HookTypes::all)
+	static void Stop(Type flags = Types::all)
 	{
-		p.mouseState = !(flags & mouse);
-		p.keybdState = !(flags & keybd);
-		memset(p.keys, 0, sizeof(p.keys));
+		mouseState = !(flags & mouse);
+		keybdState = !(flags & keybd);
+		memset(keys, 0, sizeof(keys));
 	}
 
 	static void Close()
 	{
-		if (p.thread)
+		if (thread)
 		{
-			TerminateThread(p.thread, 0);
-			p = {};
+			TerminateThread(thread, 0);
+			{
+				thread = 0;
+				mouseHook = 0;
+				keybdHook = 0;
+				createFlag = false;
+				mouseState = false;
+				keybdState = false;
+				blockRep = false;
+				memset(keys, 0, sizeof(keys));
+			}
 		}
 	}
 
-	static void Wait()
-	{
-		if (!p.thread) return;
-		WaitForSingleObject(p.thread, INFINITE);
-	}
+	static void Wait() { if (!thread) return; WaitForSingleObject(thread, INFINITE); }
 };
