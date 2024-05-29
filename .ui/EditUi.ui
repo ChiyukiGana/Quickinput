@@ -765,6 +765,28 @@ QPushButton:hover{background-color:#C00;}</string>
              </widget>
             </item>
             <item>
+             <widget class="QRadioButton" name="rbClick">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
+              <property name="toolTip">
+               <string/>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::RightToLeft</enum>
+              </property>
+              <property name="text">
+               <string>点击</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QRadioButton" name="rbDown">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -805,28 +827,6 @@ QPushButton:hover{background-color:#C00;}</string>
               </property>
               <property name="text">
                <string>松开</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QRadioButton" name="rbClick">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::ClickFocus</enum>
-              </property>
-              <property name="toolTip">
-               <string/>
-              </property>
-              <property name="layoutDirection">
-               <enum>Qt::RightToLeft</enum>
-              </property>
-              <property name="text">
-               <string>点击</string>
               </property>
              </widget>
             </item>
@@ -1574,7 +1574,7 @@ QPushButton:hover{background-color:#C00;}</string>
                <bool>false</bool>
               </property>
               <property name="placeholderText">
-               <string>0 = 不随机，否则次数为最小，随机为最大</string>
+               <string>如果填写：次数为最小值，随机为最大值</string>
               </property>
               <property name="clearButtonEnabled">
                <bool>false</bool>

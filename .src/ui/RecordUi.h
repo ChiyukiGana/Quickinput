@@ -95,7 +95,7 @@ private:
 		qis.recording = false;
 		if (qis.record.size())
 		{
-			macro.actions = qis.record;
+			macro.acRun = qis.record;
 			qis.macros.Add(macro);
 			QiFn::SaveMacro(macro);
 		}

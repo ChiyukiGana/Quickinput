@@ -141,7 +141,7 @@ private:
 			keyRbs->addButton(ui.rbDown);
 			keyRbs->addButton(ui.rbUp);
 			keyRbs->addButton(ui.rbClick);
-			ui.rbDown->setChecked(true);
+			ui.rbClick->setChecked(true);
 
 			QButtonGroup* stateRbs = new QButtonGroup(this);
 			stateRbs->addButton(ui.rbStateDown);
@@ -605,15 +605,19 @@ private slots:
 		uint32 count = macro->count;
 		macro->count = 1;
 		qis.run = true;
-		macro->thread = Thread::Start(QiFn::ThreadMacro, macro);
-		while (macro->thread) {
+		timeBeginPeriod(1);
+		macro->thRun = Thread::Start(QiFn::ThreadMacro, macro);
+		DWORD exitCode = STILL_ACTIVE;
+		while (exitCode == STILL_ACTIVE) {
+			GetExitCodeThread(macro->thRun, &exitCode);
 			if (GetAsyncKeyState(VK_SHIFT) && GetAsyncKeyState(VK_F10))
 			{
-				Thread::Close(macro->thread);
+				PostThreadMessageW(GetThreadId(macro->thRun), WM_USER, 0, 0);
 				break;
 			}
 			Thread::Sleep(10);
 		}
+		timeEndPeriod(1);
 		qis.run = false;
 		macro->count = count;
 		Thread::Sleep(300);
@@ -659,7 +663,7 @@ private slots:
 	{
 		if (state && (!child))
 		{
-			actions = &macro->actions;
+			actions = &macro->acRun;
 			TbUpdate();
 		}
 	}
@@ -667,7 +671,7 @@ private slots:
 	{
 		if (state && (!child))
 		{
-			actions = &macro->actionsEnding;
+			actions = &macro->acEnd;
 			TbUpdate();
 		}
 	}
@@ -1151,7 +1155,8 @@ private: // Widget data
 	}
 	Action GetDelay() {
 		Action action(Action::_delay);
-		int ms = ui.etTime->text().toInt();
+		int ms = 10;
+		if (ui.etTime->text() != "") ms = ui.etTime->text().toInt();
 		int ex = ui.etDelayRand->text().toInt();
 		if (ms > delayMax) ms = delayMax;
 		if (ex > delayMax) ex = delayRandMax;
@@ -1183,9 +1188,8 @@ private: // Widget data
 			int r = ui.etColorRed->text().toInt();
 			int g = ui.etColorGreen->text().toInt();
 			int b = ui.etColorBlue->text().toInt();
-			int e = 0;
-			if (ui.etColorSim->text() == "") e = 5;
-			else e = ui.etColorSim->text().toInt();
+			int e = 5;
+			if (ui.etColorSim->text() != "") e = ui.etColorSim->text().toInt();
 			if (r > colorMax) r = colorMax;
 			if (g > colorMax) g = colorMax;
 			if (b > colorMax) b = colorMax;
@@ -1229,9 +1233,8 @@ private: // Widget data
 			action.d.image.rect = { l, t, r, b };
 		}
 		{
-			int s;
-			if (ui.etImageSim->text() == "") s = 80;
-			else s = ui.etImageSim->text().toInt();
+			int s = 80;
+			if (ui.etImageSim->text() != "") s = ui.etImageSim->text().toInt();
 			if (s > imageSimMax) s = imageSimMax;
 			action.d.image.sim = s;
 		}
@@ -1242,9 +1245,8 @@ private: // Widget data
 	{
 		Action action(Action::_popText);
 		action.d.popText.str.cpy((PCWSTR)(ui.etPopText->text().utf16()));
-		int time;
-		if (ui.etPopTextTime->text() == "") time = 1000;
-		else time = ui.etPopTextTime->text().toInt();
+		int time = 1000;
+		if (ui.etPopTextTime->text() != "") time = ui.etPopTextTime->text().toInt();
 		if (time > popTextTimeMax) time = popTextTimeMax;
 		action.d.popText.time = time;
 		return action;
