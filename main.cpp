@@ -130,27 +130,6 @@ void Install()
 	}
 }
 
-// if QuickInput.json is not found
-void WriteDefaultMacro()
-{
-	if (!File::FileState(L"QuickInput.json"))
-	{
-		std::string json = u8R"({"document_charset":"UTF8","defOn":true,"key":119,"recKey":119,"showTips":true,"audFx":false,"minMode":false,"zoomBlock":false,"quickClickKey":1,"quickClickState":false,"quickClickDelay":200,"quickClickMode":0,"showClockKey":18,"showClockState":false,"wndActiveState":false,"wndActiveName":""})";
-		File::TextSaveU(L"QuickInput.json", json);
-
-		std::string click = u8R"({"document_ charset":"UTF8","type":"QuickInputMacro","wndState":0,"wndChild":0,"wndName":"","wndClass":"","state":false,"block":true,"mode":0,"key":1,"count":0,"actions":[{"mark":"","type":3,"state":1,"vk":1},{"mark":"范围30~70","type":2,"ms":50,"ex":20},{"mark":"","type":3,"state":0,"vk":1},{"mark":"50-20~50+20","type":2,"ms":50,"ex":20}],"actionsEnding":[{"mark":"","type":3,"state":0,"vk":1}]})";
-		std::string state = u8R"({"document_ charset":"UTF8","type":"QuickInputMacro","wndState":0,"wndChild":0,"wndName":"","wndClass":"","state":false,"block":true,"mode":0,"key":1,"count":0,"actions":[{"mark":"","type":3,"state":1,"vk":1},{"mark":"","type":7,"count":0,"rand":0,"next":[{"mark":"","type":2,"ms":100,"ex":0}]}],"actionsEnding":[{"mark":"","type":3,"state":0,"vk":1}]})";
-		std::string pullDown = u8R"({"document_ charset":"UTF8","type":"QuickInputMacro","wndState":0,"wndChild":0,"wndName":"","wndClass":"","state":false,"block":false,"mode":1,"key":1,"count":0,"actions":[{"mark":"速度","type":4,"move":true,"x":0,"y":10,"ex":0},{"mark":"精度","type":2,"ms":10,"ex":0}]})";
-		std::string message = u8R"({"document_ charset":"UTF8","type":"QuickInputMacro","wndState":0,"wndChild":0,"wndName":"","wndClass":"","state":false,"block":true,"mode":0,"key":17,"count":0,"actions":[{"mark":"复制到剪贴板","type":5,"text":"这些文本将复制到剪贴板，之后通过Ctrl + V粘贴到对应位置。"},{"mark":"","type":3,"state":1,"vk":17},{"mark":"粘贴","type":3,"state":2,"vk":86},{"mark":"","type":3,"state":0,"vk":17},{"mark":"回车发送","type":3,"state":2,"vk":13},{"mark":"","type":2,"ms":200,"ex":0}]})";
-		File::FolderCreate(L"macro");
-		std::wstring path = Process::runPath();
-		File::TextSaveU(Path::Append(path, L"macro\\连点.json"), click);
-		File::TextSaveU(Path::Append(path, L"macro\\长按.json"), state);
-		File::TextSaveU(Path::Append(path, L"macro\\压枪.json"), pullDown);
-		File::TextSaveU(Path::Append(path, L"macro\\消息.json"), message);
-	}
-}
-
 int main(int argc, char* argv[])
 {
 	std::locale::global(std::locale(".UTF8")); // set utf8 for all streams
@@ -161,15 +140,13 @@ int main(int argc, char* argv[])
 	if (Process::isRunning(mutex.c_str())) { MsgBox::Warning(L"当前文件夹的程序已经运行，若运行更多程序请复制此文件夹", L"提示"); return 0; }
 	CreateMutexW(0, 0, mutex.c_str()); // create mutex if this Quick input is not running
 
-	// write default >> load config >> init zoom >> qapplication >> start
+	// initialization
+	QiFn::LoadJson(); // load config
+	InitUI(!qis.set.zoomBlock); // init fonts and zoom
+	QApplication app(argc, argv); app.setFont(QFont("Microsoft YaHei")); // init application
+	Install(); // if program in temp folder
 
-	WriteDefaultMacro(); // #1
-	QiFn::LoadJson(); // #2
-	InitUI(!qis.set.zoomBlock); // #3
-	QApplication app(argc, argv); app.setFont(QFont("Microsoft YaHei")); // #4
-	Install(); // #5
-
-	qis.ReScreen(); // screen size
+	qis.screen = System::screenSize(); // screen size
 	MsgPop::Init(); // thread of MsgPop
 	MainUi wnd;
 	if (qis.set.minMode)

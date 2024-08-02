@@ -51,7 +51,7 @@ namespace CG {
 			return false;
 		}
 
-		static HBITMAP toBmp24(HDC hdc, const RECT& rect = {})
+		static HBITMAP toBmp24(HDC hdc, const RECT& rect)
 		{
 			if (((rect.right - rect.left) < 1) || ((rect.bottom - rect.top) < 1)) return nullptr;
 			BITMAPINFO bitmapInfo = {};
@@ -71,11 +71,12 @@ namespace CG {
 					DeleteDC(hdcMem);
 					return hBitmap;
 				}
+				DeleteObject(hBitmap);
 				DeleteDC(hdcMem);
 			}
 			return 0;
 		}
-		static HBITMAP toBmp32(HDC hdc, const RECT& rect = {})
+		static HBITMAP toBmp32(HDC hdc, const RECT& rect)
 		{
 			if (((rect.right - rect.left) < 1) || ((rect.bottom - rect.top) < 1)) return nullptr;
 			BITMAPINFO bitmapInfo = {};
@@ -95,6 +96,7 @@ namespace CG {
 					DeleteDC(hdcMem);
 					return hBitmap;
 				}
+				DeleteObject(hBitmap);
 				DeleteDC(hdcMem);
 			}
 			return 0;
@@ -228,7 +230,7 @@ namespace CG {
 			}
 			return false;
 		}
-		static bool toRgbMap(const HDC& hdc, RgbMap& rgbMap, const RECT& rect = {})
+		static bool toRgbMap(const HDC& hdc, RgbMap& rgbMap, const RECT& rect)
 		{
 			HBITMAP hbmp = toBmp24(hdc, rect);
 			if (hbmp)
@@ -242,7 +244,7 @@ namespace CG {
 			}
 			return false;
 		}
-		static bool toRgbaMap(const HDC& hdc, RgbaMap& rgbaMap, const RECT& rect = {})
+		static bool toRgbaMap(const HDC& hdc, RgbaMap& rgbaMap, const RECT& rect)
 		{
 			HBITMAP hbmp = toBmp32(hdc, rect);
 			if (hbmp)

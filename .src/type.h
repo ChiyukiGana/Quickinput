@@ -7,9 +7,9 @@
 
 // Change to your Qt directory
 #ifdef DEBUG
-#pragma comment(lib, "D:/Qt/32/lib/Qt5WinExtrasd.lib")
+#pragma comment(lib, "C:/Qt/32/lib/Qt5WinExtrasd.lib")
 #else
-#pragma comment(lib, "D:/Qt/32s/lib/Qt5WinExtras.lib")
+#pragma comment(lib, "C:/Qt/32s/lib/Qt5WinExtras.lib")
 #endif
 
 #define MacroPath L"macro\\"
@@ -74,7 +74,7 @@ struct WndLock
 		ClipCursor(0);
 	}
 };
-////////////////// #Actions
+////////////////// #Window
 
 ////////////////// Actions
 extern struct Action; typedef List<Action> Actions;
@@ -99,7 +99,6 @@ struct QiPopText
 	void release() { str.release(); }
 	wcstring str; uint32 time = 0;
 };
-
 struct Action
 {
 	typedef enum
@@ -216,17 +215,16 @@ struct Macro
 	uint32 key = 0;
 	uint32 mode = 0;
 	uint32 count = 0;
-	
-	POINT originPos = {};
-
 	std::wstring name;
 	
 	WndInfo wi;
+	POINT origin;
 
-	HANDLE thread = 0;
-	HANDLE threadEnding = 0;
-	Actions actions;
-	Actions actionsEnding;
+	Actions acRun;
+	Actions acEnd;
+
+	HANDLE thRun = nullptr;
+	HANDLE thEnd = nullptr;
 };
 typedef List<Macro> Macros;
 
@@ -344,8 +342,8 @@ struct QuickInputStruct
 	bool recording = false;
 	clock_t recordClock = 0;
 	HWND recordWindow = 0;
-	Actions record;
 
+	Actions record;
 	Actions clipboard;
 	Macros macros;
 
@@ -354,7 +352,6 @@ struct QuickInputStruct
 
 	Widget widget;
 
-	HDC hdc = 0;
 	SIZE screen = {};
 
 	byte keyState[255];
@@ -362,13 +359,6 @@ struct QuickInputStruct
 
 	Themes themes;
 	QuickInputUi ui;
-
-	void ReScreen()
-	{
-		if (hdc) ReleaseDC(0, hdc);
-		hdc = GetDC(0);
-		screen = System::screenSize();
-	}
 };
 
 inline QuickInputStruct qis;
