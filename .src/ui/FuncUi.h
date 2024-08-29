@@ -32,7 +32,7 @@ public:
 private:
 	void WidInit()
 	{
-		ui.bnWndActive->setShortcut(Qt::Key_unknown);
+		ui.bnWndSelect->setShortcut(Qt::Key_unknown);
 
 		ui.hkQkClick->Mode(0);
 		ui.etQkDelay->setValidator(new QIntValidator(0, 99999, this));
@@ -58,7 +58,7 @@ private:
 		connect(ui.cmbMode, SIGNAL(activated(int)), this, SLOT(OnCmbMode(int)));
 
 		connect(ui.chbWndActive, SIGNAL(stateChanged(int)), this, SLOT(OnWndActive(int)));
-		connect(ui.bnWndActive, SIGNAL(clicked()), this, SLOT(OnBnWndActive()));
+		connect(ui.bnWndSelect, SIGNAL(clicked()), this, SLOT(OnBnWndActive()));
 
 		connect(ui.chbClock, SIGNAL(stateChanged(int)), this, SLOT(OnClock(int)));
 		connect(ui.hkClock, SIGNAL(changed()), this, SLOT(OnShowClock()));

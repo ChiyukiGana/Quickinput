@@ -1,8 +1,6 @@
 #pragma once
 #include "string.h"
 
-#define DMsgWnd() MsgWnd::Param MsgWnd::p;
-
 namespace CG
 {
 	class MsgWnd
@@ -13,7 +11,7 @@ namespace CG
 			HANDLE thread = 0;
 			std::wstring text;
 		};
-		static Param p;
+		static inline Param p;
 
 		static DWORD _stdcall MsgWndThread(PVOID)
 		{

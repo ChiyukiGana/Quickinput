@@ -5,15 +5,15 @@
 #include <time.h>
 #include <windows.h>
 
-typedef unsigned __int8 byte;
-typedef signed __int8 int8;
-typedef unsigned __int8 uint8;
-typedef signed __int16 int16;
-typedef unsigned __int16 uint16;
-typedef signed __int32 int32;
-typedef unsigned __int32 uint32;
-typedef signed __int64 int64;
-typedef unsigned __int64 uint64;
+typedef std::uint8_t byte;
+typedef std::int8_t int8;
+typedef std::uint8_t uint8;
+typedef std::int16_t int16;
+typedef std::uint16_t uint16;
+typedef std::int32_t int32;
+typedef std::uint32_t uint32;
+typedef std::int64_t int64;
+typedef std::uint64_t uint64;
 
 #define int8Max ((int8)0x7F)
 #define int8Min ((int8)0x80)
@@ -82,6 +82,12 @@ namespace CG {
 			std::swap(arr[l], arr[r]);
 			l++, r--;
 		}
+	}
+
+	static int Distance(int left, int right)
+	{
+		if (left > right) return left - right;
+		else return right - left;
 	}
 
 	static bool InRange(const int& num, const int& _min, const int& _max, const int& extent) { return ((num >= _min - extent) && (num <= _max + extent)); }

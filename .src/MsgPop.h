@@ -41,7 +41,7 @@ class MsgPop
 			rect = { 0, 0, size.cx, size.cy };
 			FillRect(hdc, &rect, CreateSolidBrush(MsgPop::color));
 			SetBkMode(hdc, TRANSPARENT);
-			TextOutW(hdc, 12, 8, MsgPop::text.c_str(), MsgPop::text.length());
+			DrawTextW(hdc, MsgPop::text.c_str(), MsgPop::text.length(), &rect, DT_SINGLELINE | DT_CENTER | DT_VCENTER);
 			EndPaint(wnd, &ps);
 		}
 		return DefWindowProcW(wnd, msg, wp, lp);

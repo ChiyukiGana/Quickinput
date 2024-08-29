@@ -14,7 +14,7 @@ void InsertInput(const BYTE& key, const bool& state, const POINT& pt)
 	{
 		Action& action = qis.record.AddNull(); action.type = Action::_delay;
 		clock_t nowClock = clock();
-		action.d.delay.ms = nowClock - qis.recordClock;
+		action.d.delay.tmax = action.d.delay.tmin = nowClock - qis.recordClock;
 		qis.recordClock = nowClock;
 	}
 	else
