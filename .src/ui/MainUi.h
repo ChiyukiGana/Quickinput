@@ -31,13 +31,13 @@ public:
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		WidInit();
-		ReStyle();
 	}
 
 	void ReStyle()
 	{
 		setStyleSheet("");
 		setStyleSheet(qis.themes[qis.set.theme].style);
+		menu->setStyleSheet("");
 		menu->setStyleSheet(qis.themes[qis.set.theme].style);
 		wm->ReStyle();
 		wt->ReStyle();
@@ -114,7 +114,7 @@ private:
 		}
 		return QWidget::event(et);
 	}
-	void showEvent(QShowEvent* et) { SetForegroundWindow((HWND)QWidget::winId()); }
+	void showEvent(QShowEvent* et) { SetForegroundWindow((HWND)QWidget::winId()); ReStyle(); }
 	// Move
 	void mousePressEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) msPos = et->pos(); }
 	void mouseMoveEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) move(et->pos() + pos() - msPos); }

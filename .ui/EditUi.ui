@@ -30,7 +30,7 @@
     <normaloff>:/icon.png</normaloff>:/icon.png</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">*{color:black;border:none;outline:none;font-size:12px;font-family:&quot;Microsoft YaHei&quot;}QMainWindow,QDialog{border:1px solid gray}#titleWidget{background-color:white}#titleWidget *{font-size:14px}#titleWidget QPushButton,#titleWidget QCheckBox::indicator{background-color:#CCC;width:20px;height:20px;border-radius:10px}#titleWidget QCheckBox::indicator:checked{image:url(:/checked.png)}#clientWidget{background-color:#CEF}QMenu,QToolTip,#clientWidget QLineEdit,#clientWidget QTextEdit,#clientWidget QKeyEdit,#clientWidget QCheckBox::indicator,#clientWidget QRadioButton::indicator,#clientWidget QHeaderView,#clientWidget QHeaderView::section,#clientWidget QTableWidget,#clientWidget QTableWidget QTableCornerButton::section,#clientWidget QComboBox,#clientWidget QComboBox QAbstractItemView{background-color:white;color:black}#clientWidget QPushButton,#clientWidget QTabBar::tab,#clientWidget QTabBar::tab:first,#clientWidget QTabBar::tab:last{background-color:#ADE;color:black}#clientWidget QCheckBox::indicator,#clientWidget QRadioButton::indicator{width:20px;height:20px}#clientWidget QComboBox{padding-left:3px}QMenu::item:selected,#clientWidget QPushButton:hover,#clientWidget QCheckBox::indicator:hover,#clientWidget QRadioButton::indicator:hover,#clientWidget QTableWidget::item:hover,#clientWidget QTabBar::tab:hover,#clientWidget QTabBar::tab:first:hover,#clientWidget QTabBar::tab:last:hover{background-color:#BEF;color:black}#clientWidget QTableWidget::item:selected{background-color:#CEF;color:black}#clientWidget QTabBar::tab:selected,#clientWidget QTabBar::tab:first:selected,#clientWidget QTabBar::tab:last:selected{background-color:#CEF;color:black}#clientWidget QCheckBox::indicator:checked,#clientWidget QRadioButton::indicator:checked{image:url(:/checked.png)}#clientWidget QPushButton:disabled,#clientWidget QCheckBox:disabled,#clientWidget QRadioButton:disabled{color:gray}#clientWidget #bnWndSelect,#clientWidget #bnPos,#clientWidget #bnColorRect,#clientWidget #bnImageRect,#clientWidget #bnImageShot{background-color:white}</string>
+   <string notr="true">*{color:black;border:none;outline:none;font-size:12px;font-family:&quot;Microsoft YaHei&quot;}QMainWindow,QDialog{border:1px solid gray}QMenu,QToolTip,QLineEdit,QTextEdit,QKeyEdit,QCheckBox::indicator,QRadioButton::indicator,QHeaderView,QHeaderView::section,QTableWidget,QTableWidget QTableCornerButton::section,QComboBox,QComboBox QAbstractItemView{background-color:white}QPushButton,QTabBar::tab,QTabBar::tab:first,QTabBar::tab:last,QToolBox::tab{background-color:#ADE}QCheckBox::indicator,QRadioButton::indicator{width:20px;height:20px}QComboBox{padding-left:3px}QMenu::item:selected,QPushButton:hover,QCheckBox::indicator:hover,QRadioButton::indicator:hover,QTableWidget::item:hover,QTabBar::tab:hover,QTabBar::tab:first:hover,QTabBar::tab:last:hover{background-color:#BEF;color:black}QTableWidget::item:selected{background-color:#CEF;color:black}QTabBar::tab:selected,QTabBar::tab:first:selected,QTabBar::tab:last:selected{background-color:#CEF;color:black}QCheckBox::indicator:checked,QRadioButton::indicator:checked{image:url(:/checked.png)}QPushButton:disabled,QCheckBox:disabled,QRadioButton:disabled{color:gray}#bnWndSelect,#bnPos,#bnColorRect,#bnImageRect,#bnImageShot{background-color:white}#titleWidget{background-color:white}#titleWidget *{font-size:14px}#clientWidget,QTabWidget&gt;QWidget,QToolBox&gt;QWidget{background-color:#CEF}</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -181,13 +181,22 @@
       </item>
       <item>
        <widget class="QPushButton" name="bnRun">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>30</horstretch>
+          <horstretch>20</horstretch>
           <verstretch>20</verstretch>
          </sizepolicy>
         </property>
         <property name="minimumSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
          <size>
           <width>20</width>
           <height>20</height>
@@ -200,8 +209,7 @@
          <string>运行</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">QPushButton{background-color:#0E0;width:20px;height:20px;border-radius:10px;margin-right:50px}
-QPushButton:hover{background-color:#0C0;}</string>
+         <string notr="true">QPushButton{background-color:#0E0;border-radius:10px}QPushButton:hover{background-color:#0C0}</string>
         </property>
         <property name="text">
          <string/>
@@ -212,14 +220,36 @@ QPushButton:hover{background-color:#0C0;}</string>
        </widget>
       </item>
       <item>
+       <widget class="QWidget" name="widget" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>50</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>16777215</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="bnClose">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>30</horstretch>
+          <horstretch>20</horstretch>
           <verstretch>20</verstretch>
          </sizepolicy>
         </property>
         <property name="minimumSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
          <size>
           <width>20</width>
           <height>20</height>
@@ -232,8 +262,7 @@ QPushButton:hover{background-color:#0C0;}</string>
          <string>关闭</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">QPushButton{background-color:#E00;width:20px;height:20px;border-radius:10px;}
-QPushButton:hover{background-color:#C00;}</string>
+         <string notr="true">QPushButton{background-color:#E00;border-radius:10px}QPushButton:hover{background-color:#C00}</string>
         </property>
         <property name="text">
          <string/>
@@ -501,8 +530,7 @@ QPushButton:hover{background-color:#C00;}</string>
          <enum>Qt::NoFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">QTabBar::tab,QTabBar::tab::first,QTabBar::tab::last{width:58px;height:24px;padding:0px;font-size:12px}
-#tab_base,#tab_state,#tab_color,#tab_image,#tab_text,#tab_wnd{background:transparent}</string>
+         <string notr="true"/>
         </property>
         <property name="tabShape">
          <enum>QTabWidget::Rounded</enum>
@@ -526,6 +554,12 @@ QPushButton:hover{background-color:#C00;}</string>
          <bool>false</bool>
         </property>
         <widget class="QWidget" name="tab_base">
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <attribute name="title">
           <string>基本</string>
          </attribute>

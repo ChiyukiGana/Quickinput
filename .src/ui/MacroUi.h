@@ -30,6 +30,7 @@ public:
 
 	void ReStyle()
 	{
+		ui.clientWidget->setStyleSheet("");
 		ui.clientWidget->setStyleSheet(qis.themes[qis.set.theme].style);
 	}
 

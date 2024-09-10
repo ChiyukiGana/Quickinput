@@ -20,12 +20,12 @@ public:
 
 	void ReStyle()
 	{
+		setStyleSheet("");
 		setStyleSheet(qis.themes[qis.set.theme].style);
-		ui.lbHowUseText->setStyleSheet(qis.themes[qis.set.theme].style);
-		ui.lbLogText->setStyleSheet(qis.themes[qis.set.theme].style);
 	}
 
 private:
+	void showEvent(QShowEvent* et) { ReStyle(); }
 	void mousePressEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) msPos = et->pos(); }
 	void mouseMoveEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) move(et->pos() + pos() - msPos); }
 

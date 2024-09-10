@@ -22,8 +22,11 @@ public:
 
 	void ReStyle()
 	{
+		ui.clientWidget->setStyleSheet("");
 		ui.clientWidget->setStyleSheet(qis.themes[qis.set.theme].style);
+		ui.hkKey->setStyleSheet("");
 		ui.hkKey->setStyleSheet(qis.themes[qis.set.theme].style);
+		ui.hkRec->setStyleSheet("");
 		ui.hkRec->setStyleSheet(qis.themes[qis.set.theme].style);
 	}
 
