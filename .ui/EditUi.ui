@@ -880,7 +880,7 @@
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>100</width>
+                  <width>70</width>
                   <height>0</height>
                  </size>
                 </property>
@@ -911,6 +911,22 @@
                 </property>
                </spacer>
               </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="moveTrackBox">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
               <item>
                <widget class="QRadioButton" name="rbMoveTrack">
                 <property name="sizePolicy">
@@ -918,6 +934,12 @@
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>0</height>
+                 </size>
                 </property>
                 <property name="focusPolicy">
                  <enum>Qt::ClickFocus</enum>
@@ -928,10 +950,84 @@
                 <property name="layoutDirection">
                  <enum>Qt::RightToLeft</enum>
                 </property>
+                <property name="styleSheet">
+                 <string notr="true">margin-right:40px;</string>
+                </property>
                 <property name="text">
                  <string>轨迹</string>
                 </property>
                </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="lbMoveSpeed">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>速度</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QLineEdit" name="etMoveSpeed">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>24</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>60</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Microsoft YaHei</family>
+                  <pointsize>-1</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="focusPolicy">
+                 <enum>Qt::ClickFocus</enum>
+                </property>
+                <property name="statusTip">
+                 <string/>
+                </property>
+                <property name="inputMask">
+                 <string/>
+                </property>
+                <property name="dragEnabled">
+                 <bool>false</bool>
+                </property>
+                <property name="placeholderText">
+                 <string>0~99</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="moveActionSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Horizontal</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>17</width>
+                  <height>17</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
             </item>
@@ -3721,7 +3817,7 @@
                  <bool>false</bool>
                 </property>
                 <property name="placeholderText">
-                 <string>0~9999毫秒</string>
+                 <string>0~9999</string>
                 </property>
                </widget>
               </item>

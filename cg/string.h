@@ -153,113 +153,158 @@ namespace CG {
 	};
 
 	template<class T>
-	struct xcstring
+	struct xstr
 	{
 	protected:
-		const T p_null[1] = {};
-		T* p_str = 0;
+		const T c_null = '\0';
+		T* p_str = nullptr;
 		size_t n_size = 0;
+
+		size_t f_length(const char* str) { return strlen(str); }
+		size_t f_copy(char* des, const size_t len, const char* res) { return strcpy_s(des, len, res); }
+		size_t f_append(char* des, const size_t len, const char* res) { return strcat_s(des, len, res); }
+
+		size_t f_length(const wchar_t* str) { return wcslen(str); }
+		size_t f_copy(wchar_t* des, const size_t len, const wchar_t* res) { return wcscpy_s(des, len, res); }
+		size_t f_append(wchar_t* des, const size_t len, const wchar_t* res) { return wcscat_s(des, len, res); }
+
 	public:
-		xcstring() {};
-		xcstring(const T* res) { cpy(res); }
-		xcstring(const xcstring& res) { cpy(res); }
-		~xcstring() { release(); }
+		xstr() {}
+		xstr(const size_t size, const T fill) { resize(size, fill); }
+		xstr(const T res) { copy(res); }
+		xstr(const T* res) { copy(res); }
+		xstr(const xstr& res) { copy(res); }
+		~xstr() { release(); }
 
-		xcstring operator+(const T* res) { xcstring xcstr; xcstr.cpy(*this); xcstr.app(res); return xcstr; }
-		xcstring operator+(const xcstring& res) { xcstring xcstr; xcstr.cpy(*this); xcstr.app(res); return xcstr; }
-		xcstring operator+=(const T* res) { app(res); return *this; }
-		xcstring operator+=(const xcstring& res) { app(res); *this; }
-		xcstring operator=(const T* res) { cpy(res); return *this; }
-		xcstring operator=(const xcstring& res) { cpy(res); return *this; }
-		const T* operator*() const { if (p_str) return p_str; return p_null; }
-		const size_t operator&() const { return n_size; }
+		void release()
+		{
+			if (p_str) { delete[] p_str; p_str = nullptr; }
+			n_size = 0;
+		}
+		void resize(const size_t size, const T fill)
+		{
+			release();
+			n_size = size;
+			if (n_size) p_str = new T[n_size]();
+			if (fill != '\0') for (size_t i = 0; i < n_size - 1; i++) p_str[i] = fill;
+		}
 
-		const T* str() const { if (p_str) return p_str; return p_null; }
+		xstr operator+(const T res) { xstr xcstr(*this); xcstr.append(res); return xcstr; }
+		xstr operator+(const T* res) { xstr xcstr(*this); xcstr.append(res); return xcstr; }
+		xstr operator+(const xstr& res) { xstr xcstr(*this); xcstr.append(res); return xcstr; }
+		xstr operator+=(const T res) { append(res); return *this; }
+		xstr operator+=(const T* res) { append(res); return *this; }
+		xstr operator+=(const xstr& res) { append(res); return *this; }
+		xstr operator=(const T res) { copy(res); return *this; }
+		xstr operator=(const T* res) { copy(res); return *this; }
+		xstr operator=(const xstr& res) { copy(res); return *this; }
+
+		T* write(size_t size = 0) { if (size) resize(size, '\0'); return p_str; }
+		const T* str() const { if (p_str) return p_str; return &c_null; }
 		const size_t size() const { return n_size - 1; }
 		const size_t length() const { return n_size - 1; }
 		const size_t arr_size() const { return n_size; }
 		const size_t arr_length() const { return n_size; }
+		const size_t bytes() const { return n_size * sizeof(T); }
 
-		size_t cpy(const T* res)
+		size_t copy(const T res)
 		{
 			release();
-			size_t size = String::Length(res);
+			if (res == '\0') return 0;
+			n_size = 2;
+			p_str = new T[n_size];
+			p_str[0] = res;
+			return n_size;
+		}
+		size_t copy(const T* res)
+		{
+			release();
+			size_t size = f_length(res);
 			if (!size) return 0;
 			n_size = size;
 			n_size++;
 			p_str = new T[n_size];
-			String::Copy(p_str, n_size, res);
+			f_copy(p_str, n_size, res);
 			return n_size;
 		}
-		size_t cpy(const xcstring& res)
+		size_t copy(const xstr& res)
 		{
 			release();
 			if (!res.n_size) return 0;
 			n_size = res.n_size;
 			p_str = new T[n_size];
-			String::Copy(p_str, n_size, res.p_str);
+			f_copy(p_str, n_size, res.p_str);
 			return n_size;
 		}
-		size_t app(const T* res)
+		size_t append(const T res)
 		{
 			if (n_size)
 			{
-				size_t resSize = String::Length(res);
-				if (!resSize) return 0;
+				if (res == '\0') return 0;
 
 				T* tmp = new T[n_size];
-				String::Copy(tmp, n_size, p_str);
+				f_copy(tmp, n_size, p_str);
 				release();
 
-				size_t size = n_size + resSize;
-				p_str = new T[size];
-				String::Copy(p_str, size, tmp);
-				String::Append(p_str, size, res);
+				n_size++;
+				p_str = new T[n_size];
+				f_copy(p_str, n_size, tmp);
+				p_str[n_size - 2] = res;
 				delete[] tmp;
-				n_size = size;
 			}
 			else
 			{
-				cpy(res);
+				copy(res);
 			}
 			return n_size;
 		}
-		size_t app(const xcstring& res)
+		size_t append(const T* res)
+		{
+			if (n_size)
+			{
+				size_t resSize = f_length(res);
+				if (!resSize) return 0;
+
+				T* tmp = new T[n_size];
+				f_copy(tmp, n_size, p_str);
+				release();
+
+				n_size += resSize;
+				p_str = new T[n_size];
+				f_copy(p_str, n_size, tmp);
+				f_append(p_str, n_size, res);
+				delete[] tmp;
+			}
+			else
+			{
+				copy(res);
+			}
+			return n_size;
+		}
+		size_t append(const xstr& res)
 		{
 			if (n_size)
 			{
 				if (!res.n_size) return 0;
 
 				T* tmp = new T[n_size];
-				String::Copy(tmp, n_size, p_str);
+				f_copy(tmp, n_size, p_str);
 				release();
 
-				size_t size = n_size + res.n_size;
-				p_str = new T[size];
-				String::Copy(p_str, size, tmp);
-				String::Append(p_str, size, res.p_str);
+				n_size += res.n_size;
+				p_str = new T[n_size];
+				f_copy(p_str, n_size, tmp);
+				f_append(p_str, n_size, res.p_str);
 				delete[] tmp;
-				n_size = size;
 			}
 			else
 			{
-				cpy(res);
+				copy(res);
 			}
 			return n_size;
 		}
-		void release()
-		{
-			if (p_str) { delete[] p_str; p_str = nullptr; }
-			n_size = 0;
-		}
-		void resize(size_t size)
-		{
-			release();
-			n_size = size;
-			if (n_size) new T[n_size];
-		}
 	};
 
-	typedef xcstring<char> cstring;
-	typedef xcstring<wchar_t> wcstring;
+	using cstr = xstr<char>;
+	using wcstr = xstr<wchar_t>;
 }

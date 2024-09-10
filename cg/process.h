@@ -13,14 +13,14 @@ namespace CG {
 
 		typedef List<DWORD> PIDS;
 
-		static std::wstring runPath() { WCHAR path[MAX_PATH]; GetCurrentDirectoryW(MAX_PATH, path); return path; }
+		static std::wstring runPath() { wcstr str(GetCurrentDirectoryW(0, 0) + 1, '\0'); GetCurrentDirectoryW(str.arr_size(), str.write(0)); return str.str(); }
 
 		static bool RunPath(std::wstring path = L"") {
 			if (path.size()) return SetCurrentDirectoryW(path.c_str());
 			else return SetCurrentDirectoryW(Path::RemoveFile(exePath()).c_str());
 		}
 
-		static std::wstring exePath() { WCHAR path[MAX_PATH]; GetModuleFileNameW(0, path, MAX_PATH); return path; }
+		static std::wstring exePath() { WCHAR path[MAX_PATH_NEW]; GetModuleFileNameW(0, path, MAX_PATH_NEW); return path; }
 
 		static std::wstring exeName() { return Path::GetFile(exePath()); }
 

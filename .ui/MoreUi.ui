@@ -341,7 +341,7 @@ Quick input的使用流程：
            <widget class="QLabel" name="label_13">
             <property name="text">
              <string>宏的执行过程是从上往下（按键，光标，等待），从外往里（循环，颜色，图像）
-创建宏：在宏选项卡点击添加，点击左侧列表的宏1，右侧框可修改名称，修改后按回车保存
+创建宏：在宏选项卡点击添加，点击左侧添加的宏，右侧框可修改名称，修改后按回车保存
 录制宏：点击录制后弹出录制工具栏，点击开始或快捷键后进行操作，完成后点击结束或快捷键
 编辑宏：点击编辑来编辑宏，宏里面的各种操作说明在下面的宏操作类型中
 运行宏：通过触发来运行对应的宏，触发说明在下面的触发选项卡中</string>
@@ -419,18 +419,15 @@ Quick input的使用流程：
 　移动：将光标移动指定距离：
 　　1：勾选移动后面的框
 　　2：在左右和上下分别输入移动量（以屏幕像素为单位）
+　轨迹：勾选后会模拟鼠标的移动路径，右侧输入速度
 
 等待（暂停一段时候）：
-　固定时长：
-　　在左侧框输入需要的时长（1秒=1000）
-　随机时长：
-　　在左侧框输入最小时长，在右侧框输入最大时长
+　固定时长：在左侧框输入需要的时长（1秒=1000）
+　随机时长：在左侧框输入最小时长，在右侧框输入最大时长
 
 循环（多次执行里面的操作）：
-　固定次数：
-　　在左侧输入需要的次数（0=无限次数）
-　随机次数：
-　　在左侧框输入最小次数，在右侧框输入最大次数
+　固定次数：在左侧输入需要的次数（0=无限次数）
+　随机次数：在左侧框输入最小次数，在右侧框输入最大次数
 　添加后再点击编辑，编辑需要执行的宏</string>
                 </property>
                </widget>
@@ -743,8 +740,8 @@ Quick input的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>502</width>
-           <height>343</height>
+           <width>778</width>
+           <height>552</height>
           </rect>
          </property>
          <attribute name="label">
@@ -811,8 +808,8 @@ Quick input的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>376</width>
-           <height>292</height>
+           <width>778</width>
+           <height>552</height>
           </rect>
          </property>
          <attribute name="label">
@@ -876,8 +873,8 @@ Quick input的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>304</width>
-           <height>309</height>
+           <width>778</width>
+           <height>552</height>
           </rect>
          </property>
          <attribute name="label">
@@ -942,8 +939,8 @@ Quick input的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>497</width>
-           <height>2849</height>
+           <width>761</width>
+           <height>2883</height>
           </rect>
          </property>
          <attribute name="label">
@@ -982,7 +979,9 @@ Quick input的使用流程：
              </font>
             </property>
             <property name="text">
-             <string>2024-8-30
+             <string>2024-9-10
+　　1：增加移动轨迹速度
+2024-8-30
 ㅤㅤ1：修改说明
 ㅤㅤ2：增加主题
 2024-8-28

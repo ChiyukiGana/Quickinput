@@ -365,11 +365,18 @@ private:
 				if (actions->at(i).d.mouse.move) ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.acMove));
 				else ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.acPos));
 				ps = QString::number(actions->at(i).d.mouse.x);
-				ps += u8", ";
+				ps += u8" - ";
 				ps += QString::number(actions->at(i).d.mouse.y);
-				ps += u8"ㅤㅤ随机：";
-				ps += QString::number(actions->at(i).d.mouse.ex);
-				if (actions->at(i).d.mouse.track) ps += u8"ㅤㅤ带轨迹";
+				if (actions->at(i).d.mouse.ex)
+				{
+					ps += u8"ㅤㅤ随机：";
+					ps += QString::number(actions->at(i).d.mouse.ex);
+				}
+				if (actions->at(i).d.mouse.track)
+				{
+					ps += u8"ㅤㅤ轨迹：";
+					ps += QString::number(actions->at(i).d.mouse.speed);
+				}
 			}
 			break;
 
@@ -1010,7 +1017,7 @@ private: // Widget data
 	}
 	void ItemSet(Action::ActionType type, int32 p)
 	{
-		wcstring mark(actions->at(p).mark);
+		wcstr mark(actions->at(p).mark);
 		Action action;
 		switch (type)
 		{
@@ -1029,7 +1036,7 @@ private: // Widget data
 		case Action::_rememberPos: action.type = Action::_rememberPos; break;
 		default: action.type = Action::_none; break;
 		}
-		action.mark.cpy(mark);
+		action.mark.copy(mark);
 		action.next = actions->at(p).next;
 		actions->at(p) = action;
 	}
@@ -1152,15 +1159,19 @@ private: // Widget data
 		action.d.mouse.track = ui.rbMoveTrack->isChecked();
 		int x = ui.etX->text().toInt();
 		int y = ui.etY->text().toInt();
-		int ex = ui.etMoveRand->text().toInt();
+		int r = ui.etMoveRand->text().toInt();
+		int s = 50;
+		if (ui.etMoveSpeed->text() != "") s = ui.etMoveSpeed->text().toInt();
 		if (x > posMax) x = posMax;
 		if (y > posMax) y = posMax;
-		if (ex > posMax) ex = posMax;
+		if (r > posMax) r = posMax;
 		if (x < posMin) x = posMin;
 		if (y < posMin) y = posMin;
+		if (!s) s = 1;
 		action.d.mouse.x = x;
 		action.d.mouse.y = y;
-		action.d.mouse.ex = ex;
+		action.d.mouse.ex = r;
+		action.d.mouse.speed = s;
 		return action;
 	}
 	Action GetDelay() {
@@ -1177,7 +1188,7 @@ private: // Widget data
 	}
 	Action GetText() {
 		Action action(Action::_text);
-		action.d.text.str.cpy((PCWSTR)(ui.etText->toPlainText().utf16()));
+		action.d.text.str.copy((PCWSTR)(ui.etText->toPlainText().utf16()));
 		return action;
 	}
 	Action GetColor() {
@@ -1250,7 +1261,7 @@ private: // Widget data
 	Action GetPopText()
 	{
 		Action action(Action::_popText);
-		action.d.popText.str.cpy((PCWSTR)(ui.etPopText->text().utf16()));
+		action.d.popText.str.copy((PCWSTR)(ui.etPopText->text().utf16()));
 		int time = 1000;
 		if (ui.etPopTextTime->text() != "") time = ui.etPopTextTime->text().toInt();
 		if (time > popTextTimeMax) time = popTextTimeMax;
@@ -1283,6 +1294,7 @@ private: // Widget data
 			OnRbPos(true);
 		}
 		ui.rbMoveTrack->setChecked(action.d.mouse.track);
+		ui.etMoveSpeed->setText(QString::number(action.d.mouse.speed));
 		SetEtPos({ (long)action.d.mouse.x, (long)action.d.mouse.y, (long)action.d.mouse.ex, 0 });
 	}
 	void LoadDelay(const Action& action) { SetEtDelay({ (long)action.d.delay.tmin, (long)action.d.delay.tmax }); }

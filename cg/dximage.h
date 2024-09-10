@@ -3,127 +3,115 @@
 #include <d3d11.h>
 #pragma comment(lib, "d3d11.lib")
 #include <dxgi1_2.h>
+#include "msgbox.h"
 
 namespace CG
 {
 	class DxImage
 	{
-		bool init = false;
-		bool dx3dInit = false;
-		ID3D11Device* dx3dDevice = nullptr;
-		ID3D11DeviceContext* dx3dContext = nullptr;
-		bool dxgiInit = false;
-		IDXGIDevice* dxgiDevice = nullptr;
-		IDXGIAdapter* dxgiAdp = nullptr;
-		bool outputInit = false;
-		IDXGIOutputDuplication* dxgiDupl = nullptr;
-
-		bool InitDX3D()
-		{
-			D3D_FEATURE_LEVEL levels[] = { D3D_FEATURE_LEVEL_11_0 };
-			D3D_FEATURE_LEVEL level;
-			HRESULT hr = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, levels, 1, D3D11_SDK_VERSION, &dx3dDevice, &level, &dx3dContext);
-			if (FAILED(hr)) return false;
-			return true;
-		}
-		bool InitDXGI()
-		{
-			HRESULT hr = dx3dDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
-			if (FAILED(hr)) return false;
-
-			hr = dxgiDevice->GetAdapter(&dxgiAdp);
-			if (FAILED(hr))
-			{
-				dx3dDevice->Release();
-				return false;
-			}
-			return true;
-		}
-		bool InitOutput(UINT id)
-		{
-			IDXGIOutput* dxgiOutput = nullptr;
-			HRESULT hr = dxgiAdp->EnumOutputs(id, &dxgiOutput);
-			if (FAILED(hr)) return false;
-
-			IDXGIOutput1* dxgiOutput1 = nullptr;
-			hr = dxgiOutput->QueryInterface(__uuidof(IDXGIOutput1), (void**)&dxgiOutput1);
-			dxgiOutput->Release();
-			if (FAILED(hr)) return false;
-
-			hr = dxgiOutput1->DuplicateOutput(dx3dDevice, &dxgiDupl);
-			dxgiOutput1->Release();
-			if (FAILED(hr)) return false;
-
-			return true;
-		}
-		void ReleaseDX3D()
-		{
-			init = false;
-			if (dx3dInit)
-			{
-				dx3dDevice->Release();
-				dx3dContext->Release();
-				dx3dInit = false;
-			}
-		}
-		void ReleaseDXGI()
-		{
-			init = false;
-			if (dxgiInit)
-			{
-				dxgiDevice->Release();
-				dxgiAdp->Release();
-				dxgiInit = false;
-			}
-		}
-		void ReleaseOutput()
-		{
-			init = false;
-			if (outputInit)
-			{
-				dxgiDupl->Release();
-				outputInit = false;
-			}
-		}
+		static inline ID3D11Device* dx3dDevice = nullptr;
+		static inline ID3D11DeviceContext* dx3dContext = nullptr;
+		static inline IDXGIDevice* dxgiDevice = nullptr;
+		static inline IDXGIAdapter* dxgiAdp = nullptr;
+		static inline IDXGIOutputDuplication* dxgiDupl = nullptr;
 
 	public:
+		const static inline LONG npos = -1;
 
-		DxImage() { Initialize(0); };
-		DxImage(UINT screenId) { Initialize(screenId); };
-		~DxImage() { Release(); }
-
-		bool Initialize(UINT screenId = 0)
+		static int Initialize(UINT display = 0)
 		{
-			if (!dx3dInit) dx3dInit = InitDX3D();
-			if (!dx3dInit) return false;
-			if (!dxgiInit) dxgiInit = InitDXGI();
-			if (!dxgiInit) return false;
-			if (!outputInit) outputInit = InitOutput(screenId);
-			if (!outputInit) return false;
-			init = true;
-			Sleep(100);
-			return true;
-		}
-		bool IsInitialized() { return init; }
-		void Release()
-		{
-			ReleaseDX3D();
-			ReleaseDXGI();
-			ReleaseOutput();
+			HRESULT hr;
+			if (!dx3dDevice || !dx3dContext)
+			{
+				if (dx3dDevice)
+				{
+					dx3dDevice->Release();
+					dx3dDevice = nullptr;
+				}
+				if (dx3dContext)
+				{
+					dx3dContext->Release();
+					dx3dContext = nullptr;
+				}
+				D3D_FEATURE_LEVEL level;
+				hr = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0, D3D11_SDK_VERSION, &dx3dDevice, nullptr, &dx3dContext);
+				SetLastError(hr); if (FAILED(hr)) return -1;
+			}
+
+			if (!dxgiDevice)
+			{
+				hr = dx3dDevice->QueryInterface(__uuidof(IDXGIDevice), (void**)&dxgiDevice);
+				SetLastError(hr); if (FAILED(hr)) return -2;
+			}
+
+			if (!dxgiAdp)
+			{
+				hr = dxgiDevice->GetAdapter(&dxgiAdp);
+				SetLastError(hr); if (FAILED(hr)) return -3;
+			}
+
+			if (!dxgiDupl)
+			{
+				IDXGIOutput* dxgiOutput = nullptr;
+				HRESULT hr = dxgiAdp->EnumOutputs(display, &dxgiOutput);
+				SetLastError(hr); if (FAILED(hr)) return -4;
+
+				IDXGIOutput1* dxgiOutput1 = nullptr;
+				hr = dxgiOutput->QueryInterface(__uuidof(IDXGIOutput1), (void**)&dxgiOutput1);
+				dxgiOutput->Release();
+				SetLastError(hr); if (FAILED(hr)) return -5;
+
+				hr = dxgiOutput1->DuplicateOutput(dx3dDevice, &dxgiDupl);
+				dxgiOutput1->Release();
+				SetLastError(hr); if (FAILED(hr)) return -6;
+			}
+			return 0;
 		}
 
-		SIZE SurfaceSize()
+		static void Release()
+		{
+			if (dx3dDevice)
+			{
+				dx3dDevice->Release();
+				dx3dDevice = nullptr;
+			}
+			if (dx3dContext)
+			{
+				dx3dContext->Release();
+				dx3dContext = nullptr;
+			}
+			if (dxgiDevice)
+			{
+				dxgiDevice->Release();
+				dxgiDevice = nullptr;
+			}
+			if (dxgiAdp)
+			{
+				dxgiAdp->Release();
+				dxgiAdp = nullptr;
+			}
+			if (dxgiDupl)
+			{
+				dxgiDupl->Release();
+				dxgiDupl = nullptr;
+			}
+		}
+
+		static int ReInitialize(UINT display = 0)
+		{
+			Release();
+			return Initialize(display);
+		}
+
+		static SIZE Size()
 		{
 			DXGI_OUTDUPL_DESC desc;
 			dxgiDupl->GetDesc(&desc);
 			return { (LONG)desc.ModeDesc.Width, (LONG)desc.ModeDesc.Height };
 		}
 
-		bool Texture(ID3D11Texture2D** pTexture, SIZE& rel, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
+		static bool Texture(ID3D11Texture2D** pTexture, SIZE& rel, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
 		{
-			if (!init) return false;
-			if (rect.left < 0) rect.left = 0;
-			if (rect.right < 0) rect.right = 0;
 			DXGI_OUTDUPL_FRAME_INFO dxgiFrameInfo;
 			IDXGIResource* dxgiRes = nullptr;
 			HRESULT hr = dxgiDupl->AcquireNextFrame(100, &dxgiFrameInfo, &dxgiRes); if (FAILED(hr)) return false;
@@ -135,6 +123,8 @@ namespace CG
 				return false;
 			}
 			D3D11_TEXTURE2D_DESC desc; frameTexture->GetDesc(&desc); desc.Usage = D3D11_USAGE_STAGING; desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ; desc.BindFlags = 0; desc.MiscFlags = 0; desc.MipLevels = 1; desc.ArraySize = 1; desc.SampleDesc.Count = 1;
+			if (rect.left < 0) rect.left = 0;
+			if (rect.right < 0) rect.right = 0;
 			if (rect.right > desc.Width) rect.right = desc.Width;
 			if (rect.bottom > desc.Height) rect.bottom = desc.Height;
 			if (!InRect({ 0L, 0L, (LONG)desc.Width, (LONG)desc.Height }, rect))
@@ -161,7 +151,7 @@ namespace CG
 			return true;
 		}
 
-		bool RgbMap(RgbMap& rgbMap, const RECT& rect = { 0, 0, LONG_MAX, LONG_MAX })
+		static bool RgbMap(RgbMap& rgbMap, const RECT& rect = { 0, 0, LONG_MAX, LONG_MAX })
 		{
 			SIZE rel = {};
 			ID3D11Texture2D* texture = nullptr; if (!Texture(&texture, rel, rect)) return false;
@@ -183,7 +173,8 @@ namespace CG
 			texture->Release();
 			return true;
 		}
-		bool RgbaMap(RgbaMap& rgbaMap, const RECT& rect = { 0, 0, LONG_MAX, LONG_MAX })
+
+		static bool RgbaMap(RgbaMap& rgbaMap, const RECT& rect = { 0, 0, LONG_MAX, LONG_MAX })
 		{
 			SIZE rel = {};
 			ID3D11Texture2D* texture = nullptr; if (!Texture(&texture, rel, rect)) return false;
@@ -195,6 +186,36 @@ namespace CG
 			dx3dContext->Unmap(texture, 0);
 			texture->Release();
 			return true;
+		}
+
+		static POINT Find(RECT displayRect, const Rgba& min, const Rgba& max, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
+		{
+			SIZE rel = {};
+			ID3D11Texture2D* texture = nullptr; if (!Texture(&texture, rel, displayRect)) return {npos, npos};
+			D3D11_MAPPED_SUBRESOURCE map; HRESULT hr = dx3dContext->Map(texture, 0, D3D11_MAP_READ, 0, &map); if (FAILED(hr)) { texture->Release(); return { npos, npos }; }
+			D3D11_TEXTURE2D_DESC desc; texture->GetDesc(&desc);
+
+			if (rect.left < 0) rect.left = 0;
+			if (rect.right < 0) rect.right = 0;
+			if (rect.right > rel.cx) rect.right = rel.cx;
+			if (rect.bottom > rel.cy) rect.bottom = rel.cy;
+
+			for (uint32 x = 0, y = 0, xmax = rect.right - rect.left, ymax = rect.bottom - rect.top; y < ymax; y++)
+			{
+				for (x = 0; x < xmax; x++)
+				{
+					const _BGRA_* p = ((const _BGRA_*)map.pData) + ((desc.Width * (rect.top + y)) + (rect.left + x));
+					if (InRange(p->r, min.r, max.r, 0) && InRange(p->g, min.g, max.g, 0) && InRange(p->b, min.b, max.b, 0))
+					{
+						dx3dContext->Unmap(texture, 0);
+						texture->Release();
+						return { (LONG)(rect.left + x), (LONG)(rect.top + y) };
+					}
+				}
+			}
+			dx3dContext->Unmap(texture, 0);
+			texture->Release();
+			return { npos, npos };
 		}
 	};
 }
