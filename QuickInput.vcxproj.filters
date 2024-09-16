@@ -21,153 +21,158 @@
       <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
       <Extensions>ts</Extensions>
     </Filter>
-    <Filter Include="Header Files\ui">
-      <UniqueIdentifier>{0fcea71a-e405-4d96-a6b7-fb71eb6b55f2}</UniqueIdentifier>
+    <Filter Include="Form Files\header">
+      <UniqueIdentifier>{c18b58fb-a778-44b0-a271-a5de3c79d64a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\widget">
-      <UniqueIdentifier>{b862ec47-62e3-48be-a171-c33c646e1dd7}</UniqueIdentifier>
+    <Filter Include="Form Files\ui">
+      <UniqueIdentifier>{069f5678-413d-4678-94f0-50bb13964560}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\src">
-      <UniqueIdentifier>{e729db50-58ca-4f6d-8c76-dcf64dce88d3}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\src">
-      <UniqueIdentifier>{e14e0b05-53cc-4519-87ce-1774f6f5ae65}</UniqueIdentifier>
+    <Filter Include="Form Files\widget">
+      <UniqueIdentifier>{2f54c584-a276-4bde-ab07-fa7e634f80da}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <QtUic Include=".ui\AboutUi.ui">
-      <Filter>Form Files</Filter>
+    <ClCompile Include="source\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\InputHook.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\json.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\thread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\func.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\ginc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\PopBox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="source\src\func.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\json.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\PopBox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\thread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\type.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\ginc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\minc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="source\ui\AboutUi.ui">
+      <Filter>Form Files\ui</Filter>
     </QtUic>
-    <QtUic Include=".ui\EditUi.ui">
-      <Filter>Form Files</Filter>
+    <QtUic Include="source\ui\EditUi.ui">
+      <Filter>Form Files\ui</Filter>
     </QtUic>
-    <QtUic Include=".ui\FuncUi.ui">
-      <Filter>Form Files</Filter>
+    <QtUic Include="source\ui\FuncUi.ui">
+      <Filter>Form Files\ui</Filter>
     </QtUic>
-    <QtUic Include=".ui\InstallUi.ui">
-      <Filter>Form Files</Filter>
+    <QtUic Include="source\ui\InstallUi.ui">
+      <Filter>Form Files\ui</Filter>
     </QtUic>
-    <QtUic Include=".ui\MacroUi.ui">
-      <Filter>Form Files</Filter>
+    <QtUic Include="source\ui\MacroUi.ui">
+      <Filter>Form Files\ui</Filter>
     </QtUic>
-    <QtUic Include=".ui\MainUi.ui">
-      <Filter>Form Files</Filter>
+    <QtUic Include="source\ui\MainUi.ui">
+      <Filter>Form Files\ui</Filter>
     </QtUic>
-    <QtUic Include=".ui\MoreUi.ui">
-      <Filter>Form Files</Filter>
+    <QtUic Include="source\ui\MoreUi.ui">
+      <Filter>Form Files\ui</Filter>
     </QtUic>
-    <QtUic Include=".ui\RecordUi.ui">
-      <Filter>Form Files</Filter>
+    <QtUic Include="source\ui\RecordUi.ui">
+      <Filter>Form Files\ui</Filter>
     </QtUic>
-    <QtUic Include=".ui\SettingsUi.ui">
-      <Filter>Form Files</Filter>
+    <QtUic Include="source\ui\SettingsUi.ui">
+      <Filter>Form Files\ui</Filter>
     </QtUic>
-    <QtUic Include=".ui\TriggerUi.ui">
-      <Filter>Form Files</Filter>
+    <QtUic Include="source\ui\TriggerUi.ui">
+      <Filter>Form Files\ui</Filter>
+    </QtUic>
+    <QtUic Include="source\ui\PopsUi.ui">
+      <Filter>Form Files\ui</Filter>
     </QtUic>
   </ItemGroup>
   <ItemGroup>
-    <Image Include=".res\about.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include=".res\checked.png">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include=".res\icon.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include=".res\icon.png">
-      <Filter>Resource Files</Filter>
-    </Image>
+    <QtMoc Include="source\ui\AboutUi.h">
+      <Filter>Form Files\header</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\EditUi.h">
+      <Filter>Form Files\header</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\FuncUi.h">
+      <Filter>Form Files\header</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\InstallUi.h">
+      <Filter>Form Files\header</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\MacroUi.h">
+      <Filter>Form Files\header</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\MainUi.h">
+      <Filter>Form Files\header</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\MoreUi.h">
+      <Filter>Form Files\header</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\RecordUi.h">
+      <Filter>Form Files\header</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\SettingsUi.h">
+      <Filter>Form Files\header</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\TriggerUi.h">
+      <Filter>Form Files\header</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\widget\QColorSelection.h">
+      <Filter>Form Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\widget\QPointSelection.h">
+      <Filter>Form Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\widget\QPointView.h">
+      <Filter>Form Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\widget\QRectSelection.h">
+      <Filter>Form Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\widget\QRectView.h">
+      <Filter>Form Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\QKeyEdit.h">
+      <Filter>Form Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\PopsUi.h">
+      <Filter>Form Files\header</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
-    <None Include=".res\dark.css">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include=".res\light.css">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include=".res\pink.css">
-      <Filter>Resource Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <QtRcc Include=".res\QuickInput.qrc">
-      <Filter>Resource Files</Filter>
-    </QtRcc>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include=".res\QuickInput.rc">
+    <ResourceCompile Include="source\res\QuickInput.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include=".src\InputHook.cpp">
-      <Filter>Source Files\src</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include=".src\ui\AboutUi.h">
-      <Filter>Header Files\ui</Filter>
-    </QtMoc>
-    <QtMoc Include=".src\ui\EditUi.h">
-      <Filter>Header Files\ui</Filter>
-    </QtMoc>
-    <QtMoc Include=".src\ui\FuncUi.h">
-      <Filter>Header Files\ui</Filter>
-    </QtMoc>
-    <QtMoc Include=".src\ui\InstallUi.h">
-      <Filter>Header Files\ui</Filter>
-    </QtMoc>
-    <QtMoc Include=".src\ui\MacroUi.h">
-      <Filter>Header Files\ui</Filter>
-    </QtMoc>
-    <QtMoc Include=".src\ui\MainUi.h">
-      <Filter>Header Files\ui</Filter>
-    </QtMoc>
-    <QtMoc Include=".src\ui\MoreUi.h">
-      <Filter>Header Files\ui</Filter>
-    </QtMoc>
-    <QtMoc Include=".src\ui\RecordUi.h">
-      <Filter>Header Files\ui</Filter>
-    </QtMoc>
-    <QtMoc Include=".src\ui\SettingsUi.h">
-      <Filter>Header Files\ui</Filter>
-    </QtMoc>
-    <QtMoc Include=".src\ui\TriggerUi.h">
-      <Filter>Header Files\ui</Filter>
-    </QtMoc>
-    <QtMoc Include=".src\ui\QKeyEdit.h">
-      <Filter>Header Files\widget</Filter>
-    </QtMoc>
-    <QtMoc Include=".src\widget\QColorSelection.h">
-      <Filter>Header Files\widget</Filter>
-    </QtMoc>
-    <QtMoc Include=".src\widget\QPointSelection.h">
-      <Filter>Header Files\widget</Filter>
-    </QtMoc>
-    <QtMoc Include=".src\widget\QPointView.h">
-      <Filter>Header Files\widget</Filter>
-    </QtMoc>
-    <QtMoc Include=".src\widget\QRectSelection.h">
-      <Filter>Header Files\widget</Filter>
-    </QtMoc>
-    <QtMoc Include=".src\widget\QRectView.h">
-      <Filter>Header Files\widget</Filter>
-    </QtMoc>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include=".src\func.h">
-      <Filter>Header Files\src</Filter>
-    </ClInclude>
-    <ClInclude Include=".src\MsgPop.h">
-      <Filter>Header Files\src</Filter>
-    </ClInclude>
-    <ClInclude Include=".src\type.h">
-      <Filter>Header Files\src</Filter>
-    </ClInclude>
+    <QtRcc Include="source\res\QuickInput.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
   </ItemGroup>
 </Project>

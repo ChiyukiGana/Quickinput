@@ -123,11 +123,9 @@ namespace CG {
 
 	class TimeOut {
 	private:
-
 		long timet = 0;
 
 	public:
-
 		bool timeOut = 0;
 
 		TimeOut() { Set(clock()); }
@@ -135,7 +133,7 @@ namespace CG {
 
 		void Set(long ms) { timeOut = 0; timet = clock() + ms; }
 
-		bool state() { if (timet > clock()) return 1; timeOut = 1; return 0; }
+		bool state() { if (timet > clock()) return true; timeOut = true; return false; }
 	};
 
 	class AbsPos {
