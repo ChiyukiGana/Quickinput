@@ -94,7 +94,10 @@
           <string notr="true"/>
          </property>
          <property name="text">
-          <string>ver.2024-9-14</string>
+          <string>ver.2024-9-20</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::PlainText</enum>
          </property>
         </widget>
        </item>
@@ -113,6 +116,9 @@
          </property>
          <property name="text">
           <string>&lt;a href=&quot;http://d_qinput.cyk.moe&quot;&gt;更新地址：http://d_qinput.cyk.moe&lt;/a&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
          </property>
          <property name="openExternalLinks">
           <bool>true</bool>
@@ -135,6 +141,9 @@
          <property name="text">
           <string>&lt;a href=&quot;http://bili.cyk.moe&quot;&gt;bilibili：千雪加奈&lt;/a&gt;</string>
          </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
          <property name="openExternalLinks">
           <bool>true</bool>
          </property>
@@ -156,6 +165,9 @@
          <property name="text">
           <string>&lt;a href=&quot;http://qinput.cyk.moe&quot;&gt;Official：http://qinput.cyk.moe&lt;/a&gt;</string>
          </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
+         </property>
          <property name="openExternalLinks">
           <bool>true</bool>
          </property>
@@ -176,6 +188,9 @@
          </property>
          <property name="text">
           <string>&lt;a href=&quot;https://github.com/ChiyukiGana/Quickinput&quot;&gt;Github：https://github.com/ChiyukiGana/Quickinput&lt;/a&gt;</string>
+         </property>
+         <property name="textFormat">
+          <enum>Qt::RichText</enum>
          </property>
          <property name="openExternalLinks">
           <bool>true</bool>

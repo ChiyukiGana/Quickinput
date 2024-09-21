@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿#pragma execution_character_set("utf-8")
+#pragma once
 #include <qcolordialog.h>
 #include <qevent.h>
 #include "../src/minc.h"
@@ -9,9 +10,6 @@ class PopsUi : public QDialog
 	Q_OBJECT;
 	Ui::PopsUiClass ui;
 	SettingsData* sets = &qis.set;
-
-	QPoint msPos;
-
 public:
 	PopsUi() : QDialog()
 	{
@@ -20,50 +18,13 @@ public:
 
 		WidInit();
 		WidEvent();
-		ReStyle();
 	}
-
 	void ReStyle()
 	{
 		ui.clientWidget->setStyleSheet("");
 		ui.clientWidget->setStyleSheet(qis.ui.themes[qis.set.theme].style);
 	}
-
 private:
-	void SetColor(COLORREF color, QPushButton* button) { button->setStyleSheet(QString("border:1px solid black;background-color:rgb(") + QString::number(GetRValue(color)) + "," + QString::number(GetGValue(color)) + "," + QString::number(GetBValue(color)) + ")"); }
-
-	void Update()
-	{
-		ui.etQE->setText(QString::fromWCharArray(qis.ui.pop.qe.t.c_str()));
-		ui.etQD->setText(QString::fromWCharArray(qis.ui.pop.qd.t.c_str()));
-		ui.etWE->setText(QString::fromWCharArray(qis.ui.pop.we.t.c_str()));
-		ui.etWD->setText(QString::fromWCharArray(qis.ui.pop.wd.t.c_str()));
-		ui.etQcE->setText(QString::fromWCharArray(qis.ui.pop.qce.t.c_str()));
-		ui.etQcD->setText(QString::fromWCharArray(qis.ui.pop.qcd.t.c_str()));
-		ui.etSwE->setText(QString::fromWCharArray(qis.ui.pop.swe.t.c_str()));
-		ui.etSwD->setText(QString::fromWCharArray(qis.ui.pop.swd.t.c_str()));
-		ui.etDwE->setText(QString::fromWCharArray(qis.ui.pop.dwe.t.c_str()));
-		ui.etDwD->setText(QString::fromWCharArray(qis.ui.pop.dwd.t.c_str()));
-		ui.etUpE->setText(QString::fromWCharArray(qis.ui.pop.upe.t.c_str()));
-		ui.etUpD->setText(QString::fromWCharArray(qis.ui.pop.upd.t.c_str()));
-
-		SetColor(qis.ui.pop.qe.c, ui.bnQE);
-		SetColor(qis.ui.pop.qd.c, ui.bnQD);
-		SetColor(qis.ui.pop.we.c, ui.bnWE);
-		SetColor(qis.ui.pop.wd.c, ui.bnWD);
-		SetColor(qis.ui.pop.qce.c, ui.bnQcE);
-		SetColor(qis.ui.pop.qcd.c, ui.bnQcD);
-		SetColor(qis.ui.pop.swe.c, ui.bnSwE);
-		SetColor(qis.ui.pop.swd.c, ui.bnSwD);
-		SetColor(qis.ui.pop.dwe.c, ui.bnDwE);
-		SetColor(qis.ui.pop.dwd.c, ui.bnDwD);
-		SetColor(qis.ui.pop.upe.c, ui.bnUpE);
-		SetColor(qis.ui.pop.upd.c, ui.bnUpD);
-
-		ui.sdLR->setValue(qis.ui.pop.p.x);
-		ui.sdTB->setValue(qis.ui.pop.p.y);
-	}
-
 	void WidInit()
 	{
 		ui.etQE->setAttribute(Qt::WA_Hover, true);
@@ -100,7 +61,6 @@ private:
 
 		Update();
 	}
-
 	void WidEvent()
 	{
 		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
@@ -134,7 +94,48 @@ private:
 		connect(ui.sdLR, SIGNAL(valueChanged(int)), this, SLOT(OnSdLR(int)));
 		connect(ui.sdTB, SIGNAL(valueChanged(int)), this, SLOT(OnSdTB(int)));
 	}
+	void SetColor(COLORREF color, QPushButton* button)
+	{
+		button->setStyleSheet(QString("border:1px solid black;background-color:rgb(") + QString::number(GetRValue(color)) + "," + QString::number(GetGValue(color)) + "," + QString::number(GetBValue(color)) + ")");
+	}
+	void SelectColor(QiUi::PopBoxBase& pb)
+	{
+		QColorDialog cd(QColor(GetRValue(pb.c), GetGValue(pb.c), GetBValue(pb.c)));
+		cd.exec();
+		QColor color = cd.currentColor();
+		pb.c = RGB(color.red(), color.green(), color.blue());
+	}
+	void Update()
+	{
+		ui.etQE->setText(QString::fromWCharArray(qis.ui.pop.qe.t.c_str()));
+		ui.etQD->setText(QString::fromWCharArray(qis.ui.pop.qd.t.c_str()));
+		ui.etWE->setText(QString::fromWCharArray(qis.ui.pop.we.t.c_str()));
+		ui.etWD->setText(QString::fromWCharArray(qis.ui.pop.wd.t.c_str()));
+		ui.etQcE->setText(QString::fromWCharArray(qis.ui.pop.qce.t.c_str()));
+		ui.etQcD->setText(QString::fromWCharArray(qis.ui.pop.qcd.t.c_str()));
+		ui.etSwE->setText(QString::fromWCharArray(qis.ui.pop.swe.t.c_str()));
+		ui.etSwD->setText(QString::fromWCharArray(qis.ui.pop.swd.t.c_str()));
+		ui.etDwE->setText(QString::fromWCharArray(qis.ui.pop.dwe.t.c_str()));
+		ui.etDwD->setText(QString::fromWCharArray(qis.ui.pop.dwd.t.c_str()));
+		ui.etUpE->setText(QString::fromWCharArray(qis.ui.pop.upe.t.c_str()));
+		ui.etUpD->setText(QString::fromWCharArray(qis.ui.pop.upd.t.c_str()));
 
+		SetColor(qis.ui.pop.qe.c, ui.bnQE);
+		SetColor(qis.ui.pop.qd.c, ui.bnQD);
+		SetColor(qis.ui.pop.we.c, ui.bnWE);
+		SetColor(qis.ui.pop.wd.c, ui.bnWD);
+		SetColor(qis.ui.pop.qce.c, ui.bnQcE);
+		SetColor(qis.ui.pop.qcd.c, ui.bnQcD);
+		SetColor(qis.ui.pop.swe.c, ui.bnSwE);
+		SetColor(qis.ui.pop.swd.c, ui.bnSwD);
+		SetColor(qis.ui.pop.dwe.c, ui.bnDwE);
+		SetColor(qis.ui.pop.dwd.c, ui.bnDwD);
+		SetColor(qis.ui.pop.upe.c, ui.bnUpE);
+		SetColor(qis.ui.pop.upd.c, ui.bnUpD);
+
+		ui.sdLR->setValue(qis.ui.pop.p.x);
+		ui.sdTB->setValue(qis.ui.pop.p.y);
+	}
 	bool eventFilter(QObject* obj, QEvent* et)
 	{
 		if (et->type() == QEvent::HoverEnter)
@@ -165,23 +166,17 @@ private:
 		}
 		return QDialog::eventFilter(obj, et);
 	}
-
-	// Move
-	void mousePressEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) msPos = et->pos(); }
-	void mouseMoveEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) move(et->pos() + pos() - msPos); }
-
-	void SelectColor(QiUi::PopBoxBase& pb)
+	void showEvent(QShowEvent*)
 	{
-		QColorDialog cd(QColor(GetRValue(pb.c), GetGValue(pb.c), GetBValue(pb.c)));
-		cd.exec();
-		QColor color = cd.currentColor();
-		pb.c = RGB(color.red(), color.green(), color.blue());
+		ReStyle();
+		SetForegroundWindow((HWND)QWidget::winId());
 	}
-
+	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) msPos = et->pos(), mouseDown = true; et->accept(); }void mouseMoveEvent(QMouseEvent* et) { if (mouseDown) move(et->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) mouseDown = false; }
 private slots:
-
-	void OnBnClose() { close(); }
-
+	void OnBnClose()
+	{
+		close();
+	}
 	void OnEtQE(const QString& text) { qis.ui.pop.qe.t = (wchar_t*)(text.utf16()); }
 	void OnEtQD(const QString& text) { qis.ui.pop.qd.t = (wchar_t*)(text.utf16()); }
 	void OnEtWE(const QString& text) { qis.ui.pop.we.t = (wchar_t*)(text.utf16()); }
@@ -194,7 +189,6 @@ private slots:
 	void OnEtDwD(const QString& text) { qis.ui.pop.dwd.t = (wchar_t*)(text.utf16()); }
 	void OnEtUpE(const QString& text) { qis.ui.pop.upe.t = (wchar_t*)(text.utf16()); }
 	void OnEtUpD(const QString& text) { qis.ui.pop.upd.t = (wchar_t*)(text.utf16()); }
-
 	void OnBnQE() { SelectColor(qis.ui.pop.qe); Update(); }
 	void OnBnQD() { SelectColor(qis.ui.pop.qd); Update(); }
 	void OnBnWE() { SelectColor(qis.ui.pop.we); Update(); }
@@ -207,7 +201,6 @@ private slots:
 	void OnBnDwD() { SelectColor(qis.ui.pop.dwd); Update(); }
 	void OnBnUpE() { SelectColor(qis.ui.pop.upe); Update(); }
 	void OnBnUpD() { SelectColor(qis.ui.pop.upd); Update(); }
-
 	void OnSdLR(int value) { qis.ui.pop.p.x = value; PopBox::Show(L"示例窗口"); }
 	void OnSdTB(int value) { qis.ui.pop.p.y = value; PopBox::Show(L"示例窗口"); }
 };

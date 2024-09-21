@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿#pragma execution_character_set("utf-8")
+#pragma once
 #include <qevent.h>
 #include "../src/minc.h"
 #include "ui_MoreUi.h"
@@ -7,8 +8,6 @@ class MoreUi : public QDialog
 {
 	Q_OBJECT;
 	Ui::MoreUiClass ui;
-	QPoint msPos;
-
 public:
 	MoreUi() : QDialog()
 	{
@@ -17,13 +16,11 @@ public:
 		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
 		ReStyle();
 	}
-
 	void ReStyle()
 	{
 		setStyleSheet("");
 		setStyleSheet(qis.ui.themes[qis.set.theme].style);
 	}
-
 private:
 	bool event(QEvent* et)
 	{
@@ -44,10 +41,15 @@ private:
 		}
 		return QWidget::event(et);
 	}
-	void showEvent(QShowEvent* et) { ReStyle(); }
-	void mousePressEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) msPos = et->pos(); }
-	void mouseMoveEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) move(et->pos() + pos() - msPos); }
-
+	void showEvent(QShowEvent*)
+	{
+		ReStyle();
+		SetForegroundWindow((HWND)QWidget::winId());
+	}
+	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) msPos = et->pos(), mouseDown = true; et->accept(); }void mouseMoveEvent(QMouseEvent* et) { if (mouseDown) move(et->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) mouseDown = false; }
 private slots:
-	void OnBnClose() { hide(); }
+	void OnBnClose()
+	{
+		hide();
+	}
 };

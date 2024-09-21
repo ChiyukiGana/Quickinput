@@ -1,4 +1,7 @@
-﻿#pragma once
+﻿#pragma execution_character_set("utf-8")
+#pragma once
+#include <qstandarditemmodel.h>
+#include <qabstractitemview.h>
 #include <qvalidator.h>
 #include "../src/minc.h"
 #include "ui_FuncUi.h"
@@ -8,7 +11,6 @@ class FuncUi : public QWidget
 	Q_OBJECT;
 	Ui::FuncUiClass ui;
 	FuncData* func = &qis.fun;
-
 public:
 	FuncUi(QWidget* parent) : QWidget(parent)
 	{
@@ -18,7 +20,6 @@ public:
 		WidInit();
 		WidEvent();
 	}
-
 	void ReStyle()
 	{
 		ui.clientWidget->setStyleSheet("");
@@ -28,7 +29,6 @@ public:
 		ui.hkClock->setStyleSheet("");
 		ui.hkClock->setStyleSheet(qis.ui.themes[qis.set.theme].style);
 	}
-
 private:
 	void WidInit()
 	{
@@ -36,8 +36,13 @@ private:
 
 		ui.hkQkClick->Mode(0);
 		ui.etQkDelay->setValidator(new QIntValidator(0, 99999, this));
-		ui.cmbMode->addItem(u8"按下");
-		ui.cmbMode->addItem(u8"切换");
+		
+		ui.cmbMode->addItem("按下");
+		ui.cmbMode->addItem("切换");
+		QStandardItemModel* model = (QStandardItemModel*)ui.cmbMode->view()->model();
+		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
+		if (qis.set.theme >= qis.ui.themes.size()) qis.set.theme = 0;
+
 		ui.chbQkClick->setChecked(func->quickClick.state);
 		ui.hkQkClick->VirtualKey(func->quickClick.key);
 		ui.etQkDelay->setText(QString::number(func->quickClick.delay));
@@ -49,30 +54,52 @@ private:
 		ui.hkClock->Mode(0);
 		ui.chbClock->setChecked(func->showClock.state);
 		ui.hkClock->VirtualKey(func->showClock.key);
+
+		{
+			ui.chbQkClick->setShortcut(Qt::Key_unknown);
+			ui.chbWndActive->setShortcut(Qt::Key_unknown);
+			ui.bnWndSelect->setShortcut(Qt::Key_unknown);
+			ui.chbClock->setShortcut(Qt::Key_unknown);
+		}
 	}
 	void WidEvent()
 	{
-		connect(ui.chbQkClick, SIGNAL(stateChanged(int)), this, SLOT(OnQkClick(int)));
-		connect(ui.hkQkClick, SIGNAL(changed()), this, SLOT(OnQkClickKey()));
-		connect(ui.etQkDelay, SIGNAL(textEdited(const QString&)), this, SLOT(OnQkDelay(const QString&)));
-		connect(ui.cmbMode, SIGNAL(activated(int)), this, SLOT(OnCmbMode(int)));
-
-		connect(ui.chbWndActive, SIGNAL(stateChanged(int)), this, SLOT(OnWndActive(int)));
-		connect(ui.bnWndSelect, SIGNAL(clicked()), this, SLOT(OnBnWndActive()));
-
-		connect(ui.chbClock, SIGNAL(stateChanged(int)), this, SLOT(OnClock(int)));
-		connect(ui.hkClock, SIGNAL(changed()), this, SLOT(OnShowClock()));
+		connect(ui.chbQkClick, SIGNAL(stateChanged(int)), this, SLOT(OnQcState(int)));
+		connect(ui.hkQkClick, SIGNAL(changed()), this, SLOT(OnQcKey()));
+		connect(ui.etQkDelay, SIGNAL(textEdited(const QString&)), this, SLOT(OnQcDelay(const QString&)));
+		connect(ui.cmbMode, SIGNAL(activated(int)), this, SLOT(OnQcMode(int)));
+		connect(ui.chbWndActive, SIGNAL(stateChanged(int)), this, SLOT(OnWcState(int)));
+		connect(ui.bnWndSelect, SIGNAL(clicked()), this, SLOT(OnWcSelect()));
+		connect(ui.chbClock, SIGNAL(stateChanged(int)), this, SLOT(OnClockState(int)));
+		connect(ui.hkClock, SIGNAL(changed()), this, SLOT(OnClockKey()));
 	}
-
 private slots:
-	// Click
-	void OnQkClick(int state) { func->quickClick.state = state; QiJson::SaveJson(); }
-	void OnQkClickKey() { func->quickClick.key = ui.hkQkClick->virtualKey(); QiJson::SaveJson(); }
-	void OnQkDelay(const QString& text) { func->quickClick.delay = text.toInt(); QiJson::SaveJson(); }
-	void OnCmbMode(int row) { func->quickClick.mode = row; QiJson::SaveJson(); }
-	// WndControl
-	void OnWndActive(int state) { func->wndActive.state = state; QiJson::SaveJson(); }
-	void OnBnWndActive()
+	void OnQcState(int state)
+	{
+		func->quickClick.state = state;
+		QiJson::SaveJson();
+	}
+	void OnQcKey()
+	{
+		func->quickClick.key = ui.hkQkClick->virtualKey();
+		QiJson::SaveJson();
+	}
+	void OnQcDelay(const QString& text)
+	{
+		func->quickClick.delay = text.toInt();
+		QiJson::SaveJson();
+	}
+	void OnQcMode(int row)
+	{
+		func->quickClick.mode = row;
+		QiJson::SaveJson();
+	}
+	void OnWcState(int state)
+	{
+		func->wndActive.state = state;
+		QiJson::SaveJson();
+	}
+	void OnWcSelect()
 	{
 		qis.widget.dialogActive = true;
 		qis.widget.main->hide();
@@ -82,7 +109,14 @@ private slots:
 		qis.widget.main->show();
 		QiJson::SaveJson();
 	}
-	// Clock
-	void OnClock(int state) { func->showClock.state = state; QiJson::SaveJson(); }
-	void OnShowClock() { func->showClock.key = ui.hkClock->virtualKey(); QiJson::SaveJson(); }
+	void OnClockState(int state)
+	{
+		func->showClock.state = state;
+		QiJson::SaveJson();
+	}
+	void OnClockKey()
+	{
+		func->showClock.key = ui.hkClock->virtualKey();
+		QiJson::SaveJson();
+	}
 };

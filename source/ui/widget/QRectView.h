@@ -39,7 +39,7 @@ public:
 	QRectView() : QWidget()
 	{
 		setAttribute(Qt::WA_TransparentForMouseEvents);
-		setWindowFlags(Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
+		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setAttribute(Qt::WA_TranslucentBackground);
 		zoom = (float)(screenSize().cx) / (float)(QGuiApplication::primaryScreen()->geometry().width());
 	}

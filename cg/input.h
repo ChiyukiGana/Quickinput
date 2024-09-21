@@ -126,8 +126,8 @@ namespace CG {
 			case VK_RBUTTON: return L"右键";
 			case VK_CANCEL: return L"Cancel";
 			case VK_MBUTTON: return L"中键";
-			case VK_XBUTTON1: return L"X1键";
-			case VK_XBUTTON2: return L"X2键";
+			case VK_XBUTTON1: return L"侧键1";
+			case VK_XBUTTON2: return L"侧键2";
 			case VK_WHEELUP: return L"滚轮上";
 			case VK_WHEELDOWN: return L"滚轮下";
 			case VK_BACK: return L"Back";

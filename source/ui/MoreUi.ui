@@ -940,7 +940,7 @@ Quick input的使用流程：
            <x>0</x>
            <y>0</y>
            <width>761</width>
-           <height>2951</height>
+           <height>3002</height>
           </rect>
          </property>
          <attribute name="label">
@@ -979,7 +979,10 @@ Quick input的使用流程：
              </font>
             </property>
             <property name="text">
-             <string>2024-9-14
+             <string>2024-9-20
+　　1：修复窗口模式加载异常
+　　2：窗口拖动优化
+2024-9-14
 　　1：UI更改
 　　2：增加提示框自定义
 　　3：优化在前台时禁止启用

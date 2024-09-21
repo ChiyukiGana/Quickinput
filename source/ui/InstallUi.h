@@ -1,3 +1,4 @@
+ï»¿#pragma execution_character_set("utf-8")
 #pragma once
 #include <qevent.h>
 #include <qfiledialog.h>
@@ -8,10 +9,7 @@ class InstallUi : public QDialog
 {
 	Q_OBJECT;
 	Ui::InstallUiClass ui;
-
-	QPoint msPos;
 	QString program;
-
 public:
 	InstallUi() : QDialog()
 	{
@@ -21,11 +19,10 @@ public:
 		WidInit();
 		WidEvent();
 	}
-
 	void WidInit()
 	{
 		program = QString::fromWCharArray(Path::ExpandEnvironment(EnvProgram).c_str());
-		ui.etPath->setText(program + u8"\\QuickInput");
+		ui.etPath->setText(program + "\\QuickInput");
 		ui.ckDesktop->setChecked(true);
 		ui.ckStart->setChecked(true);
 	}
@@ -35,20 +32,20 @@ public:
 		connect(ui.bnPath, SIGNAL(clicked()), this, SLOT(OnBnPath()));
 		connect(ui.bnInstall, SIGNAL(clicked()), this, SLOT(OnBnInstall()));
 	}
-
 private:
-	void mousePressEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) msPos = et->pos(); }
-	void mouseMoveEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) move(et->pos() + pos() - msPos); }
-
+	void showEvent(QShowEvent*)
+	{
+		SetForegroundWindow((HWND)QWidget::winId());
+	}
+	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) msPos = et->pos(), mouseDown = true; et->accept(); }void mouseMoveEvent(QMouseEvent* et) { if (mouseDown) move(et->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) mouseDown = false; }
 private slots:
 	void OnBnClose()
 	{
 		exit(0);
 	}
-
 	void OnBnPath()
 	{
-		QString path = QDir::toNativeSeparators(QFileDialog::getExistingDirectory(this, u8"°²×°Î»ÖÃ", program));
+		QString path = QDir::toNativeSeparators(QFileDialog::getExistingDirectory(this, "å®‰è£…ä½ç½®", program));
 		if (path.size())
 		{
 			if (Path::PathState((wchar_t*)(path.utf16()))) path += L"\\QuickInput";
@@ -77,7 +74,7 @@ private slots:
 			File::CreateShortcut(Path::Append(startPath, (startName + L".lnk")), procPath);
 		}
 
-		MsgBox::Message(std::wstring(L"³ÌĞò°²×°ÔÚ£º\n") + procPath, L"°²×°Íê³É");
+		MsgBox::Message(std::wstring(L"ç¨‹åºå®‰è£…åœ¨ï¼š\n") + procPath, L"å®‰è£…å®Œæˆ");
 		Process::Start(procPath);
 		exit(0);
 	}

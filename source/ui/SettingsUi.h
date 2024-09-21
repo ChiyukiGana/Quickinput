@@ -1,4 +1,7 @@
-﻿#pragma once
+﻿#pragma execution_character_set("utf-8")
+#pragma once
+#include <qstandarditemmodel.h>
+#include <qabstractitemview.h>
 #include "MoreUi.h"
 #include "PopsUi.h"
 #include "../src/minc.h"
@@ -10,7 +13,6 @@ class SettingsUi : public QWidget
 	Ui::SettingsUiClass ui;
 	MoreUi more;
 	SettingsData* sets = &qis.set;
-
 public:
 	SettingsUi(QWidget* parent) : QWidget(parent)
 	{
@@ -21,7 +23,6 @@ public:
 		WidEvent();
 		ReStyle();
 	}
-
 	void ReStyle()
 	{
 		ui.clientWidget->setStyleSheet("");
@@ -33,12 +34,12 @@ public:
 		ui.hkRec->setStyleSheet("");
 		ui.hkRec->setStyleSheet(qis.ui.themes[qis.set.theme].style);
 	}
-
 private:
-
 	void WidInit()
 	{
 		for (size_t i = 0; i < qis.ui.themes.size(); i++) ui.cmbTheme->addItem(qis.ui.themes[i].name);
+		QStandardItemModel* model = (QStandardItemModel*)ui.cmbTheme->view()->model();
+		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
 		if (qis.set.theme >= qis.ui.themes.size()) qis.set.theme = 0;
 		ui.cmbTheme->setCurrentIndex(qis.set.theme);
 
@@ -53,6 +54,17 @@ private:
 		ui.chbMinMode->setChecked(sets->minMode);
 		ui.chbStart->setChecked(Task::Find(L"QuickInput"));
 		ui.chbZoomBlock->setChecked(sets->zoomBlock);
+
+		{
+			ui.bnReadme->setShortcut(Qt::Key_unknown);
+			ui.bnTboxs->setShortcut(Qt::Key_unknown);
+			ui.chbDefOn->setShortcut(Qt::Key_unknown);
+			ui.chbShowTips->setShortcut(Qt::Key_unknown);
+			ui.chbAudFx->setShortcut(Qt::Key_unknown);
+			ui.chbMinMode->setShortcut(Qt::Key_unknown);
+			ui.chbZoomBlock->setShortcut(Qt::Key_unknown);
+			ui.chbStart->setShortcut(Qt::Key_unknown);
+		}
 	}
 	void WidEvent()
 	{
@@ -68,14 +80,11 @@ private:
 		connect(ui.chbStart, SIGNAL(clicked()), this, SLOT(OnStart()));
 		connect(ui.chbZoomBlock, SIGNAL(clicked()), this, SLOT(OnZoomBlock()));
 	}
-
 	void closeEvent(QCloseEvent* et)
 	{
 		more.close();
 	}
-
 private slots:
-
 	void OnBnReadme() { more.show(); }
 	void OnBnTboxs()
 	{

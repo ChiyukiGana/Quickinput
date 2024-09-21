@@ -1,3 +1,4 @@
+﻿#pragma execution_character_set("utf-8")
 #include "PopBox.h"
 
 namespace PopBox
@@ -29,14 +30,13 @@ namespace PopBox
 		}
 		else if (msg == WM_PAINT)
 		{
-			SIZE screen = System::screenVSize();
 			PAINTSTRUCT ps;
 			HDC hdc = BeginPaint(wnd, &ps); DeleteObject(SelectObject(hdc, PopBox::font));
 			SIZE size; GetTextExtentExPointW(hdc, PopBox::text.c_str(), PopBox::text.length(), 0, 0, 0, &size); size.cx += 24, size.cy += 16;
 
 			POINT pt = QiFn::ATR(qis.ui.pop.p);
-			if (pt.x < (size.cx >> 1)) pt.x = size.cx >> 1; else if (pt.x > (screen.cx - (size.cx >> 1))) pt.x = (screen.cx - (size.cx >> 1));
-			if (pt.y < (size.cy >> 1)) pt.y = size.cy >> 1; else if (pt.y > (screen.cy - (size.cy >> 1))) pt.y = (screen.cy - (size.cy >> 1));
+			if (pt.x < (size.cx >> 1)) pt.x = size.cx >> 1; else if (pt.x > (qis.screen.cx - (size.cx >> 1))) pt.x = (qis.screen.cx - (size.cx >> 1));
+			if (pt.y < (size.cy >> 1)) pt.y = size.cy >> 1; else if (pt.y > (qis.screen.cy - (size.cy >> 1))) pt.y = (qis.screen.cy - (size.cy >> 1));
 			RECT rect = { pt.x - (size.cx >> 1), pt.y - (size.cy >> 1), pt.x + (size.cx >> 1), pt.y + (size.cy >> 1) };
 			Window::Rect(wnd, rect);
 
