@@ -94,7 +94,7 @@
           <string notr="true"/>
          </property>
          <property name="text">
-          <string>ver.2024-9-20</string>
+          <string>ver.2024-9-25</string>
          </property>
          <property name="textFormat">
           <enum>Qt::PlainText</enum>

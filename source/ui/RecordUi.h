@@ -16,9 +16,9 @@ public:
 		setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setMouseTracking(true);
 
+		SetStyleGroup();
 		ui.bnStart->setText(qis.ui.text.rcStart);
 		ui.bnClose->setText(qis.ui.text.rcClose);
-
 		WidEvent();
 
 		qis.widget.record = this;
@@ -56,6 +56,13 @@ public:
 		QiFn::QiHook(false);
 		qis.recordState = false;
 		qis.widget.record = nullptr;
+	}
+	void SetStyleGroup()
+	{
+		setProperty("group", QVariant(QString::fromUtf8("frame")));
+		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
+		ui.bnStart->setProperty("group", QVariant(QString::fromUtf8("record-button")));
+		ui.bnClose->setProperty("group", QVariant(QString::fromUtf8("record-button")));
 	}
 	void ReStyle()
 	{

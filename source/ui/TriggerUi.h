@@ -23,10 +23,35 @@ public:
 		TableUpdate();
 		ReStyle();
 	}
+	void SetStyleGroup()
+	{
+		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
+		ui.chbBlock->setProperty("group", QVariant(QString::fromUtf8("check")));
+		ui.cmbMode->setProperty("group", QVariant(QString::fromUtf8("combo")));
+		ui.etCount->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.hkTr->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.cmbMode->view()->setProperty("group", QVariant(QString::fromUtf8("table")));
+		ui.tbActions->setProperty("group", QVariant(QString::fromUtf8("table")));
+		ui.tbActions->horizontalHeader()->setProperty("group", QVariant(QString::fromUtf8("table_header")));
+		ui.tbActions->verticalHeader()->setProperty("group", QVariant(QString::fromUtf8("table_header")));
+		for (size_t i = 0; i < ui.tbActions->children().size(); i++)
+		{
+			if (!String::Compare(ui.tbActions->children().at(i)->metaObject()->className(), "QTableCornerButton"))
+			{
+				QWidget* corner = (QWidget*)ui.tbActions->children().at(i);
+				QHBoxLayout* box = new QHBoxLayout(corner);
+				box->setMargin(0);
+				QWidget* widget = new QWidget(corner);
+				box->addWidget(widget);
+				widget->setProperty("group", QVariant(QString::fromUtf8("table_header")));
+				break;
+			}
+		}
+	}
 	void ReStyle()
 	{
-		ui.clientWidget->setStyleSheet("");
-		ui.clientWidget->setStyleSheet(qis.ui.themes[qis.set.theme].style);
+		setStyleSheet("");
+		setStyleSheet(qis.ui.themes[qis.set.theme].style);
 		ui.hkTr->setStyleSheet("");
 		ui.hkTr->setStyleSheet(qis.ui.themes[qis.set.theme].style);
 	}
@@ -56,6 +81,8 @@ private:
 		{
 			ui.chbBlock->setShortcut(Qt::Key_unknown);
 		}
+
+		SetStyleGroup();
 	}
 	void WidEvent()
 	{

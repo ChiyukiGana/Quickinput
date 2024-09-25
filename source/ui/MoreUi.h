@@ -1,5 +1,6 @@
 ﻿#pragma execution_character_set("utf-8")
 #pragma once
+#include <qtabbar.h>
 #include <qevent.h>
 #include "../src/minc.h"
 #include "ui_MoreUi.h"
@@ -14,7 +15,18 @@ public:
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
+		SetStyleGroup();
 		ReStyle();
+	}
+	void SetStyleGroup()
+	{
+		setProperty("group", QVariant(QString::fromUtf8("frame")));
+		ui.titleWidget->setProperty("group", QVariant(QString::fromUtf8("title")));
+		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
+		ui.bnClose->setProperty("group", QVariant(QString::fromUtf8("title-close_button")));
+		ui.tabWidget->setProperty("group", QVariant(QString::fromUtf8("tab_widget")));
+		ui.tabWidget->tabBar()->setProperty("group", QVariant(QString::fromUtf8("tab_widget_bar")));
+		ui.toolBox->setProperty("group", QVariant(QString::fromUtf8("ltab_widget")));
 	}
 	void ReStyle()
 	{

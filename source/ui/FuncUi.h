@@ -20,10 +20,24 @@ public:
 		WidInit();
 		WidEvent();
 	}
+	void SetStyleGroup()
+	{
+		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
+		ui.bnWndSelect->setProperty("group", QVariant(QString::fromUtf8("get_button")));
+		ui.chbQkClick->setProperty("group", QVariant(QString::fromUtf8("check")));
+		ui.chbClock->setProperty("group", QVariant(QString::fromUtf8("check")));
+		ui.chbWndActive->setProperty("group", QVariant(QString::fromUtf8("check")));
+		ui.cmbMode->setProperty("group", QVariant(QString::fromUtf8("combo")));
+		ui.etQkDelay->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etWndActive->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.hkQkClick->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.hkClock->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.cmbMode->view()->setProperty("group", QVariant(QString::fromUtf8("table")));
+	}
 	void ReStyle()
 	{
-		ui.clientWidget->setStyleSheet("");
-		ui.clientWidget->setStyleSheet(qis.ui.themes[qis.set.theme].style);
+		setStyleSheet("");
+		setStyleSheet(qis.ui.themes[qis.set.theme].style);
 		ui.hkQkClick->setStyleSheet("");
 		ui.hkQkClick->setStyleSheet(qis.ui.themes[qis.set.theme].style);
 		ui.hkClock->setStyleSheet("");
@@ -61,6 +75,8 @@ private:
 			ui.bnWndSelect->setShortcut(Qt::Key_unknown);
 			ui.chbClock->setShortcut(Qt::Key_unknown);
 		}
+
+		SetStyleGroup();
 	}
 	void WidEvent()
 	{

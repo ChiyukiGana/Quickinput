@@ -23,10 +23,26 @@ public:
 		WidEvent();
 		ReStyle();
 	}
+	void SetStyleGroup()
+	{
+		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
+		ui.bnReadme->setProperty("group", QVariant(QString::fromUtf8("settings-button")));
+		ui.bnTboxs->setProperty("group", QVariant(QString::fromUtf8("settings-button")));
+		ui.chbDefOn->setProperty("group", QVariant(QString::fromUtf8("check")));
+		ui.chbShowTips->setProperty("group", QVariant(QString::fromUtf8("check")));
+		ui.chbAudFx->setProperty("group", QVariant(QString::fromUtf8("check")));
+		ui.chbMinMode->setProperty("group", QVariant(QString::fromUtf8("check")));
+		ui.chbZoomBlock->setProperty("group", QVariant(QString::fromUtf8("check")));
+		ui.chbStart->setProperty("group", QVariant(QString::fromUtf8("check")));
+		ui.cmbTheme->setProperty("group", QVariant(QString::fromUtf8("combo")));
+		ui.hkKey->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.hkRec->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.cmbTheme->view()->setProperty("group", QVariant(QString::fromUtf8("table")));
+	}
 	void ReStyle()
 	{
-		ui.clientWidget->setStyleSheet("");
-		ui.clientWidget->setStyleSheet(qis.ui.themes[qis.set.theme].style);
+		setStyleSheet("");
+		setStyleSheet(qis.ui.themes[qis.set.theme].style);
 		more.setStyleSheet("");
 		more.setStyleSheet(qis.ui.themes[qis.set.theme].style);
 		ui.hkKey->setStyleSheet("");
@@ -65,6 +81,8 @@ private:
 			ui.chbZoomBlock->setShortcut(Qt::Key_unknown);
 			ui.chbStart->setShortcut(Qt::Key_unknown);
 		}
+
+		SetStyleGroup();
 	}
 	void WidEvent()
 	{

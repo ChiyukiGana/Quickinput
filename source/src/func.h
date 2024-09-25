@@ -18,7 +18,7 @@ namespace QiFn
 	std::wstring ParseWPop(std::wstring text, std::wstring window = L"(窗口名)");
 	std::wstring ParseMacroPop(std::wstring text, std::wstring macro = L"(示例宏)", size_t count = 123);
 	void QPop(QiUi::PopBoxBase pop);
-	void WPop(std::wstring text, std::wstring window);
+	void WPop(std::wstring window, QiUi::PopBoxBase pop);
 	void QcPop(QiUi::PopBoxBase pop);
 	void MacroPop(Macro* macro, QiUi::PopBoxBase pop);
 

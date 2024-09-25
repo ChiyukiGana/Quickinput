@@ -211,7 +211,7 @@ font-size:14px;</string>
       <item>
        <widget class="QToolBox" name="toolBox">
         <property name="styleSheet">
-         <string notr="true">QScrollBar{background:transparent}</string>
+         <string notr="true">QToolBox QWidget,QScrollBar{background:transparent}</string>
         </property>
         <property name="currentIndex">
          <number>0</number>
@@ -224,9 +224,6 @@ font-size:14px;</string>
            <width>778</width>
            <height>552</height>
           </rect>
-         </property>
-         <property name="styleSheet">
-          <string notr="true"/>
          </property>
          <attribute name="label">
           <string>使用方法</string>
@@ -314,9 +311,6 @@ Quick input的使用流程：
            <width>778</width>
            <height>552</height>
           </rect>
-         </property>
-         <property name="styleSheet">
-          <string notr="true"/>
          </property>
          <attribute name="label">
           <string>宏</string>
@@ -940,7 +934,7 @@ Quick input的使用流程：
            <x>0</x>
            <y>0</y>
            <width>761</width>
-           <height>3002</height>
+           <height>3070</height>
           </rect>
          </property>
          <attribute name="label">
@@ -979,7 +973,11 @@ Quick input的使用流程：
              </font>
             </property>
             <property name="text">
-             <string>2024-9-20
+             <string>2024-9-25
+　　1：UI（宏选项卡）
+　　2：增加自定义style
+　　3：增加定时
+2024-9-20
 　　1：修复窗口模式加载异常
 　　2：窗口拖动优化
 2024-9-14
