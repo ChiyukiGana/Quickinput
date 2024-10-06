@@ -344,26 +344,126 @@
           <attribute name="title">
            <string>宏</string>
           </attribute>
+          <layout class="QVBoxLayout" name="tabMacroBox">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="MacroUi" name="macro" native="true"/>
+           </item>
+          </layout>
          </widget>
          <widget class="QWidget" name="tabTrigger">
           <attribute name="title">
            <string>触发</string>
           </attribute>
+          <layout class="QVBoxLayout" name="tabTriggerBox">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="TriggerUi" name="trigger" native="true"/>
+           </item>
+          </layout>
          </widget>
          <widget class="QWidget" name="tabFunc">
           <attribute name="title">
            <string>功能</string>
           </attribute>
+          <layout class="QVBoxLayout" name="tabFuncBox">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="FuncUi" name="func" native="true"/>
+           </item>
+          </layout>
          </widget>
          <widget class="QWidget" name="tabSettings">
           <attribute name="title">
            <string>设置</string>
           </attribute>
+          <layout class="QVBoxLayout" name="tabSettingsBox">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="SettingsUi" name="settings" native="true"/>
+           </item>
+          </layout>
          </widget>
          <widget class="QWidget" name="tabAbout">
           <attribute name="title">
            <string>关于</string>
           </attribute>
+          <layout class="QVBoxLayout" name="tabAboutBox">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="AboutUi" name="about" native="true"/>
+           </item>
+          </layout>
          </widget>
         </widget>
        </item>
@@ -373,6 +473,38 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MacroUi</class>
+   <extends>QWidget</extends>
+   <header>./source/ui/macroui.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TriggerUi</class>
+   <extends>QWidget</extends>
+   <header>./source/ui/triggerui.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FuncUi</class>
+   <extends>QWidget</extends>
+   <header>./source/ui/funcui.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>SettingsUi</class>
+   <extends>QWidget</extends>
+   <header>./source/ui/settingsui.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AboutUi</class>
+   <extends>QWidget</extends>
+   <header>./source/ui/aboutui.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../res/QuickInput.qrc"/>
  </resources>

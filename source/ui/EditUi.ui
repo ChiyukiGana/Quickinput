@@ -611,13 +611,13 @@
              <item>
               <layout class="QHBoxLayout" name="keyActionBox">
                <property name="spacing">
-                <number>5</number>
+                <number>10</number>
                </property>
                <property name="bottomMargin">
                 <number>0</number>
                </property>
                <item>
-                <widget class="QKeyEdit" name="hkKey" native="true">
+                <widget class="QKeyEdit" name="hkKey">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -626,23 +626,27 @@
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>128</width>
+                   <width>120</width>
                    <height>24</height>
                   </size>
                  </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="focusPolicy">
-                  <enum>Qt::NoFocus</enum>
-                 </property>
-                 <property name="toolTip">
-                  <string/>
+                 <property name="text">
+                  <string>QKeyEdit</string>
                  </property>
                 </widget>
+               </item>
+               <item>
+                <spacer name="keySpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
                <item>
                 <widget class="QRadioButton" name="rbClick">
@@ -1961,7 +1965,7 @@
              <item>
               <layout class="QHBoxLayout" name="keyStateBox">
                <property name="spacing">
-                <number>0</number>
+                <number>10</number>
                </property>
                <property name="leftMargin">
                 <number>0</number>
@@ -1973,7 +1977,7 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="QKeyEdit" name="hkState" native="true">
+                <widget class="QKeyEdit" name="hkState">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1982,23 +1986,27 @@
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>128</width>
+                   <width>120</width>
                    <height>24</height>
                   </size>
                  </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>192</width>
-                   <height>24</height>
-                  </size>
-                 </property>
-                 <property name="focusPolicy">
-                  <enum>Qt::NoFocus</enum>
-                 </property>
-                 <property name="toolTip">
-                  <string/>
+                 <property name="text">
+                  <string>QKeyEdit</string>
                  </property>
                 </widget>
+               </item>
+               <item>
+                <spacer name="keyStateSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
                <item>
                 <widget class="QRadioButton" name="rbStateDown">
@@ -4534,8 +4542,8 @@
  <customwidgets>
   <customwidget>
    <class>QKeyEdit</class>
-   <extends>QWidget</extends>
-   <header>QKeyEdit.h</header>
+   <extends>QLabel</extends>
+   <header>./source/ui/widget/qkeyedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

@@ -189,9 +189,9 @@ namespace CG {
 			if (fill != '\0') for (size_t i = 0; i < n_size - 1; i++) p_str[i] = fill;
 		}
 
-		xstr operator+(const T res) { xstr xcstr(*this); xcstr.append(res); return xcstr; }
-		xstr operator+(const T* res) { xstr xcstr(*this); xcstr.append(res); return xcstr; }
-		xstr operator+(const xstr& res) { xstr xcstr(*this); xcstr.append(res); return xcstr; }
+		xstr operator+(const T res) { xstr str(*this); str.append(res); return str; }
+		xstr operator+(const T* res) { xstr str(*this); str.append(res); return str; }
+		xstr operator+(const xstr& res) { xstr str(*this); str.append(res); return str; }
 		xstr operator+=(const T res) { append(res); return *this; }
 		xstr operator+=(const T* res) { append(res); return *this; }
 		xstr operator+=(const xstr& res) { append(res); return *this; }
@@ -199,13 +199,13 @@ namespace CG {
 		xstr operator=(const T* res) { copy(res); return *this; }
 		xstr operator=(const xstr& res) { copy(res); return *this; }
 
-		T* write(size_t size = 0) { if (size) resize(size, '\0'); return p_str; }
 		const T* str() const { if (p_str) return p_str; return &c_null; }
-		const size_t size() const { return n_size - 1; }
-		const size_t length() const { return n_size - 1; }
-		const size_t arr_size() const { return n_size; }
-		const size_t arr_length() const { return n_size; }
-		const size_t bytes() const { return n_size * sizeof(T); }
+		T* write(size_t size = 0) { if (size) resize(size, '\0'); return p_str; }
+		size_t size() const { return n_size - 1; }
+		size_t length() const { return n_size - 1; }
+		size_t arr_size() const { return n_size; }
+		size_t arr_length() const { return n_size; }
+		size_t bytes() const { return n_size * sizeof(T); }
 
 		size_t copy(const T res)
 		{
@@ -214,27 +214,26 @@ namespace CG {
 			n_size = 2;
 			p_str = new T[n_size];
 			p_str[0] = res;
-			return n_size;
+			return size();
 		}
 		size_t copy(const T* res)
 		{
 			release();
-			size_t size = f_length(res);
-			if (!size) return 0;
-			n_size = size;
-			n_size++;
+			size_t resSize = f_length(res);
+			if (!resSize) return 0;
+			n_size = resSize + 1;
 			p_str = new T[n_size];
 			f_copy(p_str, n_size, res);
-			return n_size;
+			return size();
 		}
 		size_t copy(const xstr& res)
 		{
 			release();
 			if (!res.n_size) return 0;
-			n_size = res.n_size;
+			n_size = res.arr_size();
 			p_str = new T[n_size];
 			f_copy(p_str, n_size, res.p_str);
-			return n_size;
+			return size();
 		}
 		size_t append(const T res)
 		{
@@ -244,7 +243,8 @@ namespace CG {
 
 				T* tmp = new T[n_size];
 				f_copy(tmp, n_size, p_str);
-				release();
+
+				if (p_str) { delete[] p_str; p_str = nullptr; }
 
 				n_size++;
 				p_str = new T[n_size];
@@ -252,11 +252,8 @@ namespace CG {
 				p_str[n_size - 2] = res;
 				delete[] tmp;
 			}
-			else
-			{
-				copy(res);
-			}
-			return n_size;
+			else copy(res);
+			return size();
 		}
 		size_t append(const T* res)
 		{
@@ -267,7 +264,8 @@ namespace CG {
 
 				T* tmp = new T[n_size];
 				f_copy(tmp, n_size, p_str);
-				release();
+
+				if (p_str) { delete[] p_str; p_str = nullptr; }
 
 				n_size += resSize;
 				p_str = new T[n_size];
@@ -275,11 +273,8 @@ namespace CG {
 				f_append(p_str, n_size, res);
 				delete[] tmp;
 			}
-			else
-			{
-				copy(res);
-			}
-			return n_size;
+			else copy(res);
+			return size();
 		}
 		size_t append(const xstr& res)
 		{
@@ -289,22 +284,33 @@ namespace CG {
 
 				T* tmp = new T[n_size];
 				f_copy(tmp, n_size, p_str);
-				release();
 
-				n_size += res.n_size;
+				if (p_str) { delete[] p_str; p_str = nullptr; }
+
+				n_size += res.size();
 				p_str = new T[n_size];
 				f_copy(p_str, n_size, tmp);
 				f_append(p_str, n_size, res.p_str);
 				delete[] tmp;
 			}
-			else
-			{
-				copy(res);
-			}
-			return n_size;
+			else copy(res);
+			return size();
+		}
+
+		std::string tostring() const
+		{
+			if (typeid(T) == typeid(char)) return (const char*)str();
+			if (typeid(T) == typeid(wchar_t)) return String::toString((const wchar_t*)str());
+			return std::string();
+		}
+		std::wstring towstring() const
+		{
+			if (typeid(T) == typeid(char)) return String::toWString((const char*)str());
+			if (typeid(T) == typeid(wchar_t)) return (const wchar_t*)str();
+			return std::wstring();
 		}
 	};
 
-	using cstr = xstr<char>;
-	using wcstr = xstr<wchar_t>;
+	using u8str = xstr<char>;
+	using u16str = xstr<wchar_t>;
 }

@@ -9,6 +9,7 @@
 #endif
 
 #include <QApplication>
+#include <QMainWindow>
 #include <QWidget>
 #include <QFont>
 #include "cg/cg.h"

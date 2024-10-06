@@ -934,7 +934,7 @@ Quick input的使用流程：
            <x>0</x>
            <y>0</y>
            <width>761</width>
-           <height>3070</height>
+           <height>3121</height>
           </rect>
          </property>
          <attribute name="label">
@@ -973,7 +973,10 @@ Quick input的使用流程：
              </font>
             </property>
             <property name="text">
-             <string>2024-9-25
+             <string>2024-10-6
+　　1：修复定时丢失内容
+　　2：优化右键菜单颜色
+2024-9-25
 　　1：UI（宏选项卡）
 　　2：增加自定义style
 　　3：增加定时

@@ -264,6 +264,7 @@ private:
 			// edit button is default disabled
 			ui.bnStateEdit->setDisabled(true);
 			ui.bnLoopEdit->setDisabled(true);
+			ui.bnTimerEdit->setDisabled(true);
 			ui.bnColorEdit->setDisabled(true);
 			ui.bnImageEdit->setDisabled(true);
 		}
@@ -449,22 +450,22 @@ private:
 
 	void TableUpdate()
 	{
-		disconnect(ui.tbActions, SIGNAL(cellChanged(int, int)), this, SLOT(OnTbChanged(int, int)));
 		ui.tbActions->clearMask();
 		ui.tbActions->setRowCount(actions->size());
 		ui.tbActions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
 		ui.tbActions->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
 		ui.tbActions->verticalHeader()->setDefaultSectionSize(0);
+		QTableWidgetItem* item = nullptr;
 		for (size_t i = 0; i < actions->size(); i++)
 		{
 			QString ps;
 			switch (actions->at(i).type)
 			{
-			case Action::_end: ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acEnd)); break;
+			case Action::_end: item = item = new QTableWidgetItem(qis.ui.text.acEnd); break;
 
 			case Action::_delay:
 			{
-				ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acWait));
+				item = new QTableWidgetItem(qis.ui.text.acWait);
 				if (actions->at(i).d.delay.tmin != actions->at(i).d.delay.tmax)
 				{
 					ps = QString::number(actions->at(i).d.delay.tmin);
@@ -477,17 +478,17 @@ private:
 
 			case Action::_key:
 			{
-				if (actions->at(i).d.key.state == QiKey::up) ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acUp));
-				else if (actions->at(i).d.key.state == QiKey::down) ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acDown));
-				else if (actions->at(i).d.key.state == QiKey::click) ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acClick));
+				if (actions->at(i).d.key.state == QiKey::up) item = new QTableWidgetItem(qis.ui.text.acUp);
+				else if (actions->at(i).d.key.state == QiKey::down) item = new QTableWidgetItem(qis.ui.text.acDown);
+				else if (actions->at(i).d.key.state == QiKey::click) item = new QTableWidgetItem(qis.ui.text.acClick);
 				ps = QString::fromWCharArray(Input::Name(actions->at(i).d.key.vk));
 				break;
 			}
 
 			case Action::_mouse:
 			{
-				if (actions->at(i).d.mouse.move) ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acMove));
-				else ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acPos));
+				if (actions->at(i).d.mouse.move) item = new QTableWidgetItem(qis.ui.text.acMove);
+				else item = new QTableWidgetItem(qis.ui.text.acPos);
 				ps = QString::number(actions->at(i).d.mouse.x);
 				ps += " - ";
 				ps += QString::number(actions->at(i).d.mouse.y);
@@ -506,7 +507,7 @@ private:
 
 			case Action::_text:
 			{
-				ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acText));
+				item = new QTableWidgetItem(qis.ui.text.acText);
 				std::wstring text = actions->at(i).d.text.str.str();
 				ps = QString::fromWCharArray(text.substr(0, 32).c_str());
 				if (text.length() > 31) ps += "...";
@@ -515,7 +516,7 @@ private:
 
 			case Action::_color:
 			{
-				ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acColor));
+				item = new QTableWidgetItem(qis.ui.text.acColor);
 				ps = "(";
 				ps += QString::number(actions->at(i).d.color.rect.left);
 				ps += ",";
@@ -544,7 +545,7 @@ private:
 
 			case Action::_loop:
 			{
-				ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acLoop));
+				item = new QTableWidgetItem(qis.ui.text.acLoop);
 				if ((actions->at(i).d.loop.cmin == 0 && actions->at(i).d.loop.cmax == 0))
 					ps = "无限";
 				else if (actions->at(i).d.loop.cmin == actions->at(i).d.loop.cmax)
@@ -558,22 +559,22 @@ private:
 				break;
 			}
 
-			case Action::_loopEnd: ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acEndLoop)); break;
+			case Action::_loopEnd: item = new QTableWidgetItem(qis.ui.text.acEndLoop); break;
 
 			case Action::_keyState:
 			{
-				ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acKeyState));
+				item = new QTableWidgetItem(qis.ui.text.acKeyState);
 				if (actions->at(i).d.keyState.state) ps = "按下了　";
 				else ps = "松开了　";
 				ps += QString::fromWCharArray(Input::Name(actions->at(i).d.keyState.vk));
 				break;
 			}
 
-			case Action::_revocerPos: ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acRecoverPos)); break;
+			case Action::_revocerPos: item = new QTableWidgetItem(qis.ui.text.acRecoverPos); break;
 
 			case Action::_image:
 			{
-				ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acImage));
+				item = new QTableWidgetItem(qis.ui.text.acImage);
 				ps = "(";
 				ps += QString::number(actions->at(i).d.image.rect.left);
 				ps += ",";
@@ -600,18 +601,18 @@ private:
 
 			case Action::_popText:
 			{
-				ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acPopText));
+				item = new QTableWidgetItem(qis.ui.text.acPopText);
 				ps = QString::fromWCharArray(actions->at(i).d.popText.str.str());
 				ps += "　时长：";
 				ps += QString::number(actions->at(i).d.popText.time);
 				break;
 			}
 
-			case Action::_rememberPos: ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acRememberPos)); break;
+			case Action::_rememberPos: item = new QTableWidgetItem(qis.ui.text.acRememberPos); break;
 
 			case Action::_timer:
 			{
-				ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acTimer));
+				item = new QTableWidgetItem(qis.ui.text.acTimer);
 				if (actions->at(i).d.timer.tmin == actions->at(i).d.timer.tmax)
 					ps = QString::number(actions->at(i).d.timer.tmin);
 				else
@@ -623,15 +624,20 @@ private:
 				break;
 			}
 
-			default: ui.tbActions->setItem(i, 0, new QTableWidgetItem("加载失败")); break;
+			default: new QTableWidgetItem("加载失败"); break;
 			}
-			ui.tbActions->setItem(i, 1, new QTableWidgetItem(ps));
-			ui.tbActions->setItem(i, 2, new QTableWidgetItem(QString::fromWCharArray(actions->at(i).mark.str())));
-			ui.tbActions->item(i, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			ui.tbActions->item(i, 1)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			ui.tbActions->item(i, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+
+			item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			ui.tbActions->setItem(i, 0, item);
+
+			item = new QTableWidgetItem(ps);
+			item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			ui.tbActions->setItem(i, 1, item);
+
+			item = new QTableWidgetItem(QString::fromWCharArray(actions->at(i).mark.str()));
+			item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			ui.tbActions->setItem(i, 2, item);
 		}
-		connect(ui.tbActions, SIGNAL(cellChanged(int, int)), this, SLOT(OnTbChanged(int, int)));
 		ui.tbActions->setStyleSheet("QHeaderView::section,QScrollBar{background:transparent}");
 	}
 
@@ -791,7 +797,7 @@ private slots:
 	{
 		if (row < 0) return;
 		if (column != 2) return;
-		actions->at(row).mark = (PCWSTR)(ui.tbActions->item(row, 2)->text().utf16());
+		actions->at(row).mark = (wchar_t*)(ui.tbActions->item(row, 2)->text().utf16());
 	}
 	void OnTbClicked(int row, int column)
 	{
@@ -1311,7 +1317,7 @@ private:
 	}
 	void ItemSet(Action::ActionType type, int32 p)
 	{
-		wcstr mark(actions->at(p).mark);
+		u16str mark(actions->at(p).mark);
 		Action action;
 		switch (type)
 		{

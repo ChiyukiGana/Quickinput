@@ -2,9 +2,6 @@
 #pragma once
 #include "ginc.h"
 
-#define MacroPath L"macro\\"
-#define MacroType L".json"
-
 #define msg_exit (WM_USER + 0xFF)
 
 #define r_exit 0

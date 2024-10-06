@@ -19,6 +19,7 @@
 #include "image.h"
 #include "dximage.h"
 #include "media.h"
+#include "dxsound.h"
 #include "auddv.h"
 
 #include "window.h"
@@ -33,6 +34,5 @@
 #include "ThreadPool/ThreadPool.h"
 #include "CJsonObject/CJsonObject.hpp"
 #include "base64/base64.h"
-#include "base64-1/base64.h"
 
 using namespace CG;

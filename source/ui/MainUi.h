@@ -16,11 +16,6 @@ class MainUi : public QMainWindow
 	Ui::MainUiClass ui;
 	QSystemTrayIcon* tray = nullptr;
 	QMenu* menu = nullptr;
-	MacroUi* wm = nullptr;
-	TriggerUi* wt = nullptr;
-	FuncUi* wf = nullptr;
-	SettingsUi* ws = nullptr;
-	AboutUi* wa = nullptr;
 public:
 	MainUi() : QMainWindow()
 	{
@@ -36,7 +31,6 @@ public:
 			hide();
 		}
 	}
-
 	void SetStyleGroup()
 	{
 		setProperty("group", QVariant(QString::fromUtf8("frame")));
@@ -58,13 +52,12 @@ public:
 		setStyleSheet(qis.ui.themes[qis.set.theme].style);
 		menu->setStyleSheet("");
 		menu->setStyleSheet(qis.ui.themes[qis.set.theme].style);
-		wm->ReStyle();
-		wt->ReStyle();
-		wf->ReStyle();
-		ws->ReStyle();
+		ui.macro->ReStyle();
+		ui.trigger->ReStyle();
+		ui.func->ReStyle();
+		ui.settings->ReStyle();
 	}
 private:
-
 	void WidInit()
 	{
 		{
@@ -77,12 +70,6 @@ private:
 			tray = new QSystemTrayIcon(this);
 			tray->setIcon(QIcon(":/icon.png"));
 			tray->show();
-
-			wm = new MacroUi(ui.tabMacro);
-			wt = new TriggerUi(ui.tabTrigger);
-			wf = new FuncUi(ui.tabFunc);
-			ws = new SettingsUi(ui.tabSettings);
-			wa = new AboutUi(ui.tabAbout);
 		}
 
 		{
@@ -153,6 +140,7 @@ private:
 		}
 		return false;
 	}
+	
 	QPoint msPos;bool mouseDown = false;void mousePressEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) msPos = et->pos(), mouseDown = true; et->accept(); }void mouseMoveEvent(QMouseEvent* et) { if (mouseDown) move(et->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) mouseDown = false; }
 private slots:
 	void OnTrayClick(QSystemTrayIcon::ActivationReason reason)

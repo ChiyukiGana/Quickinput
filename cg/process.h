@@ -13,7 +13,7 @@ namespace CG {
 
 		typedef List<DWORD> PIDS;
 
-		static std::wstring runPath() { wcstr str(GetCurrentDirectoryW(0, 0) + 1, '\0'); GetCurrentDirectoryW(str.arr_size(), str.write(0)); return str.str(); }
+		static std::wstring runPath() { u16str str(GetCurrentDirectoryW(0, 0) + 1, '\0'); GetCurrentDirectoryW(str.arr_size(), str.write(0)); return str.str(); }
 
 		static bool RunPath(std::wstring path = L"") {
 			if (path.size()) return SetCurrentDirectoryW(path.c_str());

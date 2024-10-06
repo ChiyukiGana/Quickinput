@@ -50,7 +50,7 @@ namespace CG
 		/* %ProgramFiles%  >  C:\Program Files */
 		static std::wstring ExpandEnvironment(std::wstring envString = L"%ProgramFiles%")
 		{
-			wcstr str(ExpandEnvironmentStringsW(envString.c_str(), 0, 0), '\0'); // alloc
+			u16str str(ExpandEnvironmentStringsW(envString.c_str(), 0, 0), '\0'); // alloc
 			ExpandEnvironmentStringsW(envString.c_str(), str.write(0), str.arr_size()); // write
 			return str.str();
 		}
@@ -215,6 +215,19 @@ namespace CG
 			return path;
 		}
 
+
+		/* Dir/File.exe  to  .exe */
+		static std::wstring GetExtension(std::wstring path, bool mark = false)
+		{
+			path = GetFile(path, false);
+			if (!path.size()) return L"";
+
+			size_t p = path.find_last_of(L'.');
+			if (p != std::wstring::npos) path = path.substr(p);
+
+			if (mark) return AppendMark(path, L"\"");
+			return path;
+		}
 		/* Dir/File.exe  to  Dir/File */
 		static std::wstring RemoveExtension(std::wstring path, bool mark = false)
 		{

@@ -16,7 +16,7 @@ namespace CG
 		static inline IDXGIOutputDuplication* dxgiDupl = nullptr;
 
 	public:
-		const static inline LONG npos = -1;
+		static constexpr LONG npos = (-1);
 
 		static int Initialize(UINT display = 0)
 		{

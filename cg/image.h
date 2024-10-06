@@ -11,6 +11,8 @@ namespace CG {
 	class Image
 	{
 	public:
+		static constexpr LONG npos = (-1);
+
 		static void ScreenShot(LPCWSTR path) {
 			HDC hScr = GetDC(0);
 			CImage image;
@@ -308,15 +310,14 @@ namespace CG {
 			return false;
 		}
 
-		struct FindResult { bool find = false; POINT pt = { 0 }; };
-		static FindResult Find(const RgbMap& rgbMap, const RgbMap& srcMap, byte similar = 80, byte sampleRote = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
+		static POINT Find(const RgbMap& rgbMap, const RgbMap& srcMap, byte similar = 80, byte sampleRote = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
 		{
-			if (!rgbMap.count() || !srcMap.count()) return {};
+			if (!rgbMap.count() || !srcMap.count()) return { npos, npos };
 			if (rect.left < 0) rect.left = 0;
 			if (rect.right < 0) rect.right = 0;
 			if (rect.right > rgbMap.width()) rect.right = rgbMap.width();
 			if (rect.bottom > rgbMap.height()) rect.bottom = rgbMap.height();
-			if (((rect.right - rect.left) < 1) || ((rect.bottom - rect.top) < 1)) return {};
+			if (((rect.right - rect.left) < 1) || ((rect.bottom - rect.top) < 1)) return { npos, npos };
 			if (sampleRote > 100) sampleRote = 100;
 			int32 spaceX, spaceY, countX, countY;
 			spaceX = srcMap.width() * (float)sampleRote / 100.0f;
@@ -352,21 +353,20 @@ namespace CG {
 					}
 					if ((byte)((100.0f / (float)(t + f)) * (float)t) > similar)
 					{
-						return { true, {(LONG)mapX, (LONG)mapY} };
+						return { (LONG)mapX, (LONG)mapY };
 					}
 				}
 			}
-			return {};
+			return { npos, npos };
 		}
-
-		static FindResult Find(const RgbaMap& rgbMap, const RgbaMap& srcMap, byte similar = 80, byte sampleRote = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
+		static POINT Find(const RgbaMap& rgbMap, const RgbaMap& srcMap, byte similar = 80, byte sampleRote = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
 		{
-			if (!rgbMap.count() || !srcMap.count()) return {};
+			if (!rgbMap.count() || !srcMap.count()) return { npos, npos };
 			if (rect.left < 0) rect.left = 0;
 			if (rect.right < 0) rect.right = 0;
 			if (rect.right >= rgbMap.width()) rect.right = rgbMap.width();
 			if (rect.bottom >= rgbMap.height()) rect.bottom = rgbMap.height();
-			if (((rect.right - rect.left) <= 0) || ((rect.bottom - rect.top) <= 0)) return {};
+			if (((rect.right - rect.left) <= 0) || ((rect.bottom - rect.top) <= 0)) return { npos, npos };
 			if (sampleRote > 100) sampleRote = 100;
 			int32 spaceX, spaceY, countX, countY;
 			spaceX = srcMap.width() * (float)sampleRote / 100.0f;
@@ -402,12 +402,11 @@ namespace CG {
 					}
 					if ((byte)((100.0f / (float)(t + f)) * (float)t) > similar)
 					{
-						return { true, {(LONG)mapX, (LONG)mapY} };
+						return { (LONG)mapX, (LONG)mapY };
 					}
 				}
 			}
-			return {};
+			return { npos, npos };
 		}
-
 	};
 }

@@ -12,7 +12,7 @@ class MacroUi : public QWidget
 	Q_OBJECT;
 	Ui::MacroUiClass ui;
 	Macros* macros = &qis.macros;
-	QTimer* timer = 0;
+	QTimer* timer = nullptr;
 public:
 	MacroUi(QWidget* parent) : QWidget(parent)
 	{
@@ -183,23 +183,19 @@ private slots:
 			return;
 		}
 
-		std::wstring newPath(MacroPath);
-		newPath += name;
-		newPath += MacroType;
+		std::wstring newPath = macroPath + name + macroType;
 
-		if (File::FileState(newPath.c_str()))
+		if (File::FileState(newPath))
 		{
-			timer->setSingleShot(1);
+			timer->setSingleShot(true);
 			timer->start(1000);
 
-			ui.etName->setDisabled(1);
+			ui.etName->setDisabled(true);
 			ui.etName->setText("已存在该名称");
 			return;
 		}
 
-		std::wstring oldPath(MacroPath);
-		oldPath += macros->at(p).name;
-		oldPath += MacroType;
+		std::wstring oldPath = macroPath + macros->at(p).name + macroType;
 
 		macros->at(p).name = name;
 
@@ -259,44 +255,31 @@ private slots:
 	{
 		int p = ui.tbActions->currentRow();
 		if (p < 0) return;
-
 		qis.widget.dialogActive = true;
-		QString path = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, "导出到", QString::fromWCharArray((macros->at(p).name + MacroType).c_str()), "Quick input macro (*.json)"));
+		QString path = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, "导出", QString::fromWCharArray((macros->at(p).name + macroType).c_str()), "Quick input macro (*.json)"));
 		qis.widget.dialogActive = false;
-		if (!path.length()) return;
-
-		std::wstring srcFile(MacroPath);
-		srcFile += macros->at(p).name;
-		srcFile += MacroType;
-		std::wstring newFile = (LPCWSTR)path.utf16();
-
-		CopyFileW(srcFile.c_str(), newFile.c_str(), 0);
-
-		ResetControl();
-		LockControl(true);
+		if (path.size())
+		{
+			CopyFileW((macroPath + macros->at(p).name + macroType).c_str(), (wchar_t*)path.utf16(), 0);
+			ResetControl();
+			LockControl(true);
+		}
 	}
 	void OnBnImp()
 	{
 		qis.widget.dialogActive = true;
 		QString path = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "导入", QString(), "Quick input macro (*.json)"));
 		qis.widget.dialogActive = false;
-		if (path == "") return;
-
-		std::wstring srcFile = (LPCWSTR)path.utf16();
-		std::wstring newFile(MacroPath);
-		newFile += Path::Last(srcFile);
-
-		File::FolderCreate(MacroPath);
-		if (File::FileState(newFile))
+		if (path.size())
 		{
-			if (MsgBox::Warning(L"文件已存在，是否覆盖？", L"Warning", MB_YESNO | MB_ICONWARNING | MB_TOPMOST) == IDYES) CopyFileW(srcFile.c_str(), newFile.c_str(), 0);
+			std::wstring file = (wchar_t*)path.utf16();
+			File::FolderCreate(macroPath);
+			CopyFileW(file.c_str(), File::FileNameNrep(macroPath + Path::GetFile(file)).c_str(), 0);
+			QiJson::LoadMacro();
+			TableUpdate();
+			ResetControl();
+			LockControl(true);
 		}
-		else CopyFileW(srcFile.c_str(), newFile.c_str(), 0);
-
-		QiJson::LoadMacro();
-		TableUpdate();
-		ResetControl();
-		LockControl(true);
 	}
 	void OnBnLoad()
 	{
@@ -308,15 +291,9 @@ private slots:
 	void OnBnDel()
 	{
 		int p = ui.tbActions->currentRow(); if (p < 0) return;
-
-		std::wstring path(MacroPath);
-		path += macros->at(p).name;
-		path += MacroType;
-		macros->Del(p);
-
-		File::FileDelete(path.c_str());
+		File::FileDelete(macroPath + macros->at(p).name + macroType);
 		ui.tbActions->setCurrentItem(0);
-
+		QiJson::LoadMacro();
 		TableUpdate();
 		ResetControl();
 		LockControl(true);
