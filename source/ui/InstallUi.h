@@ -38,7 +38,7 @@ private:
 		SetForegroundWindow((HWND)QWidget::winId());
 	}
 	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) msPos = et->pos(), mouseDown = true; et->accept(); }void mouseMoveEvent(QMouseEvent* et) { if (mouseDown) move(et->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) mouseDown = false; }
-private slots:
+private Q_SLOTS:
 	void OnBnClose()
 	{
 		exit(0);
@@ -64,17 +64,16 @@ private slots:
 
 		if (ui.ckDesktop->isChecked())
 		{
-			std::wstring desktopName = File::FileNameNrep(L"Quick input", desktopPath + L"\\*.lnk");
-			File::CreateShortcut(Path::Append(desktopPath, (desktopName + L".lnk")), procPath);
+			std::wstring desktopFile = File::FileUnique(Path::Append(desktopPath, L"Quick input.lnk"));
+			File::CreateShortcut(desktopFile, procPath);
 		}
 		if (ui.ckStart->isChecked())
 		{
-			std::wstring startName = File::FileNameNrep(L"Quick input", startPath + L"\\*.lnk");
+			std::wstring startFile = File::FileUnique(Path::Append(startPath, L"Quick input.lnk"));
 			File::FolderCreate(startPath.c_str());
-			File::CreateShortcut(Path::Append(startPath, (startName + L".lnk")), procPath);
+			File::CreateShortcut(startFile, procPath);
 		}
 
-		MsgBox::Message(std::wstring(L"程序安装在：\n") + procPath, L"安装完成");
 		Process::Start(procPath);
 		exit(0);
 	}

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <windows.h>
+#include "xboxpad.h"
 
 #ifndef sleep
 #define sleep(ms) Sleep(ms)
@@ -16,6 +17,9 @@ namespace CG {
 	class Input
 	{
 	public:
+
+		static bool isMouse(int keyCode) { return ((keyCode >= VK_LBUTTON && keyCode <= VK_XBUTTON2) || keyCode == VK_WHEELUP || keyCode == VK_WHEELDOWN); }
+		static bool isKeyboard(int keyCode) { return ((keyCode >= VK_CLEAR && keyCode <= VK_OEM_CLEAR) || keyCode == VK_BACK || keyCode == VK_TAB); }
 
 		static bool state(BYTE vk) { return GetAsyncKeyState(vk) & 0x8000; }
 		static POINT pos() { POINT pt; GetCursorPos(&pt); return pt; }
@@ -45,10 +49,10 @@ namespace CG {
 				SendInput(1, &input, sizeof(input));
 			}
 		}
-
+		
 		static void State(HWND wnd, BYTE vk, POINT pos = { 0 }, bool state = 1)
 		{
-			if (Type(vk))
+			if (isMouse(vk))
 			{
 				if (vk == VK_LBUTTON)
 				{
@@ -107,9 +111,6 @@ namespace CG {
 
 		static void MoveLock(bool block = 1) { POINT point; GetCursorPos(&point); RECT rect = { point.x, point.y, point.x + 1, point.y + 1 }; if (block) ClipCursor(&rect); else ClipCursor(0); }
 
-		// 0: Keyboard, 1: Mouse
-		static bool Type(BYTE vk) { if ((vk >= VK_LBUTTON && vk <= VK_XBUTTON2) || (vk == VK_WHEELUP || vk == VK_WHEELDOWN)) return 1; return 0; }
-
 		static BYTE ScanCode(BYTE vk) { return MapVirtualKeyW(vk, MAPVK_VK_TO_VSC); }
 
 		static BYTE Convert(BYTE vk)
@@ -122,14 +123,14 @@ namespace CG {
 
 		static LPCWSTR Name(BYTE vk) {
 			switch (vk) {
-			case VK_LBUTTON: return L"左键";
-			case VK_RBUTTON: return L"右键";
+			case VK_LBUTTON: return L"LButton";
+			case VK_RBUTTON: return L"RButtom";
 			case VK_CANCEL: return L"Cancel";
-			case VK_MBUTTON: return L"中键";
-			case VK_XBUTTON1: return L"侧键1";
-			case VK_XBUTTON2: return L"侧键2";
-			case VK_WHEELUP: return L"滚轮上";
-			case VK_WHEELDOWN: return L"滚轮下";
+			case VK_MBUTTON: return L"MButton";
+			case VK_XBUTTON1: return L"XButton1";
+			case VK_XBUTTON2: return L"XButton2";
+			case VK_WHEELUP: return L"WheelUp";
+			case VK_WHEELDOWN: return L"WheelDown";
 			case VK_BACK: return L"Back";
 			case VK_TAB: return L"Tab";
 			case VK_CLEAR: return L"Clear";
@@ -296,6 +297,23 @@ namespace CG {
 			case VK_OEM_CLEAR: return L"OemClear";
 			}
 			return L"";
+		}
+
+
+
+
+		// support xboxpad
+		static bool isPad(int keyCode) { return ((keyCode >= XBoxPad::key_begin) && (keyCode <= XBoxPad::key_end)); }
+		static bool stateEx(SHORT vk)
+		{
+			if (isPad(vk))
+			{
+				return XBoxPad::state(vk);
+			}
+			else
+			{
+				return state(vk);
+			}
 		}
 	};
 }

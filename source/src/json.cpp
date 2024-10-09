@@ -304,7 +304,7 @@ namespace QiJson
 				case Action::_text: action.type = Action::_text;
 				{
 					jItem.Get("text", str);
-					action.d.text.str.copy(String::toWString(str).c_str());
+					action.d.text.str = String::toWString(str).c_str();
 					break;
 				}
 
@@ -373,7 +373,7 @@ namespace QiJson
 				{
 					jItem.Get("text", str);
 					jItem.Get("time", action.d.popText.time);
-					action.d.popText.str.copy(String::toWString(str).c_str());
+					action.d.popText.str = String::toWString(str).c_str();
 					break;
 				}
 
@@ -393,7 +393,7 @@ namespace QiJson
 				}
 
 				jItem.Get("mark", str);
-				action.mark.copy(String::toWString(str).c_str());
+				action.mark = String::toWString(str).c_str();
 			}
 		}
 	}

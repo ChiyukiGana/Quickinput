@@ -213,34 +213,39 @@ namespace CG {
 			return files;
 		}
 
-		static std::wstring FileNameNrep(std::wstring path, std::wstring blank = L"_") {
-			std::wstring dir = Path::GetDir(path);
-			std::wstring name = Path::RemoveExtension(Path::GetFile(path));
-			std::wstring ex = Path::GetExtension(path);
-			FileList files = FindFile(Path::Append(dir, std::wstring(L"*") + ex));
-			if (!files.size()) return path;
-			std::wstring s = name + ex;
-			uint32 e = 0;
+		static std::wstring Unique(const wstringList& strs, std::wstring str, std::wstring blankLeft = L"_", std::wstring blankRight = L"")
+		{
+			uint32 num = 0;
+			std::wstring current = str;
 			while (true)
 			{
 				bool none = true;
-				for (uint32 i = 0; i < files.size(); i++)
+				for (size_t i = 0; i < strs.size(); i++)
 				{
-					if (s == files.at(i).name)
+					if (current == strs.at(i))
 					{
 						none = false;
 						break;
 					}
 				}
-				if (none)
-				{
-					s = Path::Append(dir, s);
-					break;
-				}
-				e++;
-				s = name + blank + std::to_wstring(e) + ex;
+				if (none) break;
+				num++;
+				current = str + blankLeft + std::to_wstring(num) + blankRight;
 			}
-			return s;
+			return current;
+		}
+
+		static std::wstring FileUnique(std::wstring path, std::wstring blankLeft = L"_", std::wstring blankRight = L"") {
+			std::wstring dir = Path::GetDir(path);
+			std::wstring name = Path::RemoveExtension(Path::GetFile(path));
+			std::wstring ex = Path::GetExtension(path);
+			FileList files = FindFile(Path::Append(dir, std::wstring(L"*") + ex));
+			if (!files.size()) return path;
+
+			List<std::wstring> strs(files.size());
+			for (size_t i = 0; i < files.size(); i++) strs.at(i) = Path::RemoveExtension(files.at(i).name);
+			std::wstring new_name = Unique(strs, name, blankLeft, blankRight);
+			return Path::Append(dir, new_name) + ex;
 		}
 	};
 }

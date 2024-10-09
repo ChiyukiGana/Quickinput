@@ -199,7 +199,7 @@ public:
 private:
 	void WidInit()
 	{
-		// Table Menu
+		if ("table context menu")
 		{
 			menu = new QMenu(this);
 			muDel = new QAction("删除", this);
@@ -221,54 +221,60 @@ private:
 			connect(muCopy, SIGNAL(triggered()), this, SLOT(OnMenuCopy()));
 			connect(muPaste, SIGNAL(triggered()), this, SLOT(OnMenuPaste()));
 		}
-		// Button
+		if ("buttons")
 		{
-			// text
-			ui.bnKeyAdd->setText(qis.ui.text.etAdd);
-			ui.bnStateAdd->setText(qis.ui.text.etAdd);
-			ui.bnMoveAdd->setText(qis.ui.text.etAdd);
-			ui.bnDelayAdd->setText(qis.ui.text.etAdd);
-			ui.bnLoopAdd->setText(qis.ui.text.etAdd);
-			ui.bnTextAdd->setText(qis.ui.text.etAdd);
-			ui.bnColorAdd->setText(qis.ui.text.etAdd);
-			ui.bnImageAdd->setText(qis.ui.text.etAdd);
-			ui.bnEndAdd->setText(qis.ui.text.etAdd);
-			ui.bnEndLoopAdd->setText(qis.ui.text.etAdd);
-			ui.bnStateEdit->setText(qis.ui.text.etEdit);
-			ui.bnLoopEdit->setText(qis.ui.text.etEdit);
-			ui.bnColorEdit->setText(qis.ui.text.etEdit);
-			ui.bnImageEdit->setText(qis.ui.text.etEdit);
-			// no shortcut key
-			ui.bnClose->setShortcut(Qt::Key_unknown);
-			ui.bnRun->setShortcut(Qt::Key_unknown);
-			ui.bnPos->setShortcut(Qt::Key_unknown);
-			ui.bnColorRect->setShortcut(Qt::Key_unknown);
-			ui.bnColorValue->setShortcut(Qt::Key_unknown);
-			ui.bnImageRect->setShortcut(Qt::Key_unknown);
-			ui.bnImageShot->setShortcut(Qt::Key_unknown);
+			if ("text")
+			{
+				ui.bnKeyAdd->setText(qis.ui.text.etAdd);
+				ui.bnStateAdd->setText(qis.ui.text.etAdd);
+				ui.bnMoveAdd->setText(qis.ui.text.etAdd);
+				ui.bnDelayAdd->setText(qis.ui.text.etAdd);
+				ui.bnLoopAdd->setText(qis.ui.text.etAdd);
+				ui.bnTextAdd->setText(qis.ui.text.etAdd);
+				ui.bnColorAdd->setText(qis.ui.text.etAdd);
+				ui.bnImageAdd->setText(qis.ui.text.etAdd);
+				ui.bnEndAdd->setText(qis.ui.text.etAdd);
+				ui.bnEndLoopAdd->setText(qis.ui.text.etAdd);
+				ui.bnStateEdit->setText(qis.ui.text.etEdit);
+				ui.bnLoopEdit->setText(qis.ui.text.etEdit);
+				ui.bnColorEdit->setText(qis.ui.text.etEdit);
+				ui.bnImageEdit->setText(qis.ui.text.etEdit);
+			}
+			if ("clear shortcut")
+			{
+				ui.bnClose->setShortcut(Qt::Key_unknown);
+				ui.bnRun->setShortcut(Qt::Key_unknown);
+				ui.bnPos->setShortcut(Qt::Key_unknown);
+				ui.bnColorRect->setShortcut(Qt::Key_unknown);
+				ui.bnColorValue->setShortcut(Qt::Key_unknown);
+				ui.bnImageRect->setShortcut(Qt::Key_unknown);
+				ui.bnImageShot->setShortcut(Qt::Key_unknown);
 
-			ui.bnKeyAdd->setShortcut(Qt::Key_unknown);
-			ui.bnStateAdd->setShortcut(Qt::Key_unknown);
-			ui.bnMoveAdd->setShortcut(Qt::Key_unknown);
-			ui.bnDelayAdd->setShortcut(Qt::Key_unknown);
-			ui.bnLoopAdd->setShortcut(Qt::Key_unknown);
-			ui.bnTextAdd->setShortcut(Qt::Key_unknown);
-			ui.bnColorAdd->setShortcut(Qt::Key_unknown);
-			ui.bnImageAdd->setShortcut(Qt::Key_unknown);
-			ui.bnEndAdd->setShortcut(Qt::Key_unknown);
-			ui.bnEndLoopAdd->setShortcut(Qt::Key_unknown);
-			ui.bnStateEdit->setShortcut(Qt::Key_unknown);
-			ui.bnLoopEdit->setShortcut(Qt::Key_unknown);
-			ui.bnColorEdit->setShortcut(Qt::Key_unknown);
-			ui.bnImageEdit->setShortcut(Qt::Key_unknown);
-			// edit button is default disabled
-			ui.bnStateEdit->setDisabled(true);
-			ui.bnLoopEdit->setDisabled(true);
-			ui.bnTimerEdit->setDisabled(true);
-			ui.bnColorEdit->setDisabled(true);
-			ui.bnImageEdit->setDisabled(true);
+				ui.bnKeyAdd->setShortcut(Qt::Key_unknown);
+				ui.bnStateAdd->setShortcut(Qt::Key_unknown);
+				ui.bnMoveAdd->setShortcut(Qt::Key_unknown);
+				ui.bnDelayAdd->setShortcut(Qt::Key_unknown);
+				ui.bnLoopAdd->setShortcut(Qt::Key_unknown);
+				ui.bnTextAdd->setShortcut(Qt::Key_unknown);
+				ui.bnColorAdd->setShortcut(Qt::Key_unknown);
+				ui.bnImageAdd->setShortcut(Qt::Key_unknown);
+				ui.bnEndAdd->setShortcut(Qt::Key_unknown);
+				ui.bnEndLoopAdd->setShortcut(Qt::Key_unknown);
+				ui.bnStateEdit->setShortcut(Qt::Key_unknown);
+				ui.bnLoopEdit->setShortcut(Qt::Key_unknown);
+				ui.bnColorEdit->setShortcut(Qt::Key_unknown);
+				ui.bnImageEdit->setShortcut(Qt::Key_unknown);
+			}
+			if ("disable edit buttons")
+			{
+				ui.bnStateEdit->setDisabled(true);
+				ui.bnLoopEdit->setDisabled(true);
+				ui.bnTimerEdit->setDisabled(true);
+				ui.bnColorEdit->setDisabled(true);
+				ui.bnImageEdit->setDisabled(true);
+			}
 		}
-		// RadioButton group
+		if ("set radio group")
 		{
 			QButtonGroup* actionRbs = new QButtonGroup(this);
 			actionRbs->addButton(ui.rbRunning);
@@ -301,7 +307,7 @@ private:
 			imageRbs->addButton(ui.rbImageNFind);
 			ui.rbImageFind->setChecked(true);
 		}
-		// Value range
+		if ("line edit range")
 		{
 			ui.etX->setValidator(new QIntValidator(0, posMax, this));
 			ui.etY->setValidator(new QIntValidator(0, posMax, this));
@@ -328,7 +334,7 @@ private:
 			ui.etImageSim->setValidator(new QIntValidator(0, imageSimMax, this));
 			ui.etPopTextTime->setValidator(new QIntValidator(0, popTextTimeMax, this));
 		}
-		// Table
+		if ("table")
 		{
 			ui.tbActions->setContextMenuPolicy(Qt::CustomContextMenu);
 			ui.tbActions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
@@ -341,12 +347,18 @@ private:
 			ui.tbActions->setColumnWidth(1, 300);
 			ui.tbActions->setColumnWidth(2, 180);
 		}
-		// KeyEdit
+		if ("key edit")
 		{
-			ui.hkKey->Mode(0);
-			ui.hkState->Mode(0);
-			ui.hkKey->VirtualKey(VK_LBUTTON);
-			ui.hkState->VirtualKey(VK_LBUTTON);
+			ui.hkKey->setMode(QKeyEdit::Mode::solid);
+			ui.hkKey->setMouseEnable(true);
+			ui.hkKey->setWheelEnable(true);
+			ui.hkKey->setKey(QKeyEdit::Key(VK_LBUTTON));
+
+			ui.hkState->setMode(QKeyEdit::Mode::solid);
+			ui.hkState->setMouseEnable(true);
+			ui.hkState->setWheelEnable(true);
+			ui.hkState->setPadEnable(true);
+			ui.hkState->setKey(QKeyEdit::Key(VK_LBUTTON));
 		}
 
 		SetStyleGroup();
@@ -367,54 +379,58 @@ private:
 	}
 	void WidEvent()
 	{
-		// Title
-		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
-		connect(ui.bnRun, SIGNAL(clicked()), this, SLOT(OnBnRun()));
-		connect(ui.bnWndSelect, SIGNAL(clicked()), this, SLOT(OnBnWndSelect()));
-		connect(ui.chbWnd, SIGNAL(clicked()), this, SLOT(OnChbWnd()));
-		connect(ui.chbChildWnd, SIGNAL(clicked()), this, SLOT(OnChbChildWnd()));
-
-		// Table
-		ui.tbActions->installEventFilter(this);
-		ui.tbActions->viewport()->installEventFilter(this);
-		connect(ui.rbRunning, SIGNAL(toggled(bool)), this, SLOT(OnRbRunning(bool)));
-		connect(ui.rbEnding, SIGNAL(toggled(bool)), this, SLOT(OnRbEnding(bool)));
-		connect(ui.tbActions, SIGNAL(cellChanged(int, int)), this, SLOT(OnTbChanged(int, int)));
-		connect(ui.tbActions, SIGNAL(cellClicked(int, int)), this, SLOT(OnTbClicked(int, int)));
-		connect(ui.tbActions, SIGNAL(currentItemChanged(QTableWidgetItem*, QTableWidgetItem*)), this, SLOT(OnTbSelect(QTableWidgetItem*, QTableWidgetItem*)));
-		connect(ui.tbActions, SIGNAL(cellDoubleClicked(int, int)), this, SLOT(OnTbDoubleClick(int, int)));
-		connect(ui.tbActions, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnTableMenu(const QPoint&)));
-
-		// Action widget
-		connect(ui.bnKeyAdd, SIGNAL(clicked()), this, SLOT(OnBnKeyAdd()));
-		connect(ui.bnStateAdd, SIGNAL(clicked()), this, SLOT(OnBnKeyStateAdd()));
-		connect(ui.bnStateEdit, SIGNAL(clicked()), this, SLOT(OnBnKeyStateEdit()));
-		connect(ui.bnMoveAdd, SIGNAL(clicked()), this, SLOT(OnBnMouseAdd()));
-		connect(ui.bnPos, SIGNAL(clicked()), this, SLOT(OnBnMousePos()));
-		connect(ui.rbPos, SIGNAL(toggled(bool)), this, SLOT(OnRbMousePos(bool)));
-		connect(ui.rbMove, SIGNAL(toggled(bool)), this, SLOT(OnRbMouseMove(bool)));
-		connect(ui.bnDelayAdd, SIGNAL(clicked()), this, SLOT(OnBnDelayAdd()));
-		connect(ui.etDelayMin, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtDelayMin(const QString&)));
-		connect(ui.bnTextAdd, SIGNAL(clicked()), this, SLOT(OnBnTextAdd()));
-		connect(ui.bnLoopAdd, SIGNAL(clicked()), this, SLOT(OnBnLoopAdd()));
-		connect(ui.bnLoopEdit, SIGNAL(clicked()), this, SLOT(OnBnLoopEdit()));
-		connect(ui.etCountMin, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtLoopMin(const QString&)));
-		connect(ui.bnTimerAdd, SIGNAL(clicked()), this, SLOT(OnBnTimerAdd()));
-		connect(ui.bnTimerEdit, SIGNAL(clicked()), this, SLOT(OnBnTimerEdit()));
-		connect(ui.etTimerMin, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtTimerMin(const QString&)));
-		connect(ui.bnColorAdd, SIGNAL(clicked()), this, SLOT(OnBnColorAdd()));
-		connect(ui.bnColorEdit, SIGNAL(clicked()), this, SLOT(OnBnColorEdit()));
-		connect(ui.bnColorRect, SIGNAL(clicked()), this, SLOT(OnBnColorRect()));
-		connect(ui.bnColorValue, SIGNAL(clicked()), this, SLOT(OnBnColorValue()));
-		connect(ui.bnEndAdd, SIGNAL(clicked()), this, SLOT(OnBnEndAdd()));
-		connect(ui.bnEndLoopAdd, SIGNAL(clicked()), this, SLOT(OnBnEndLoopAdd()));
-		connect(ui.bnRememberPosAdd, SIGNAL(clicked()), this, SLOT(OnBnRememberPosAdd()));
-		connect(ui.bnRecoverPosAdd, SIGNAL(clicked()), this, SLOT(OnBnRecoverPosAdd()));
-		connect(ui.bnImageAdd, SIGNAL(clicked()), this, SLOT(OnBnImageAdd()));
-		connect(ui.bnImageEdit, SIGNAL(clicked()), this, SLOT(OnBnImageEdit()));
-		connect(ui.bnImageRect, SIGNAL(clicked()), this, SLOT(OnBnImageRect()));
-		connect(ui.bnImageShot, SIGNAL(clicked()), this, SLOT(OnBnImageShot()));
-		connect(ui.bnPopTextAdd, SIGNAL(clicked()), this, SLOT(OnBnPopTextAdd()));
+		if ("title")
+		{
+			connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
+			connect(ui.bnRun, SIGNAL(clicked()), this, SLOT(OnBnRun()));
+			connect(ui.bnWndSelect, SIGNAL(clicked()), this, SLOT(OnBnWndSelect()));
+			connect(ui.chbWnd, SIGNAL(clicked()), this, SLOT(OnChbWnd()));
+			connect(ui.chbChildWnd, SIGNAL(clicked()), this, SLOT(OnChbChildWnd()));
+		}
+		if ("table")
+		{
+			ui.tbActions->installEventFilter(this);
+			ui.tbActions->viewport()->installEventFilter(this);
+			connect(ui.rbRunning, SIGNAL(toggled(bool)), this, SLOT(OnRbRunning(bool)));
+			connect(ui.rbEnding, SIGNAL(toggled(bool)), this, SLOT(OnRbEnding(bool)));
+			connect(ui.tbActions, SIGNAL(cellChanged(int, int)), this, SLOT(OnTbChanged(int, int)));
+			connect(ui.tbActions, SIGNAL(cellClicked(int, int)), this, SLOT(OnTbClicked(int, int)));
+			connect(ui.tbActions, SIGNAL(currentItemChanged(QTableWidgetItem*, QTableWidgetItem*)), this, SLOT(OnTbSelect(QTableWidgetItem*, QTableWidgetItem*)));
+			connect(ui.tbActions, SIGNAL(cellDoubleClicked(int, int)), this, SLOT(OnTbDoubleClick(int, int)));
+			connect(ui.tbActions, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnTableMenu(const QPoint&)));
+		}
+		if ("action widget")
+		{
+			connect(ui.bnKeyAdd, SIGNAL(clicked()), this, SLOT(OnBnKeyAdd()));
+			connect(ui.bnStateAdd, SIGNAL(clicked()), this, SLOT(OnBnKeyStateAdd()));
+			connect(ui.bnStateEdit, SIGNAL(clicked()), this, SLOT(OnBnKeyStateEdit()));
+			connect(ui.bnMoveAdd, SIGNAL(clicked()), this, SLOT(OnBnMouseAdd()));
+			connect(ui.bnPos, SIGNAL(clicked()), this, SLOT(OnBnMousePos()));
+			connect(ui.rbPos, SIGNAL(toggled(bool)), this, SLOT(OnRbMousePos(bool)));
+			connect(ui.rbMove, SIGNAL(toggled(bool)), this, SLOT(OnRbMouseMove(bool)));
+			connect(ui.bnDelayAdd, SIGNAL(clicked()), this, SLOT(OnBnDelayAdd()));
+			connect(ui.etDelayMin, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtDelayMin(const QString&)));
+			connect(ui.bnTextAdd, SIGNAL(clicked()), this, SLOT(OnBnTextAdd()));
+			connect(ui.bnLoopAdd, SIGNAL(clicked()), this, SLOT(OnBnLoopAdd()));
+			connect(ui.bnLoopEdit, SIGNAL(clicked()), this, SLOT(OnBnLoopEdit()));
+			connect(ui.etCountMin, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtLoopMin(const QString&)));
+			connect(ui.bnTimerAdd, SIGNAL(clicked()), this, SLOT(OnBnTimerAdd()));
+			connect(ui.bnTimerEdit, SIGNAL(clicked()), this, SLOT(OnBnTimerEdit()));
+			connect(ui.etTimerMin, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtTimerMin(const QString&)));
+			connect(ui.bnColorAdd, SIGNAL(clicked()), this, SLOT(OnBnColorAdd()));
+			connect(ui.bnColorEdit, SIGNAL(clicked()), this, SLOT(OnBnColorEdit()));
+			connect(ui.bnColorRect, SIGNAL(clicked()), this, SLOT(OnBnColorRect()));
+			connect(ui.bnColorValue, SIGNAL(clicked()), this, SLOT(OnBnColorValue()));
+			connect(ui.bnEndAdd, SIGNAL(clicked()), this, SLOT(OnBnEndAdd()));
+			connect(ui.bnEndLoopAdd, SIGNAL(clicked()), this, SLOT(OnBnEndLoopAdd()));
+			connect(ui.bnRememberPosAdd, SIGNAL(clicked()), this, SLOT(OnBnRememberPosAdd()));
+			connect(ui.bnRecoverPosAdd, SIGNAL(clicked()), this, SLOT(OnBnRecoverPosAdd()));
+			connect(ui.bnImageAdd, SIGNAL(clicked()), this, SLOT(OnBnImageAdd()));
+			connect(ui.bnImageEdit, SIGNAL(clicked()), this, SLOT(OnBnImageEdit()));
+			connect(ui.bnImageRect, SIGNAL(clicked()), this, SLOT(OnBnImageRect()));
+			connect(ui.bnImageShot, SIGNAL(clicked()), this, SLOT(OnBnImageShot()));
+			connect(ui.bnPopTextAdd, SIGNAL(clicked()), this, SLOT(OnBnPopTextAdd()));
+		}
 	}
 
 	void SetWindowMode()
@@ -481,7 +497,7 @@ private:
 				if (actions->at(i).d.key.state == QiKey::up) item = new QTableWidgetItem(qis.ui.text.acUp);
 				else if (actions->at(i).d.key.state == QiKey::down) item = new QTableWidgetItem(qis.ui.text.acDown);
 				else if (actions->at(i).d.key.state == QiKey::click) item = new QTableWidgetItem(qis.ui.text.acClick);
-				ps = QString::fromWCharArray(Input::Name(actions->at(i).d.key.vk));
+				ps = QKeyEdit::keyName(actions->at(i).d.key.vk);
 				break;
 			}
 
@@ -566,7 +582,7 @@ private:
 				item = new QTableWidgetItem(qis.ui.text.acKeyState);
 				if (actions->at(i).d.keyState.state) ps = "按下了　";
 				else ps = "松开了　";
-				ps += QString::fromWCharArray(Input::Name(actions->at(i).d.keyState.vk));
+				ps += QKeyEdit::keyName(actions->at(i).d.keyState.vk);
 				break;
 			}
 
@@ -724,7 +740,7 @@ private:
 		SetForegroundWindow((HWND)QWidget::winId());
 	}
 	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) msPos = et->pos(), mouseDown = true; et->accept(); }void mouseMoveEvent(QMouseEvent* et) { if (mouseDown) move(et->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) mouseDown = false; }
-private slots:
+private Q_SLOTS:
 	// Title
 	void OnBnClose()
 	{
@@ -761,7 +777,7 @@ private slots:
 	}
 	void OnMenuChange()
 	{
-		changing ? Changing(false) : Changing(true);
+		changing ? SetChange(false) : SetChange(true);
 	}
 	void OnMenuCut()
 	{
@@ -958,7 +974,7 @@ private slots:
 	}
 	void OnTbDoubleClick(int row, int column)
 	{
-		changing ? Changing(false) : Changing(true);
+		changing ? SetChange(false) : SetChange(true);
 	}
 	void OnTableMenu(const QPoint& pt)
 	{
@@ -1237,7 +1253,7 @@ private slots:
 
 private:
 	// Action
-	void Changing(bool state)
+	void SetChange(bool state)
 	{
 		if (state)
 		{
@@ -1317,7 +1333,7 @@ private:
 	}
 	void ItemSet(Action::ActionType type, int32 p)
 	{
-		u16str mark(actions->at(p).mark);
+		u16string mark(actions->at(p).mark);
 		Action action;
 		switch (type)
 		{
@@ -1337,7 +1353,7 @@ private:
 		case Action::_timer: action = WidgetGetTimer(); break;
 		default: action.type = Action::_none; break;
 		}
-		action.mark.copy(mark);
+		action.mark = mark;
 		action.next = actions->at(p).next;
 		actions->at(p) = action;
 	}
@@ -1357,7 +1373,7 @@ private:
 		ItemSet(type, p);
 		TableUpdate();
 		ui.tbActions->setCurrentItem(0);
-		Changing(false);
+		SetChange(false);
 	}
 	void ItemDel()
 	{
@@ -1371,7 +1387,7 @@ private:
 		TableUpdate();
 		ui.tbActions->setCurrentItem(0);
 
-		Changing(false);
+		SetChange(false);
 	}
 	void ItemCut()
 	{
@@ -1408,13 +1424,13 @@ private:
 		if (ui.rbDown->isChecked()) action.d.key.state = QiKey::down;
 		else if (ui.rbUp->isChecked()) action.d.key.state = QiKey::up;
 		else if (ui.rbClick->isChecked()) action.d.key.state = QiKey::click;
-		action.d.key.vk = ui.hkKey->virtualKey();
+		action.d.key.vk = ui.hkKey->key().keyCode;
 		return action;
 	}
 	Action WidgetGetKeyState() {
 		Action action(Action::_keyState);
 		action.d.keyState.state = ui.rbStateDown->isChecked();
-		action.d.keyState.vk = ui.hkState->virtualKey();
+		action.d.keyState.vk = ui.hkState->key().keyCode;
 		return action;
 	}
 	Action WidgetGetMouse() {
@@ -1452,7 +1468,7 @@ private:
 	}
 	Action WidgetGetText() {
 		Action action(Action::_text);
-		action.d.text.str.copy((PCWSTR)(ui.etText->toPlainText().utf16()));
+		action.d.text.str = (const wchar_t*)(ui.etText->toPlainText().utf16());
 		return action;
 	}
 	Action WidgetGetColor() {
@@ -1525,7 +1541,7 @@ private:
 	Action WidgetGetPopText()
 	{
 		Action action(Action::_popText);
-		action.d.popText.str.copy((PCWSTR)(ui.etPopText->text().utf16()));
+		action.d.popText.str = (const wchar_t*)(ui.etPopText->text().utf16());
 		int time = 1000;
 		if (ui.etPopTextTime->text() != "") time = ui.etPopTextTime->text().toInt();
 		if (time > popTextTimeMax) time = popTextTimeMax;
@@ -1551,13 +1567,13 @@ private:
 		if (action.d.key.state == QiKey::down) ui.rbDown->setChecked(1);
 		else if (action.d.key.state == QiKey::up) ui.rbUp->setChecked(1);
 		else if (action.d.key.state == QiKey::click) ui.rbClick->setChecked(1);
-		ui.hkKey->VirtualKey(action.d.key.vk);
+		ui.hkKey->setKey(QKeyEdit::Key(action.d.key.vk));
 	}
 	void WidgetSetKeyState(const Action& action)
 	{
 		if (action.d.keyState.state) ui.rbStateDown->setChecked(true);
 		if (!action.d.keyState.state) ui.rbStateUp->setChecked(true);
-		ui.hkState->VirtualKey(action.d.keyState.vk);
+		ui.hkState->setKey(QKeyEdit::Key(action.d.keyState.vk));
 	}
 	void WidgetSetMouse(const Action& action) {
 		if (action.d.mouse.move) ui.rbMove->setChecked(true), OnRbMouseMove(true);

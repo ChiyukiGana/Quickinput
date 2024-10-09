@@ -69,6 +69,17 @@ namespace CG
 				}
 			}
 		}
+		void Del(const T* pt)
+		{
+			for (size_t i = 0; i < base_vector::size(); i++)
+			{
+				if (&base_vector::at(i) == pt)
+				{
+					base_vector::erase(base_vector::begin() + i);
+					return;
+				}
+			}
+		}
 		void Del(size_t p)
 		{
 			base_vector::erase(base_vector::begin() + p);

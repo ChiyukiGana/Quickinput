@@ -148,7 +148,7 @@ private:
 		LockControl(true);
 		TableUpdate();
 	}
-private slots:
+private Q_SLOTS:
 	void OnTimeOut()
 	{
 		int p = ui.tbActions->currentRow();
@@ -274,7 +274,7 @@ private slots:
 		{
 			std::wstring file = (wchar_t*)path.utf16();
 			File::FolderCreate(macroPath);
-			CopyFileW(file.c_str(), File::FileNameNrep(macroPath + Path::GetFile(file)).c_str(), 0);
+			CopyFileW(file.c_str(), File::FileUnique(macroPath + Path::GetFile(file)).c_str(), 0);
 			QiJson::LoadMacro();
 			TableUpdate();
 			ResetControl();

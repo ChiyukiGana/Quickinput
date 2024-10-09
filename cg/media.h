@@ -15,7 +15,7 @@
 #define audfx_ok1 L"C:/Windows/Media/Windows Default.wav"
 
 namespace CG {
-	struct WavFile
+	struct WavFileStruct
 	{
 		struct RIFF
 		{
@@ -43,7 +43,12 @@ namespace CG {
 		FORMAT sFormat;
 		DATA sData;
 		void* pData = nullptr;
-
+	};
+	class WavFile : public WavFileStruct
+	{
+	public:
+		WavFile() {}
+		~WavFile() { Release(); }
 		bool Load(std::wstring path)
 		{
 			Release();
@@ -83,17 +88,22 @@ namespace CG {
 			}
 			return false;
 		}
-		void Release() { if (pData) delete pData; }
+		void Release() { if (pData) { delete pData; pData = nullptr; } }
 	};
 
-	struct SoundData
+	struct SoundDataStruct
 	{
 		uint32 bits = 0;
 		uint32 channels = 0;
 		uint32 simples = 0;
 		uint32 bytes = 0;
 		void* data = nullptr;
-
+	};
+	class SoundData : public SoundDataStruct
+	{
+	public:
+		SoundData() {}
+		~SoundData() { Release(); }
 		void fromWave(const WavFile* wavFile)
 		{
 			Release();
@@ -116,7 +126,7 @@ namespace CG {
 			wavFile->pData = new char[wavFile->sData.dataBytes];
 			memcpy_s(wavFile->pData, wavFile->sData.dataBytes, data, bytes);
 		}
-		void Release() { if (data) delete data; }
+		void Release() { if (data) { delete data; data = nullptr; } }
 	};
 
 	class Media
@@ -132,7 +142,7 @@ namespace CG {
 			if (sync) mciSendStringW(L"play audio wait", 0, 0, 0);
 			else mciSendStringW(L"play audio", 0, 0, 0);
 		}
-		static void MediaOpen(u16str file) { mciSendStringW((u16str(L"open \"") + file + u16str(L"\" alias audio")).str(), 0, 0, 0); }
+		static void MediaOpen(std::wstring file) { mciSendStringW((std::wstring(L"open \"") + file + std::wstring(L"\" alias audio")).c_str(), 0, 0, 0); }
 		static void MediaPlay(bool sync = true) { if (sync) mciSendStringW(L"play audio wait", 0, 0, 0); else mciSendStringW(L"play audio", 0, 0, 0); }
 		static void MediaPause() { mciSendStringW(L"pause audio", 0, 0, 0); }
 		static void MediaResume() { mciSendStringW(L"resume audio", 0, 0, 0); }

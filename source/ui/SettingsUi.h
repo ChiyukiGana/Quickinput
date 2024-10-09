@@ -53,6 +53,18 @@ public:
 private:
 	void WidInit()
 	{
+		ui.hkKey->setMode(QKeyEdit::Mode::multiple);
+		ui.hkKey->setMultipleMax(2);
+		ui.hkKey->setMouseEnable(true);
+		ui.hkKey->setWheelEnable(true);
+		ui.hkKey->setPadEnable(true);
+
+		ui.hkRec->setMode(QKeyEdit::Mode::multiple);
+		ui.hkRec->setMultipleMax(2);
+		ui.hkRec->setMouseEnable(true);
+		ui.hkRec->setWheelEnable(true);
+		ui.hkRec->setPadEnable(true);
+
 		ui.cmbTheme->setEditable(true);
 		ui.cmbTheme->lineEdit()->setReadOnly(true); 
 		ui.cmbTheme->lineEdit()->setAlignment(Qt::AlignCenter);
@@ -62,10 +74,18 @@ private:
 		if (qis.set.theme >= qis.ui.themes.size()) qis.set.theme = 0;
 		ui.cmbTheme->setCurrentIndex(qis.set.theme);
 
-		ui.hkKey->Mode(2);
-		ui.hkRec->Mode(0);
-		ui.hkKey->VirtualKey(sets->key & 0xFFFF, sets->key >> 16);
-		ui.hkRec->VirtualKey(sets->recKey);
+		if ("key edit")
+		{
+			QList<QKeyEdit::Key> keys;
+			keys.push_back(QKeyEdit::Key(sets->key & 0xFFFF));
+			keys.push_back(QKeyEdit::Key(sets->key >> 16));
+			ui.hkKey->setKeys(keys);
+			keys.clear();
+
+			keys.push_back(QKeyEdit::Key(sets->recKey & 0xFFFF));
+			keys.push_back(QKeyEdit::Key(sets->recKey >> 16));
+			ui.hkRec->setKeys(keys);
+		}
 
 		ui.chbDefOn->setChecked(sets->defOn);
 		ui.chbShowTips->setChecked(sets->showTips);
@@ -74,6 +94,7 @@ private:
 		ui.chbStart->setChecked(Task::Find(L"QuickInput"));
 		ui.chbZoomBlock->setChecked(sets->zoomBlock);
 
+		if ("clear shortcut")
 		{
 			ui.bnReadme->setShortcut(Qt::Key_unknown);
 			ui.bnTboxs->setShortcut(Qt::Key_unknown);
@@ -105,7 +126,7 @@ private:
 	{
 		more.close();
 	}
-private slots:
+private Q_SLOTS:
 	void OnBnReadme() { more.show(); }
 	void OnBnTboxs()
 	{
@@ -127,21 +148,31 @@ private slots:
 		}
 	}
 	void OnHkKey() {
-		DWORD vk = ui.hkKey->virtualKey();
-		if (vk == VK_LBUTTON)
+		QList<QKeyEdit::Key> keys = ui.hkKey->keys();
+		DWORD vk = VK_F8;
+		if (keys.size() == 1)
 		{
-			ui.hkKey->VirtualKey(VK_F8);
-			vk = VK_F8;
+			if (keys[0].keyCode == VK_LBUTTON) ui.hkKey->setKey(QKeyEdit::Key(VK_F8));
+			else vk = keys[0].keyCode;
+		}
+		else if (keys.size() == 2)
+		{
+			vk = keys[0].keyCode | (keys[1].keyCode << 16);
 		}
 		qis.set.key = vk;
 		QiJson::SaveJson();
 	}
 	void OnHkRec() {
-		DWORD vk = ui.hkRec->virtualKey();
-		if (vk == VK_LBUTTON)
+		QList<QKeyEdit::Key> keys = ui.hkRec->keys();
+		DWORD vk = VK_F8;
+		if (keys.size() == 1)
 		{
-			ui.hkRec->VirtualKey(VK_F8);
-			vk = VK_F8;
+			if (keys[0].keyCode == VK_LBUTTON) ui.hkRec->setKey(QKeyEdit::Key(VK_F8));
+			else vk = keys[0].keyCode;
+		}
+		else if (keys.size() == 2)
+		{
+			vk = keys[0].keyCode | (keys[1].keyCode << 16);
 		}
 		qis.set.recKey = vk;
 		QiJson::SaveJson();

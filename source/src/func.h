@@ -28,7 +28,7 @@ namespace QiFn
 	WndInfo WindowSelection();
 
 	uint8 ActionExecute(const Action& action, POINT& cursor, WndInput* wi);
-	void Trigger(byte vk);
+	void Trigger(short vk);
 
 	void QiHook(bool state);
 	void QiState(bool state);

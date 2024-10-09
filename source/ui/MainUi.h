@@ -142,7 +142,7 @@ private:
 	}
 	
 	QPoint msPos;bool mouseDown = false;void mousePressEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) msPos = et->pos(), mouseDown = true; et->accept(); }void mouseMoveEvent(QMouseEvent* et) { if (mouseDown) move(et->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) mouseDown = false; }
-private slots:
+private Q_SLOTS:
 	void OnTrayClick(QSystemTrayIcon::ActivationReason reason)
 	{
 		if (reason == QSystemTrayIcon::Trigger)

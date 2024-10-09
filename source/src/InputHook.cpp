@@ -3,7 +3,7 @@
 
 void InsertInput(const BYTE& key, const bool& state, const POINT& pt)
 {
-	if (Input::Type(key) && InRect(Window::rect((HWND)qis.widget.record->winId()), Input::pos())) return;
+	if (Input::isMouse(key) && InRect(Window::rect((HWND)qis.widget.record->winId()), Input::pos())) return;
 	if (qis.recordWindow && !IsWindowVisible(qis.recordWindow))
 	{
 		QApplication::postEvent(qis.widget.record, new QEvent((QEvent::Type)QiEvent::recClose));
@@ -24,7 +24,7 @@ void InsertInput(const BYTE& key, const bool& state, const POINT& pt)
 	}
 
 	// pos
-	if (Input::Type(key))
+	if (Input::isMouse(key))
 	{
 		POINT position;
 		Action& action = qis.record.AddNull(); action.type = Action::_mouse;

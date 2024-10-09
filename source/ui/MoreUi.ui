@@ -308,8 +308,8 @@ Quick input的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>778</width>
-           <height>552</height>
+           <width>514</width>
+           <height>495</height>
           </rect>
          </property>
          <attribute name="label">
@@ -734,8 +734,8 @@ Quick input的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>778</width>
-           <height>552</height>
+           <width>502</width>
+           <height>343</height>
           </rect>
          </property>
          <attribute name="label">
@@ -802,8 +802,8 @@ Quick input的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>778</width>
-           <height>552</height>
+           <width>376</width>
+           <height>292</height>
           </rect>
          </property>
          <attribute name="label">
@@ -867,8 +867,8 @@ Quick input的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>778</width>
-           <height>552</height>
+           <width>304</width>
+           <height>309</height>
           </rect>
          </property>
          <attribute name="label">
@@ -934,7 +934,7 @@ Quick input的使用流程：
            <x>0</x>
            <y>0</y>
            <width>761</width>
-           <height>3121</height>
+           <height>3155</height>
           </rect>
          </property>
          <attribute name="label">
@@ -973,7 +973,9 @@ Quick input的使用流程：
              </font>
             </property>
             <property name="text">
-             <string>2024-10-6
+             <string>2024-10-9
+　　1：支持XBox手柄触发
+2024-10-6
 　　1：修复定时丢失内容
 　　2：优化右键菜单颜色
 2024-9-25
