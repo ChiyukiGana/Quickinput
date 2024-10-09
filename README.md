@@ -1,7 +1,7 @@
 # Quick input<br/>
-1. 通过快捷键控制键盘和鼠标的状态<br/>
-2. 自定义输入宏<br/>
-3. 识别颜色并执行宏<br/><br/>
+1. 自定义宏<br/>
+2. 支持键盘鼠标手柄控制<br/>
+3. 识别颜色和图像<br/><br/>
 # 使用方法<br/>
 观看视频：https://space.bilibili.com/398923924/channel/collectiondetail?sid=1777662<br/><br/>
 打开Quick input设置页面查看说明<br/><br/>
