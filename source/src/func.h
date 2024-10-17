@@ -14,18 +14,22 @@ namespace QiFn
 	POINT WATR(POINT abs, HWND wnd);
 	RECT WATRR(RECT abs, HWND wnd);
 
-	std::wstring ParseQPop(std::wstring text);
-	std::wstring ParseWPop(std::wstring text, std::wstring window = L"(窗口名)");
-	std::wstring ParseMacroPop(std::wstring text, std::wstring macro = L"(示例宏)", size_t count = 123);
-	void QPop(QiUi::PopBoxBase pop);
-	void WPop(std::wstring window, QiUi::PopBoxBase pop);
-	void QcPop(QiUi::PopBoxBase pop);
-	void MacroPop(Macro* macro, QiUi::PopBoxBase pop);
+	// Pop text
+	QString ParseCustom(QString text, QString name, QString number);
+	QString ParseState(QString text);
+	QString ParseWindow(QString text, QString window);
+	QString ParseQuickClick(QString text, short key);
+	QString ParseMacro(QString text, QString macro, int count);
+	void StatePop(bool state);
+	void WindowPop(std::wstring window, bool state);
+	void QuickClickPop(bool state);
+	void MacroPop(Macro* macro, bool state);
+	// ~Pop text
 
 	bool SelfActive();
-	std::wstring NameFilter(std::wstring name);
 	bool TransMove(int sx, int sy, int dx, int dy, int step, POINT& pt);
 	WndInfo WindowSelection();
+	std::wstring AllocName(std::wstring name);
 
 	uint8 ActionExecute(const Action& action, POINT& cursor, WndInput* wi);
 	void Trigger(short vk);

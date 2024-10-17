@@ -5,9 +5,17 @@
 inline const std::wstring macroPath = L"macro\\";
 inline const std::wstring macroType = L".json";
 
+struct PopTextInfo
+{
+	QString t;
+	QColor c;
+};
+
 // theme and text
 namespace QiUi
 {
+	constexpr int event_restyle = QEvent::User + 1;
+
 	struct Theme
 	{
 		QString name;
@@ -76,45 +84,32 @@ namespace QiUi
 		QString rcClose;
 	};
 
-	struct PopBoxBase
+	struct PopText
 	{
-		std::wstring t;
-		COLORREF c = 0;
-	};
-
-	struct PopBox
-	{
-		PopBoxBase qe;
-		PopBoxBase qd;
-		PopBoxBase we;
-		PopBoxBase wd;
-		PopBoxBase qce;
-		PopBoxBase qcd;
-		PopBoxBase swe;
-		PopBoxBase swd;
-		PopBoxBase dwe;
-		PopBoxBase dwd;
-		PopBoxBase upe;
-		PopBoxBase upd;
-		POINT p;
+		PopTextInfo qe;
+		PopTextInfo qd;
+		PopTextInfo we;
+		PopTextInfo wd;
+		PopTextInfo qce;
+		PopTextInfo qcd;
+		PopTextInfo swe;
+		PopTextInfo swd;
+		PopTextInfo dwe;
+		PopTextInfo dwd;
+		PopTextInfo upe;
+		PopTextInfo upd;
+		int time = 1000;
+		POINT p = {};
 	};
 
 	struct QuickInputUi
 	{
+		QString dialogStyle = "QPushButton{width:60px;border:2px solid blue}";
 		Themes themes;
 		Text text;
-		PopBox pop;
+		PopText pop;
 	};
 }
-
-// record event
-enum QiEvent
-{
-	recStart = QEvent::User + 1,
-	recStop = QEvent::User + 2,
-	recClose = QEvent::User + 3,
-	setTheme = QEvent::User + 4
-};
 
 ////////////////// Window
 struct ChildWindow
@@ -332,12 +327,12 @@ struct QuickClick
 };
 struct ShowClock
 {
-	bool state = 0;
+	bool state = false;
 	uint32 key = 0;
 };
 struct WndActive
 {
-	bool state = 0;
+	bool state = false;
 	WndInfo wi;
 	HANDLE thread = 0;
 };
@@ -346,11 +341,12 @@ struct SettingsData
 	uint32 theme = 0;
 	uint32 key = 0;
 	uint32 recKey = 0;
-	bool defOn = 0;
-	bool showTips = 0;
-	bool audFx = 0;
-	bool minMode = 0;
-	bool zoomBlock = 0;
+	bool recTrack = false;
+	bool defOn = false;
+	bool showTips = false;
+	bool audFx = false;
+	bool minMode = false;
+	bool scaleBlock = false;
 };
 struct FuncData
 {
@@ -370,6 +366,8 @@ struct Widget
 
 struct QuickInputStruct
 {
+	QApplication* application = nullptr;
+
 	bool state = false;
 	bool run = false;
 
@@ -385,6 +383,7 @@ struct QuickInputStruct
 	FuncData fun;
 	SettingsData set;
 	Widget widget;
+	QPopText* popText = nullptr;
 
 	bool keyState[XBoxPad::key_end];
 	List<byte> blockKeys;

@@ -17,12 +17,14 @@ class MainUi : public QMainWindow
 	QSystemTrayIcon* tray = nullptr;
 	QMenu* menu = nullptr;
 public:
-	MainUi() : QMainWindow()
+	MainUi(int tab = 0) : QMainWindow()
 	{
 		qis.widget.main = this;
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
-		WidInit();
+		Init();
+		ui.tabWidget->setCurrentIndex(tab);
+		qis.application->setStyleSheet(qis.ui.themes[qis.set.theme].style);
 
 		show();
 		if (qis.set.minMode)
@@ -31,7 +33,7 @@ public:
 			hide();
 		}
 	}
-	void SetStyleGroup()
+	void StyleGroup()
 	{
 		setProperty("group", QVariant(QString::fromUtf8("frame")));
 		ui.titleWidget->setProperty("group", QVariant(QString::fromUtf8("title")));
@@ -46,19 +48,9 @@ public:
 
 		menu->setProperty("group", QVariant(QString::fromUtf8("context_menu")));
 	}
-	void ReStyle()
-	{
-		setStyleSheet("");
-		setStyleSheet(qis.ui.themes[qis.set.theme].style);
-		menu->setStyleSheet("");
-		menu->setStyleSheet(qis.ui.themes[qis.set.theme].style);
-		ui.macro->ReStyle();
-		ui.trigger->ReStyle();
-		ui.func->ReStyle();
-		ui.settings->ReStyle();
-	}
+
 private:
-	void WidInit()
+	void Init()
 	{
 		{
 			ui.bnMin->setShortcut(Qt::Key_unknown);
@@ -100,27 +92,22 @@ private:
 			connect(ui.bnHide, SIGNAL(clicked()), this, SLOT(OnBnHide()));
 		}
 		
-		SetStyleGroup();
+		StyleGroup();
 	}
-	void showEvent(QShowEvent* et)
+	void showEvent(QShowEvent* e)
 	{
-		ReStyle();
 		SetForegroundWindow((HWND)QWidget::winId());
 	}
-	void customEvent(QEvent* et)
-	{
-		if (et->type() == QiEvent::setTheme) ReStyle();
-	}
-	bool event(QEvent* et)
+	bool event(QEvent* e)
 	{
 
-		if (et->type() == QEvent::WindowActivate)
+		if (e->type() == QEvent::WindowActivate)
 		{
 			qis.widget.mainActive = true;
 			if (qis.state) QiFn::QiState(false);
 			QiFn::QiHook(false);
 		}
-		else if (et->type() == QEvent::WindowDeactivate)
+		else if (e->type() == QEvent::WindowDeactivate)
 		{
 			qis.widget.mainActive = false;
 			if (QiFn::SelfActive())
@@ -129,7 +116,7 @@ private:
 				if (qis.set.defOn) QiFn::QiState(true);
 			}
 		}
-		return QWidget::event(et);
+		return QWidget::event(e);
 	}
 	bool nativeEvent(const QByteArray& type, void* pMsg, long* pResult)
 	{
@@ -141,7 +128,7 @@ private:
 		return false;
 	}
 	
-	QPoint msPos;bool mouseDown = false;void mousePressEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) msPos = et->pos(), mouseDown = true; et->accept(); }void mouseMoveEvent(QMouseEvent* et) { if (mouseDown) move(et->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) mouseDown = false; }
+	QPoint msPos;bool mouseDown = false;void mousePressEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) msPos = e->pos(), mouseDown = true; e->accept(); }void mouseMoveEvent(QMouseEvent* e) { if (mouseDown) move(e->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) mouseDown = false; }
 private Q_SLOTS:
 	void OnTrayClick(QSystemTrayIcon::ActivationReason reason)
 	{

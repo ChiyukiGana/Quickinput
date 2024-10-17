@@ -17,13 +17,12 @@ public:
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 
-		WidInit();
-		WidEvent();
+		Init();
+		Event();
 		LockControl(true);
 		TableUpdate();
-		ReStyle();
 	}
-	void SetStyleGroup()
+	void StyleGroup()
 	{
 		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
 		ui.chbBlock->setProperty("group", QVariant(QString::fromUtf8("check")));
@@ -48,15 +47,9 @@ public:
 			}
 		}
 	}
-	void ReStyle()
-	{
-		setStyleSheet("");
-		setStyleSheet(qis.ui.themes[qis.set.theme].style);
-		ui.hkTr->setStyleSheet("");
-		ui.hkTr->setStyleSheet(qis.ui.themes[qis.set.theme].style);
-	}
+
 private:
-	void WidInit()
+	void Init()
 	{
 		ui.hkTr->setMode(QKeyEdit::Mode::multiple);
 		ui.hkTr->setMultipleMax(2);
@@ -89,9 +82,9 @@ private:
 			ui.chbBlock->setShortcut(Qt::Key_unknown);
 		}
 
-		SetStyleGroup();
+		StyleGroup();
 	}
-	void WidEvent()
+	void Event()
 	{
 		connect(ui.tbActions, SIGNAL(cellClicked(int, int)), this, SLOT(OnTbClicked(int, int)));
 		connect(ui.chbBlock, SIGNAL(clicked()), this, SLOT(OnChbBlock()));

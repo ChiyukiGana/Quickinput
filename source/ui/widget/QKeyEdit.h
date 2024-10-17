@@ -3,9 +3,9 @@
 #include <string>
 #include <windows.h>
 #include <Xinput.h>
-#include <QtWidgets/qwidget.h>
-#include <QtWidgets/qlayout.h>
-#include <QtWidgets/qlabel.h>
+#include <qwidget.h>
+#include <qlayout.h>
+#include <qlineedit.h>
 #include <qapplication.h>
 #include <qtimer.h>
 #include <qevent.h>
@@ -16,7 +16,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QKeyEdit : public QLabel
+class QKeyEdit : public QLineEdit
 {
 	Q_OBJECT;
 
@@ -362,14 +362,9 @@ public:
 	}
 
 public:
-	QKeyEdit(QWidget* parent = nullptr) : QLabel(parent)
+	QKeyEdit(QWidget* parent = nullptr) : QLineEdit(parent)
 	{
-		setAttribute(Qt::WA_StyledBackground);
-		setMinimumSize(QSize(48, 24));
-		setMaximumSize(QSize(16777215, 24));
-		setWindowFlags(Qt::FramelessWindowHint);
-		setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-		setStyleSheet(QString::fromUtf8("background-color:white;border:1px solid gray;"));
+		setContextMenuPolicy(Qt::ContextMenuPolicy::NoContextMenu);
 		setAlignment(Qt::AlignCenter);
 		setKeyboardEnable(true);
 		setMode(Mode::combination);
@@ -693,9 +688,9 @@ private:
 				text += keyName(keystates[size - 1].keyCode);
 			}
 		}
-		else if (edit_mode == Mode::combination)
+		else if (edit_mode == Mode::combination && (mod_control || mod_shift || mod_alt))
 		{
-			if (mod_control || mod_shift || mod_alt) text = modName();
+			text = modName();
 		}
 		else if (editing) text = "...";
 		else text = "None";

@@ -19,11 +19,10 @@ public:
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 
-		WidInit();
-		WidEvent();
-		ReStyle();
+		Init();
+		Event();
 	}
-	void SetStyleGroup()
+	void StyleGroup()
 	{
 		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
 		ui.bnRec->setProperty("group", QVariant(QString::fromUtf8("macro-button")));
@@ -54,15 +53,11 @@ public:
 			}
 		}
 	}
-	void ReStyle()
-	{
-		setStyleSheet("");
-		setStyleSheet(qis.ui.themes[qis.set.theme].style);
-	}
+
 private:
-	void WidInit()
+	void Init()
 	{
-		SetStyleGroup();
+		StyleGroup();
 		{
 			ui.bnRec->setShortcut(Qt::Key_unknown);
 			ui.bnWndRec->setShortcut(Qt::Key_unknown);
@@ -79,7 +74,7 @@ private:
 		LockControl(true);
 		TableUpdate();
 	}
-	void WidEvent()
+	void Event()
 	{
 		connect(timer, SIGNAL(timeout()), this, SLOT(OnTimeOut()));
 		connect(ui.tbActions, SIGNAL(cellClicked(int, int)), this, SLOT(OnTbClicked(int, int)));
@@ -131,7 +126,7 @@ private:
 			if (!wi.wnd)
 			{
 				
-				PopBox::Popup(L"窗口已失效", RGB(255, 64, 64), 2000);
+				qis.popText->Popup("窗口已失效", RGB(255, 64, 64), 2000);
 				return;
 			}
 		}
@@ -222,9 +217,10 @@ private Q_SLOTS:
 	void OnBnAdd()
 	{
 		Macro macro;
-		macro.name = QiFn::NameFilter(L"宏");
 		macro.mode = Macro::down;
 		macro.count = 1;
+		macro.name = QiFn::AllocName(L"宏");
+
 		qis.macros.Add(macro);
 		QiJson::SaveMacro(macro);
 		TableUpdate();

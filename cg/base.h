@@ -132,7 +132,7 @@ namespace CG {
 	{
 		clock_t end = 0;
 	public:
-		TimeOut(clock_t ms) { set(ms); }
+		TimeOut(clock_t ms = clock()) { set(ms); }
 		void set(clock_t ms) { end = clock() + ms; }
 		bool get() const { if(clock() - end < 0) return true; return false; }
 		clock_t out() { clock_t out = clock() - end; if (out > 0) return out; return 0; }

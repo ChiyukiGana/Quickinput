@@ -16,10 +16,10 @@ public:
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 
-		WidInit();
-		WidEvent();
+		Init();
+		Event();
 	}
-	void SetStyleGroup()
+	void StyleGroup()
 	{
 		setProperty("group", QVariant(QString::fromUtf8("frame")));
 		ui.titleWidget->setProperty("group", QVariant(QString::fromUtf8("title")));
@@ -38,13 +38,9 @@ public:
 		ui.etUpE->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
 		ui.etUpD->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
 	}
-	void ReStyle()
-	{
-		setStyleSheet("");
-		setStyleSheet(qis.ui.themes[qis.set.theme].style);
-	}
+
 private:
-	void WidInit()
+	void Init()
 	{
 		ui.etQE->setAttribute(Qt::WA_Hover, true);
 		ui.etQD->setAttribute(Qt::WA_Hover, true);
@@ -78,10 +74,10 @@ private:
 		ui.sdLR->installEventFilter(this);
 		ui.sdTB->installEventFilter(this);
 
-		SetStyleGroup();
+		StyleGroup();
 		Update();
 	}
-	void WidEvent()
+	void Event()
 	{
 		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
 
@@ -114,31 +110,31 @@ private:
 		connect(ui.sdLR, SIGNAL(valueChanged(int)), this, SLOT(OnSdLR(int)));
 		connect(ui.sdTB, SIGNAL(valueChanged(int)), this, SLOT(OnSdTB(int)));
 	}
-	void SetColor(COLORREF color, QPushButton* button)
+	void SetColor(const QColor& color, QPushButton* button)
 	{
-		button->setStyleSheet(QString("border:1px solid black;background-color:rgb(") + QString::number(GetRValue(color)) + "," + QString::number(GetGValue(color)) + "," + QString::number(GetBValue(color)) + ")");
+		button->setStyleSheet(QString("border:1px solid black;background-color:rgb(") + QString::number(color.red()) + "," + QString::number(color.green()) + "," + QString::number(color.blue()) + ")");
 	}
-	void SelectColor(QiUi::PopBoxBase& pb)
+	void SelectColor(PopTextInfo& p)
 	{
-		QColorDialog cd(QColor(GetRValue(pb.c), GetGValue(pb.c), GetBValue(pb.c)));
+		QColorDialog cd(p.c, this);
+		cd.setStyleSheet(qis.ui.dialogStyle);
 		cd.exec();
-		QColor color = cd.currentColor();
-		pb.c = RGB(color.red(), color.green(), color.blue());
+		p.c = cd.currentColor();
 	}
 	void Update()
 	{
-		ui.etQE->setText(QString::fromWCharArray(qis.ui.pop.qe.t.c_str()));
-		ui.etQD->setText(QString::fromWCharArray(qis.ui.pop.qd.t.c_str()));
-		ui.etWE->setText(QString::fromWCharArray(qis.ui.pop.we.t.c_str()));
-		ui.etWD->setText(QString::fromWCharArray(qis.ui.pop.wd.t.c_str()));
-		ui.etQcE->setText(QString::fromWCharArray(qis.ui.pop.qce.t.c_str()));
-		ui.etQcD->setText(QString::fromWCharArray(qis.ui.pop.qcd.t.c_str()));
-		ui.etSwE->setText(QString::fromWCharArray(qis.ui.pop.swe.t.c_str()));
-		ui.etSwD->setText(QString::fromWCharArray(qis.ui.pop.swd.t.c_str()));
-		ui.etDwE->setText(QString::fromWCharArray(qis.ui.pop.dwe.t.c_str()));
-		ui.etDwD->setText(QString::fromWCharArray(qis.ui.pop.dwd.t.c_str()));
-		ui.etUpE->setText(QString::fromWCharArray(qis.ui.pop.upe.t.c_str()));
-		ui.etUpD->setText(QString::fromWCharArray(qis.ui.pop.upd.t.c_str()));
+		ui.etQE->setText(qis.ui.pop.qe.t);
+		ui.etQD->setText(qis.ui.pop.qd.t);
+		ui.etWE->setText(qis.ui.pop.we.t);
+		ui.etWD->setText(qis.ui.pop.wd.t);
+		ui.etQcE->setText(qis.ui.pop.qce.t);
+		ui.etQcD->setText(qis.ui.pop.qcd.t);
+		ui.etSwE->setText(qis.ui.pop.swe.t);
+		ui.etSwD->setText(qis.ui.pop.swd.t);
+		ui.etDwE->setText(qis.ui.pop.dwe.t);
+		ui.etDwD->setText(qis.ui.pop.dwd.t);
+		ui.etUpE->setText(qis.ui.pop.upe.t);
+		ui.etUpD->setText(qis.ui.pop.upd.t);
 
 		SetColor(qis.ui.pop.qe.c, ui.bnQE);
 		SetColor(qis.ui.pop.qd.c, ui.bnQD);
@@ -156,59 +152,60 @@ private:
 		ui.sdLR->setValue(qis.ui.pop.p.x);
 		ui.sdTB->setValue(qis.ui.pop.p.y);
 	}
-	bool eventFilter(QObject* obj, QEvent* et)
+	bool eventFilter(QObject* obj, QEvent* e)
 	{
-		if (et->type() == QEvent::HoverEnter)
+		if (e->type() == QEvent::HoverEnter)
 		{
-			QiUi::PopBoxBase* pb = nullptr;
+			PopTextInfo* p = nullptr;
 			bool qs = false;
 			bool ws = false;
-			if (obj == ui.etQE) pb = &qis.ui.pop.qe, qs = true;
-			else if (obj == ui.etQD) pb = &qis.ui.pop.qd, qs = true;
-			else if (obj == ui.etWE) pb = &qis.ui.pop.we, ws = true;
-			else if (obj == ui.etWD) pb = &qis.ui.pop.wd, ws = true;
-			else if (obj == ui.etQcE) pb = &qis.ui.pop.qce;
-			else if (obj == ui.etQcD) pb = &qis.ui.pop.qcd;
-			else if (obj == ui.etSwE) pb = &qis.ui.pop.swe;
-			else if (obj == ui.etSwD) pb = &qis.ui.pop.swd;
-			else if (obj == ui.etDwE) pb = &qis.ui.pop.dwe;
-			else if (obj == ui.etDwD) pb = &qis.ui.pop.dwd;
-			else if (obj == ui.etUpE) pb = &qis.ui.pop.upe;
-			else if (obj == ui.etUpD) pb = &qis.ui.pop.upd;
-			if (!pb) PopBox::Show(L"示例窗口");
-			else if (qs) PopBox::Show(QiFn::ParseQPop(pb->t), pb->c);
-			else if (ws) PopBox::Show(QiFn::ParseWPop(pb->t), pb->c);
-			else PopBox::Show(QiFn::ParseMacroPop(pb->t), pb->c);
+			bool qc = false;
+			if (obj == ui.etQE) p = &qis.ui.pop.qe, qs = true;
+			else if (obj == ui.etQD) p = &qis.ui.pop.qd, qs = true;
+			else if (obj == ui.etWE) p = &qis.ui.pop.we, ws = true;
+			else if (obj == ui.etWD) p = &qis.ui.pop.wd, ws = true;
+			else if (obj == ui.etQcE) p = &qis.ui.pop.qce, qc = true;
+			else if (obj == ui.etQcD) p = &qis.ui.pop.qcd, qc = true;
+			else if (obj == ui.etSwE) p = &qis.ui.pop.swe;
+			else if (obj == ui.etSwD) p = &qis.ui.pop.swd;
+			else if (obj == ui.etDwE) p = &qis.ui.pop.dwe;
+			else if (obj == ui.etDwD) p = &qis.ui.pop.dwd;
+			else if (obj == ui.etUpE) p = &qis.ui.pop.upe;
+			else if (obj == ui.etUpD) p = &qis.ui.pop.upd;
+			if (!p) qis.popText->Show("提示框位置");
+			else if (qs) qis.popText->Show(QiFn::ParseCustom(p->t, "(文件夹)", ""), p->c);
+			else if (ws) qis.popText->Show(QiFn::ParseCustom(p->t, "(窗口名)", ""), p->c);
+			else if (qc) qis.popText->Show(QiFn::ParseCustom(p->t, "(按键)", ""), p->c);
+			else qis.popText->Show(QiFn::ParseCustom(p->t, "(宏名称)", "(1)"), p->c);
 		}
-		else if (et->type() == QEvent::HoverLeave)
+		else if (e->type() == QEvent::HoverLeave)
 		{
-			PopBox::Hide();
+			qis.popText->Hide();
 		}
-		return QDialog::eventFilter(obj, et);
+		return QDialog::eventFilter(obj, e);
 	}
 	void showEvent(QShowEvent*)
 	{
-		ReStyle();
 		SetForegroundWindow((HWND)QWidget::winId());
 	}
-	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) msPos = et->pos(), mouseDown = true; et->accept(); }void mouseMoveEvent(QMouseEvent* et) { if (mouseDown) move(et->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) mouseDown = false; }
+	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) msPos = e->pos(), mouseDown = true; e->accept(); }void mouseMoveEvent(QMouseEvent* e) { if (mouseDown) move(e->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) mouseDown = false; }
 private Q_SLOTS:
 	void OnBnClose()
 	{
 		close();
 	}
-	void OnEtQE(const QString& text) { qis.ui.pop.qe.t = (wchar_t*)(text.utf16()); }
-	void OnEtQD(const QString& text) { qis.ui.pop.qd.t = (wchar_t*)(text.utf16()); }
-	void OnEtWE(const QString& text) { qis.ui.pop.we.t = (wchar_t*)(text.utf16()); }
-	void OnEtWD(const QString& text) { qis.ui.pop.wd.t = (wchar_t*)(text.utf16()); }
-	void OnEtQcE(const QString& text) { qis.ui.pop.qce.t = (wchar_t*)(text.utf16()); }
-	void OnEtQcD(const QString& text) { qis.ui.pop.qcd.t = (wchar_t*)(text.utf16()); }
-	void OnEtSwE(const QString& text) { qis.ui.pop.swe.t = (wchar_t*)(text.utf16()); }
-	void OnEtSwD(const QString& text) { qis.ui.pop.swd.t = (wchar_t*)(text.utf16()); }
-	void OnEtDwE(const QString& text) { qis.ui.pop.dwe.t = (wchar_t*)(text.utf16()); }
-	void OnEtDwD(const QString& text) { qis.ui.pop.dwd.t = (wchar_t*)(text.utf16()); }
-	void OnEtUpE(const QString& text) { qis.ui.pop.upe.t = (wchar_t*)(text.utf16()); }
-	void OnEtUpD(const QString& text) { qis.ui.pop.upd.t = (wchar_t*)(text.utf16()); }
+	void OnEtQE(const QString& text) { qis.ui.pop.qe.t = text; }
+	void OnEtQD(const QString& text) { qis.ui.pop.qd.t = text; }
+	void OnEtWE(const QString& text) { qis.ui.pop.we.t = text; }
+	void OnEtWD(const QString& text) { qis.ui.pop.wd.t = text; }
+	void OnEtQcE(const QString& text) { qis.ui.pop.qce.t = text; }
+	void OnEtQcD(const QString& text) { qis.ui.pop.qcd.t = text; }
+	void OnEtSwE(const QString& text) { qis.ui.pop.swe.t = text; }
+	void OnEtSwD(const QString& text) { qis.ui.pop.swd.t = text; }
+	void OnEtDwE(const QString& text) { qis.ui.pop.dwe.t = text; }
+	void OnEtDwD(const QString& text) { qis.ui.pop.dwd.t = text; }
+	void OnEtUpE(const QString& text) { qis.ui.pop.upe.t = text; }
+	void OnEtUpD(const QString& text) { qis.ui.pop.upd.t = text; }
 	void OnBnQE() { SelectColor(qis.ui.pop.qe); Update(); }
 	void OnBnQD() { SelectColor(qis.ui.pop.qd); Update(); }
 	void OnBnWE() { SelectColor(qis.ui.pop.we); Update(); }
@@ -221,6 +218,6 @@ private Q_SLOTS:
 	void OnBnDwD() { SelectColor(qis.ui.pop.dwd); Update(); }
 	void OnBnUpE() { SelectColor(qis.ui.pop.upe); Update(); }
 	void OnBnUpD() { SelectColor(qis.ui.pop.upd); Update(); }
-	void OnSdLR(int value) { qis.ui.pop.p.x = value; PopBox::Show(L"示例窗口"); }
-	void OnSdTB(int value) { qis.ui.pop.p.y = value; PopBox::Show(L"示例窗口"); }
+	void OnSdLR(int value) { qis.ui.pop.p.x = value; qis.popText->setPosition(qis.ui.pop.p.x, qis.ui.pop.p.y); qis.popText->Show("提示框位置"); }
+	void OnSdTB(int value) { qis.ui.pop.p.y = value; qis.popText->setPosition(qis.ui.pop.p.x, qis.ui.pop.p.y); qis.popText->Show("提示框位置"); }
 };

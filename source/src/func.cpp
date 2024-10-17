@@ -12,68 +12,46 @@ namespace QiFn
 	POINT WATR(POINT abs, HWND wnd) { SIZE size = Window::size(wnd); return { (long)((float)(size.cx + 1) / 10000.0f * (float)abs.x), (long)((float)(size.cy + 1) / 10000.0f * (float)abs.y) }; }
 	RECT WATRR(RECT abs, HWND wnd) { SIZE size = Window::size(wnd); return { (long)((float)(size.cx + 1) / 10000.0f * (float)abs.left), (long)((float)(size.cy + 1) / 10000.0f * (float)abs.top), (long)((float)(size.cx + 1) / 10000.0f * (float)abs.right), (long)((float)(size.cy + 1) / 10000.0f * (float)abs.bottom) }; }
 
-	std::wstring ParseQPop(std::wstring text)
+	QString ParseCustom(QString text, QString name, QString number) { text.replace("@", name); return text.replace("$", number); }
+	QString ParseState(QString text) { return text.replace("@", QString::fromWCharArray(qis.dir.c_str())); }
+	QString ParseWindow(QString text, QString window) { return text.replace("@", window); }
+	QString ParseQuickClick(QString text, short key) { return text.replace("@", QKeyEdit::keyName(key)); }
+	QString ParseMacro(QString text, QString macro, int count) { if (count) text.replace("$", QString::number(count)); else text.replace("$", "∞"); return text.replace("@", macro); }
+	void StatePop(bool state)
 	{
-		size_t p = text.find(L"@");
-		if (p != std::wstring::npos) text.replace(text.find(L"@"), 1, qis.dir);
-		return text;
+		if (state) qis.popText->Popup(ParseState(qis.ui.pop.qe.t), qis.ui.pop.qe.c, qis.ui.pop.time);
+		else qis.popText->Popup(ParseState(qis.ui.pop.qd.t), qis.ui.pop.qd.c, qis.ui.pop.time);
 	}
-	std::wstring ParseWPop(std::wstring text, std::wstring window)
+	void WindowPop(std::wstring window, bool state)
 	{
-		size_t p = text.find(L"@");
-		if (p != std::wstring::npos) text.replace(text.find(L"@"), 1, window);
-		return text;
+		if (state) qis.popText->Popup(ParseWindow(qis.ui.pop.we.t, QString::fromWCharArray(window.c_str())), qis.ui.pop.we.c, qis.ui.pop.time);
+		else qis.popText->Popup(ParseWindow(qis.ui.pop.wd.t, QString::fromWCharArray(window.c_str())), qis.ui.pop.wd.c, qis.ui.pop.time);
 	}
-	std::wstring ParseQcPop(std::wstring text)
+	void QuickClickPop(bool state)
 	{
-		size_t p = text.find(L"@");
-		if (p != std::wstring::npos) text.replace(text.find(L"@"), 1, Input::Name(qis.fun.quickClick.key));
-		return text;
+		if (state) qis.popText->Popup(ParseQuickClick(qis.ui.pop.qce.t, qis.fun.quickClick.key), qis.ui.pop.qce.c, qis.ui.pop.time);
+		else qis.popText->Popup(ParseQuickClick(qis.ui.pop.qcd.t, qis.fun.quickClick.key), qis.ui.pop.qcd.c, qis.ui.pop.time);
 	}
-	std::wstring ParseMacroPop(std::wstring text, std::wstring macro, size_t count)
+	void MacroPop(Macro* macro, bool state)
 	{
-		size_t p = text.find(L"@");
-		if (p != std::wstring::npos) text.replace(text.find(L"@"), 1, macro);
-		p = text.find(L"$");
-		if (p != std::wstring::npos)
+		if (macro->mode == Macro::sw)
 		{
-			if (count) text.replace(p, 1, std::to_wstring(count));
-			else text.replace(p, 1, L"∞");
+			if (state) qis.popText->Popup(ParseMacro(qis.ui.pop.swe.t, QString::fromWCharArray(macro->name.c_str()), 0), qis.ui.pop.swe.c, qis.ui.pop.time);
+			else qis.popText->Popup(ParseMacro(qis.ui.pop.swd.t, QString::fromWCharArray(macro->name.c_str()), 0), qis.ui.pop.swd.c, qis.ui.pop.time);
 		}
-		return text;
-	}
-	void QPop(QiUi::PopBoxBase pop)
-	{
-		PopBox::Popup(ParseQPop(pop.t), pop.c);
-	}
-	void WPop(std::wstring window, QiUi::PopBoxBase pop)
-	{
-		PopBox::Popup(ParseWPop(pop.t, window), pop.c);
-	}
-	void QcPop(QiUi::PopBoxBase pop)
-	{
-		PopBox::Popup(ParseQcPop(pop.t), pop.c);
-	}
-	void MacroPop(Macro* macro, QiUi::PopBoxBase pop)
-	{
-		PopBox::Popup(ParseMacroPop(pop.t, macro->name, macro->count), pop.c);
+		else if (macro->mode == Macro::down)
+		{
+			if (state) qis.popText->Popup(ParseMacro(qis.ui.pop.dwe.t, QString::fromWCharArray(macro->name.c_str()), macro->count), qis.ui.pop.dwe.c, qis.ui.pop.time);
+			else qis.popText->Popup(ParseMacro(qis.ui.pop.dwd.t, QString::fromWCharArray(macro->name.c_str()), macro->count), qis.ui.pop.dwd.c, qis.ui.pop.time);
+		}
+		else if (macro->mode == Macro::up)
+		{
+			if (state) qis.popText->Popup(ParseMacro(qis.ui.pop.upe.t, QString::fromWCharArray(macro->name.c_str()), macro->count), qis.ui.pop.upe.c, qis.ui.pop.time);
+			else qis.popText->Popup(ParseMacro(qis.ui.pop.upd.t, QString::fromWCharArray(macro->name.c_str()), macro->count), qis.ui.pop.upd.c, qis.ui.pop.time);
+		}
 	}
 
 	bool SelfActive() { if (qis.widget.mainActive || qis.widget.dialogActive || qis.widget.moreActive) return false; }
-	std::wstring NameFilter(std::wstring name)
-	{
-		if (!qis.macros.size()) return name;
-		for (uint32 n = 0;; n++)
-		{
-			for (uint32 p = 0; p < qis.macros.size(); p++)
-			{
-				std::wstring find = name + L" " + String::toWString(n + 1);
-				if (qis.macros[p].name == find) break;
-				if (p >= qis.macros.size() - 1) return find;
-			}
-		}
-		return L"";
-	}
 	bool TransMove(int sx, int sy, int dx, int dy, int step, POINT& pt)
 	{
 		int tx = 0;
@@ -126,13 +104,13 @@ namespace QiFn
 	WndInfo WindowSelection()
 	{
 		WndInfo wi;
-		sleep(20);
-		PopBox::Show(L"按ESC取消，按回车开始，再按回车获取窗口", RGB(0x20, 0xFF, 0x20));
+		Thread::Sleep(20);
+		qis.popText->Show("按ESC取消，按回车开始，再按回车获取窗口", QColor(0x20, 0xFF, 0x20));
 		while (true)
 		{
 			if (Input::state(VK_RETURN)) break;
-			if (Input::state(VK_ESCAPE)) { PopBox::Hide(); return {}; }
-			sleep(10);
+			if (Input::state(VK_ESCAPE)) { qis.popText->Hide(); return {}; }
+			Thread::Sleep(10);
 		}
 		Input::Loop(VK_RETURN);
 		while (!Input::state(VK_RETURN))
@@ -140,11 +118,20 @@ namespace QiFn
 			wi.wnd = GetForegroundWindow();
 			wi.wndName = Window::text(wi.wnd);
 			wi.wndClass = Window::className(wi.wnd);
-			PopBox::Show(wi.wndName);
-			sleep(50);
+			qis.popText->Show(QString::fromWCharArray(wi.wndName.c_str()));
+			Thread::Sleep(50);
 		}
-		PopBox::Popup(wi.wndName, RGB(0x20, 0xFF, 0x20));
+		qis.popText->Popup(QString::fromWCharArray(wi.wndName.c_str()), RGB(0x20, 0xFF, 0x20));
 		return wi;
+	}
+	std::wstring AllocName(std::wstring name)
+	{
+		wstringList names;
+		for (size_t i = 0; i < qis.macros.size(); i++)
+		{
+			names.push_back(qis.macros[i].name);
+		}
+		return File::Unique(names, name);
 	}
 
 	uint8 ActionExecute(const Action& action, POINT& cursor, WndInput* wi)
@@ -270,7 +257,7 @@ namespace QiFn
 							Input::Move(rpt.x - prev.x, rpt.y - prev.y);
 							prev = rpt;
 							if (!r) break;
-							sleep(5);
+							Thread::Sleep(5);
 						}
 					}
 					else Input::Move(pt.x, pt.y);
@@ -295,7 +282,7 @@ namespace QiFn
 							bool r = TransMove(spt.x, spt.y, pt.x, pt.y, i, rpt);
 							Input::MoveToA(rpt.x * 6.5535, rpt.y * 6.5535);
 							if (!r) break;
-							sleep(5);
+							Thread::Sleep(5);
 						}
 					}
 					else Input::MoveToA(pt.x * 6.5535, pt.y * 6.5535);
@@ -464,7 +451,7 @@ namespace QiFn
 
 		case Action::_popText:
 		{
-			PopBox::Popup(action.d.popText.str.str(), RGB(223, 223, 223), action.d.popText.time);
+			qis.popText->Popup(QString::fromWCharArray(action.d.popText.str.str()), RGB(223, 223, 223), action.d.popText.time);
 			return r_continue;
 		}
 
@@ -512,7 +499,7 @@ namespace QiFn
 		}
 
 		// show clock
-		if (qis.fun.showClock.state && qis.fun.showClock.key == vk && qis.keyState[qis.fun.showClock.key]) { PopBox::Popup(Time::toWStringT()); }
+		if (qis.fun.showClock.state && qis.fun.showClock.key == vk && qis.keyState[qis.fun.showClock.key]) { qis.popText->Popup(QString::fromWCharArray(Time::toWStringT().c_str())); }
 
 		if (!qis.run) return;
 
@@ -527,12 +514,12 @@ namespace QiFn
 					{
 						QiThread::ExitQuickClick();
 						QiThread::AddReleaseKey(qis.fun.quickClick.key);
-						if (qis.set.showTips) QcPop(qis.ui.pop.qcd);
+						if (qis.set.showTips) QuickClickPop(false);
 					}
 					else
 					{
 						QiThread::StartQuickClick();
-						if (qis.set.showTips) QcPop(qis.ui.pop.qce);
+						if (qis.set.showTips) QuickClickPop(true);
 					}
 				}
 				else // press mode
@@ -540,7 +527,7 @@ namespace QiFn
 					if (!QiThread::QuickClickActive())
 					{
 						QiThread::StartQuickClick();
-						if (qis.set.showTips) QcPop(qis.ui.pop.qce);
+						if (qis.set.showTips) QuickClickPop(true);
 					}
 				}
 			}
@@ -552,7 +539,7 @@ namespace QiFn
 					{
 						QiThread::ExitQuickClick();
 						QiThread::AddReleaseKey(qis.fun.quickClick.key);
-						if (qis.set.showTips) QcPop(qis.ui.pop.qcd);
+						if (qis.set.showTips) QuickClickPop(false);
 					}
 				}
 			}
@@ -579,13 +566,13 @@ namespace QiFn
 							{
 								QiThread::ExitMacroRun(&qis.macros.at(i));
 								QiThread::StartMacroEnd(&qis.macros.at(i));
-								if (qis.set.showTips) MacroPop(&qis.macros.at(i), qis.ui.pop.swd);
+								if (qis.set.showTips) MacroPop(&qis.macros.at(i), false);
 							}
 							else
 							{
 								QiThread::ExitMacroEnd(&qis.macros.at(i));
 								QiThread::StartMacroRun(&qis.macros.at(i));
-								if (qis.set.showTips) MacroPop(&qis.macros.at(i), qis.ui.pop.swe);
+								if (qis.set.showTips) MacroPop(&qis.macros.at(i), true);
 							}
 						}
 					}
@@ -598,7 +585,7 @@ namespace QiFn
 							QiThread::ExitMacroRun(&qis.macros.at(i));
 							QiThread::ExitMacroEnd(&qis.macros.at(i));
 							QiThread::StartMacroRun(&qis.macros.at(i));
-							if (qis.set.showTips) MacroPop(&qis.macros.at(i), qis.ui.pop.dwe);
+							if (qis.set.showTips) MacroPop(&qis.macros.at(i), true);
 						}
 						else
 						{
@@ -606,7 +593,7 @@ namespace QiFn
 							{
 								QiThread::ExitMacroRun(&qis.macros.at(i));
 								QiThread::StartMacroEnd(&qis.macros.at(i));
-								if (qis.set.showTips) MacroPop(&qis.macros.at(i), qis.ui.pop.dwd);
+								if (qis.set.showTips) MacroPop(&qis.macros.at(i), false);
 							}
 						}
 					}
@@ -621,7 +608,7 @@ namespace QiFn
 							{
 								QiThread::ExitMacroRun(&qis.macros.at(i));
 								QiThread::StartMacroEnd(&qis.macros.at(i));
-								if (qis.set.showTips) MacroPop(&qis.macros.at(i), qis.ui.pop.upd);
+								if (qis.set.showTips) MacroPop(&qis.macros.at(i), false);
 							}
 						}
 						else
@@ -633,7 +620,7 @@ namespace QiFn
 								QiThread::ExitMacroRun(&qis.macros.at(i));
 								QiThread::ExitMacroEnd(&qis.macros.at(i));
 								QiThread::StartMacroRun(&qis.macros.at(i));
-								if (qis.set.showTips) MacroPop(&qis.macros.at(i), qis.ui.pop.upe);
+								if (qis.set.showTips) MacroPop(&qis.macros.at(i), true);
 							}
 						}
 					}
@@ -654,9 +641,10 @@ namespace QiFn
 	{
 		if (state)
 		{
+			memset(qis.keyState, 0, sizeof(qis.keyState));
 			if (!InputHook::State())
 			{
-				timeBeginPeriod(1); // set clock accuracy, default is 16ms: sleep(1) = sleep(16)
+				timeBeginPeriod(1); // set clock accuracy
 				if (!InputHook::Start()) MsgBox::Error(L"创建输入Hook失败，检查是否管理员身份运行 或 是否被安全软件拦截。");
 				qis.xboxpad.setStateEvent(XBoxPadProc, true);
 			}
@@ -686,10 +674,9 @@ namespace QiFn
 						if (qis.macros[u].key >> 16) qis.blockKeys.Add(qis.macros[u].key >> 16);
 					}
 				}
-				memset(qis.keyState, 0, sizeof(qis.keyState));
 			}
 			qis.state = true;
-			QPop(qis.ui.pop.qe);
+			StatePop(true);
 			if (qis.set.audFx) Media::WavePlay(audfx_on);
 			if (qis.fun.wndActive.state) { if (!QiThread::WindowStateActive()) QiThread::StartWindowState(); }
 			else qis.run = true;
@@ -697,7 +684,7 @@ namespace QiFn
 		else
 		{
 			qis.state = false, qis.run = false;
-			QPop(qis.ui.pop.qd);
+			StatePop(false);
 			if (qis.fun.wndActive.state) { if (QiThread::WindowStateActive()) QiThread::ExitWindowState(); }
 			if (qis.set.audFx)Media::WavePlay(audfx_off);
 		}

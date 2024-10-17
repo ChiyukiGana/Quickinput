@@ -29,9 +29,6 @@
    <iconset resource="../res/QuickInput.qrc">
     <normaloff>:/icon.png</normaloff>:/icon.png</iconset>
   </property>
-  <property name="styleSheet">
-   <string notr="true">*{color:black;border:none;outline:none;font-size:12px;font-family:&quot;Microsoft YaHei&quot;}QMainWindow,QDialog{border:1px solid gray}QMenu,QToolTip,QLineEdit,QTextEdit,QKeyEdit,QCheckBox::indicator,QRadioButton::indicator,QHeaderView,QHeaderView::section,QTableWidget,QTableWidget QTableCornerButton::section,QComboBox,QComboBox QAbstractItemView{background-color:white}QPushButton,QTabBar::tab,QTabBar::tab:first,QTabBar::tab:last,QToolBox::tab{background-color:#ADE}QCheckBox::indicator,QRadioButton::indicator{width:20px;height:20px}QComboBox{padding-left:3px}QMenu::item:selected,QPushButton:hover,QCheckBox::indicator:hover,QRadioButton::indicator:hover,QTableWidget::item:hover,QTabBar::tab:hover,QTabBar::tab:first:hover,QTabBar::tab:last:hover{background-color:#BEF;color:black}QTableWidget::item:selected{background-color:#CEF;color:black}QTabBar::tab:selected,QTabBar::tab:first:selected,QTabBar::tab:last:selected{background-color:#CEF;color:black}QCheckBox::indicator:checked,QRadioButton::indicator:checked{image:url(:/checked.png)}QPushButton:disabled,QCheckBox:disabled,QRadioButton:disabled{color:gray}#bnWndSelect,#bnPos,#bnColorRect,#bnImageRect,#bnImageShot{background-color:white}#titleWidget{background-color:white}#titleWidget *{font-size:14px}#clientWidget,QTabWidget&gt;QWidget,QToolBox&gt;QWidget{background-color:#CEF}</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <property name="spacing">
     <number>0</number>
@@ -121,7 +118,7 @@
          <font>
           <family>Microsoft YaHei</family>
           <pointsize>-1</pointsize>
-          <weight>75</weight>
+          <weight>62</weight>
           <bold>true</bold>
          </font>
         </property>
@@ -129,8 +126,7 @@
          <bool>true</bool>
         </property>
         <property name="styleSheet">
-         <string notr="true">background:none;font-family:&quot;Microsoft YaHei&quot;;
-font-size:14px;</string>
+         <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:14px;font-weight:500;</string>
         </property>
         <property name="text">
          <string>说明</string>
@@ -222,7 +218,7 @@ font-size:14px;</string>
            <x>0</x>
            <y>0</y>
            <width>778</width>
-           <height>552</height>
+           <height>603</height>
           </rect>
          </property>
          <attribute name="label">
@@ -244,6 +240,19 @@ font-size:14px;</string>
           <property name="bottomMargin">
            <number>0</number>
           </property>
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>&lt;a href=&quot;http://help_qinput.cyk.moe&quot;&gt;详细说明：http://help_qinput.cyk.moe&lt;/a&gt;</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
+            <property name="openExternalLinks">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
           <item>
            <widget class="QLabel" name="label_18">
             <property name="sizePolicy">
@@ -308,8 +317,8 @@ Quick input的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>514</width>
-           <height>495</height>
+           <width>472</width>
+           <height>330</height>
           </rect>
          </property>
          <attribute name="label">
@@ -371,7 +380,7 @@ Quick input的使用流程：
             <property name="tabBarAutoHide">
              <bool>false</bool>
             </property>
-            <widget class="QWidget" name="macroTab0">
+            <widget class="QWidget" name="tab_macro_base">
              <attribute name="title">
               <string>基本</string>
              </attribute>
@@ -417,12 +426,7 @@ Quick input的使用流程：
 
 等待（暂停一段时候）：
 　固定时长：在左侧框输入需要的时长（1秒=1000）
-　随机时长：在左侧框输入最小时长，在右侧框输入最大时长
-
-循环（多次执行里面的操作）：
-　固定次数：在左侧输入需要的次数（0=无限次数）
-　随机次数：在左侧框输入最小次数，在右侧框输入最大次数
-　添加后再点击编辑，编辑需要执行的宏</string>
+　随机时长：在左侧框输入最小时长，在右侧框输入最大时长</string>
                 </property>
                </widget>
               </item>
@@ -441,7 +445,66 @@ Quick input的使用流程：
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="macroTab1">
+            <widget class="QWidget" name="tab_macro_loop">
+             <attribute name="title">
+              <string>循环</string>
+             </attribute>
+             <layout class="QVBoxLayout" name="verticalLayout_3">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>10</number>
+              </property>
+              <property name="topMargin">
+               <number>10</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="label_3">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="text">
+                 <string>循环（多次执行里面的操作）：
+　固定次数：在左侧输入需要的次数（0=无限次数）
+　随机次数：在左侧框输入最小次数，在右侧框输入最大次数
+　添加后再点击编辑，编辑需要执行的宏
+
+定时（多次执行里面的操作）：
+　固定时间：在左侧输入需要的时间
+　随机时间：在左侧框输入最小时间，在右侧框输入最大时间
+　添加后再点击编辑，编辑需要执行的宏</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_12">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+            <widget class="QWidget" name="tab_macro_state">
              <attribute name="title">
               <string>状态</string>
              </attribute>
@@ -500,7 +563,7 @@ Quick input的使用流程：
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="macroTab2">
+            <widget class="QWidget" name="tab_macro_color">
              <attribute name="title">
               <string>颜色</string>
              </attribute>
@@ -554,7 +617,7 @@ Quick input的使用流程：
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="macroTab3">
+            <widget class="QWidget" name="tab_macro_image">
              <attribute name="title">
               <string>图像</string>
              </attribute>
@@ -608,7 +671,7 @@ Quick input的使用流程：
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="macroTab4">
+            <widget class="QWidget" name="tab_macro_text">
              <attribute name="title">
               <string>文本</string>
              </attribute>
@@ -661,7 +724,7 @@ Quick input的使用流程：
               </item>
              </layout>
             </widget>
-            <widget class="QWidget" name="macroTab5">
+            <widget class="QWidget" name="tab_macro_window">
              <attribute name="title">
               <string>窗口/提示</string>
              </attribute>
@@ -734,8 +797,8 @@ Quick input的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>502</width>
-           <height>343</height>
+           <width>460</width>
+           <height>267</height>
           </rect>
          </property>
          <attribute name="label">
@@ -802,8 +865,8 @@ Quick input的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>376</width>
-           <height>292</height>
+           <width>338</width>
+           <height>228</height>
           </rect>
          </property>
          <attribute name="label">
@@ -867,8 +930,8 @@ Quick input的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>304</width>
-           <height>309</height>
+           <width>274</width>
+           <height>267</height>
           </rect>
          </property>
          <attribute name="label">
@@ -899,6 +962,8 @@ Quick input的使用流程：
 
 录制快捷键：录制/录制窗口时使用
 
+录制使用鼠标轨迹：录制的移动自动启用模拟移动轨迹
+
 默认启用：运行Quick input自动启用
 
 显示触发状态提示：启用Quick input会在屏幕弹出文字
@@ -925,247 +990,6 @@ Quick input的使用流程：
              </size>
             </property>
            </spacer>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="toolBoxReadme5">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>761</width>
-           <height>3155</height>
-          </rect>
-         </property>
-         <attribute name="label">
-          <string>更新记录</string>
-         </attribute>
-         <layout class="QVBoxLayout" name="verticalLayout_2">
-          <property name="spacing">
-           <number>10</number>
-          </property>
-          <property name="leftMargin">
-           <number>10</number>
-          </property>
-          <property name="topMargin">
-           <number>10</number>
-          </property>
-          <property name="rightMargin">
-           <number>0</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="lbLogText">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="font">
-             <font>
-              <family>Microsoft YaHei</family>
-              <pointsize>-1</pointsize>
-              <weight>50</weight>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>2024-10-9
-　　1：支持XBox手柄触发
-2024-10-6
-　　1：修复定时丢失内容
-　　2：优化右键菜单颜色
-2024-9-25
-　　1：UI（宏选项卡）
-　　2：增加自定义style
-　　3：增加定时
-2024-9-20
-　　1：修复窗口模式加载异常
-　　2：窗口拖动优化
-2024-9-14
-　　1：UI更改
-　　2：增加提示框自定义
-　　3：优化在前台时禁止启用
-2024-9-10
-　　1：增加移动轨迹速度
-2024-8-30
-ㅤㅤ1：修改说明
-ㅤㅤ2：增加主题
-2024-8-28
-ㅤㅤ1：增加移动轨迹
-ㅤㅤ2：增加记录鼠标位置
-2024-5-25
-ㅤㅤ1：修复多个宏同时查找颜色或图片导致内存溢出
-ㅤㅤ2：优化线程安全
-2024-5-23
-ㅤㅤ1：修复查找图像错误
-ㅤㅤ2：查找图像移动从左上角改为到中心
-2024-5-11
-ㅤㅤ1：优化输入处理，在不启用时不会占用输入，减少延迟
-2024-5-8
-ㅤㅤ1：增加查找图像
-ㅤㅤ2：增加弹出文字
-ㅤㅤ3：增加编辑的测试运行
-ㅤㅤ4：增加宏列表的重新加载，取消每次编辑的无效加载
-2024-5-4
-ㅤㅤ1：增加恢复鼠标位置
-2024-4-29
-ㅤㅤ1：增加主题
-2024-4-11
-ㅤㅤ1：增加编辑列表的右键菜单
-2024-4-7
-ㅤㅤ1：UI（选框不清楚是否勾选）
-ㅤㅤ2：优化性能
-2024-3-23
-ㅤㅤ1：增加多选，可用于删除和复制
-ㅤㅤ2：增加在临时文件夹运行时自动提示安装
-2024-3-14
-ㅤㅤ1：修复宏列表为空时无法正常录制
-ㅤㅤ2：优化窗口模式，可以通过位置自动查找子窗口
-2024-3-7
-ㅤㅤ1：增加随机循环
-2024-3-6
-ㅤㅤ1：增加窗口录制时检测目标窗口是否有效
-ㅤㅤ2：增加选择窗口时按ESC取消
-2024-2-28
-ㅤㅤ1：优化触发判断速度
-ㅤㅤ2：修改时保留备注
-2024-2-22
-ㅤㅤ1：增加结束时执行的宏，可用于在宏结束时松开按键，确保每次结束时按键都是松开的
-2024-2-8
-ㅤㅤ1：增加按键状态判断，可实现用一个按键控制一个按键的长按切换或组合键判断
-2024-1-30
-ㅤㅤ1：编辑宏使用Ctrl C，Ctrl V可复制粘贴
-2024-1-8
-ㅤㅤ1：快捷连点附带随机
-2024-1-7
-ㅤㅤ1：增加窗口输入（后台）模式
-2024-1-3
-ㅤㅤ1：优化屏蔽触发键，能屏蔽键盘自动重复输入
-ㅤㅤ2：增加任务栏右键菜单
-2023-12-31
-ㅤㅤ1：优化查找颜色速度
-2023-12-30
-ㅤㅤ1：增加默认启用
-ㅤㅤ2：增加默认参数
-2023-12-25
-ㅤㅤ1：增加鼠标位置和查找颜色的位置预览
-ㅤㅤ2：优化内存管理
-2023-12-24
-ㅤㅤ1：修改json动态分配结构，不兼容以前版本
-ㅤㅤ2：增加查找颜色的找到并移动
-ㅤㅤ3：宏触发直接点击列表启用或禁用
-2023-12-21
-ㅤㅤ1：修复创建开机任务（在使用电池时不启动）
-ㅤㅤ2：修复移动无法输入负数错误
-2023-12-17
-ㅤㅤ1：增加导入导出
-ㅤㅤ2：增加松开触发
-2023-12-14
-ㅤㅤ1：增加屏蔽触发键（仅窗口应用有效）
-ㅤㅤ2：修复时间过大导致内存溢出
-2023-12-11
-ㅤㅤ1：优化界面
-ㅤㅤ2：修复编辑界面删除宏导致崩溃
-2023-12-9
-ㅤㅤ1：优化界面
-2023-12-8
-ㅤㅤ1：优化列表间距
-2023-12-5
-ㅤㅤ1：增加移动宏功能
-ㅤㅤ2：优化宏列表备注
-2023-12-2
-ㅤㅤ1：增加备注功能
-2023-11-30
-ㅤㅤ1：修复Ctrl,Alt+数字组合键
-ㅤㅤ2：调整界面
-2023-11-29
-ㅤㅤ1：增加结束和结束循环功能
-ㅤㅤ2：修复颜色框选错误
-2023-11-25
-ㅤㅤ1：增加无限嵌套功能
-ㅤㅤ2：增加结束功能
-2023-11-24
-ㅤㅤ1：增加查找颜色未找到的处理
-2023-11-21
-ㅤㅤ1：优化列表效率
-2023-11-16
-ㅤㅤ1：增加随机移动
-2023-11-4
-ㅤㅤ1：优化列表，UI缩放
-2023-11-3
-ㅤㅤ1：增加窗口控制状态，详细看使用方法
-2023-11-2
-ㅤㅤ1：增加自定义窗口放大
-2023-10-30
-ㅤㅤ1：优化性能，0ms以上的CPU占用更低
-2023-10-29
-ㅤㅤ1：增加触发的次数，可指定宏的执行次数
-ㅤㅤ2：增加编辑的循环，可指定宏的执行次数
-2023-10-28
-ㅤㅤ1：修复CPS不准确，提高间隔时间的精度，但在16ms以下会增加CPU占用
-2023-10-27
-ㅤㅤ1：过滤录制的键盘重复按下
-ㅤㅤ2：修复单个触发键会被其他键中断
-ㅤㅤ3：增加编辑窗口宏列表使用Shift ↑↓移动宏位置，Shift ←删除宏
-2023-10-21
-ㅤㅤ1：增加录制的开始按钮
-2023-10-20
-ㅤㅤ1：修复组合触发键的误触发
-2023-10-17
-ㅤㅤ1：增加启用/停止组合键
-ㅤㅤ2：修复颜色识别卡顿
-2023-10-16
-ㅤㅤ1：增加快捷连点模式
-2023-10-14
-ㅤㅤ1：增加显示时间开关
-2023-10-10
-ㅤㅤ1：修复缩放识别位置错误
-2023-10-9
-ㅤㅤ1：增加组合触发键，可输入两个按键来触发，也可输入一个
-2023-10-5
-ㅤㅤ1：修复缩放字体显示过大
-2023-10-5
-ㅤㅤ1：增加范围颜色查找功能
-ㅤㅤ2：优化获取颜色，获取坐标
-2023-10-5
-ㅤㅤ1：修复查找颜色错误
-2023-10-4
-ㅤㅤ1：增加查找颜色功能，详细看使用方法
-ㅤㅤ2：优化列表显示效果
-2023-10-3
-ㅤㅤ1：增加编辑窗口的修改功能，双击列表的项目即可修改
-ㅤㅤ2：增加多开功能，复制程序的文件夹就可以运行多个
-2023-10-2
-ㅤㅤ1：优化弹窗刷新，从透明度更改时刷新改为仅内容更改时刷新，提高效率
-2023-9-30
-ㅤㅤ1：使用Qt5.15.2并重新编译为32位程序、
-ㅤㅤ2：增加宏触发状态显示，在屏幕的顶部将弹出提示
-2023-9-28
-ㅤㅤ1：增加显示当前时间功能
-2023-9-27
-ㅤㅤ1：增加快捷连点的间隔时间功能
-ㅤㅤ2：修复快捷点击按键与宏触发键冲突导致程序失效
-2023-9-24
-ㅤㅤ1：增加随机等待功能，模拟真实点击时的速度差异
-ㅤㅤ2：增加获取位置功能，点击获取后再点击目标位置
-2023-9-23
-ㅤㅤ1：修复按下启用/停止键时按下其他键异常
-ㅤㅤ2：增加对滚轮的支持
-ㅤㅤ3：发布到bilibili
-2023-9-21
-ㅤㅤ1：第一个版本</string>
-            </property>
-            <property name="textFormat">
-             <enum>Qt::PlainText</enum>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-            </property>
-           </widget>
           </item>
          </layout>
         </widget>
