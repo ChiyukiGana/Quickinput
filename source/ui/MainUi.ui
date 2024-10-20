@@ -2,9 +2,6 @@
 <ui version="4.0">
  <class>MainUiClass</class>
  <widget class="QMainWindow" name="MainUiClass">
-  <property name="windowModality">
-   <enum>Qt::NonModal</enum>
-  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -31,30 +28,15 @@
     <height>510</height>
    </size>
   </property>
-  <property name="cursor">
-   <cursorShape>ArrowCursor</cursorShape>
-  </property>
-  <property name="mouseTracking">
-   <bool>false</bool>
-  </property>
   <property name="contextMenuPolicy">
    <enum>Qt::NoContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Quick input（快速输入）</string>
+   <string>Quick input</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../res/QuickInput.qrc">
     <normaloff>:/icon.png</normaloff>:/icon.png</iconset>
-  </property>
-  <property name="autoFillBackground">
-   <bool>false</bool>
-  </property>
-  <property name="styleSheet">
-   <string notr="true">*{color:black;border:none;outline:none;font-size:12px;font-family:&quot;Microsoft YaHei&quot;}QMainWindow,QDialog{border:1px solid gray}QMenu,QToolTip,QLineEdit,QTextEdit,QKeyEdit,QCheckBox::indicator,QRadioButton::indicator,QHeaderView,QHeaderView::section,QTableWidget,QTableWidget QTableCornerButton::section,QComboBox,QComboBox QAbstractItemView{background-color:white}QPushButton,QTabBar::tab,QTabBar::tab:first,QTabBar::tab:last,QToolBox::tab{background-color:#ADE}QCheckBox::indicator,QRadioButton::indicator{width:20px;height:20px}QComboBox{padding-left:3px}QMenu::item:selected,QPushButton:hover,QCheckBox::indicator:hover,QRadioButton::indicator:hover,QTableWidget::item:hover,QTabBar::tab:hover,QTabBar::tab:first:hover,QTabBar::tab:last:hover{background-color:#BEF;color:black}QTableWidget::item:selected{background-color:#CEF;color:black}QTabBar::tab:selected,QTabBar::tab:first:selected,QTabBar::tab:last:selected{background-color:#CEF;color:black}QCheckBox::indicator:checked,QRadioButton::indicator:checked{image:url(:/checked.png)}QPushButton:disabled,QCheckBox:disabled,QRadioButton:disabled{color:gray}#bnWndSelect,#bnPos,#bnColorRect,#bnImageRect,#bnImageShot{background-color:white}#titleWidget{background-color:white}#titleWidget *{font-size:14px}#clientWidget,QTabWidget&gt;QWidget,QToolBox&gt;QWidget{background-color:#CEF}</string>
-  </property>
-  <property name="animated">
-   <bool>true</bool>
   </property>
   <widget class="QWidget" name="mainWidget">
    <property name="styleSheet">
@@ -151,22 +133,14 @@
            <height>20</height>
           </size>
          </property>
-         <property name="font">
-          <font>
-           <family>Microsoft YaHei</family>
-           <pointsize>-1</pointsize>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
          <property name="mouseTracking">
           <bool>true</bool>
          </property>
          <property name="styleSheet">
-          <string notr="true"/>
+          <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:14px;font-weight:500;</string>
          </property>
          <property name="text">
-          <string>Quick input（快速输入）</string>
+          <string>Quick input</string>
          </property>
         </widget>
        </item>
@@ -311,7 +285,6 @@
          <property name="font">
           <font>
            <family>Microsoft YaHei</family>
-           <pointsize>-1</pointsize>
            <weight>75</weight>
            <bold>true</bold>
           </font>

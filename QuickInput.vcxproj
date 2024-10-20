@@ -177,9 +177,8 @@
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\src\func.cpp" />
     <ClCompile Include="source\src\ginc.cpp" />
-    <ClCompile Include="source\src\InputHook.cpp" />
+    <ClCompile Include="source\src\input.cpp" />
     <ClCompile Include="source\src\json.cpp" />
-    <ClCompile Include="source\src\PopBox.cpp" />
     <ClCompile Include="source\src\thread.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -187,9 +186,9 @@
     <ClInclude Include="source\src\ginc.h" />
     <ClInclude Include="source\src\json.h" />
     <ClInclude Include="source\src\minc.h" />
-    <ClInclude Include="source\src\PopBox.h" />
     <ClInclude Include="source\src\thread.h" />
     <ClInclude Include="source\src\type.h" />
+    <QtMoc Include="source\ui\widget\QPopText.h" />
     <QtMoc Include="source\ui\widget\QKeyEdit.h" />
     <QtMoc Include="source\ui\PopsUi.h" />
     <QtMoc Include="source\ui\widget\QRectView.h" />
@@ -226,5 +225,8 @@
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="source\res\QuickInput.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="versions.txt" />
   </ItemGroup>
 </Project>

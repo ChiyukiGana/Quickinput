@@ -3,6 +3,9 @@
 #include <mmsystem.h>
 #pragma comment(lib, "Winmm.lib")
 
+#define MINIMP3_IMPLEMENTATION
+#include "minimp3/minimp3.h"
+
 #define audfx_err L"C:/Windows/Media/Windows Foreground.wav"
 #define audfx_fail L"C:/Windows/Media/Windows Hardware Fail.wav"
 #define audfx_war L"C:/Windows/Media/Windows Background.wav"
@@ -29,7 +32,7 @@ namespace CG {
 			const uint32 blockSize = 0x10;
 			const uint16 formatTag = WAVE_FORMAT_PCM;
 			uint16 channels = 0;
-			uint32 simplesPreSec = 0;
+			uint32 samplesPreSec = 0;
 			uint32 bytesPerSec = 0;
 			uint16 blockAlign = 0;
 			uint16 bitsPerSimple = 0;
@@ -95,7 +98,7 @@ namespace CG {
 	{
 		uint32 bits = 0;
 		uint32 channels = 0;
-		uint32 simples = 0;
+		uint32 samples = 0;
 		uint32 bytes = 0;
 		void* data = nullptr;
 	};
@@ -104,27 +107,106 @@ namespace CG {
 	public:
 		SoundData() {}
 		~SoundData() { Release(); }
+		bool fromWave(std::wstring file)
+		{
+			WavFile wavFile;
+			if (wavFile.Load(file))
+			{
+				Release();
+				fromWave(std::move(wavFile));
+				return true;
+			}
+			return false;
+		}
 		void fromWave(const WavFile* wavFile)
 		{
 			Release();
 			bits = wavFile->sFormat.bitsPerSimple;
 			channels = wavFile->sFormat.channels;
-			simples = wavFile->sFormat.simplesPreSec;
+			samples = wavFile->sFormat.samplesPreSec;
 			bytes = wavFile->sData.dataBytes;
 			data = new char[bytes];
 			memcpy_s(data, bytes, wavFile->pData, wavFile->sData.dataBytes);
+		}
+		void fromWave(WavFile&& wavFile)
+		{
+			Release();
+			bits = wavFile.sFormat.bitsPerSimple;
+			channels = wavFile.sFormat.channels;
+			samples = wavFile.sFormat.samplesPreSec;
+			bytes = wavFile.sData.dataBytes;
+			data = wavFile.pData;
+			wavFile.pData = nullptr;
 		}
 		void toWave(WavFile* wavFile) const
 		{
 			wavFile->sRiff.fileBytes = sizeof(WavFile::RIFF::type) + sizeof(WavFile::FORMAT) + sizeof(WavFile::DATA) + bytes;
 			wavFile->sFormat.channels = channels;
-			wavFile->sFormat.simplesPreSec = simples;
-			wavFile->sFormat.bytesPerSec = bits * channels * simples;
+			wavFile->sFormat.samplesPreSec = samples;
+			wavFile->sFormat.bytesPerSec = bits * channels * samples;
 			wavFile->sFormat.blockAlign = bits * channels >> 3;
 			wavFile->sFormat.bitsPerSimple = bits;
 			wavFile->sData.dataBytes = bytes;
 			wavFile->pData = new char[wavFile->sData.dataBytes];
 			memcpy_s(wavFile->pData, wavFile->sData.dataBytes, data, bytes);
+		}
+		bool fromMp3(std::wstring file)
+		{
+			Release();
+
+			size_t file_size = File::FileSize(file);
+			if (file_size)
+			{
+				unsigned char* file_data = new unsigned char[file_size];
+				if (File::FileRead(file, file_data, file_size))
+				{
+					mp3dec_t dec;
+					mp3dec_init(&dec);
+
+					mp3dec_frame_info_t info;
+					mp3d_sample_t frame_data[MINIMP3_MAX_SAMPLES_PER_FRAME];
+					mp3dec_decode_frame(&dec, file_data, file_size, frame_data, &info);
+
+					size_t pcm_samples = MINIMP3_MAX_SAMPLES_PER_FRAME;
+					size_t current_samples = 0;
+					mp3d_sample_t* pcm_data = (mp3d_sample_t*)malloc(sizeof(mp3d_sample_t) * info.channels * pcm_samples);
+
+					unsigned char* file_pointer = file_data;
+					while (true)
+					{
+						size_t samples = mp3dec_decode_frame(&dec, file_pointer, file_size, frame_data, &info);
+						if (pcm_samples < (current_samples + samples))
+						{
+							pcm_samples = pcm_samples << 1;
+							mp3d_sample_t* tmp = (mp3d_sample_t*)realloc(pcm_data, sizeof(mp3d_sample_t) * info.channels * pcm_samples);
+							if (tmp) pcm_data = tmp;
+						}
+
+						memcpy(pcm_data + current_samples * info.channels, frame_data, sizeof(mp3d_sample_t) * info.channels * samples);
+
+						current_samples += samples;
+						if (info.frame_bytes <= 0 || file_size <= (info.frame_bytes + 4)) break;
+						file_pointer += info.frame_bytes;
+						file_size -= info.frame_bytes;
+					}
+					if (pcm_samples > current_samples)
+					{
+						mp3d_sample_t* tmp = (mp3d_sample_t*)realloc(pcm_data, sizeof(mp3d_sample_t) * info.channels * current_samples);
+						if (tmp) pcm_data = tmp;
+					}
+
+					bits = sizeof(mp3d_sample_t) * 8;
+					channels = info.channels;
+					samples = info.hz;
+					bytes = sizeof(mp3d_sample_t) * info.channels * current_samples;
+					data = pcm_data;
+
+					delete[] file_data;
+					return true;
+				}
+				delete[] file_data;
+			}
+			return false;
 		}
 		void Release() { if (data) { delete data; data = nullptr; } }
 	};

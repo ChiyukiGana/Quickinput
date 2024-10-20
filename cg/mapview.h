@@ -22,30 +22,24 @@ namespace CG
 					if (wp == 1)
 					{
 						const RgbMap* map = (const RgbMap*)lp;
-						size.cx = map->width() + 30, size.cy = map->height() + 58;
+						size.cx = map->width(), size.cy = map->height();
 						if (map->count()) hbmp = Image::toBmp32(*map, hdc);
 
 					}
 					else if (wp == 2)
 					{
 						const RgbaMap* map = (const RgbaMap*)lp;
-						size.cx = map->width() + 30, size.cy = map->height() + 58;
+						size.cx = map->width(), size.cy = map->height();
 						if (map->count()) hbmp = Image::toBmp32(*map, hdc);
 					}
-					RECT rect = {};
-					if (size.cx < minSize.cx) rect.right = minSize.cx; else rect.right = size.cx;
-					if (size.cy < minSize.cy) rect.bottom = minSize.cy; else rect.bottom = size.cy;
-					Window::Size(wnd, { rect.right, rect.bottom });
-					GetClientRect(wnd, &rect);
-					HBRUSH brush = CreateSolidBrush(RGB(128, 192, 128)); FillRect(hdc, &rect, brush); DeleteObject(brush);
+
+					Window::setSize(wnd, { size.cx + 16, size.cy + 40 });
+
 					if (hbmp)
 					{
-						POINT pt = {};
-						if (size.cx < rect.right) pt.x = (rect.right >> 1) - (size.cx >> 1); else pt.x = 0;
-						if (size.cy < rect.bottom) pt.y = (rect.bottom >> 1) - (size.cy >> 1); else pt.y = 0;
 						HDC mem = CreateCompatibleDC(hdc);
 						SelectObject(mem, hbmp);
-						BitBlt(hdc, pt.x, pt.y, size.cx, size.cy, mem, 0, 0, SRCCOPY);
+						BitBlt(hdc, 0, 0, size.cx, size.cy, mem, 0, 0, SRCCOPY);
 						DeleteObject(hbmp);
 						DeleteDC(mem);
 					}

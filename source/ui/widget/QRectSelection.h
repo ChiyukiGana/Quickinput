@@ -68,14 +68,14 @@ public:
 protected:
 
 	void paintEvent(QPaintEvent*) { QPainter pa(this); pa.fillRect(0, 0, vrect.width(), vrect.height(), QColor(0, 0, 0, 50)); }
-	void mousePressEvent(QMouseEvent* et) { ClipCursor(&mrect); GetCursorPos(&amsBefore); msBefore = et->pos(); }
-	void mouseReleaseEvent(QMouseEvent* et) { ClipCursor(0); releaseMouse(); close(); }
-	void mouseMoveEvent(QMouseEvent* et)
+	void mousePressEvent(QMouseEvent* e) { ClipCursor(&mrect); GetCursorPos(&amsBefore); msBefore = e->pos(); }
+	void mouseReleaseEvent(QMouseEvent* e) { ClipCursor(0); releaseMouse(); close(); }
+	void mouseMoveEvent(QMouseEvent* e)
 	{
 		ClipCursor(&mrect);
 		GetCursorPos(&ams);
 		QRect box;
-		QPoint msAfter = et->pos();
+		QPoint msAfter = e->pos();
 		if (msAfter.x() < msBefore.x()) box.setLeft(msAfter.x()), box.setRight(msBefore.x());
 		else box.setLeft(msBefore.x()), box.setRight(msAfter.x());
 		if (msAfter.y() < msBefore.y()) box.setTop(msAfter.y()), box.setBottom(msBefore.y());

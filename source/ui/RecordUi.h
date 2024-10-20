@@ -10,16 +10,24 @@ class RecordUi : public QDialog
 	Ui::RecordUiClass ui;
 	Macro macro;
 public:
+	enum
+	{
+		_start = QEvent::User + 1,
+		_stop,
+		_close,
+	};
+public:
 	RecordUi(WndInfo* wi) : QDialog()
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setMouseTracking(true);
 
-		SetStyleGroup();
+		StyleGroup();
 		ui.bnStart->setText(qis.ui.text.rcStart);
 		ui.bnClose->setText(qis.ui.text.rcClose);
-		WidEvent();
+		connect(ui.bnStart, SIGNAL(clicked()), this, SLOT(OnBnStart()));
+		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
 
 		qis.widget.record = this;
 		qis.recordState = true;
@@ -27,10 +35,10 @@ public:
 
 		if (qis.set.recKey)
 		{
-			std::wstring text(L"按下");
-			text += Input::Name(qis.set.recKey);
+			QString text("按下");
+			text += QKeyEdit::keyName(qis.set.recKey);
 			text += L"开始录制";
-			PopBox::Show(text, RGB(0x20, 0xFF, 0x20));
+			qis.popText->Show(text, QColor(0x20, 0xFF, 0x20));
 		}
 
 		macro.mode = Macro::down;
@@ -41,7 +49,8 @@ public:
 			qis.recordWindow = wi->wnd;
 			macro.wi = *wi;
 			macro.wndState = true;
-			macro.name = QiFn::NameFilter(L"窗口录制");
+			macro.name = QiFn::AllocName(L"窗口录制");
+
 			POINT wpt = Window::pos(qis.recordWindow);
 			move(wpt.x, wpt.y);
 			WndLock::Lock(qis.recordWindow);
@@ -50,39 +59,30 @@ public:
 		}
 		else
 		{
-			macro.name = QiFn::NameFilter(L"录制");
+			macro.name = QiFn::AllocName(L"录制");
 			exec();
 		}
 		QiFn::QiHook(false);
 		qis.recordState = false;
 		qis.widget.record = nullptr;
 	}
-	void SetStyleGroup()
+	void StyleGroup()
 	{
 		setProperty("group", QVariant(QString::fromUtf8("frame")));
 		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
 		ui.bnStart->setProperty("group", QVariant(QString::fromUtf8("record-button")));
 		ui.bnClose->setProperty("group", QVariant(QString::fromUtf8("record-button")));
 	}
-	void ReStyle()
-	{
-		setStyleSheet("");
-		setStyleSheet(qis.ui.themes[qis.set.theme].style);
-	}
+
 private:
-	void WidEvent()
-	{
-		connect(ui.bnStart, SIGNAL(clicked()), this, SLOT(OnBnStart()));
-		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
-	}
 	void RecStart()
 	{
 		if (qis.set.recKey)
 		{
-			std::wstring text(L"按下");
-			text += Input::Name(qis.set.recKey);
-			text += L"停止录制";
-			PopBox::Show(text);
+			QString text("按下");
+			text += QKeyEdit::keyName(qis.set.recKey);
+			text += "停止录制";
+			qis.popText->Show(text);
 		}
 
 		ui.bnStart->setText(qis.ui.text.rcStop);
@@ -100,27 +100,26 @@ private:
 			qis.macros.Add(macro);
 			QiJson::SaveMacro(macro);
 		}
-		PopBox::Hide();
+		qis.popText->Hide();
 		close();
 	}
 	void RecClose()
 	{
 		qis.recording = false;
-		PopBox::Hide();
+		qis.popText->Hide();
 		close();
 	}
-	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) msPos = et->pos(), mouseDown = true; et->accept(); }void mouseMoveEvent(QMouseEvent* et) { if (mouseDown) move(et->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) mouseDown = false; }
+	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) msPos = e->pos(), mouseDown = true; e->accept(); }void mouseMoveEvent(QMouseEvent* e) { if (mouseDown) move(e->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) mouseDown = false; }
 private:
 	void showEvent(QShowEvent*)
 	{
-		ReStyle();
 		SetForegroundWindow((HWND)QWidget::winId());
 	}
-	void customEvent(QEvent* et)
+	void customEvent(QEvent* e)
 	{
-		if (et->type() == QiEvent::recStart) RecStart();
-		else if (et->type() == QiEvent::recStop) RecStop();
-		else if (et->type() == QiEvent::recClose) RecClose();
+		if (e->type() == _start) RecStart();
+		else if (e->type() == _stop) RecStop();
+		else if (e->type() == _close) RecClose();
 	}
 public Q_SLOTS:
 	void OnBnStart() { if (qis.recording) RecStop(); else RecStart(); }

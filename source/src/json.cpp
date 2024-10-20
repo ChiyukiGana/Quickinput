@@ -5,13 +5,14 @@ namespace QiJson
 {
 	void LoadDefault()
 	{
-		qis.set.defOn = true;
 		qis.set.key = VK_F8;
 		qis.set.recKey = VK_F8;
+		qis.set.recTrack = true;
+		qis.set.defOn = true;
 		qis.set.showTips = true;
 		qis.set.audFx = false;
 		qis.set.minMode = false;
-		qis.set.zoomBlock = false;
+		qis.set.scaleBlock = false;
 		qis.fun.quickClick.state = false;
 		qis.fun.quickClick.key = VK_LBUTTON;
 		qis.fun.quickClick.delay = 200;
@@ -23,45 +24,49 @@ namespace QiJson
 	}
 	void LoadDefaultPopBox()
 	{
-		qis.ui.pop.qe.t = L"@ 启用";
-		qis.ui.pop.qd.t = L"@ 禁用";
-		qis.ui.pop.we.t = L"@ 窗口启用";
-		qis.ui.pop.wd.t = L"@ 窗口禁用";
-		qis.ui.pop.qce.t = L"连点 @";
-		qis.ui.pop.qcd.t = L"停止 @";
-		qis.ui.pop.swe.t = L"执行 @";
-		qis.ui.pop.swd.t = L"停止 @";
-		qis.ui.pop.dwe.t = L"执行$次 @";
-		qis.ui.pop.dwd.t = L"停止 @";
-		qis.ui.pop.upe.t = L"执行$次 @";
-		qis.ui.pop.upd.t = L"停止 @";
-		qis.ui.pop.qe.c = RGB(0xCC, 0xEE, 0xFF);
-		qis.ui.pop.qd.c = RGB(0xFF, 0x50, 0x50);
-		qis.ui.pop.we.c = RGB(0xAA, 0xBB, 0xFF);
-		qis.ui.pop.wd.c = RGB(0xFF, 0xA0, 0xA0);
-		qis.ui.pop.qce.c = RGB(0x20, 0xFF, 0x40);
-		qis.ui.pop.qcd.c = RGB(0xFF, 0xFF, 0x60);
-		qis.ui.pop.swe.c = RGB(0x20, 0xFF, 0x40);
-		qis.ui.pop.swd.c = RGB(0xFF, 0xFF, 0x60);
-		qis.ui.pop.dwe.c = RGB(0x20, 0xFF, 0x40);
-		qis.ui.pop.dwd.c = RGB(0xFF, 0xFF, 0x60);
-		qis.ui.pop.upe.c = RGB(0x20, 0xFF, 0x40);
-		qis.ui.pop.upd.c = RGB(0xFF, 0xFF, 0x60);
+		qis.ui.pop.qe.t = "@ 启用";
+		qis.ui.pop.qd.t = "@ 禁用";
+		qis.ui.pop.we.t = "@ 窗口启用";
+		qis.ui.pop.wd.t = "@ 窗口禁用";
+		qis.ui.pop.qce.t = "连点 @";
+		qis.ui.pop.qcd.t = "停止 @";
+		qis.ui.pop.swe.t = "执行 @";
+		qis.ui.pop.swd.t = "停止 @";
+		qis.ui.pop.dwe.t = "执行$次 @";
+		qis.ui.pop.dwd.t = "停止 @";
+		qis.ui.pop.upe.t = "执行$次 @";
+		qis.ui.pop.upd.t = "停止 @";
+		qis.ui.pop.qe.c = QColor(0xC0, 0xE0, 0xFF);
+		qis.ui.pop.qd.c = QColor(0xFF, 0x50, 0x50);
+		qis.ui.pop.we.c = QColor(0xAA, 0xBB, 0xFF);
+		qis.ui.pop.wd.c = QColor(0xFF, 0xA0, 0xA0);
+		qis.ui.pop.qce.c = QColor(0x20, 0xFF, 0x40);
+		qis.ui.pop.qcd.c = QColor(0xFF, 0xFF, 0x60);
+		qis.ui.pop.swe.c = QColor(0x20, 0xFF, 0x40);
+		qis.ui.pop.swd.c = QColor(0xFF, 0xFF, 0x60);
+		qis.ui.pop.dwe.c = QColor(0x20, 0xFF, 0x40);
+		qis.ui.pop.dwd.c = QColor(0xFF, 0xFF, 0x60);
+		qis.ui.pop.upe.c = QColor(0x20, 0xFF, 0x40);
+		qis.ui.pop.upd.c = QColor(0xFF, 0xFF, 0x60);
 		qis.ui.pop.p = { 5000, 0 };
+		qis.ui.pop.time = 1000;
 	}
 
-	void MakeBasePop(neb::CJsonObject& json, const QiUi::PopBoxBase& base)
+	void SavePopTextInfo(neb::CJsonObject& json, const PopTextInfo& p)
 	{
 		json.Clear();
-		json.Add("t", String::toString(base.t));
-		json.Add("c", (int32)base.c);
+		json.Add("t", (const char*)p.t.toUtf8());
+		json.Add("c", (uint32)RGB(p.c.red(), p.c.green(), p.c.blue()));
 	}
-	void GetBasePop(const neb::CJsonObject& json, QiUi::PopBoxBase& base)
+	void LoadPopTextInfo(const neb::CJsonObject& json, PopTextInfo& p)
 	{
 		std::string str;
-		json.Get("c", (int32&)base.c);
 		json.Get("t", str);
-		base.t = String::toWString(str);
+		p.t = str.c_str();
+
+		uint32 color;
+		json.Get("c", color);
+		p.c = QColor(GetRValue(color), GetGValue(color), GetBValue(color));
 	}
 
 	void SaveAction(neb::CJsonObject& jActions, const Actions& actions)
@@ -208,11 +213,12 @@ namespace QiJson
 		cfg.Add("theme", qis.set.theme);
 		cfg.Add("key", qis.set.key);
 		cfg.Add("recKey", qis.set.recKey);
+		cfg.Add("recTrack", qis.set.recTrack, true);
 		cfg.Add("defOn", qis.set.defOn, true);
 		cfg.Add("showTips", qis.set.showTips, true);
 		cfg.Add("audFx", qis.set.audFx, true);
 		cfg.Add("minMode", qis.set.minMode, true);
-		cfg.Add("zoomBlock", qis.set.zoomBlock, true);
+		cfg.Add("scaleBlock", qis.set.scaleBlock, true);
 		cfg.Add("quickClickKey", qis.fun.quickClick.key);
 		cfg.Add("quickClickState", qis.fun.quickClick.state, true);
 		cfg.Add("quickClickDelay", qis.fun.quickClick.delay);
@@ -224,31 +230,32 @@ namespace QiJson
 		{
 			neb::CJsonObject pbox;
 			neb::CJsonObject buf;
+			pbox.Add("time", qis.ui.pop.time);
 			pbox.Add("px", (uint32)qis.ui.pop.p.x);
 			pbox.Add("py", (uint32)qis.ui.pop.p.y);
-			MakeBasePop(buf, qis.ui.pop.qe);
+			SavePopTextInfo(buf, qis.ui.pop.qe);
 			pbox.Add("qe", buf);
-			MakeBasePop(buf, qis.ui.pop.qd);
+			SavePopTextInfo(buf, qis.ui.pop.qd);
 			pbox.Add("qd", buf);
-			MakeBasePop(buf, qis.ui.pop.we);
+			SavePopTextInfo(buf, qis.ui.pop.we);
 			pbox.Add("we", buf);
-			MakeBasePop(buf, qis.ui.pop.wd);
+			SavePopTextInfo(buf, qis.ui.pop.wd);
 			pbox.Add("wd", buf);
-			MakeBasePop(buf, qis.ui.pop.qce);
+			SavePopTextInfo(buf, qis.ui.pop.qce);
 			pbox.Add("qce", buf);
-			MakeBasePop(buf, qis.ui.pop.qcd);
+			SavePopTextInfo(buf, qis.ui.pop.qcd);
 			pbox.Add("qcd", buf);
-			MakeBasePop(buf, qis.ui.pop.swe);
+			SavePopTextInfo(buf, qis.ui.pop.swe);
 			pbox.Add("swe", buf);
-			MakeBasePop(buf, qis.ui.pop.swd);
+			SavePopTextInfo(buf, qis.ui.pop.swd);
 			pbox.Add("swd", buf);
-			MakeBasePop(buf, qis.ui.pop.dwe);
+			SavePopTextInfo(buf, qis.ui.pop.dwe);
 			pbox.Add("dwe", buf);
-			MakeBasePop(buf, qis.ui.pop.dwd);
+			SavePopTextInfo(buf, qis.ui.pop.dwd);
 			pbox.Add("dwd", buf);
-			MakeBasePop(buf, qis.ui.pop.upe);
+			SavePopTextInfo(buf, qis.ui.pop.upe);
 			pbox.Add("upe", buf);
-			MakeBasePop(buf, qis.ui.pop.upd);
+			SavePopTextInfo(buf, qis.ui.pop.upd);
 			pbox.Add("upd", buf);
 			cfg.Add("popbox", pbox);
 		}
@@ -439,12 +446,13 @@ namespace QiJson
 				std::string str;
 				cfg.Get("theme", qis.set.theme);
 				cfg.Get("key", qis.set.key);
+				cfg.Get("recTrack", qis.set.recTrack);
 				cfg.Get("recKey", qis.set.recKey);
 				cfg.Get("defOn", qis.set.defOn);
 				cfg.Get("showTips", qis.set.showTips);
 				cfg.Get("audFx", qis.set.audFx);
 				cfg.Get("minMode", qis.set.minMode);
-				cfg.Get("zoomBlock", qis.set.zoomBlock);
+				cfg.Get("scaleBlock", qis.set.scaleBlock);
 				cfg.Get("quickClickState", qis.fun.quickClick.state);
 				cfg.Get("quickClickKey", qis.fun.quickClick.key);
 				cfg.Get("quickClickDelay", qis.fun.quickClick.delay);
@@ -461,31 +469,32 @@ namespace QiJson
 					{
 						neb::CJsonObject buf;
 						pbox.Get("qe", buf);
-						GetBasePop(buf, qis.ui.pop.qe);
+						LoadPopTextInfo(buf, qis.ui.pop.qe);
 						pbox.Get("qd", buf);
-						GetBasePop(buf, qis.ui.pop.qd);
+						LoadPopTextInfo(buf, qis.ui.pop.qd);
 						pbox.Get("we", buf);
-						GetBasePop(buf, qis.ui.pop.we);
+						LoadPopTextInfo(buf, qis.ui.pop.we);
 						pbox.Get("wd", buf);
-						GetBasePop(buf, qis.ui.pop.wd);
+						LoadPopTextInfo(buf, qis.ui.pop.wd);
 						pbox.Get("qce", buf);
-						GetBasePop(buf, qis.ui.pop.qce);
+						LoadPopTextInfo(buf, qis.ui.pop.qce);
 						pbox.Get("qcd", buf);
-						GetBasePop(buf, qis.ui.pop.qcd);
+						LoadPopTextInfo(buf, qis.ui.pop.qcd);
 						pbox.Get("swe", buf);
-						GetBasePop(buf, qis.ui.pop.swe);
+						LoadPopTextInfo(buf, qis.ui.pop.swe);
 						pbox.Get("swd", buf);
-						GetBasePop(buf, qis.ui.pop.swd);
+						LoadPopTextInfo(buf, qis.ui.pop.swd);
 						pbox.Get("dwe", buf);
-						GetBasePop(buf, qis.ui.pop.dwe);
+						LoadPopTextInfo(buf, qis.ui.pop.dwe);
 						pbox.Get("dwd", buf);
-						GetBasePop(buf, qis.ui.pop.dwd);
+						LoadPopTextInfo(buf, qis.ui.pop.dwd);
 						pbox.Get("upe", buf);
-						GetBasePop(buf, qis.ui.pop.upe);
+						LoadPopTextInfo(buf, qis.ui.pop.upe);
 						pbox.Get("upd", buf);
-						GetBasePop(buf, qis.ui.pop.upd);
+						LoadPopTextInfo(buf, qis.ui.pop.upd);
 						pbox.Get("px", (uint32&)qis.ui.pop.p.x);
 						pbox.Get("py", (uint32&)qis.ui.pop.p.y);
+						pbox.Get("time", (uint32&)qis.ui.pop.time);
 					}
 				}
 				LoadMacro();
