@@ -87,9 +87,6 @@
       <AdditionalManifestDependencies>
       </AdditionalManifestDependencies>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
       <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
     </Link>
@@ -99,12 +96,9 @@
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <SmallerTypeCheck>false</SmallerTypeCheck>
-      <Optimization>MaxSpeed</Optimization>
-      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <PrecompiledHeaderFile />
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
       <ExceptionHandling>false</ExceptionHandling>
       <DebugInformationFormat>None</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
@@ -124,7 +118,7 @@
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <SmallerTypeCheck>false</SmallerTypeCheck>
       <Optimization>MaxSpeed</Optimization>
-      <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <PrecompiledHeaderFile />
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <ExceptionHandling>false</ExceptionHandling>
@@ -132,7 +126,6 @@
     </ClCompile>
     <Link>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
     </Link>
     <Manifest>
@@ -151,8 +144,6 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="Configuration">
@@ -188,6 +179,7 @@
     <ClInclude Include="source\src\minc.h" />
     <ClInclude Include="source\src\thread.h" />
     <ClInclude Include="source\src\type.h" />
+    <QtMoc Include="source\ui\widget\QWindowSelection.h" />
     <QtMoc Include="source\ui\widget\QPopText.h" />
     <QtMoc Include="source\ui\widget\QKeyEdit.h" />
     <QtMoc Include="source\ui\PopsUi.h" />

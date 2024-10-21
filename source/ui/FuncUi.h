@@ -10,7 +10,7 @@ class FuncUi : public QWidget
 {
 	Q_OBJECT;
 	Ui::FuncUiClass ui;
-	FuncData* func = &qis.fun;
+	FuncData* func = &Qi::fun;
 public:
 	FuncUi(QWidget* parent) : QWidget(parent)
 	{
@@ -119,12 +119,12 @@ private Q_SLOTS:
 	}
 	void OnWcSelect()
 	{
-		qis.widget.dialogActive = true;
-		qis.widget.main->hide();
+		Qi::widget.dialogActive = true;
+		Qi::widget.main->hide();
 		func->wndActive.wi = QiFn::WindowSelection();
 		ui.etWndActive->setText(QString::fromWCharArray(func->wndActive.wi.wndName.c_str()));
-		qis.widget.dialogActive = false;
-		qis.widget.main->show();
+		Qi::widget.dialogActive = false;
+		Qi::widget.main->show();
 		QiJson::SaveJson();
 	}
 	void OnClockState(int state)

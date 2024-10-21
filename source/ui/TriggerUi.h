@@ -10,7 +10,7 @@ class TriggerUi : public QWidget
 	Q_OBJECT;
 	const int32 countMax = 9999;
 	Ui::TriggerUiClass ui;
-	Macros* macros = &qis.macros;
+	Macros* macros = &Qi::macros;
 public:
 	TriggerUi(QWidget* parent) : QWidget(parent)
 	{
@@ -152,8 +152,8 @@ private:
 			ui.tbActions->setItem(i, 2, new QTableWidgetItem(qs));
 			ui.tbActions->item(i, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 			//
-			if (macros->at(i).state) qs = qis.ui.text.trOn;
-			else qs = qis.ui.text.trOff;
+			if (macros->at(i).state) qs = Qi::ui.text.trOn;
+			else qs = Qi::ui.text.trOff;
 			ui.tbActions->setItem(i, 3, new QTableWidgetItem(qs));
 			ui.tbActions->item(i, 3)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		}

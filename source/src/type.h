@@ -111,6 +111,8 @@ namespace QiUi
 	};
 }
 
+
+
 ////////////////// Window
 struct ChildWindow
 {
@@ -162,135 +164,281 @@ struct WndLock
 		ClipCursor(0);
 	}
 };
-////////////////// #Window
+////////////////// ~Window
+
+
 
 ////////////////// Actions
-extern struct Action;
-using Actions = List<Action>;
-struct QiDelay { uint32 tmin; uint32 tmax; };
-struct QiKey { enum { up, down, click }; uint32 vk = 0; uint32 state = down; };
-struct QiMouse { int32 x = 0; int32 y = 0; uint32 ex = 0; uint32 speed = 0; bool move = false; bool track = false; };
-struct QiText { u16string str; void release() { str.release(); } };
-struct QiColor { Rgba rgbe = 0; RECT rect = {}; bool unfind = false; bool move = false; };
-struct QiLoop { uint32 cmin = 0; uint32 cmax = 0; };
-struct QiKeyState { uint32 vk = 0; bool state = true; };
-struct QiImage { RgbMap map; uint32 sim; RECT rect = {}; bool unfind = false; bool move = false; void release() { map.release(); } };
-struct QiPopText { u16string str; uint32 time = 0; void release() { str.release(); } };
-struct QiTimer { uint32 tmin = 0; uint32 tmax = 0; };
-struct Action
+struct QiType
 {
-	typedef enum
+	enum
 	{
-		_none,
-		_end,
-		_delay,
-		_key,
-		_mouse,
-		_text,
-		_color,
-		_loop,
-		_loopEnd,
-		_keyState,
-		_revocerPos,
-		_image,
-		_popText,
-		_rememberPos,
-		_timer
-	} ActionType;
+		none,
+		end,
+		delay,
+		key,
+		mouse,
+		text,
+		color,
+		loop,
+		loopEnd,
+		keyState,
+		recoverPos,
+		image,
+		popText,
+		rememberPos,
+		timer
+	};
+};
 
-	ActionType type = _none;
-	typedef union _Data
-	{
-		_Data() {}
-		~_Data() {}
-		QiDelay delay;
-		QiKey key;
-		QiMouse mouse;
-		QiText text;
-		QiColor color;
-		QiLoop loop;
-		QiKeyState keyState;
-		QiImage image;
-		QiPopText popText;
-		QiTimer timer;
-	} Data;
-	Data d;
+union Action;
+using Actions = List<Action>;
+
+struct QiBase
+{
+	uint32 type;
+	std::wstring mark;
 	Actions next;
-	u16string mark;
+	QiBase(uint32 qiType = QiType::none) noexcept : type(qiType) {}
+	QiBase(const QiBase& r) noexcept { operator=(r); }
+	QiBase(QiBase&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiBase& r) noexcept { type = r.type; mark = r.mark; next = r.next; }
+	void operator=(QiBase&& r) noexcept { type = r.type; mark = std::move(r.mark); next = std::move(r.next); }
+};
 
-	Action() { release(); }
-	Action(const ActionType actionType) { release(); type = actionType; }
-	Action(const Action& action) { release(); cpy(action); }
-	~Action() { release(); }
+struct QiEnd : QiBase
+{
+	QiEnd() noexcept : QiBase(QiType::end) {}
+	QiEnd(const QiEnd& r) noexcept { operator=(r); }
+	QiEnd(QiEnd&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiEnd& r) noexcept { QiBase::operator=(r); }
+	void operator=(QiEnd&& r) noexcept { QiBase::operator=(std::move(r)); }
+};
+struct QiDelay : QiBase
+{
+	uint32 min; uint32 max;
+	QiDelay() noexcept : QiBase(QiType::delay) {}
+	QiDelay(const QiDelay& r) noexcept { operator=(r); }
+	QiDelay(QiDelay&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiDelay& r) noexcept { QiBase::operator=(r); min = r.min; max = r.max; }
+	void operator=(QiDelay&& r) noexcept { QiBase::operator=(std::move(r)); min = r.min; max = r.max; }
+};
+struct QiKey : QiBase
+{
+	enum { up, down, click };
+	uint32 vk = 0; uint32 state = down;
+	QiKey() noexcept : QiBase(QiType::key) {}
+	QiKey(const QiKey& r) noexcept { operator=(r); }
+	QiKey(QiKey&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiKey& r) noexcept { QiBase::operator=(r); vk = r.vk; state = r.state; }
+	void operator=(QiKey&& r) noexcept { QiBase::operator=(std::move(r)); vk = r.vk; state = r.state; }
+};
+struct QiMouse : QiBase
+{
+	int32 x = 0; int32 y = 0; uint32 ex = 0; uint32 speed = 0; bool move = false; bool track = false;
+	QiMouse() noexcept : QiBase(QiType::mouse) {}
+	QiMouse(const QiMouse& r) noexcept { operator=(r); }
+	QiMouse(QiMouse&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiMouse& r) noexcept { QiBase::operator=(r); x = r.x; y = r.y; ex = r.ex; speed = r.speed; move = r.move; track = r.track; }
+	void operator=(QiMouse&& r) noexcept { QiBase::operator=(std::move(r)); x = r.x; y = r.y; ex = r.ex; speed = r.speed; move = r.move; track = r.track; }
+};
+struct QiText : QiBase
+{
+	std::wstring str;
+	QiText() noexcept : QiBase(QiType::text) {}
+	QiText(const QiText& r) noexcept { operator=(r); }
+	QiText(QiText&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiText& r) noexcept { QiBase::operator=(r); str = r.str; }
+	void operator=(QiText&& r) noexcept { QiBase::operator=(std::move(r)); str = std::move(r.str); }
+};
+struct QiColor : QiBase
+{
+	Rgba rgbe = 0; RECT rect = {}; bool unfind = false; bool move = false;
+	QiColor() noexcept : QiBase(QiType::color) {}
+	QiColor(const QiColor& r) noexcept { operator=(r); }
+	QiColor(QiColor&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiColor& r) noexcept { QiBase::operator=(r); rgbe = r.rgbe; rect = r.rect; unfind = r.unfind; move = r.move; }
+	void operator=(QiColor&& r) noexcept { QiBase::operator=(std::move(r)); rgbe = std::move(r.rgbe); rect = r.rect; unfind = r.unfind; move = r.move; }
+};
+struct QiLoop : QiBase
+{
+	uint32 min = 0; uint32 max = 0;
+	QiLoop() noexcept : QiBase(QiType::loop) {}
+	QiLoop(const QiLoop& r) noexcept { operator=(r); }
+	QiLoop(QiLoop&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiLoop& r) noexcept { QiBase::operator=(r); min = r.min; max = r.max; }
+	void operator=(QiLoop&& r) noexcept { QiBase::operator=(std::move(r)); min = r.min; max = r.max; }
+};
+struct QiLoopEnd : QiBase
+{
+	QiLoopEnd() noexcept : QiBase(QiType::loopEnd) {}
+	QiLoopEnd(const QiLoopEnd& r) noexcept { operator=(r); }
+	QiLoopEnd(QiLoopEnd&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiLoopEnd& r) noexcept { QiBase::operator=(r); }
+	void operator=(QiLoopEnd&& r) noexcept { QiBase::operator=(std::move(r)); }
+};
+struct QiKeyState : QiBase
+{
+	uint32 vk = 0; bool state = true;
+	QiKeyState() noexcept : QiBase(QiType::keyState) {}
+	QiKeyState(const QiKeyState& r) noexcept { operator=(r); }
+	QiKeyState(QiKeyState&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiKeyState& r) noexcept { QiBase::operator=(r); vk = r.vk; state = r.state; }
+	void operator=(QiKeyState&& r) noexcept { QiBase::operator=(std::move(r)); vk = r.vk; state = r.state; }
+};
+struct QiRecoverPos : QiBase
+{
+	QiRecoverPos() noexcept : QiBase(QiType::recoverPos) {}
+	QiRecoverPos(const QiRecoverPos& r) noexcept { operator=(r); }
+	QiRecoverPos(QiRecoverPos&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiRecoverPos& r) noexcept { QiBase::operator=(r); }
+	void operator=(QiRecoverPos&& r) noexcept { QiBase::operator=(std::move(r)); }
+};
+struct QiImage : QiBase
+{
+	RgbMap map; uint32 sim; RECT rect = {}; bool unfind = false; bool move = false;
+	QiImage() noexcept : QiBase(QiType::image) {}
+	QiImage(const QiImage& r) noexcept { operator=(r); }
+	QiImage(QiImage&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiImage& r) noexcept { QiBase::operator=(r); map = r.map; sim = r.sim; rect = r.rect; unfind = r.unfind; move = r.move; }
+	void operator=(QiImage&& r) noexcept { QiBase::operator=(std::move(r)); map = std::move(r.map); sim = r.sim; rect = r.rect; unfind = r.unfind; move = r.move; }
+};
+struct QiPopText : QiBase
+{
+	std::wstring str; uint32 time = 0;
+	QiPopText() noexcept : QiBase(QiType::popText) {}
+	QiPopText(const QiPopText& r) noexcept { operator=(r); }
+	QiPopText(QiPopText&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiPopText& r) noexcept { QiBase::operator=(r); time = r.time; str = r.str; }
+	void operator=(QiPopText&& r) noexcept { QiBase::operator=(std::move(r)); time = r.time; str = std::move(r.str); }
+};
+struct QiRememberPos : QiBase
+{
+	QiRememberPos() noexcept : QiBase(QiType::rememberPos) {}
+	QiRememberPos(const QiRememberPos& r) noexcept { operator=(r); }
+	QiRememberPos(QiRememberPos&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiRememberPos& r) noexcept { QiBase::operator=(r); }
+	void operator=(QiRememberPos&& r) noexcept { QiBase::operator=(std::move(r)); }
+};
+struct QiTimer : QiBase
+{
+	uint32 min = 0; uint32 max = 0;
+	QiTimer() noexcept : QiBase(QiType::loop) {}
+	QiTimer(const QiTimer& r) noexcept { operator=(r); }
+	QiTimer(QiTimer&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiTimer& r) noexcept { QiBase::operator=(r); min = r.min; max = r.max; }
+	void operator=(QiTimer&& r) noexcept { QiBase::operator=(std::move(r)); min = r.min; max = r.max; }
+};
 
-	void operator=(const Action& action) { cpy(action); }
+union Action
+{
+	QiBase base;
+	QiEnd end;
+	QiDelay delay;
+	QiKey key;
+	QiMouse mouse;
+	QiText text;
+	QiColor color;
+	QiLoop loop;
+	QiLoopEnd loopEnd;
+	QiKeyState keyState;
+	QiRecoverPos recoverPos;
+	QiImage image;
+	QiPopText popText;
+	QiRememberPos rememberPos;
+	QiTimer timer;
 
-	void cpy(const Action& action)
+	Action() noexcept : base() {}
+	Action(const Action& r) noexcept { operator=(r); }
+	Action(Action&& r) noexcept { operator=(std::move(r)); }
+	Action(QiEnd&& r) noexcept : end(std::move(r)) {}
+	Action(QiDelay&& r) noexcept : delay(std::move(r)) {}
+	Action(QiKey&& r) noexcept : key(std::move(r)) {}
+	Action(QiMouse&& r) noexcept : mouse(std::move(r)) {}
+	Action(QiText&& r) noexcept : text(std::move(r)) {}
+	Action(QiColor&& r) noexcept : color(std::move(r)) {}
+	Action(QiLoop&& r) noexcept : loop(std::move(r)) {}
+	Action(QiLoopEnd&& r) noexcept : loopEnd(std::move(r)) {}
+	Action(QiKeyState&& r) noexcept : keyState(std::move(r)) {}
+	Action(QiRecoverPos&& r) noexcept : recoverPos(std::move(r)) {}
+	Action(QiImage&& r) noexcept : image(std::move(r)) {}
+	Action(QiPopText&& r) noexcept : popText(std::move(r)) {}
+	Action(QiRememberPos&& r) noexcept : rememberPos(std::move(r)) {}
+	Action(QiTimer&& r) noexcept : timer(std::move(r)) {}
+	~Action() { Release(); }
+
+	void operator=(const Action& r) noexcept
 	{
-		release();
-		mark = action.mark;
-		switch (action.type)
+		Release();
+		switch (r.base.type)
 		{
-		case _end: type = ActionType::_end;
-			break;
-		case _delay: type = ActionType::_delay;
-			d.delay = action.d.delay;
-			break;
-		case _key: type = ActionType::_key;
-			d.key = action.d.key;
-			break;
-		case _mouse: type = ActionType::_mouse;
-			d.mouse = action.d.mouse;
-			break;
-		case _text: type = ActionType::_text;
-			d.text = action.d.text;
-			break;
-		case _color: type = ActionType::_color;
-			d.color = action.d.color;
-			next = action.next;
-			break;
-		case _loop: type = ActionType::_loop;
-			d.loop = action.d.loop;
-			next = action.next;
-			break;
-		case _loopEnd: type = ActionType::_loopEnd;
-			break;
-		case _keyState: type = ActionType::_keyState;
-			d.keyState = action.d.keyState;
-			next = action.next;
-			break;
-		case _revocerPos: type = ActionType::_revocerPos;
-			break;
-		case _image: type = ActionType::_image;
-			d.image = action.d.image;
-			next = action.next;
-			break;
-		case _popText: type = ActionType::_popText;
-			d.popText = action.d.popText;
-			break;
-		case _rememberPos: type = ActionType::_rememberPos;
-			break;
-		case _timer: type = ActionType::_timer;
-			d.timer = action.d.timer;
-			next = action.next;
-			break;
-		default: type = ActionType::_none;
+		case QiType::end: end = r.end; break;
+		case QiType::delay: delay = r.delay; break;
+		case QiType::key: key = r.key; break;
+		case QiType::mouse: mouse = r.mouse; break;
+		case QiType::text: text = r.text; break;
+		case QiType::color: color = r.color; break;
+		case QiType::loop: loop = r.loop; break;
+		case QiType::loopEnd: loopEnd = r.loopEnd; break;
+		case QiType::keyState: keyState = r.keyState; break;
+		case QiType::recoverPos: recoverPos = r.recoverPos; break;
+		case QiType::image: image = r.image; break;
+		case QiType::popText: popText = r.popText; break;
+		case QiType::rememberPos: rememberPos = r.rememberPos; break;
+		case QiType::timer: timer = r.timer; break;
+		case QiType::none: base = r.base;
+		}
+	}
+	void operator=(Action&& r) noexcept
+	{
+		Release();
+		switch (r.base.type)
+		{
+		case QiType::end: end = std::move(r.end); break;
+		case QiType::delay: delay = std::move(r.delay); break;
+		case QiType::key: key = std::move(r.key); break;
+		case QiType::mouse: mouse = std::move(r.mouse); break;
+		case QiType::text: text = std::move(r.text); break;
+		case QiType::color: color = std::move(r.color); break;
+		case QiType::loop: loop = std::move(r.loop); break;
+		case QiType::loopEnd: loopEnd = std::move(r.loopEnd); break;
+		case QiType::keyState: keyState = std::move(r.keyState); break;
+		case QiType::recoverPos: recoverPos = std::move(r.recoverPos); break;
+		case QiType::image: image = std::move(r.image); break;
+		case QiType::popText: popText = std::move(r.popText); break;
+		case QiType::rememberPos: rememberPos = std::move(r.rememberPos); break;
+		case QiType::timer: timer = std::move(r.timer); break;
+		case QiType::none: base = std::move(r.base);
 		}
 	}
 
-	void release() {
-		switch (type)
+private:
+	void Release()
+	{
+		switch (base.type)
 		{
-		case _text: d.text.release(); break;
-		case _image: d.image.release(); break;
-		case _popText: d.popText.release(); break;
+		case QiType::end: end.~QiEnd(); break;
+		case QiType::delay: delay.~QiDelay(); break;
+		case QiType::key: key.~QiKey(); break;
+		case QiType::mouse: mouse.~QiMouse(); break;
+		case QiType::text: text.~QiText(); break;
+		case QiType::color: color.~QiColor(); break;
+		case QiType::loop: loop.~QiLoop(); break;
+		case QiType::loopEnd: loopEnd.~QiLoopEnd(); break;
+		case QiType::keyState: keyState.~QiKeyState(); break;
+		case QiType::recoverPos: recoverPos.~QiRecoverPos(); break;
+		case QiType::image: image.~QiImage(); break;
+		case QiType::popText: popText.~QiPopText(); break;
+		case QiType::rememberPos: rememberPos.~QiRememberPos(); break;
+		case QiType::timer: timer.~QiTimer(); break;
+		case QiType::none: base.~QiBase(); break;
 		}
-		mark.release();
-		type = _none;
-		memset(&d, 0, sizeof(Data));
+		memset(this, 0, sizeof(Action));
 	}
 };
-////////////////// #Actions
+////////////////// ~Actions
+
+
 
 ////////////////// Macros
 struct Macro
@@ -314,7 +462,9 @@ struct Macro
 	HANDLE thEnd = nullptr;
 };
 using Macros = List<Macro>;
-////////////////// #Macros
+////////////////// ~Macros
+
+
 
 ////////////////// Datas
 struct QuickClick
@@ -362,41 +512,41 @@ struct Widget
 	QWidget* main = nullptr;
 	QWidget* record = nullptr;
 };
-////////////////// #Datas
+////////////////// ~Datas
 
-struct QuickInputStruct
+
+
+namespace Qi
 {
-	QApplication* application = nullptr;
+	inline QApplication* application = nullptr;
 
-	bool state = false;
-	bool run = false;
+	inline bool state = false;
+	inline bool run = false;
 
-	bool recordState = false;
-	bool recording = false;
-	clock_t recordClock = 0;
-	HWND recordWindow = 0;
+	inline bool recordState = false;
+	inline bool recording = false;
+	inline clock_t recordClock = 0;
+	inline HWND recordWindow = 0;
 
-	Actions record;
-	Actions clipboard;
-	Macros macros;
+	inline Actions record;
+	inline Actions clipboard;
+	inline Macros macros;
 
-	FuncData fun;
-	SettingsData set;
-	Widget widget;
-	QPopText* popText = nullptr;
+	inline FuncData fun;
+	inline SettingsData set;
+	inline Widget widget;
+	inline QPopText* popText = nullptr;
 
-	bool keyState[XBoxPad::key_end];
-	List<byte> blockKeys;
+	inline bool keyState[XBoxPad::key_end];
+	inline List<byte> blockKeys;
 
-	XBoxPad xboxpad;
+	inline XBoxPad xboxpad;
 
-	SIZE screen = {};
+	inline SIZE screen = {};
 
-	std::wstring dir = Path::Last(Process::runPath());
+	inline std::wstring dir = Path::Last(Process::runPath());
 
-	MSG msg;
+	inline MSG msg;
 
-	QiUi::QuickInputUi ui;
-};
-
-extern QuickInputStruct qis;
+	inline QiUi::QuickInputUi ui;
+}

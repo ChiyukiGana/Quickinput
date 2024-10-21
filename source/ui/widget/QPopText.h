@@ -1,7 +1,7 @@
 ﻿#pragma execution_character_set("utf-8")
 #pragma once
 #include <qapplication.h>
-#include <qwidget.h>
+#include <qdialog.h>
 #include <qpainter.h>
 #include <qevent.h>
 #include <qtimer.h>
@@ -29,7 +29,7 @@ public:
 	int time() const { return _time; }
 };
 
-class QPopText : public QWidget
+class QPopText : public QDialog
 {
 	Q_OBJECT;
 	QPoint point;
@@ -40,7 +40,7 @@ class QPopText : public QWidget
 public:
 
 public:
-	QPopText() : QWidget()
+	QPopText() : QDialog()
 	{
 		point = QPoint(5000, 0);
 		color = QColor(0xC0, 0xE0, 0xFF);
@@ -53,7 +53,6 @@ public:
 		setPosition(5000, 5000);
 		setWindowOpacity(0.0);
 		setStyleSheet("color:black");
-		show();
 	}
 	void setPosition(int x, int y)
 	{

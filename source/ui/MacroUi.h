@@ -11,7 +11,7 @@ class MacroUi : public QWidget
 {
 	Q_OBJECT;
 	Ui::MacroUiClass ui;
-	Macros* macros = &qis.macros;
+	Macros* macros = &Qi::macros;
 	QTimer* timer = nullptr;
 public:
 	MacroUi(QWidget* parent) : QWidget(parent)
@@ -117,8 +117,8 @@ private:
 	}
 	void RecStart(bool wnd)
 	{
-		qis.widget.dialogActive = true;
-		qis.widget.main->hide();
+		Qi::widget.dialogActive = true;
+		Qi::widget.main->hide();
 		WndInfo wi;
 		if (wnd)
 		{
@@ -126,7 +126,7 @@ private:
 			if (!wi.wnd)
 			{
 				
-				qis.popText->Popup("窗口已失效", RGB(255, 64, 64), 2000);
+				Qi::popText->Popup("窗口已失效", RGB(255, 64, 64), 2000);
 				return;
 			}
 		}
@@ -134,8 +134,8 @@ private:
 		if (wi.wnd) RecordUi rw(&wi);
 		else RecordUi rw(nullptr);
 
-		qis.widget.dialogActive = false;
-		qis.widget.main->show();
+		Qi::widget.dialogActive = false;
+		Qi::widget.main->show();
 	}
 	void showEvent(QShowEvent*)
 	{
@@ -221,7 +221,7 @@ private Q_SLOTS:
 		macro.count = 1;
 		macro.name = QiFn::AllocName(L"宏");
 
-		qis.macros.Add(macro);
+		Qi::macros.Add(macro);
 		QiJson::SaveMacro(macro);
 		TableUpdate();
 		ResetControl();
@@ -237,11 +237,11 @@ private Q_SLOTS:
 		EditUi edit(ep);
 		edit.setWindowTitle("编辑 - " + QString::fromWCharArray(macros->at(p).name.c_str()));
 
-		qis.widget.dialogActive = true;
-		qis.widget.main->hide();
+		Qi::widget.dialogActive = true;
+		Qi::widget.main->hide();
 		edit.exec();
-		qis.widget.main->show();
-		qis.widget.dialogActive = false;
+		Qi::widget.main->show();
+		Qi::widget.dialogActive = false;
 
 		QiJson::SaveMacro(macros->at(p));
 		ResetControl();
@@ -251,9 +251,9 @@ private Q_SLOTS:
 	{
 		int p = ui.tbActions->currentRow();
 		if (p < 0) return;
-		qis.widget.dialogActive = true;
+		Qi::widget.dialogActive = true;
 		QString path = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, "导出", QString::fromWCharArray((macros->at(p).name + macroType).c_str()), "Quick input macro (*.json)"));
-		qis.widget.dialogActive = false;
+		Qi::widget.dialogActive = false;
 		if (path.size())
 		{
 			CopyFileW((macroPath + macros->at(p).name + macroType).c_str(), (wchar_t*)path.utf16(), 0);
@@ -263,9 +263,9 @@ private Q_SLOTS:
 	}
 	void OnBnImp()
 	{
-		qis.widget.dialogActive = true;
+		Qi::widget.dialogActive = true;
 		QString path = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "导入", QString(), "Quick input macro (*.json)"));
-		qis.widget.dialogActive = false;
+		Qi::widget.dialogActive = false;
 		if (path.size())
 		{
 			std::wstring file = (wchar_t*)path.utf16();

@@ -32,16 +32,16 @@ private:
 	{
 		if (e->type() == QEvent::WindowActivate)
 		{
-			qis.widget.moreActive = true;
-			if (qis.state) QiFn::QiState(false);
+			Qi::widget.moreActive = true;
+			if (Qi::state) QiFn::QiState(false);
 			QiFn::QiHook(false);
 		}
 		else if (e->type() == QEvent::WindowDeactivate)
 		{
-			qis.widget.moreActive = false;
+			Qi::widget.moreActive = false;
 			if (QiFn::SelfActive())
 			{
-				if (qis.set.defOn) QiFn::QiState(true);
+				if (Qi::set.defOn) QiFn::QiState(true);
 				QiFn::QiHook(true);
 			}
 		}

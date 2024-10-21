@@ -12,7 +12,7 @@ class SettingsUi : public QWidget
 	Q_OBJECT;
 	Ui::SettingsUiClass ui;
 	MoreUi more;
-	SettingsData* sets = &qis.set;
+	SettingsData* sets = &Qi::set;
 public:
 	SettingsUi(QWidget* parent) : QWidget(parent)
 	{
@@ -57,11 +57,11 @@ private:
 		ui.cmbTheme->setEditable(true);
 		ui.cmbTheme->lineEdit()->setReadOnly(true); 
 		ui.cmbTheme->lineEdit()->setAlignment(Qt::AlignCenter);
-		for (size_t i = 0; i < qis.ui.themes.size(); i++) ui.cmbTheme->addItem(qis.ui.themes[i].name);
+		for (size_t i = 0; i < Qi::ui.themes.size(); i++) ui.cmbTheme->addItem(Qi::ui.themes[i].name);
 		QStandardItemModel* model = (QStandardItemModel*)ui.cmbTheme->view()->model();
 		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
-		if (qis.set.theme >= qis.ui.themes.size()) qis.set.theme = 0;
-		ui.cmbTheme->setCurrentIndex(qis.set.theme);
+		if (Qi::set.theme >= Qi::ui.themes.size()) Qi::set.theme = 0;
+		ui.cmbTheme->setCurrentIndex(Qi::set.theme);
 
 		if ("key edit")
 		{
@@ -123,19 +123,19 @@ private Q_SLOTS:
 	void OnBnTboxs()
 	{
 		PopsUi ps;
-		qis.widget.dialogActive = true;
-		qis.widget.main->hide();
+		Qi::widget.dialogActive = true;
+		Qi::widget.main->hide();
 		ps.exec();
-		qis.widget.main->show();
-		qis.widget.dialogActive = false;
+		Qi::widget.main->show();
+		Qi::widget.dialogActive = false;
 		QiJson::SaveJson();
 	}
 	void OnCmbTheme(int item)
 	{
-		if (qis.set.theme != item)
+		if (Qi::set.theme != item)
 		{
-			qis.set.theme = item;
-			qis.application->setStyleSheet(qis.ui.themes[qis.set.theme].style);
+			Qi::set.theme = item;
+			Qi::application->setStyleSheet(Qi::ui.themes[Qi::set.theme].style);
 			QiJson::SaveJson();
 		}
 	}
@@ -151,7 +151,7 @@ private Q_SLOTS:
 		{
 			vk = keys[0].keyCode | (keys[1].keyCode << 16);
 		}
-		qis.set.key = vk;
+		Qi::set.key = vk;
 		QiJson::SaveJson();
 	}
 	void OnHkRec() {
@@ -166,7 +166,7 @@ private Q_SLOTS:
 		{
 			vk = keys[0].keyCode | (keys[1].keyCode << 16);
 		}
-		qis.set.recKey = vk;
+		Qi::set.recKey = vk;
 		QiJson::SaveJson();
 	}
 	void OnRecTrack()
