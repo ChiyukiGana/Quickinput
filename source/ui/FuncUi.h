@@ -10,7 +10,7 @@ class FuncUi : public QWidget
 {
 	Q_OBJECT;
 	Ui::FuncUiClass ui;
-	FuncData* func = &qis.fun;
+	FuncData* func = &Qi::fun;
 public:
 	FuncUi(QWidget* parent) : QWidget(parent)
 	{
@@ -22,17 +22,17 @@ public:
 	}
 	void StyleGroup()
 	{
-		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
-		ui.bnWndSelect->setProperty("group", QVariant(QString::fromUtf8("get_button")));
-		ui.chbQkClick->setProperty("group", QVariant(QString::fromUtf8("check")));
-		ui.chbClock->setProperty("group", QVariant(QString::fromUtf8("check")));
-		ui.chbWndActive->setProperty("group", QVariant(QString::fromUtf8("check")));
-		ui.cmbMode->setProperty("group", QVariant(QString::fromUtf8("combo")));
-		ui.etQkDelay->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
-		ui.etWndActive->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
-		ui.hkQkClick->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
-		ui.hkClock->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
-		ui.cmbMode->view()->setProperty("group", QVariant(QString::fromUtf8("table")));
+		ui.clientWidget->setProperty("group", "client");
+		ui.bnWndSelect->setProperty("group", "get_button");
+		ui.chbQkClick->setProperty("group", "check");
+		ui.chbClock->setProperty("group", "check");
+		ui.chbWndActive->setProperty("group", "check");
+		ui.cmbMode->setProperty("group", "combo");
+		ui.etQkDelay->setProperty("group", "line_edit");
+		ui.etWndActive->setProperty("group", "line_edit");
+		ui.hkQkClick->setProperty("group", "line_edit");
+		ui.hkClock->setProperty("group", "line_edit");
+		ui.cmbMode->view()->setProperty("group", "table");
 	}
 
 private:
@@ -119,12 +119,12 @@ private Q_SLOTS:
 	}
 	void OnWcSelect()
 	{
-		qis.widget.dialogActive = true;
-		qis.widget.main->hide();
+		Qi::widget.dialogActive = true;
+		Qi::widget.main->hide();
 		func->wndActive.wi = QiFn::WindowSelection();
 		ui.etWndActive->setText(QString::fromWCharArray(func->wndActive.wi.wndName.c_str()));
-		qis.widget.dialogActive = false;
-		qis.widget.main->show();
+		Qi::widget.dialogActive = false;
+		Qi::widget.main->show();
 		QiJson::SaveJson();
 	}
 	void OnClockState(int state)

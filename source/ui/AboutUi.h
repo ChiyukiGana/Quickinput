@@ -19,7 +19,7 @@ public:
 	}
 	void StyleGroup()
 	{
-		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
+		ui.clientWidget->setProperty("group", "client");
 	}
 private:
 	bool eventFilter(QObject* obj, QEvent* e)

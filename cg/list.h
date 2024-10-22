@@ -24,16 +24,21 @@ namespace CG
 		
 		T& AddNull()
 		{
-			Add({}, 1);
+			Add(std::move(T()), 1);
 			return base_vector::at(base_vector::size() - 1);
 		}
 		void AddNull(const size_t count) 
 		{
 			Add({}, count);
 		}
+		T& Add(T&& t)
+		{
+			base_vector::push_back(std::move(t));
+			return base_vector::at(base_vector::size() - 1);
+		}
 		T& Add(const T& t)
 		{
-			Add(t, 1);
+			base_vector::push_back(t);
 			return base_vector::at(base_vector::size() - 1);
 		}
 		void Add(const T& t, size_t count)
@@ -46,14 +51,26 @@ namespace CG
 		}
 		T& InsNull(size_t p)
 		{
-			Ins({}, p, 1);
+			Ins(std::move(T()), p);
 			return base_vector::at(p);
 		}
 		void InsNull(size_t p, size_t count)
 		{
-			Ins({}, p, count);
+			Ins(T(), p, count);
 		}
-		void Ins(const T& t, size_t p, size_t count = 1)
+		T& Ins(T&& t, size_t p)
+		{
+			if (p > base_vector::size()) p = base_vector::size();
+			base_vector::insert(base_vector::begin() + p, std::move(t));
+			return base_vector::at(p);
+		}
+		T& Ins(const T& t, size_t p)
+		{
+			if (p > base_vector::size()) p = base_vector::size();
+			base_vector::insert(base_vector::begin() + p, t);
+			return base_vector::at(p);
+		}
+		void Ins(const T& t, size_t p, size_t count)
 		{
 			if (p > base_vector::size()) p = base_vector::size();
 			base_vector::insert(base_vector::begin() + p, count, t);
@@ -88,7 +105,11 @@ namespace CG
 		{
 			List<size_t> pl(ps);
 			std::sort(pl.begin(), pl.end());
-			for (size_t n = 0; n < ps.size(); n++) base_vector::erase(base_vector::begin() + pl[n] - n);
+			for (size_t i = ps.size(); i > 0; i--)
+			{
+				base_vector::erase(base_vector::begin() + pl[i - 1]);
+				if (i < 1) break;
+			}
 		}
 		void DelFront(size_t count = 1, size_t p = 0)
 		{

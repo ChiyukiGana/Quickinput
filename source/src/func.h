@@ -31,8 +31,8 @@ namespace QiFn
 	WndInfo WindowSelection();
 	std::wstring AllocName(std::wstring name);
 
-	uint8 ActionExecute(const Action& action, POINT& cursor, WndInput* wi);
-	void Trigger(short vk);
+	int ActionExecute(const Action& action, POINT& cursor, WndInput* wi);
+	void Trigger(short vk, const bool* state);
 
 	void QiHook(bool state);
 	void QiState(bool state);

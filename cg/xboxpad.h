@@ -140,28 +140,28 @@ namespace CG {
 			{
 				switch (bnCode)
 				{
-				case start: return (bool)state.Gamepad.wButtons & XINPUT_GAMEPAD_START;
-				case back: return (bool)state.Gamepad.wButtons & XINPUT_GAMEPAD_BACK;
-				case a: return (bool)state.Gamepad.wButtons & XINPUT_GAMEPAD_A;
-				case b: return (bool)state.Gamepad.wButtons & XINPUT_GAMEPAD_B;
-				case x: return (bool)state.Gamepad.wButtons & XINPUT_GAMEPAD_X;
-				case y: return (bool)state.Gamepad.wButtons & XINPUT_GAMEPAD_Y;
-				case up: return (bool)state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP;
-				case down: return (bool)state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN;
-				case left: return (bool)state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT;
-				case right: return (bool)state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT;
-				case l_joy_press: return (bool)state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB;
+				case start: return (bool)(state.Gamepad.wButtons & XINPUT_GAMEPAD_START);
+				case back: return (bool)(state.Gamepad.wButtons & XINPUT_GAMEPAD_BACK);
+				case a: return (bool)(state.Gamepad.wButtons & XINPUT_GAMEPAD_A);
+				case b: return (bool)(state.Gamepad.wButtons & XINPUT_GAMEPAD_B);
+				case x: return (bool)(state.Gamepad.wButtons & XINPUT_GAMEPAD_X);
+				case y: return (bool)(state.Gamepad.wButtons & XINPUT_GAMEPAD_Y);
+				case up: return (bool)(state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP);
+				case down: return (bool)(state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN);
+				case left: return (bool)(state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT);
+				case right: return (bool)(state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT);
+				case l_joy_press: return (bool)(state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB);
 				case l_joy_up: return state.Gamepad.sThumbLY > 0 ? state.Gamepad.sThumbLY : 0;
 				case l_joy_down: return state.Gamepad.sThumbLY < 0 ? ((~state.Gamepad.sThumbLY) + 1) : 0;
 				case l_joy_left: return state.Gamepad.sThumbLX > 0 ? state.Gamepad.sThumbLX : 0;
 				case l_joy_right: return state.Gamepad.sThumbLX < 0 ? ((~state.Gamepad.sThumbLX) + 1) : 0;
-				case r_joy_press: return (bool)state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB;
+				case r_joy_press: return (bool)(state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB);
 				case r_joy_up: return state.Gamepad.sThumbRY > 0 ? state.Gamepad.sThumbRY : 0;
 				case r_joy_down: return state.Gamepad.sThumbRY < 0 ? ((~state.Gamepad.sThumbRY) + 1) : 0;
 				case r_joy_left: return state.Gamepad.sThumbRX > 0 ? state.Gamepad.sThumbRX : 0;
 				case r_joy_right: return state.Gamepad.sThumbRX < 0 ? ((~state.Gamepad.sThumbRX) + 1) : 0;
-				case l_top: return (bool)state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER;
-				case r_top: return (bool)state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER;
+				case l_top: return (bool)(state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER);
+				case r_top: return (bool)(state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER);
 				case l_bottom: return state.Gamepad.bLeftTrigger;
 				case r_bottom: return state.Gamepad.bRightTrigger;
 				}

@@ -450,31 +450,31 @@
   <customwidget>
    <class>MacroUi</class>
    <extends>QWidget</extends>
-   <header>./source/ui/macroui.h</header>
+   <header>macroui.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>TriggerUi</class>
    <extends>QWidget</extends>
-   <header>./source/ui/triggerui.h</header>
+   <header>triggerui.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>FuncUi</class>
    <extends>QWidget</extends>
-   <header>./source/ui/funcui.h</header>
+   <header>funcui.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>SettingsUi</class>
    <extends>QWidget</extends>
-   <header>./source/ui/settingsui.h</header>
+   <header>settingsui.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>AboutUi</class>
    <extends>QWidget</extends>
-   <header>./source/ui/aboutui.h</header>
+   <header>aboutui.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

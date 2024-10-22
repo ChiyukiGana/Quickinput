@@ -5,7 +5,7 @@
 #include <time.h>
 #include <windows.h>
 
-namespace typedefs
+namespace CG
 {
 	typedef std::uint8_t byte;
 	typedef std::int8_t int8;
@@ -17,14 +17,11 @@ namespace typedefs
 	typedef std::int64_t int64;
 	typedef std::uint64_t uint64;
 
-	#ifdef _M_AMD64
+#ifdef _M_AMD64
 	typedef std::uint64_t pointer;
-	#else _M_IX86
+#else _M_IX86
 	typedef std::uint32_t pointer;
-	#endif // _M_AMD64 
-}
-
-using namespace typedefs;
+#endif // _M_AMD64 
 
 #define int8Max ((int8)0x7F)
 #define int8Min ((int8)0x80)
@@ -51,24 +48,6 @@ using namespace typedefs;
 #define RGBA(r,g,b,a) ((COLORREF)((BYTE)(r)|((BYTE)(g)<<8)|((BYTE)(b)<<16)|((BYTE)(a)<<24)))
 #define GetAValue(rgba) ((BYTE)((rgba)>>24))
 
-template<typename T>
-struct TPOINT {
-	T x;
-	T y;
-};
-
-template<typename T>
-struct TRECT {
-	T left;
-	T top;
-	T right;
-	T bottom;
-};
-
-typedef TRECT<float> FRECT, * PFRECT;
-typedef TPOINT<float> FPOINT, * PFPOINT;
-
-namespace CG {
 	template <typename T>
 	static void ArrLeftMove(T arr, uint32 end, uint32 pos, uint32 len) {
 		for (uint32 u = pos; u + len - 1 < end; u++) {
@@ -108,8 +87,8 @@ namespace CG {
 	static bool InRect(const RECT& rect, const int& x, const int& y) { if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) return false; return true; }
 	static bool InRect(const RECT& rect, const POINT& pt) { if (pt.x < rect.left || pt.x > rect.right && pt.y < rect.top || pt.y > rect.bottom) return false; return true; }
 	static bool InRect(const RECT& rectParent, const RECT& rectChild) { if (rectChild.left < rectParent.left || rectChild.top < rectParent.top || rectChild.right > rectParent.right || rectChild.bottom > rectParent.bottom) return false; return true; }
-	static POINT InRectPos(const RECT& rect, const POINT& pt) { if (pt.x >= rect.left && pt.x <= rect.right && pt.y >= rect.top && pt.y <= rect.bottom ) return { pt.x - rect.left, pt.y - rect.top }; return { -1, -1 }; }
-	
+	static POINT InRectPos(const RECT& rect, const POINT& pt) { if (pt.x >= rect.left && pt.x <= rect.right && pt.y >= rect.top && pt.y <= rect.bottom) return { pt.x - rect.left, pt.y - rect.top }; return { -1, -1 }; }
+
 	static RECT RectAbs(RECT rect) {
 		if (rect.left > rect.right) std::swap(rect.left, rect.right);
 		if (rect.top > rect.bottom) std::swap(rect.top, rect.bottom);
@@ -131,55 +110,4 @@ namespace CG {
 	}
 
 	static int Rand(int max, int min = 0) { return min + (rand() % (max - min + 1)); }
-
-	class TimeOut
-	{
-		clock_t end = 0;
-	public:
-		TimeOut(clock_t ms = clock()) { set(ms); }
-		void set(clock_t ms) { end = clock() + ms; }
-		bool get() const { if(clock() - end < 0) return true; return false; }
-		clock_t out() { clock_t out = clock() - end; if (out > 0) return out; return 0; }
-	};
-
-	class AbsPos
-	{
-		double cx = 0, cy = 0;
-	public:
-		AbsPos() {}
-		AbsPos(long cx, long cy) { Size(cx, cy); }
-
-		// cx, cy: pixel
-		void Size(long cx, long cy) { this->cx = (double)cx; this->cy = (double)cy; }
-
-		// rect: 0.0 ~ 1.0
-		RECT relative(FRECT& rect) {
-			return { (long)(cx * rect.left), (long)(cy * rect.top), (long)(cx * rect.right), (long)(cy * rect.bottom), };
-		}
-		// rect: 0.0 ~ 1.0
-		RECT relative(double left, double top, double right, double bottom) {
-			return { (long)(cx * left), (long)(cy * top), (long)(cx * right), (long)(cy * bottom), };
-		}
-		// rect: 0.0 ~ 1.0
-		POINT relative(double x, double y) {
-			return { (long)(cx * x), (long)(cy * y), };
-		}
-
-		// rect: pixel
-		FRECT absolute(RECT& rect) {
-			return { (float)(rect.left / cx), (float)(rect.top / cy), (float)(rect.right / cx), (float)(rect.bottom / cy) };
-		}
-		// rect: pixel
-		FRECT absolute(long left, long top, long right, long bottom) {
-			return { (float)(left / cx), (float)(top / cy), (float)(right / cx), (float)(bottom / cy) };
-		}
-		// rect: pixel
-		FPOINT absolute(long x, long y) {
-			return { (float)(x / cx), (float)(y / cy), };
-		}
-	};
 }
-
-#define TimerPut(ms) CG::TimeOut timeOut(ms); while (timeOut.state())
-#define TimerSet(ms) timeOut.set(ms);  //### Set in PutTimer inner ###
-#define TimerOut() if (timeOut.timeOut)  //### Set in PutTimer outer ###

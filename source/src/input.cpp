@@ -2,66 +2,70 @@
 #include "../src/minc.h"
 #include "../ui/RecordUi.h"
 
-void RecordInput(BYTE key, bool state, POINT pt)
+void RecordInput(BYTE vk, bool state, POINT pt)
 {
-	if (Input::isMouse(key) && InRect(Window::rect((HWND)qis.widget.record->winId()), Input::pos())) return;
-	if (qis.recordWindow && !IsWindowVisible(qis.recordWindow))
+	if (Input::isMouse(vk) && InRect(Window::rect((HWND)Qi::widget.record->winId()), Input::pos())) return;
+	if (Qi::recordWindow && !IsWindowVisible(Qi::recordWindow))
 	{
-		QApplication::postEvent(qis.widget.record, new QEvent((QEvent::Type)RecordUi::_close));
-		qis.popText->Popup("窗口已失效", RGB(255, 64, 64), 2000);
+		QApplication::postEvent(Qi::widget.record, new QEvent((QEvent::Type)RecordUi::_close));
+		Qi::popText->Popup("窗口已失效", RGB(255, 64, 64), 2000);
 	}
 
 	// delay
-	if (qis.recordClock)
+	if (Qi::recordClock)
 	{
-		Action& action = qis.record.AddNull(); action.type = Action::_delay;
+		QiDelay delay;
 		clock_t nowClock = clock();
-		action.d.delay.tmax = action.d.delay.tmin = nowClock - qis.recordClock;
-		qis.recordClock = nowClock;
+		delay.max = delay.min = nowClock - Qi::recordClock;
+		Qi::recordClock = nowClock;
+		Qi::record.Add(std::move(delay));
 	}
 	else
 	{
-		qis.recordClock = clock();
+		Qi::recordClock = clock();
 	}
 
 	// pos
-	if (Input::isMouse(key))
+	if (Input::isMouse(vk))
 	{
+		QiMouse mouse;
 		POINT position;
-		Action& action = qis.record.AddNull(); action.type = Action::_mouse;
-		if (qis.recordWindow)
+		if (Qi::recordWindow)
 		{
-			POINT wpt = Window::pos(qis.recordWindow);
-			position = QiFn::WRTA({ pt.x - wpt.x, pt.y - wpt.y }, qis.recordWindow);
+			POINT wpt = Window::pos(Qi::recordWindow);
+			position = QiFn::WRTA({ pt.x - wpt.x, pt.y - wpt.y }, Qi::recordWindow);
 		}
 		else
 		{
 			position = QiFn::RTA(pt);
 		}
-		action.d.mouse.x = position.x;
-		action.d.mouse.y = position.y;
-		if (qis.set.recTrack)
+		mouse.x = position.x;
+		mouse.y = position.y;
+		if (Qi::set.recTrack)
 		{
-			action.d.mouse.track = true;
-			action.d.mouse.speed = 20;
+			mouse.track = true;
+			mouse.speed = 20;
 		}
+		Qi::record.Add(std::move(mouse));
 	}
 
 	// key
 	{
-		Action& action = qis.record.AddNull(); action.type = Action::_key;
-		action.d.key.vk = key;
-		if (state) action.d.key.state = QiKey::down;
-		else action.d.key.state = QiKey::up;
+		QiKey key;
+		key.vk = vk;
+		if (state) key.state = QiKey::down;
+		else key.state = QiKey::up;
+		Qi::record.Add(std::move(key));
 	}
 }
 
 struct InputStruct
 {
-	bool press = false;
-	unsigned char key = 0;
-	unsigned short x = 0;
-	unsigned short y = 0;
+	bool press;
+	unsigned char key;
+	unsigned short x;
+	unsigned short y;
+	bool state[Qi::keySize];
 };
 
 class InputQueue
@@ -88,27 +92,27 @@ class InputQueue
 		{
 			if (q->drop(inputStruct))
 			{
-				if (qis.recordState)
+				if (Qi::recordState)
 				{
-					if (qis.recording)
+					if (Qi::recording)
 					{
-						if (inputStruct.key == qis.set.recKey)
+						if (inputStruct.key == Qi::set.recKey)
 						{
-							if (inputStruct.press) QApplication::postEvent(qis.widget.record, new QEvent((QEvent::Type)RecordUi::_stop));
+							if (inputStruct.press) QApplication::postEvent(Qi::widget.record, new QEvent((QEvent::Type)RecordUi::_stop));
 						}
 						else RecordInput(inputStruct.key, inputStruct.press, { inputStruct.x, inputStruct.y });
 					}
 					else
 					{
-						if (inputStruct.key == qis.set.recKey)
+						if (inputStruct.key == Qi::set.recKey)
 						{
-							if (inputStruct.press) QApplication::postEvent(qis.widget.record, new QEvent((QEvent::Type)RecordUi::_start));
+							if (inputStruct.press) QApplication::postEvent(Qi::widget.record, new QEvent((QEvent::Type)RecordUi::_start));
 						}
 					}
 				}
 				else
 				{
-					QiFn::Trigger(inputStruct.key);
+					QiFn::Trigger(inputStruct.key, inputStruct.state);
 				}
 			}
 			else
@@ -165,7 +169,7 @@ bool _stdcall InputHook::InputProc(BYTE key, bool press, POINT cursor, PULONG_PT
 	// VK_LSHIFT to VK_SHIFT
 	key = Input::Convert(key);
 	// is self
-	if (*param == 214)
+	if (*param == key_info)
 	{
 		*param = 0;
 		return false;
@@ -173,23 +177,28 @@ bool _stdcall InputHook::InputProc(BYTE key, bool press, POINT cursor, PULONG_PT
 	// other
 	else if (key)
 	{
-		InputStruct inputStruct;
 
 		if (press)
 		{
-			if (!qis.keyState[key])
+			if (!Qi::keyState[key])
 			{
-				qis.keyState[key] = true;
-				inputQueue.push({true, key, (unsigned short)cursor.x, (unsigned short)cursor.y});
+				Qi::keyState[key] = true;
+				InputStruct is;
+				is.key = key,is.press = true,is.x = cursor.x,is.y = cursor.y;
+				memcpy(&is.state, Qi::keyState, Qi::keySize);
+				inputQueue.push(is);
 			}
 		}
 		else
 		{
-			qis.keyState[key] = false;
-			inputQueue.push({false, key, (unsigned short)cursor.x, (unsigned short)cursor.y});
+			Qi::keyState[key] = false;
+			InputStruct is;
+			is.key = key, is.press = true, is.x = cursor.x, is.y = cursor.y;
+			memcpy(&is.state, Qi::keyState, Qi::keySize);
+			inputQueue.push(is);
 		}
 		// block trigger key
-		if (qis.run) for (uint32 i = 0; i < qis.blockKeys.size(); i++) if (qis.blockKeys[i] == key) return true;
+		if (Qi::run) for (uint32 i = 0; i < Qi::blockKeys.size(); i++) if (Qi::blockKeys[i] == key) return true;
 	}
 	return false;
 }

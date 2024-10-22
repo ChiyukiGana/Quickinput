@@ -88,7 +88,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>ver.2024-10-20</string>
+         <string>ver.2024-10-22</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -104,7 +104,9 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>修复按键编辑不能快速双击</string>
+         <string>优化宏加载效率
+优化窗口选择
+修复滚轮触发</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

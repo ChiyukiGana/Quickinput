@@ -19,15 +19,15 @@ class MainUi : public QMainWindow
 public:
 	MainUi(int tab = 0) : QMainWindow()
 	{
-		qis.widget.main = this;
+		Qi::widget.main = this;
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		Init();
 		ui.tabWidget->setCurrentIndex(tab);
-		qis.application->setStyleSheet(qis.ui.themes[qis.set.theme].style);
+		Qi::application->setStyleSheet(Qi::ui.themes[Qi::set.theme].style);
 
 		show();
-		if (qis.set.minMode)
+		if (Qi::set.minMode)
 		{
 			QApplication::sendEvent(this, new QEvent(QEvent::WindowDeactivate));
 			hide();
@@ -35,18 +35,18 @@ public:
 	}
 	void StyleGroup()
 	{
-		setProperty("group", QVariant(QString::fromUtf8("frame")));
-		ui.titleWidget->setProperty("group", QVariant(QString::fromUtf8("title")));
-		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
+		setProperty("group", "frame");
+		ui.titleWidget->setProperty("group", "title");
+		ui.clientWidget->setProperty("group", "client");
 
-		ui.bnClose->setProperty("group", QVariant(QString::fromUtf8("title-close_button")));
-		ui.bnHide->setProperty("group", QVariant(QString::fromUtf8("title-hide_button")));
-		ui.bnMin->setProperty("group", QVariant(QString::fromUtf8("title-min_button")));
+		ui.bnClose->setProperty("group", "title-close_button");
+		ui.bnHide->setProperty("group", "title-hide_button");
+		ui.bnMin->setProperty("group", "title-min_button");
 
-		ui.tabWidget->setProperty("group", QVariant(QString::fromUtf8("tab_widget")));
-		ui.tabWidget->tabBar()->setProperty("group", QVariant(QString::fromUtf8("tab_widget_bar")));
+		ui.tabWidget->setProperty("group", "tab_widget");
+		ui.tabWidget->tabBar()->setProperty("group", "tab_widget_bar");
 
-		menu->setProperty("group", QVariant(QString::fromUtf8("context_menu")));
+		menu->setProperty("group", "context_menu");
 	}
 
 private:
@@ -66,11 +66,11 @@ private:
 
 		{
 			menu = new QMenu(this);
-			QAction* tnon = new QAction(qis.ui.text.muOn, this);
-			QAction* tnoff = new QAction(qis.ui.text.muOff, this);
-			QAction* show = new QAction(qis.ui.text.muShow, this);
-			QAction* hide = new QAction(qis.ui.text.muHide, this);
-			QAction* exit = new QAction(qis.ui.text.muExit, this);
+			QAction* tnon = new QAction(Qi::ui.text.muOn, this);
+			QAction* tnoff = new QAction(Qi::ui.text.muOff, this);
+			QAction* show = new QAction(Qi::ui.text.muShow, this);
+			QAction* hide = new QAction(Qi::ui.text.muHide, this);
+			QAction* exit = new QAction(Qi::ui.text.muExit, this);
 			menu->addAction(tnon);
 			menu->addAction(tnoff);
 			menu->addAction(show);
@@ -103,17 +103,17 @@ private:
 
 		if (e->type() == QEvent::WindowActivate)
 		{
-			qis.widget.mainActive = true;
-			if (qis.state) QiFn::QiState(false);
+			Qi::widget.mainActive = true;
+			if (Qi::state) QiFn::QiState(false);
 			QiFn::QiHook(false);
 		}
 		else if (e->type() == QEvent::WindowDeactivate)
 		{
-			qis.widget.mainActive = false;
+			Qi::widget.mainActive = false;
 			if (QiFn::SelfActive())
 			{
 				QiFn::QiHook(true);
-				if (qis.set.defOn) QiFn::QiState(true);
+				if (Qi::set.defOn) QiFn::QiState(true);
 			}
 		}
 		return QWidget::event(e);
@@ -122,7 +122,7 @@ private:
 	{
 		if (((MSG*)pMsg)->message == WM_DISPLAYCHANGE)
 		{
-			qis.screen = System::screenSize();
+			Qi::screen = System::screenSize();
 			return true;
 		}
 		return false;
