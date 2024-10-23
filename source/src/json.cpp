@@ -49,6 +49,7 @@ namespace QiJson
 		Qi::ui.pop.upe.c = QColor(0x20, 0xFF, 0x40);
 		Qi::ui.pop.upd.c = QColor(0xFF, 0xFF, 0x60);
 		Qi::ui.pop.p = { 5000, 0 };
+		Qi::ui.pop.size = 20;
 		Qi::ui.pop.time = 1000;
 	}
 
@@ -267,9 +268,10 @@ namespace QiJson
 		{
 			neb::CJsonObject pbox;
 			neb::CJsonObject buf;
-			pbox.Add("time", Qi::ui.pop.time);
 			pbox.Add("px", (uint32)Qi::ui.pop.p.x);
 			pbox.Add("py", (uint32)Qi::ui.pop.p.y);
+			pbox.Add("size", Qi::ui.pop.size);
+			pbox.Add("time", Qi::ui.pop.time);
 			SavePopTextInfo(buf, Qi::ui.pop.qe);
 			pbox.Add("qe", buf);
 			SavePopTextInfo(buf, Qi::ui.pop.qd);
@@ -524,6 +526,8 @@ namespace QiJson
 	}
 	void LoadJson()
 	{
+		LoadDefault();
+		LoadDefaultPopBox();
 		std::wstring path = Path::Append(Process::runPath(), L"QuickInput.json");
 		if (File::FileState(path))
 		{
@@ -580,17 +584,16 @@ namespace QiJson
 						LoadPopTextInfo(buf, Qi::ui.pop.upe);
 						pbox.Get("upd", buf);
 						LoadPopTextInfo(buf, Qi::ui.pop.upd);
+						pbox.Get("time", Qi::ui.pop.time);
+						pbox.Get("size", Qi::ui.pop.size);
 						pbox.Get("px", (uint32&)Qi::ui.pop.p.x);
 						pbox.Get("py", (uint32&)Qi::ui.pop.p.y);
-						pbox.Get("time", (uint32&)Qi::ui.pop.time);
 					}
 				}
 				LoadMacro();
 				return;
 			}
 		}
-		LoadDefault();
-		LoadDefaultPopBox();
 		LoadMacro();
 	}
 }

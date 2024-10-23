@@ -10,4 +10,4 @@
 #include <QFont>
 #include <QTimer>
 #include <variant>
-#include "cg/cg.h"
+#include <cg.h>

@@ -1273,6 +1273,7 @@ private Q_SLOTS:
 	{
 		QColorSelection cs;
 		QColorDialog cd(cs.Start(), this);
+		cd.setStyleSheet(Qi::ui.dialogStyle);
 		cd.exec();
 		QiColor color(WidgetGetColor());
 		color.rgbe.r = cd.currentColor().red();
@@ -1493,15 +1494,6 @@ private:
 		}
 		return std::move(action);
 	}
-	void ItemSet(uint32 type, int32 p)
-	{
-		Action action = ItemGet(type);
-		QiBase base = actions->at(p).base();
-		QiBase a_base = action.base();
-		a_base.mark = base.mark;
-		a_base.next = base.next;
-		actions->at(p) = std::move(action);
-	}
 	void ItemAdd(uint32 type)
 	{
 		int p = ui.tbActions->currentRow();
@@ -1514,7 +1506,16 @@ private:
 	void ItemChange(uint32 type)
 	{
 		int p = ui.tbActions->currentRow(); if (p < 0) return;
-		ItemSet(type, p);
+
+		Action& current = actions->at(p);
+		QiBase base_old = current.base();
+
+		current = std::move(ItemGet(type));
+		QiBase& base_new = current.base();
+
+		base_new.mark = std::move(base_old.mark);
+		base_new.next = std::move(base_old.next);
+
 		TableUpdate();
 		ui.tbActions->setCurrentItem(0);
 		SetChange(false);

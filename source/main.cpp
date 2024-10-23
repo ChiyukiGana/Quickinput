@@ -29,9 +29,12 @@ int main(int argc, char* argv[])
 	Qi::application = &application;
 	Install();
 
-	Qi::popText = new QPopText; Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y);
-	MainUi mainWindow;
+	Qi::popText = new QPopText;
+	Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y);
+	Qi::popText->setSize(Qi::ui.pop.size);
+	Qi::popText->setTime(Qi::ui.pop.time);
 
+	MainUi mainWindow;
 	application.exec();
 	return 0;
 }

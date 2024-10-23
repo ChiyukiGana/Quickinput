@@ -88,7 +88,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>ver.2024-10-22</string>
+         <string>ver.2024-10-23</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -104,9 +104,10 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>优化宏加载效率
-优化窗口选择
-修复滚轮触发</string>
+         <string>增加提示框选项
+修复录制快捷键错误
+修复循环等功能在修改时丢失内容
+修复颜色选择器在黑暗模式时字体不可见</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -156,7 +157,7 @@
          <string notr="true">text-decoration:underline</string>
         </property>
         <property name="text">
-         <string>official：http://qinput.cyk.moe</string>
+         <string>http://qinput.cyk.moe</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
