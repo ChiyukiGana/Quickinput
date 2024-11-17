@@ -63,6 +63,13 @@ struct UI
 	static QString rcClose;
 };
 
+struct Style
+{
+	QString name;
+	QString style;
+};
+typedef List<Style> Styles;
+
 struct ChildWindow
 {
 	HWND wnd; // child
@@ -154,16 +161,16 @@ struct Action
 	uint32 type = _none;
 	std::wstring mark;
 
-	Action() { Emp(); }
-	Action(const uint32 actionType) { Emp(); type = actionType; }
-	Action(const Action& action) { Cpy(action); }
-	~Action() { Emp(); }
+	Action() { emp(); }
+	Action(const uint32 actionType) { emp(); type = actionType; }
+	Action(const Action& action) { emp(); cpy(action); }
+	~Action() { emp(); }
 
-	void operator=(const Action& action) { Cpy(action); }
+	void operator=(const Action& action) { cpy(action); }
 
-	void Cpy(const Action& action)
+	void cpy(const Action& action)
 	{
-		Emp();
+		emp();
 		mark = action.mark;
 		switch (action.type)
 		{
@@ -171,7 +178,7 @@ struct Action
 		case _delay: type = _delay; delay = action.delay; break;
 		case _key: type = _key; key = action.key; break;
 		case _mouse: type = _mouse; mouse = action.mouse; break;
-		case _text: type = _text; text.str.cpy(action.text.str); break;
+		case _text: type = _text; text.str = action.text.str; break;
 		case _color: type = _color; color = action.color; break;
 		case _loop: type = _loop; loop = action.loop; break;
 		case _loopEnd: type = _loopEnd; break;
@@ -180,7 +187,7 @@ struct Action
 		}
 	}
 
-	void Emp() {
+	void emp() {
 		if (type == _text) text.str.emp();
 		type = _none;
 		mark = L""; memset(&memsize, 0, sizeof(memsize));
@@ -227,6 +234,7 @@ struct WndActive
 };
 struct SettingsData
 {
+	uint32 style = 0;
 	uint32 key = 0;
 	uint32 recKey = 0;
 	bool defOn = 0;
@@ -252,6 +260,8 @@ struct QuickInputStruct
 	SettingsData set;
 	QWidget* main = 0;
 	QWidget* rec = 0;
+
+	Styles styles;
 
 	LPCWSTR path = L"macro\\";
 	HDC hdc = GetDC(0);

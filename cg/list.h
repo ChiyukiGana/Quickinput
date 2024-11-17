@@ -3,13 +3,22 @@
 #include <vector>
 #include "base.h"
 
+template<typename T>
+void IterateVector(std::vector<T>& v, void(&CallBack)(T&))
+{
+	for (size_t p = 0; p < v.size(); p++)
+	{
+		CallBack(v[p]);
+	}
+}
+
 namespace CG
 {
 	template<class T>
 	class List : public std::vector<T>
 	{
 	public:
-		T& Get(uint32 p = uint32Max)
+		T& Get(size_t p = MAXSIZE_T)
 		{
 			if (std::vector<T>::size())
 			{
@@ -18,43 +27,43 @@ namespace CG
 			}
 			return std::vector<T>::operator[](0); //error
 		}
-		T& AddNull(const uint32 count = 1)
+		T& AddNull(const size_t count = 1)
 		{
 			T t = {};
 			Add(t, count);
 			return Get();
 		}
-		void Add(const T& t, uint32 count = 1)
+		void Add(const T& t, size_t count = 1)
 		{
-			for (uint32 c = 0; c < count; c++) std::vector<T>::push_back(t);
+			for (size_t c = 0; c < count; c++) std::vector<T>::push_back(t);
 		}
-		void AddArray(const T* t, uint32 size)
+		void AddArray(const T* t, size_t size)
 		{
-			for (uint32 p = 0; p < size; p++) std::vector<T>::push_back(t[p]);
+			for (size_t p = 0; p < size; p++) std::vector<T>::push_back(t[p]);
 		}
-		void InsNull(uint32 p, uint32 count = 1)
+		void InsNull(size_t p, size_t count = 1)
 		{
 			T t = {};
 			Ins(t, p, count);
 		}
-		void Ins(const T& t, uint32 p)
+		void Ins(const T& t, size_t p)
 		{
 			if (p > std::vector<T>::size()) p = std::vector<T>::size();
 			std::vector<T>::insert(std::vector<T>::begin() + p, t);
 		}
-		void Ins(const T& t, uint32 p, uint32 count)
+		void Ins(const T& t, size_t p, size_t count)
 		{
 			if (p > std::vector<T>::size()) p = std::vector<T>::size();
 			std::vector<T>::insert(std::vector<T>::begin() + p, count, t);
 		}
-		bool Del(uint32 p = uint32Max)
+		bool Del(size_t p = MAXSIZE_T)
 		{
 			if (std::vector<T>::size() == 0) return false;
 			if (p >= std::vector<T>::size()) p = std::vector<T>::size() - 1;
 			std::vector<T>::erase(std::vector<T>::begin() + p);
 			return true;
 		}
-		bool DelBack(uint32 count = 1, uint32 p = uint32Max)
+		bool DelBack(size_t count = 1, size_t p = MAXSIZE_T)
 		{
 			if (std::vector<T>::size() == 0) return false;
 			if (p >= std::vector<T>::size()) p = std::vector<T>::size();
@@ -62,7 +71,7 @@ namespace CG
 			std::vector<T>::erase(std::vector<T>::begin() + (p - count), std::vector<T>::begin() + p);
 			return true;
 		}
-		bool DelFront(uint32 count = 1, uint32 p = 0)
+		bool DelFront(size_t count = 1, size_t p = 0)
 		{
 			if (std::vector<T>::size() == 0) return false;
 			if (p >= std::vector<T>::size()) p = std::vector<T>::size();
@@ -70,36 +79,43 @@ namespace CG
 			std::vector<T>::erase(std::vector<T>::begin() + p, std::vector<T>::begin() + (p + count));
 			return true;
 		}
-		bool Del(List<uint32>& ps)
+		bool Del(List<size_t>& ps)
 		{
 			if (std::vector<T>::size() == 0) return false;
 			std::sort(ps.begin(), ps.end());
-			for (uint32 n = 0; n < ps.size(); n++)
+			for (size_t n = 0; n < ps.size(); n++)
 			{
 				std::vector<T>::erase(std::vector<T>::begin() + ps[n] - n);
 			}
 			return true;
 		}
-		bool Swp(uint32 p1, uint32 p2)
+		bool Swp(size_t p1, size_t p2)
 		{
 			if (p1 >= std::vector<T>::size() || p2 >= std::vector<T>::size()) return false;
 			std::swap(std::vector<T>::operator[](p1), std::vector<T>::operator[](p2));
 			return true;
 		}
-		bool Mov(uint32 p1, uint32 p2)
+		bool Mov(size_t p1, size_t p2)
 		{
 			if (p1 >= std::vector<T>::size() || p2 >= std::vector<T>::size()) return 0;
 			if (p1 < p2)
 			{
-				for (uint32 p = p1; p < p2; p++) Swp(p, p + 1);
+				for (size_t p = p1; p < p2; p++) Swp(p, p + 1);
 				return true;
 			}
 			else if (p1 > p2)
 			{
-				for (uint32 p = p1; p > p2; p--) Swp(p, p - 1);
+				for (size_t p = p1; p > p2; p--) Swp(p, p - 1);
 				return true;
 			}
 			return false;
+		}
+		void Iterate(void(&CallBack)(T&))
+		{
+			for (size_t p = 0; p < std::vector<T>::size(); p++)
+			{
+				CallBack(std::vector<T>::operator[](p));
+			}
 		}
 	};
 }

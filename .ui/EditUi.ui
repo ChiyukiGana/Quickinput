@@ -30,8 +30,7 @@
     <normaloff>:/icon.png</normaloff>:/icon.png</iconset>
   </property>
   <property name="styleSheet">
-   <string notr="true">*{font-family:&quot;Microsoft YaHei&quot;;font-size:14px;}
-#EditUiClass{border:1px solid black;}</string>
+   <string notr="true">*{color:black;border:none;outline:none;font-size:12px;font-family:&quot;Microsoft YaHei&quot;}QMainWindow,QDialog{border:1px solid gray}#titleWidget{background-color:white}#titleWidget *{font-size:14px}#titleWidget QPushButton,#titleWidget QCheckBox::indicator{background-color:#CCC;width:20px;height:20px;border-radius:10px}#titleWidget QCheckBox::indicator:checked{image:url(:/checked.png)}#clientWidget{background-color:#CEF}QMenu,#clientWidget QLineEdit,#clientWidget QTextEdit,#clientWidget QKeyEdit,#clientWidget QCheckBox::indicator,#clientWidget QRadioButton::indicator,#clientWidget QHeaderView,#clientWidget QHeaderView::section,#clientWidget QTableWidget,#clientWidget QTableWidget QTableCornerButton::section,#clientWidget QComboBox,#clientWidget QComboBox QAbstractItemView{background-color:white;color:black}#clientWidget QPushButton,#clientWidget QTabBar::tab,#clientWidget QTabBar::tab:first,#clientWidget QTabBar::tab:last{background-color:#ADE;color:black}#clientWidget QCheckBox::indicator,#clientWidget QRadioButton::indicator{width:20px;height:20px}#clientWidget QComboBox{padding-left:3px}QMenu::item:selected,#clientWidget QPushButton:hover,#clientWidget QCheckBox::indicator:hover,#clientWidget QRadioButton::indicator:hover,#clientWidget QTableWidget::item:hover,#clientWidget QTabBar::tab:hover,#clientWidget QTabBar::tab:first:hover,#clientWidget QTabBar::tab:last:hover{background-color:#BEF;color:black}#clientWidget QTableWidget::item:selected{background-color:#CEF;color:black}#clientWidget QTabBar::tab:selected,#clientWidget QTabBar::tab:first:selected,#clientWidget QTabBar::tab:last:selected{background-color:#CEF;color:black}#clientWidget QCheckBox::indicator:checked,#clientWidget QRadioButton::indicator:checked{image:url(:/checked.png)}#clientWidget #bnWndActive,#clientWidget #bnPos,#clientWidget #bnColorRect{background-color:white}</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -50,7 +49,7 @@
     <number>1</number>
    </property>
    <item>
-    <widget class="QWidget" name="title" native="true">
+    <widget class="QWidget" name="titleWidget" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -68,15 +67,6 @@
        <width>16777215</width>
        <height>30</height>
       </size>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">*{font-size:14px;}
-#title{background-color:white;}
-
-QCheckBox::indicator{background-color:#ADE;width:20px;height:20px;border-radius:10px;}
-QCheckBox::indicator:checked{background-color:#ADE;image:url(:/checked.png);border-radius:10px;}
-
-QLineEdit{background-color:white;border:none;font-size:12px;}</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <property name="spacing">
@@ -301,6 +291,9 @@ QLineEdit{background-color:white;border:none;font-size:12px;}</string>
         <property name="statusTip">
          <string/>
         </property>
+        <property name="styleSheet">
+         <string notr="true">QLineEdit{background-color:rgba(192,192,192,48)}</string>
+        </property>
         <property name="inputMask">
          <string/>
         </property>
@@ -334,10 +327,6 @@ QLineEdit{background-color:white;border:none;font-size:12px;}</string>
         </property>
         <property name="toolTip">
          <string>获取</string>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QPushButton{background-color:#ADE;width:20px;height:20px;border-radius:10px;}
-QPushButton:hover{background-color:#C0E2F2;}</string>
         </property>
         <property name="text">
          <string>+</string>
@@ -390,19 +379,7 @@ QPushButton:hover{background-color:#C00;}</string>
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="widget" native="true">
-     <property name="styleSheet">
-      <string notr="true">*{font-size:12px;}
-#widget{background-color:#CEF;}
-
-QRadioButton::indicator{background-color:white;width:20px;height:20px;}
-QRadioButton::indicator:checked{background-color:white;image:url(:/checked.png);}
-
-QCheckBox::indicator{background-color:white;width:20px;height:20px;}
-QCheckBox::indicator:checked{background-color:#888;image:url(:/checked.png);}
-
-QLineEdit{background-color:white;border:none;}</string>
-     </property>
+    <widget class="QWidget" name="clientWidget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <property name="spacing">
        <number>8</number>
@@ -520,39 +497,19 @@ QLineEdit{background-color:white;border:none;}</string>
            <enum>Qt::ClickFocus</enum>
           </property>
           <property name="styleSheet">
-           <string notr="true">QTableWidget{
-background-color:white;
-border:none;
-outline:none;
-font-size:12px;
-}
-QTableWidget::item:hover{
-background-color:#D8F8FF;
-border:none;
-}
-QTableWidget::item::selected{
-background-color:#CEF;
-color:#000;
-border:none;
-}
-QHeaderView{
-background-color:white;
-border:none;
-}
-QHeaderView::section{
-background-color:white;
-border:none;
-}
-QHeaderView::section:hover{
-background-color:#C0E2F2;
-border:none;
-}</string>
+           <string notr="true">QHeaderView::section,QScrollBar{background:transparent}</string>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
           </property>
           <property name="verticalScrollBarPolicy">
            <enum>Qt::ScrollBarAsNeeded</enum>
           </property>
           <property name="horizontalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
+           <enum>Qt::ScrollBarAsNeeded</enum>
           </property>
           <property name="autoScroll">
            <bool>true</bool>
@@ -582,11 +539,73 @@ border:none;
            <bool>false</bool>
           </property>
           <property name="gridStyle">
-           <enum>Qt::SolidLine</enum>
+           <enum>Qt::NoPen</enum>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+          <property name="cornerButtonEnabled">
+           <bool>true</bool>
+          </property>
+          <property name="rowCount">
+           <number>20</number>
           </property>
           <property name="columnCount">
-           <number>0</number>
+           <number>3</number>
           </property>
+          <attribute name="horizontalHeaderVisible">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="horizontalHeaderCascadingSectionResizes">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="horizontalHeaderDefaultSectionSize">
+           <number>160</number>
+          </attribute>
+          <attribute name="horizontalHeaderHighlightSections">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="verticalHeaderCascadingSectionResizes">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="verticalHeaderHighlightSections">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="verticalHeaderStretchLastSection">
+           <bool>false</bool>
+          </attribute>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <row/>
+          <column/>
+          <column/>
+          <column/>
          </widget>
         </item>
        </layout>
@@ -666,8 +685,7 @@ border:none;
                <string/>
               </property>
               <property name="styleSheet">
-               <string notr="true">background-color:white;
-font-size:12px;</string>
+               <string notr="true"/>
               </property>
              </widget>
             </item>
@@ -766,10 +784,6 @@ font-size:12px;</string>
             </property>
             <property name="toolTip">
              <string/>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">QPushButton{background-color: #ADE;border:none;}
-QPushButton:hover{background-color: #C0E2F2;}</string>
             </property>
             <property name="text">
              <string>添加✔</string>
@@ -882,7 +896,7 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
                <string>获取</string>
               </property>
               <property name="styleSheet">
-               <string notr="true">background-color:white;border:none;width:20px;height:20px;font-size:12px;</string>
+               <string notr="true"/>
               </property>
               <property name="text">
                <string>+</string>
@@ -1126,10 +1140,6 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
             <property name="toolTip">
              <string/>
             </property>
-            <property name="styleSheet">
-             <string notr="true">QPushButton{background-color: #ADE;border:none;}
-QPushButton:hover{background-color: #C0E2F2;}</string>
-            </property>
             <property name="text">
              <string>添加✔</string>
             </property>
@@ -1316,10 +1326,6 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
             </property>
             <property name="toolTip">
              <string/>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">QPushButton{background-color: #ADE;border:none;}
-QPushButton:hover{background-color: #C0E2F2;}</string>
             </property>
             <property name="text">
              <string>添加✔</string>
@@ -1519,8 +1525,7 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
              <string/>
             </property>
             <property name="styleSheet">
-             <string notr="true">QPushButton{background-color: #ADE;border:none;}
-QPushButton:hover{background-color: #C0E2F2;}</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>编辑🔧</string>
@@ -1556,8 +1561,7 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
              <string/>
             </property>
             <property name="styleSheet">
-             <string notr="true">QPushButton{background-color: #ADE;border:none;}
-QPushButton:hover{background-color: #C0E2F2;}</string>
+             <string notr="true"/>
             </property>
             <property name="text">
              <string>添加✔</string>
@@ -1594,10 +1598,6 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
           <property name="toolTip">
            <string/>
           </property>
-          <property name="styleSheet">
-           <string notr="true">QPushButton{background-color: #ADE;border:none;}
-QPushButton:hover{background-color: #C0E2F2;}</string>
-          </property>
           <property name="text">
            <string>删除❌</string>
           </property>
@@ -1611,14 +1611,8 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
          <enum>Qt::NoFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">QTabBar::tab{background-color:white;}
-QTabBar::tab:selected{background-color:#ADE;}
-QTabBar::tab:first:selected{background-color:#ADE;}
-QTabBar::tab:last:selected{background-color:#ADE;}
-QTabWidget{border:none;}
-#extab0{background-color:#CEF;}
-#extab1{background-color:#CEF;}
-#extab2{background-color:#CEF;}</string>
+         <string notr="true">QTabBar::tab,QTabBar::tab::first,QTabBar::tab::last{width:52px;height:24px}
+#extab0,#extab1,#extab2{background:transparent}</string>
         </property>
         <property name="tabShape">
          <enum>QTabWidget::Rounded</enum>
@@ -1737,8 +1731,7 @@ QTabWidget{border:none;}
                  <string/>
                 </property>
                 <property name="styleSheet">
-                 <string notr="true">background-color:white;
-font-size:12px;</string>
+                 <string notr="true"/>
                 </property>
                </widget>
               </item>
@@ -1816,10 +1809,6 @@ font-size:12px;</string>
               <property name="toolTip">
                <string/>
               </property>
-              <property name="styleSheet">
-               <string notr="true">QPushButton{background-color: #ADE;border:none;}
-QPushButton:hover{background-color: #C0E2F2;}</string>
-              </property>
               <property name="text">
                <string>编辑🔧</string>
               </property>
@@ -1852,11 +1841,6 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
               </property>
               <property name="toolTip">
                <string/>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">QPushButton{background-color: #ADE;border:none;}
-QPushButton:hover{background-color: #C0E2F2;}QPushButton{background-color: #ADE;border:none;}
-QPushButton:hover{background-color: #C0E2F2;}</string>
               </property>
               <property name="text">
                <string>添加✔</string>
@@ -1928,11 +1912,6 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
               <property name="toolTip">
                <string/>
               </property>
-              <property name="styleSheet">
-               <string notr="true">QPushButton{background-color: #ADE;border:none;}
-QPushButton:hover{background-color: #C0E2F2;}QPushButton{background-color: #ADE;border:none;}
-QPushButton:hover{background-color: #C0E2F2;}</string>
-              </property>
               <property name="text">
                <string>添加✔</string>
               </property>
@@ -2003,10 +1982,6 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
               <property name="toolTip">
                <string/>
               </property>
-              <property name="styleSheet">
-               <string notr="true">QPushButton{background-color: #ADE;border:none;}
-QPushButton:hover{background-color: #C0E2F2;}</string>
-              </property>
               <property name="text">
                <string>添加✔</string>
               </property>
@@ -2056,7 +2031,7 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
              <string>位置：鼠标拖动，上移Shift　↑，下移Shift　↓
 多选：Ctrl　A，按住Ctrl或Shift点击项目
 复制：Ctrl　C，Ctrl　V，Ctrl　X
-删除：Shift　←
+删除：Delete，← (Backspace)
 修改：双击项目</string>
             </property>
             <property name="textFormat">
@@ -2437,9 +2412,6 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
                 <property name="autoFillBackground">
                  <bool>false</bool>
                 </property>
-                <property name="styleSheet">
-                 <string notr="true">background-color:white;border:none;width:20px;height:20px;</string>
-                </property>
                 <property name="text">
                  <string>+</string>
                 </property>
@@ -2641,6 +2613,18 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>20</width>
+                  <height>20</height>
+                 </size>
+                </property>
                 <property name="focusPolicy">
                  <enum>Qt::ClickFocus</enum>
                 </property>
@@ -2651,7 +2635,7 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
                  <bool>false</bool>
                 </property>
                 <property name="styleSheet">
-                 <string notr="true">background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 #FFF,stop:0.5 #F8F,stop:1 #F00);border:none;width:20px;height:20px;</string>
+                 <string notr="true">background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 #FFF,stop:0.5 #F8F,stop:1 #F00);</string>
                 </property>
                 <property name="text">
                  <string/>
@@ -2688,10 +2672,6 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
               <property name="toolTip">
                <string/>
               </property>
-              <property name="styleSheet">
-               <string notr="true">QPushButton{background-color: #ADE;border:none;}
-QPushButton:hover{background-color: #C0E2F2;}</string>
-              </property>
               <property name="text">
                <string>编辑🔧</string>
               </property>
@@ -2724,10 +2704,6 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
               </property>
               <property name="toolTip">
                <string/>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">QPushButton{background-color: #ADE;border:none;}
-QPushButton:hover{background-color: #C0E2F2;}</string>
               </property>
               <property name="text">
                <string>添加✔</string>
@@ -2778,7 +2754,7 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
              <string>位置：鼠标拖动，上移Shift　↑，下移Shift　↓
 多选：Ctrl　A，按住Ctrl或Shift点击项目
 复制：Ctrl　C，Ctrl　V，Ctrl　X
-删除：Shift　←
+删除：Delete，← (Backspace)
 修改：双击项目</string>
             </property>
             <property name="textFormat">
@@ -2870,7 +2846,7 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
                <string/>
               </property>
               <property name="styleSheet">
-               <string notr="true">background-color:white;border:none;</string>
+               <string notr="true"/>
               </property>
               <property name="frameShape">
                <enum>QFrame::StyledPanel</enum>
@@ -2913,10 +2889,6 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
               </property>
               <property name="toolTip">
                <string/>
-              </property>
-              <property name="styleSheet">
-               <string notr="true">QPushButton{background-color: #ADE;border:none;}
-QPushButton:hover{background-color: #C0E2F2;}</string>
               </property>
               <property name="text">
                <string>添加✔</string>
@@ -2967,7 +2939,7 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
              <string>位置：鼠标拖动，上移Shift　↑，下移Shift　↓
 多选：Ctrl　A，按住Ctrl或Shift点击项目
 复制：Ctrl　C，Ctrl　V，Ctrl　X
-删除：Shift　←
+删除：Delete，← (Backspace)
 修改：双击项目</string>
             </property>
             <property name="textFormat">

@@ -136,9 +136,10 @@ static void SaveJson()
 	neb::CJsonObject cfg;
 	std::string str;
 	cfg.Add("document_charset", std::string("UTF8"));
-	cfg.Add("defOn", Global::qi.set.defOn);
+	cfg.Add("theme", Global::qi.set.style);
 	cfg.Add("key", Global::qi.set.key);
 	cfg.Add("recKey", Global::qi.set.recKey);
+	cfg.Add("defOn", Global::qi.set.defOn);
 	cfg.Add("showTips", Global::qi.set.showTips);
 	cfg.Add("audFx", Global::qi.set.audFx);
 	cfg.Add("minMode", Global::qi.set.minMode);
@@ -315,9 +316,10 @@ static void LoadJson()
 	{
 		neb::CJsonObject cfg(File::TextLoad("QuickInput.json"));
 		std::string str;
-		cfg.Get("defOn", Global::qi.set.defOn);
+		cfg.Get("theme", Global::qi.set.style);
 		cfg.Get("key", Global::qi.set.key);
 		cfg.Get("recKey", Global::qi.set.recKey);
+		cfg.Get("defOn", Global::qi.set.defOn);
 		cfg.Get("showTips", Global::qi.set.showTips);
 		cfg.Get("audFx", Global::qi.set.audFx);
 		cfg.Get("minMode", Global::qi.set.minMode);
@@ -506,7 +508,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 #endif
 
 				// select minimum window
-				ChildWindow min;
+				ChildWindow min = {};
 				uint64 minArea = uint64Max;
 				for (uint32 u = 0; u < cws.size(); u++)
 				{
@@ -688,7 +690,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 static DWORD _stdcall ThreadQuickClick(PVOID)
 {
 	srand(clock());
-	uint32 b, e;
+	uint32 b = 0, e = 0;
 	if (Global::qi.fun.quickClick.delay > 99) b = Rand(70, 30), e = Global::qi.fun.quickClick.delay - Rand(70, 30);
 	else if (Global::qi.fun.quickClick.delay > 1) b = Rand(Global::qi.fun.quickClick.delay, Global::qi.fun.quickClick.delay >> 2), e = Rand(Global::qi.fun.quickClick.delay, Global::qi.fun.quickClick.delay >> 2);
 	else e = Global::qi.fun.quickClick.delay;

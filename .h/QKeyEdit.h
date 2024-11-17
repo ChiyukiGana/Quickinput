@@ -10,39 +10,37 @@
 #define VK_WHEELUP 0x0A
 #define VK_WHEELDOWN 0x0B
 
-class  QKeyEdit : public QWidget
+class  QKeyEdit : public QLabel
 {
-	Q_OBJECT
+	Q_OBJECT;
+	struct Keys
+	{
+		quint8 type = 0; // 0: keybd, 1: mouse, 2: wheel
+		bool wheel = 0; // 0: up, 1: dwon
+		Qt::MouseButton mouse = Qt::NoButton;
+		Qt::KeyboardModifiers mod = Qt::NoModifier;
+		int key = 0;
+		bool state = 0;
+	};
+
+	QString text = "None";
+	quint8 mode = 2; // 0: solid, 1: mod + key, 2: key + key
+	bool input = 0;
+	bool disable = 0;
+	Keys keys[2];
 
 public:
 	struct QKeybdStruct { int key = 0; Qt::KeyboardModifiers mod = Qt::NoModifier; };
 
-	QKeyEdit(QWidget* parent = nullptr) {
-		setParent(parent);
+	QKeyEdit(QWidget* parent = nullptr) : QLabel(parent) {
+		setAttribute(Qt::WA_StyledBackground);
 		setMinimumSize(QSize(48, 24));
 		setMaximumSize(QSize(16777215, 24));
 		setWindowFlags(Qt::FramelessWindowHint);
 		setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-		setFocusPolicy(Qt::ClickFocus);
-
-		vBox = new QVBoxLayout(this);
-		vBox->setMargin(0);
-
-		lbText = new QLabel(this);
-		lbText->setAlignment(Qt::AlignCenter);
-		lbText->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-		lbText->setText(text);
-
-		vBox->addWidget(lbText);
-	}
-
-	virtual void setText(const QString& text) {
-		lbText->setText(text);
-	}
-
-	virtual void setFont(const QFont& font)
-	{
-		lbText->setFont(font);
+		setStyleSheet(QString::fromUtf8(u8"background-color: white; border: 1px solid gray;"));
+		setAlignment(Qt::AlignCenter);
+		setText(text);
 	}
 
 	// 0: keybd, 1: mouse
@@ -53,14 +51,9 @@ public:
 	}
 
 	// 0: solid, 1: mod + key, 2: key + key
-	void Mode(quint8 mode) {
-		this->mode = mode;
-	}
+	void Mode(quint8 mode) { this->mode = mode; }
 
-	QString Name()
-	{
-		return text;
-	}
+	QString Name() { return text; }
 
 	void VirtualKey(BYTE k1, USHORT k2 = 0)
 	{
@@ -199,24 +192,6 @@ signals:
 	void changed();
 
 private:
-	struct Keys
-	{
-		quint8 type = 0; // 0: keybd, 1: mouse, 2: wheel
-		bool wheel = 0; // 0: up, 1: dwon
-		Qt::MouseButton mouse = Qt::NoButton;
-		Qt::KeyboardModifiers mod = Qt::NoModifier;
-		int key = 0;
-		bool state = 0;
-	};
-
-	QVBoxLayout* vBox;
-	QLabel* lbText;
-	QString text = "None";
-	quint8 mode = 2; // 0: solid, 1: mod + key, 2: key + key
-	bool input = 0;
-	bool disable = 0;
-	Keys keys[2];
-
 	QString Name(BYTE vk) {
 		switch (vk) {
 		case VK_LBUTTON: return u8"×ó¼ü";
@@ -699,7 +674,7 @@ private slots:
 					if (keys[0].wheel == 0) text += Name(VK_WHEELUP);
 					if (keys[0].wheel == 1) text += Name(VK_WHEELDOWN);
 				}
-				lbText->setText(text);
+				setText(text);
 			}
 		}
 		else if (mode == 1)
@@ -714,7 +689,7 @@ private slots:
 					if (keys[0].mod & Qt::AltModifier) text += "Alt + ";
 					if (keys[0].key != Qt::Key_Control && keys[0].key != Qt::Key_Shift && keys[0].key != Qt::Key_Alt) text += Name(KeybdToVk(keys[0].key, keys[0].mod));
 				}
-				lbText->setText(text);
+				setText(text);
 			}
 		}
 		else if (mode == 2)
@@ -752,7 +727,7 @@ private slots:
 						else text += Name(VK_WHEELDOWN);
 					}
 				}
-				lbText->setText(text);
+				setText(text);
 			}
 		}
 	}
@@ -872,7 +847,7 @@ private slots:
 				keys[1].mouse = Qt::NoButton;
 				input = 1;
 				text = "...";
-				lbText->setText(text);
+				setText(text);
 				grabKeyboard();
 				grabMouse();
 			}

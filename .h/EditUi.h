@@ -33,14 +33,14 @@ class EditUi : public QDialog
 	const int32 colorMax = 255;
 
 	Ui::EditUiClass ui;
-	
+
 	QMenu* menu;
 	QAction* muDel;
 	QAction* muChange;
 	QAction* muCut;
 	QAction* muCopy;
 	QAction* muPaste;
-	
+
 	QPointView pv;
 	QRectView rv;
 	QPoint msPos; // window move
@@ -58,6 +58,16 @@ public:
 
 		WidInit();
 		WidEvent();
+		ReStyle();
+	}
+
+	void ReStyle()
+	{
+		setStyleSheet("");
+		setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
+		ui.extab0->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
+		ui.extab1->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
+		ui.extab2->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
 	}
 
 private:
@@ -66,8 +76,6 @@ private:
 		////////// Set default state
 		// Button
 		{
-			// style
-			ui.bnColorValue->setStyleSheet(u8"background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 #FFF,stop:0.5 #F8F,stop:1 #F00);border:none;width:20px;height:20px");
 			// text
 			ui.bnKeyAdd->setText(UI::etAdd);
 			ui.bnStateAdd->setText(UI::etAdd);
@@ -149,7 +157,7 @@ private:
 			menu->addAction(muCopy);
 			menu->addAction(muPaste);
 			menu->setFont(QFont(u8"Microsoft YaHei"));
-			
+
 			connect(muDel, SIGNAL(triggered()), this, SLOT(OnMenuDel()));
 			connect(muChange, SIGNAL(triggered()), this, SLOT(OnMenuChange()));
 			connect(muCut, SIGNAL(triggered()), this, SLOT(OnMenuCut()));
@@ -177,9 +185,10 @@ private:
 			ui.tbActions->verticalHeader()->setDefaultSectionSize(0);
 			ui.tbActions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Fixed);
 			ui.tbActions->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::Interactive);
-			ui.tbActions->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Stretch);
+			ui.tbActions->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Interactive);
 			ui.tbActions->setColumnWidth(0, 100);
 			ui.tbActions->setColumnWidth(1, 300);
+			ui.tbActions->setColumnWidth(2, 85);
 		}
 		// KeyEdit
 		{
@@ -209,7 +218,7 @@ private:
 		connect(ui.bnWnd, SIGNAL(clicked()), this, SLOT(OnBnWnd()));
 		connect(ui.chbWnd, SIGNAL(clicked()), this, SLOT(OnChbWnd()));
 		connect(ui.chbChildWnd, SIGNAL(clicked()), this, SLOT(OnChbChildWnd()));
-		
+
 		// Table
 		ui.tbActions->installEventFilter(this);
 		ui.tbActions->viewport()->installEventFilter(this);
@@ -378,6 +387,7 @@ private:
 			ui.tbActions->item(u, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		}
 		connect(ui.tbActions, SIGNAL(cellChanged(int, int)), this, SLOT(OnTbChanged(int, int)));
+		ui.tbActions->setStyleSheet(u8"QHeaderView::section,QScrollBar{background:transparent}");
 	}
 
 	// Window title
@@ -400,63 +410,53 @@ private: // Event
 			if (et->type() == QEvent::KeyPress)
 			{
 				QKeyEvent* key = (QKeyEvent*)et;
-				if (key->modifiers() == Qt::ShiftModifier)
+				if (key->modifiers() == Qt::NoModifier)
 				{
-					if (key->key() == Qt::Key_Backspace) // delete
+					if (key->key() == Qt::Key_Backspace)
 					{
 						ItemDel();
 						return true;
 					}
-					else if (key->key() == Qt::Key_Up) // move up
+					else if (key->key() == Qt::Key_Delete)
 					{
-						ItemMove(true);
-						return true;
-					}
-					else if (key->key() == Qt::Key_Down) // move down
-					{
-						ItemMove(false);
+						ItemDel();
 						return true;
 					}
 				}
-				else if (key->modifiers() == Qt::ControlModifier) // copy
+				else if (key->modifiers() == Qt::ControlModifier)
 				{
 					if (key->key() == Qt::Key_C)
 					{
 						ItemCopy();
-
-#ifdef _DEBUG
-						MsgWnd::str(L"CopyCount: ");
-						MsgWnd::log(Global::qi.clipboard.size());
-#endif
-
 						return true;
 					}
 					else if (key->key() == Qt::Key_X)
 					{
 						ItemCut();
-
-#ifdef _DEBUG
-						MsgWnd::str(L"CutCount: ");
-						MsgWnd::log(Global::qi.clipboard.size());
-#endif
-
 						return true;
 					}
 					else if (key->key() == Qt::Key_V)
 					{
 						ItemPaste();
-
-#ifdef _DEBUG
-						MsgWnd::str(L"PasteCount: ");
-						MsgWnd::log(Global::qi.clipboard.size());
-#endif
-
+						return true;
+					}
+				}
+				else if (key->modifiers() == Qt::ShiftModifier)
+				{
+					if (key->key() == Qt::Key_Up)
+					{
+						ItemMove(true);
+						return true;
+					}
+					else if (key->key() == Qt::Key_Down)
+					{
+						ItemMove(false);
 						return true;
 					}
 				}
 			}
 		}
-		else if (obj == ui.tbActions->viewport())
+		else if (obj == ui.tbActions->viewport()) // move drop
 		{
 			if (et->type() == QEvent::Drop)
 			{
@@ -603,6 +603,10 @@ private slots:
 			{
 				ui.bnStateEdit->setDisabled(false);
 				ui.extabBox->setCurrentIndex(0);
+			}
+			else if (ep.actions[0][row].type == Action::_text)
+			{
+				ui.extabBox->setCurrentIndex(2);
 			}
 		}
 	}
@@ -768,14 +772,6 @@ private slots:
 		QColorDialog cd(cs.Start(), this);
 		cd.exec();
 		SetColor(RGB(cd.currentColor().red(), cd.currentColor().green(), cd.currentColor().blue()));
-		QString style = u8"background-color:rgb(";
-		style += QString::number(cd.currentColor().red());
-		style += u8",";
-		style += QString::number(cd.currentColor().green());
-		style += u8",";
-		style += QString::number(cd.currentColor().blue());
-		style += u8");border:none;width:20px;height:20px";
-		ui.bnColorValue->setStyleSheet(style);
 	}
 	// Delete
 	void OnBnDel() { ItemDel(); }
@@ -968,7 +964,7 @@ private: // Widget data
 	void ItemPaste()
 	{
 		int pos = ui.tbActions->currentRow();
-		
+
 		if (pos < 0) pos = ep.actions->size();
 		else if ((pos + 1) <= ep.actions->size()) pos++;
 
@@ -988,11 +984,26 @@ private: // Widget data
 	void SetRbColorMode(bool mode) { if (mode) ui.rbColorNot->setChecked(1); else ui.rbColorGet->setChecked(1); }
 	void SetChbColorMove(bool state) { ui.chbColorMove->setChecked(state); }
 	void SetEtColorRect(RECT rect) { ui.etColorL->setText(QString::number(rect.left)); ui.etColorT->setText(QString::number(rect.top)); ui.etColorR->setText(QString::number(rect.right)); ui.etColorB->setText(QString::number(rect.bottom)); }
-	void SetEtColorValue(Rgba color) { ui.etR->setText(QString::number(color.r)); ui.etG->setText(QString::number(color.g)); ui.etB->setText(QString::number(color.b)); ui.etCX->setText(QString::number(color.a)); }
-	void SetColor(Rgba color) { ui.etR->setText(QString::number(color.r)); ui.etG->setText(QString::number(color.g)); ui.etB->setText(QString::number(color.b)); }
+	void SetEtColorValue(Rgba color) {
+		SetColor(color);
+		ui.etCX->setText(QString::number(color.a));
+	}
+	void SetColor(Rgba color) {
+		ui.etR->setText(QString::number(color.r));
+		ui.etG->setText(QString::number(color.g));
+		ui.etB->setText(QString::number(color.b));
+		QString style = u8"background-color:rgb(";
+		style += QString::number(color.r);
+		style += u8",";
+		style += QString::number(color.g);
+		style += u8",";
+		style += QString::number(color.b);
+		style += u8");";
+		ui.bnColorValue->setStyleSheet(style);
+	}
 	void SetEtLoopCount(uint32 count) { ui.etCount->setText(QString::number(count)); }
 	void SetEtLoopCountRand(uint32 count) { ui.etCountRand->setText(QString::number(count)); }
-	
+
 	// Get data by Wid
 	Action GetKey() {
 		Action action(Action::_key);

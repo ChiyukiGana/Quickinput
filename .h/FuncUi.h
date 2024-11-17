@@ -19,6 +19,14 @@ public:
 
 		WidInit();
 		WidEvent();
+		ReStyle();
+	}
+
+	void ReStyle()
+	{
+		ui.clientWidget->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
+		ui.hkQkClick->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
+		ui.hkClock->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
 	}
 
 private:

@@ -34,652 +34,664 @@
   <property name="autoFillBackground">
    <bool>false</bool>
   </property>
-  <property name="styleSheet">
-   <string notr="true">*{font-family:&quot;Microsoft YaHei&quot;;font-size:14px;}
-#FuncUiClass{background-color:#CEF;}
-
-QLabel{font-size:14px;}
-
-QPushButton{background-color:white;border:none;width:20px;height:20px;font-size:12px;}
-
-QCheckBox{font-size:14px}
-QCheckBox::indicator{background-color:#FFF;width:20px;height:20px;}
-QCheckBox::indicator:checked{background-color:white;image:url(:/checked.png);}
-
-QComboBox{background-color:white;padding-left:3px;border:none;font-size:12px;}
-QComboBox::drop-down{background-color:#FFF;}
-QComboBox QAbstractItemView{background-color:white;border:none;}
-
-QLineEdit{background-color:white;border:none;font-size:12px;}</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="spacing">
-    <number>10</number>
+    <number>0</number>
    </property>
    <property name="leftMargin">
-    <number>10</number>
+    <number>0</number>
    </property>
    <property name="topMargin">
-    <number>10</number>
+    <number>0</number>
    </property>
    <property name="rightMargin">
-    <number>10</number>
+    <number>0</number>
    </property>
    <property name="bottomMargin">
-    <number>10</number>
+    <number>0</number>
    </property>
    <item>
-    <widget class="QLabel" name="lbOther">
-     <property name="font">
-      <font>
-       <family>Microsoft YaHei</family>
-       <pointsize>-1</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
+    <widget class="QWidget" name="clientWidget" native="true">
      <property name="styleSheet">
-      <string notr="true">font-size:16px;</string>
+      <string notr="true">*{color:black;border:none;outline:none;font-size:12px;font-family:&quot;Microsoft YaHei&quot;}QMainWindow,QDialog{border:1px solid gray}#titleWidget{background-color:white}#titleWidget *{font-size:14px}#titleWidget QPushButton,#titleWidget QCheckBox::indicator{background-color:#CCC;width:20px;height:20px;border-radius:10px}#titleWidget QCheckBox::indicator:checked{image:url(:/checked.png)}#clientWidget{background-color:#CEF}QMenu,#clientWidget QLineEdit,#clientWidget QTextEdit,#clientWidget QKeyEdit,#clientWidget QCheckBox::indicator,#clientWidget QRadioButton::indicator,#clientWidget QHeaderView,#clientWidget QHeaderView::section,#clientWidget QTableWidget,#clientWidget QTableWidget QTableCornerButton::section,#clientWidget QComboBox,#clientWidget QComboBox QAbstractItemView{background-color:white;color:black}#clientWidget QPushButton,#clientWidget QTabBar::tab,#clientWidget QTabBar::tab:first,#clientWidget QTabBar::tab:last{background-color:#ADE;color:black}#clientWidget QCheckBox::indicator,#clientWidget QRadioButton::indicator{width:20px;height:20px}#clientWidget QComboBox{padding-left:3px}QMenu::item:selected,#clientWidget QPushButton:hover,#clientWidget QCheckBox::indicator:hover,#clientWidget QRadioButton::indicator:hover,#clientWidget QTableWidget::item:hover,#clientWidget QTabBar::tab:hover,#clientWidget QTabBar::tab:first:hover,#clientWidget QTabBar::tab:last:hover{background-color:#BEF;color:black}#clientWidget QTableWidget::item:selected{background-color:#CEF;color:black}#clientWidget QTabBar::tab:selected,#clientWidget QTabBar::tab:first:selected,#clientWidget QTabBar::tab:last:selected{background-color:#CEF;color:black}#clientWidget QCheckBox::indicator:checked,#clientWidget QRadioButton::indicator:checked{image:url(:/checked.png)}#clientWidget #bnWndActive,#clientWidget #bnPos,#clientWidget #bnColorRect{background-color:white}</string>
      </property>
-     <property name="text">
-      <string>其他功能</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="spacing">
+       <number>10</number>
+      </property>
+      <property name="leftMargin">
+       <number>10</number>
+      </property>
+      <property name="topMargin">
+       <number>10</number>
+      </property>
+      <property name="rightMargin">
+       <number>10</number>
+      </property>
+      <property name="bottomMargin">
+       <number>10</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="lbOther">
+        <property name="font">
+         <font>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-size:16px;</string>
+        </property>
+        <property name="text">
+         <string>其他功能</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="box">
+        <property name="spacing">
+         <number>20</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" name="clickBox">
+          <property name="spacing">
+           <number>10</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="spacing">
+             <number>5</number>
+            </property>
+            <item>
+             <widget class="QCheckBox" name="chbQkClick">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <family>Microsoft YaHei</family>
+                <pointsize>-1</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
+              <property name="toolTip">
+               <string/>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::RightToLeft</enum>
+              </property>
+              <property name="text">
+               <string>快捷连点ㅤㅤ</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoRepeat">
+               <bool>false</bool>
+              </property>
+              <property name="autoExclusive">
+               <bool>false</bool>
+              </property>
+              <property name="tristate">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_11">
+            <property name="spacing">
+             <number>5</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="lbQkKey">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <family>Microsoft YaHei</family>
+                <pointsize>-1</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="toolTip">
+               <string/>
+              </property>
+              <property name="text">
+               <string>按键</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QKeyEdit" name="hkQkClick" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>80</width>
+                <height>24</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>80</width>
+                <height>24</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Microsoft YaHei</family>
+                <pointsize>-1</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="toolTip">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_10">
+            <property name="spacing">
+             <number>5</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="lbQkMode">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <family>Microsoft YaHei</family>
+                <pointsize>-1</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="toolTip">
+               <string/>
+              </property>
+              <property name="text">
+               <string>模式</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="cmbMode">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>80</width>
+                <height>24</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Microsoft YaHei</family>
+                <pointsize>-1</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_9">
+            <property name="spacing">
+             <number>5</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="lbQkDelay">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <family>Microsoft YaHei</family>
+                <pointsize>-1</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="toolTip">
+               <string/>
+              </property>
+              <property name="text">
+               <string>间隔</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="etQkDelay">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>80</width>
+                <height>24</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Microsoft YaHei</family>
+                <pointsize>-1</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="readOnly">
+               <bool>false</bool>
+              </property>
+              <property name="placeholderText">
+               <string>0~99999毫秒</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="wndBox">
+          <property name="spacing">
+           <number>10</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <property name="spacing">
+             <number>5</number>
+            </property>
+            <item>
+             <widget class="QCheckBox" name="chbWndActive">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <family>Microsoft YaHei</family>
+                <pointsize>-1</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
+              <property name="toolTip">
+               <string/>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::RightToLeft</enum>
+              </property>
+              <property name="text">
+               <string>窗口控制状态</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoRepeat">
+               <bool>false</bool>
+              </property>
+              <property name="autoExclusive">
+               <bool>false</bool>
+              </property>
+              <property name="tristate">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_8">
+            <property name="spacing">
+             <number>5</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="lbWndActiveName">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <family>Microsoft YaHei</family>
+                <pointsize>-1</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="toolTip">
+               <string/>
+              </property>
+              <property name="text">
+               <string>窗口</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLineEdit" name="etWndActive">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>205</width>
+                <height>24</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Microsoft YaHei</family>
+                <pointsize>-1</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+              <property name="placeholderText">
+               <string>窗口名</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="bnWndActive">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Microsoft YaHei</family>
+                <pointsize>-1</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
+              <property name="toolTip">
+               <string>获取</string>
+              </property>
+              <property name="text">
+               <string>+</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="clockBox">
+          <property name="spacing">
+           <number>10</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <property name="spacing">
+             <number>5</number>
+            </property>
+            <item>
+             <widget class="QCheckBox" name="chbClock">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <family>Microsoft YaHei</family>
+                <pointsize>-1</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::ClickFocus</enum>
+              </property>
+              <property name="toolTip">
+               <string/>
+              </property>
+              <property name="layoutDirection">
+               <enum>Qt::RightToLeft</enum>
+              </property>
+              <property name="text">
+               <string>显示当前时间</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoRepeat">
+               <bool>false</bool>
+              </property>
+              <property name="autoExclusive">
+               <bool>false</bool>
+              </property>
+              <property name="tristate">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <property name="spacing">
+             <number>5</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="lbClockKey">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="font">
+               <font>
+                <family>Microsoft YaHei</family>
+                <pointsize>-1</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="toolTip">
+               <string/>
+              </property>
+              <property name="text">
+               <string>按键</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QKeyEdit" name="hkClock" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>80</width>
+                <height>24</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>80</width>
+                <height>24</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <family>Microsoft YaHei</family>
+                <pointsize>-1</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="toolTip">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
-   </item>
-   <item>
-    <layout class="QVBoxLayout" name="box">
-     <property name="spacing">
-      <number>20</number>
-     </property>
-     <item>
-      <layout class="QHBoxLayout" name="clickBox">
-       <property name="spacing">
-        <number>10</number>
-       </property>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
-         <property name="spacing">
-          <number>5</number>
-         </property>
-         <item>
-          <widget class="QCheckBox" name="chbQkClick">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <family>Microsoft YaHei</family>
-             <pointsize>-1</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
-           </property>
-           <property name="toolTip">
-            <string/>
-           </property>
-           <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
-           </property>
-           <property name="text">
-            <string>快捷连点ㅤㅤ</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoRepeat">
-            <bool>false</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>false</bool>
-           </property>
-           <property name="tristate">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_11">
-         <property name="spacing">
-          <number>5</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="lbQkKey">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <family>Microsoft YaHei</family>
-             <pointsize>-1</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string/>
-           </property>
-           <property name="text">
-            <string>按键</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QKeyEdit" name="hkQkClick" native="true">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>24</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>80</width>
-             <height>24</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Microsoft YaHei</family>
-             <pointsize>-1</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="toolTip">
-            <string/>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color:white;font-size:12px;</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_10">
-         <property name="spacing">
-          <number>5</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="lbQkMode">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <family>Microsoft YaHei</family>
-             <pointsize>-1</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string/>
-           </property>
-           <property name="text">
-            <string>模式</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="cmbMode">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>24</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Microsoft YaHei</family>
-             <pointsize>-1</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_9">
-         <property name="spacing">
-          <number>5</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="lbQkDelay">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <family>Microsoft YaHei</family>
-             <pointsize>-1</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string/>
-           </property>
-           <property name="text">
-            <string>间隔</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="etQkDelay">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>24</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Microsoft YaHei</family>
-             <pointsize>-1</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>false</bool>
-           </property>
-           <property name="placeholderText">
-            <string>0~99999毫秒</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="wndBox">
-       <property name="spacing">
-        <number>10</number>
-       </property>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <property name="spacing">
-          <number>5</number>
-         </property>
-         <item>
-          <widget class="QCheckBox" name="chbWndActive">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <family>Microsoft YaHei</family>
-             <pointsize>-1</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
-           </property>
-           <property name="toolTip">
-            <string/>
-           </property>
-           <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
-           </property>
-           <property name="text">
-            <string>窗口控制状态</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoRepeat">
-            <bool>false</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>false</bool>
-           </property>
-           <property name="tristate">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_8">
-         <property name="spacing">
-          <number>5</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="lbWndActiveName">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <family>Microsoft YaHei</family>
-             <pointsize>-1</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string/>
-           </property>
-           <property name="text">
-            <string>窗口</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="etWndActive">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>205</width>
-             <height>24</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Microsoft YaHei</family>
-             <pointsize>-1</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>窗口名</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="bnWndActive">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <family>Microsoft YaHei</family>
-             <pointsize>-1</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
-           </property>
-           <property name="toolTip">
-            <string>获取</string>
-           </property>
-           <property name="text">
-            <string>+</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer_3">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="clockBox">
-       <property name="spacing">
-        <number>10</number>
-       </property>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_6">
-         <property name="spacing">
-          <number>5</number>
-         </property>
-         <item>
-          <widget class="QCheckBox" name="chbClock">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <family>Microsoft YaHei</family>
-             <pointsize>-1</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::ClickFocus</enum>
-           </property>
-           <property name="toolTip">
-            <string/>
-           </property>
-           <property name="layoutDirection">
-            <enum>Qt::RightToLeft</enum>
-           </property>
-           <property name="text">
-            <string>显示当前时间</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="autoRepeat">
-            <bool>false</bool>
-           </property>
-           <property name="autoExclusive">
-            <bool>false</bool>
-           </property>
-           <property name="tristate">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_7">
-         <property name="spacing">
-          <number>5</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="lbClockKey">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="font">
-            <font>
-             <family>Microsoft YaHei</family>
-             <pointsize>-1</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="toolTip">
-            <string/>
-           </property>
-           <property name="text">
-            <string>按键</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QKeyEdit" name="hkClock" native="true">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>24</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>80</width>
-             <height>24</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Microsoft YaHei</family>
-             <pointsize>-1</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="toolTip">
-            <string/>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">background-color:white;font-size:12px;</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <spacer name="horizontalSpacer">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
-     <item>
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>0</width>
-         <height>0</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
    </item>
   </layout>
  </widget>

@@ -18,12 +18,12 @@ namespace CG {
 		static size_t Length(const wchar_t* str) { return wcslen(str); }
 		static int Compare(const char* str1, const char* str2) { return strcmp(str1, str2); }
 		static int Compare(const wchar_t* str1, const wchar_t* str2) { return wcscmp(str1, str2); }
-		static errno_t Copy(char* buffer, uint32 size, const char* res) { return strcpy_s(buffer, size, res); }
-		static errno_t Copy(wchar_t* buffer, uint32 size, const wchar_t* res) { return wcscpy_s(buffer, size, res); }
-		static errno_t Cat(char* buffer, uint32 size, const char* res) { return strcat_s(buffer, size, res); }
-		static errno_t Cat(wchar_t* buffer, uint32 size, const wchar_t* res) { return wcscat_s(buffer, size, res); }
-		static int Printf(char* buffer, uint32 size, const char* format, ...) { va_list vas; va_start(vas, format); int count = _vsprintf_p(buffer, size, format, vas); va_end(vas); return count; }
-		static int Printf(wchar_t* buffer, uint32 size, const wchar_t* format, ...) { va_list vas; va_start(vas, format); int count = _vswprintf_p(buffer, size, format, vas); va_end(vas); return count; }
+		static errno_t Copy(char* buffer, rsize_t size, const char* res) { return strcpy_s(buffer, size, res); }
+		static errno_t Copy(wchar_t* buffer, rsize_t size, const wchar_t* res) { return wcscpy_s(buffer, size, res); }
+		static errno_t Cat(char* buffer, rsize_t size, const char* res) { return strcat_s(buffer, size, res); }
+		static errno_t Cat(wchar_t* buffer, rsize_t size, const wchar_t* res) { return wcscat_s(buffer, size, res); }
+		static int Printf(char* buffer, size_t size, const char* format, ...) { va_list vas; va_start(vas, format); int count = _vsprintf_p(buffer, size, format, vas); va_end(vas); return count; }
+		static int Printf(wchar_t* buffer, size_t size, const wchar_t* format, ...) { va_list vas; va_start(vas, format); int count = _vswprintf_p(buffer, size, format, vas); va_end(vas); return count; }
 
 		// string convert
 		static std::string toString(char val) { char str[] = { val, '\0' }; return str; }
@@ -157,10 +157,10 @@ namespace CG {
 
 		xcstring operator+(const T* res) { xcstring xcstr; xcstr.cpy(*this); xcstr.app(res); return xcstr; }
 		xcstring operator+(const xcstring& res) { xcstring xcstr; xcstr.cpy(*this); xcstr.app(res); return xcstr; }
-		xcstring& operator+=(const T* res) { app(res); return *this; }
-		xcstring& operator+=(const xcstring& res) { app(res); *this; }
-		xcstring& operator=(const T* res) { cpy(res); return *this; }
-		xcstring& operator=(const xcstring& res) { cpy(res); return *this; }
+		xcstring operator+=(const T* res) { app(res); return *this; }
+		xcstring operator+=(const xcstring& res) { app(res); *this; }
+		xcstring operator=(const T* res) { cpy(res); return *this; }
+		xcstring operator=(const xcstring& res) { cpy(res); return *this; }
 		const T* operator*() const { return p_str; }
 		const uint32 operator&() const { return n_size; }
 
@@ -168,7 +168,7 @@ namespace CG {
 		const uint32 size() const { return n_size; }
 		const uint32 length() const { return n_size - 1; }
 
-		const uint32 cpy(const T* res)
+		uint32 cpy(const T* res)
 		{
 			emp();
 			n_size = String::Length(res) + 1;
@@ -176,7 +176,7 @@ namespace CG {
 			String::Copy(p_str, n_size, res);
 			return n_size;
 		}
-		const uint32 cpy(const xcstring& res)
+		uint32 cpy(const xcstring& res)
 		{
 			emp();
 			n_size = res.n_size;
@@ -184,7 +184,7 @@ namespace CG {
 			String::Copy(p_str, n_size, res.p_str);
 			return n_size;
 		}
-		const uint32 app(const T* res)
+		uint32 app(const T* res)
 		{
 			uint32 size = n_size;
 			if (size)
@@ -206,7 +206,7 @@ namespace CG {
 			}
 			return n_size;
 		}
-		const uint32 app(const xcstring& res)
+		uint32 app(const xcstring& res)
 		{
 			uint32 size = n_size;
 			if (size)

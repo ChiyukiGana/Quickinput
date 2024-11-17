@@ -20,13 +20,13 @@ namespace CG {
 	{
 	public:
 
-		static void WavePlay(LPCWSTR path, bool sync = 0) {
+		static void WavePlay(LPCWSTR path, bool sync = false) {
 			if (sync) PlaySoundW(path, NULL, SND_FILENAME | SND_SYNC);
 			else PlaySoundW(path, NULL, SND_FILENAME | SND_ASYNC);
 		}
 
 		// on the thread
-		static void MediaPlay(LPCWSTR path, bool sync = 0) {
+		static void MediaPlay(LPCWSTR path, bool sync = true) {
 			WCHAR cmd[MAX_PATH];
 			swprintf_s(cmd, MAX_PATH, L"open \"%s\" alias audio", path);
 			mciSendStringW(cmd, 0, 0, 0);
