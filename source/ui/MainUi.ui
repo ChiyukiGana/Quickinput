@@ -32,7 +32,7 @@
    <enum>Qt::NoContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Quick input</string>
+   <string>Quickinput</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../res/QuickInput.qrc">
@@ -140,7 +140,7 @@
           <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:14px;font-weight:500;</string>
          </property>
          <property name="text">
-          <string>Quick input</string>
+          <string>Quickinput</string>
          </property>
         </widget>
        </item>

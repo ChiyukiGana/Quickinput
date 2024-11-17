@@ -118,7 +118,7 @@
          <font>
           <family>Microsoft YaHei</family>
           <pointsize>-1</pointsize>
-          <weight>62</weight>
+          <weight>63</weight>
           <bold>true</bold>
          </font>
         </property>
@@ -271,7 +271,7 @@
 　10CPS=100（CPS=1000/时长）
 　10秒=10000（秒=时长/1000）
 
-Quick input的使用流程：
+Quickinput的使用流程：
 　1：前往设置选项卡，设置触发按键等（参考设置说明页）
 
 　2（连点器）：前往功能选项卡，设置快捷连点（参考功能说明页）
@@ -317,8 +317,8 @@ Quick input的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>472</width>
-           <height>330</height>
+           <width>778</width>
+           <height>603</height>
           </rect>
          </property>
          <attribute name="label">
@@ -797,8 +797,8 @@ Quick input的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>460</width>
-           <height>267</height>
+           <width>778</width>
+           <height>603</height>
           </rect>
          </property>
          <attribute name="label">
@@ -841,7 +841,7 @@ Quick input的使用流程：
 　按下/松开模式：触发的宏直到完成对应的次数时停止，当次数设置为0或空，宏将无限运行
 
 屏蔽触发键：
-　在Quick input设置启用时，当前按键不会被系统识别，只会被Quick input处理</string>
+　在Quickinput设置启用时，当前按键不会被系统识别，只会被Quickinput处理</string>
             </property>
            </widget>
           </item>
@@ -865,8 +865,8 @@ Quick input的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>338</width>
-           <height>228</height>
+           <width>778</width>
+           <height>603</height>
           </rect>
          </property>
          <attribute name="label">
@@ -902,11 +902,11 @@ Quick input的使用流程：
 
 窗口控制状态（切换到对应窗口才能触发宏）：
 　点击窗口最右的框，切换到需要控制的窗口，按两次回车
-　当切换到设置的窗口才能触发宏（需要先启用Quick input）
+　当切换到设置的窗口才能触发宏（需要先启用Quickinput）
 
 显示当前时间：
 　点击按键右侧方框，按下所需按键
-　当按下当前按键将会在屏幕中显示时间，无论Quick input是否启用</string>
+　当按下当前按键将会在屏幕中显示时间，无论Quickinput是否启用</string>
             </property>
            </widget>
           </item>
@@ -930,8 +930,8 @@ Quick input的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>274</width>
-           <height>267</height>
+           <width>778</width>
+           <height>603</height>
           </rect>
          </property>
          <attribute name="label">
@@ -958,19 +958,19 @@ Quick input的使用流程：
             <property name="text">
              <string>主题：选择主题颜色
 
-开启/停止健：控制Quick input是否启用
+开启/停止健：控制Quickinput是否启用
 
 录制快捷键：录制/录制窗口时使用
 
 录制使用鼠标轨迹：录制的移动自动启用模拟移动轨迹
 
-默认启用：运行Quick input自动启用
+默认启用：运行Quickinput自动启用
 
-显示触发状态提示：启用Quick input会在屏幕弹出文字
+显示触发状态提示：启用Quickinput会在屏幕弹出文字
 
-启用音效：启用或禁用Quick input时播放声音
+启用音效：启用或禁用Quickinput时播放声音
 
-默认隐藏：运行Quick input时隐藏窗口
+默认隐藏：运行Quickinput时隐藏窗口
 
 禁用窗口放大：不会受系统界面放大的影响
 
