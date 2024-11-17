@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AboutUiClass</class>
+ <widget class="QWidget" name="AboutUiClass">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>640</width>
+    <height>440</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>640</width>
+    <height>440</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>640</width>
+    <height>440</height>
+   </size>
+  </property>
+  <property name="font">
+   <font>
+    <family>Microsoft YaHei</family>
+    <pointsize>-1</pointsize>
+   </font>
+  </property>
+  <property name="windowTitle">
+   <string>About</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">*{font-family:&quot;Microsoft YaHei&quot;;font-size:14px;}</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QLabel" name="lbText">
+     <property name="font">
+      <font>
+       <family>Microsoft YaHei</family>
+       <pointsize>-1</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLabel{
+border-image:url(:/about.png);
+padding-left:50px;
+font-size:18px;
+}
+QLabel:hover{color:#00F;}</string>
+     </property>
+     <property name="text">
+      <string>▍Release Date：2024-2-28
+▍bilibili：千雪加奈
+▍QQ：314575508
+▍chiyukigana-low@outlook.com
+▍github.com/ChiyukiGana/Quickinput
+▍欢迎反馈问题喵ฅ⁠^千雪^ฅ</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::PlainText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources>
+  <include location="../.res/QuickInput.qrc"/>
+ </resources>
+ <connections/>
+</ui>

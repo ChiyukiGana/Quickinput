@@ -1,0 +1,132 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>qml;cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>qrc;rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Form Files">
+      <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
+      <Extensions>ui</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Ui">
+      <UniqueIdentifier>{07c1369c-2ad4-45fb-a654-29b8da67b9ae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Wid">
+      <UniqueIdentifier>{bf7d2e0d-ad34-4ce4-9af7-149d85d64823}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="static.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include=".ui\MainUi.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include=".ui\AboutUi.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include=".ui\MoreUi.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include=".ui\SettingsUi.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include=".ui\FuncUi.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include=".ui\TriggerUi.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include=".ui\EditUi.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include=".ui\MacroUi.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+    <QtUic Include=".ui\RecordUi.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".h\AboutUi.h">
+      <Filter>Header Files\Ui</Filter>
+    </QtMoc>
+    <QtMoc Include=".h\EditUi.h">
+      <Filter>Header Files\Ui</Filter>
+    </QtMoc>
+    <QtMoc Include=".h\FuncUi.h">
+      <Filter>Header Files\Ui</Filter>
+    </QtMoc>
+    <QtMoc Include=".h\MacroUi.h">
+      <Filter>Header Files\Ui</Filter>
+    </QtMoc>
+    <QtMoc Include=".h\MoreUi.h">
+      <Filter>Header Files\Ui</Filter>
+    </QtMoc>
+    <QtMoc Include=".h\MainUi.h">
+      <Filter>Header Files\Ui</Filter>
+    </QtMoc>
+    <QtMoc Include=".h\RecordUi.h">
+      <Filter>Header Files\Ui</Filter>
+    </QtMoc>
+    <QtMoc Include=".h\SettingsUi.h">
+      <Filter>Header Files\Ui</Filter>
+    </QtMoc>
+    <QtMoc Include=".h\QColorSelection.h">
+      <Filter>Header Files\Wid</Filter>
+    </QtMoc>
+    <QtMoc Include=".h\QKeyEdit.h">
+      <Filter>Header Files\Wid</Filter>
+    </QtMoc>
+    <QtMoc Include=".h\QPointView.h">
+      <Filter>Header Files\Wid</Filter>
+    </QtMoc>
+    <QtMoc Include=".h\QPointSelection.h">
+      <Filter>Header Files\Wid</Filter>
+    </QtMoc>
+    <QtMoc Include=".h\QRectView.h">
+      <Filter>Header Files\Wid</Filter>
+    </QtMoc>
+    <QtMoc Include=".h\QRectSelection.h">
+      <Filter>Header Files\Wid</Filter>
+    </QtMoc>
+    <QtMoc Include=".h\TriggerUi.h">
+      <Filter>Header Files\Ui</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include=".h\QuickInputDef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include=".h\TipsWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="static.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include=".res\QuickInput.qrc">
+      <Filter>Resource Files</Filter>
+    </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include=".res\QuickInput.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

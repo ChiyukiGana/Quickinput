@@ -1,1 +1,10 @@
-# Quickinput
+# Quick input
+编写自定义宏，控制键盘鼠标等，实现系统的辅助或自动控制<br><br>
+
+# 使用方法<br>
+打开Quick input设置页面查看说明<br><br> 
+帮助文档：http://help_qinput.cyk.moe<br><br> 
+观看视频：https://space.bilibili.com/398923924/channel/collectiondetail?sid=1777662<br><br> 
+# 下载<br>
+https://github.com/ChiyukiGana/Quickinput/releases/latest<br><br> 
+http://qinput.cyk.moe 
