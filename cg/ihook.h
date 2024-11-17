@@ -142,7 +142,7 @@ public:
 			if (thread)
 			{
 				while (!createFlag) Sleep(0);
-				if (mouse && keybd);
+				if (mouseHook && keybdHook);
 				else return false;
 			}
 			else return false;

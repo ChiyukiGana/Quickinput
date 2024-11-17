@@ -19,13 +19,15 @@ public:
 
 		WidInit();
 		WidEvent();
-		ReStyle();
 	}
 
 	void ReStyle()
 	{
+		ui.clientWidget->setStyleSheet("");
 		ui.clientWidget->setStyleSheet(qis.themes[qis.set.theme].style);
+		ui.hkQkClick->setStyleSheet("");
 		ui.hkQkClick->setStyleSheet(qis.themes[qis.set.theme].style);
+		ui.hkClock->setStyleSheet("");
 		ui.hkClock->setStyleSheet(qis.themes[qis.set.theme].style);
 	}
 

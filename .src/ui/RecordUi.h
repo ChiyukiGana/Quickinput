@@ -20,7 +20,6 @@ public:
 		ui.bnClose->setText(qis.ui.rcClose);
 
 		WidEvent();
-		ReStyle();
 
 		qis.widget.record = this;
 		qis.recordState = true;
@@ -110,6 +109,8 @@ private:
 	}
 
 private:
+	void showEvent(QShowEvent* et) { ReStyle(); }
+
 	void customEvent(QEvent* et)
 	{
 		if (et->type() == QiEvent::recStart) RecStart();

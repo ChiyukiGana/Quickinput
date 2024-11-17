@@ -65,19 +65,12 @@ public:
 
 		WidInit();
 		WidEvent();
-		ReStyle();
 	}
 
 	void ReStyle()
 	{
 		setStyleSheet("");
 		setStyleSheet(qis.themes[qis.set.theme].style);
-		ui.tab_base->setStyleSheet(qis.themes[qis.set.theme].style);
-		ui.tab_state->setStyleSheet(qis.themes[qis.set.theme].style);
-		ui.tab_color->setStyleSheet(qis.themes[qis.set.theme].style);
-		ui.tab_image->setStyleSheet(qis.themes[qis.set.theme].style);
-		ui.tab_text->setStyleSheet(qis.themes[qis.set.theme].style);
-		ui.tab_wnd->setStyleSheet(qis.themes[qis.set.theme].style);
 	}
 
 private:
@@ -580,6 +573,7 @@ private: // Event
 	{
 		ui.lbTitle->setText(windowTitle());
 		TbUpdate();
+		ReStyle();
 	}
 
 private slots:
