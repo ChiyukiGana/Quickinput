@@ -430,25 +430,25 @@ namespace QiFn
 				Image::toRgbMap(hdc, rgbMap, rect);
 				ReleaseDC(nullptr, hdc);
 			}
-			Image::FindResult result = Image::Find(rgbMap, action.d.image.map, action.d.image.sim, 10);
+			POINT pt = Image::Find(rgbMap, action.d.image.map, action.d.image.sim, 10);
 
 			if (action.d.image.unfind)
 			{
-				if (result.find) return r_continue;
+				if (pt.x != Image::npos) return r_continue;
 			}
 			else
 			{
-				if (result.find)
+				if (pt.x != Image::npos)
 				{
 					if (action.d.image.move)
 					{
-						result.pt.x += rect.left + (action.d.image.map.width() >> 1), result.pt.y += rect.top + (action.d.image.map.height() >> 1);
+						pt.x += rect.left + (action.d.image.map.width() >> 1), pt.y += rect.top + (action.d.image.map.height() >> 1);
 						if (wi)
 						{
-							wi->pt = result.pt;
+							wi->pt = pt;
 							Input::MoveTo(wi->wnd, wi->pt.x, wi->pt.y, wi->mk);
 						}
-						else Input::MoveTo(result.pt.x, result.pt.y);
+						else Input::MoveTo(pt.x, pt.y);
 					}
 				}
 				else return r_continue;

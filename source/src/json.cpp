@@ -147,12 +147,10 @@ namespace QiJson
 				jItem.Add("right", (int32)(action.d.image.rect.right));
 				jItem.Add("bottom", (int32)(action.d.image.rect.bottom));
 				jItem.Add("sim", action.d.image.sim);
-
 				jItem.Add("width", action.d.image.map.width());
 				jItem.Add("height", action.d.image.map.height());
-				size_t size = Base64::EncodedLength(action.d.image.map.bytes());
-				std::string data = base64_encode((byte*)action.d.image.map.data(), action.d.image.map.bytes());
-				if (data.size()) jItem.Add("data", data);
+				std::string data(Base64::EncodedLength(action.d.image.map.bytes()), '\0');
+				if (Base64::Encode((const char*)action.d.image.map.data(), action.d.image.map.bytes(), &data[0], data.size())) jItem.Add("data", data);
 				SaveAction(jNext, action.next), jItem.Add("next", jNext);
 				break;
 			}
@@ -260,7 +258,7 @@ namespace QiJson
 	void LoadAction(const neb::CJsonObject jActions, Actions& actions)
 	{
 		actions.resize(jActions.GetArraySize());
-		for (uint32 i = 0; i < jActions.GetArraySize(); i++)
+		for (uint32 i = 0; i < actions.size(); i++)
 		{
 			Action& action = actions.at(i);
 			neb::CJsonObject jItem;
@@ -360,10 +358,10 @@ namespace QiJson
 					uint32 width, height;
 					jItem.Get("width", width);
 					jItem.Get("height", height);
-					if (width && height)
+					std::string str; jItem.Get("data", str);
+					if (width && height && str.size())
 					{
 						action.d.image.map.create(width, height);
-						std::string str; jItem.Get("data", str);
 						if (!Base64::Decode(str.c_str(), str.size(), (char*)action.d.image.map.data(), action.d.image.map.bytes())) action.d.image.map.release();
 					}
 					jItem.Get("next", jNext);

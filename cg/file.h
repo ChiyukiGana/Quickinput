@@ -200,10 +200,10 @@ namespace CG {
 		}
 
 		typedef List<_wfinddata32_t> FileList;
-		static FileList FindFile(LPCWSTR path) {
+		static FileList FindFile(std::wstring path) {
 			FileList files;
 			_wfinddata32_t file;
-			intptr_t pFind = _wfindfirst32(path, &file);
+			intptr_t pFind = _wfindfirst32(path.c_str(), &file);
 			intptr_t state = pFind;
 
 			while (state != -1) {
@@ -213,26 +213,34 @@ namespace CG {
 			return files;
 		}
 
-		// fileName: exclude .exe, findPath: D:\*.exe
-		static std::wstring FileNameNrep(std::wstring fileName, std::wstring path, std::wstring blank = L" ") {
-			if (!FileNameUsable(fileName)) return L"";
-			FileList files = FindFile(path.c_str());
-			if (!files.size()) return fileName;
-			List<std::wstring> strs;
-			strs.resize(files.size());
-			for (uint32 u = 0; u < files.size(); u++) strs[u] = Path::RemoveExtension(Path::Last(files[u].name));
-			std::wstring r = fileName;
-			uint32 p = 0;
+		static std::wstring FileNameNrep(std::wstring path, std::wstring blank = L"_") {
+			std::wstring dir = Path::GetDir(path);
+			std::wstring name = Path::RemoveExtension(Path::GetFile(path));
+			std::wstring ex = Path::GetExtension(path);
+			FileList files = FindFile(Path::Append(dir, std::wstring(L"*") + ex));
+			if (!files.size()) return path;
+			std::wstring s = name + ex;
+			uint32 e = 0;
 			while (true)
 			{
-				for (uint32 u = 0;; u++)
+				bool none = true;
+				for (uint32 i = 0; i < files.size(); i++)
 				{
-					if (p) r = fileName + blank + std::to_wstring(p);
-					if (r == strs[u]) break;
-					if (u >= files.size() - 1) return r;
+					if (s == files.at(i).name)
+					{
+						none = false;
+						break;
+					}
 				}
-				p++;
+				if (none)
+				{
+					s = Path::Append(dir, s);
+					break;
+				}
+				e++;
+				s = name + blank + std::to_wstring(e) + ex;
 			}
+			return s;
 		}
 	};
 }

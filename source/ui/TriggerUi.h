@@ -59,12 +59,14 @@ private:
 	void WidInit()
 	{
 		ui.hkTr->Mode(2);
+		ui.cmbMode->setEditable(true);
+		ui.cmbMode->lineEdit()->setReadOnly(true);
+		ui.cmbMode->lineEdit()->setAlignment(Qt::AlignCenter);
 		ui.cmbMode->addItem("切换");
 		ui.cmbMode->addItem("按下");
 		ui.cmbMode->addItem("松开");
 		QStandardItemModel* model = (QStandardItemModel*)ui.cmbMode->view()->model();
 		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
-		if (qis.set.theme >= qis.ui.themes.size()) qis.set.theme = 0;
 
 		ui.etCount->setValidator(new QIntValidator(0, countMax, this));
 

@@ -15,6 +15,13 @@ typedef std::uint32_t uint32;
 typedef std::int64_t int64;
 typedef std::uint64_t uint64;
 
+#ifdef _M_AMD64
+typedef std::uint64_t pointer;
+#else _M_IX86
+typedef std::uint32_t pointer;
+#endif // _M_AMD64 
+
+
 #define int8Max ((int8)0x7F)
 #define int8Min ((int8)0x80)
 #define uint8Max ((uint8)0xFF)
@@ -121,28 +128,20 @@ namespace CG {
 
 	static int Rand(int max, int min = 0) { return min + (rand() % (max - min + 1)); }
 
-	class TimeOut {
-	private:
-		long timet = 0;
-
+	class TimeOut
+	{
+		clock_t end = 0;
 	public:
-		bool timeOut = 0;
-
-		TimeOut() { Set(clock()); }
-		TimeOut(long ms) { Set(ms); }
-
-		void Set(long ms) { timeOut = 0; timet = clock() + ms; }
-
-		bool state() { if (timet > clock()) return true; timeOut = true; return false; }
+		TimeOut(clock_t ms) { set(ms); }
+		void set(clock_t ms) { end = clock() + ms; }
+		bool get() const { if(clock() - end < 0) return true; return false; }
+		clock_t out() { clock_t out = clock() - end; if (out > 0) return out; return 0; }
 	};
 
-	class AbsPos {
-	private:
-
+	class AbsPos
+	{
 		double cx = 0, cy = 0;
-
 	public:
-
 		AbsPos() {}
 		AbsPos(long cx, long cy) { Size(cx, cy); }
 

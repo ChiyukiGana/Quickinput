@@ -2,6 +2,9 @@
 #pragma once
 #include "minc.h"
 
+inline const std::wstring macroPath = L"macro\\";
+inline const std::wstring macroType = L".json";
+
 // theme and text
 namespace QiUi
 {
@@ -172,12 +175,12 @@ using Actions = List<Action>;
 struct QiDelay { uint32 tmin; uint32 tmax; };
 struct QiKey { enum { up, down, click }; uint32 vk = 0; uint32 state = down; };
 struct QiMouse { int32 x = 0; int32 y = 0; uint32 ex = 0; uint32 speed = 0; bool move = false; bool track = false; };
-struct QiText { wcstr str; void release() { str.release(); } };
+struct QiText { u16str str; void release() { str.release(); } };
 struct QiColor { Rgba rgbe = 0; RECT rect = {}; bool unfind = false; bool move = false; };
 struct QiLoop { uint32 cmin = 0; uint32 cmax = 0; };
 struct QiKeyState { uint32 vk = 0; bool state = true; };
 struct QiImage { RgbMap map; uint32 sim; RECT rect = {}; bool unfind = false; bool move = false; void release() { map.release(); } };
-struct QiPopText { wcstr str; uint32 time = 0; void release() { str.release(); } };
+struct QiPopText { u16str str; uint32 time = 0; void release() { str.release(); } };
 struct QiTimer { uint32 tmin = 0; uint32 tmax = 0; };
 struct Action
 {
@@ -218,7 +221,7 @@ struct Action
 	} Data;
 	Data d;
 	Actions next;
-	wcstr mark;
+	u16str mark;
 
 	Action() { release(); }
 	Action(const ActionType actionType) { release(); type = actionType; }
@@ -274,6 +277,7 @@ struct Action
 			break;
 		case _timer: type = ActionType::_timer;
 			d.timer = action.d.timer;
+			next = action.next;
 			break;
 		default: type = ActionType::_none;
 		}

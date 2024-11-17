@@ -53,6 +53,9 @@ public:
 private:
 	void WidInit()
 	{
+		ui.cmbTheme->setEditable(true);
+		ui.cmbTheme->lineEdit()->setReadOnly(true); 
+		ui.cmbTheme->lineEdit()->setAlignment(Qt::AlignCenter);
 		for (size_t i = 0; i < qis.ui.themes.size(); i++) ui.cmbTheme->addItem(qis.ui.themes[i].name);
 		QStandardItemModel* model = (QStandardItemModel*)ui.cmbTheme->view()->model();
 		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);

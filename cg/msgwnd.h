@@ -22,12 +22,6 @@ namespace CG
 
 	public:
 		template <typename T>
-		MsgWnd(T t = L"MessageWindow")
-		{
-			log(t);
-		}
-
-		template <typename T>
 		static void msg(T text, size_t blank = 0)
 		{
 			if (!p.thread)

@@ -14,9 +14,8 @@ class InputHook
 	static inline bool blockRep = false;
 	static inline bool keys[255] = {};
 
-	//return false: call next hook, return true: block
-	static bool CALLBACK InputProc(BYTE vk, bool state, POINT msPt, PULONG_PTR exInfo);
-
+	// return true: block
+	static bool CALLBACK InputProc(BYTE vkCode, bool press, POINT cursor, PULONG_PTR param);
 	static LRESULT CALLBACK MouseHook(int code, WPARAM msg, LPARAM param)
 	{
 		PMSLLHOOKSTRUCT ms = (PMSLLHOOKSTRUCT)param;
@@ -81,7 +80,6 @@ class InputHook
 		}
 		return CallNextHookEx(mouseHook, code, msg, param);
 	}
-
 	static LRESULT CALLBACK KeybdHook(int code, WPARAM msg, LPARAM param)
 	{
 		PKBDLLHOOKSTRUCT kb = (PKBDLLHOOKSTRUCT)param;
@@ -104,7 +102,6 @@ class InputHook
 		}
 		return CallNextHookEx(keybdHook, code, msg, param);
 	}
-
 	static DWORD CALLBACK HookThread(PVOID)
 	{
 		mouseHook = SetWindowsHookExW(WH_MOUSE_LL, MouseHook, GetModuleHandleW(0), 0);

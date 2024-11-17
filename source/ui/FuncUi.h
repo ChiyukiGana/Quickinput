@@ -50,12 +50,14 @@ private:
 
 		ui.hkQkClick->Mode(0);
 		ui.etQkDelay->setValidator(new QIntValidator(0, 99999, this));
-		
+
+		ui.cmbMode->setEditable(true);
+		ui.cmbMode->lineEdit()->setReadOnly(true);
+		ui.cmbMode->lineEdit()->setAlignment(Qt::AlignCenter);
 		ui.cmbMode->addItem("按下");
 		ui.cmbMode->addItem("切换");
 		QStandardItemModel* model = (QStandardItemModel*)ui.cmbMode->view()->model();
 		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
-		if (qis.set.theme >= qis.ui.themes.size()) qis.set.theme = 0;
 
 		ui.chbQkClick->setChecked(func->quickClick.state);
 		ui.hkQkClick->VirtualKey(func->quickClick.key);

@@ -154,11 +154,11 @@
     <QtMoc Include="source\ui\widget\QRectView.h">
       <Filter>Form Files\widget</Filter>
     </QtMoc>
-    <QtMoc Include="source\ui\QKeyEdit.h">
-      <Filter>Form Files\widget</Filter>
-    </QtMoc>
     <QtMoc Include="source\ui\PopsUi.h">
       <Filter>Form Files\header</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\widget\QKeyEdit.h">
+      <Filter>Form Files\widget</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

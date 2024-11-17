@@ -4474,3 +4474,5 @@ CJsonObject::CJsonObject(cJSON* pJsonData)
 }
 
 }
+
+#include "cJSON.c"

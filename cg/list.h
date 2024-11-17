@@ -18,14 +18,10 @@ namespace CG
 	class List : public std::vector<T>
 	{
 		using base_vector = std::vector<T>;
-
 	public:
-		static const size_t npos = MAXSIZE_T;
-
-		T& End()
-		{
-			return base_vector::at(base_vector::size() - 1);
-		}
+		static constexpr size_t end_pos = ~((size_t)0);
+		using base_vector::base_vector;
+		
 		T& AddNull()
 		{
 			Add({}, 1);
@@ -35,7 +31,12 @@ namespace CG
 		{
 			Add({}, count);
 		}
-		void Add(const T& t, size_t count = 1)
+		T& Add(const T& t)
+		{
+			Add(t, 1);
+			return base_vector::at(base_vector::size() - 1);
+		}
+		void Add(const T& t, size_t count)
 		{
 			for (size_t c = 0; c < count; c++) base_vector::push_back(t);
 		}
@@ -57,71 +58,74 @@ namespace CG
 			if (p > base_vector::size()) p = base_vector::size();
 			base_vector::insert(base_vector::begin() + p, count, t);
 		}
-		bool Del(size_t p = MAXSIZE_T)
+		void Del(const T& rt)
 		{
-			if (base_vector::size() == 0) return false;
-			if (p >= base_vector::size()) p = base_vector::size() - 1;
-			base_vector::erase(base_vector::begin() + p);
-			return true;
+			for (size_t i = 0; i < base_vector::size(); i++)
+			{
+				if (&base_vector::at(i) == &rt)
+				{
+					base_vector::erase(base_vector::begin() + i);
+					return;
+				}
+			}
 		}
-		bool DelBack(size_t count = 1, size_t p = MAXSIZE_T)
+		void Del(size_t p)
 		{
-			if (base_vector::size() == 0) return false;
+			base_vector::erase(base_vector::begin() + p);
+		}
+		void Del(const List<size_t>& ps)
+		{
+			List<size_t> pl(ps);
+			std::sort(pl.begin(), pl.end());
+			for (size_t n = 0; n < ps.size(); n++) base_vector::erase(base_vector::begin() + pl[n] - n);
+		}
+		void DelFront(size_t count = 1, size_t p = 0)
+		{
+			if (p >= base_vector::size()) return;
+			if ((p + count) >= base_vector::size()) count = base_vector::size() - p;
+			base_vector::erase(base_vector::begin() + p, base_vector::begin() + (p + count));
+		}
+		void DelBack(size_t count = 1, size_t p = end_pos)
+		{
 			if (p > base_vector::size()) p = base_vector::size();
 			if (count > p) count = p;
 			base_vector::erase(base_vector::begin() + (p - count), base_vector::begin() + p);
-			return true;
 		}
-		bool DelFront(size_t count = 1, size_t p = 0)
+		size_t DelFind(const T& t)
 		{
-			if (base_vector::size() == 0) return false;
-			if (p >= base_vector::size()) return true;
-			if (count >= base_vector::size()) count = base_vector::size();
-			if ((p + count) >= base_vector::size()) count = base_vector::size() - p;
-			base_vector::erase(base_vector::begin() + p, base_vector::begin() + (p + count));
-			return true;
+			size_t n = 0;
+			while (true)
+			{
+				bool none = true;
+				for (size_t i = 0; i < base_vector::size(); i++)
+				{
+					if (t == base_vector::at(i))
+					{
+						base_vector::erase(base_vector::begin() + i);
+						n++;
+						none = false;
+					}
+				}
+				if (none) break;
+			}
+			return n;
 		}
-		bool Del(List<size_t>& ps)
+		void Swp(size_t p1, size_t p2)
 		{
-			if (base_vector::size() == 0) return false;
-			std::sort(ps.begin(), ps.end());
-			for (size_t n = 0; n < ps.size(); n++) base_vector::erase(base_vector::begin() + ps[n] - n);
-			return true;
-		}
-		bool Swp(size_t p1, size_t p2)
-		{
-			if (p1 >= base_vector::size() || p2 >= base_vector::size()) return false;
 			std::swap(base_vector::at(p1), base_vector::at(p2));
-			return true;
 		}
-		bool Mov(size_t p1, size_t p2)
+		void Mov(size_t p1, size_t p2)
 		{
-			if (p1 >= base_vector::size() || p2 >= base_vector::size()) return 0;
-			if (p1 < p2)
-			{
-				for (size_t p = p1; p < p2; p++) Swp(p, p + 1);
-				return true;
-			}
-			else if (p1 > p2)
-			{
-				for (size_t p = p1; p > p2; p--) Swp(p, p - 1);
-				return true;
-			}
-			return false;
+			if (p1 < p2) for (size_t p = p1; p < p2; p++) Swp(p, p + 1);
+			else if (p1 > p2) for (size_t p = p1; p > p2; p--) Swp(p, p - 1);
 		}
 		void Iterate(void(&CallBack)(T&))
 		{
-			for (size_t p = 0; p < base_vector::size(); p++)
-			{
-				CallBack(base_vector::at(p));
-			}
+			for (size_t p = 0; p < base_vector::size(); p++) CallBack(base_vector::at(p));
 		}
 		void Iterate(void(&CallBack)(T&, void*), void* param)
 		{
-			for (size_t p = 0; p < base_vector::size(); p++)
-			{
-				CallBack(base_vector::at(p), param);
-			}
+			for (size_t p = 0; p < base_vector::size(); p++) CallBack(base_vector::at(p), param);
 		}
 		/* return left < right: asc, return left > right: desc */
 		void Sort(bool(&CallBack)(const T& left, const T& right))
