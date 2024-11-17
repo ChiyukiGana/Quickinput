@@ -16,9 +16,9 @@ public:
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
-
 		Init();
 		Event();
+		StyleGroup();
 	}
 	void StyleGroup()
 	{
@@ -77,8 +77,6 @@ private:
 			ui.bnWndSelect->setShortcut(Qt::Key_unknown);
 			ui.chbClock->setShortcut(Qt::Key_unknown);
 		}
-
-		StyleGroup();
 	}
 	void Event()
 	{

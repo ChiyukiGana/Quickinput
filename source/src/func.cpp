@@ -478,8 +478,7 @@ namespace QiFn
 				{
 					return r_continue;
 				}
-			}, action
-		);
+			}, action);
 	}
 	void Trigger(short vk, const bool* state)
 	{

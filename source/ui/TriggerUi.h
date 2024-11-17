@@ -16,9 +16,9 @@ public:
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
-
 		Init();
 		Event();
+		StyleGroup();
 		LockControl(true);
 		TableUpdate();
 	}
@@ -81,8 +81,6 @@ private:
 		{
 			ui.chbBlock->setShortcut(Qt::Key_unknown);
 		}
-
-		StyleGroup();
 	}
 	void Event()
 	{

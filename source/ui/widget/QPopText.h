@@ -80,7 +80,7 @@ public:
 		QApplication::postEvent(this, new PopTextEvent(PopTextEvent::setTime, time, true));
 	}
 	void Show(const QString& text, const QColor color = QColor(0xC0, 0xE0, 0xFF)) { QApplication::postEvent(this, new PopTextEvent(PopTextEvent::show, text, color)); }
-	void Popup(const QString& text, const QColor color = QColor(0xC0, 0xE0, 0xFF)) { QApplication::postEvent(this, new PopTextEvent(PopTextEvent::pop, text, color, time)); }
+	void Popup(const QString& text, const QColor color = QColor(0xC0, 0xE0, 0xFF)) { QApplication::postEvent(this, new PopTextEvent(PopTextEvent::pop, text, color, 1000)); }
 	void Popup(int time, const QString& text, const QColor color = QColor(0xC0, 0xE0, 0xFF)) { QApplication::postEvent(this, new PopTextEvent(PopTextEvent::pop, text, color, time)); }
 	void Hide() { QApplication::postEvent(this, new PopTextEvent(PopTextEvent::hide)); }
 private:

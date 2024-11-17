@@ -15,9 +15,9 @@ public:
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
-
 		Init();
 		Event();
+		StyleGroup();
 	}
 	void StyleGroup()
 	{
@@ -76,7 +76,6 @@ private:
 		ui.sdSize->installEventFilter(this);
 		ui.sdTime->installEventFilter(this);
 
-		StyleGroup();
 		Update();
 	}
 	void Event()

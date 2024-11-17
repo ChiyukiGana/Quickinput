@@ -15,7 +15,6 @@ public:
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
-
 		Init();
 		Event();
 	}

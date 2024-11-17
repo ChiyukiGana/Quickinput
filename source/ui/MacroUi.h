@@ -18,9 +18,9 @@ public:
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
-
 		Init();
 		Event();
+		StyleGroup();
 	}
 	void StyleGroup()
 	{
@@ -57,7 +57,6 @@ public:
 private:
 	void Init()
 	{
-		StyleGroup();
 		{
 			ui.bnRec->setShortcut(Qt::Key_unknown);
 			ui.bnWndRec->setShortcut(Qt::Key_unknown);

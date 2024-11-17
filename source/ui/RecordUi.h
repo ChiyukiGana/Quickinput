@@ -23,11 +23,11 @@ public:
 		setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setMouseTracking(true);
 
-		StyleGroup();
 		ui.bnStart->setText(Qi::ui.text.rcStart);
 		ui.bnClose->setText(Qi::ui.text.rcClose);
 		connect(ui.bnStart, SIGNAL(clicked()), this, SLOT(OnBnStart()));
 		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
+		StyleGroup();
 
 		Qi::widget.record = this;
 		Qi::recordState = true;

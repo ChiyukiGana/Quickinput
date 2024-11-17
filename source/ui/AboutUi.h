@@ -14,8 +14,8 @@ public:
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
-		StyleGroup();
 		ui.lb_url->installEventFilter(this);
+		StyleGroup();
 	}
 	void StyleGroup()
 	{

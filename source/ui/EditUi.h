@@ -56,6 +56,10 @@ class EditUi : public QDialog
 	QAction* muCut;
 	QAction* muCopy;
 	QAction* muPaste;
+	QAction* muEdit;
+
+	QTimer* testTimer;
+	uint32 testCount = 0;
 
 	// widget
 	QPointView pv;
@@ -76,11 +80,11 @@ public:
 	EditUi(EditParam ep) : QDialog()
 	{
 		macro = ep.macro, actions = ep.actions, child = ep.child;
-		
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		Init();
 		Event();
+		StyleGroup();
 	}
 
 	void StyleGroup()
@@ -216,19 +220,21 @@ private:
 			muCut = new QAction("剪切", this);
 			muCopy = new QAction("复制", this);
 			muPaste = new QAction("粘贴", this);
+			muEdit = new QAction("编辑", this);
 
 			menu->addAction(muDel);
 			menu->addAction(muChange);
 			menu->addAction(muCut);
 			menu->addAction(muCopy);
 			menu->addAction(muPaste);
-			menu->setFont(QFont("Microsoft YaHei"));
+			menu->addAction(muEdit);
 
 			connect(muDel, SIGNAL(triggered()), this, SLOT(OnMenuDel()));
 			connect(muChange, SIGNAL(triggered()), this, SLOT(OnMenuChange()));
 			connect(muCut, SIGNAL(triggered()), this, SLOT(OnMenuCut()));
 			connect(muCopy, SIGNAL(triggered()), this, SLOT(OnMenuCopy()));
 			connect(muPaste, SIGNAL(triggered()), this, SLOT(OnMenuPaste()));
+			connect(muEdit, SIGNAL(triggered()), this, SLOT(OnMenuEdit()));
 		}
 		if ("buttons")
 		{
@@ -369,8 +375,10 @@ private:
 			ui.hkState->setPadEnable(true);
 			ui.hkState->setKey(QKeyEdit::Key(VK_LBUTTON));
 		}
-
-		StyleGroup();
+		if ("timer")
+		{
+			testTimer = new QTimer(this);
+		}
 
 		// enable qlable scale
 		ui.lbImageView->setScaledContents(true);
@@ -439,6 +447,10 @@ private:
 			connect(ui.bnImageRect, SIGNAL(clicked()), this, SLOT(OnBnImageRect()));
 			connect(ui.bnImageShot, SIGNAL(clicked()), this, SLOT(OnBnImageShot()));
 			connect(ui.bnPopTextAdd, SIGNAL(clicked()), this, SLOT(OnBnPopTextAdd()));
+		}
+		if ("timer")
+		{
+			connect(testTimer, SIGNAL(timeout()), this, SLOT(OnTestTimer()));
 		}
 	}
 
@@ -829,6 +841,26 @@ private:
 	}
 	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) msPos = e->pos(), mouseDown = true; e->accept(); }void mouseMoveEvent(QMouseEvent* e) { if (mouseDown) move(e->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) mouseDown = false; }
 private Q_SLOTS:
+	void OnTestTimer()
+	{
+		if (QiThread::MacroRunActive(macro))
+		{
+			if (GetAsyncKeyState(VK_SHIFT) && GetAsyncKeyState(VK_F10))
+			{
+				QiThread::ExitMacroRun(macro);
+			}
+		}
+		else
+		{
+			testTimer->stop();
+			timeEndPeriod(1);
+			Qi::run = false;
+			macro->count = testCount;
+			Thread::Sleep(300);
+			setEnabled(true);
+		}
+	}
+
 	// Title
 	void OnBnClose()
 	{
@@ -836,26 +868,13 @@ private Q_SLOTS:
 	}
 	void OnBnRun()
 	{
-		ui.bnRun->setDisabled(true);
-		uint32 count = macro->count;
+		setDisabled(true);
+		testCount = macro->count;
 		macro->count = 1;
 		Qi::run = true;
 		timeBeginPeriod(1);
 		QiThread::StartMacroRun(macro);
-		while (QiThread::MacroRunActive(macro))
-		{
-			if (GetAsyncKeyState(VK_SHIFT) && GetAsyncKeyState(VK_F10))
-			{
-				QiThread::ExitMacroRun(macro);
-				break;
-			}
-			Thread::Sleep(10);
-		}
-		timeEndPeriod(1);
-		Qi::run = false;
-		macro->count = count;
-		Thread::Sleep(300);
-		ui.bnRun->setEnabled(true);
+		testTimer->start(16);
 	}
 
 	// Rutton context menu
@@ -878,6 +897,10 @@ private Q_SLOTS:
 	void OnMenuPaste()
 	{
 		ItemPaste();
+	}
+	void OnMenuEdit()
+	{
+		NextEdit();
 	}
 
 	// Table
@@ -1063,9 +1086,6 @@ private Q_SLOTS:
 
 						ui.bnTimerEdit->setEnabled(true);
 					}
-					else
-					{
-					}
 				},
 			actions->at(row));
 		}
@@ -1080,6 +1100,13 @@ private Q_SLOTS:
 	}
 	void OnTableMenu(const QPoint& pt)
 	{
+		muDel->setDisabled(true);
+		muChange->setDisabled(true);
+		muCut->setDisabled(true);
+		muCopy->setDisabled(true);
+		muPaste->setDisabled(true);
+		muEdit->setDisabled(true);
+
 		QList<QTableWidgetItem*> items = ui.tbActions->selectedItems();
 		if (items.size())
 		{
@@ -1087,17 +1114,41 @@ private Q_SLOTS:
 			muChange->setEnabled(true);
 			muCut->setEnabled(true);
 			muCopy->setEnabled(true);
-		}
-		else
-		{
-			muDel->setDisabled(true);
-			muChange->setDisabled(true);
-			muCut->setDisabled(true);
-			muCopy->setDisabled(true);
+			if (items.size() == ui.tbActions->columnCount())
+			{
+				std::visit([this](auto&& var)
+					{
+						using T = std::decay_t<decltype(var)>;
+						if constexpr (std::is_same_v<T, QiColor>)
+						{
+							const QiColor& color = var;
+							muEdit->setEnabled(true);
+						}
+						else if constexpr (std::is_same_v<T, QiLoop>)
+						{
+							const QiLoop& loop = var;
+							muEdit->setEnabled(true);
+						}
+						else if constexpr (std::is_same_v<T, QiKeyState>)
+						{
+							const QiKeyState& keyState = var;
+							muEdit->setEnabled(true);
+						}
+						else if constexpr (std::is_same_v<T, QiImage>)
+						{
+							const QiImage& image = var;
+							muEdit->setEnabled(true);
+						}
+						else if constexpr (std::is_same_v<T, QiTimer>)
+						{
+							const QiTimer& timer = var;
+							muEdit->setEnabled(true);
+						}
+					}, actions->at(items[0]->row()));
+			}
 		}
 
 		if (Qi::clipboard.size()) muPaste->setEnabled(true);
-		else muPaste->setDisabled(true);
 
 		menu->exec(QCursor::pos());
 	}
@@ -1484,7 +1535,7 @@ private:
 		case QiType::text: action = WidgetGetText(); break;
 		case QiType::color: action = WidgetGetColor(); break;
 		case QiType::loop: action = WidgetGetLoop(); break;
-		case QiType::loopEnd: action = QiEnd(); break;
+		case QiType::loopEnd: action = QiLoopEnd(); break;
 		case QiType::keyState: action = WidgetGetKeyState(); break;
 		case QiType::recoverPos: action = QiRecoverPos(); break;
 		case QiType::image: action = WidgetGetImage(); break;

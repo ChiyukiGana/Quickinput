@@ -23,9 +23,9 @@ public:
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		Init();
+		StyleGroup();
 		ui.tabWidget->setCurrentIndex(tab);
 		Qi::application->setStyleSheet(Qi::ui.themes[Qi::set.theme].style);
-
 		show();
 		if (Qi::set.minMode)
 		{
@@ -64,6 +64,7 @@ private:
 			tray->show();
 		}
 
+		if ("task bar icon")
 		{
 			menu = new QMenu(this);
 			QAction* tnon = new QAction(Qi::ui.text.muOn, this);
@@ -91,8 +92,6 @@ private:
 			connect(ui.bnMin, SIGNAL(clicked()), this, SLOT(OnBnMin()));
 			connect(ui.bnHide, SIGNAL(clicked()), this, SLOT(OnBnHide()));
 		}
-		
-		StyleGroup();
 	}
 	void showEvent(QShowEvent* e)
 	{
