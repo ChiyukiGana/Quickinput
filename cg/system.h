@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <WtsApi32.h> // IsScreenLocked
 #include <VersionHelpers.h> // Version
+#include <Shlobj.h>
 #include <time.h>
 #include <string>
 namespace CG
@@ -21,7 +22,7 @@ namespace CG
 		static SIZE screenSize()
 		{
 			HMONITOR hmt = MonitorFromWindow(nullptr, MONITOR_DEFAULTTOPRIMARY);
-			MONITORINFOEXW mti = { sizeof(MONITORINFOEXW) }; GetMonitorInfoW(hmt, &mti);
+			MONITORINFOEXW mti = {}; mti.cbSize = sizeof(MONITORINFOEXW); GetMonitorInfoW(hmt, &mti);
 			DEVMODEW dm = { sizeof(DEVMODEW) }; EnumDisplaySettingsW(mti.szDevice, ENUM_CURRENT_SETTINGS, &dm);
 			return { (LONG)dm.dmPelsWidth, (LONG)dm.dmPelsHeight };
 		}
@@ -38,7 +39,7 @@ namespace CG
 
 		static float screenZoomRote() {
 			HMONITOR hmt = MonitorFromWindow(nullptr, MONITOR_DEFAULTTOPRIMARY);
-			MONITORINFOEXW mti = { sizeof(MONITORINFOEXW) }; GetMonitorInfoW(hmt, &mti);
+			MONITORINFOEXW mti = {}; mti.cbSize = sizeof(MONITORINFOEXW); GetMonitorInfoW(hmt, &mti);
 			DEVMODEW dm = { sizeof(DEVMODEW) }; EnumDisplaySettingsW(mti.szDevice, ENUM_CURRENT_SETTINGS, &dm);
 			return (float)(dm.dmPelsHeight) / (float)(mti.rcMonitor.bottom - mti.rcMonitor.top);
 		}
