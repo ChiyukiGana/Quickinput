@@ -217,7 +217,7 @@ private slots:
 		int p = ui.tbActions->currentRow(); if (p < 0) return;
 		EditParam ep;
 		ep.macro = &macros->at(p);
-		ep.actions = &macros->at(p).actions;
+		ep.actions = &macros->at(p).acRun;
 		ep.child = false;
 		EditUi edit(ep);
 		edit.setWindowTitle(u8"编辑 - " + QString::fromWCharArray(macros->at(p).name.c_str()));

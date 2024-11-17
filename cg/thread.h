@@ -51,11 +51,11 @@ namespace CG {
 		static BOOL Close(HANDLE hThread, DWORD exitCode = 0) { if (hThread) return TerminateThread(hThread, exitCode); return TRUE; }
 
 		// return: exitCode
-		static DWORD Wait(HANDLE hThread, bool zero = 1) {
+		static DWORD Wait(HANDLE hThread, bool resetHandle = true) {
 			DWORD exitCode;
 			WaitForSingleObject(hThread, INFINITE);
 			GetExitCodeThread(hThread, &exitCode);
-			if (zero) hThread = 0;
+			if (resetHandle) hThread = nullptr;
 			return exitCode;
 		}
 	};
