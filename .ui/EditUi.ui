@@ -74,7 +74,7 @@
 #title{background-color:white;}
 
 QCheckBox::indicator{background-color:#ADE;width:20px;height:20px;border-radius:10px;}
-QCheckBox::indicator:checked{background-color:#888;}
+QCheckBox::indicator:checked{background-color:#ADE;image:url(:/checked.png);border-radius:10px;}
 
 QLineEdit{background-color:white;border:none;font-size:12px;}</string>
      </property>
@@ -396,10 +396,10 @@ QPushButton:hover{background-color:#C00;}</string>
 #widget{background-color:#CEF;}
 
 QRadioButton::indicator{background-color:white;width:20px;height:20px;}
-QRadioButton::indicator:checked{background-color:#888;}
+QRadioButton::indicator:checked{background-color:white;image:url(:/checked.png);}
 
 QCheckBox::indicator{background-color:white;width:20px;height:20px;}
-QCheckBox::indicator:checked{background-color:#888;}
+QCheckBox::indicator:checked{background-color:#888;image:url(:/checked.png);}
 
 QLineEdit{background-color:white;border:none;}</string>
      </property>
@@ -2054,7 +2054,7 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
             </property>
             <property name="text">
              <string>位置：鼠标拖动，上移Shift　↑，下移Shift　↓
-多选：Shift　A，按住Ctrl或Shift点击项目
+多选：Ctrl　A，按住Ctrl或Shift点击项目
 复制：Ctrl　C，Ctrl　V，Ctrl　X
 删除：Shift　←
 修改：双击项目</string>
@@ -2776,7 +2776,7 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
             </property>
             <property name="text">
              <string>位置：鼠标拖动，上移Shift　↑，下移Shift　↓
-多选：Shift　A，按住Ctrl或Shift点击项目
+多选：Ctrl　A，按住Ctrl或Shift点击项目
 复制：Ctrl　C，Ctrl　V，Ctrl　X
 删除：Shift　←
 修改：双击项目</string>
@@ -2965,7 +2965,7 @@ QPushButton:hover{background-color: #C0E2F2;}</string>
             </property>
             <property name="text">
              <string>位置：鼠标拖动，上移Shift　↑，下移Shift　↓
-多选：Shift　A，按住Ctrl或Shift点击项目
+多选：Ctrl　A，按住Ctrl或Shift点击项目
 复制：Ctrl　C，Ctrl　V，Ctrl　X
 删除：Shift　←
 修改：双击项目</string>

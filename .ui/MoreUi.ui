@@ -398,7 +398,7 @@ QPushButton:hover{background-color:#C00;}</string>
       <string notr="true">padding-top:12px;padding-bottom:5px;font-size:14px;</string>
      </property>
      <property name="text">
-      <string>修改日志</string>
+      <string>更新记录</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -437,7 +437,7 @@ QPushButton:hover{background-color:#C00;}</string>
         <x>0</x>
         <y>0</y>
         <width>776</width>
-        <height>3317</height>
+        <height>3436</height>
        </rect>
       </property>
       <property name="styleSheet">
@@ -479,7 +479,14 @@ QPushButton:hover{background-color:#C00;}</string>
           <string notr="true">font-size:12px;</string>
          </property>
          <property name="text">
-          <string>2024-3-23
+          <string>2024-4-11
+ㅤㅤ1：增加编辑列表的右键菜单
+
+2024-4-7
+ㅤㅤ1：UI（选框不清楚是否勾选）
+ㅤㅤ2：优化性能
+
+2024-3-23
 ㅤㅤ1：增加多选，可用于删除和复制
 ㅤㅤ2：增加在临时文件夹运行时自动提示安装
 

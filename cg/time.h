@@ -48,7 +48,7 @@ namespace CG
 			tm tf;
 			localtime_s(&tf, &t);
 
-			DATETIME dt;
+			DATETIME dt = {};
 			dt.year = tf.tm_year + 1900;
 			dt.mon = tf.tm_mon + 1;
 			dt.day = tf.tm_mday;

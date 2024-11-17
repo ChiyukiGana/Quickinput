@@ -23,6 +23,7 @@ public:
 		setMaximumSize(QSize(16777215, 24));
 		setWindowFlags(Qt::FramelessWindowHint);
 		setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+		setFocusPolicy(Qt::ClickFocus);
 
 		vBox = new QVBoxLayout(this);
 		vBox->setMargin(0);

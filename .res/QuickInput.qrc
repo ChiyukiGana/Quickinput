@@ -2,5 +2,6 @@
     <qresource prefix="/">
         <file>icon.png</file>
         <file>about.png</file>
+        <file>checked.png</file>
     </qresource>
 </RCC>

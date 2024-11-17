@@ -280,7 +280,7 @@ InputHookProc()
 	BYTE key = Input::Convert(vk);
 	if (*exInfo == 214) // from Quick input
 	{
-		*exInfo = 0; // clear ex info
+		*exInfo = 0; // remove ex info
 		return false;
 	}
 	else if (key) // other input
@@ -336,18 +336,23 @@ void Install()
 // if QuickInput.json is not found
 void WriteDefaultMacro()
 {
-	std::wstring click = LR"({"documen_ charset":"UTF8","wndState":false,"wndChild":false,"wndName":"","wndClass":"","state":false,"block":true,"mode":0,"key":1,"count":0,"actions":[{"mark":"","type":3,"state":1,"vk":1},{"mark":"范围30~70","type":2,"ms":50,"ex":20},{"mark":"","type":3,"state":0,"vk":1},{"mark":"50-20~50+20","type":2,"ms":50,"ex":20}],"actionsEnding":[{"mark":"","type":3,"state":0,"vk":1}]})";
-	std::wstring state = LR"({"documen_ charset":"UTF8","wndState":false,"wndChild":false,"wndName":"","wndClass":"","state":false,"block":true,"mode":0,"key":1,"count":0,"actions":[{"mark":"","type":3,"state":1,"vk":1},{"mark":"","type":7,"count":0,"rand":0,"next":[{"mark":"","type":2,"ms":100,"ex":0}]}],"actionsEnding":[{"mark":"","type":3,"state":0,"vk":1}]})";
-	std::wstring pullDown = LR"({"documen_ charset":"UTF8","wndState":false,"wndChild":false,"wndName":"","wndClass":"","state":false,"block":false,"mode":1,"key":1,"count":0,"actions":[{"mark":"速度","type":4,"move":true,"x":0,"y":10,"ex":0},{"mark":"精度","type":2,"ms":10,"ex":0}]})";
-	std::wstring message = LR"({"documen_ charset":"UTF8","wndState":false,"wndChild":false,"wndName":"","wndClass":"","state":false,"block":true,"mode":1,"key":17,"count":0,"actions":[{"mark":"复制到剪贴板","type":5,"text":"这些文本将复制到剪贴板，之后通过Ctrl + V粘贴到对应位置。"},{"mark":"","type":3,"state":1,"vk":17},{"mark":"粘贴","type":3,"state":2,"vk":86},{"mark":"","type":3,"state":0,"vk":17},{"mark":"回车发送","type":3,"state":2,"vk":13},{"mark":"","type":2,"ms":200,"ex":0}]})";
-	std::wstring window = LR"({"documen_ charset":"UTF8","wndState":true,"wndChild":false,"wndName":"","wndClass":"","state":false,"block":false,"mode":1,"key":16,"count":1,"actions":[{"mark":"","type":4,"move":false,"x":9900,"y":100,"ex":0},{"mark":"","type":3,"state":2,"vk":1},{"mark":"","type":2,"ms":100,"ex":0},{"mark":"","type":1},{"mark":"","type":5,"text":"*以下为说明，实际效果为前两行"},{"mark":"","type":5,"text":"测试使用浏览器，后台点击右上角关闭"},{"mark":"","type":5,"text":"1：点击标题栏右侧的+选择你的浏览器"},{"mark":"","type":5,"text":"2：点击第一行[位置]，如果准心在浏览器关闭处即可"},{"mark":"","type":5,"text":"2.1：如果不是，请双击[位置]并重新选择"},{"mark":"","type":5,"text":"3：关闭此窗口，之后按触发键（Shift）来测试"}]})";
-	if (File::FileState(L"QuickInput.json")) return;
-	File::FolderCreate(L"macro");
-	File::TextSave(L"macro\\连点.json", click);
-	File::TextSave(L"macro\\长按.json", state);
-	File::TextSave(L"macro\\压枪.json", pullDown);
-	File::TextSave(L"macro\\消息.json", message);
-	File::TextSave(L"macro\\后台.json", window);
+	if (!File::FileState(L"QuickInput.json"))
+	{
+		std::wstring json = LR"({"document_charset":"UTF8","defOn":true,"key":119,"recKey":119,"showTips":true,"audFx":false,"minMode":false,"zoomBlock":false,"quickClickKey":1,"quickClickState":false,"quickClickDelay":200,"quickClickMode":0,"showClockKey":18,"showClockState":false,"wndActiveState":false,"wndActiveName":""})";
+		File::TextSave(L"QuickInput.json", json);
+		
+		std::wstring click = LR"({"documen_ charset":"UTF8","wndState":false,"wndChild":false,"wndName":"","wndClass":"","state":false,"block":true,"mode":0,"key":1,"count":0,"actions":[{"mark":"","type":3,"state":1,"vk":1},{"mark":"范围30~70","type":2,"ms":50,"ex":20},{"mark":"","type":3,"state":0,"vk":1},{"mark":"50-20~50+20","type":2,"ms":50,"ex":20}],"actionsEnding":[{"mark":"","type":3,"state":0,"vk":1}]})";
+		std::wstring state = LR"({"documen_ charset":"UTF8","wndState":false,"wndChild":false,"wndName":"","wndClass":"","state":false,"block":true,"mode":0,"key":1,"count":0,"actions":[{"mark":"","type":3,"state":1,"vk":1},{"mark":"","type":7,"count":0,"rand":0,"next":[{"mark":"","type":2,"ms":100,"ex":0}]}],"actionsEnding":[{"mark":"","type":3,"state":0,"vk":1}]})";
+		std::wstring pullDown = LR"({"documen_ charset":"UTF8","wndState":false,"wndChild":false,"wndName":"","wndClass":"","state":false,"block":false,"mode":1,"key":1,"count":0,"actions":[{"mark":"速度","type":4,"move":true,"x":0,"y":10,"ex":0},{"mark":"精度","type":2,"ms":10,"ex":0}]})";
+		std::wstring message = LR"({"documen_ charset":"UTF8","wndState":false,"wndChild":false,"wndName":"","wndClass":"","state":false,"block":true,"mode":1,"key":17,"count":0,"actions":[{"mark":"复制到剪贴板","type":5,"text":"这些文本将复制到剪贴板，之后通过Ctrl + V粘贴到对应位置。"},{"mark":"","type":3,"state":1,"vk":17},{"mark":"粘贴","type":3,"state":2,"vk":86},{"mark":"","type":3,"state":0,"vk":17},{"mark":"回车发送","type":3,"state":2,"vk":13},{"mark":"","type":2,"ms":200,"ex":0}]})";
+		std::wstring window = LR"({"documen_ charset":"UTF8","wndState":true,"wndChild":false,"wndName":"","wndClass":"","state":false,"block":false,"mode":1,"key":16,"count":1,"actions":[{"mark":"","type":4,"move":false,"x":9900,"y":100,"ex":0},{"mark":"","type":3,"state":2,"vk":1},{"mark":"","type":2,"ms":100,"ex":0},{"mark":"","type":1},{"mark":"","type":5,"text":"*以下为说明，实际效果为前两行"},{"mark":"","type":5,"text":"测试使用浏览器，后台点击右上角关闭"},{"mark":"","type":5,"text":"1：点击标题栏右侧的+选择你的浏览器"},{"mark":"","type":5,"text":"2：点击第一行[位置]，如果准心在浏览器关闭处即可"},{"mark":"","type":5,"text":"2.1：如果不是，请双击[位置]并重新选择"},{"mark":"","type":5,"text":"3：关闭此窗口，之后按触发键（Shift）来测试"}]})";
+		File::FolderCreate(L"macro");
+		File::TextSave(L"macro\\连点.json", click);
+		File::TextSave(L"macro\\长按.json", state);
+		File::TextSave(L"macro\\压枪.json", pullDown);
+		File::TextSave(L"macro\\消息.json", message);
+		File::TextSave(L"macro\\后台.json", window);
+	}
 }
 
 int main(int argc, char* argv[])
@@ -359,22 +364,19 @@ int main(int argc, char* argv[])
 
 	std::locale::global(std::locale(".UTF8")); // set utf8 for all streams
 	Process::RunPath(); // reset work path to exe path
-	timeBeginPeriod(1); // set clock accuracy, default is 16ms: sleep(1) = sleep(16)
 
 	// mutex
 	std::wstring mutex = Path::PathToUrl(Process::runPath()); // convert '\' to '/' to support  mutex name
 	if (Process::isRunning(mutex.c_str())) { MsgBox::Warning(L"当前文件夹的程序已经运行，若运行更多程序请复制此文件夹", L"提示"); return 0; }
 	CreateMutexW(0, 0, mutex.c_str()); // create mutex if this Quick input is not running
 
-	// load config >> init zoom >> qapplication >> start
+	// write default >> load config >> init zoom >> qapplication >> start
 
-	LoadJson(); // #1
-	InitUI(!Global::qi.set.zoomBlock); // #2
-	QApplication app(argc, argv); // #3
-	app.setFont(QFont("Microsoft YaHei")); // default font
-
-	Install();
-	WriteDefaultMacro();
+	WriteDefaultMacro(); // #1
+	LoadJson(); // #2
+	InitUI(!Global::qi.set.zoomBlock); // #3
+	QApplication app(argc, argv); app.setFont(QFont("Microsoft YaHei")); // #4
+	Install(); // #5
 
 	Thread::Start(TipsWindow::TipsWindowThread);
 
@@ -387,6 +389,5 @@ int main(int argc, char* argv[])
 	else wnd.show();
 	app.exec();
 
-	timeEndPeriod(1); // reset clock accuracy
 	return 0;
 }

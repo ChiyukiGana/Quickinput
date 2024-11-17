@@ -2,7 +2,7 @@
 #include <QString>
 #include <QFont>
 #include <QWidget>
-#include "D:/#CGDATA/Code/cg/cg.h"
+#include "../cg/cg.h"
 
 #define _NDEBUG
 

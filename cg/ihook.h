@@ -8,65 +8,6 @@
 
 class InputHook
 {
-public:
-	typedef unsigned __int8 HookType;
-
-	enum HookTypes
-	{
-		none = (unsigned __int8)0,
-		mouse = (unsigned __int8)1,
-		keybd = (unsigned __int8)2,
-		all = mouse | keybd
-	};
-
-	static void BlockRep(bool blockRep = true)
-	{
-		p.blockRep = blockRep;
-	}
-
-	static bool Start(HookType flags = HookTypes::all, bool blockRep = false)
-	{
-		if (!p.thread)
-		{
-			p.thread = CreateThread(0, 0, HookThread, 0, 0, 0);
-			if (p.thread)
-			{
-				while (!p.createFlag) Sleep(0);
-				if (p.mouse && p.keybd);
-				else return false;
-			}
-			else return false;
-		}
-
-		BlockRep(blockRep);
-		memset(p.keys, 0, sizeof(p.keys));
-		p.mouseState = (flags & mouse);
-		p.keybdState = (flags & keybd);
-		return true;
-	}
-
-	static void Stop(HookType flags = HookTypes::all)
-	{
-		p.mouseState = !(flags & mouse);
-		p.keybdState = !(flags & keybd);
-		memset(p.keys, 0, sizeof(p.keys));
-	}
-
-	static void Close()
-	{
-		if (p.thread)
-		{
-			TerminateThread(p.thread, 0);
-			p = {};
-		}
-	}
-
-	static void Wait()
-	{
-		if (!p.thread) return;
-		WaitForSingleObject(p.thread, INFINITE);
-	}
-
 	struct Param
 	{
 		HANDLE thread = 0;
@@ -80,8 +21,6 @@ public:
 	};
 
 	static Param p;
-
-private:
 
 	//return false: call next hook, return true: block
 	static bool CALLBACK InputProc(BYTE vk, bool state, POINT msPt, PULONG_PTR exInfo);
@@ -181,5 +120,76 @@ private:
 		p.createFlag = true;
 		MSG msg; while (GetMessageW(&msg, 0, WM_KEYFIRST, WM_MOUSELAST)) DispatchMessageW(&msg);
 		return 0;
+	}
+
+
+public:
+	typedef unsigned __int8 HookType;
+
+	enum HookTypes
+	{
+		none = (unsigned __int8)0,
+		mouse = (unsigned __int8)1,
+		keybd = (unsigned __int8)2,
+		all = mouse | keybd
+	};
+
+	static void BlockRep(bool blockRep = true)
+	{
+		p.blockRep = blockRep;
+	}
+
+	static bool IsRunning()
+	{
+		return p.thread;
+	}
+
+	static bool State()
+	{
+		if (p.thread && (p.mouseState || p.keybdState)) return true;
+		return false;
+	}
+
+	static bool Start(HookType flags = HookTypes::all, bool blockRep = false)
+	{
+		if (!p.thread)
+		{
+			p.thread = CreateThread(0, 0, HookThread, 0, 0, 0);
+			if (p.thread)
+			{
+				while (!p.createFlag) Sleep(0);
+				if (p.mouse && p.keybd);
+				else return false;
+			}
+			else return false;
+		}
+
+		BlockRep(blockRep);
+		memset(p.keys, 0, sizeof(p.keys));
+		p.mouseState = (flags & mouse);
+		p.keybdState = (flags & keybd);
+		return true;
+	}
+
+	static void Stop(HookType flags = HookTypes::all)
+	{
+		p.mouseState = !(flags & mouse);
+		p.keybdState = !(flags & keybd);
+		memset(p.keys, 0, sizeof(p.keys));
+	}
+
+	static void Close()
+	{
+		if (p.thread)
+		{
+			TerminateThread(p.thread, 0);
+			p = {};
+		}
+	}
+
+	static void Wait()
+	{
+		if (!p.thread) return;
+		WaitForSingleObject(p.thread, INFINITE);
 	}
 };
