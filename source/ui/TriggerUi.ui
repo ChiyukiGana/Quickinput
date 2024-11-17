@@ -432,7 +432,7 @@
   <customwidget>
    <class>QKeyEdit</class>
    <extends>QLineEdit</extends>
-   <header>./source/ui/widget/qkeyedit.h</header>
+   <header>qkeyedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

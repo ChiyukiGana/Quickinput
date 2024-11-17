@@ -19,29 +19,29 @@ public:
 	}
 	void StyleGroup()
 	{
-		setProperty("group", QVariant(QString::fromUtf8("frame")));
-		ui.titleWidget->setProperty("group", QVariant(QString::fromUtf8("title")));
-		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
-		ui.bnClose->setProperty("group", QVariant(QString::fromUtf8("title-close_button")));
-		ui.tabWidget->setProperty("group", QVariant(QString::fromUtf8("tab_widget")));
-		ui.tabWidget->tabBar()->setProperty("group", QVariant(QString::fromUtf8("tab_widget_bar")));
-		ui.toolBox->setProperty("group", QVariant(QString::fromUtf8("ltab_widget")));
+		setProperty("group", "frame");
+		ui.titleWidget->setProperty("group", "title");
+		ui.clientWidget->setProperty("group", "client");
+		ui.bnClose->setProperty("group", "title-close_button");
+		ui.tabWidget->setProperty("group", "tab_widget");
+		ui.tabWidget->tabBar()->setProperty("group", "tab_widget_bar");
+		ui.toolBox->setProperty("group", "ltab_widget");
 	}
 private:
 	bool event(QEvent* e)
 	{
 		if (e->type() == QEvent::WindowActivate)
 		{
-			qis.widget.moreActive = true;
-			if (qis.state) QiFn::QiState(false);
+			Qi::widget.moreActive = true;
+			if (Qi::state) QiFn::QiState(false);
 			QiFn::QiHook(false);
 		}
 		else if (e->type() == QEvent::WindowDeactivate)
 		{
-			qis.widget.moreActive = false;
+			Qi::widget.moreActive = false;
 			if (QiFn::SelfActive())
 			{
-				if (qis.set.defOn) QiFn::QiState(true);
+				if (Qi::set.defOn) QiFn::QiState(true);
 				QiFn::QiHook(true);
 			}
 		}

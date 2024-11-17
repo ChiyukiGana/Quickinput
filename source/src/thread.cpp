@@ -6,12 +6,12 @@ namespace QiThread
 	ThreadPool releaseKeyPool(1);
 	void _stdcall ReleaseKey(byte key)
 	{
-		Input::State(key, false, 214);
+		Input::State(key, false, key_info);
 	}
 
 	bool PeekExitMsg()
 	{
-		return PeekMessageW(&qis.msg, 0, msg_exit, msg_exit, PM_REMOVE);
+		return PeekMessageW(&Qi::msg, 0, msg_exit, msg_exit, PM_REMOVE);
 	}
 
 	DWORD _stdcall MacroRun(PVOID pParam)
@@ -49,7 +49,7 @@ namespace QiThread
 		POINT cursor;
 		GetCursorPos(&cursor);
 		uint32 count = 0;
-		while (qis.run && !PeekExitMsg())
+		while (Qi::run && !PeekExitMsg())
 		{
 			if (pMacro->count) { count++; if (count > pMacro->count) break; } // if count = 0 then while is infinite
 			for (uint32 i = 0; i < pMacro->acRun.size(); i++)
@@ -85,15 +85,15 @@ namespace QiThread
 	{
 		srand(clock());
 		size_t max, min;
-		if (qis.fun.quickClick.delay > 99) max = 70, min = 30;
-		else if (qis.fun.quickClick.delay > 1) max = (qis.fun.quickClick.delay >> 1) + (qis.fun.quickClick.delay >> 2), min = (qis.fun.quickClick.delay >> 1) - (qis.fun.quickClick.delay >> 2);
-		else if (qis.fun.quickClick.delay == 1) max = 1, min = 0;
+		if (Qi::fun.quickClick.delay > 99) max = 70, min = 30;
+		else if (Qi::fun.quickClick.delay > 1) max = (Qi::fun.quickClick.delay >> 1) + (Qi::fun.quickClick.delay >> 2), min = (Qi::fun.quickClick.delay >> 1) - (Qi::fun.quickClick.delay >> 2);
+		else if (Qi::fun.quickClick.delay == 1) max = 1, min = 0;
 		else max = 0, min = 0;
-		while (qis.run && !PeekExitMsg())
+		while (Qi::run && !PeekExitMsg())
 		{
-			Input::State(qis.fun.quickClick.key, true, 214);
+			Input::State(Qi::fun.quickClick.key, true, key_info);
 			Thread::Sleep(Rand(max, min));
-			Input::State(qis.fun.quickClick.key, false, 214);
+			Input::State(Qi::fun.quickClick.key, false, key_info);
 			Thread::Sleep(Rand(max, min));
 		}
 		return 0;
@@ -101,31 +101,31 @@ namespace QiThread
 	
 	DWORD _stdcall WindowState(PVOID)
 	{
-		while (qis.state)
+		while (Qi::state)
 		{
-			qis.fun.wndActive.wi.wnd = FindWindowW(0, qis.fun.wndActive.wi.wndName.c_str());
-			if (qis.fun.wndActive.wi.wnd)
+			Qi::fun.wndActive.wi.wnd = FindWindowW(0, Qi::fun.wndActive.wi.wndName.c_str());
+			if (Qi::fun.wndActive.wi.wnd)
 			{
-				bool active = (GetForegroundWindow() == qis.fun.wndActive.wi.wnd);
-				if (!qis.run && active)
+				bool active = (GetForegroundWindow() == Qi::fun.wndActive.wi.wnd);
+				if (!Qi::run && active)
 				{
-					qis.run = true;
-					if (qis.set.showTips) QiFn::WindowPop(qis.fun.wndActive.wi.wndName, true);
+					Qi::run = true;
+					if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wi.wndName, true);
 				}
-				else if (qis.run && !active)
+				else if (Qi::run && !active)
 				{
-					qis.run = false;
-					if (qis.set.showTips) QiFn::WindowPop(qis.fun.wndActive.wi.wndName, false);
+					Qi::run = false;
+					if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wi.wndName, false);
 				}
 			}
-			else if (qis.run)
+			else if (Qi::run)
 			{
-				qis.run = false;
-				if (qis.set.showTips) QiFn::WindowPop(qis.fun.wndActive.wi.wndName, false);
+				Qi::run = false;
+				if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wi.wndName, false);
 			}
 			Thread::Sleep(100);
 		}
-		qis.fun.wndActive.thread = 0;
+		Qi::fun.wndActive.thread = 0;
 		return 0;
 	}
 
@@ -139,11 +139,11 @@ namespace QiThread
 	}
 	void StartQuickClick()
 	{
-		qis.fun.quickClick.thread = Thread::Start(QuickClick, nullptr);
+		Qi::fun.quickClick.thread = Thread::Start(QuickClick, nullptr);
 	}
 	void StartWindowState()
 	{
-		qis.fun.wndActive.thread = Thread::Start(WindowState, nullptr);
+		Qi::fun.wndActive.thread = Thread::Start(WindowState, nullptr);
 	}
 
 	void ExitMacroRun(Macro* pMacro)
@@ -158,13 +158,13 @@ namespace QiThread
 	}
 	void ExitQuickClick()
 	{
-		PostThreadMessageW(GetThreadId(qis.fun.quickClick.thread), msg_exit, 0, 0);
-		qis.fun.quickClick.thread = nullptr;
+		PostThreadMessageW(GetThreadId(Qi::fun.quickClick.thread), msg_exit, 0, 0);
+		Qi::fun.quickClick.thread = nullptr;
 	}
 	void ExitWindowState()
 	{
-		PostThreadMessageW(GetThreadId(qis.fun.wndActive.thread), msg_exit, 0, 0);
-		qis.fun.wndActive.thread = nullptr;
+		PostThreadMessageW(GetThreadId(Qi::fun.wndActive.thread), msg_exit, 0, 0);
+		Qi::fun.wndActive.thread = nullptr;
 	}
 
 	bool MacroRunActive(Macro* pMacro)
@@ -187,18 +187,18 @@ namespace QiThread
 	}
 	bool QuickClickActive()
 	{
-		if (qis.fun.quickClick.thread)
+		if (Qi::fun.quickClick.thread)
 		{
-			DWORD ecode; GetExitCodeThread(qis.fun.quickClick.thread, &ecode);
+			DWORD ecode; GetExitCodeThread(Qi::fun.quickClick.thread, &ecode);
 			if (ecode == STILL_ACTIVE) return true;
 		}
 		return false;
 	}
 	bool WindowStateActive()
 	{
-		if (qis.fun.wndActive.thread)
+		if (Qi::fun.wndActive.thread)
 		{
-			DWORD ecode; GetExitCodeThread(qis.fun.wndActive.thread, &ecode);
+			DWORD ecode; GetExitCodeThread(Qi::fun.wndActive.thread, &ecode);
 			if (ecode == STILL_ACTIVE) return true;
 		}
 		return false;

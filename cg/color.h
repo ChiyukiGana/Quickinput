@@ -50,7 +50,7 @@ namespace CG {
 	template<class T>
 	class XMap
 	{
-		T* _map = 0;
+		T* _map = nullptr;
 		uint32 _positon = 0;
 		uint32 _width = 0;
 		uint32 _height = 0;
@@ -58,10 +58,13 @@ namespace CG {
 	public:
 		XMap() { }
 		XMap(const XMap& xMap) { copy(xMap); }
+		XMap(XMap&& xMap_r) { move(std::move(xMap_r)); }
 		XMap(uint32 width, uint32 height) { create(width, height); }
 		~XMap() { release(); }
 
 		void operator=(const XMap& xMap) { copy(xMap); }
+		void operator=(XMap&& xMap_r) { move(std::move(xMap_r)); }
+
 		T* operator[](uint32 row) { return _map + (_width * row); }
 		const T* operator[](uint32 row) const { return _map + (_width * row); }
 
@@ -80,7 +83,8 @@ namespace CG {
 		uint32 height() const { return _height; }
 		uint32 count() const { return _count; }
 		uint32 bytes() const { return (_count * sizeof(T)); }
-		void create(uint32 width = 1, uint32 height = 1) { if (width != _width || _height != height) { release(); if (width && height) { _width = width; _height = height; _count = width * height; _map = new T[_count]; } } }
+		void create(uint32 width, uint32 height) { if (width != _width || _height != height) { release(); if (width && height) { _width = width; _height = height; _count = width * height; _map = new T[_count]; } } }
+		void move(XMap&& xMap_r) { release(); _map = xMap_r._map; _positon = xMap_r._positon; _width = xMap_r._width; _height = xMap_r._height; _count = xMap_r._count; xMap_r._map = nullptr; }
 		void copy(const XMap& xMap) { release(); create(xMap._width, xMap._height); memcpy_s(_map, bytes(), xMap._map, xMap.bytes()); }
 		void copy_s(const XMap& xMap) { release(); create(xMap._width, xMap._height); for (uint32 u = 0; u < _count; u++) _map[u] = xMap._map[u]; }
 		void fill(const T& point) { for (uint32 u = 0; u < (_count); u++) _map[u] = point; }
@@ -97,7 +101,7 @@ namespace CG {
 		struct FindResult { bool find = 0; POINT pt = { 0 }; };
 
 		static bool Equal(const Rgb& rgb1, const Rgb& rgb2, byte extend) { return (InRange(rgb1.r, rgb2.r, extend) && InRange(rgb1.g, rgb2.g, extend) && InRange(rgb1.b, rgb2.b, extend)); }
-		static bool Equal(const Rgb& rgba1, const Rgb& min, const Rgb& max) { return (InRange(rgba1.r, min.r, max.r, 0) && InRange(rgba1.g, min.g, max.g, 0) && InRange(rgba1.b, min.b, max.b, 0)); 		}
+		static bool Equal(const Rgb& rgba1, const Rgb& min, const Rgb& max) { return (InRange(rgba1.r, min.r, max.r, 0) && InRange(rgba1.g, min.g, max.g, 0) && InRange(rgba1.b, min.b, max.b, 0)); }
 		static bool Equal(const Rgba& rgb1, const Rgba& rgba2, byte extend) { return (InRange(rgb1.r, rgba2.r, extend) && InRange(rgb1.g, rgba2.g, extend) && InRange(rgb1.b, rgba2.b, extend)); }
 		static bool Equal(const Rgba& rgba1, const Rgba& min, const Rgba& max) { return (InRange(rgba1.r, min.r, max.r, 0) && InRange(rgba1.g, min.g, max.g, 0) && InRange(rgba1.b, min.b, max.b, 0)); }
 		static bool Equal(COLORREF rgb, COLORREF refer, byte extend) { return (InRange(GetRValue(rgb), GetRValue(refer), extend) && InRange(GetGValue(rgb), GetGValue(refer), extend) && InRange(GetBValue(rgb), GetBValue(refer), extend)); }

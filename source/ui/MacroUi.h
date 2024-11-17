@@ -11,7 +11,7 @@ class MacroUi : public QWidget
 {
 	Q_OBJECT;
 	Ui::MacroUiClass ui;
-	Macros* macros = &qis.macros;
+	Macros* macros = &Qi::macros;
 	QTimer* timer = nullptr;
 public:
 	MacroUi(QWidget* parent) : QWidget(parent)
@@ -24,21 +24,21 @@ public:
 	}
 	void StyleGroup()
 	{
-		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
-		ui.bnRec->setProperty("group", QVariant(QString::fromUtf8("macro-button")));
-		ui.bnWndRec->setProperty("group", QVariant(QString::fromUtf8("macro-button")));
-		ui.bnAdd->setProperty("group", QVariant(QString::fromUtf8("macro-button")));
-		ui.bnEdit->setProperty("group", QVariant(QString::fromUtf8("macro-button")));
-		ui.bnExp->setProperty("group", QVariant(QString::fromUtf8("macro-button")));
-		ui.bnImp->setProperty("group", QVariant(QString::fromUtf8("macro-button")));
-		ui.bnLoad->setProperty("group", QVariant(QString::fromUtf8("macro-button")));
-		ui.bnDel->setProperty("group", QVariant(QString::fromUtf8("macro-button")));
+		ui.clientWidget->setProperty("group", "client");
+		ui.bnRec->setProperty("group", "macro-button");
+		ui.bnWndRec->setProperty("group", "macro-button");
+		ui.bnAdd->setProperty("group", "macro-button");
+		ui.bnEdit->setProperty("group", "macro-button");
+		ui.bnExp->setProperty("group", "macro-button");
+		ui.bnImp->setProperty("group", "macro-button");
+		ui.bnLoad->setProperty("group", "macro-button");
+		ui.bnDel->setProperty("group", "macro-button");
 
-		ui.etName->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etName->setProperty("group", "line_edit");
 
-		ui.tbActions->setProperty("group", QVariant(QString::fromUtf8("table")));
-		ui.tbActions->horizontalHeader()->setProperty("group", QVariant(QString::fromUtf8("table_header")));
-		ui.tbActions->verticalHeader()->setProperty("group", QVariant(QString::fromUtf8("table_header")));
+		ui.tbActions->setProperty("group", "table");
+		ui.tbActions->horizontalHeader()->setProperty("group", "table_header");
+		ui.tbActions->verticalHeader()->setProperty("group", "table_header");
 		for (size_t i = 0; i < ui.tbActions->children().size(); i++)
 		{
 			if (!String::Compare(ui.tbActions->children().at(i)->metaObject()->className(), "QTableCornerButton"))
@@ -48,7 +48,7 @@ public:
 				box->setMargin(0);
 				QWidget* widget = new QWidget(corner);
 				box->addWidget(widget);
-				widget->setProperty("group", QVariant(QString::fromUtf8("table_header")));
+				widget->setProperty("group", "table_header");
 				break;
 			}
 		}
@@ -112,13 +112,11 @@ private:
 			ui.tbActions->setItem(i, 0, new QTableWidgetItem(QString::fromWCharArray(macros->at(i).name.c_str())));
 			ui.tbActions->item(i, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		}
-
-		ui.tbActions->setStyleSheet("QHeaderView::section,QScrollBar{background:transparent}");
 	}
 	void RecStart(bool wnd)
 	{
-		qis.widget.dialogActive = true;
-		qis.widget.main->hide();
+		Qi::widget.dialogActive = true;
+		Qi::widget.main->hide();
 		WndInfo wi;
 		if (wnd)
 		{
@@ -126,7 +124,7 @@ private:
 			if (!wi.wnd)
 			{
 				
-				qis.popText->Popup("窗口已失效", RGB(255, 64, 64), 2000);
+				Qi::popText->Popup("窗口已失效", RGB(255, 64, 64), 2000);
 				return;
 			}
 		}
@@ -134,8 +132,8 @@ private:
 		if (wi.wnd) RecordUi rw(&wi);
 		else RecordUi rw(nullptr);
 
-		qis.widget.dialogActive = false;
-		qis.widget.main->show();
+		Qi::widget.dialogActive = false;
+		Qi::widget.main->show();
 	}
 	void showEvent(QShowEvent*)
 	{
@@ -221,7 +219,7 @@ private Q_SLOTS:
 		macro.count = 1;
 		macro.name = QiFn::AllocName(L"宏");
 
-		qis.macros.Add(macro);
+		Qi::macros.Add(macro);
 		QiJson::SaveMacro(macro);
 		TableUpdate();
 		ResetControl();
@@ -237,11 +235,11 @@ private Q_SLOTS:
 		EditUi edit(ep);
 		edit.setWindowTitle("编辑 - " + QString::fromWCharArray(macros->at(p).name.c_str()));
 
-		qis.widget.dialogActive = true;
-		qis.widget.main->hide();
+		Qi::widget.dialogActive = true;
+		Qi::widget.main->hide();
 		edit.exec();
-		qis.widget.main->show();
-		qis.widget.dialogActive = false;
+		Qi::widget.main->show();
+		Qi::widget.dialogActive = false;
 
 		QiJson::SaveMacro(macros->at(p));
 		ResetControl();
@@ -251,9 +249,9 @@ private Q_SLOTS:
 	{
 		int p = ui.tbActions->currentRow();
 		if (p < 0) return;
-		qis.widget.dialogActive = true;
+		Qi::widget.dialogActive = true;
 		QString path = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, "导出", QString::fromWCharArray((macros->at(p).name + macroType).c_str()), "Quick input macro (*.json)"));
-		qis.widget.dialogActive = false;
+		Qi::widget.dialogActive = false;
 		if (path.size())
 		{
 			CopyFileW((macroPath + macros->at(p).name + macroType).c_str(), (wchar_t*)path.utf16(), 0);
@@ -263,9 +261,9 @@ private Q_SLOTS:
 	}
 	void OnBnImp()
 	{
-		qis.widget.dialogActive = true;
+		Qi::widget.dialogActive = true;
 		QString path = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "导入", QString(), "Quick input macro (*.json)"));
-		qis.widget.dialogActive = false;
+		Qi::widget.dialogActive = false;
 		if (path.size())
 		{
 			std::wstring file = (wchar_t*)path.utf16();

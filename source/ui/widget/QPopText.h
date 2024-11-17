@@ -1,7 +1,7 @@
 ﻿#pragma execution_character_set("utf-8")
 #pragma once
 #include <qapplication.h>
-#include <qwidget.h>
+#include <qdialog.h>
 #include <qpainter.h>
 #include <qevent.h>
 #include <qtimer.h>
@@ -29,7 +29,7 @@ public:
 	int time() const { return _time; }
 };
 
-class QPopText : public QWidget
+class QPopText : public QDialog
 {
 	Q_OBJECT;
 	QPoint point;
@@ -40,7 +40,7 @@ class QPopText : public QWidget
 public:
 
 public:
-	QPopText() : QWidget()
+	QPopText() : QDialog()
 	{
 		point = QPoint(5000, 0);
 		color = QColor(0xC0, 0xE0, 0xFF);
@@ -48,8 +48,8 @@ public:
 		left = 0;
 		connect(timer, SIGNAL(timeout()), this, SLOT(OnTimer()));
 
-		setWindowFlags(Qt::FramelessWindowHint | Qt::Tool | Qt::WindowStaysOnTopHint);
-		setAttribute(Qt::WA_TranslucentBackground, true);
+		setAttribute(Qt::WA_TransparentForMouseEvents, true);
+		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setPosition(5000, 5000);
 		setWindowOpacity(0.0);
 		setStyleSheet("color:black");
@@ -59,18 +59,9 @@ public:
 	{
 		QApplication::postEvent(this, new PopTextEvent(QPoint(x, y)));
 	}
-	void Show(const QString& text, const QColor color = QColor(0xC0, 0xE0, 0xFF))
-	{
-		QApplication::postEvent(this, new PopTextEvent(PopTextEvent::show, text, color, 0));
-	}
-	void Popup(const QString& text, const QColor color = QColor(0xC0, 0xE0, 0xFF), int time = 1000)
-	{
-		QApplication::postEvent(this, new PopTextEvent(PopTextEvent::pop, text, color, time));
-	}
-	void Hide()
-	{
-		QApplication::postEvent(this, new PopTextEvent(PopTextEvent::hide));
-	}
+	void Show(const QString& text, const QColor color = QColor(0xC0, 0xE0, 0xFF)) { QApplication::postEvent(this, new PopTextEvent(PopTextEvent::show, text, color, 0)); }
+	void Popup(const QString& text, const QColor color = QColor(0xC0, 0xE0, 0xFF), int time = 1000) { QApplication::postEvent(this, new PopTextEvent(PopTextEvent::pop, text, color, time)); }
+	void Hide() { QApplication::postEvent(this, new PopTextEvent(PopTextEvent::hide)); }
 private:
 	void customEvent(QEvent* e)
 	{

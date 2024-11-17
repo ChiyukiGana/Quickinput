@@ -9,7 +9,7 @@ class PopsUi : public QDialog
 {
 	Q_OBJECT;
 	Ui::PopsUiClass ui;
-	SettingsData* sets = &qis.set;
+	SettingsData* sets = &Qi::set;
 public:
 	PopsUi() : QDialog()
 	{
@@ -117,40 +117,40 @@ private:
 	void SelectColor(PopTextInfo& p)
 	{
 		QColorDialog cd(p.c, this);
-		cd.setStyleSheet(qis.ui.dialogStyle);
+		cd.setStyleSheet(Qi::ui.dialogStyle);
 		cd.exec();
 		p.c = cd.currentColor();
 	}
 	void Update()
 	{
-		ui.etQE->setText(qis.ui.pop.qe.t);
-		ui.etQD->setText(qis.ui.pop.qd.t);
-		ui.etWE->setText(qis.ui.pop.we.t);
-		ui.etWD->setText(qis.ui.pop.wd.t);
-		ui.etQcE->setText(qis.ui.pop.qce.t);
-		ui.etQcD->setText(qis.ui.pop.qcd.t);
-		ui.etSwE->setText(qis.ui.pop.swe.t);
-		ui.etSwD->setText(qis.ui.pop.swd.t);
-		ui.etDwE->setText(qis.ui.pop.dwe.t);
-		ui.etDwD->setText(qis.ui.pop.dwd.t);
-		ui.etUpE->setText(qis.ui.pop.upe.t);
-		ui.etUpD->setText(qis.ui.pop.upd.t);
+		ui.etQE->setText(Qi::ui.pop.qe.t);
+		ui.etQD->setText(Qi::ui.pop.qd.t);
+		ui.etWE->setText(Qi::ui.pop.we.t);
+		ui.etWD->setText(Qi::ui.pop.wd.t);
+		ui.etQcE->setText(Qi::ui.pop.qce.t);
+		ui.etQcD->setText(Qi::ui.pop.qcd.t);
+		ui.etSwE->setText(Qi::ui.pop.swe.t);
+		ui.etSwD->setText(Qi::ui.pop.swd.t);
+		ui.etDwE->setText(Qi::ui.pop.dwe.t);
+		ui.etDwD->setText(Qi::ui.pop.dwd.t);
+		ui.etUpE->setText(Qi::ui.pop.upe.t);
+		ui.etUpD->setText(Qi::ui.pop.upd.t);
 
-		SetColor(qis.ui.pop.qe.c, ui.bnQE);
-		SetColor(qis.ui.pop.qd.c, ui.bnQD);
-		SetColor(qis.ui.pop.we.c, ui.bnWE);
-		SetColor(qis.ui.pop.wd.c, ui.bnWD);
-		SetColor(qis.ui.pop.qce.c, ui.bnQcE);
-		SetColor(qis.ui.pop.qcd.c, ui.bnQcD);
-		SetColor(qis.ui.pop.swe.c, ui.bnSwE);
-		SetColor(qis.ui.pop.swd.c, ui.bnSwD);
-		SetColor(qis.ui.pop.dwe.c, ui.bnDwE);
-		SetColor(qis.ui.pop.dwd.c, ui.bnDwD);
-		SetColor(qis.ui.pop.upe.c, ui.bnUpE);
-		SetColor(qis.ui.pop.upd.c, ui.bnUpD);
+		SetColor(Qi::ui.pop.qe.c, ui.bnQE);
+		SetColor(Qi::ui.pop.qd.c, ui.bnQD);
+		SetColor(Qi::ui.pop.we.c, ui.bnWE);
+		SetColor(Qi::ui.pop.wd.c, ui.bnWD);
+		SetColor(Qi::ui.pop.qce.c, ui.bnQcE);
+		SetColor(Qi::ui.pop.qcd.c, ui.bnQcD);
+		SetColor(Qi::ui.pop.swe.c, ui.bnSwE);
+		SetColor(Qi::ui.pop.swd.c, ui.bnSwD);
+		SetColor(Qi::ui.pop.dwe.c, ui.bnDwE);
+		SetColor(Qi::ui.pop.dwd.c, ui.bnDwD);
+		SetColor(Qi::ui.pop.upe.c, ui.bnUpE);
+		SetColor(Qi::ui.pop.upd.c, ui.bnUpD);
 
-		ui.sdLR->setValue(qis.ui.pop.p.x);
-		ui.sdTB->setValue(qis.ui.pop.p.y);
+		ui.sdLR->setValue(Qi::ui.pop.p.x);
+		ui.sdTB->setValue(Qi::ui.pop.p.y);
 	}
 	bool eventFilter(QObject* obj, QEvent* e)
 	{
@@ -160,27 +160,27 @@ private:
 			bool qs = false;
 			bool ws = false;
 			bool qc = false;
-			if (obj == ui.etQE) p = &qis.ui.pop.qe, qs = true;
-			else if (obj == ui.etQD) p = &qis.ui.pop.qd, qs = true;
-			else if (obj == ui.etWE) p = &qis.ui.pop.we, ws = true;
-			else if (obj == ui.etWD) p = &qis.ui.pop.wd, ws = true;
-			else if (obj == ui.etQcE) p = &qis.ui.pop.qce, qc = true;
-			else if (obj == ui.etQcD) p = &qis.ui.pop.qcd, qc = true;
-			else if (obj == ui.etSwE) p = &qis.ui.pop.swe;
-			else if (obj == ui.etSwD) p = &qis.ui.pop.swd;
-			else if (obj == ui.etDwE) p = &qis.ui.pop.dwe;
-			else if (obj == ui.etDwD) p = &qis.ui.pop.dwd;
-			else if (obj == ui.etUpE) p = &qis.ui.pop.upe;
-			else if (obj == ui.etUpD) p = &qis.ui.pop.upd;
-			if (!p) qis.popText->Show("提示框位置");
-			else if (qs) qis.popText->Show(QiFn::ParseCustom(p->t, "(文件夹)", ""), p->c);
-			else if (ws) qis.popText->Show(QiFn::ParseCustom(p->t, "(窗口名)", ""), p->c);
-			else if (qc) qis.popText->Show(QiFn::ParseCustom(p->t, "(按键)", ""), p->c);
-			else qis.popText->Show(QiFn::ParseCustom(p->t, "(宏名称)", "(1)"), p->c);
+			if (obj == ui.etQE) p = &Qi::ui.pop.qe, qs = true;
+			else if (obj == ui.etQD) p = &Qi::ui.pop.qd, qs = true;
+			else if (obj == ui.etWE) p = &Qi::ui.pop.we, ws = true;
+			else if (obj == ui.etWD) p = &Qi::ui.pop.wd, ws = true;
+			else if (obj == ui.etQcE) p = &Qi::ui.pop.qce, qc = true;
+			else if (obj == ui.etQcD) p = &Qi::ui.pop.qcd, qc = true;
+			else if (obj == ui.etSwE) p = &Qi::ui.pop.swe;
+			else if (obj == ui.etSwD) p = &Qi::ui.pop.swd;
+			else if (obj == ui.etDwE) p = &Qi::ui.pop.dwe;
+			else if (obj == ui.etDwD) p = &Qi::ui.pop.dwd;
+			else if (obj == ui.etUpE) p = &Qi::ui.pop.upe;
+			else if (obj == ui.etUpD) p = &Qi::ui.pop.upd;
+			if (!p) Qi::popText->Show("提示框位置");
+			else if (qs) Qi::popText->Show(QiFn::ParseCustom(p->t, "(文件夹)", ""), p->c);
+			else if (ws) Qi::popText->Show(QiFn::ParseCustom(p->t, "(窗口名)", ""), p->c);
+			else if (qc) Qi::popText->Show(QiFn::ParseCustom(p->t, "(按键)", ""), p->c);
+			else Qi::popText->Show(QiFn::ParseCustom(p->t, "(宏名称)", "(1)"), p->c);
 		}
 		else if (e->type() == QEvent::HoverLeave)
 		{
-			qis.popText->Hide();
+			Qi::popText->Hide();
 		}
 		return QDialog::eventFilter(obj, e);
 	}
@@ -194,30 +194,30 @@ private Q_SLOTS:
 	{
 		close();
 	}
-	void OnEtQE(const QString& text) { qis.ui.pop.qe.t = text; }
-	void OnEtQD(const QString& text) { qis.ui.pop.qd.t = text; }
-	void OnEtWE(const QString& text) { qis.ui.pop.we.t = text; }
-	void OnEtWD(const QString& text) { qis.ui.pop.wd.t = text; }
-	void OnEtQcE(const QString& text) { qis.ui.pop.qce.t = text; }
-	void OnEtQcD(const QString& text) { qis.ui.pop.qcd.t = text; }
-	void OnEtSwE(const QString& text) { qis.ui.pop.swe.t = text; }
-	void OnEtSwD(const QString& text) { qis.ui.pop.swd.t = text; }
-	void OnEtDwE(const QString& text) { qis.ui.pop.dwe.t = text; }
-	void OnEtDwD(const QString& text) { qis.ui.pop.dwd.t = text; }
-	void OnEtUpE(const QString& text) { qis.ui.pop.upe.t = text; }
-	void OnEtUpD(const QString& text) { qis.ui.pop.upd.t = text; }
-	void OnBnQE() { SelectColor(qis.ui.pop.qe); Update(); }
-	void OnBnQD() { SelectColor(qis.ui.pop.qd); Update(); }
-	void OnBnWE() { SelectColor(qis.ui.pop.we); Update(); }
-	void OnBnWD() { SelectColor(qis.ui.pop.wd); Update(); }
-	void OnBnQcE() { SelectColor(qis.ui.pop.qce); Update(); }
-	void OnBnQcD() { SelectColor(qis.ui.pop.qcd); Update(); }
-	void OnBnSwE() { SelectColor(qis.ui.pop.swe); Update(); }
-	void OnBnSwD() { SelectColor(qis.ui.pop.swd); Update(); }
-	void OnBnDwE() { SelectColor(qis.ui.pop.dwe); Update(); }
-	void OnBnDwD() { SelectColor(qis.ui.pop.dwd); Update(); }
-	void OnBnUpE() { SelectColor(qis.ui.pop.upe); Update(); }
-	void OnBnUpD() { SelectColor(qis.ui.pop.upd); Update(); }
-	void OnSdLR(int value) { qis.ui.pop.p.x = value; qis.popText->setPosition(qis.ui.pop.p.x, qis.ui.pop.p.y); qis.popText->Show("提示框位置"); }
-	void OnSdTB(int value) { qis.ui.pop.p.y = value; qis.popText->setPosition(qis.ui.pop.p.x, qis.ui.pop.p.y); qis.popText->Show("提示框位置"); }
+	void OnEtQE(const QString& text) { Qi::ui.pop.qe.t = text; }
+	void OnEtQD(const QString& text) { Qi::ui.pop.qd.t = text; }
+	void OnEtWE(const QString& text) { Qi::ui.pop.we.t = text; }
+	void OnEtWD(const QString& text) { Qi::ui.pop.wd.t = text; }
+	void OnEtQcE(const QString& text) { Qi::ui.pop.qce.t = text; }
+	void OnEtQcD(const QString& text) { Qi::ui.pop.qcd.t = text; }
+	void OnEtSwE(const QString& text) { Qi::ui.pop.swe.t = text; }
+	void OnEtSwD(const QString& text) { Qi::ui.pop.swd.t = text; }
+	void OnEtDwE(const QString& text) { Qi::ui.pop.dwe.t = text; }
+	void OnEtDwD(const QString& text) { Qi::ui.pop.dwd.t = text; }
+	void OnEtUpE(const QString& text) { Qi::ui.pop.upe.t = text; }
+	void OnEtUpD(const QString& text) { Qi::ui.pop.upd.t = text; }
+	void OnBnQE() { SelectColor(Qi::ui.pop.qe); Update(); }
+	void OnBnQD() { SelectColor(Qi::ui.pop.qd); Update(); }
+	void OnBnWE() { SelectColor(Qi::ui.pop.we); Update(); }
+	void OnBnWD() { SelectColor(Qi::ui.pop.wd); Update(); }
+	void OnBnQcE() { SelectColor(Qi::ui.pop.qce); Update(); }
+	void OnBnQcD() { SelectColor(Qi::ui.pop.qcd); Update(); }
+	void OnBnSwE() { SelectColor(Qi::ui.pop.swe); Update(); }
+	void OnBnSwD() { SelectColor(Qi::ui.pop.swd); Update(); }
+	void OnBnDwE() { SelectColor(Qi::ui.pop.dwe); Update(); }
+	void OnBnDwD() { SelectColor(Qi::ui.pop.dwd); Update(); }
+	void OnBnUpE() { SelectColor(Qi::ui.pop.upe); Update(); }
+	void OnBnUpD() { SelectColor(Qi::ui.pop.upd); Update(); }
+	void OnSdLR(int value) { Qi::ui.pop.p.x = value; Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y); Qi::popText->Show("提示框位置"); }
+	void OnSdTB(int value) { Qi::ui.pop.p.y = value; Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y); Qi::popText->Show("提示框位置"); }
 };

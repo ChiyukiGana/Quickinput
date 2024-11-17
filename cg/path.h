@@ -292,13 +292,13 @@ namespace CG
 
 		static bool PathState(std::wstring path) { if (_waccess(path.c_str(), 0)) return false; return true; }
 
-		/* "C:\A\1.exe"  to  "1.exe" */
+		/* "1/2/3"  to  "3" */
 		static std::wstring Last(std::wstring path) {
 			size_t p = path.find_last_of(L"\\");
 			if (p != std::wstring::npos) return path.substr(p + 1);
 			return path;
 		}
-		/* "C:\A\1.exe"  to  "C:\A" */
+		/* "1/2/3"  to  "1/2" */
 		static std::wstring Prev(std::wstring path) {
 			size_t p = path.find_last_of(L"\\");
 			if (p != std::wstring::npos) return path.substr(0, p);
