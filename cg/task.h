@@ -103,7 +103,7 @@ namespace CG
 		}
 	public:
 		// return false: error, return true: task registered
-		static bool Register(std::wstring taskName, std::wstring exePath = Process::exePath(), std::wstring runPath = Path::RemoveFile(Process::exePath()), std::wstring author = L"unknow")
+		static bool Register(std::wstring taskName, std::wstring exePath = Process::exePath(), std::wstring runPath = Path::GetDir(Process::exePath()), std::wstring author = L"unknow")
 		{
 			std::wstring log;
 			HRESULT hr = 0;

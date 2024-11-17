@@ -30,7 +30,6 @@ class EditUi : public QDialog
 	const int32 posMax = 10000;
 	const int32 moveRandMax = 9999;
 	const int32 delayMax = 999999;
-	const int32 delayRandMax = 9999;
 	const int32 loopCountMax = 9999;
 	const int32 colorMax = 255;
 	const int32 imageSimMax = 99;
@@ -73,9 +72,12 @@ public:
 	{
 		setStyleSheet("");
 		setStyleSheet(qis.themes[qis.set.theme].style);
-		ui.extab0->setStyleSheet(qis.themes[qis.set.theme].style);
-		ui.extab1->setStyleSheet(qis.themes[qis.set.theme].style);
-		ui.extab2->setStyleSheet(qis.themes[qis.set.theme].style);
+		ui.tab_base->setStyleSheet(qis.themes[qis.set.theme].style);
+		ui.tab_state->setStyleSheet(qis.themes[qis.set.theme].style);
+		ui.tab_color->setStyleSheet(qis.themes[qis.set.theme].style);
+		ui.tab_image->setStyleSheet(qis.themes[qis.set.theme].style);
+		ui.tab_text->setStyleSheet(qis.themes[qis.set.theme].style);
+		ui.tab_wnd->setStyleSheet(qis.themes[qis.set.theme].style);
 	}
 
 private:
@@ -99,7 +101,6 @@ private:
 			ui.bnLoopEdit->setText(qis.ui.etEdit);
 			ui.bnColorEdit->setText(qis.ui.etEdit);
 			ui.bnImageEdit->setText(qis.ui.etEdit);
-			ui.bnDel->setText(qis.ui.etDel);
 			// no shortcut key
 			ui.bnClose->setShortcut(Qt::Key_unknown);
 			ui.bnRun->setShortcut(Qt::Key_unknown);
@@ -123,7 +124,6 @@ private:
 			ui.bnLoopEdit->setShortcut(Qt::Key_unknown);
 			ui.bnColorEdit->setShortcut(Qt::Key_unknown);
 			ui.bnImageEdit->setShortcut(Qt::Key_unknown);
-			ui.bnDel->setShortcut(Qt::Key_unknown);
 			// edit button is default disabled
 			ui.bnStateEdit->setDisabled(true);
 			ui.bnLoopEdit->setDisabled(true);
@@ -168,10 +168,10 @@ private:
 			ui.etX->setValidator(new QIntValidator(0, posMax, this));
 			ui.etY->setValidator(new QIntValidator(0, posMax, this));
 			ui.etMoveRand->setValidator(new QIntValidator(0, moveRandMax, this));
-			ui.etTime->setValidator(new QIntValidator(0, delayMax, this));
-			ui.etDelayRand->setValidator(new QIntValidator(0, delayRandMax, this));
-			ui.etCount->setValidator(new QIntValidator(0, loopCountMax, this));
-			ui.etCountRand->setValidator(new QIntValidator(0, loopCountMax, this));
+			ui.etDelayMin->setValidator(new QIntValidator(0, delayMax, this));
+			ui.etDelayMax->setValidator(new QIntValidator(0, delayMax, this));
+			ui.etCountMin->setValidator(new QIntValidator(0, loopCountMax, this));
+			ui.etCountMax->setValidator(new QIntValidator(0, loopCountMax, this));
 			ui.etColorRed->setValidator(new QIntValidator(0, colorMax, this));
 			ui.etColorGreen->setValidator(new QIntValidator(0, colorMax, this));
 			ui.etColorBlue->setValidator(new QIntValidator(0, colorMax, this));
@@ -212,19 +212,6 @@ private:
 		// Table
 		{
 			ui.tbActions->setContextMenuPolicy(Qt::CustomContextMenu);
-			ui.tbActions->setColumnCount(3);
-			{
-				QTableWidgetItem* tbi = new QTableWidgetItem(QString::fromUtf8(u8"功能"));
-				ui.tbActions->setHorizontalHeaderItem(0, tbi);
-			}
-			{
-				QTableWidgetItem* tbi = new QTableWidgetItem(QString::fromUtf8(u8"参数"));
-				ui.tbActions->setHorizontalHeaderItem(1, tbi);
-			}
-			{
-				QTableWidgetItem* tbi = new QTableWidgetItem(QString::fromUtf8(u8"备注"));
-				ui.tbActions->setHorizontalHeaderItem(2, tbi);
-			}
 			ui.tbActions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
 			ui.tbActions->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
 			ui.tbActions->verticalHeader()->setDefaultSectionSize(0);
@@ -233,7 +220,7 @@ private:
 			ui.tbActions->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Interactive);
 			ui.tbActions->setColumnWidth(0, 100);
 			ui.tbActions->setColumnWidth(1, 300);
-			ui.tbActions->setColumnWidth(2, 85);
+			ui.tbActions->setColumnWidth(2, 180);
 		}
 		// KeyEdit
 		{
@@ -257,7 +244,7 @@ private:
 		// Title
 		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
 		connect(ui.bnRun, SIGNAL(clicked()), this, SLOT(OnBnRun()));
-		connect(ui.bnWnd, SIGNAL(clicked()), this, SLOT(OnBnWnd()));
+		connect(ui.bnWndSelect, SIGNAL(clicked()), this, SLOT(OnBnWndSelect()));
 		connect(ui.chbWnd, SIGNAL(clicked()), this, SLOT(OnChbWnd()));
 		connect(ui.chbChildWnd, SIGNAL(clicked()), this, SLOT(OnChbChildWnd()));
 
@@ -284,23 +271,24 @@ private:
 		connect(ui.rbMove, SIGNAL(toggled(bool)), this, SLOT(OnRbMove(bool)));
 		// Delay
 		connect(ui.bnDelayAdd, SIGNAL(clicked()), this, SLOT(OnBnDelayAdd()));
+		connect(ui.etDelayMin, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtDelayMin(const QString&)));
 		// Text
 		connect(ui.bnTextAdd, SIGNAL(clicked()), this, SLOT(OnBnTextAdd()));
 		// Loop
 		connect(ui.bnLoopAdd, SIGNAL(clicked()), this, SLOT(OnBnLoopAdd()));
 		connect(ui.bnLoopEdit, SIGNAL(clicked()), this, SLOT(OnBnLoopEdit()));
+		connect(ui.etCountMin, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtCountMin(const QString&)));
 		// Color
 		connect(ui.bnColorAdd, SIGNAL(clicked()), this, SLOT(OnBnColorAdd()));
 		connect(ui.bnColorEdit, SIGNAL(clicked()), this, SLOT(OnBnColorEdit()));
 		connect(ui.bnColorRect, SIGNAL(clicked()), this, SLOT(OnBnColorRect()));
 		connect(ui.bnColorValue, SIGNAL(clicked()), this, SLOT(OnBnColorValue()));
-		// Delete
-		connect(ui.bnDel, SIGNAL(clicked()), this, SLOT(OnBnDel()));
 		// End
 		connect(ui.bnEndAdd, SIGNAL(clicked()), this, SLOT(OnBnEndAdd()));
 		// EndLoop
 		connect(ui.bnEndLoopAdd, SIGNAL(clicked()), this, SLOT(OnBnEndLoopAdd()));
 		// RecoverPos
+		connect(ui.bnRememberPosAdd, SIGNAL(clicked()), this, SLOT(bnRememberPosAdd()));
 		connect(ui.bnRecoverPosAdd, SIGNAL(clicked()), this, SLOT(OnBnRecoverPosAdd()));
 		// Image
 		connect(ui.bnImageAdd, SIGNAL(clicked()), this, SLOT(OnBnImageAdd()));
@@ -360,14 +348,13 @@ private:
 			case Action::_delay:
 			{
 				ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.acWait));
-				if (actions->at(i).d.delay.ex)
+				if (actions->at(i).d.delay.tmin != actions->at(i).d.delay.tmax)
 				{
-					int ms = (int32)actions->at(i).d.delay.ms - (int32)actions->at(i).d.delay.ex; if (ms < 0) ms = 0;
-					ps += QString::number(ms);
+					ps = QString::number(actions->at(i).d.delay.tmin);
 					ps += u8" ~ ";
-					ps += QString::number(actions->at(i).d.delay.ms + actions->at(i).d.delay.ex);
+					ps += QString::number(actions->at(i).d.delay.tmax);
 				}
-				else ps = QString::number(actions->at(i).d.delay.ms);
+				else ps = QString::number(actions->at(i).d.delay.tmin);
 			}
 			break;
 
@@ -387,8 +374,9 @@ private:
 				ps = QString::number(actions->at(i).d.mouse.x);
 				ps += u8", ";
 				ps += QString::number(actions->at(i).d.mouse.y);
-				ps += u8"ㅤㅤ";
+				ps += u8"ㅤㅤ随机：";
 				ps += QString::number(actions->at(i).d.mouse.ex);
+				if (actions->at(i).d.mouse.track) ps += u8"ㅤㅤ带轨迹";
 			}
 			break;
 
@@ -433,20 +421,16 @@ private:
 			case Action::_loop:
 			{
 				ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.acLoop));
-				if (actions->at(i).d.loop.count || actions->at(i).d.loop.rand)
+				if ((actions->at(i).d.loop.cmin == 0 && actions->at(i).d.loop.cmax == 0))
+					ps = u8"无限";
+				else if (actions->at(i).d.loop.cmin == actions->at(i).d.loop.cmax)
+					ps = QString::number(actions->at(i).d.loop.cmin);
+				else
 				{
-					if (actions->at(i).d.loop.count == actions->at(i).d.loop.rand)
-					{
-						ps = QString::number(actions->at(i).d.loop.count);
-					}
-					else
-					{
-						ps = QString::number(actions->at(i).d.loop.count);
-						ps += u8" ~ ";
-						ps += QString::number(actions->at(i).d.loop.rand);
-					}
+					ps = QString::number(actions->at(i).d.loop.cmin);
+					ps += u8" ~ ";
+					ps += QString::number(actions->at(i).d.loop.cmax);
 				}
-				else ps = u8"无限";
 			}
 			break;
 
@@ -496,6 +480,8 @@ private:
 				ps += actions->at(i).d.popText.str.str();
 			}
 			break;
+
+			case Action::_rememberPos: ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.acRememberPos)); break;
 
 			default: ui.tbActions->setItem(i, 0, new QTableWidgetItem(u8"加载失败")); break;
 			}
@@ -623,7 +609,7 @@ private slots:
 		Thread::Sleep(300);
 		ui.bnRun->setEnabled(true);
 	}
-	void OnBnWnd()
+	void OnBnWndSelect()
 	{
 		macro->wi = QiFn::WindowSelection();
 		SetTitle();
@@ -633,14 +619,14 @@ private slots:
 		if (ui.chbWnd->isChecked())
 		{
 			macro->wndState = true;
-			ui.bnWnd->setDisabled(false);
+			ui.bnWndSelect->setDisabled(false);
 			ui.chbChildWnd->setDisabled(false);
 			ui.etWndName->setDisabled(false);
 		}
 		else
 		{
 			macro->wndState = false;
-			ui.bnWnd->setDisabled(true);
+			ui.bnWndSelect->setDisabled(true);
 			ui.chbChildWnd->setDisabled(true);
 			ui.etWndName->setDisabled(true);
 		}
@@ -694,7 +680,18 @@ private slots:
 		{
 			switch (actions->at(row).type)
 			{
+			case Action::_delay:
+			{
+				ui.tabWidget->setCurrentIndex(0);
+				break;
+			}
+			case Action::_key:
+			{
+				ui.tabWidget->setCurrentIndex(0);
+				break;
+			}
 			case Action::_mouse:
+			{
 				if (!actions->at(row).d.mouse.move)
 				{
 					rv.hide();
@@ -712,10 +709,14 @@ private slots:
 					}
 					pv.Show(pt);
 				}
+				ui.tabWidget->setCurrentIndex(0);
 				break;
+			}
 			case Action::_text:
-				ui.extabBox->setCurrentIndex(3);
+			{
+				ui.tabWidget->setCurrentIndex(4);
 				break;
+			}
 			case Action::_color:
 			{
 				pv.hide();
@@ -733,16 +734,21 @@ private slots:
 				}
 				rv.Show(rect);
 				ui.bnColorEdit->setEnabled(true);
-				ui.extabBox->setCurrentIndex(1);
+				ui.tabWidget->setCurrentIndex(2);
+				break;
 			}
-			break;
 			case Action::_loop:
+			{
 				ui.bnLoopEdit->setEnabled(true);
+				ui.tabWidget->setCurrentIndex(0);
 				break;
+			}
 			case Action::_keyState:
+			{
 				ui.bnStateEdit->setEnabled(true);
-				ui.extabBox->setCurrentIndex(0);
+				ui.tabWidget->setCurrentIndex(1);
 				break;
+			}
 			case Action::_image:
 			{
 				pv.hide();
@@ -760,13 +766,15 @@ private slots:
 				}
 				rv.Show(rect);
 				ui.bnImageEdit->setEnabled(true);
-				ui.extabBox->setCurrentIndex(2);
+				ui.tabWidget->setCurrentIndex(3);
 				SetLbImageView(actions->at(row).d.image.map);
-			}
-			break;
-			case Action::_popText:
-				ui.extabBox->setCurrentIndex(3);
 				break;
+			}
+			case Action::_popText:
+			{
+				ui.tabWidget->setCurrentIndex(4);
+				break;
+			}
 			}
 		}
 	}
@@ -850,11 +858,13 @@ private slots:
 	}
 	// Delay
 	void OnBnDelayAdd() { if (changing) ItemChange(Action::_delay); else ItemAdd(Action::_delay); }
+	void OnEtDelayMin(const QString& text) { ui.etDelayMax->setText(text); }
 	// Text
 	void OnBnTextAdd() { if (changing) ItemChange(Action::_text); else ItemAdd(Action::_text); }
 	// Loop
 	void OnBnLoopAdd() { if (changing) ItemChange(Action::_loop); else ItemAdd(Action::_loop); }
 	void OnBnLoopEdit() { NextEdit(); }
+	void OnEtCountMin(const QString& text) { ui.etCountMax->setText(text); }
 	// Color
 	void OnBnColorAdd() { if (changing) ItemChange(Action::_color); else ItemAdd(Action::_color); }
 	void OnBnColorEdit() { NextEdit(); }
@@ -889,6 +899,8 @@ private slots:
 	void OnBnEndAdd() { if (changing) ItemChange(Action::_end); else ItemAdd(Action::_end); }
 	// EndLoop
 	void OnBnEndLoopAdd() { if (changing) ItemChange(Action::_loopEnd); else ItemAdd(Action::_loopEnd); }
+	// RememberPos
+	void bnRememberPosAdd() { if (changing) ItemChange(Action::_rememberPos); else ItemAdd(Action::_rememberPos); }
 	// RecoverPos
 	void OnBnRecoverPosAdd() { if (changing) ItemChange(Action::_revocerPos); else ItemAdd(Action::_revocerPos); }
 	// Image
@@ -947,6 +959,7 @@ private: // Widget data
 				ui.bnRecoverPosAdd->setText(qis.ui.etChange);
 				ui.bnImageAdd->setText(qis.ui.etChange);
 				ui.bnPopTextAdd->setText(qis.ui.etChange);
+				ui.bnRememberPosAdd->setText(qis.ui.etChange);
 			}
 		}
 		else
@@ -965,6 +978,7 @@ private: // Widget data
 				ui.bnRecoverPosAdd->setText(qis.ui.etAdd);
 				ui.bnImageAdd->setText(qis.ui.etAdd);
 				ui.bnPopTextAdd->setText(qis.ui.etAdd);
+				ui.bnRememberPosAdd->setText(qis.ui.etAdd);
 			}
 		}
 	}
@@ -1018,6 +1032,7 @@ private: // Widget data
 		case Action::_revocerPos: action.type = Action::_revocerPos; break;
 		case Action::_image: action = GetImg(); break;
 		case Action::_popText: action = GetPopText(); break;
+		case Action::_rememberPos: action.type = Action::_rememberPos; break;
 		default: action.type = Action::_none; break;
 		}
 		action.mark.cpy(mark);
@@ -1089,7 +1104,7 @@ private: // Widget data
 	void SetHkKey(byte key) { ui.hkKey->VirtualKey(key); }
 	void SetHkState(byte key) { ui.hkState->VirtualKey(key); }
 	void SetEtPos(const RECT& pt) { ui.etX->setText(QString::number(pt.left)); ui.etY->setText(QString::number(pt.top)); if (pt.right > -1) ui.etMoveRand->setText(QString::number(pt.right)); }
-	void SetEtDelay(const POINT& pt) { ui.etTime->setText(QString::number(pt.x)); ui.etDelayRand->setText(QString::number(pt.y)); }
+	void SetEtDelay(const POINT& pt) { ui.etDelayMin->setText(QString::number(pt.x)); ui.etDelayMax->setText(QString::number(pt.y)); }
 
 	void SetRbColorMode(bool mode) { if (mode) ui.rbColorNFind->setChecked(true); else ui.rbColorFind->setChecked(true); }
 	void SetChbColorMove(bool state) { ui.chbColorMove->setChecked(state); }
@@ -1109,8 +1124,8 @@ private: // Widget data
 		ui.bnColorValue->setStyleSheet(style);
 	}
 
-	void SetEtLoopCount(const uint32& count) { ui.etCount->setText(QString::number(count)); }
-	void SetEtLoopCountRand(const uint32& count) { ui.etCountRand->setText(QString::number(count)); }
+	void SetEtLoopCountMin(const uint32& count) { ui.etCountMin->setText(QString::number(count)); }
+	void SetEtLoopCountMax(const uint32& count) { ui.etCountMax->setText(QString::number(count)); }
 
 	void SetRbImageMode(bool mode) { if (mode) ui.rbImageNFind->setChecked(true); else ui.rbImageFind->setChecked(true); }
 	void SetChbImageMove(bool state) { ui.chbImageMove->setChecked(state); }
@@ -1140,6 +1155,7 @@ private: // Widget data
 	Action GetMouse() {
 		Action action(Action::_mouse);
 		action.d.mouse.move = ui.rbMove->isChecked();
+		action.d.mouse.track = ui.rbMoveTrack->isChecked();
 		int x = ui.etX->text().toInt();
 		int y = ui.etY->text().toInt();
 		int ex = ui.etMoveRand->text().toInt();
@@ -1155,13 +1171,14 @@ private: // Widget data
 	}
 	Action GetDelay() {
 		Action action(Action::_delay);
-		int ms = 10;
-		if (ui.etTime->text() != "") ms = ui.etTime->text().toInt();
-		int ex = ui.etDelayRand->text().toInt();
-		if (ms > delayMax) ms = delayMax;
-		if (ex > delayMax) ex = delayRandMax;
-		action.d.delay.ms = ms;
-		action.d.delay.ex = ex;
+		int mn = 10;
+		if (ui.etDelayMin->text() != "") mn = ui.etDelayMin->text().toInt();
+		int mx = ui.etDelayMax->text().toInt();
+		if (mn > delayMax) mn = delayMax;
+		if (mx > delayMax) mx = delayMax;
+		if (mx < mn) mx = mn;
+		action.d.delay.tmin = mn;
+		action.d.delay.tmax = mx;
 		return action;
 	}
 	Action GetText() {
@@ -1201,19 +1218,14 @@ private: // Widget data
 	Action GetLoop()
 	{
 		Action action(Action::_loop);
-		{
-			int i = 1;
-			if (ui.etCount->text() != "") i = ui.etCount->text().toInt();
-			if (i > loopCountMax) i = loopCountMax;
-			action.d.loop.count = i;
-		}
-		{
-			int i = 0;
-			if (ui.etCountRand->text() != "") i = ui.etCountRand->text().toInt();
-			if (i > loopCountMax) i = loopCountMax;
-			if (i < action.d.loop.count) i = action.d.loop.count;
-			action.d.loop.rand = i;
-		}
+		int mn = 1;
+		if (ui.etCountMin->text() != "") mn = ui.etCountMin->text().toInt();
+		int mx = ui.etCountMax->text().toInt();
+		if (mn > loopCountMax) mn = loopCountMax;
+		if (mx > loopCountMax) mx = loopCountMax;
+		if (mx < mn) mx = mn;
+		action.d.loop.cmin = mn;
+		action.d.loop.cmax = mx;
 		return action;
 	}
 	Action GetImg()
@@ -1268,20 +1280,21 @@ private: // Widget data
 	void LoadMouse(const Action& action) {
 		if (action.d.mouse.move)
 		{
-			ui.rbMove->setChecked(1);
-			OnRbMove(1);
+			ui.rbMove->setChecked(true);
+			OnRbMove(true);
 		}
 		else
 		{
-			ui.rbPos->setChecked(1);
-			OnRbPos(1);
+			ui.rbPos->setChecked(true);
+			OnRbPos(true);
 		}
+		ui.rbMoveTrack->setChecked(action.d.mouse.track);
 		SetEtPos({ (long)action.d.mouse.x, (long)action.d.mouse.y, (long)action.d.mouse.ex, 0 });
 	}
-	void LoadDelay(const Action& action) { SetEtDelay({ (long)action.d.delay.ms, (long)action.d.delay.ex }); }
+	void LoadDelay(const Action& action) { SetEtDelay({ (long)action.d.delay.tmin, (long)action.d.delay.tmax }); }
 	void LoadText(const Action& action) { ui.etText->setText(QString::fromWCharArray(action.d.text.str.str())); }
 	void LoadColor(const Action& action) { SetRbColorMode(action.d.color.unfind); SetChbColorMove(action.d.color.move); SetEtColorRect(action.d.color.rect); SetEtColorValue(action.d.color.rgbe); }
-	void LoadLoop(const Action& action) { SetEtLoopCount(action.d.loop.count); SetEtLoopCountRand(action.d.loop.rand); }
+	void LoadLoop(const Action& action) { SetEtLoopCountMin(action.d.loop.cmin); SetEtLoopCountMax(action.d.loop.cmax); }
 	void LoadImg(const Action& action) { SetRbImageMode(action.d.image.unfind); SetChbImageMove(action.d.image.move); SetEtImageRect(action.d.image.rect); SetEtImageSim(action.d.image.sim); }
 	void LoadPopText(const Action& action) { SetEtPopText(QString::fromWCharArray(action.d.popText.str.str())); SetEtPopTextTime(action.d.popText.time); }
 };

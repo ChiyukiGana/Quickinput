@@ -40,6 +40,7 @@
     <QtModules>core;widgets</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
     <QtToolsDesignTime>false</QtToolsDesignTime>
+    <QtPlugin>false</QtPlugin>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="QtSettings">
     <QtInstall>32</QtInstall>
@@ -74,6 +75,7 @@
       <AdditionalManifestDependencies>
       </AdditionalManifestDependencies>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <ClCompile>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
@@ -93,6 +95,7 @@
     </ClCompile>
     <Link>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
+      <LinkTimeCodeGeneration>UseFastLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>manifest.xml</AdditionalManifestFiles>
@@ -104,8 +107,6 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

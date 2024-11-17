@@ -22,7 +22,7 @@ namespace CG {
 
 		static std::wstring exePath() { WCHAR path[MAX_PATH]; GetModuleFileNameW(0, path, MAX_PATH); return path; }
 
-		static std::wstring exeName() { return Path::Last(exePath()); }
+		static std::wstring exeName() { return Path::GetFile(exePath()); }
 
 		static bool isRunning(LPCWSTR mutexName) { HANDLE handle = CreateMutexW(0, 0, mutexName); if (GetLastError() == ERROR_ALREADY_EXISTS) { CloseHandle(handle); return 1; } CloseHandle(handle); return 0; }
 		static void RunOnce(LPCWSTR mutexName) { HANDLE handle = CreateMutexW(0, 0, mutexName); if (GetLastError() == ERROR_ALREADY_EXISTS) { CloseHandle(handle); exit(0); } }
@@ -56,15 +56,13 @@ namespace CG {
 		}
 		/* file: C:\A\1.exe, args : -p */
 		static bool Open(std::wstring file, LPCWSTR args = 0, UINT show = SW_SHOW, LPCWSTR workPath = 0) {
-			if (workPath) return ShellExecuteW(0, L"open", file.c_str(), args, workPath, show);
-			else return ShellExecuteW(0, L"open", file.c_str(), args, Path::RemoveFile(file).c_str(), show);
+			return ShellExecuteW(0, L"open", file.c_str(), args, workPath, show);
 		}
 		/* cmdLine: "C:\A\1.exe" -p */
 		static bool OpenC(std::wstring cmdLine, UINT show = SW_SHOW, LPCWSTR workPath = 0) {
 			std::wstring file = Path::RemoveArgs(cmdLine, false);
 			std::wstring args = Path::GetArgs(cmdLine);
-			if (workPath) return ShellExecuteW(0, L"open", file.c_str(), args.c_str(), workPath, show);
-			else return ShellExecuteW(0, L"open", file.c_str(), args.c_str(), Path::RemoveFile(file).c_str(), show);
+			return ShellExecuteW(0, L"open", file.c_str(), args.c_str(), workPath, show);
 		}
 		/* file: C:\A\1.exe, args: -p */
 		static bool Start(std::wstring file, LPCWSTR args = 0, UINT show = SW_SHOW, LPCWSTR workPath = 0, DWORD creationFlags = CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT)

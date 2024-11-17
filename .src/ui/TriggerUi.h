@@ -40,32 +40,12 @@ private:
 
 		//Table
 		{
-			ui.tbActions->setColumnCount(4);
-			{
-				QTableWidgetItem* tbi = new QTableWidgetItem(QString::fromUtf8(u8"名称"));
-				ui.tbActions->setHorizontalHeaderItem(0, tbi);
-			}
-			{
-				QTableWidgetItem* tbi = new QTableWidgetItem(QString::fromUtf8(u8"按键"));
-				ui.tbActions->setHorizontalHeaderItem(1, tbi);
-			}
-			{
-				QTableWidgetItem* tbi = new QTableWidgetItem(QString::fromUtf8(u8"模式"));
-				ui.tbActions->setHorizontalHeaderItem(2, tbi);
-			}
-			{
-				QTableWidgetItem* tbi = new QTableWidgetItem(QString::fromUtf8(u8"状态"));
-				ui.tbActions->setHorizontalHeaderItem(3, tbi);
-			}
-
-			{
-				ui.tbActions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-				ui.tbActions->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-				ui.tbActions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
-				ui.tbActions->setColumnWidth(1, 120);
-				ui.tbActions->setColumnWidth(2, 80);
-				ui.tbActions->setColumnWidth(3, 60);
-			}
+			ui.tbActions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
+			ui.tbActions->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
+			ui.tbActions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
+			ui.tbActions->setColumnWidth(1, 120);
+			ui.tbActions->setColumnWidth(2, 80);
+			ui.tbActions->setColumnWidth(3, 60);
 		}
 	}
 	void WidEvent()

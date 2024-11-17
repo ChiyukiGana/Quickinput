@@ -457,7 +457,7 @@ QPushButton:hover{background-color:#C00;}</string>
            <x>0</x>
            <y>0</y>
            <width>756</width>
-           <height>2747</height>
+           <height>2798</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -496,7 +496,10 @@ QPushButton:hover{background-color:#C00;}</string>
              </font>
             </property>
             <property name="text">
-             <string>2024-5-25
+             <string>2024-8-28
+ㅤㅤ1：增加移动轨迹
+ㅤㅤ2：增加记录鼠标位置
+2024-5-25
 ㅤㅤ1：修复多个宏同时查找颜色或图片导致内存溢出
 ㅤㅤ2：优化线程安全
 2024-5-23

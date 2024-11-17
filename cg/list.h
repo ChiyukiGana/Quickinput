@@ -18,6 +18,12 @@ namespace CG
 	class List : public std::vector<T>
 	{
 	public:
+		static const size_t npos = MAXSIZE_T;
+
+		T& End()
+		{
+			return std::vector<T>::at(std::vector<T>::size() - 1);
+		}
 		T& AddNull()
 		{
 			Add({}, 1);
@@ -59,7 +65,7 @@ namespace CG
 		bool DelBack(size_t count = 1, size_t p = MAXSIZE_T)
 		{
 			if (std::vector<T>::size() == 0) return false;
-			if (p >= std::vector<T>::size()) p = std::vector<T>::size() - 1;
+			if (p > std::vector<T>::size()) p = std::vector<T>::size();
 			if (count > p) count = p;
 			std::vector<T>::erase(std::vector<T>::begin() + (p - count), std::vector<T>::begin() + p);
 			return true;
@@ -67,7 +73,8 @@ namespace CG
 		bool DelFront(size_t count = 1, size_t p = 0)
 		{
 			if (std::vector<T>::size() == 0) return false;
-			if (p >= std::vector<T>::size()) p = std::vector<T>::size() - 1;
+			if (p >= std::vector<T>::size()) return true;
+			if (count >= std::vector<T>::size()) count = std::vector<T>::size();
 			if ((p + count) >= std::vector<T>::size()) count = std::vector<T>::size() - p;
 			std::vector<T>::erase(std::vector<T>::begin() + p, std::vector<T>::begin() + (p + count));
 			return true;

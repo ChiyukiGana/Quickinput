@@ -37,15 +37,7 @@ private:
 	void WidInit()
 	{
 		timer = new QTimer(this);
-
-		// Table
-		{
-			
-			ui.tbActions->setColumnCount(1);
-			QTableWidgetItem* tbi = new QTableWidgetItem(QString::fromUtf8(u8"名称"));
-			ui.tbActions->setHorizontalHeaderItem(0, tbi);
-			ui.tbActions->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Stretch);
-		}
+		ui.tbActions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
 		LockControl(1);
 		TbUpdate();
 	}

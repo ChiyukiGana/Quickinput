@@ -96,8 +96,8 @@ namespace CG {
 
 		static bool Equal(const Rgb& rgb1, const Rgb& rgb2, byte extend) { return (InRange(rgb1.r, rgb2.r, extend) && InRange(rgb1.g, rgb2.g, extend) && InRange(rgb1.b, rgb2.b, extend)); }
 		static bool Equal(const Rgb& rgba1, const Rgb& min, const Rgb& max) { return (InRange(rgba1.r, min.r, max.r, 0) && InRange(rgba1.g, min.g, max.g, 0) && InRange(rgba1.b, min.b, max.b, 0)); 		}
-		static bool Equal(const Rgba& rgb1, const Rgba& rgba2, byte extend) { return (InRange(rgb1.r, rgba2.r, extend) && InRange(rgb1.g, rgba2.g, extend) && InRange(rgb1.b, rgba2.b, extend) && InRange(rgb1.a, rgba2.a, extend)); }
-		static bool Equal(const Rgba& rgba1, const Rgba& min, const Rgba& max) { return (InRange(rgba1.r, min.r, max.r, 0) && InRange(rgba1.g, min.g, max.g, 0) && InRange(rgba1.b, min.b, max.b, 0) && InRange(rgba1.a, min.a, max.a, 0)); }
+		static bool Equal(const Rgba& rgb1, const Rgba& rgba2, byte extend) { return (InRange(rgb1.r, rgba2.r, extend) && InRange(rgb1.g, rgba2.g, extend) && InRange(rgb1.b, rgba2.b, extend)); }
+		static bool Equal(const Rgba& rgba1, const Rgba& min, const Rgba& max) { return (InRange(rgba1.r, min.r, max.r, 0) && InRange(rgba1.g, min.g, max.g, 0) && InRange(rgba1.b, min.b, max.b, 0)); }
 		static bool Equal(COLORREF rgb, COLORREF refer, byte extend) { return (InRange(GetRValue(rgb), GetRValue(refer), extend) && InRange(GetGValue(rgb), GetGValue(refer), extend) && InRange(GetBValue(rgb), GetBValue(refer), extend)); }
 		static bool Equal(COLORREF rgb, COLORREF _min, COLORREF _max) { return (InRange(GetRValue(rgb), GetRValue(_min), GetRValue(_max), 0) && InRange(GetGValue(rgb), GetGValue(_min), GetGValue(_max), 0) && InRange(GetBValue(rgb), GetBValue(_min), GetBValue(_max), 0)); }
 
@@ -112,7 +112,6 @@ namespace CG {
 			if (rect.right < 0) rect.right = 0;
 			if (rect.right > rgbMap.width()) rect.right = rgbMap.width();
 			if (rect.bottom > rgbMap.height()) rect.bottom = rgbMap.height();
-			if (((rect.right - rect.left) < 1) || ((rect.bottom - rect.top) < 1)) return {};
 			for (uint32 x = 0, y = 0, xmax = rect.right - rect.left, ymax = rect.bottom - rect.top; y < ymax; y++) for (x = 0; x < xmax; x++) if (Equal(rgbMap[rect.top + y][rect.left + x], rgb, extend)) return { true, rect.left + (LONG)x, rect.top + (LONG)y };
 			return {};
 		}
@@ -122,7 +121,6 @@ namespace CG {
 			if (rect.right < 0) rect.right = 0;
 			if (rect.right > rgbMap.width()) rect.right = rgbMap.width();
 			if (rect.bottom > rgbMap.height()) rect.bottom = rgbMap.height();
-			if (((rect.right - rect.left) < 1) || ((rect.bottom - rect.top) < 1)) return {};
 			for (uint32 x = 0, y = 0, xmax = rect.right - rect.left, ymax = rect.bottom - rect.top; y < ymax; y++) for (x = 0; x < xmax; x++) if (Equal(rgbMap[rect.top + y][rect.left + x], min, max)) return { true, rect.left + (LONG)x, rect.top + (LONG)y };
 			return {};
 		}
@@ -132,9 +130,8 @@ namespace CG {
 			if (rect.right < 0) rect.right = 0;
 			if (rect.right > rgbaMap.width()) rect.right = rgbaMap.width();
 			if (rect.bottom > rgbaMap.height()) rect.bottom = rgbaMap.height();
-			if (((rect.right - rect.left) < 1) || ((rect.bottom - rect.top) < 1)) return {};
 			for (uint32 x = 0, y = 0, xmax = rect.right - rect.left, ymax = rect.bottom - rect.top; y < ymax; y++) for (x = 0; x < xmax; x++) if (Equal(rgbaMap[rect.top + y][rect.left + x], rgb, extend)) return { true, rect.left + (LONG)x, rect.top + (LONG)y };
-			return { 0 };
+			return {};
 		}
 		static FindResult FindOr(const RgbaMap& rgbaMap, Rgba min, Rgba max, RECT rect = { 0, 0, LONG_MAX, LONG_MAX }) {
 			if (!rgbaMap.count()) return {};
@@ -142,9 +139,8 @@ namespace CG {
 			if (rect.right < 0) rect.right = 0;
 			if (rect.right > rgbaMap.width()) rect.right = rgbaMap.width();
 			if (rect.bottom > rgbaMap.height()) rect.bottom = rgbaMap.height();
-			if (((rect.right - rect.left) < 1) || ((rect.bottom - rect.top) < 1)) return {};
 			for (uint32 x = 0, y = 0, xmax = rect.right - rect.left, ymax = rect.bottom - rect.top; y < ymax; y++) for (x = 0; x < xmax; x++) if (Equal(rgbaMap[rect.top + y][rect.left + x], min, max)) return { true, rect.left + (LONG)x, rect.top + (LONG)y };
-			return { 0 };
+			return {};
 		}
 
 		static bool FindAnd(const RgbMap& rgbMap, Rgb rgb, byte extend = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
@@ -154,7 +150,6 @@ namespace CG {
 			if (rect.right < 0) rect.right = 0;
 			if (rect.right > rgbMap.width()) rect.right = rgbMap.width();
 			if (rect.bottom > rgbMap.height()) rect.bottom = rgbMap.height();
-			if (((rect.right - rect.left) < 1) || ((rect.bottom - rect.top) < 1)) return false;
 			for (uint32 x = 0, y = 0, xmax = rect.right - rect.left, ymax = rect.bottom - rect.top; y < ymax; y++) for (x = 0; x < xmax; x++) if (!Equal(rgbMap[rect.top + y][rect.left + x], rgb, extend)) return { 0 };
 			return 1;
 		}
@@ -165,7 +160,6 @@ namespace CG {
 			if (rect.right < 0) rect.right = 0;
 			if (rect.right > rgbMap.width()) rect.right = rgbMap.width();
 			if (rect.bottom > rgbMap.height()) rect.bottom = rgbMap.height();
-			if (((rect.right - rect.left) < 1) || ((rect.bottom - rect.top) < 1)) return false;
 			for (uint32 x = 0, y = 0, xmax = rect.right - rect.left, ymax = rect.bottom - rect.top; y < ymax; y++) for (x = 0; x < xmax; x++) if (!Equal(rgbMap[rect.top + y][rect.left + x], min, max)) return { 0 };
 			return 1;
 		}
@@ -176,7 +170,6 @@ namespace CG {
 			if (rect.right < 0) rect.right = 0;
 			if (rect.right > rgbaMap.width()) rect.right = rgbaMap.width();
 			if (rect.bottom > rgbaMap.height()) rect.bottom = rgbaMap.height();
-			if (((rect.right - rect.left) < 1) || ((rect.bottom - rect.top) < 1)) return false;
 			for (uint32 x = 0, y = 0, xmax = rect.right - rect.left, ymax = rect.bottom - rect.top; y < ymax; y++) for (x = 0; x < xmax; x++) if (!Equal(rgbaMap[rect.top + y][rect.left + x], rgb, extend)) return { 0 };
 			return 1;
 		}
@@ -187,7 +180,6 @@ namespace CG {
 			if (rect.right < 0) rect.right = 0;
 			if (rect.right > rgbaMap.width()) rect.right = rgbaMap.width();
 			if (rect.bottom > rgbaMap.height()) rect.bottom = rgbaMap.height();
-			if (((rect.right - rect.left) < 1) || ((rect.bottom - rect.top) < 1)) return false;
 			for (uint32 x = 0, y = 0, xmax = rect.right - rect.left, ymax = rect.bottom - rect.top; y < ymax; y++) for (x = 0; x < xmax; x++) if (!Equal(rgbaMap[rect.top + y][rect.left + x], min, max)) return { 0 };
 			return 1;
 		}

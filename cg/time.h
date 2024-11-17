@@ -72,6 +72,12 @@ namespace CG
 		static std::wstring toWStringDT(const DATETIME& dt = toDATETIME())
 		{
 			return std::to_wstring(dt.year) + std::wstring(L"-") + std::to_wstring(dt.mon) + std::wstring(L"-") + std::to_wstring(dt.day) + std::wstring(L" ") +
+				std::to_wstring(dt.hour) + std::wstring(L":") + std::to_wstring(dt.min);
+		}
+
+		static std::wstring toWStringDTs(const DATETIME& dt = toDATETIME())
+		{
+			return std::to_wstring(dt.year) + std::wstring(L"-") + std::to_wstring(dt.mon) + std::wstring(L"-") + std::to_wstring(dt.day) + std::wstring(L" ") +
 				std::to_wstring(dt.hour) + std::wstring(L":") + std::to_wstring(dt.min) + std::wstring(L":") + std::to_wstring(dt.sec);
 		}
 	};

@@ -112,6 +112,13 @@ namespace CG
 			ReleaseOutput();
 		}
 
+		SIZE SurfaceSize()
+		{
+			DXGI_OUTDUPL_DESC desc;
+			dxgiDupl->GetDesc(&desc);
+			return { (LONG)desc.ModeDesc.Width, (LONG)desc.ModeDesc.Height };
+		}
+
 		bool Texture(ID3D11Texture2D** pTexture, SIZE& rel, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
 		{
 			if (!init) return false;

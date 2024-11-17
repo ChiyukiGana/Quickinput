@@ -78,16 +78,16 @@ struct WndLock
 
 ////////////////// Actions
 extern struct Action; typedef List<Action> Actions;
-struct QiDelay { uint32 ms; uint32 ex; };
+struct QiDelay { uint32 tmin; uint32 tmax; };
 struct QiKey { enum { up, down, click }; uint32 vk = 0; uint32 state = down; };
-struct QiMouse { int32 x = 0; int32 y = 0; uint32 ex = 0; bool move = false; };
-struct QiText 
+struct QiMouse { int32 x = 0; int32 y = 0; uint32 ex = 0; bool move = false; bool track = false; };
+struct QiText
 {
 	void release() { str.release(); }
 	wcstring str;
 };
 struct QiColor { Rgba rgbe = 0; RECT rect = {}; bool unfind = false; bool move = false; };
-struct QiLoop { uint32 count = 0; uint32 rand = 0; };
+struct QiLoop { uint32 cmin = 0; uint32 cmax = 0; };
 struct QiKeyState { uint32 vk = 0; bool state = true; };
 struct QiImage
 {
@@ -115,9 +115,10 @@ struct Action
 		_keyState,
 		_revocerPos,
 		_image,
-		_popText
+		_popText,
+		_rememberPos
 	} ActionType;
-	
+
 	ActionType type = _none;
 	typedef union _Data
 	{
@@ -187,6 +188,8 @@ struct Action
 		case _popText: type = ActionType::_popText;
 			d.popText = action.d.popText;
 			break;
+		case _rememberPos: type = ActionType::_rememberPos;
+			break;
 		default: type = ActionType::_none;
 		}
 	}
@@ -216,7 +219,7 @@ struct Macro
 	uint32 mode = 0;
 	uint32 count = 0;
 	std::wstring name;
-	
+
 	WndInfo wi;
 	POINT origin;
 
@@ -321,6 +324,7 @@ struct QuickInputUi
 	QString acRecoverPos;
 	QString acImage;
 	QString acPopText;
+	QString acRememberPos;
 	QString trOn;
 	QString trOff;
 	QString etChange;
