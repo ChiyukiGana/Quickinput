@@ -496,32 +496,76 @@ private: // Event
 				QKeyEvent* key = (QKeyEvent*)et;
 				if (key->modifiers() == Qt::ShiftModifier)
 				{
-					if (key->key() == Qt::Key_Backspace)
+					if (key->key() == Qt::Key_Backspace) // delete
 					{
 						OnBnDel();
-						return 1;
+						return true;
 					}
-					else if (key->key() == Qt::Key_Up)
+					else if (key->key() == Qt::Key_Up) // move up
 					{
-						MoveItem(1);
-						return 1;
+						MoveItem(true);
+						return true;
 					}
-					else if (key->key() == Qt::Key_Down)
+					else if (key->key() == Qt::Key_Down) // move down
 					{
-						MoveItem(0);
-						return 1;
+						MoveItem(false);
+						return true;
 					}
 				}
-				else if (key->modifiers() == Qt::ControlModifier)
+				else if (key->modifiers() == Qt::ControlModifier) // copy
 				{
 					if (key->key() == Qt::Key_C)
 					{
-						int row = ui.tbActions->currentRow();
-						Global::qi.clipboard = ep.actions[0][row];
+						QList<QTableWidgetItem*> items = ui.tbActions->selectedItems();
+						if (!items.size()) return true;
+
+
+						Global::qi.clipboard.resize(0);
+						for (uint32 u = 0; u < items.size(); u++) if (items[u]->column() == 0) Global::qi.clipboard.Add(ep.actions[0][items[u]->row()]);
+
+#ifdef _DEBUG
+						MsgWnd::str(L"CopyCount: ");
+						MsgWnd::log(Global::qi.clipboard.size());
+#endif
+
+						return true;
+					}
+					else if (key->key() == Qt::Key_X)
+					{
+						QList<QTableWidgetItem*> items = ui.tbActions->selectedItems();
+						if (!items.size()) return true;
+
+						Global::qi.clipboard.resize(0);
+						for (uint32 u = 0; u < items.size(); u++) if (items[u]->column() == 0) Global::qi.clipboard.Add(ep.actions[0][items[u]->row()]);
+
+						OnBnDel();
+
+#ifdef _DEBUG
+						MsgWnd::str(L"CutCount: ");
+						MsgWnd::log(Global::qi.clipboard.size());
+#endif
+
+						return true;
 					}
 					else if (key->key() == Qt::Key_V)
 					{
-						if (Global::qi.clipboard.type != Action::_none) AddItem(Global::qi.clipboard);
+						int pos = ui.tbActions->currentRow();
+						if (pos < 0) pos = ep.actions->size();
+						else if ((pos + 1) <= ep.actions->size()) pos++;
+						for (uint32 u = 0; u < Global::qi.clipboard.size(); u++)
+						{
+							ep.actions->Ins(Global::qi.clipboard[u], pos);
+							pos++;
+						}
+
+#ifdef _DEBUG
+						MsgWnd::str(L"PasteCount: ");
+						MsgWnd::log(Global::qi.clipboard.size());
+#endif
+
+						TbUpdate();
+
+						return true;
 					}
 				}
 			}
@@ -544,10 +588,10 @@ private: // Event
 				ep.actions->Mov(before, after);
 				TbUpdate();
 				ui.tbActions->setCurrentItem(ui.tbActions->item(after, 0));
-				return 1;
+				return true;
 			}
 		}
-		return 0;
+		return false;
 	}
 	void showEvent(QShowEvent*)
 	{
@@ -818,11 +862,15 @@ private slots:
 	// Delete
 	void OnBnDel()
 	{
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) return;
-		ep.actions->Del(pos);
+		QList<QTableWidgetItem*> items = ui.tbActions->selectedItems();
+		if (!items.size())return;
+
+		List<uint32> ps;
+		for (uint32 u = 0; u < items.size(); u++) if (items[u]->column() == 0) ps.Add(items[u]->row());
+
+		ep.actions->Del(ps);
 		TbUpdate();
-		if ((pos - 1) >= 0) ui.tbActions->setCurrentItem(ui.tbActions->item(pos - 1, 0));
+		ui.tbActions->setCurrentItem(0);
 
 		changing = 0;
 		ActionBnState();

@@ -159,7 +159,7 @@ static void LoadAction(const neb::CJsonObject jActions, Actions& actions)
 #ifdef _DEBUG
 	MsgWnd::str(L"Child count: ", 1);
 	MsgWnd::log(jActions.GetArraySize());
-#endif // _DEBUG
+#endif
 
 	for (uint32 u = 0; u < jActions.GetArraySize(); u++)
 	{
@@ -274,7 +274,7 @@ static void LoadMacro()
 	MsgWnd::msg(L"Load Macros");
 	MsgWnd::str(L"Macro count: ", 1);
 	MsgWnd::log(files.size());
-#endif // _DEBUG
+#endif
 
 	for (uint32 u = 0; u < files.size(); u++) {
 		Global::qi.macros.AddNull();
@@ -302,7 +302,7 @@ static void LoadMacro()
 		MsgWnd::log(L"Load Actions");
 		MsgWnd::str(L"Action count: ", 1);
 		MsgWnd::log(jActions.GetArraySize());
-#endif // _DEBUG
+#endif
 
 		LoadAction(jActions, macro.actions);
 		LoadAction(jActionsEnding, macro.actionsEnding);
@@ -386,7 +386,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 	{
 #ifdef _DEBUG
 		MsgWnd::msg(L"Action::End");
-#endif // _DEBUG
+#endif
 	}
 	return 1;
 
@@ -395,7 +395,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 
 #ifdef _DEBUG
 		MsgWnd::msg(L"Action::Delay");
-#endif // _DEBUG
+#endif
 
 		if (action.delay.ex)
 		{
@@ -414,7 +414,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 
 #ifdef _DEBUG
 			MsgWnd::msg(L"Action-Wnd::Key");
-#endif // _DEBUG
+#endif
 
 			if (action.key.state == QiKey::up)
 			{
@@ -455,7 +455,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 
 #ifdef _DEBUG
 			MsgWnd::msg(L"Action::Key");
-#endif // _DEBUG
+#endif
 
 			if (action.key.state == QiKey::up) Input::State(action.key.vk, 0, 214);
 			else if (action.key.state == QiKey::down) Input::State(action.key.vk, 1, 214);
@@ -471,7 +471,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 
 #ifdef _DEBUG
 			MsgWnd::msg(L"Action-Wnd::Mouse");
-#endif // _DEBUG
+#endif
 
 			if (action.mouse.ex)
 			{
@@ -496,14 +496,14 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 #ifdef _DEBUG
 			MsgWnd::str(L"ChildCount: ", 1);
 			MsgWnd::log(cws.size());
-#endif // _DEBUG
+#endif
 
 			if (cws.size())
 			{
 
 #ifdef _DEBUG
 				MsgWnd::log(L"Currented: ChildWindow", 1);
-#endif // _DEBUG
+#endif
 
 				// select minimum window
 				ChildWindow min;
@@ -523,14 +523,14 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 
 #ifdef _DEBUG
 				MsgWnd::log(L"Currented: ParentWindow", 1);
-#endif // _DEBUG
+#endif
 
 				wi->current = wi->wnd;
 			}
 
 #ifdef _DEBUG
 			MsgWnd::log(Window::text(wi->current), 2);
-#endif // _DEBUG
+#endif
 
 			Input::MoveTo(wi->wnd, wi->pt.x, wi->pt.y, wi->mk);
 		}
@@ -539,7 +539,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 
 #ifdef _DEBUG
 			MsgWnd::msg(L"Action::Mouse");
-#endif // _DEBUG
+#endif
 
 			if (action.mouse.ex)
 			{
@@ -562,7 +562,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 
 #ifdef _DEBUG
 		MsgWnd::msg(L"Action::Text");
-#endif // _DEBUG
+#endif
 
 		System::ClipBoardText(action.text.str.str);
 	}
@@ -577,7 +577,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 
 #ifdef _DEBUG
 			MsgWnd::msg(L"Action-Wnd::Mouse");
-#endif // _DEBUG
+#endif
 
 			HDC wdc = GetDC(wi->wnd);
 			rect = WATRR(action.color.rect, wi->wnd);
@@ -589,7 +589,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 
 #ifdef _DEBUG
 			MsgWnd::msg(L"Action::Color");
-#endif // _DEBUG
+#endif
 
 			rect = ATRR(action.color.rect);
 			Image::HdcRgbmap(Global::qi.hdc, rgbMap, rect);
@@ -625,7 +625,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 
 #ifdef _DEBUG
 		MsgWnd::msg(L"Action::Loop");
-#endif // _DEBUG
+#endif
 
 		uint32 n = 0;
 		uint32 e = 0;
@@ -653,7 +653,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 	{
 #ifdef _DEBUG
 		MsgWnd::msg(L"Action::LoopEnd");
-#endif // _DEBUG
+#endif
 	}
 	return 2;
 
@@ -662,7 +662,7 @@ static uint8 ActionExecute(Action& action, WndInput* wi)
 
 #ifdef _DEBUG
 		MsgWnd::msg(L"Action::KeyState");
-#endif // _DEBUG
+#endif
 
 		if (action.keyState.state)
 		{
@@ -700,6 +700,34 @@ static DWORD CALLBACK ThreadQuickClick(PVOID)
 		Input::State(Global::qi.fun.quickClick.key, 0, 214);
 		Thread::Sleep(e);
 	}
+	return 0;
+}
+static DWORD CALLBACK ThreadMacroEnding(PVOID pMacro)
+{
+	srand(clock());
+	Macro* macro = (Macro*)pMacro;
+	WndInput wi;
+	WndInput* pWi = 0;
+	if (macro->wndState)
+	{
+		// window is not found
+		macro->wi.wnd = FindWindowW(macro->wi.wndClass.c_str(), macro->wi.wndName.c_str());
+		if (!macro->wi.wnd)
+		{
+			macro->threadEnding = 0;
+			return 0;
+		}
+	}
+
+	for (uint32 n = 0; n < macro->actionsEnding.size(); n++)
+	{
+		if (ActionExecute(macro->actionsEnding[n], pWi))
+		{
+			macro->threadEnding = 0;
+			return 0;
+		}
+	}
+	macro->threadEnding = 0;
 	return 0;
 }
 static DWORD CALLBACK ThreadMacro(PVOID pMacro)
@@ -748,39 +776,13 @@ static DWORD CALLBACK ThreadMacro(PVOID pMacro)
 			if (ActionExecute(macro->actions[n], pWi))
 			{
 				macro->thread = 0;
+				if (macro->actionsEnding.size()) macro->threadEnding = Thread::Start(ThreadMacroEnding, macro);
 				return 0;
 			}
 		}
 	}
 	macro->thread = 0;
-	return 0;
-}
-static DWORD CALLBACK ThreadMacroEnding(PVOID pMacro)
-{
-	srand(clock());
-	Macro* macro = (Macro*)pMacro;
-	WndInput wi;
-	WndInput* pWi = 0;
-	if (macro->wndState)
-	{
-		// window is not found
-		macro->wi.wnd = FindWindowW(macro->wi.wndClass.c_str(), macro->wi.wndName.c_str());
-		if (!macro->wi.wnd)
-		{
-			macro->thread = 0;
-			return 0;
-		}
-	}
-
-	for (uint32 n = 0; n < macro->actionsEnding.size(); n++)
-	{
-		if (ActionExecute(macro->actionsEnding[n], pWi))
-		{
-			macro->thread = 0;
-			return 0;
-		}
-	}
-	macro->thread = 0;
+	if (macro->actionsEnding.size()) macro->threadEnding = Thread::Start(ThreadMacroEnding, macro);
 	return 0;
 }
 static DWORD CALLBACK ThreadRelease(PVOID key)

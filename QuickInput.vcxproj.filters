@@ -60,6 +60,9 @@
     <QtUic Include=".ui\RecordUi.ui">
       <Filter>Form Files</Filter>
     </QtUic>
+    <QtUic Include=".ui\InstallUi.ui">
+      <Filter>Form Files</Filter>
+    </QtUic>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include=".h\AboutUi.h">
@@ -105,6 +108,9 @@
       <Filter>Header Files\Wid</Filter>
     </QtMoc>
     <QtMoc Include=".h\TriggerUi.h">
+      <Filter>Header Files\Ui</Filter>
+    </QtMoc>
+    <QtMoc Include=".h\InstallUi.h">
       <Filter>Header Files\Ui</Filter>
     </QtMoc>
   </ItemGroup>

@@ -3,7 +3,6 @@
 #ifndef __AFXWIN_H__
 #include <windows.h>
 #endif
-
 #include <fstream>
 #include <ShlObj.h> //FindFolderWindow
 #include <codecvt>
@@ -60,27 +59,36 @@ namespace CG {
 			}
 		}
 
-		static bool FileNameOk(std::wstring path)
+		static bool FileNameUsable(std::wstring file)
 		{
-			for (UINT n = 0; n < path.length(); n++) {
-				if (path[n] == L'\\' || path[n] == L'/' || path[n] == L':' || path[n] == L'*' || path[n] == L'?' || path[n] == L'\"' || path[n] == L'<' || path[n] == L'>' || path[n] == L'|') return 0;
+			for (UINT n = 0; n < file.length(); n++) {
+				if (file[n] == L'\\' || file[n] == L'/' || file[n] == L':' || file[n] == L'*' || file[n] == L'?' || file[n] == L'\"' || file[n] == L'<' || file[n] == L'>' || file[n] == L'|') return 0;
 			}
 			return 1;
 		}
 
-		static std::wstring NameFilter(std::wstring path) {
-			if (!FileNameOk(path)) return L"";
-			std::wstring result;
-			bool state = 1;
-			for (UINT n = 0; n < path.length(); n++) {
-				if (state && path[n] == L' ');
-				else
-				{
-					state = 0;
-					result += path[n];
-				}
+		static bool CreateShortcut(std::wstring path, std::wstring srcPath, std::wstring workPath = L"", std::wstring iconPath = L"")
+		{
+			CoInitialize(0);
+			IShellLinkW* link = 0;
+			HRESULT hr = 0;
+			hr = CoCreateInstance(CLSID_ShellLink, 0, CLSCTX_ALL, IID_IShellLinkW, (void**)&link);
+			if (FAILED(hr)) return false;
+			link->SetPath(srcPath.c_str());
+			link->SetDescription(path.c_str());
+			if (iconPath.size()) link->SetIconLocation(iconPath.c_str(), 0);
+			if (workPath.size()) link->SetWorkingDirectory(workPath.c_str());
+			else link->SetWorkingDirectory(Path::RemoveFile(srcPath).c_str());
+			IPersistFile* pers = 0;
+			hr = link->QueryInterface(IID_IPersistFile, (void**)&pers);
+			if (FAILED(hr))
+			{
+				link->Release();
+				return false;
 			}
-			return result;
+			pers->Save(path.c_str(), TRUE);
+			pers->Release();
+			link->Release();
 		}
 
 		static bool TextSave(std::string path, std::string str, const char* locale = ".UTF8")
@@ -188,6 +196,28 @@ namespace CG {
 				state = _wfindnext32(pFind, &file);
 			}
 			return files;
+		}
+
+		// fileName: exclude .exe, findPath: D:\*.exe
+		static std::wstring FileNameNrep(std::wstring fileName, std::wstring path, std::wstring blank = L" ") {
+			if (!FileNameUsable(fileName)) return L"";
+			FileList files = FindFile(path.c_str());
+			if (!files.size()) return fileName;
+			List<std::wstring> strs;
+			strs.resize(files.size());
+			for (uint32 u = 0; u < files.size(); u++) strs[u] = Path::RemoveExtension(Path::Last(files[u].name));
+			std::wstring r = fileName;
+			uint32 p = 0;
+			while (true)
+			{
+				for (uint32 u = 0;; u++)
+				{
+					if (p) r = fileName + blank + std::to_wstring(p);
+					if (r == strs[u]) break;
+					if (u >= files.size() - 1) return r;
+				}
+				p++;
+			}
 		}
 	};
 }

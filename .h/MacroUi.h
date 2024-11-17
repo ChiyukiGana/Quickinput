@@ -138,7 +138,7 @@ private slots:
 
 		std::wstring name = (LPCWSTR)ui.etName->text().utf16();
 
-		if (!File::NameFilter(name).length())
+		if (!File::FileNameUsable(name))
 		{
 			timer->setSingleShot(1);
 			timer->start(1000);
