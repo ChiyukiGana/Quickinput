@@ -10,6 +10,8 @@
 #include "file.h"
 #include "system.h"
 #include "thread.h"
+#include "threadqueue.h"
+#include "threadpool.h"
 #include "process.h"
 
 #include "input.h"
@@ -32,7 +34,6 @@
 
 #include "ini.h"
 
-#include "ThreadPool/ThreadPool.h"
 #include "CJsonObject/CJsonObject.hpp"
 #include "base64/base64.h"
 

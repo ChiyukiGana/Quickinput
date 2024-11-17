@@ -23,11 +23,19 @@ public:
 		setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setMouseTracking(true);
 
-		ui.bnStart->setText(Qi::ui.text.rcStart);
-		ui.bnClose->setText(Qi::ui.text.rcClose);
-		connect(ui.bnStart, SIGNAL(clicked()), this, SLOT(OnBnStart()));
-		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
-		StyleGroup();
+		if ("init")
+		{
+			ui.bnStart->setText(Qi::ui.text.rcStart);
+			ui.bnClose->setText(Qi::ui.text.rcClose);
+			if ("clear shortcut")
+			{
+				ui.bnStart->installEventFilter(this);
+				ui.bnClose->installEventFilter(this);
+			}
+			connect(ui.bnStart, SIGNAL(clicked()), this, SLOT(OnBnStart()));
+			connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
+			StyleGroup();
+		}
 
 		Qi::widget.record = this;
 		Qi::recordState = true;
@@ -111,6 +119,20 @@ private:
 	}
 	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) msPos = e->pos(), mouseDown = true; e->accept(); }void mouseMoveEvent(QMouseEvent* e) { if (mouseDown) move(e->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) mouseDown = false; }
 private:
+	bool event(QEvent* e)
+	{
+		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
+		{
+			QKeyEvent* keyEvent = (QKeyEvent*)e;
+			if ((keyEvent->key() == Qt::Key_Return) || (keyEvent->key() == Qt::Key_Space)) return true;
+		}
+		return QWidget::event(e);
+	}
+	bool eventFilter(QObject* obj, QEvent* e)
+	{
+		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease)) return true;
+		return QWidget::eventFilter(obj, e);
+	}
 	void showEvent(QShowEvent*)
 	{
 		SetForegroundWindow((HWND)QWidget::winId());

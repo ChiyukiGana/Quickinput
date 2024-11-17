@@ -86,15 +86,15 @@ private:
 
 		if ("clear shortcut")
 		{
-			ui.bnReadme->setShortcut(Qt::Key_unknown);
-			ui.bnTboxs->setShortcut(Qt::Key_unknown);
-			ui.chbRecTrack->setShortcut(Qt::Key_unknown);
-			ui.chbDefOn->setShortcut(Qt::Key_unknown);
-			ui.chbShowTips->setShortcut(Qt::Key_unknown);
-			ui.chbAudFx->setShortcut(Qt::Key_unknown);
-			ui.chbMinMode->setShortcut(Qt::Key_unknown);
-			ui.chbScaleBlock->setShortcut(Qt::Key_unknown);
-			ui.chbStart->setShortcut(Qt::Key_unknown);
+			ui.bnReadme->installEventFilter(this);
+			ui.bnTboxs->installEventFilter(this);
+			ui.chbRecTrack->installEventFilter(this);
+			ui.chbDefOn->installEventFilter(this);
+			ui.chbShowTips->installEventFilter(this);
+			ui.chbAudFx->installEventFilter(this);
+			ui.chbMinMode->installEventFilter(this);
+			ui.chbScaleBlock->installEventFilter(this);
+			ui.chbStart->installEventFilter(this);
 		}
 	}
 	void Event()
@@ -111,6 +111,21 @@ private:
 		connect(ui.chbMinMode, SIGNAL(clicked()), this, SLOT(OnMinMode()));
 		connect(ui.chbStart, SIGNAL(clicked()), this, SLOT(OnStart()));
 		connect(ui.chbScaleBlock, SIGNAL(clicked()), this, SLOT(OnScaleBlock()));
+	}
+
+	bool event(QEvent* e)
+	{
+		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
+		{
+			QKeyEvent* keyEvent = (QKeyEvent*)e;
+			if ((keyEvent->key() == Qt::Key_Return) || (keyEvent->key() == Qt::Key_Space)) return true;
+		}
+		return QWidget::event(e);
+	}
+	bool eventFilter(QObject* obj, QEvent* e)
+	{
+		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease)) return true;
+		return QWidget::eventFilter(obj, e);
 	}
 	void closeEvent(QCloseEvent* e)
 	{

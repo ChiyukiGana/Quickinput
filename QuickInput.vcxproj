@@ -153,14 +153,17 @@
     <ClCompile Include="source\src\func.cpp" />
     <ClCompile Include="source\src\ginc.cpp" />
     <ClCompile Include="source\src\input.cpp" />
+    <ClCompile Include="source\src\interpreter.cpp" />
     <ClCompile Include="source\src\json.cpp" />
     <ClCompile Include="source\src\thread.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\src\func.h" />
     <ClInclude Include="source\src\ginc.h" />
+    <ClInclude Include="source\src\interpreter.h" />
     <ClInclude Include="source\src\json.h" />
     <ClInclude Include="source\src\minc.h" />
+    <ClInclude Include="source\src\qitype.h" />
     <ClInclude Include="source\src\thread.h" />
     <ClInclude Include="source\src\type.h" />
     <QtMoc Include="source\ui\widget\QWindowSelection.h" />

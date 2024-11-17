@@ -3,7 +3,7 @@
 
 namespace QiThread
 {
-	ThreadPool releaseKeyPool(1);
+	ThreadQueue releaseKeyQueue;
 	void _stdcall ReleaseKey(byte key)
 	{
 		Input::State(key, false, key_info);
@@ -52,7 +52,7 @@ namespace QiThread
 		while (Qi::run && !PeekExitMsg())
 		{
 			if (pMacro->count) { count++; if (count > pMacro->count) break; } // if count = 0 then while is infinite
-			if (QiFn::ActionExecute(pMacro->acRun, pMacro->cursor, pWi, jumpId, true) != r_continue) break;
+			if (QiInterpreter::ActionInterpreter(pMacro->acRun, pMacro->cursor, pWi, jumpId, true) != r_continue) break;
 		}
 		return 0;
 	}
@@ -72,7 +72,7 @@ namespace QiThread
 		}
 
 		int jumpId = 0;
-		QiFn::ActionExecute(pMacro->acEnd, pMacro->cursor, pWi, jumpId, true);
+		QiInterpreter::ActionInterpreter(pMacro->acEnd, pMacro->cursor, pWi, jumpId, true);
 		return 0;
 	}
 
@@ -201,6 +201,6 @@ namespace QiThread
 
 	void AddReleaseKey(byte key)
 	{
-		releaseKeyPool.enqueue(ReleaseKey, key);
+		releaseKeyQueue.enqueue(ReleaseKey, key);
 	}
 }

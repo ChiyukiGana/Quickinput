@@ -78,8 +78,9 @@ private:
 			ui.tbActions->setColumnWidth(3, 60);
 		}
 
+		if ("clear shortcut")
 		{
-			ui.chbBlock->setShortcut(Qt::Key_unknown);
+			ui.chbBlock->installEventFilter(this);
 		}
 	}
 	void Event()
@@ -155,6 +156,21 @@ private:
 			ui.tbActions->setItem(i, 3, new QTableWidgetItem(qs));
 			ui.tbActions->item(i, 3)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		}
+	}
+
+	bool event(QEvent* e)
+	{
+		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
+		{
+			QKeyEvent* keyEvent = (QKeyEvent*)e;
+			if ((keyEvent->key() == Qt::Key_Return) || (keyEvent->key() == Qt::Key_Space)) return true;
+		}
+		return QWidget::event(e);
+	}
+	bool eventFilter(QObject* obj, QEvent* e)
+	{
+		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease)) return true;
+		return QWidget::eventFilter(obj, e);
 	}
 	void showEvent(QShowEvent*)
 	{

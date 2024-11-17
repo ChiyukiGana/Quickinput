@@ -22,6 +22,16 @@ namespace CG
 		static constexpr size_t end_pos = ~((size_t)0);
 		using base_vector::base_vector;
 		
+		T* End()
+		{
+			if (base_vector::empty()) return nullptr;
+			return &base_vector::at(base_vector::size() - 1);
+		}
+		T* Begin()
+		{
+			if (base_vector::empty()) return nullptr;
+			return &base_vector::at(0);
+		}
 		T& AddNull()
 		{
 			Add(std::move(T()), 1);

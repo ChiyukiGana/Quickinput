@@ -16,16 +16,17 @@
 #include "../src/minc.h"
 #include "ui_EditUi.h"
 
-struct EditParam
-{
-	Macro* macro = 0;
-	Actions* actions = 0;
-	bool child = false;
-};
-
 class EditUi : public QDialog
 {
 	Q_OBJECT;
+
+	using JumpPoints = List<QiJumpPoint>;
+
+	struct Layer
+	{
+		Actions* actions;
+		QString title;
+	};
 
 	enum TabIndex
 	{
@@ -36,6 +37,7 @@ class EditUi : public QDialog
 		tab_color,
 		tab_image,
 		tab_text,
+		tab_dialog,
 		tab_window
 	};
 
@@ -61,6 +63,7 @@ class EditUi : public QDialog
 	QAction* muCopy;
 	QAction* muPaste;
 	QAction* muEdit;
+	QAction* muEdit2;
 
 	QTimer* testTimer;
 	uint32 testCount = 0;
@@ -72,23 +75,30 @@ class EditUi : public QDialog
 	// image viewer
 	RgbMap imageMap;
 
-	Macro* macro = 0;
-	Actions* actions = 0;
+	Macro* macro = nullptr;
+	Actions* actions = nullptr;
+	Actions* actionsRoot = nullptr;
 
-	// is child editor
-	bool child = false;
+	List<Layer> layers;
+
 	bool changing = false;
 	bool updating = false;
 
 public:
-	EditUi(EditParam ep) : QDialog()
+	EditUi(Macro* macro, Actions* actions) : QDialog()
 	{
-		macro = ep.macro, actions = ep.actions, child = ep.child;
+		Layer layer;
+		this->macro = macro;
+		layer.actions = this->actionsRoot = this->actions = actions;
+		layer.title = QString::fromUtf8("编辑 - ") + WToQString(macro->name);
+		layers.Add(layer);
+
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		Init();
 		Event();
 		StyleGroup();
+		Update();
 	}
 
 	void StyleGroup()
@@ -122,12 +132,18 @@ public:
 		ui.bnPopTextAdd->setProperty("group", "edit-add_button");
 		ui.bnJumpAdd->setProperty("group", "edit-add_button");
 		ui.bnJumpPointAdd->setProperty("group", "edit-add_button");
+		ui.dialog_add_button->setProperty("group", "edit-add_button");
 
 		ui.bnLoopEdit->setProperty("group", "edit-edit_button");
 		ui.bnTimerEdit->setProperty("group", "edit-edit_button");
 		ui.bnStateEdit->setProperty("group", "edit-edit_button");
+		ui.bnStateEdit2->setProperty("group", "edit-edit_button");
 		ui.bnColorEdit->setProperty("group", "edit-edit_button");
+		ui.bnColorEdit2->setProperty("group", "edit-edit_button");
 		ui.bnImageEdit->setProperty("group", "edit-edit_button");
+		ui.bnImageEdit2->setProperty("group", "edit-edit_button");
+		ui.dialog_edit_button->setProperty("group", "edit-edit_button");
+		ui.dialog_edit2_button->setProperty("group", "edit-edit_button");
 
 		ui.chbMoveTrack->setProperty("group", "check");
 		ui.chbColorMove->setProperty("group", "check");
@@ -138,18 +154,14 @@ public:
 
 		ui.rbRunning->setProperty("group", "radio");
 		ui.rbEnding->setProperty("group", "radio");
-		ui.rbStateDown->setProperty("group", "radio");
 		ui.rbClick->setProperty("group", "radio");
 		ui.rbDown->setProperty("group", "radio");
 		ui.rbUp->setProperty("group", "radio");
 		ui.rbPos->setProperty("group", "radio");
 		ui.rbMove->setProperty("group", "radio");
-		ui.rbStateDown->setProperty("group", "radio");
-		ui.rbStateUp->setProperty("group", "radio");
-		ui.rbColorFind->setProperty("group", "radio");
-		ui.rbColorNFind->setProperty("group", "radio");
-		ui.rbImageFind->setProperty("group", "radio");
-		ui.rbImageNFind->setProperty("group", "radio");
+		ui.dialog_style_none_radio->setProperty("group", "radio");
+		ui.dialog_style_warning_radio->setProperty("group", "radio");
+		ui.dialog_style_error_radio->setProperty("group", "radio");
 
 		menu->setProperty("group", "context_menu");
 
@@ -178,6 +190,8 @@ public:
 		ui.etImageSim->setProperty("group", "line_edit");
 		ui.etPopText->setProperty("group", "line_edit");
 		ui.etPopTextTime->setProperty("group", "line_edit");
+		ui.dialog_title_edit->setProperty("group", "line_edit");
+		ui.dialog_text_edit->setProperty("group", "line_edit");
 		ui.etWndName->setProperty("group", "line_edit");
 
 		ui.etText->setProperty("group", "text_edit");
@@ -230,6 +244,7 @@ private:
 			muCopy = new QAction("复制", this);
 			muPaste = new QAction("粘贴", this);
 			muEdit = new QAction("编辑", this);
+			muEdit2 = new QAction("编辑2", this);
 
 			menu->addAction(muDel);
 			menu->addAction(muChange);
@@ -237,6 +252,7 @@ private:
 			menu->addAction(muCopy);
 			menu->addAction(muPaste);
 			menu->addAction(muEdit);
+			menu->addAction(muEdit2);
 
 			connect(muDel, SIGNAL(triggered()), this, SLOT(OnMenuDel()));
 			connect(muChange, SIGNAL(triggered()), this, SLOT(OnMenuChange()));
@@ -244,6 +260,7 @@ private:
 			connect(muCopy, SIGNAL(triggered()), this, SLOT(OnMenuCopy()));
 			connect(muPaste, SIGNAL(triggered()), this, SLOT(OnMenuPaste()));
 			connect(muEdit, SIGNAL(triggered()), this, SLOT(OnMenuEdit()));
+			connect(muEdit2, SIGNAL(triggered()), this, SLOT(OnMenuEdit2()));
 		}
 		if ("buttons")
 		{
@@ -261,39 +278,41 @@ private:
 				ui.bnEndLoopAdd->setText(Qi::ui.text.etAdd);
 				ui.bnJumpAdd->setText(Qi::ui.text.etAdd);
 				ui.bnJumpPointAdd->setText(Qi::ui.text.etAdd);
-				ui.bnStateEdit->setText(Qi::ui.text.etEdit);
 				ui.bnLoopEdit->setText(Qi::ui.text.etEdit);
-				ui.bnColorEdit->setText(Qi::ui.text.etEdit);
-				ui.bnImageEdit->setText(Qi::ui.text.etEdit);
 				ui.bnTimerEdit->setText(Qi::ui.text.etEdit);
 			}
 			if ("clear shortcut")
 			{
-				ui.bnClose->setShortcut(Qt::Key_unknown);
-				ui.bnRun->setShortcut(Qt::Key_unknown);
-				ui.bnPos->setShortcut(Qt::Key_unknown);
-				ui.bnColorRect->setShortcut(Qt::Key_unknown);
-				ui.bnColorValue->setShortcut(Qt::Key_unknown);
-				ui.bnImageRect->setShortcut(Qt::Key_unknown);
-				ui.bnImageShot->setShortcut(Qt::Key_unknown);
+				ui.bnClose->installEventFilter(this);
+				ui.bnBack->installEventFilter(this);
+				ui.bnRun->installEventFilter(this);
+				ui.bnPos->installEventFilter(this);
+				ui.bnColorRect->installEventFilter(this);
+				ui.bnColorValue->installEventFilter(this);
+				ui.bnImageRect->installEventFilter(this);
+				ui.bnImageShot->installEventFilter(this);
 
-				ui.bnKeyAdd->setShortcut(Qt::Key_unknown);
-				ui.bnStateAdd->setShortcut(Qt::Key_unknown);
-				ui.bnMoveAdd->setShortcut(Qt::Key_unknown);
-				ui.bnDelayAdd->setShortcut(Qt::Key_unknown);
-				ui.bnLoopAdd->setShortcut(Qt::Key_unknown);
-				ui.bnTextAdd->setShortcut(Qt::Key_unknown);
-				ui.bnColorAdd->setShortcut(Qt::Key_unknown);
-				ui.bnImageAdd->setShortcut(Qt::Key_unknown);
-				ui.bnEndAdd->setShortcut(Qt::Key_unknown);
-				ui.bnEndLoopAdd->setShortcut(Qt::Key_unknown);
-				ui.bnTimerEdit->setShortcut(Qt::Key_unknown);
-				ui.bnJumpAdd->setShortcut(Qt::Key_unknown);
-				ui.bnJumpPointAdd->setShortcut(Qt::Key_unknown);
-				ui.bnStateEdit->setShortcut(Qt::Key_unknown);
-				ui.bnLoopEdit->setShortcut(Qt::Key_unknown);
-				ui.bnColorEdit->setShortcut(Qt::Key_unknown);
-				ui.bnImageEdit->setShortcut(Qt::Key_unknown);
+				ui.bnKeyAdd->installEventFilter(this);
+				ui.bnStateAdd->installEventFilter(this);
+				ui.bnMoveAdd->installEventFilter(this);
+				ui.bnDelayAdd->installEventFilter(this);
+				ui.bnLoopAdd->installEventFilter(this);
+				ui.bnTextAdd->installEventFilter(this);
+				ui.bnColorAdd->installEventFilter(this);
+				ui.bnImageAdd->installEventFilter(this);
+				ui.bnEndAdd->installEventFilter(this);
+				ui.bnEndLoopAdd->installEventFilter(this);
+				ui.bnJumpAdd->installEventFilter(this);
+				ui.bnJumpPointAdd->installEventFilter(this);
+				ui.dialog_add_button->installEventFilter(this);
+
+				ui.bnStateEdit->installEventFilter(this);
+				ui.bnLoopEdit->installEventFilter(this);
+				ui.bnTimerEdit->installEventFilter(this);
+				ui.bnColorEdit->installEventFilter(this);
+				ui.bnImageEdit->installEventFilter(this);
+				ui.dialog_edit_button->installEventFilter(this);
+				ui.dialog_edit2_button->installEventFilter(this);
 			}
 			if ("disable edit buttons")
 			{
@@ -313,25 +332,16 @@ private:
 			keyRbs->addButton(ui.rbClick);
 			ui.rbClick->setChecked(true);
 
-			QButtonGroup* stateRbs = new QButtonGroup(this);
-			stateRbs->addButton(ui.rbStateDown);
-			stateRbs->addButton(ui.rbStateUp);
-			ui.rbStateDown->setChecked(true);
-
 			QButtonGroup* moveRbs = new QButtonGroup(this);
 			moveRbs->addButton(ui.rbPos);
 			moveRbs->addButton(ui.rbMove);
 			ui.rbPos->setChecked(true);
 
-			QButtonGroup* colorRbs = new QButtonGroup(this);
-			colorRbs->addButton(ui.rbColorFind);
-			colorRbs->addButton(ui.rbColorNFind);
-			ui.rbColorFind->setChecked(true);
-
-			QButtonGroup* imageRbs = new QButtonGroup(this);
-			imageRbs->addButton(ui.rbImageFind);
-			imageRbs->addButton(ui.rbImageNFind);
-			ui.rbImageFind->setChecked(true);
+			QButtonGroup* dialogRbs = new QButtonGroup(this);
+			dialogRbs->addButton(ui.dialog_style_none_radio);
+			dialogRbs->addButton(ui.dialog_style_warning_radio);
+			dialogRbs->addButton(ui.dialog_style_error_radio);
+			ui.dialog_style_none_radio->setChecked(true);
 		}
 		if ("line edit range")
 		{
@@ -396,20 +406,13 @@ private:
 
 		// load Window mode
 		if (macro->wndState) macro->wi.Update(), SetWindowMode();
-
-		// is child
-		if (child) ui.rbRunning->setVisible(false), ui.rbEnding->setVisible(false);
-
-		// title
-		ui.lbTitle->setText(windowTitle());
-
-		TableUpdate();
 	}
 	void Event()
 	{
 		if ("title")
 		{
 			connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
+			connect(ui.bnBack, SIGNAL(clicked()), this, SLOT(OnBnBack()));
 			connect(ui.bnRun, SIGNAL(clicked()), this, SLOT(OnBnRun()));
 			connect(ui.bnWndSelect, SIGNAL(clicked()), this, SLOT(OnBnWndSelect()));
 			connect(ui.chbWnd, SIGNAL(clicked()), this, SLOT(OnChbWnd()));
@@ -436,6 +439,7 @@ private:
 			connect(ui.bnKeyAdd, SIGNAL(clicked()), this, SLOT(OnBnKeyAdd()));
 			connect(ui.bnStateAdd, SIGNAL(clicked()), this, SLOT(OnBnKeyStateAdd()));
 			connect(ui.bnStateEdit, SIGNAL(clicked()), this, SLOT(OnBnKeyStateEdit()));
+			connect(ui.bnStateEdit2, SIGNAL(clicked()), this, SLOT(OnBnKeyStateEdit2()));
 			connect(ui.bnMoveAdd, SIGNAL(clicked()), this, SLOT(OnBnMouseAdd()));
 			connect(ui.bnPos, SIGNAL(clicked()), this, SLOT(OnBnMousePos()));
 			connect(ui.rbPos, SIGNAL(toggled(bool)), this, SLOT(OnRbMousePos(bool)));
@@ -451,6 +455,7 @@ private:
 			connect(ui.etTimerMin, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtTimerMin(const QString&)));
 			connect(ui.bnColorAdd, SIGNAL(clicked()), this, SLOT(OnBnColorAdd()));
 			connect(ui.bnColorEdit, SIGNAL(clicked()), this, SLOT(OnBnColorEdit()));
+			connect(ui.bnColorEdit2, SIGNAL(clicked()), this, SLOT(OnBnColorEdit2()));
 			connect(ui.bnColorRect, SIGNAL(clicked()), this, SLOT(OnBnColorRect()));
 			connect(ui.bnColorValue, SIGNAL(clicked()), this, SLOT(OnBnColorValue()));
 			connect(ui.bnEndAdd, SIGNAL(clicked()), this, SLOT(OnBnEndAdd()));
@@ -459,26 +464,134 @@ private:
 			connect(ui.bnRecoverPosAdd, SIGNAL(clicked()), this, SLOT(OnBnRecoverPosAdd()));
 			connect(ui.bnImageAdd, SIGNAL(clicked()), this, SLOT(OnBnImageAdd()));
 			connect(ui.bnImageEdit, SIGNAL(clicked()), this, SLOT(OnBnImageEdit()));
+			connect(ui.bnImageEdit2, SIGNAL(clicked()), this, SLOT(OnBnImageEdit2()));
 			connect(ui.bnImageRect, SIGNAL(clicked()), this, SLOT(OnBnImageRect()));
 			connect(ui.bnImageShot, SIGNAL(clicked()), this, SLOT(OnBnImageShot()));
 			connect(ui.bnPopTextAdd, SIGNAL(clicked()), this, SLOT(OnBnPopTextAdd()));
 			connect(ui.bnJumpAdd, SIGNAL(clicked()), this, SLOT(OnBnJumpAdd()));
 			connect(ui.bnJumpPointAdd, SIGNAL(clicked()), this, SLOT(OnBnJumpPointAdd()));
+			connect(ui.dialog_add_button, SIGNAL(clicked()), this, SLOT(OnBnDialogAdd()));
+			connect(ui.dialog_edit_button, SIGNAL(clicked()), this, SLOT(OnBnDialogEdit()));
+			connect(ui.dialog_edit2_button, SIGNAL(clicked()), this, SLOT(OnBnDialogEdit2()));
 		}
 		if ("timer")
 		{
 			connect(testTimer, SIGNAL(timeout()), this, SLOT(OnTestTimer()));
 		}
 	}
+	void NextEdit(bool edit2)
+	{
+		SetChange(false);
+
+		int p = ui.tbActions->currentRow(); if (p < 0) return;
+
+		QString title;
+		Actions* next = nullptr;
+		bool failed = false;
+		std::visit([&title, &failed, &next, edit2](auto&& var)
+			{
+				using T = std::decay_t<decltype(var)>;
+				if constexpr (std::is_same_v<T, QiColor>)
+				{
+					QiColor& color = var;
+					if (edit2)
+					{
+						next = &color.next2;
+						title = "编辑 - 查找颜色（未找到）";
+					}
+					else
+					{
+						next = &color.next;
+						title = "编辑 - 查找颜色（找到）";
+					}
+				}
+				else if constexpr (std::is_same_v<T, QiLoop>)
+				{
+					QiLoop& loop = var;
+					next = &loop.next;
+					title = "编辑 - 循环";
+				}
+				else if constexpr (std::is_same_v<T, QiKeyState>)
+				{
+					QiKeyState& keyState = var;
+					if (edit2)
+					{
+						next = &keyState.next2;
+						title = "编辑 - 按键状态（未按下）";
+					}
+					else
+					{
+						next = &keyState.next;
+						title = "编辑 - 按键状态（按下）";
+					}
+
+				}
+				else if constexpr (std::is_same_v<T, QiImage>)
+				{
+					QiImage& image = var;
+					if (edit2)
+					{
+						next = &image.next2;
+						title = "编辑 - 查找图片（未找到）";
+					}
+					else
+					{
+						next = &image.next;
+						title = "编辑 - 查找图片（找到）";
+					}
+				}
+				else if constexpr (std::is_same_v<T, QiTimer>)
+				{
+					QiTimer& timer = var;
+					next = &timer.next;
+					title = "编辑 - 定时";
+				}
+				else if constexpr (std::is_same_v<T, QiDialog>)
+				{
+					QiDialog& dialog = var;
+					if (edit2)
+					{
+						next = &dialog.next2;
+						title = "编辑 - 对话框（取消）";
+					}
+					else
+					{
+						next = &dialog.next;
+						title = "编辑 - 对话框（确认）";
+					}
+				}
+				else
+				{
+					failed = true;
+				}
+			}, actions->at(p));
+
+		if (!failed)
+		{
+			Layer layer;
+			layer.actions = next;
+			layer.title = title;
+			layers.Add(layer);
+
+			actions = next;
+			setWindowTitle(title);
+			Update();
+		}
+	}
 
 	void DisableButtons()
 	{
 		ui.bnStateEdit->setDisabled(true);
+		ui.bnStateEdit2->setDisabled(true);
 		ui.bnLoopEdit->setDisabled(true);
 		ui.bnTimerEdit->setDisabled(true);
 		ui.bnColorEdit->setDisabled(true);
+		ui.bnColorEdit2->setDisabled(true);
 		ui.bnImageEdit->setDisabled(true);
+		ui.bnImageEdit2->setDisabled(true);
 		ui.bnJumpAdd->setDisabled(true);
+		ui.dialog_edit_button->setDisabled(true);
+		ui.dialog_edit2_button->setDisabled(true);
 	}
 
 	void SelectWindow()
@@ -496,72 +609,7 @@ private:
 		ui.etWndName->setText(QString::fromWCharArray(macro->wi.wndName.c_str()));
 	}
 
-	void NextEdit()
-	{
-		int p = ui.tbActions->currentRow(); if (p < 0) return;
-
-		QString title;
-		Actions* next = nullptr;
-		bool failed = false;
-		std::visit([&title, &failed, &next](auto&& var)
-			{
-				using T = std::decay_t<decltype(var)>;
-				if constexpr (std::is_same_v<T, QiColor>)
-				{
-					QiColor& color = var;
-					next = &color.next;
-					title = "编辑 - 查找颜色";
-				}
-				else if constexpr (std::is_same_v<T, QiLoop>)
-				{
-					QiLoop& loop = var;
-					next = &loop.next;
-					title = "编辑 - 循环";
-				}
-				else if constexpr (std::is_same_v<T, QiKeyState>)
-				{
-					QiKeyState& keyState = var;
-					next = &keyState.next;
-					title = "编辑 - 按键状态";
-				}
-				else if constexpr (std::is_same_v<T, QiImage>)
-				{
-					QiImage& image = var;
-					next = &image.next;
-					title = "编辑 - 查找图片";
-				}
-				else if constexpr (std::is_same_v<T, QiTimer>)
-				{
-					QiTimer& timer = var;
-					next = &timer.next;
-					title = "编辑 - 定时";
-				}
-				else
-				{
-					failed = true;
-				}
-			}, actions->at(p));
-
-		if (!failed)
-		{
-			EditParam epc;
-			epc.macro = macro;
-			epc.child = true;
-			epc.actions = next;
-			
-			EditUi edit(epc);
-			edit.setWindowTitle(title);
-			QPoint pt = pos();
-			move(-10000, -10000);
-			edit.move(pt);
-			edit.exec();
-			move(pt);
-			TableUpdate();
-		}
-	}
-
-
-	void JumpPoints(List<QiJumpPoint>& jumpPoints, const Actions& actions)
+	void LoadJumpPoints(JumpPoints& jumpPoints, const Actions& actions)
 	{
 		for (size_t i = 0; i < actions.size(); i++)
 		{
@@ -576,11 +624,13 @@ private:
 					else
 					{
 						const Actions* next = nullptr;
+						const Actions* next2 = nullptr;
 
 						if constexpr (std::is_same_v<T, QiColor>)
 						{
 							const QiColor& color = var;
 							if (color.next.size()) next = &color.next;
+							if (color.next2.size()) next2 = &color.next2;
 						}
 						else if constexpr (std::is_same_v<T, QiLoop>)
 						{
@@ -591,24 +641,33 @@ private:
 						{
 							const QiKeyState& keyState = var;
 							if (keyState.next.size()) next = &keyState.next;
+							if (keyState.next2.size()) next2 = &keyState.next2;
 						}
 						else if constexpr (std::is_same_v<T, QiImage>)
 						{
 							const QiImage& image = var;
 							if (image.next.size()) next = &image.next;
+							if (image.next2.size()) next2 = &image.next2;
 						}
 						else if constexpr (std::is_same_v<T, QiTimer>)
 						{
 							const QiTimer& timer = var;
 							if (timer.next.size()) next = &timer.next;
 						}
+						else if constexpr (std::is_same_v<T, QiDialog>)
+						{
+							const QiDialog& dialog = var;
+							if (dialog.next.size()) next = &dialog.next;
+							if (dialog.next2.size()) next2 = &dialog.next2;
+						}
 
-						if (next) JumpPoints(jumpPoints, *next);
+						if (next) LoadJumpPoints(jumpPoints, *next);
+						if (next2) LoadJumpPoints(jumpPoints, *next2);
 					}
 				}, actions.at(i));
 		}
 	}
-	bool JumpPointFind(const List<QiJumpPoint>& jumpPoints, int32 id)
+	bool FindJumpPoint(const JumpPoints& jumpPoints, int32 id)
 	{
 		for (size_t i = 0; i < jumpPoints.size(); i++)
 		{
@@ -616,7 +675,7 @@ private:
 		}
 		return false;
 	}
-	void JumpInvalidCheck(const List<QiJumpPoint>& jumpPoints, Actions& actions)
+	void CheckJumpInvalid(const JumpPoints& jumpPoints, Actions& actions)
 	{
 		for (size_t i = 0; i < actions.size(); i++)
 		{
@@ -626,7 +685,7 @@ private:
 					if constexpr (std::is_same_v<T, QiJump>)
 					{
 						QiJump& jump = var;
-						if (!JumpPointFind(jumpPoints, jump.id))
+						if (!FindJumpPoint(jumpPoints, jump.id))
 						{
 							jump.id = -1;
 						}
@@ -634,11 +693,13 @@ private:
 					else
 					{
 						Actions* next = nullptr;
+						Actions* next2 = nullptr;
 
 						if constexpr (std::is_same_v<T, QiColor>)
 						{
 							QiColor& color = var;
 							if (color.next.size()) next = &color.next;
+							if (color.next2.size()) next2 = &color.next2;
 						}
 						else if constexpr (std::is_same_v<T, QiLoop>)
 						{
@@ -649,25 +710,125 @@ private:
 						{
 							QiKeyState& keyState = var;
 							if (keyState.next.size()) next = &keyState.next;
+							if (keyState.next2.size()) next2 = &keyState.next2;
 						}
 						else if constexpr (std::is_same_v<T, QiImage>)
 						{
 							QiImage& image = var;
 							if (image.next.size()) next = &image.next;
+							if (image.next2.size()) next2 = &image.next2;
 						}
 						else if constexpr (std::is_same_v<T, QiTimer>)
 						{
 							QiTimer& timer = var;
 							if (timer.next.size()) next = &timer.next;
 						}
+						else if constexpr (std::is_same_v<T, QiDialog>)
+						{
+							QiDialog& dialog = var;
+							if (dialog.next.size()) next = &dialog.next;
+							if (dialog.next2.size()) next2 = &dialog.next2;
+						}
 
-						if (next) JumpInvalidCheck(jumpPoints, *next);
+						if (next) CheckJumpInvalid(jumpPoints, *next);
+						if (next2) CheckJumpInvalid(jumpPoints, *next2);
 					}
 				}, actions.at(i));
 		}
 	}
-	void ListJumpPointCall(const List<QiJumpPoint>& jumpPoints, const Actions& actions)
+
+	int32 JumpPointUnique(const JumpPoints& jumpPoints)
 	{
+		int32 id = 1;
+		for (size_t i = 0; i < jumpPoints.size(); i++)
+		{
+			if (jumpPoints[i].id >= id) id = jumpPoints[i].id + 1;
+		}
+		return id;
+	}
+	void JumpPointUniqueActions(const JumpPoints& jumpPoints, Actions& actions)
+	{
+		for (size_t i = 0; i < actions.size(); i++)
+		{
+			std::visit([&](auto&& var)
+				{
+					using T = std::decay_t<decltype(var)>;
+					if constexpr (std::is_same_v<T, QiJumpPoint>)
+					{
+						QiJumpPoint& jumpPoint = var;
+						if (FindJumpPoint(jumpPoints, jumpPoint.id))
+						{
+							jumpPoint.id = JumpPointUnique(jumpPoints);
+						}
+					}
+					else
+					{
+						Actions* next = nullptr;
+						Actions* next2 = nullptr;
+
+						if constexpr (std::is_same_v<T, QiColor>)
+						{
+							QiColor& color = var;
+							if (color.next.size()) next = &color.next;
+							if (color.next2.size()) next2 = &color.next2;
+						}
+						else if constexpr (std::is_same_v<T, QiLoop>)
+						{
+							QiLoop& loop = var;
+							if (loop.next.size()) next = &loop.next;
+						}
+						else if constexpr (std::is_same_v<T, QiKeyState>)
+						{
+							QiKeyState& keyState = var;
+							if (keyState.next.size()) next = &keyState.next;
+							if (keyState.next2.size()) next2 = &keyState.next2;
+						}
+						else if constexpr (std::is_same_v<T, QiImage>)
+						{
+							QiImage& image = var;
+							if (image.next.size()) next = &image.next;
+							if (image.next2.size()) next2 = &image.next2;
+						}
+						else if constexpr (std::is_same_v<T, QiTimer>)
+						{
+							QiTimer& timer = var;
+							if (timer.next.size()) next = &timer.next;
+						}
+						else if constexpr (std::is_same_v<T, QiDialog>)
+						{
+							QiDialog& dialog = var;
+							if (dialog.next.size()) next = &dialog.next;
+							if (dialog.next2.size()) next2 = &dialog.next2;
+						}
+
+						if (next) JumpPointUniqueActions(jumpPoints, *next);
+						if (next2) JumpPointUniqueActions(jumpPoints, *next2);
+					}
+				}, actions.at(i));
+		}
+	}
+
+	void Update()
+	{
+		setWindowTitle(layers.End()->title);
+
+		if (layers.size() > 1) ui.rbRunning->setVisible(false), ui.rbEnding->setVisible(false);
+		else ui.rbRunning->setVisible(true), ui.rbEnding->setVisible(true);
+
+		TableUpdate();
+	}
+	void ListJumpPointUpdate()
+	{
+		Actions* actions = &macro->acRun;
+		if (ui.rbEnding->isChecked()) actions = &macro->acEnd;
+
+		JumpPoints jumpPoints;
+		LoadJumpPoints(jumpPoints, *actionsRoot);
+
+		CheckJumpInvalid(jumpPoints, *actions);
+
+		ui.lsJumpPoint->clear();
+
 		for (size_t i = 0; i < jumpPoints.size(); i++)
 		{
 			const QiJumpPoint& jumpPoint = jumpPoints[i];
@@ -676,21 +837,6 @@ private:
 			ui.lsJumpPoint->addItem(item);
 		}
 	}
-	void ListJumpPointUpdate()
-	{
-		Actions* actions = &macro->acRun;
-		if (ui.rbEnding->isChecked()) actions = &macro->acEnd;
-
-		List<QiJumpPoint> jumpPoints;
-		JumpPoints(jumpPoints, *actions);
-
-		JumpInvalidCheck(jumpPoints, *actions);
-
-		ui.lsJumpPoint->clear();
-		ListJumpPointCall(jumpPoints, *actions);
-	}
-
-
 	void TableUpdate()
 	{
 		DisableButtons();
@@ -793,13 +939,8 @@ private:
 						param += QString::number(color.rgbe.b);
 						param += ",";
 						param += QString::number(color.rgbe.a);
-						if (color.unfind) param += ")　未找到";
-						else
-						{
-							param += ")　找到";
-							if (color.move) param += "并移动";
-							else param += "不移动";
-						}
+						param += ")";
+						if (color.move) param += " 移动";
 					}
 					else if constexpr (std::is_same_v<T, QiLoop>)
 					{
@@ -830,8 +971,6 @@ private:
 						type = Qi::ui.text.acKeyState;
 						mark = WToQString(keyState.mark);
 
-						if (keyState.state) param = "按下了　";
-						else param = "松开了　";
 						param += QKeyEdit::keyName(keyState.vk);
 					}
 					else if constexpr (std::is_same_v<T, QiRecoverPos>)
@@ -860,13 +999,7 @@ private:
 						param += QString::number(image.map.height());
 						param += ")　";
 						param += QString::number(image.sim);
-						if (image.unfind) param += "　未找到";
-						else
-						{
-							param += "　找到";
-							if (image.move) param += "并移动";
-							else param += "不移动";
-						}
+						if (image.move) param += "移动";
 					}
 					else if constexpr (std::is_same_v<T, QiPopText>)
 					{
@@ -924,6 +1057,18 @@ private:
 						param = "id：";
 						param += QString::number(jumpPoint.id);
 					}
+					else if constexpr (std::is_same_v<T, QiDialog>)
+					{
+						const QiDialog& dialog = var;
+						type = Qi::ui.text.acDialog;
+						mark = WToQString(dialog.mark);
+
+						param = WToQString(dialog.title.substr(0, 8));
+						if (dialog.title.size() > 7) param += "...";
+						param += " | ";
+						param += WToQString(dialog.text.substr(0, 16));
+						if (dialog.text.size() > 15) param += "...";
+					}
 					else
 					{
 						type = "加载失败";
@@ -946,6 +1091,21 @@ private:
 	}
 
 private:
+	void setWindowTitle(const QString& title)
+	{
+		QDialog::setWindowTitle(title);
+		ui.lbTitle->setText(title);
+	}
+
+	bool event(QEvent* e)
+	{
+		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
+		{
+			QKeyEvent* keyEvent = (QKeyEvent*)e;
+			if ((keyEvent->key() == Qt::Key_Return) || (keyEvent->key() == Qt::Key_Space)) return true;
+		}
+		return QDialog::event(e);
+	}
 	bool eventFilter(QObject* obj, QEvent* e)
 	{
 		if (obj == ui.tbActions)
@@ -1020,7 +1180,11 @@ private:
 				return true;
 			}
 		}
-		return false;
+		else if ("buttons")
+		{
+			if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease)) return true;
+		}
+		return QDialog::eventFilter(obj, e);
 	}
 	void showEvent(QShowEvent*)
 	{
@@ -1053,6 +1217,17 @@ private Q_SLOTS:
 	void OnBnClose()
 	{
 		close();
+	}
+	void OnBnBack()
+	{
+		layers.DelBack();
+		if (layers.empty()) close();
+		else
+		{
+			actions = layers.End()->actions;
+			setWindowTitle(layers.End()->title);
+			Update();
+		}
 	}
 	void OnBnRun()
 	{
@@ -1088,7 +1263,11 @@ private Q_SLOTS:
 	}
 	void OnMenuEdit()
 	{
-		NextEdit();
+		NextEdit(false);
+	}
+	void OnMenuEdit2()
+	{
+		NextEdit(true);
 	}
 
 	// List
@@ -1101,17 +1280,17 @@ private Q_SLOTS:
 	// Table
 	void OnRbRunning(bool state)
 	{
-		if (state && (!child))
+		if (state && (layers.size() == 1))
 		{
-			actions = &macro->acRun;
+			layers.Begin()->actions = actionsRoot = actions = &macro->acRun;
 			TableUpdate();
 		}
 	}
 	void OnRbEnding(bool state)
 	{
-		if (state && (!child))
+		if (state && (layers.size() == 1))
 		{
-			actions = &macro->acEnd;
+			layers.Begin()->actions = actionsRoot = actions = &macro->acEnd;
 			TableUpdate();
 		}
 	}
@@ -1188,8 +1367,8 @@ private Q_SLOTS:
 					{
 						const QiColor& color = var;
 						ui.tabWidget->setCurrentIndex(tab_color);
-
 						ui.bnColorEdit->setEnabled(true);
+						ui.bnColorEdit2->setEnabled(true);
 
 						pv.hide();
 						RECT rect;
@@ -1213,7 +1392,6 @@ private Q_SLOTS:
 					{
 						const QiLoop& loop = var;
 						ui.tabWidget->setCurrentIndex(tab_loop);
-
 						ui.bnLoopEdit->setEnabled(true);
 					}
 					else if constexpr (std::is_same_v<T, QiLoopEnd>)
@@ -1225,8 +1403,8 @@ private Q_SLOTS:
 					{
 						const QiKeyState& keyState = var;
 						ui.tabWidget->setCurrentIndex(tab_state);
-
 						ui.bnStateEdit->setEnabled(true);
+						ui.bnStateEdit2->setEnabled(true);
 					}
 					else if constexpr (std::is_same_v<T, QiRecoverPos>)
 					{
@@ -1237,8 +1415,8 @@ private Q_SLOTS:
 					{
 						const QiImage& image = var;
 						ui.tabWidget->setCurrentIndex(tab_image);
-
 						ui.bnImageEdit->setEnabled(true);
+						ui.bnImageEdit2->setEnabled(true);
 
 						pv.hide();
 						RECT rect;
@@ -1287,12 +1465,19 @@ private Q_SLOTS:
 						const QiJumpPoint& jumpPoint = var;
 						ui.tabWidget->setCurrentIndex(tab_jump);
 					}
+					else if constexpr (std::is_same_v<T, QiDialog>)
+					{
+						const QiDialog& dialog = var;
+						ui.tabWidget->setCurrentIndex(tab_dialog);
+						ui.dialog_edit_button->setEnabled(true);
+						ui.dialog_edit2_button->setEnabled(true);
+					}
 					else
 					{
 						ui.tabWidget->setCurrentIndex(tab_base);
 					}
 				},
-			actions->at(row));
+				actions->at(row));
 		}
 	}
 	void OnTbSelect(QTableWidgetItem*, QTableWidgetItem*)
@@ -1311,6 +1496,7 @@ private Q_SLOTS:
 		muCopy->setDisabled(true);
 		muPaste->setDisabled(true);
 		muEdit->setDisabled(true);
+		muEdit2->setDisabled(true);
 
 		QList<QTableWidgetItem*> items = ui.tbActions->selectedItems();
 		if (items.size())
@@ -1328,6 +1514,7 @@ private Q_SLOTS:
 						{
 							const QiColor& color = var;
 							muEdit->setEnabled(true);
+							muEdit2->setEnabled(true);
 						}
 						else if constexpr (std::is_same_v<T, QiLoop>)
 						{
@@ -1338,11 +1525,13 @@ private Q_SLOTS:
 						{
 							const QiKeyState& keyState = var;
 							muEdit->setEnabled(true);
+							muEdit2->setEnabled(true);
 						}
 						else if constexpr (std::is_same_v<T, QiImage>)
 						{
 							const QiImage& image = var;
 							muEdit->setEnabled(true);
+							muEdit2->setEnabled(true);
 						}
 						else if constexpr (std::is_same_v<T, QiTimer>)
 						{
@@ -1398,7 +1587,11 @@ private Q_SLOTS:
 	}
 	void OnBnKeyStateEdit()
 	{
-		NextEdit();
+		NextEdit(false);
+	}
+	void OnBnKeyStateEdit2()
+	{
+		NextEdit(true);
 	}
 	void OnBnMouseAdd()
 	{
@@ -1472,7 +1665,7 @@ private Q_SLOTS:
 	}
 	void OnBnLoopEdit()
 	{
-		NextEdit();
+		NextEdit(false);
 	}
 	void OnEtLoopMin(const QString& text)
 	{
@@ -1485,7 +1678,7 @@ private Q_SLOTS:
 	}
 	void OnBnTimerEdit()
 	{
-		NextEdit();
+		NextEdit(false);
 	}
 	void OnEtTimerMin(const QString& text)
 	{
@@ -1498,7 +1691,11 @@ private Q_SLOTS:
 	}
 	void OnBnColorEdit()
 	{
-		NextEdit();
+		NextEdit(false);
+	}
+	void OnBnColorEdit2()
+	{
+		NextEdit(true);
 	}
 	void OnBnColorRect()
 	{
@@ -1564,7 +1761,11 @@ private Q_SLOTS:
 	}
 	void OnBnImageEdit()
 	{
-		NextEdit();
+		NextEdit(false);
+	}
+	void OnBnImageEdit2()
+	{
+		NextEdit(true);
 	}
 	void OnBnImageRect()
 	{
@@ -1615,6 +1816,19 @@ private Q_SLOTS:
 		if (changing) ItemChange(QiType::jumpPoint);
 		else ItemAdd(QiType::jumpPoint);
 	}
+	void OnBnDialogAdd()
+	{
+		if (changing) ItemChange(QiType::dialog);
+		else ItemAdd(QiType::dialog);
+	}
+	void OnBnDialogEdit()
+	{
+		NextEdit(false);
+	}
+	void OnBnDialogEdit2()
+	{
+		NextEdit(true);
+	}
 
 private:
 	// Action
@@ -1642,6 +1856,7 @@ private:
 				ui.bnRememberPosAdd->setText(Qi::ui.text.etChange);
 				ui.bnJumpAdd->setText(Qi::ui.text.etChange);
 				ui.bnJumpPointAdd->setText(Qi::ui.text.etChange);
+				ui.dialog_add_button->setText(Qi::ui.text.etChange);
 			}
 		}
 		else
@@ -1664,6 +1879,7 @@ private:
 				ui.bnRememberPosAdd->setText(Qi::ui.text.etAdd);
 				ui.bnJumpAdd->setText(Qi::ui.text.etAdd);
 				ui.bnJumpPointAdd->setText(Qi::ui.text.etAdd);
+				ui.dialog_add_button->setText(Qi::ui.text.etAdd);
 			}
 		}
 	}
@@ -1739,8 +1955,13 @@ private:
 					const QiTimer& timer = var;
 					WidgetSetTimer(timer);
 				}
+				else if constexpr (std::is_same_v<T, QiDialog>)
+				{
+					const QiDialog& dialog = var;
+					WidgetSetDialog(dialog);
+				}
 			}, actions->at(p)
-		);
+				);
 	}
 	Action ItemGet(uint32 type)
 	{
@@ -1763,6 +1984,7 @@ private:
 		case QiType::timer: action = WidgetGetTimer(); break;
 		case QiType::jump: action = WidgetGetJump(); break;
 		case QiType::jumpPoint: action = WidgetGetJumpPoint(); break;
+		case QiType::dialog: action = WidgetGetDialog(); break;
 		}
 		return std::move(action);
 	}
@@ -1787,6 +2009,7 @@ private:
 
 		base_new.mark = std::move(base_old.mark);
 		base_new.next = std::move(base_old.next);
+		base_new.next2 = std::move(base_old.next2);
 
 		TableUpdate();
 		ui.tbActions->setCurrentItem(0);
@@ -1829,6 +2052,11 @@ private:
 		int p = ui.tbActions->currentRow();
 		if (p < 0) p = actions->size();
 		else p++;
+
+		JumpPoints jumpPoints;
+		LoadJumpPoints(jumpPoints, *actionsRoot);
+		JumpPointUniqueActions(jumpPoints, Qi::clipboard);
+
 		for (size_t i = Qi::clipboard.size(); i > 0; i--)
 		{
 			actions->Ins(Qi::clipboard[i - 1], p);
@@ -1848,7 +2076,6 @@ private:
 	}
 	QiKeyState WidgetGetKeyState() {
 		QiKeyState keyState;
-		keyState.state = ui.rbStateDown->isChecked();
 		keyState.vk = ui.hkState->key().keyCode;
 		return std::move(keyState);
 	}
@@ -1892,7 +2119,6 @@ private:
 	}
 	QiColor WidgetGetColor() {
 		QiColor color;
-		color.unfind = ui.rbColorNFind->isChecked();
 		color.move = ui.chbColorMove->isChecked();
 		{
 			int l = ui.etColorL->text().toInt();
@@ -1935,7 +2161,6 @@ private:
 	QiImage WidgetGetImage()
 	{
 		QiImage image;
-		image.unfind = ui.rbImageNFind->isChecked();
 		image.move = ui.chbImageMove->isChecked();
 		{
 			int l = ui.etImageL->text().toInt();
@@ -1991,9 +2216,22 @@ private:
 	QiJumpPoint WidgetGetJumpPoint()
 	{
 		QiJumpPoint jumpPoint;
-		if (ui.rbEnding->isChecked()) jumpPoint.id = QiFn::UniqueJumpPoint(macro->acEnd);
-		else jumpPoint.id = QiFn::UniqueJumpPoint(macro->acRun);
+
+		JumpPoints jumpPoints;
+		LoadJumpPoints(jumpPoints, *actionsRoot);
+
+		jumpPoint.id = JumpPointUnique(jumpPoints);
 		return std::move(jumpPoint);
+	}
+	QiDialog WidgetGetDialog()
+	{
+		QiDialog dialog;
+		if (ui.dialog_style_none_radio->isChecked()) dialog.style = QiDialog::none;
+		else if (ui.dialog_style_warning_radio->isChecked()) dialog.style = QiDialog::warning;
+		else if (ui.dialog_style_error_radio->isChecked()) dialog.style = QiDialog::error;
+		dialog.title = QStringToW(ui.dialog_title_edit->text());
+		dialog.text = QStringToW(ui.dialog_text_edit->text());
+		return std::move(dialog);
 	}
 
 	// Load widget data
@@ -2005,8 +2243,6 @@ private:
 	}
 	void WidgetSetKeyState(const QiKeyState& keyState)
 	{
-		if (keyState.state) ui.rbStateDown->setChecked(true);
-		if (!keyState.state) ui.rbStateUp->setChecked(true);
 		ui.hkState->setKey(QKeyEdit::Key(keyState.vk));
 	}
 	void WidgetSetMouse(const QiMouse& mouse) {
@@ -2024,8 +2260,6 @@ private:
 		ui.etText->setText(WToQString(text.str));
 	}
 	void WidgetSetColor(const QiColor& color) {
-		if (color.unfind) ui.rbColorNFind->setChecked(true);
-		else ui.rbColorFind->setChecked(true);
 		ui.chbColorMove->setChecked(color.move);
 		// Rect
 		{
@@ -2055,8 +2289,6 @@ private:
 		ui.etCountMax->setText(QString::number(loop.max));
 	}
 	void WidgetSetImage(const QiImage& image) {
-		if (image.unfind) ui.rbImageNFind->setChecked(true);
-		else ui.rbImageFind->setChecked(true);
 		ui.chbImageMove->setChecked(image.move);
 		// Rect
 		{
@@ -2082,5 +2314,13 @@ private:
 	{
 		ui.etTimerMin->setText(QString::number(timer.min));
 		ui.etTimerMax->setText(QString::number(timer.max));
+	}
+	void WidgetSetDialog(const QiDialog& dialog)
+	{
+		if (dialog.style == QiDialog::none) ui.dialog_style_none_radio->setChecked(true);
+		if (dialog.style == QiDialog::warning) ui.dialog_style_warning_radio->setChecked(true);
+		if (dialog.style == QiDialog::error) ui.dialog_style_error_radio->setChecked(true);
+		ui.dialog_title_edit->setText(WToQString(dialog.title));
+		ui.dialog_text_edit->setText(WToQString(dialog.text));
 	}
 };

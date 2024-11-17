@@ -77,9 +77,10 @@ namespace QiJson
 			const Action& action = actions[u];
 			neb::CJsonObject jItem;
 			neb::CJsonObject jNext;
+			neb::CJsonObject jNext2;
 
 			bool failed = false;
-			std::visit([&jItem, &jNext, &failed](auto&& var)
+			std::visit([&jItem, &jNext, &jNext2, &failed](auto&& var)
 				{
 					using T = std::decay_t<decltype(var)>;
 					if constexpr (std::is_same_v<T, QiEnd>)
@@ -128,7 +129,6 @@ namespace QiJson
 						const QiColor& color = var;
 						jItem.Add("type", QiType::color);
 						jItem.Add("mark", String::toString(color.mark));
-						jItem.Add("unfind", color.unfind, true);
 						jItem.Add("move", color.move, true);
 						jItem.Add("left", (int32)color.rect.left);
 						jItem.Add("top", (int32)color.rect.top);
@@ -136,6 +136,7 @@ namespace QiJson
 						jItem.Add("bottom", (int32)color.rect.bottom);
 						jItem.Add("rgbe", (uint32)color.rgbe.toCOLORREF());
 						SaveAction(jNext, color.next), jItem.Add("next", jNext);
+						SaveAction(jNext2, color.next2), jItem.Add("next2", jNext2);
 					}
 					else if constexpr (std::is_same_v<T, QiLoop>)
 					{
@@ -145,6 +146,7 @@ namespace QiJson
 						jItem.Add("count", loop.min);
 						jItem.Add("rand", loop.max);
 						SaveAction(jNext, loop.next), jItem.Add("next", jNext);
+						SaveAction(jNext2, loop.next2), jItem.Add("next2", jNext2);
 					}
 					else if constexpr (std::is_same_v<T, QiLoopEnd>)
 					{
@@ -157,9 +159,9 @@ namespace QiJson
 						const QiKeyState& keyState = var;
 						jItem.Add("type", QiType::keyState);
 						jItem.Add("mark", String::toString(keyState.mark));
-						jItem.Add("state", keyState.state, true);
 						jItem.Add("vk", keyState.vk);
 						SaveAction(jNext, keyState.next), jItem.Add("next", jNext);
+						SaveAction(jNext2, keyState.next2), jItem.Add("next2", jNext2);
 					}
 					else if constexpr (std::is_same_v<T, QiRecoverPos>)
 					{
@@ -172,7 +174,6 @@ namespace QiJson
 						const QiImage& image = var;
 						jItem.Add("type", QiType::image);
 						jItem.Add("mark", String::toString(image.mark));
-						jItem.Add("unfind", image.unfind, true);
 						jItem.Add("move", image.move, true);
 						jItem.Add("left", (int32)(image.rect.left));
 						jItem.Add("top", (int32)(image.rect.top));
@@ -184,6 +185,7 @@ namespace QiJson
 						std::string data(Base64::EncodedLength(image.map.bytes()), '\0');
 						if (Base64::Encode((const char*)image.map.data(), image.map.bytes(), &data[0], data.size())) jItem.Add("data", data);
 						SaveAction(jNext, image.next), jItem.Add("next", jNext);
+						SaveAction(jNext2, image.next2), jItem.Add("next2", jNext2);
 					}
 					else if constexpr (std::is_same_v<T, QiPopText>)
 					{
@@ -208,6 +210,7 @@ namespace QiJson
 						jItem.Add("min", timer.min);
 						jItem.Add("max", timer.max);
 						SaveAction(jNext, timer.next), jItem.Add("next", jNext);
+						SaveAction(jNext2, timer.next2), jItem.Add("next2", jNext2);
 					}
 					else if constexpr (std::is_same_v<T, QiJump>)
 					{
@@ -222,6 +225,17 @@ namespace QiJson
 						jItem.Add("type", QiType::jumpPoint);
 						jItem.Add("mark", String::toString(jumpPoint.mark));
 						jItem.Add("id", jumpPoint.id);
+					}
+					else if constexpr (std::is_same_v<T, QiDialog>)
+					{
+						const QiDialog& dialog = var;
+						jItem.Add("type", QiType::dialog);
+						jItem.Add("mark", String::toString(dialog.mark));
+						jItem.Add("style", dialog.style);
+						jItem.Add("title", String::toString(dialog.title));
+						jItem.Add("text", String::toString(dialog.text));
+						SaveAction(jNext, dialog.next), jItem.Add("next", jNext);
+						SaveAction(jNext2, dialog.next2), jItem.Add("next2", jNext2);
 					}
 					else
 					{
@@ -323,6 +337,7 @@ namespace QiJson
 		{
 			neb::CJsonObject jItem;
 			neb::CJsonObject jNext;
+			neb::CJsonObject jNext2;
 			jActions.Get(i, jItem);
 
 			uint32 ui32 = 0;
@@ -395,7 +410,6 @@ namespace QiJson
 				{
 					QiColor color; color.mark = String::toWString(str);
 
-					jItem.Get("unfind", color.unfind);
 					jItem.Get("move", color.move);
 					jItem.Get("left", (int32&)(color.rect.left));
 					jItem.Get("top", (int32&)(color.rect.top));
@@ -403,7 +417,9 @@ namespace QiJson
 					jItem.Get("bottom", (int32&)(color.rect.bottom));
 					jItem.Get("rgbe", ui32); color.rgbe.set(ui32);
 					jItem.Get("next", jNext);
+					jItem.Get("next2", jNext2);
 					LoadAction(jNext, color.next);
+					LoadAction(jNext2, color.next2);
 
 					actions.Add(std::move(color));
 					break;
@@ -436,11 +452,12 @@ namespace QiJson
 				{
 					QiKeyState keyState; keyState.mark = String::toWString(str);
 
-					jItem.Get("state", keyState.state);
 					jItem.Get("vk", keyState.vk);
 
 					jItem.Get("next", jNext);
+					jItem.Get("next2", jNext2);
 					LoadAction(jNext, keyState.next);
+					LoadAction(jNext2, keyState.next2);
 
 					actions.Add(std::move(keyState));
 					break;
@@ -458,7 +475,6 @@ namespace QiJson
 				{
 					QiImage image; image.mark = String::toWString(str);
 
-					jItem.Get("unfind", image.unfind);
 					jItem.Get("move", image.move);
 					jItem.Get("left", (int32&)(image.rect.left));
 					jItem.Get("top", (int32&)(image.rect.top));
@@ -477,7 +493,9 @@ namespace QiJson
 					}
 
 					jItem.Get("next", jNext);
+					jItem.Get("next2", jNext2);
 					LoadAction(jNext, image.next);
+					LoadAction(jNext2, image.next2);
 
 					actions.Add(std::move(image));
 					break;
@@ -527,12 +545,32 @@ namespace QiJson
 					actions.Add(std::move(jump));
 					break;
 				}
+
 				case QiType::jumpPoint:
 				{
 					QiJumpPoint jumpPoint; jumpPoint.mark = String::toWString(str);
 
 					jItem.Get("id", jumpPoint.id);
 					actions.Add(std::move(jumpPoint));
+					break;
+				}
+
+				case QiType::dialog:
+				{
+					QiDialog dialog; dialog.mark = String::toWString(str);
+
+					jItem.Get("style", dialog.style);
+					jItem.Get("title", str);
+					dialog.title = String::toWString(str).c_str();
+					jItem.Get("text", str);
+					dialog.text = String::toWString(str).c_str();
+
+					jItem.Get("next", jNext);
+					jItem.Get("next2", jNext2);
+					LoadAction(jNext, dialog.next);
+					LoadAction(jNext2, dialog.next2);
+
+					actions.Add(std::move(dialog));
 					break;
 				}
 				}

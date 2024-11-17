@@ -157,6 +157,15 @@ private:
 		ui.sdSize->setValue(Qi::ui.pop.size);
 		ui.sdTime->setValue(Qi::ui.pop.time);
 	}
+	bool event(QEvent* e)
+	{
+		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
+		{
+			QKeyEvent* keyEvent = (QKeyEvent*)e;
+			if ((keyEvent->key() == Qt::Key_Return) || (keyEvent->key() == Qt::Key_Space)) return true;
+		}
+		return QDialog::event(e);
+	}
 	bool eventFilter(QObject* obj, QEvent* e)
 	{
 		if (e->type() == QEvent::HoverEnter)

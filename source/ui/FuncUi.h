@@ -70,12 +70,13 @@ private:
 		ui.chbClock->setChecked(func->showClock.state);
 		ui.hkClock->setKey(QKeyEdit::Key(func->showClock.key));
 
+		if ("clear shortcut")
 		{
-			ui.bnWndSelect->setShortcut(Qt::Key_unknown);
-			ui.chbQkClick->setShortcut(Qt::Key_unknown);
-			ui.chbWndActive->setShortcut(Qt::Key_unknown);
-			ui.bnWndSelect->setShortcut(Qt::Key_unknown);
-			ui.chbClock->setShortcut(Qt::Key_unknown);
+			ui.bnWndSelect->installEventFilter(this);
+			ui.chbQkClick->installEventFilter(this);
+			ui.chbWndActive->installEventFilter(this);
+			ui.bnWndSelect->installEventFilter(this);
+			ui.chbClock->installEventFilter(this);
 		}
 	}
 	void Event()
@@ -88,6 +89,21 @@ private:
 		connect(ui.bnWndSelect, SIGNAL(clicked()), this, SLOT(OnWcSelect()));
 		connect(ui.chbClock, SIGNAL(stateChanged(int)), this, SLOT(OnClockState(int)));
 		connect(ui.hkClock, SIGNAL(changed()), this, SLOT(OnClockKey()));
+	}
+
+	bool event(QEvent* e)
+	{
+		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
+		{
+			QKeyEvent* keyEvent = (QKeyEvent*)e;
+			if ((keyEvent->key() == Qt::Key_Return) || (keyEvent->key() == Qt::Key_Space)) return true;
+		}
+		return QWidget::event(e);
+	}
+	bool eventFilter(QObject* obj, QEvent* e)
+	{
+		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease)) return true;
+		return QWidget::eventFilter(obj, e);
 	}
 private Q_SLOTS:
 	void OnQcState(int state)

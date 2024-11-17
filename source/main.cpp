@@ -19,9 +19,6 @@ int main(int argc, char* argv[])
 	if (Process::isRunning(mutex.c_str())) { MsgBox::Warning(L"当前文件夹的程序已经运行，若运行更多程序请复制此文件夹", L"提示"); return -1; }
 	CreateMutexW(0, 0, mutex.c_str());
 
-	// for high performance input process
-	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
-
 	// json, font, style
 	Init();
 
@@ -390,6 +387,7 @@ QTableWidget QLineEdit {})");
 		Qi::ui.text.acTimer = (QString::fromUtf8("定时") + Qi::ui.text.syLoop);
 		Qi::ui.text.acJump = (QString::fromUtf8("跳转") + Qi::ui.text.syJump);
 		Qi::ui.text.acJumpPoint = (QString::fromUtf8("锚点") + Qi::ui.text.syPoint);
+		Qi::ui.text.acDialog= (QString::fromUtf8("对话框") + Qi::ui.text.syText);
 		Qi::ui.text.trOn = (QString::fromUtf8("启用") + Qi::ui.text.syOn);
 		Qi::ui.text.trOff = (QString::fromUtf8("禁用") + Qi::ui.text.syOff);
 		Qi::ui.text.etFunc = (QString::fromUtf8("动作") + Qi::ui.text.syOption);

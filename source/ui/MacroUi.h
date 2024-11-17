@@ -57,15 +57,16 @@ public:
 private:
 	void Init()
 	{
+		if ("clear shortcut")
 		{
-			ui.bnRec->setShortcut(Qt::Key_unknown);
-			ui.bnWndRec->setShortcut(Qt::Key_unknown);
-			ui.bnAdd->setShortcut(Qt::Key_unknown);
-			ui.bnEdit->setShortcut(Qt::Key_unknown);
-			ui.bnExp->setShortcut(Qt::Key_unknown);
-			ui.bnImp->setShortcut(Qt::Key_unknown);
-			ui.bnLoad->setShortcut(Qt::Key_unknown);
-			ui.bnDel->setShortcut(Qt::Key_unknown);
+			ui.bnRec->installEventFilter(this);
+			ui.bnWndRec->installEventFilter(this);
+			ui.bnAdd->installEventFilter(this);
+			ui.bnEdit->installEventFilter(this);
+			ui.bnExp->installEventFilter(this);
+			ui.bnImp->installEventFilter(this);
+			ui.bnLoad->installEventFilter(this);
+			ui.bnDel->installEventFilter(this);
 		}
 
 		timer = new QTimer(this);
@@ -133,6 +134,21 @@ private:
 
 		Qi::widget.dialogActive = false;
 		Qi::widget.main->show();
+	}
+
+	bool event(QEvent* e)
+	{
+		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
+		{
+			QKeyEvent* keyEvent = (QKeyEvent*)e;
+			if ((keyEvent->key() == Qt::Key_Return) || (keyEvent->key() == Qt::Key_Space)) return true;
+		}
+		return QWidget::event(e);
+	}
+	bool eventFilter(QObject* obj, QEvent* e)
+	{
+		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease)) return true;
+		return QWidget::eventFilter(obj, e);
 	}
 	void showEvent(QShowEvent*)
 	{
@@ -227,12 +243,7 @@ private Q_SLOTS:
 	void OnBnEdit()
 	{
 		int p = ui.tbActions->currentRow(); if (p < 0) return;
-		EditParam ep;
-		ep.macro = &macros->at(p);
-		ep.actions = &macros->at(p).acRun;
-		ep.child = false;
-		EditUi edit(ep);
-		edit.setWindowTitle("编辑 - " + QString::fromWCharArray(macros->at(p).name.c_str()));
+		EditUi edit(&macros->at(p), &macros->at(p).acRun);
 
 		Qi::widget.dialogActive = true;
 		Qi::widget.main->hide();

@@ -52,12 +52,14 @@ public:
 private:
 	void Init()
 	{
+		if ("clear shortcut")
 		{
-			ui.bnMin->setShortcut(Qt::Key_unknown);
-			ui.bnHide->setShortcut(Qt::Key_unknown);
-			ui.bnClose->setShortcut(Qt::Key_unknown);
+			ui.bnMin->installEventFilter(this);
+			ui.bnHide->installEventFilter(this);
+			ui.bnClose->installEventFilter(this);
 		}
 
+		if ("tray")
 		{
 			tray = new QSystemTrayIcon(this);
 			tray->setIcon(QIcon(":/icon.png"));
@@ -86,6 +88,7 @@ private:
 			connect(exit, SIGNAL(triggered()), this, SLOT(OnMenuExit()));
 		}
 
+		if ("event")
 		{
 			connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(OnTrayClick(QSystemTrayIcon::ActivationReason)));
 			connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
@@ -93,13 +96,9 @@ private:
 			connect(ui.bnHide, SIGNAL(clicked()), this, SLOT(OnBnHide()));
 		}
 	}
-	void showEvent(QShowEvent* e)
-	{
-		SetForegroundWindow((HWND)QWidget::winId());
-	}
+
 	bool event(QEvent* e)
 	{
-
 		if (e->type() == QEvent::WindowActivate)
 		{
 			Qi::widget.mainActive = true;
@@ -115,7 +114,21 @@ private:
 				if (Qi::set.defOn) QiFn::QiState(true);
 			}
 		}
-		return QWidget::event(e);
+		else if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
+		{
+			QKeyEvent* keyEvent = (QKeyEvent*)e;
+			if ((keyEvent->key() == Qt::Key_Return) || (keyEvent->key() == Qt::Key_Space)) return true;
+		}
+		return QMainWindow::event(e);
+	}
+	bool eventFilter(QObject* obj, QEvent* e)
+	{
+		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease)) return true;
+		return QMainWindow::eventFilter(obj, e);
+	}
+	void showEvent(QShowEvent* e)
+	{
+		SetForegroundWindow((HWND)QWidget::winId());
 	}
 	bool nativeEvent(const QByteArray& type, void* pMsg, long* pResult)
 	{

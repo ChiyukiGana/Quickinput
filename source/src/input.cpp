@@ -59,111 +59,42 @@ void RecordInput(BYTE vk, bool state, POINT pt)
 	}
 }
 
-struct InputStruct
+struct KeyState
 {
-	bool press;
-	unsigned char key;
-	unsigned short x;
-	unsigned short y;
 	bool state[Qi::keySize];
+	KeyState(bool* keyState)
+	{
+		memcpy(state, Qi::keyState, Qi::keySize);
+	}
 };
 
-class InputQueue
+void InputTask(BYTE key, bool press, POINT cursor, KeyState keyState)
 {
-	struct InputStructEx
+	if (Qi::recordState)
 	{
-		bool notNull = false;
-		InputStruct inputStruct;
-	};
-
-	HANDLE thread;
-	size_t max_size;
-	size_t push_pointer;
-	size_t drop_pointer;
-	InputStructEx* queue;
-
-	static DWORD _stdcall InputQueueProcess(void* pInputQueue)
-	{
-		// for high performance input process
-		SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_HIGHEST);
-		InputQueue* q = (InputQueue*)pInputQueue;
-		InputStruct inputStruct;
-		while (true)
+		if (Qi::recording)
 		{
-			if (q->drop(inputStruct))
+			if (key == Qi::set.recKey)
 			{
-				if (Qi::recordState)
-				{
-					if (Qi::recording)
-					{
-						if (inputStruct.key == Qi::set.recKey)
-						{
-							if (inputStruct.press) QApplication::postEvent(Qi::widget.record, new QEvent((QEvent::Type)RecordUi::_stop));
-						}
-						else RecordInput(inputStruct.key, inputStruct.press, { inputStruct.x, inputStruct.y });
-					}
-					else
-					{
-						if (inputStruct.key == Qi::set.recKey)
-						{
-							if (inputStruct.press) QApplication::postEvent(Qi::widget.record, new QEvent((QEvent::Type)RecordUi::_start));
-						}
-					}
-				}
-				else
-				{
-					QiFn::Trigger(inputStruct.key, inputStruct.state);
-				}
+				if (press) QApplication::postEvent(Qi::widget.record, new QEvent((QEvent::Type)RecordUi::_stop));
 			}
-			else
+			else RecordInput(key, press, cursor);
+		}
+		else
+		{
+			if (key == Qi::set.recKey)
 			{
-				SuspendThread(GetCurrentThread());
+				if (press) QApplication::postEvent(Qi::widget.record, new QEvent((QEvent::Type)RecordUi::_start));
 			}
 		}
 	}
+	else
+	{
+		QiFn::Trigger(key, keyState.state);
+	}
+}
 
-public:
-	InputQueue(size_t max_size)
-	{
-		if (max_size < 1) this->max_size = 1;
-		else this->max_size = max_size;
-		push_pointer = 0;
-		drop_pointer = 0;
-		queue = new InputStructEx[max_size];
-		thread = CreateThread(0, 0, InputQueueProcess, this, 0, 0);
-	}
-	~InputQueue()
-	{
-		delete[] queue;
-		TerminateThread(thread, 0);
-	}
-
-	void push(const InputStruct& inputStruct)
-	{
-		if (!queue[push_pointer].notNull)
-		{
-			queue[push_pointer].inputStruct = inputStruct;
-			queue[push_pointer].notNull = true;
-			push_pointer++;
-			if (push_pointer == max_size) push_pointer = 0;
-			ResumeThread(thread);
-		}
-	}
-	bool drop(InputStruct& inputStruct)
-	{
-		if (queue[drop_pointer].notNull)
-		{
-			inputStruct = queue[drop_pointer].inputStruct;
-			queue[drop_pointer].notNull = false;
-			drop_pointer++;
-			if (drop_pointer == max_size) drop_pointer = 0;
-			return true;
-		}
-		return false;
-	}
-};
-
-InputQueue inputQueue(12);
+ThreadQueue inputQueue;
 bool _stdcall InputHook::InputProc(BYTE key, bool press, POINT cursor, PULONG_PTR param)
 {
 	// VK_LSHIFT to VK_SHIFT
@@ -177,25 +108,18 @@ bool _stdcall InputHook::InputProc(BYTE key, bool press, POINT cursor, PULONG_PT
 	// other
 	else if (key)
 	{
-
 		if (press)
 		{
 			if (!Qi::keyState[key])
 			{
 				Qi::keyState[key] = press;
-				InputStruct is;
-				is.key = key,is.press = press,is.x = cursor.x,is.y = cursor.y;
-				memcpy(&is.state, Qi::keyState, Qi::keySize);
-				inputQueue.push(is);
+				inputQueue.enqueue(InputTask, key, press, cursor, KeyState(Qi::keyState));
 			}
 		}
 		else
 		{
 			Qi::keyState[key] = press;
-			InputStruct is;
-			is.key = key, is.press = press, is.x = cursor.x, is.y = cursor.y;
-			memcpy(&is.state, Qi::keyState, Qi::keySize);
-			inputQueue.push(is);
+			inputQueue.enqueue(InputTask, key, press, cursor, KeyState(Qi::keyState));
 		}
 		// block trigger key
 		if (Qi::run) for (uint32 i = 0; i < Qi::blockKeys.size(); i++) if (Qi::blockKeys[i] == key) return true;

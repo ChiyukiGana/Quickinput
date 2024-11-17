@@ -88,7 +88,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>ver.2024-11-14</string>
+         <string>ver.2024-11-15</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -104,7 +104,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加跳转失效检查</string>
+         <string>增加对话框
+优化条件，可同时设置成功或失败的宏</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
