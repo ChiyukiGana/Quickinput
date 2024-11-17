@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿#pragma execution_character_set("utf-8")
+#pragma once
 #include <qevent.h>
 #include "../src/minc.h"
 #include "ui_RecordUi.h"
@@ -8,7 +9,6 @@ class RecordUi : public QDialog
 	Q_OBJECT;
 	Ui::RecordUiClass ui;
 	Macro macro;
-
 public:
 	RecordUi(WndInfo* wi) : QDialog()
 	{
@@ -57,22 +57,17 @@ public:
 		qis.recordState = false;
 		qis.widget.record = nullptr;
 	}
-
 	void ReStyle()
 	{
 		setStyleSheet("");
 		setStyleSheet(qis.ui.themes[qis.set.theme].style);
 	}
-
 private:
 	void WidEvent()
 	{
 		connect(ui.bnStart, SIGNAL(clicked()), this, SLOT(OnBnStart()));
 		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
 	}
-
-	void mouseMoveEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) move(et->pos() + pos() - QPoint(5, 15)); }
-
 	void RecStart()
 	{
 		if (qis.set.recKey)
@@ -107,17 +102,19 @@ private:
 		PopBox::Hide();
 		close();
 	}
-
+	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) msPos = et->pos(), mouseDown = true; et->accept(); }void mouseMoveEvent(QMouseEvent* et) { if (mouseDown) move(et->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) mouseDown = false; }
 private:
-	void showEvent(QShowEvent* et) { ReStyle(); }
-
+	void showEvent(QShowEvent*)
+	{
+		ReStyle();
+		SetForegroundWindow((HWND)QWidget::winId());
+	}
 	void customEvent(QEvent* et)
 	{
 		if (et->type() == QiEvent::recStart) RecStart();
 		else if (et->type() == QiEvent::recStop) RecStop();
 		else if (et->type() == QiEvent::recClose) RecClose();
 	}
-
 public slots:
 	void OnBnStart() { if (qis.recording) RecStop(); else RecStart(); }
 	void OnBnClose() { RecClose(); }

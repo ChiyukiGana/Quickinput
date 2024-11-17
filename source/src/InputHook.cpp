@@ -1,3 +1,4 @@
+Ôªø#pragma execution_character_set("utf-8")
 #include "minc.h"
 
 void InsertInput(const BYTE& key, const bool& state, const POINT& pt)
@@ -6,7 +7,7 @@ void InsertInput(const BYTE& key, const bool& state, const POINT& pt)
 	if (qis.recordWindow && !IsWindowVisible(qis.recordWindow))
 	{
 		QApplication::postEvent(qis.widget.record, new QEvent((QEvent::Type)QiEvent::recClose));
-		PopBox::Popup(L"¥∞ø⁄“— ß–ß", RGB(255, 64, 64), 2000);
+		PopBox::Popup(L"Á™óÂè£Â∑≤Â§±Êïà", RGB(255, 64, 64), 2000);
 	}
 
 	// delay
@@ -51,17 +52,20 @@ void InsertInput(const BYTE& key, const bool& state, const POINT& pt)
 
 bool _stdcall InputHook::InputProc(BYTE vk, bool state, POINT msPt, PULONG_PTR exInfo)
 {
+	// LSHIFT to SHIFT
 	BYTE key = Input::Convert(vk);
-	if (*exInfo == 214) // from Quick input
+	// Quick input
+	if (*exInfo == 214)
 	{
-		*exInfo = 0; // remove ex info
+		*exInfo = 0;
 		return false;
 	}
-	else if (key) // other input
+	// Other input
+	else if (key)
 	{
-		if (state) // down
+		if (state)
 		{
-			if (!qis.keyState[key]) // set state
+			if (!qis.keyState[key])
 			{
 				qis.keyState[key] = true;
 				if (qis.recordState)
@@ -75,9 +79,9 @@ bool _stdcall InputHook::InputProc(BYTE vk, bool state, POINT msPt, PULONG_PTR e
 				}
 			}
 		}
-		else // up
+		else
 		{
-			qis.keyState[key] = false; // reset state
+			qis.keyState[key] = false;
 			if (qis.recordState)
 			{
 				// start or stop record
@@ -87,6 +91,7 @@ bool _stdcall InputHook::InputProc(BYTE vk, bool state, POINT msPt, PULONG_PTR e
 					else QApplication::postEvent(qis.widget.record, new QEvent((QEvent::Type)QiEvent::recStart));
 					return true;
 				}
+				// record input
 				if (qis.recording) InsertInput(key, state, msPt);
 			}
 			else
@@ -94,7 +99,8 @@ bool _stdcall InputHook::InputProc(BYTE vk, bool state, POINT msPt, PULONG_PTR e
 				QiFn::Trigger(key);
 			}
 		}
-		if (qis.run) for (uint32 i = 0; i < qis.blockKeys.size(); i++) if (qis.blockKeys[i] == key) return true; // block trigger key
+		// block trigger key
+		if (qis.run) for (uint32 i = 0; i < qis.blockKeys.size(); i++) if (qis.blockKeys[i] == key) return true;
 	}
 	return false;
 }

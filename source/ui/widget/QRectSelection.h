@@ -26,7 +26,7 @@ public:
 		setAttribute(Qt::WA_TranslucentBackground);
 		setCursor(Qt::CrossCursor);
 		wid.setParent(this);
-		wid.setStyleSheet(u8"background-color:rgba(128,144,224,0.5);border:1px solid #08F;");
+		wid.setStyleSheet("background-color:rgba(128,144,224,0.5);border:1px solid #08F;");
 		wid.hide();
 	}
 

@@ -43,7 +43,7 @@ public:
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setAttribute(Qt::WA_TranslucentBackground);
 		setCursor(Qt::CrossCursor);
-		QFont font(u8"Microsoft YaHei"); font.setPixelSize(16); lb.setParent(this), lb.setFont(font), lb.setAlignment(Qt::AlignCenter), lb.setStyleSheet(u8"color:white;background-color:black");
+		QFont font("Microsoft YaHei"); font.setPixelSize(16); lb.setParent(this), lb.setFont(font), lb.setAlignment(Qt::AlignCenter), lb.setStyleSheet("color:white;background-color:black");
 	}
 
 	POINT Start(RECT rect = screenRect())
@@ -66,7 +66,7 @@ protected:
 	void updateLabel()
 	{
 		GetCursorPos(&ams);
-		lb.setText(QString::number(ams.x - rect.left) + QString::fromUtf8(u8" - ") + QString::number(ams.y - rect.top));
+		lb.setText(QString::number(ams.x - rect.left) + QString::fromUtf8(" - ") + QString::number(ams.y - rect.top));
 		QFontMetrics fc(lb.font()); int cx = fc.width(lb.text()), cy = fc.height();
 		QPoint pt(ms.x() + 25, ms.y() + 25);
 		if ((pt.x() > vrect.width() - cx - 25) && (pt.y() > vrect.height() - cy - 25)) pt.setX(ms.x() - cx - 25), pt.setY(ms.y() - cy - 25);

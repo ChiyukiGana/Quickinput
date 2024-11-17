@@ -101,6 +101,9 @@
             <bold>true</bold>
            </font>
           </property>
+          <property name="focusPolicy">
+           <enum>Qt::ClickFocus</enum>
+          </property>
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
           </property>
@@ -259,7 +262,13 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>0</width>
+                <width>140</width>
+                <height>24</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>140</width>
                 <height>24</height>
                </size>
               </property>
@@ -280,7 +289,7 @@
 松开：松开触发键执行宏，直到完成对应次数或按下</string>
               </property>
               <property name="styleSheet">
-               <string notr="true"/>
+               <string notr="true">QComboBox{padding-left:58px}QComboBox::drop-down{width:30px;border:none}QComboBox::down-arrow{image:url(:/arrow.png);width:14px;height:14px}</string>
               </property>
              </widget>
             </item>
@@ -328,7 +337,7 @@
               </property>
               <property name="maximumSize">
                <size>
-                <width>16777215</width>
+                <width>140</width>
                 <height>24</height>
                </size>
               </property>
@@ -341,7 +350,7 @@
                </font>
               </property>
               <property name="styleSheet">
-               <string notr="true">background-color:white;font-size:12px;</string>
+               <string notr="true"/>
               </property>
              </widget>
             </item>
@@ -383,7 +392,13 @@
               </property>
               <property name="minimumSize">
                <size>
-                <width>0</width>
+                <width>140</width>
+                <height>24</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>140</width>
                 <height>24</height>
                </size>
               </property>

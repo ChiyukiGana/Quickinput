@@ -1,4 +1,7 @@
-﻿#pragma once
+﻿#pragma execution_character_set("utf-8")
+#pragma once
+#include <qstandarditemmodel.h>
+#include <qabstractitemview.h>
 #include "../src/minc.h"
 #include "ui_TriggerUi.h"
 
@@ -6,10 +9,8 @@ class TriggerUi : public QWidget
 {
 	Q_OBJECT;
 	const int32 countMax = 9999;
-
 	Ui::TriggerUiClass ui;
 	Macros* macros = &qis.macros;
-
 public:
 	TriggerUi(QWidget* parent) : QWidget(parent)
 	{
@@ -19,10 +20,9 @@ public:
 		WidInit();
 		WidEvent();
 		LockControl(true);
-		TbUpdate();
+		TableUpdate();
 		ReStyle();
 	}
-
 	void ReStyle()
 	{
 		ui.clientWidget->setStyleSheet("");
@@ -30,14 +30,17 @@ public:
 		ui.hkTr->setStyleSheet("");
 		ui.hkTr->setStyleSheet(qis.ui.themes[qis.set.theme].style);
 	}
-
 private:
 	void WidInit()
 	{
 		ui.hkTr->Mode(2);
-		ui.cmbMode->addItem(u8"切换");
-		ui.cmbMode->addItem(u8"按下");
-		ui.cmbMode->addItem(u8"松开");
+		ui.cmbMode->addItem("切换");
+		ui.cmbMode->addItem("按下");
+		ui.cmbMode->addItem("松开");
+		QStandardItemModel* model = (QStandardItemModel*)ui.cmbMode->view()->model();
+		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
+		if (qis.set.theme >= qis.ui.themes.size()) qis.set.theme = 0;
+
 		ui.etCount->setValidator(new QIntValidator(0, countMax, this));
 
 		//Table
@@ -49,6 +52,10 @@ private:
 			ui.tbActions->setColumnWidth(2, 80);
 			ui.tbActions->setColumnWidth(3, 60);
 		}
+
+		{
+			ui.chbBlock->setShortcut(Qt::Key_unknown);
+		}
 	}
 	void WidEvent()
 	{
@@ -58,7 +65,6 @@ private:
 		connect(ui.hkTr, SIGNAL(changed()), this, SLOT(OnKeyChanged()));
 		connect(ui.etCount, SIGNAL(textEdited(const QString&)), this, SLOT(OnEtCount(const QString&)));
 	}
-
 	void ResetControl()
 	{
 		ui.chbBlock->setChecked(0);
@@ -72,8 +78,7 @@ private:
 		ui.hkTr->setDisabled(state);
 		if (state) ui.etCount->setDisabled(state);
 	}
-
-	void TbUpdate()
+	void TableUpdate()
 	{
 		ui.tbActions->clearMask();
 		ui.tbActions->setRowCount(macros->size());
@@ -85,13 +90,13 @@ private:
 			ui.tbActions->setItem(i, 0, new QTableWidgetItem(QString::fromWCharArray(macros->at(i).name.c_str())));
 			ui.tbActions->item(i, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 			//
-			QString qs = u8"----";
+			QString qs = "----";
 			if ((macros->at(i).key & 0xFFFF) != 0)
 			{
 				qs = QString::fromWCharArray(Input::Name(macros->at(i).key & 0xFFFF));
 				if ((macros->at(i).key >> 16) != 0)
 				{
-					qs += u8" + ";
+					qs += " + ";
 					qs += QString::fromWCharArray(Input::Name(macros->at(i).key >> 16));
 				}
 			}
@@ -102,19 +107,19 @@ private:
 			switch (macros->at(i).mode)
 			{
 			case Macro::sw:
-				qs = u8"切换";
+				qs = "切换";
 				break;
 			case Macro::down:
-				qs = u8"按下(";
+				qs = "按下(";
 				if (macros->at(i).count) qs += QString::number(macros->at(i).count);
-				else qs += u8"无限";
-				qs += u8")";
+				else qs += "无限";
+				qs += ")";
 				break;
 			case Macro::up:
-				qs = u8"松开(";
+				qs = "松开(";
 				if (macros->at(i).count) qs += QString::number(macros->at(i).count);
-				else qs += u8"无限";
-				qs += u8")";
+				else qs += "无限";
+				qs += ")";
 				break;
 			}
 			ui.tbActions->setItem(i, 2, new QTableWidgetItem(qs));
@@ -126,17 +131,15 @@ private:
 			ui.tbActions->item(i, 3)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		}
 
-		ui.tbActions->setStyleSheet(u8"QHeaderView::section,QScrollBar{background:transparent}");
+		ui.tbActions->setStyleSheet("QHeaderView::section,QScrollBar{background:transparent}");
 	}
-
 	void showEvent(QShowEvent*)
 	{
 		ui.tbActions->setCurrentItem(0);
-		TbUpdate();
+		TableUpdate();
 		ResetControl();
 		LockControl(1);
 	}
-
 private slots:
 	void OnTbClicked(int row, int column)
 	{
@@ -155,21 +158,21 @@ private slots:
 		}
 
 		LockControl(0);
-		TbUpdate();
+		TableUpdate();
 		QiJson::SaveMacro(macros->at(row));
 	}
 	void OnKeyChanged()
 	{
 		int p = ui.tbActions->currentRow(); if (p < 0) return;
 		macros->at(p).key = ui.hkTr->virtualKey();
-		TbUpdate();
+		TableUpdate();
 		QiJson::SaveMacro(macros->at(p));
 	}
 	void OnChbBlock()
 	{
 		int p = ui.tbActions->currentRow(); if (p < 0) return;
 		macros->at(p).block = ui.chbBlock->isChecked();
-		TbUpdate();
+		TableUpdate();
 		QiJson::SaveMacro(macros->at(p));
 	}
 	void OnCmbMode(int index)
@@ -178,7 +181,7 @@ private slots:
 		switch (index)
 		{
 		case Macro::sw:
-			ui.etCount->setText(u8"无限");
+			ui.etCount->setText("无限");
 			ui.etCount->setDisabled(1);
 			macros->at(p).count = 0;
 			macros->at(p).mode = Macro::sw;
@@ -197,7 +200,7 @@ private slots:
 			break;
 		}
 
-		TbUpdate();
+		TableUpdate();
 		QiJson::SaveMacro(macros->at(p));
 	}
 	void OnEtCount(const QString& count)
@@ -206,7 +209,7 @@ private slots:
 		int n = count.toInt();
 		if (n > countMax) n = countMax;
 		macros->at(p).count = n;
-		TbUpdate();
+		TableUpdate();
 		QiJson::SaveMacro(macros->at(p));
 	}
 };

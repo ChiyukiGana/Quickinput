@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿#pragma execution_character_set("utf-8")
+#pragma once
 #include <qfiledialog.h>
 #include <qtimer.h>
 #include "RecordUi.h"
@@ -12,10 +13,7 @@ class MacroUi : public QWidget
 	Ui::MacroUiClass ui;
 	Macros* macros = &qis.macros;
 	QTimer* timer = 0;
-
 public:
-	MacroUi() {}
-
 	MacroUi(QWidget* parent) : QWidget(parent)
 	{
 		ui.setupUi(this);
@@ -25,20 +23,29 @@ public:
 		WidEvent();
 		ReStyle();
 	}
-
 	void ReStyle()
 	{
 		ui.clientWidget->setStyleSheet("");
 		ui.clientWidget->setStyleSheet(qis.ui.themes[qis.set.theme].style);
 	}
-
 private:
 	void WidInit()
 	{
+		{
+			ui.bnRec->setShortcut(Qt::Key_unknown);
+			ui.bnWndRec->setShortcut(Qt::Key_unknown);
+			ui.bnAdd->setShortcut(Qt::Key_unknown);
+			ui.bnEdit->setShortcut(Qt::Key_unknown);
+			ui.bnExp->setShortcut(Qt::Key_unknown);
+			ui.bnImp->setShortcut(Qt::Key_unknown);
+			ui.bnLoad->setShortcut(Qt::Key_unknown);
+			ui.bnDel->setShortcut(Qt::Key_unknown);
+		}
+
 		timer = new QTimer(this);
 		ui.tbActions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
 		LockControl(true);
-		TbUpdate();
+		TableUpdate();
 	}
 	void WidEvent()
 	{
@@ -54,7 +61,6 @@ private:
 		connect(ui.bnLoad, SIGNAL(clicked()), this, SLOT(OnBnLoad()));
 		connect(ui.bnDel, SIGNAL(clicked()), this, SLOT(OnBnDel()));
 	}
-
 	void ResetControl()
 	{
 		ui.etName->setText("");
@@ -67,8 +73,7 @@ private:
 		ui.bnExp->setDisabled(state);
 		ui.bnDel->setDisabled(state);
 	}
-
-	void TbUpdate()
+	void TableUpdate()
 	{
 		ui.tbActions->clearMask();
 		ui.tbActions->setRowCount(macros->size());
@@ -81,9 +86,8 @@ private:
 			ui.tbActions->item(i, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		}
 
-		ui.tbActions->setStyleSheet(u8"QHeaderView::section,QScrollBar{background:transparent}");
+		ui.tbActions->setStyleSheet("QHeaderView::section,QScrollBar{background:transparent}");
 	}
-
 	void RecStart(bool wnd)
 	{
 		qis.widget.dialogActive = true;
@@ -103,17 +107,15 @@ private:
 		if (wi.wnd) RecordUi rw(&wi);
 		else RecordUi rw(nullptr);
 
-		qis.widget.dialogActive = true;
+		qis.widget.dialogActive = false;
 		qis.widget.main->show();
 	}
-
 	void showEvent(QShowEvent*)
 	{
 		ResetControl();
 		LockControl(true);
-		TbUpdate();
+		TableUpdate();
 	}
-
 private slots:
 	void OnTimeOut()
 	{
@@ -123,7 +125,6 @@ private slots:
 		ui.etName->setDisabled(0);
 		ui.etName->setText(QString::fromWCharArray(macros->at(p).name.c_str()));
 	}
-
 	void OnTbClicked(int row, int column)
 	{
 		LockControl(1);
@@ -133,7 +134,6 @@ private slots:
 
 		LockControl(false);
 	}
-
 	void OnEtReturn()
 	{
 		int p = ui.tbActions->currentRow();
@@ -147,7 +147,7 @@ private slots:
 			timer->start(1000);
 
 			ui.etName->setDisabled(1);
-			ui.etName->setText(u8"名称不可用");
+			ui.etName->setText("名称不可用");
 			return;
 		}
 
@@ -161,7 +161,7 @@ private slots:
 			timer->start(1000);
 
 			ui.etName->setDisabled(1);
-			ui.etName->setText(u8"已存在该名称");
+			ui.etName->setText("已存在该名称");
 			return;
 		}
 
@@ -173,22 +173,21 @@ private slots:
 
 		File::Rename(oldPath.c_str(), newPath.c_str());
 
-		TbUpdate();
+		TableUpdate();
 		ResetControl();
 		LockControl(true);
 	}
-
 	void OnBnRec()
 	{
 		RecStart(false);
-		TbUpdate();
+		TableUpdate();
 		ResetControl();
 		LockControl(true);
 	}
 	void OnBnWndRec()
 	{
 		RecStart(true);
-		TbUpdate();
+		TableUpdate();
 		ResetControl();
 		LockControl(true);
 	}
@@ -200,7 +199,7 @@ private slots:
 		macro.count = 1;
 		qis.macros.Add(macro);
 		QiJson::SaveMacro(macro);
-		TbUpdate();
+		TableUpdate();
 		ResetControl();
 		LockControl(true);
 	}
@@ -212,7 +211,7 @@ private slots:
 		ep.actions = &macros->at(p).acRun;
 		ep.child = false;
 		EditUi edit(ep);
-		edit.setWindowTitle(u8"编辑 - " + QString::fromWCharArray(macros->at(p).name.c_str()));
+		edit.setWindowTitle("编辑 - " + QString::fromWCharArray(macros->at(p).name.c_str()));
 
 		qis.widget.dialogActive = true;
 		qis.widget.main->hide();
@@ -230,7 +229,7 @@ private slots:
 		if (p < 0) return;
 
 		qis.widget.dialogActive = true;
-		QString path = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, u8"导出到", QString::fromWCharArray((macros->at(p).name + MacroType).c_str()), u8"Quick input macro (*.json)"));
+		QString path = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, "导出到", QString::fromWCharArray((macros->at(p).name + MacroType).c_str()), "Quick input macro (*.json)"));
 		qis.widget.dialogActive = false;
 		if (!path.length()) return;
 
@@ -247,7 +246,7 @@ private slots:
 	void OnBnImp()
 	{
 		qis.widget.dialogActive = true;
-		QString path = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, u8"导入", QString(), u8"Quick input macro (*.json)"));
+		QString path = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "导入", QString(), "Quick input macro (*.json)"));
 		qis.widget.dialogActive = false;
 		if (path == "") return;
 
@@ -263,14 +262,14 @@ private slots:
 		else CopyFileW(srcFile.c_str(), newFile.c_str(), 0);
 
 		QiJson::LoadMacro();
-		TbUpdate();
+		TableUpdate();
 		ResetControl();
 		LockControl(true);
 	}
 	void OnBnLoad()
 	{
 		QiJson::LoadMacro();
-		TbUpdate();
+		TableUpdate();
 		ResetControl();
 		LockControl(true);
 	}
@@ -286,7 +285,7 @@ private slots:
 		File::FileDelete(path.c_str());
 		ui.tbActions->setCurrentItem(0);
 
-		TbUpdate();
+		TableUpdate();
 		ResetControl();
 		LockControl(true);
 	}

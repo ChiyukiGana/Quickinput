@@ -1,4 +1,5 @@
-﻿#pragma once
+﻿#pragma execution_character_set("utf-8")
+#pragma once
 #include <qsystemtrayicon.h>
 #include <qmenu.h>
 #include "MacroUi.h"
@@ -13,17 +14,13 @@ class MainUi : public QMainWindow
 {
 	Q_OBJECT;
 	Ui::MainUiClass ui;
-	QSystemTrayIcon* tray = 0;
-	QMenu* menu = 0;
-
-	MacroUi* wm = 0;
-	TriggerUi* wt = 0;
-	FuncUi* wf = 0;
-	SettingsUi* ws = 0;
-	AboutUi* wa = 0;
-
-	QPoint msPos;
-
+	QSystemTrayIcon* tray = nullptr;
+	QMenu* menu = nullptr;
+	MacroUi* wm = nullptr;
+	TriggerUi* wt = nullptr;
+	FuncUi* wf = nullptr;
+	SettingsUi* ws = nullptr;
+	AboutUi* wa = nullptr;
 public:
 	MainUi() : QMainWindow()
 	{
@@ -31,8 +28,14 @@ public:
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		WidInit();
-	}
 
+		show();
+		if (qis.set.minMode)
+		{
+			QApplication::sendEvent(this, new QEvent(QEvent::WindowDeactivate));
+			hide();
+		}
+	}
 	void ReStyle()
 	{
 		setStyleSheet("");
@@ -44,7 +47,6 @@ public:
 		wf->ReStyle();
 		ws->ReStyle();
 	}
-
 private:
 	void MenuInit()
 	{
@@ -60,7 +62,7 @@ private:
 		menu->addAction(hide);
 		menu->addAction(exit);
 		tray->setContextMenu(menu);
-		tray->setToolTip(u8"Quick input");
+		tray->setToolTip("Quick input");
 		connect(tnon, SIGNAL(triggered()), this, SLOT(OnMenuTnon()));
 		connect(tnoff, SIGNAL(triggered()), this, SLOT(OnMenuTnoff()));
 		connect(show, SIGNAL(triggered()), this, SLOT(OnMenuShow()));
@@ -69,6 +71,12 @@ private:
 	}
 	void WidInit()
 	{
+		{
+			ui.bnMin->setShortcut(Qt::Key_unknown);
+			ui.bnHide->setShortcut(Qt::Key_unknown);
+			ui.bnClose->setShortcut(Qt::Key_unknown);
+		}
+
 		{
 			tray = new QSystemTrayIcon(this);
 			tray->setIcon(QIcon(":/icon.png"));
@@ -89,12 +97,15 @@ private:
 		}
 		MenuInit();
 	}
-
+	void showEvent(QShowEvent* et)
+	{
+		ReStyle();
+		SetForegroundWindow((HWND)QWidget::winId());
+	}
 	void customEvent(QEvent* et)
 	{
 		if (et->type() == QiEvent::setTheme) ReStyle();
 	}
-
 	bool event(QEvent* et)
 	{
 
@@ -109,25 +120,36 @@ private:
 			qis.widget.mainActive = false;
 			if (QiFn::SelfActive())
 			{
-				if (qis.set.defOn) QiFn::QiState(true);
 				QiFn::QiHook(true);
+				if (qis.set.defOn) QiFn::QiState(true);
 			}
 		}
 		return QWidget::event(et);
 	}
-	void showEvent(QShowEvent* et) { SetForegroundWindow((HWND)QWidget::winId()); ReStyle(); }
-	// Move
-	void mousePressEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) msPos = et->pos(); }
-	void mouseMoveEvent(QMouseEvent* et) { if (et->buttons() & Qt::LeftButton) move(et->pos() + pos() - msPos); }
-
+	bool nativeEvent(const QByteArray& type, void* pMsg, long* pResult)
+	{
+		if (((MSG*)pMsg)->message == WM_DISPLAYCHANGE)
+		{
+			qis.screen = System::screenSize();
+			return true;
+		}
+		return false;
+	}
+	QPoint msPos;bool mouseDown = false;void mousePressEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) msPos = et->pos(), mouseDown = true; et->accept(); }void mouseMoveEvent(QMouseEvent* et) { if (mouseDown) move(et->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) mouseDown = false; }
 private slots:
-	void OnTrayClick(QSystemTrayIcon::ActivationReason reason) { if (reason == QSystemTrayIcon::Trigger) setWindowState(Qt::WindowNoState), show(); }
+	void OnTrayClick(QSystemTrayIcon::ActivationReason reason)
+	{
+		if (reason == QSystemTrayIcon::Trigger)
+		{
+			setWindowState(Qt::WindowNoState);
+			show();
+		}
+	}
 	void OnMenuTnon() { if (QiFn::SelfActive()) QiFn::QiState(true), QiFn::QiHook(true); }
 	void OnMenuTnoff() { QiFn::QiState(false); QiFn::QiHook(false); }
 	void OnMenuShow() { setWindowState(Qt::WindowNoState), show(); }
 	void OnMenuHide() { hide(); }
 	void OnMenuExit() { exit(0); }
-
 	void OnBnClose() { exit(0); }
 	void OnBnMin() { setWindowState(Qt::WindowMinimized); }
 	void OnBnHide() { hide(); }

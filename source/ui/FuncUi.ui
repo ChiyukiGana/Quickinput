@@ -585,6 +585,12 @@
               <height>24</height>
              </size>
             </property>
+            <property name="maximumSize">
+             <size>
+              <width>80</width>
+              <height>24</height>
+             </size>
+            </property>
             <property name="font">
              <font>
               <family>Microsoft YaHei</family>
@@ -595,6 +601,9 @@
             </property>
             <property name="focusPolicy">
              <enum>Qt::ClickFocus</enum>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QComboBox{padding-left:14px}QComboBox::drop-down{width:30px;border:none}QComboBox::down-arrow{image:url(:/arrow.png);width:14px;height:14px}</string>
             </property>
            </widget>
           </item>

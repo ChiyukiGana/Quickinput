@@ -1,3 +1,4 @@
+ï»¿#pragma execution_character_set("utf-8")
 #include "json.h"
 
 namespace QiJson
@@ -22,18 +23,18 @@ namespace QiJson
 	}
 	void LoadDefaultPopBox()
 	{
-		qis.ui.pop.qe.t = L"@ ÆôÓÃ";
-		qis.ui.pop.qd.t = L"@ ½ûÓÃ";
-		qis.ui.pop.we.t = L"@ ´°¿ÚÆôÓÃ";
-		qis.ui.pop.wd.t = L"@ ´°¿Ú½ûÓÃ";
-		qis.ui.pop.qce.t = L"Á¬µã @";
-		qis.ui.pop.qcd.t = L"Í£Ö¹ @";
-		qis.ui.pop.swe.t = L"Ö´ĞĞ @";
-		qis.ui.pop.swd.t = L"Í£Ö¹ @";
-		qis.ui.pop.dwe.t = L"Ö´ĞĞ$´Î @";
-		qis.ui.pop.dwd.t = L"Í£Ö¹ @";
-		qis.ui.pop.upe.t = L"Ö´ĞĞ$´Î @";
-		qis.ui.pop.upd.t = L"Í£Ö¹ @";
+		qis.ui.pop.qe.t = L"@ å¯ç”¨";
+		qis.ui.pop.qd.t = L"@ ç¦ç”¨";
+		qis.ui.pop.we.t = L"@ çª—å£å¯ç”¨";
+		qis.ui.pop.wd.t = L"@ çª—å£ç¦ç”¨";
+		qis.ui.pop.qce.t = L"è¿ç‚¹ @";
+		qis.ui.pop.qcd.t = L"åœæ­¢ @";
+		qis.ui.pop.swe.t = L"æ‰§è¡Œ @";
+		qis.ui.pop.swd.t = L"åœæ­¢ @";
+		qis.ui.pop.dwe.t = L"æ‰§è¡Œ$æ¬¡ @";
+		qis.ui.pop.dwd.t = L"åœæ­¢ @";
+		qis.ui.pop.upe.t = L"æ‰§è¡Œ$æ¬¡ @";
+		qis.ui.pop.upd.t = L"åœæ­¢ @";
 		qis.ui.pop.qe.c = RGB(0xCC, 0xEE, 0xFF);
 		qis.ui.pop.qd.c = RGB(0xFF, 0x50, 0x50);
 		qis.ui.pop.we.c = RGB(0xAA, 0xBB, 0xFF);
@@ -176,8 +177,8 @@ namespace QiJson
 		SaveAction(jActionsEnding, macro.acEnd);
 		json.Add("document_ charset", std::string("UTF8"));
 		json.Add("type", std::string("QuickInputMacro"));
-		json.Add("wndState", macro.wndState);
-		json.Add("wndChild", macro.wi.child);
+		json.Add("wndState", macro.wndState, true);
+		json.Add("wndChild", macro.wi.child, true);
 		json.Add("wndName", String::toString(macro.wi.wndName));
 		json.Add("wndClass", String::toString(macro.wi.wndClass));
 		json.Add("state", macro.state, true);
