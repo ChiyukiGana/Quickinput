@@ -27,7 +27,7 @@ namespace QiFn
 	// ~Pop text
 
 	bool SelfActive();
-	bool TransMove(int sx, int sy, int dx, int dy, int step, POINT& pt);
+	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, void(*CallBack)(int x, int y, int stepx, int stepy));
 	WndInfo WindowSelection();
 	std::wstring AllocName(std::wstring name);
 

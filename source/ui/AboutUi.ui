@@ -88,7 +88,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>ver.2024-10-31</string>
+         <string>ver.2024-11-8</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -104,9 +104,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>修复编辑运行无法弹出文字
-修复编辑结束循环
-增加编辑右键菜单</string>
+         <string>修复低分辨率屏幕移动卡住</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

@@ -52,54 +52,28 @@ namespace QiFn
 	}
 
 	bool SelfActive() { if (Qi::widget.mainActive || Qi::widget.dialogActive || Qi::widget.moreActive) return false; }
-	bool TransMove(int sx, int sy, int dx, int dy, int step, POINT& pt)
+	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, void(*CallBack)(int x, int y, int stepx, int stepy))
 	{
-		int tx = 0;
-		int ty = 0;
-		int rx = 0;
-		int ry = 0;
+		int cx = dx - sx;
+		int cy = dy - sy;
 
-		if (sx > dx) tx = sx - dx;
-		else tx = dx - sx;
-		if (sy > dy) ty = sy - dy;
-		else ty = dy - sy;
+		int px = 0;
+		int py = 0;
 
-		int len;
-		if (tx > ty) len = ((float)ty / (float)tx) * step;
-		else len = ((float)tx / (float)ty) * step;
+		float step = (float)speed / 300.0f;
+		if (step < 0.01f) step = 0.01f;
+		if (step > 0.99f) step = 0.99f;
 
-		if (sx > dx)
+		for (float i = 0.0f; i < 1.0f; i += step)
 		{
-			if (tx > ty) rx = sx - step;
-			else rx = sx - len;
-			if (rx < dx) rx = dx;
+			if (i > 1.0f) i = 1.0f;
+			int x = sx + (int)((float)cx * i);
+			int y = sy + (int)((float)cy * i);
+			CallBack(x, y, x - px, y - py);
+			px = x;
+			py = y;
 		}
-		else
-		{
-			if (tx > ty) rx = sx + step;
-			else rx = sx + len;
-			if (rx > dx) rx = dx;
-		}
-		if (sy > dy)
-		{
-			if (tx > ty) ry = sy - len;
-			else ry = sy - step;
-			if (ry < dy) ry = dy;
-		}
-		else
-		{
-			if (tx > ty) ry = sy + len;
-			else ry = sy + step;
-			if (ry > dy) ry = dy;
-		}
-
-		if (rx == dx && ry == dy)
-		{
-			pt = { rx, ry };
-			return false;
-		}
-		pt = { rx, ry };
-		return true;
+		CallBack(dx, dy, sx - px, sy - py);
 	}
 	WndInfo WindowSelection()
 	{
@@ -225,33 +199,18 @@ namespace QiFn
 					}
 					else
 					{
-						POINT pt = { };
-						pt.x = mouse.x + (Rand(mouse.ex, (~mouse.ex + 1)));
-						pt.y = mouse.y + (Rand(mouse.ex, (~mouse.ex + 1)));
+						int x = mouse.x + (Rand(mouse.ex, (~mouse.ex + 1)));
+						int y = mouse.y + (Rand(mouse.ex, (~mouse.ex + 1)));
 						if (mouse.move)
 						{
 							if (mouse.track)
 							{
-								POINT spt = {};
-								int disx = Distance(mouse.x, spt.x);
-								int disy = Distance(mouse.y, spt.y);
-								if (disx < disy) disx = disy;
-								int s = mouse.speed;
-								if (!s) s = 1;
-								disx *= ((float)s / 4.0f / 100.0f);
-								if (disx < 4) disx = 1;
-								POINT prev = {};
-								for (int i = 0; true; i += disx)
-								{
-									POINT rpt;
-									bool r = TransMove(spt.x, spt.y, pt.x, pt.y, i, rpt);
-									Input::Move(rpt.x - prev.x, rpt.y - prev.y);
-									prev = rpt;
-									if (!r) return r_continue;
+								SmoothMove(0, 0, x, y, mouse.speed, [](int x, int y, int stepx, int stepy)->void {
+									Input::Move(stepx, stepy);
 									Thread::Sleep(5);
-								}
+								});
 							}
-							else Input::Move(pt.x, pt.y);
+							else Input::Move(x, y);
 						}
 						else
 						{
@@ -260,23 +219,12 @@ namespace QiFn
 								POINT spt = {};
 								GetCursorPos(&spt);
 								spt = RTA(spt);
-								int disx = Distance(mouse.x, spt.x);
-								int disy = Distance(mouse.y, spt.y);
-								if (disx < disy) disx = disy;
-								int s = mouse.speed;
-								if (!s) s = 1;
-								disx *= ((float)s / 4.0f / 100.0f);
-								if (disx < 1) disx = 1;
-								for (int i = 0; true; i += disx)
-								{
-									POINT rpt;
-									bool r = TransMove(spt.x, spt.y, pt.x, pt.y, i, rpt);
-									Input::MoveToA(rpt.x * 6.5535, rpt.y * 6.5535);
-									if (!r) return r_continue;
+								SmoothMove(spt.x, spt.y, x, y, mouse.speed, [](int x, int y, int stepx, int stepy)->void {
+									Input::MoveToA(x * 6.5535f, y * 6.5535f);
 									Thread::Sleep(5);
-								}
+								});
 							}
-							else Input::MoveToA(pt.x * 6.5535, pt.y * 6.5535);
+							else Input::MoveToA(x * 6.5535f, y * 6.5535f);
 						}
 					}
 					return r_continue;
