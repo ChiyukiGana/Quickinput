@@ -61,6 +61,7 @@ private:
 		menu->addAction(hide);
 		menu->addAction(exit);
 		tray->setContextMenu(menu);
+		tray->setToolTip(u8"Quick input");
 		connect(tnon, SIGNAL(triggered()), this, SLOT(OnMenuTnon()));
 		connect(tnoff, SIGNAL(triggered()), this, SLOT(OnMenuTnoff()));
 		connect(show, SIGNAL(triggered()), this, SLOT(OnMenuShow()));

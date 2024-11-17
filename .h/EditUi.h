@@ -258,6 +258,8 @@ private:
 		connect(ui.bnEndAdd, SIGNAL(clicked()), this, SLOT(OnBnEndAdd()));
 		// EndLoop
 		connect(ui.bnEndLoopAdd, SIGNAL(clicked()), this, SLOT(OnBnEndLoopAdd()));
+		// RecoverPos
+		connect(ui.bnRecoverPosAdd, SIGNAL(clicked()), this, SLOT(OnBnRecoverPosAdd()));
 	}
 
 	void TbUpdate()
@@ -274,8 +276,7 @@ private:
 			QString ps;
 			switch (ep.actions[0][u].type)
 			{
-			case Action::_end: ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acEnd));
-				break;
+			case Action::_end: ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acEnd)); break;
 
 			case Action::_delay:
 			{
@@ -366,8 +367,7 @@ private:
 			}
 			break;
 
-			case Action::_loopEnd: ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acEndLoop));
-				break;
+			case Action::_loopEnd: ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acEndLoop)); break;
 
 			case Action::_keyState:
 			{
@@ -377,6 +377,8 @@ private:
 				ps += QString::fromWCharArray(Input::Name(ep.actions[0][u].keyState.vk));
 			}
 			break;
+
+			case Action::_revocerPos: ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acRecoverPos)); break;
 
 			default: ui.tbActions->setItem(u, 0, new QTableWidgetItem(u8"加载失败")); break;
 			}
@@ -519,7 +521,7 @@ private slots:
 
 	//////////////////////////// Menu
 	void OnMenuDel() { ItemDel(); }
-	void OnMenuChange() { SetChanging(); }
+	void OnMenuChange() { Changing(true); }
 	void OnMenuCut() { ItemCut(); }
 	void OnMenuCopy() { ItemCopy(); }
 	void OnMenuPaste() { ItemPaste(); }
@@ -611,7 +613,7 @@ private slots:
 		}
 	}
 	void OnTbSelect(QTableWidgetItem*, QTableWidgetItem*) { OnTbClicked(ui.tbActions->currentRow(), ui.tbActions->currentColumn()); }
-	void OnTbDoubleClick(int row, int column) { SetChanging(); }
+	void OnTbDoubleClick(int row, int column) { Changing(true); }
 	void OnTableMenu(const QPoint& pt)
 	{
 		QList<QTableWidgetItem*> items = ui.tbActions->selectedItems();
@@ -779,28 +781,50 @@ private slots:
 	void OnBnEndAdd() { if (changing) ItemChange(Action::_end); else ItemAdd(Action::_end); }
 	// EndLoop
 	void OnBnEndLoopAdd() { if (changing) ItemChange(Action::_loopEnd); else ItemAdd(Action::_loopEnd); }
+	// RecoverPos
+	void OnBnRecoverPosAdd() { if (changing) ItemChange(Action::_revocerPos); else ItemAdd(Action::_revocerPos); }
 	//////////////////////////// #Action Button
 
 private: // Widget data
 	// Item
-	void SetChanging()
+	void Changing(bool state)
 	{
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) return;
-
-		ItemGet(pos);
-
-		changing = true;
+		if (state)
 		{
-			ui.bnKeyAdd->setText(UI::etChange);
-			ui.bnStateAdd->setText(UI::etChange);
-			ui.bnMoveAdd->setText(UI::etChange);
-			ui.bnDelayAdd->setText(UI::etChange);
-			ui.bnLoopAdd->setText(UI::etChange);
-			ui.bnTextAdd->setText(UI::etChange);
-			ui.bnColorAdd->setText(UI::etChange);
-			ui.bnEndAdd->setText(UI::etChange);
-			ui.bnEndLoopAdd->setText(UI::etChange);
+			int pos = ui.tbActions->currentRow();
+			if (pos < 0) return;
+
+			ItemGet(pos);
+
+			changing = state;
+			{
+				ui.bnKeyAdd->setText(UI::etChange);
+				ui.bnStateAdd->setText(UI::etChange);
+				ui.bnMoveAdd->setText(UI::etChange);
+				ui.bnDelayAdd->setText(UI::etChange);
+				ui.bnLoopAdd->setText(UI::etChange);
+				ui.bnTextAdd->setText(UI::etChange);
+				ui.bnColorAdd->setText(UI::etChange);
+				ui.bnEndAdd->setText(UI::etChange);
+				ui.bnEndLoopAdd->setText(UI::etChange);
+				ui.bnRecoverPosAdd->setText(UI::etChange);
+			}
+		}
+		else
+		{
+			changing = state;
+			{
+				ui.bnKeyAdd->setText(UI::etAdd);
+				ui.bnStateAdd->setText(UI::etAdd);
+				ui.bnMoveAdd->setText(UI::etAdd);
+				ui.bnDelayAdd->setText(UI::etAdd);
+				ui.bnLoopAdd->setText(UI::etAdd);
+				ui.bnTextAdd->setText(UI::etAdd);
+				ui.bnColorAdd->setText(UI::etAdd);
+				ui.bnEndAdd->setText(UI::etAdd);
+				ui.bnEndLoopAdd->setText(UI::etAdd);
+				ui.bnRecoverPosAdd->setText(UI::etAdd);
+			}
 		}
 	}
 	void ItemMove(bool up)
@@ -833,7 +857,7 @@ private: // Widget data
 		case Action::_keyState: LoadKeyState(ep.actions[0][pos]); break;
 		}
 	}
-	void ItemSet(int32 type, int32 pos)
+	void ItemSet(Action::ActionType type, int32 pos)
 	{
 		Action action;
 		switch (type)
@@ -847,6 +871,7 @@ private: // Widget data
 		case Action::_loop: action = GetLoop(); break;
 		case Action::_loopEnd: action.type = Action::_loopEnd; break;
 		case Action::_keyState: action = GetKeyState(); break;
+		case Action::_revocerPos: action.type = Action::_revocerPos; break;
 		default: action.type = Action::_none; break;
 		}
 
@@ -871,7 +896,7 @@ private: // Widget data
 		}
 		ep.actions[0][pos] = action;
 	}
-	void ItemAdd(int32 type)
+	void ItemAdd(Action::ActionType type)
 	{
 		int pos = ui.tbActions->currentRow();
 		if (pos < 0) pos = ep.actions->size();
@@ -893,7 +918,7 @@ private: // Widget data
 		TbUpdate();
 		ui.tbActions->setCurrentItem(ui.tbActions->item(pos, 0));
 	}
-	void ItemChange(int32 type)
+	void ItemChange(Action::ActionType type)
 	{
 		int pos = ui.tbActions->currentRow();
 		if (pos < 0) return;
@@ -905,18 +930,7 @@ private: // Widget data
 		TbUpdate();
 		ui.tbActions->setCurrentItem(0);
 
-		changing = false;
-		{
-			ui.bnKeyAdd->setText(UI::etAdd);
-			ui.bnStateAdd->setText(UI::etAdd);
-			ui.bnMoveAdd->setText(UI::etAdd);
-			ui.bnDelayAdd->setText(UI::etAdd);
-			ui.bnLoopAdd->setText(UI::etAdd);
-			ui.bnTextAdd->setText(UI::etAdd);
-			ui.bnColorAdd->setText(UI::etAdd);
-			ui.bnEndAdd->setText(UI::etAdd);
-			ui.bnEndLoopAdd->setText(UI::etAdd);
-		}
+		Changing(false);
 	}
 	void ItemDel()
 	{
@@ -930,18 +944,7 @@ private: // Widget data
 		TbUpdate();
 		ui.tbActions->setCurrentItem(0);
 
-		changing = false;
-		{
-			ui.bnKeyAdd->setText(UI::etAdd);
-			ui.bnStateAdd->setText(UI::etAdd);
-			ui.bnMoveAdd->setText(UI::etAdd);
-			ui.bnDelayAdd->setText(UI::etAdd);
-			ui.bnLoopAdd->setText(UI::etAdd);
-			ui.bnTextAdd->setText(UI::etAdd);
-			ui.bnColorAdd->setText(UI::etAdd);
-			ui.bnEndAdd->setText(UI::etAdd);
-			ui.bnEndLoopAdd->setText(UI::etAdd);
-		}
+		Changing(false);
 	}
 	void ItemCut()
 	{

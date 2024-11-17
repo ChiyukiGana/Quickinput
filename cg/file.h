@@ -87,6 +87,7 @@ namespace CG {
 			pers->Save(path.c_str(), TRUE);
 			pers->Release();
 			link->Release();
+			return true;
 		}
 
 		static bool TextSave(std::string path, std::string str, const char* locale = ".UTF8")

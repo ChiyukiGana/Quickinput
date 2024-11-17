@@ -18,6 +18,7 @@ namespace CG {
 	public:
 
 		static bool state(BYTE vk) { return GetAsyncKeyState(vk) & 0x8000; }
+		static POINT pos() { POINT pt; GetCursorPos(&pt); }
 
 		static void Loop(BYTE vk, UINT delay = 10) { while (state(vk)) sleep(delay); }
 		static void LoopU(BYTE vk, UINT delay = 10) { while (!state(vk)) sleep(delay); }
@@ -82,23 +83,15 @@ namespace CG {
 			}
 		}
 
-		static void Click(BYTE vk, UINT delay = 10, ULONG_PTR ex = 0) {
-			State(vk, 1, ex); sleep(delay); State(vk, 0, ex); sleep(delay);
-		}
+		static void Click(BYTE vk, UINT delay = 10, ULONG_PTR ex = 0) { State(vk, 1, ex); sleep(delay); State(vk, 0, ex); sleep(delay); }
 
-		static void Click(HWND wnd, BYTE vk, POINT pos = { 0 }, UINT delay = 10) {
-			State(wnd, vk, pos, 1); sleep(delay); State(wnd, vk, pos, 0); sleep(delay);
-		}
+		static void Click(HWND wnd, BYTE vk, POINT pos = { 0 }, UINT delay = 10) { State(wnd, vk, pos, 1); sleep(delay); State(wnd, vk, pos, 0); sleep(delay); }
 
 		// param: x, y = Pixel
 		static void Move(LONG x, LONG y) { INPUT input = { 0 }; MOUSEINPUT mouseInput = { x, y, 0, MOUSEEVENTF_MOVE, 0, 0 }; input.type = INPUT_MOUSE; input.mi = mouseInput; SendInput(1, &input, sizeof(input)); }
 
 		// param: x, y = 0~ScreenPixel-1
-		static void MoveTo(int x, int y)
-		{
-			SIZE size = System::screenSize(); size.cx -= 1, size.cy -= 1;
-			MoveToA((65536.0f / (float)size.cx) * (float)x, 65536.0f / (float)size.cy * (float)y);
-		}
+		static void MoveTo(int x, int y) { SIZE size = System::screenSize(); size.cx -= 1, size.cy -= 1; MoveToA((65536.0f / (float)size.cx) * (float)x, 65536.0f / (float)size.cy * (float)y); }
 
 		// param: x, y = WindowPixel
 		static void MoveTo(HWND wnd, int x, int y, WORD mk = 0) { PostMessageW(wnd, WM_MOUSEMOVE, mk, (LONGLONG)(y << 16 | x)); }

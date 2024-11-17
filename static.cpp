@@ -50,6 +50,7 @@ QString UI::acColor;
 QString UI::acEnd;
 QString UI::acEndLoop;
 QString UI::acKeyState;
+QString UI::acRecoverPos;
 QString UI::trOn;
 QString UI::trOff;
 QString UI::etChange;

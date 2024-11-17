@@ -50,6 +50,7 @@ struct UI
 	static QString acEnd;
 	static QString acEndLoop;
 	static QString acKeyState;
+	static QString acRecoverPos;
 	static QString trOn;
 	static QString trOff;
 	static QString etChange;
@@ -132,7 +133,7 @@ struct QiLoop { uint32 count = 0; uint32 rand = 0; Actions next; };
 struct QiKeyState { uint32 vk = 0; bool state = true; Actions next; };
 struct Action
 {
-	enum
+	typedef enum _ActionType
 	{
 		_none,
 		_end,
@@ -143,8 +144,9 @@ struct Action
 		_color,
 		_loop,
 		_loopEnd,
-		_keyState
-	};
+		_keyState,
+		_revocerPos
+	} ActionType;
 
 	union
 	{
@@ -158,11 +160,11 @@ struct Action
 		QiKeyState keyState;
 	};
 
-	uint32 type = _none;
+	ActionType type = _none;
 	std::wstring mark;
 
 	Action() { emp(); }
-	Action(const uint32 actionType) { emp(); type = actionType; }
+	Action(const ActionType actionType) { emp(); type = actionType; }
 	Action(const Action& action) { emp(); cpy(action); }
 	~Action() { emp(); }
 
@@ -172,18 +174,19 @@ struct Action
 	{
 		emp();
 		mark = action.mark;
-		switch (action.type)
+		type = action.type;
+		switch (type)
 		{
-		case _end: type = _end; break;
-		case _delay: type = _delay; delay = action.delay; break;
-		case _key: type = _key; key = action.key; break;
-		case _mouse: type = _mouse; mouse = action.mouse; break;
-		case _text: type = _text; text.str = action.text.str; break;
-		case _color: type = _color; color = action.color; break;
-		case _loop: type = _loop; loop = action.loop; break;
-		case _loopEnd: type = _loopEnd; break;
-		case _keyState: type = _keyState; keyState = action.keyState; break;
-		default: type = _none; break;
+		case _end: break;
+		case _delay: delay = action.delay; break;
+		case _key: key = action.key; break;
+		case _mouse: mouse = action.mouse; break;
+		case _text: text.str = action.text.str; break;
+		case _color: color = action.color; break;
+		case _loop: loop = action.loop; break;
+		case _loopEnd: break;
+		case _keyState: keyState = action.keyState; break;
+		case _revocerPos: break;
 		}
 	}
 
@@ -200,12 +203,17 @@ struct Macro
 	bool state = false; // enable | disable
 	bool block = false; // block this trigger key
 	bool wndState = false; // window mode enable | disable
-	bool active = false; // state of release mode
+	bool active = false; // state of release trigger
 	uint32 key = 0;
 	uint32 mode = 0;
 	uint32 count = 0;
+	
+	POINT originPos = {};
+
 	std::wstring name;
+	
 	WndInfo wi;
+
 	HANDLE thread = 0;
 	HANDLE threadEnding = 0;
 	Actions actions;
