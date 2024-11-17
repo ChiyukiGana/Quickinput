@@ -122,7 +122,7 @@ private:
 		else if (et->type() == QiEvent::recStop) RecStop();
 		else if (et->type() == QiEvent::recClose) RecClose();
 	}
-public slots:
+public Q_SLOTS:
 	void OnBnStart() { if (qis.recording) RecStop(); else RecStart(); }
 	void OnBnClose() { RecClose(); }
 };

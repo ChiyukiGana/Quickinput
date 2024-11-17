@@ -12,9 +12,9 @@ namespace CG {
 		MsgBox(T text = L"MessageBox", LPCWSTR title = L"Message", LONG style = MB_OK) { MessageBoxW(0, String::toWString(text).c_str(), title, style); }
 
 		template<typename T>
-		static int Message(T text = L"MessageBox", LPCWSTR title = L"Message", LONG style = MB_OK) { return MessageBoxW(0, String::toWString(text).c_str(), title, style); }
-		static int Warning(LPCWSTR text, LPCWSTR title = L"Warning", LONG style = MB_OK | MB_ICONWARNING | MB_TOPMOST) { return MessageBoxW(0, text, title, style); }
-		static int Error(LPCWSTR text, LPCWSTR title = L"Error", LONG style = MB_OK | MB_ICONERROR | MB_TOPMOST) { return MessageBoxW(0, text, title, style); }
+		static int Message(T text = L"MessageBox", std::wstring title = L"Message", LONG style = MB_OK) { return MessageBoxW(0, String::toWString(text).c_str(), title.c_str(), style); }
+		static int Warning(std::wstring text, std::wstring title = L"Warning", LONG style = MB_OK | MB_ICONWARNING | MB_TOPMOST) { return MessageBoxW(0, text.c_str(), title.c_str(), style); }
+		static int Error(std::wstring text, std::wstring title = L"Error", LONG style = MB_OK | MB_ICONERROR | MB_TOPMOST) { return MessageBoxW(0, text.c_str(), title.c_str(), style); }
 		static void Size(const SIZE& size) { MessageBoxW(0, (std::to_wstring(size.cx) + std::wstring(L", ") + std::to_wstring(size.cy)).c_str(), L"Size", MB_TOPMOST); }
 		static void Size(const int& cx, const int& cy) { MessageBoxW(0, (std::to_wstring(cx) + std::wstring(L", ") + std::to_wstring(cy)).c_str(), L"Size", MB_TOPMOST); }
 		static void Point(const POINT& point) { MessageBoxW(0, (std::to_wstring(point.x) + std::wstring(L", ") + std::to_wstring(point.y)).c_str(), L"Point", MB_TOPMOST); }

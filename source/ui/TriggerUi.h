@@ -58,7 +58,12 @@ public:
 private:
 	void WidInit()
 	{
-		ui.hkTr->Mode(2);
+		ui.hkTr->setMode(QKeyEdit::Mode::multiple);
+		ui.hkTr->setMultipleMax(2);
+		ui.hkTr->setMouseEnable(true);
+		ui.hkTr->setWheelEnable(true);
+		ui.hkTr->setPadEnable(true);
+
 		ui.cmbMode->setEditable(true);
 		ui.cmbMode->lineEdit()->setReadOnly(true);
 		ui.cmbMode->lineEdit()->setAlignment(Qt::AlignCenter);
@@ -70,7 +75,7 @@ private:
 
 		ui.etCount->setValidator(new QIntValidator(0, countMax, this));
 
-		//Table
+		if ("table")
 		{
 			ui.tbActions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
 			ui.tbActions->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
@@ -97,7 +102,7 @@ private:
 	void ResetControl()
 	{
 		ui.chbBlock->setChecked(0);
-		ui.hkTr->VirtualKey(0);
+		ui.hkTr->clear();
 		ui.etCount->setText("");
 	}
 	void LockControl(bool state)
@@ -122,11 +127,11 @@ private:
 			QString qs = "----";
 			if ((macros->at(i).key & 0xFFFF) != 0)
 			{
-				qs = QString::fromWCharArray(Input::Name(macros->at(i).key & 0xFFFF));
+				qs = QKeyEdit::keyName(macros->at(i).key & 0xFFFF);
 				if ((macros->at(i).key >> 16) != 0)
 				{
 					qs += " + ";
-					qs += QString::fromWCharArray(Input::Name(macros->at(i).key >> 16));
+					qs += QKeyEdit::keyName(macros->at(i).key >> 16);
 				}
 			}
 			ui.tbActions->setItem(i, 1, new QTableWidgetItem(qs));
@@ -169,7 +174,7 @@ private:
 		ResetControl();
 		LockControl(1);
 	}
-private slots:
+private Q_SLOTS:
 	void OnTbClicked(int row, int column)
 	{
 		ResetControl();
@@ -179,7 +184,17 @@ private slots:
 		if (column == 3) macros->at(row).state = !macros->at(row).state;
 		ui.chbBlock->setChecked(macros->at(row).block);
 		ui.cmbMode->setCurrentIndex(macros->at(row).mode);
-		ui.hkTr->VirtualKey(macros->at(row).key & 0xFFFF, macros->at(row).key >> 16);
+
+		{
+			QList<QKeyEdit::Key> keys;
+			QKeyEdit::Key key;
+			key.keyCode = macros->at(row).key & 0xFFFF;
+			keys.push_back(key);
+			key.keyCode = macros->at(row).key >> 16;
+			keys.push_back(key);
+			ui.hkTr->setKeys(keys);
+		}
+
 		if (macros->at(row).mode >= Macro::down)
 		{
 			ui.etCount->setText(QString::number(macros->at(row).count));
@@ -193,9 +208,14 @@ private slots:
 	void OnKeyChanged()
 	{
 		int p = ui.tbActions->currentRow(); if (p < 0) return;
-		macros->at(p).key = ui.hkTr->virtualKey();
-		TableUpdate();
+
+		QList<QKeyEdit::Key> keys = ui.hkTr->keys();
+		DWORD vk = VK_SPACE;
+		if (keys.size() == 1) vk = keys[0].keyCode;
+		else if (keys.size() == 2) vk = keys[0].keyCode | (keys[1].keyCode << 16);
+		macros->at(p).key = vk;
 		QiJson::SaveMacro(macros->at(p));
+		TableUpdate();
 	}
 	void OnChbBlock()
 	{

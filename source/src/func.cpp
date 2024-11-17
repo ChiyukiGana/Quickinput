@@ -391,11 +391,11 @@ namespace QiFn
 		{
 			if (action.d.keyState.state)
 			{
-				if (!Input::state(action.d.keyState.vk)) return 0;
+				if (!Input::stateEx(action.d.keyState.vk)) return r_continue;
 			}
 			else
 			{
-				if (Input::state(action.d.keyState.vk)) return 0;
+				if (Input::stateEx(action.d.keyState.vk)) return r_continue;
 			}
 			for (uint32 i = 0; i < action.next.size(); i++)
 			{
@@ -496,7 +496,7 @@ namespace QiFn
 		}
 		return r_continue;
 	}
-	void Trigger(byte vk)
+	void Trigger(short vk)
 	{
 		// state swtich
 		if (vk == (qis.set.key & 0xFFFF) || vk == (qis.set.key >> 16))
@@ -644,6 +644,12 @@ namespace QiFn
 		}
 	}
 
+	void XBoxPadProc(short keyCode, short state)
+	{
+		qis.keyState[keyCode] = (bool)state;
+		Trigger(keyCode);
+	}
+
 	void QiHook(bool state)
 	{
 		if (state)
@@ -652,6 +658,7 @@ namespace QiFn
 			{
 				timeBeginPeriod(1); // set clock accuracy, default is 16ms: sleep(1) = sleep(16)
 				if (!InputHook::Start()) MsgBox::Error(L"创建输入Hook失败，检查是否管理员身份运行 或 是否被安全软件拦截。");
+				qis.xboxpad.setStateEvent(XBoxPadProc, true);
 			}
 		}
 		else
@@ -660,6 +667,7 @@ namespace QiFn
 			{
 				timeEndPeriod(1); // reset clock accuracy
 				InputHook::Close();
+				qis.xboxpad.closeStateEvent();
 			}
 		}
 	}

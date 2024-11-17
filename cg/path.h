@@ -50,9 +50,9 @@ namespace CG
 		/* %ProgramFiles%  >  C:\Program Files */
 		static std::wstring ExpandEnvironment(std::wstring envString = L"%ProgramFiles%")
 		{
-			u16str str(ExpandEnvironmentStringsW(envString.c_str(), 0, 0), '\0'); // alloc
-			ExpandEnvironmentStringsW(envString.c_str(), str.write(0), str.arr_size()); // write
-			return str.str();
+			std::wstring str(ExpandEnvironmentStringsW(envString.c_str(), 0, 0), '\0'); // alloc
+			ExpandEnvironmentStringsW(envString.c_str(), &str[0], str.size()); // write
+			return str;
 		}
 
 		/* slash of args will be change */

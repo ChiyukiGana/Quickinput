@@ -21,6 +21,7 @@
 #include "media.h"
 #include "dxsound.h"
 #include "auddv.h"
+#include "xboxpad.h"
 
 #include "window.h"
 #include "msgbox.h"

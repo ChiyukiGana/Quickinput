@@ -46,9 +46,17 @@ public:
 private:
 	void WidInit()
 	{
-		ui.bnWndSelect->setShortcut(Qt::Key_unknown);
+		ui.hkQkClick->setMode(QKeyEdit::Mode::solid);
+		ui.hkQkClick->setMouseEnable(true);
+		ui.hkQkClick->setWheelEnable(true);
+		ui.hkQkClick->setKey(QKeyEdit::Key(VK_MENU));
 
-		ui.hkQkClick->Mode(0);
+		ui.hkClock->setMode(QKeyEdit::Mode::solid);
+		ui.hkClock->setMouseEnable(true);
+		ui.hkClock->setWheelEnable(true);
+		ui.hkClock->setPadEnable(true);
+		ui.hkClock->setKey(QKeyEdit::Key(VK_LBUTTON));
+
 		ui.etQkDelay->setValidator(new QIntValidator(0, 99999, this));
 
 		ui.cmbMode->setEditable(true);
@@ -60,18 +68,18 @@ private:
 		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
 
 		ui.chbQkClick->setChecked(func->quickClick.state);
-		ui.hkQkClick->VirtualKey(func->quickClick.key);
+		ui.hkQkClick->setKey(QKeyEdit::Key(func->quickClick.key));
 		ui.etQkDelay->setText(QString::number(func->quickClick.delay));
 		ui.cmbMode->setCurrentIndex(func->quickClick.mode);
 
 		ui.chbWndActive->setChecked(func->wndActive.state);
 		ui.etWndActive->setText(QString::fromWCharArray(func->wndActive.wi.wndName.c_str()));
 
-		ui.hkClock->Mode(0);
 		ui.chbClock->setChecked(func->showClock.state);
-		ui.hkClock->VirtualKey(func->showClock.key);
+		ui.hkClock->setKey(QKeyEdit::Key(func->showClock.key));
 
 		{
+			ui.bnWndSelect->setShortcut(Qt::Key_unknown);
 			ui.chbQkClick->setShortcut(Qt::Key_unknown);
 			ui.chbWndActive->setShortcut(Qt::Key_unknown);
 			ui.bnWndSelect->setShortcut(Qt::Key_unknown);
@@ -91,7 +99,7 @@ private:
 		connect(ui.chbClock, SIGNAL(stateChanged(int)), this, SLOT(OnClockState(int)));
 		connect(ui.hkClock, SIGNAL(changed()), this, SLOT(OnClockKey()));
 	}
-private slots:
+private Q_SLOTS:
 	void OnQcState(int state)
 	{
 		func->quickClick.state = state;
@@ -99,7 +107,7 @@ private slots:
 	}
 	void OnQcKey()
 	{
-		func->quickClick.key = ui.hkQkClick->virtualKey();
+		func->quickClick.key = ui.hkQkClick->key().keyCode;
 		QiJson::SaveJson();
 	}
 	void OnQcDelay(const QString& text)
@@ -134,7 +142,7 @@ private slots:
 	}
 	void OnClockKey()
 	{
-		func->showClock.key = ui.hkClock->virtualKey();
+		func->showClock.key = ui.hkClock->key().keyCode;
 		QiJson::SaveJson();
 	}
 };

@@ -314,7 +314,7 @@ QPushButton:hover{background-color:#EEF;border:1px solid #88F;}</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QCheckBox::indicator{background-color:#FFF;width:20px;height:20px;}
-QCheckBox::indicator:checked{background-color:#888;}</string>
+QCheckBox::indicator:checked{image:url(:/checked.png)}</string>
       </property>
       <property name="text">
        <string>桌面快捷方式</string>
@@ -342,7 +342,7 @@ QCheckBox::indicator:checked{background-color:#888;}</string>
       </property>
       <property name="styleSheet">
        <string notr="true">QCheckBox::indicator{background-color:#FFF;width:20px;height:20px;}
-QCheckBox::indicator:checked{background-color:#888;}</string>
+QCheckBox::indicator:checked{image:url(:/checked.png)}</string>
       </property>
       <property name="text">
        <string>开始菜单快捷方式</string>

@@ -175,12 +175,12 @@ using Actions = List<Action>;
 struct QiDelay { uint32 tmin; uint32 tmax; };
 struct QiKey { enum { up, down, click }; uint32 vk = 0; uint32 state = down; };
 struct QiMouse { int32 x = 0; int32 y = 0; uint32 ex = 0; uint32 speed = 0; bool move = false; bool track = false; };
-struct QiText { u16str str; void release() { str.release(); } };
+struct QiText { u16string str; void release() { str.release(); } };
 struct QiColor { Rgba rgbe = 0; RECT rect = {}; bool unfind = false; bool move = false; };
 struct QiLoop { uint32 cmin = 0; uint32 cmax = 0; };
 struct QiKeyState { uint32 vk = 0; bool state = true; };
 struct QiImage { RgbMap map; uint32 sim; RECT rect = {}; bool unfind = false; bool move = false; void release() { map.release(); } };
-struct QiPopText { u16str str; uint32 time = 0; void release() { str.release(); } };
+struct QiPopText { u16string str; uint32 time = 0; void release() { str.release(); } };
 struct QiTimer { uint32 tmin = 0; uint32 tmax = 0; };
 struct Action
 {
@@ -221,7 +221,7 @@ struct Action
 	} Data;
 	Data d;
 	Actions next;
-	u16str mark;
+	u16string mark;
 
 	Action() { release(); }
 	Action(const ActionType actionType) { release(); type = actionType; }
@@ -233,7 +233,7 @@ struct Action
 	void cpy(const Action& action)
 	{
 		release();
-		mark.copy(action.mark);
+		mark = action.mark;
 		switch (action.type)
 		{
 		case _end: type = ActionType::_end;
@@ -386,8 +386,10 @@ struct QuickInputStruct
 	SettingsData set;
 	Widget widget;
 
-	byte keyState[255];
+	bool keyState[XBoxPad::key_end];
 	List<byte> blockKeys;
+
+	XBoxPad xboxpad;
 
 	SIZE screen = {};
 
