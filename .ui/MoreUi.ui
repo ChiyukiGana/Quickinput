@@ -458,7 +458,7 @@ QPushButton:hover{background-color:#C00;}</string>
            <x>0</x>
            <y>0</y>
            <width>776</width>
-           <height>3181</height>
+           <height>3249</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -500,7 +500,11 @@ QPushButton:hover{background-color:#C00;}</string>
              <string notr="true">font-size:12px;</string>
             </property>
             <property name="text">
-             <string>2024-3-7
+             <string>2024-3-14
+ㅤㅤ1：修复宏列表为空时无法正常录制
+ㅤㅤ2：优化窗口模式，可以通过位置自动查找子窗口
+
+2024-3-7
 ㅤㅤ1：增加随机循环
 
 2024-3-6

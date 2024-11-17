@@ -20,7 +20,11 @@
 
 #include "window.h"
 #include "msgbox.h"
+#include "msgwnd.h"
 
 #include "task.h"
+
+#include "ini.h"
+#include "CJsonObject.h"
 
 using namespace CG;

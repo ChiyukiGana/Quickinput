@@ -81,16 +81,19 @@ namespace CG {
 
 		static bool Redraw(HWND wnd) { return RedrawWindow(wnd, 0, 0, RDW_ERASE | RDW_INVALIDATE); }
 
-		static SIZE size(HWND wnd) { RECT rect = { 0 }; DwmGetWindowAttribute(wnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(RECT)); return { rect.right - rect.left, rect.bottom - rect.top }; }
+		static SIZE size(HWND wnd) { RECT rect = {}; DwmGetWindowAttribute(wnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(RECT)); return { rect.right - rect.left, rect.bottom - rect.top }; }
 		static bool Size(HWND wnd, SIZE size) { return SetWindowPos(wnd, 0, 0, 0, size.cx, size.cy, SWP_NOMOVE | SWP_NOZORDER); }
 		static bool Size(HWND wnd, int cx, int cy) { return SetWindowPos(wnd, 0, 0, 0, cx, cy, SWP_NOMOVE | SWP_NOZORDER); }
 
-		static POINT pos(HWND wnd) { RECT rect = { 0 }; DwmGetWindowAttribute(wnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(RECT)); return { rect.left, rect.top }; }
+		static POINT pos(HWND wnd) { RECT rect = {}; GetWindowRect(wnd, &rect); return { rect.left, rect.top }; }
+		static POINT posF(HWND wnd) { RECT rect = {}; DwmGetWindowAttribute(wnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(RECT)); return { rect.left, rect.top }; }
 		static bool Pos(HWND wnd, POINT point) { return SetWindowPos(wnd, 0, point.x, point.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER); }
 		static bool Pos(HWND wnd, int x, int y) { return SetWindowPos(wnd, 0, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER); }
 
-		static RECT rect(HWND wnd) { RECT rect = { 0 }; DwmGetWindowAttribute(wnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(RECT)); return rect; }
+		static RECT rect(HWND wnd) { RECT rect = {}; GetWindowRect(wnd, &rect); return rect; }
+		static RECT rectF(HWND wnd) { RECT rect = {}; DwmGetWindowAttribute(wnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(RECT)); return rect; }
 		static bool Rect(HWND wnd, RECT rect) { return SetWindowPos(wnd, 0, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER); }
+		static RECT childRect(HWND parent, HWND child) { RECT rParent = {}; RECT rChild = {}; GetWindowRect(parent, &rParent); GetWindowRect(child, &rChild); return { rChild.left - rParent.left, rChild.top - rParent.top, rChild.right - rParent.left, rChild.bottom - rParent.top }; }
 
 		static SIZE clientSize(HWND wnd) { RECT rect; GetClientRect(wnd, &rect); return { rect.right, rect.bottom }; }
 		static POINT clientPos(HWND wnd) { POINT client = { 0 }; ClientToScreen(wnd, &client); return client; }
@@ -107,11 +110,20 @@ namespace CG {
 		static long exStyle(HWND wnd) { return GetWindowLongW(wnd, GWL_EXSTYLE); }
 		static void ExStyle(HWND wnd, long exStyle, bool remove = 0) { if (remove) SetWindowLongW(wnd, GWL_EXSTYLE, GetWindowLongW(wnd, GWL_EXSTYLE) & ~(exStyle)); else SetWindowLongW(wnd, GWL_EXSTYLE, GetWindowLongW(wnd, GWL_EXSTYLE) | (exStyle)); }
 
-	public:
-		typedef List<HWND> WNDS;
-	private:
-		struct _EnumWindowsStruct { WNDS wnds; DWORD pid; };
+		typedef List<HWND> HWNDS;
+		static uint32 FindChild(HWND parent, HWNDS& children)
+		{
+			HWND child = 0;
+			do
+			{
+				child = FindWindowExW(parent, child, 0, 0);
+				if (child) children.Add(child);
+			} while (child);
+			return children.size();
+		}
 
+	private:
+		struct _EnumWindowsStruct { HWNDS wnds; DWORD pid; };
 		static BOOL _stdcall _EnumWindowsProc(HWND wnd, LPARAM lParam) {
 			_EnumWindowsStruct* ews = (_EnumWindowsStruct*)lParam;
 			DWORD pid; GetWindowThreadProcessId(wnd, &pid);
@@ -120,14 +132,14 @@ namespace CG {
 		}
 	public:
 
-		static WNDS ProcessWindows(DWORD pid) {
+		static HWNDS ProcessWindows(DWORD pid) {
 			_EnumWindowsStruct ews;
 			ews.pid = pid;
 			EnumWindows(_EnumWindowsProc, (LPARAM)&ews);
 			return ews.wnds;
 		}
 
-		static WNDS ProcessWindows(HANDLE proc) { return ProcessWindows(GetProcessId(proc)); }
+		static HWNDS ProcessWindows(HANDLE proc) { return ProcessWindows(GetProcessId(proc)); }
 
 		static LPCWSTR StyleName(long style) {
 			switch (style) {

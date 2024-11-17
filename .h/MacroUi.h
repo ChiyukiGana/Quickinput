@@ -96,17 +96,12 @@ private:
 		if (wnd)
 		{
 			WndInfo wi = WindowSelection();
-			if (wi.wnd)
-			{
-				macros.Get().wndState = 1;
-				macros.Get().wi = wi;
-				rw.Start(wi.wnd);
-			}
+			if (wi.wnd) rw.Start(&wi);
 		}
 		else rw.Start(0);
+		HookState(false);
 		working = false;
 		Global::qi.main->show();
-		HookState(false);
 	}
 
 	void showEvent(QShowEvent*)

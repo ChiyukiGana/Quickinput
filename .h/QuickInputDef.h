@@ -2,8 +2,9 @@
 #include <QString>
 #include <QFont>
 #include <QWidget>
-#include "D:/#CGDATA/Code/cg/cg.h"
-#include "D:/#CGDATA/Code/cg/CJsonObject.h"
+#include "../cg/cg.h"
+
+#define _NDEBUG
 
 struct UI
 {
@@ -62,15 +63,24 @@ struct UI
 	static QString rcClose;
 };
 
+struct ChildWindow
+{
+	HWND wnd; // child
+	RECT rect; // child rect
+};
+typedef List<ChildWindow> ChildWindows;
 struct WndInput
 {
-	HWND wnd = 0;
-	POINT pt = { 0 };
-	WORD mk = 0;
+	HWND wnd = 0; // parent
+	HWND current = 0; // currented (pt in rect)
+	ChildWindows children;
+	POINT pt = {}; // prev point
+	WORD mk = 0; // prev key
 };
 struct WndInfo
 {
 	HWND wnd = 0;
+	bool child = false;
 	std::wstring wndName;
 	std::wstring wndClass;
 	bool Update() { return wnd = FindWindowW(wndClass.c_str(), wndName.c_str()); }
@@ -180,10 +190,10 @@ struct Action
 struct Macro
 {
 	enum { sw, down, up };
-	bool state = false;
+	bool state = false; // enable | disable
 	bool block = false; // block this trigger key
-	bool wndState = false;
-	bool active = false; // release mode state
+	bool wndState = false; // window mode enable | disable
+	bool active = false; // state of release mode
 	uint32 key = 0;
 	uint32 mode = 0;
 	uint32 count = 0;

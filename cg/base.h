@@ -83,22 +83,32 @@ namespace CG {
 
 	static bool InRange(int num, int _min, int _max, int extent) { return ((num >= _min - extent) && (num <= _max + extent)); }
 	static bool InRange(int num, int refer, int extend) { return (num <= (refer + extend)) && (num >= (refer - extend)); }
-	static bool InRect(RECT rect, int x, int y, int extend = 0) { if (x >= rect.left - extend && x <= rect.right + extend && y >= rect.top - extend && y <= rect.bottom + extend) return 1; return 0; }
-
+	static bool InRect(RECT rect, int x, int y, int extend = 0) { if (x >= rect.left - extend && x <= rect.right + extend && y >= rect.top - extend && y <= rect.bottom + extend) return true; return false; }
+	static bool InRect(RECT rect, POINT pt, int extend = 0) { if (pt.x >= rect.left - extend && pt.x <= rect.right + extend && pt.y >= rect.top - extend && pt.y <= rect.bottom + extend) return true; return false; }
+	static POINT PointInRect(RECT rect, POINT pt, int extend = 0) {
+		if (pt.x >= rect.left - extend && pt.x <= rect.right + extend && pt.y >= rect.top - extend && pt.y <= rect.bottom + extend)
+			return { pt.x - rect.left, pt.y - rect.top };
+		return { -1, -1 };
+	}
+	
 	static RECT RectAbs(RECT rect) {
 		if (rect.left > rect.right) std::swap(rect.left, rect.right);
 		if (rect.top > rect.bottom) std::swap(rect.top, rect.bottom);
 		return rect;
 	}
 
-	static RECT RectSize(RECT rect) {
+	static SIZE RectSize(RECT rect) {
 		if (rect.left > rect.right) rect.right = rect.left - rect.right;
 		else rect.right -= rect.left;
 		if (rect.top > rect.bottom) rect.bottom = rect.top - rect.bottom;
 		else rect.bottom -= rect.top;
-		rect.left = 0;
-		rect.top = 0;
-		return rect;
+		return { rect.right, rect.bottom };
+	}
+
+	static uint32 RectArea(RECT rect)
+	{
+		SIZE size = RectSize(rect);
+		return size.cx * size.cy;
 	}
 
 	static int Rand(int max, int min = 0) { return min + (rand() % (max - min + 1)); }
