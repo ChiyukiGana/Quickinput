@@ -109,19 +109,19 @@ namespace QiThread
 				bool active = (GetForegroundWindow() == qis.fun.wndActive.wi.wnd);
 				if (!qis.run && active)
 				{
-					qis.run = 1;
-					if (qis.set.showTips) PopBox::Popup(qis.ui.pop.we.t, qis.ui.pop.we.c);
+					qis.run = true;
+					if (qis.set.showTips) QiFn::WPop(qis.fun.wndActive.wi.wndName, qis.ui.pop.we);
 				}
 				else if (qis.run && !active)
 				{
-					qis.run = 0;
-					if (qis.set.showTips) PopBox::Popup(qis.ui.pop.wd.t, qis.ui.pop.wd.c);
+					qis.run = false;
+					if (qis.set.showTips) QiFn::WPop(qis.fun.wndActive.wi.wndName, qis.ui.pop.wd);
 				}
 			}
 			else if (qis.run)
 			{
-				qis.run = 0;
-				if (qis.set.showTips) PopBox::Popup(qis.ui.pop.wd.t, qis.ui.pop.wd.c);
+				qis.run = false;
+				if (qis.set.showTips) QiFn::WPop(qis.fun.wndActive.wi.wndName, qis.ui.pop.wd);
 			}
 			sleep(100);
 		}

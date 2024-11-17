@@ -19,10 +19,29 @@ public:
 		WidInit();
 		WidEvent();
 	}
+	void SetStyleGroup()
+	{
+		setProperty("group", QVariant(QString::fromUtf8("frame")));
+		ui.titleWidget->setProperty("group", QVariant(QString::fromUtf8("title")));
+		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
+		ui.bnClose->setProperty("group", QVariant(QString::fromUtf8("title-close_button")));
+		ui.etQE->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etQD->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etWE->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etWD->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etQcE->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etQcD->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etSwE->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etSwD->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etDwE->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etDwD->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etUpE->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etUpD->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+	}
 	void ReStyle()
 	{
-		ui.clientWidget->setStyleSheet("");
-		ui.clientWidget->setStyleSheet(qis.ui.themes[qis.set.theme].style);
+		setStyleSheet("");
+		setStyleSheet(qis.ui.themes[qis.set.theme].style);
 	}
 private:
 	void WidInit()
@@ -59,6 +78,7 @@ private:
 		ui.sdLR->installEventFilter(this);
 		ui.sdTB->installEventFilter(this);
 
+		SetStyleGroup();
 		Update();
 	}
 	void WidEvent()

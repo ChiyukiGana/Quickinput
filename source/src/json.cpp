@@ -82,15 +82,15 @@ namespace QiJson
 			{
 				jItem.Add("ms", action.d.delay.tmin);
 				jItem.Add("ex", action.d.delay.tmax);
+				break;
 			}
-			break;
 
 			case Action::_key:
 			{
 				jItem.Add("state", action.d.key.state);
 				jItem.Add("vk", action.d.key.vk);
+				break;
 			}
-			break;
 
 			case Action::_mouse:
 			{
@@ -100,14 +100,14 @@ namespace QiJson
 				jItem.Add("ex", action.d.mouse.ex);
 				jItem.Add("trk", action.d.mouse.track, true);
 				jItem.Add("spd", action.d.mouse.speed);
+				break;
 			}
-			break;
 
 			case Action::_text:
 			{
 				jItem.Add("text", String::toString(action.d.text.str.str()));
+				break;
 			}
-			break;
 
 			case Action::_color:
 			{
@@ -119,24 +119,24 @@ namespace QiJson
 				jItem.Add("bottom", (int32)action.d.color.rect.bottom);
 				jItem.Add("rgbe", (uint32)action.d.color.rgbe.toCOLORREF());
 				SaveAction(jNext, action.next), jItem.Add("next", jNext);
+				break;
 			}
-			break;
 
 			case Action::_loop:
 			{
 				jItem.Add("count", action.d.loop.cmin);
 				jItem.Add("rand", action.d.loop.cmax);
 				SaveAction(jNext, action.next), jItem.Add("next", jNext);
+				break;
 			}
-			break;
 
 			case Action::_keyState:
 			{
 				jItem.Add("state", action.d.keyState.state, true);
 				jItem.Add("vk", action.d.keyState.vk);
 				SaveAction(jNext, action.next), jItem.Add("next", jNext);
+				break;
 			}
-			break;
 
 			case Action::_image:
 			{
@@ -154,15 +154,23 @@ namespace QiJson
 				std::string data = base64_encode((byte*)action.d.image.map.data(), action.d.image.map.bytes());
 				if (data.size()) jItem.Add("data", data);
 				SaveAction(jNext, action.next), jItem.Add("next", jNext);
+				break;
 			}
-			break;
 
 			case Action::_popText:
 			{
 				jItem.Add("text", String::toString(action.d.popText.str.str()));
 				jItem.Add("time", action.d.popText.time);
+				break;
 			}
-			break;
+
+			case Action::_timer:
+			{
+				jItem.Add("min", action.d.timer.tmin);
+				jItem.Add("max", action.d.timer.tmax);
+				SaveAction(jNext, action.next), jItem.Add("next", jNext);
+				break;
+			}
 
 			}
 			jActions.Add(jItem);
@@ -266,23 +274,22 @@ namespace QiJson
 			{
 				switch (ui32)
 				{
-				case Action::_end: action.type = Action::_end;
-					break;
+				case Action::_end: action.type = Action::_end; break;
 
 				case Action::_delay: action.type = Action::_delay;
 				{
 					jItem.Get("ms", action.d.delay.tmin);
 					jItem.Get("ex", action.d.delay.tmax);
 					if (action.d.delay.tmax < action.d.delay.tmin) action.d.delay.tmax = action.d.delay.tmin;
+					break;
 				}
-				break;
 
 				case Action::_key: action.type = Action::_key;
 				{
 					jItem.Get("state", action.d.key.state);
 					jItem.Get("vk", action.d.key.vk);
+					break;
 				}
-				break;
 
 				case Action::_mouse: action.type = Action::_mouse;
 				{
@@ -293,15 +300,15 @@ namespace QiJson
 					jItem.Get("trk", action.d.mouse.track);
 					jItem.Get("spd", action.d.mouse.speed);
 					if (!action.d.mouse.speed) action.d.mouse.speed = 1;
+					break;
 				}
-				break;
 
 				case Action::_text: action.type = Action::_text;
 				{
 					jItem.Get("text", str);
 					action.d.text.str.copy(String::toWString(str).c_str());
+					break;
 				}
-				break;
 
 				case Action::_color: action.type = Action::_color;
 				{
@@ -314,8 +321,8 @@ namespace QiJson
 					jItem.Get("rgbe", ui32); action.d.color.rgbe.set(ui32);
 					jItem.Get("next", jNext);
 					LoadAction(jNext, action.next);
+					break;
 				}
-				break;
 
 				case Action::_loop: action.type = Action::_loop;
 				{
@@ -324,11 +331,10 @@ namespace QiJson
 					if (action.d.loop.cmax < action.d.loop.cmin) action.d.loop.cmax = action.d.loop.cmin;
 					jItem.Get("next", jNext);
 					LoadAction(jNext, action.next);
-				}
-				break;
-
-				case Action::_loopEnd: action.type = Action::_loopEnd;
 					break;
+				}
+
+				case Action::_loopEnd: action.type = Action::_loopEnd; break;
 
 				case Action::_keyState: action.type = Action::_keyState;
 				{
@@ -336,11 +342,10 @@ namespace QiJson
 					jItem.Get("vk", action.d.keyState.vk);
 					jItem.Get("next", jNext);
 					LoadAction(jNext, action.next);
-				}
-				break;
-
-				case Action::_revocerPos: action.type = Action::_revocerPos;
 					break;
+				}
+
+				case Action::_revocerPos: action.type = Action::_revocerPos; break;
 
 				case Action::_image: action.type = Action::_image;
 				{
@@ -363,19 +368,28 @@ namespace QiJson
 					}
 					jItem.Get("next", jNext);
 					LoadAction(jNext, action.next);
+					break;
 				}
-				break;
 
 				case Action::_popText: action.type = Action::_popText;
 				{
 					jItem.Get("text", str);
 					jItem.Get("time", action.d.popText.time);
 					action.d.popText.str.copy(String::toWString(str).c_str());
-				}
-				break;
-
-				case Action::_rememberPos: action.type = Action::_rememberPos;
 					break;
+				}
+
+				case Action::_rememberPos: action.type = Action::_rememberPos; break;
+
+				case Action::_timer: action.type = Action::_timer;
+				{
+					jItem.Get("min", action.d.timer.tmin);
+					jItem.Get("max", action.d.timer.tmax);
+					if (action.d.timer.tmax < action.d.timer.tmin) action.d.timer.tmax = action.d.timer.tmin;
+					jItem.Get("next", jNext);
+					LoadAction(jNext, action.next);
+					break;
+				}
 
 				default: action.type = Action::_none; break;
 				}

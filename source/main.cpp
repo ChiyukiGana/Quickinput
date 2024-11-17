@@ -36,6 +36,253 @@ int main(int argc, char* argv[])
 
 void Init()
 {
+	// default style
+	std::wstring path = Path::Append(Process::runPath(), L"style");
+	if (!File::FolderState(path))
+	{
+		File::FolderCreate(L"style");
+		File::TextSaveU(L"style\\style属性说明.css", R"(/* 选择框图标 */
+*[group="check"] {
+    image: url(:/checked.png)
+}
+
+/* 选择列表图标 */
+*[group="combo"] {
+    image: url(:/arrow.png);
+}
+
+/************window*************/
+
+/* 窗口 */
+*[group="frame"] {}
+
+/* 标题区 */
+*[group="title"] {}
+
+/* 内容区 */
+*[group="client"] {}
+
+/************title button*************/
+
+/* 标题区关闭按钮 */
+*[group="title-close_button"] {}
+
+/* 标题区隐藏按钮 */
+*[group="title-hide_button"] {}
+
+/* 标题区最小化按钮 */
+*[group="title-min_button"] {}
+
+/* 标题区运行按钮 */
+*[group="title-run_button"] {}
+
+/************button*************/
+
+/* 获取坐标，范围，窗口按钮 */
+*[group="get_button"] {}
+
+/* 宏窗口按钮 */
+*[group="macro-button"] {}
+
+/* 设置窗口按钮 */
+*[group="settings-button"] {}
+
+/* 编辑窗口添加按钮 */
+*[group="edit-add_button"] {}
+
+/* 编辑窗口编辑按钮 */
+*[group="edit-edit_button"] {}
+
+/* 录制窗口按钮 */
+*[group="record-button"] {}
+
+/************select*************/
+
+/* 选择按钮 */
+*[group="check"] {}
+
+/* 选择按钮图标 */
+*[group="check"]::indicator {}
+
+/* 单选按钮 */
+*[group="radio"] {}
+
+/* 单选按钮图标 */
+*[group="radio"]::indicator {}
+
+/************combo*************/
+
+/* 选项列表 */
+*[group="combo"] {}
+
+/* 选择列表图标框 */
+*[group="combo"]::drop-down {}
+
+/* 选择列表图标 */
+*[group="combo"]::down-arrow {}
+
+/************edit*************/
+
+/* 单行编辑框 */
+*[group="line_eidt"] {}
+
+/* 文本编辑框 */
+*[group="text_edit"] {}
+
+/* 按键编辑框 */
+*[group="key_edit"] {}
+
+/* 右键菜单 */
+*[group="context_menu"] {}
+
+/* 悬停提示 */
+*[group="context_tip"] {}
+
+/************tab_widget*************/
+
+/* 标签Box */
+*[group="tab_widget"] {}
+
+/* 标签Box首标签 */
+*[group="tab_widget_bar"]::tab:first {}
+
+/* 标签Box中标签 */
+*[group="tab_widget_bar"]::tab {}
+
+/* 标签Box尾标签 */
+*[group="tab_widget_bar"]::tab:last {}
+
+/************tool*************/
+
+/* 列标签Box */
+*[group="ltab_widget"] {}
+
+/* 列标签Box按钮 */
+*[group="ltab_widget"]::tab {}
+
+/************table*************/
+
+/* 列表 */
+*[group="table"] {}
+
+/* 列表头 */
+*[group="table_header"] {}
+
+/* 列表项目 */
+*[group="table"]::item {}
+
+/* 列表项目悬停 */
+*[group="table"]::item:hover {}
+
+/* 列表项目选中 */
+*[group="table"]::item:selected {})");
+		File::TextSaveU(L"style\\style示例.css", R"(* {
+    border: none;
+    font-size: 12px;
+    font-family: "Microsoft YaHei"
+}
+
+/* window */
+*[group="frame"] {
+    border:1px solid gray
+}
+*[group="title"] {
+    background-color: white;
+    font-size: 14px
+}
+*[group="client"] {
+    background-color: #CEF
+}
+
+/* normal */
+*[group="get_button"],
+*[group="check"]::indicator,
+*[group="radio"]::indicator,
+*[group="combo"],
+*[group="context_menu"],
+*[group="context_tip"],
+*[group="line_edit"],
+*[group="text_edit"],
+*[group="key_edit"],
+*[group="table"],
+*[group="table_header"] {
+    background-color: white
+}
+
+/* normal */
+*[group="macro-button"],
+*[group="settings-button"],
+*[group="edit-add_button"],
+*[group="edit-edit_button"],
+*[group="record-button"],
+*[group="tab_widget_bar"]::tab:first,
+*[group="tab_widget_bar"]::tab,
+*[group="tab_widget_bar"]::tab:last,
+*[group="ltab_widget"]::tab {
+    background-color: #ADE
+}
+
+/* hover */
+*[group="get_button"]:hover,
+*[group="macro-button"]:hover,
+*[group="settings-button"]:hover,
+*[group="edit-add_button"]:hover,
+*[group="edit-edit_button"]:hover,
+*[group="record-button"]:hover,
+*[group="check"]::indicator:hover,
+*[group="radio"]::indicator:hover,
+*[group="radio"]::item:selected,
+*[group="tab_widget_bar"]::tab:first:hover,
+*[group="tab_widget_bar"]::tab:hover,
+*[group="tab_widget_bar"]::tab:last:hover,
+*[group="table"]::item:hover {
+    background-color: #ACF
+}
+
+/* selected */
+*[group="tab_widget_bar"]::tab:first:selected,
+*[group="tab_widget_bar"]::tab:selected,
+*[group="tab_widget_bar"]::tab:last:selected {
+    background-color: #CEF
+}
+
+/* selected */
+*[group="table"]::item:selected {
+    background-color: #ADF;
+    color: black
+}
+
+/* checked */
+*[group="check"]::indicator:checked,
+*[group="radio"]::indicator:checked {
+    image: url(:/checked.png)
+}
+
+/* disabled */
+*[group="get_button"]:disabled,
+*[group="macro-button"]:disabled,
+*[group="settings-button"]:disabled,
+*[group="edit-add_button"]:disabled,
+*[group="edit-edit_button"]:disabled,
+*[group="record-button"]:disabled,
+*[group="check"]:disabled,
+*[group="radio"]:disabled,
+*[group="combo"]:disabled,
+*[group="context_menu"]::item:disabled,
+*[group="line_edit"]:disabled,
+*[group="text_edit"]:disabled,
+*[group="key_edit"]:disabled {
+    color:gray
+}
+
+/* 控件大小 */
+*[group="check"]::indicator,
+*[group="radio"]::indicator {
+    width: 20px;
+    height: 20px
+})");
+	}
+
 	// config, macro
 	QiJson::LoadJson();
 
@@ -127,6 +374,7 @@ void Init()
 		qis.ui.text.acImage = (QString::fromUtf8("找图") + qis.ui.text.syImage);
 		qis.ui.text.acPopText = (QString::fromUtf8("弹出") + qis.ui.text.syText);
 		qis.ui.text.acRememberPos = (QString::fromUtf8("记录位置") + qis.ui.text.syTurn);
+		qis.ui.text.acTimer = (QString::fromUtf8("定时") + qis.ui.text.syLoop);
 		qis.ui.text.trOn = (QString::fromUtf8("启用") + qis.ui.text.syOn);
 		qis.ui.text.trOff = (QString::fromUtf8("禁用") + qis.ui.text.syOff);
 		qis.ui.text.etFunc = (QString::fromUtf8("动作") + qis.ui.text.syOption);
@@ -144,24 +392,37 @@ void Init()
 	{
 		QiUi::Theme theme;
 		theme.name = "浅蓝";
-		theme.style = u8R"(*{color:black;border:none;outline:none;font-size:12px;font-family:"Microsoft YaHei"}QLineEdit{color:#444}QMainWindow,QDialog{border:1px solid gray}QMenu,QToolTip,QLineEdit,QTextEdit,QKeyEdit,QCheckBox::indicator,QRadioButton::indicator,QHeaderView,QHeaderView::section,QTableWidget,QTableWidget QTableCornerButton::section,QComboBox,QComboBox QAbstractItemView{background-color:white}QMenu::disabled{color:gray}QPushButton,QTabBar::tab,QTabBar::tab:first,QTabBar::tab:last,QToolBox::tab{background-color:#ADE}QCheckBox::indicator,QRadioButton::indicator{width:20px;height:20px}QComboBox{padding-left:3px}QMenu::item:selected,QPushButton:hover,QCheckBox::indicator:hover,QRadioButton::indicator:hover,QTableWidget::item:hover,QTabBar::tab:hover,QTabBar::tab:first:hover,QTabBar::tab:last:hover{background-color:#ACF;color:black}QTableWidget::item:selected{background-color:#ADF;color:black}QTabBar::tab:selected,QTabBar::tab:first:selected,QTabBar::tab:last:selected{background-color:#CEF;color:black}QCheckBox::indicator:checked,QRadioButton::indicator:checked{image:url(:/checked.png)}QPushButton:disabled,QCheckBox:disabled,QRadioButton:disabled{color:gray}#bnWndSelect,#bnPos,#bnColorRect,#bnImageRect,#bnImageShot{background-color:white}#titleWidget{background-color:white}#titleWidget *{font-size:14px}#clientWidget,QTabWidget>QWidget,QToolBox>QWidget{background-color:#CEF})";
+		theme.style = R"(*{border:none;font-size:12px;font-family:"Microsoft YaHei"}*[group="frame"]{border:1px solid gray}*[group="title"]{background-color:white;font-size:14px}*[group="client"]{background-color:#CEF}*[group="get_button"],*[group="check"]::indicator,*[group="radio"]::indicator,*[group="combo"],*[group="context_menu"],*[group="context_tip"],*[group="line_edit"],*[group="text_edit"],*[group="key_edit"],*[group="table"],*[group="table_header"],QToolTip{background-color:white}*[group="macro-button"],*[group="settings-button"],*[group="edit-add_button"],*[group="edit-edit_button"],*[group="record-button"],*[group="tab_widget_bar"]::tab:first,*[group="tab_widget_bar"]::tab,*[group="tab_widget_bar"]::tab:last,*[group="ltab_widget"]::tab{background-color:#ADE}*[group="get_button"]:hover,*[group="macro-button"]:hover,*[group="settings-button"]:hover,*[group="edit-add_button"]:hover,*[group="edit-edit_button"]:hover,*[group="record-button"]:hover,*[group="check"]::indicator:hover,*[group="radio"]::indicator:hover,*[group="radio"]::item:selected,*[group="tab_widget_bar"]::tab:first:hover,*[group="tab_widget_bar"]::tab:hover,*[group="tab_widget_bar"]::tab:last:hover,*[group="table"]::item:hover{background-color:#ACF}*[group="tab_widget_bar"]::tab:first:selected,*[group="tab_widget_bar"]::tab:selected,*[group="tab_widget_bar"]::tab:last:selected{background-color:#CEF}*[group="table"]::item:selected{background-color:#ADF;color:black}*[group="check"]::indicator:checked,*[group="radio"]::indicator:checked{image:url(:/checked.png)}*[group="get_button"]:disabled,*[group="macro-button"]:disabled,*[group="settings-button"]:disabled,*[group="edit-add_button"]:disabled,*[group="edit-edit_button"]:disabled,*[group="record-button"]:disabled,*[group="check"]:disabled,*[group="radio"]:disabled,*[group="combo"]:disabled,*[group="context_menu"]::item:disabled,*[group="line_edit"]:disabled,*[group="text_edit"]:disabled,*[group="key_edit"]:disabled{color:gray}*[group="check"]::indicator,*[group="radio"]::indicator{width:20px;height:20px})";
 		qis.ui.themes.Add(theme);
 
 		theme.name = "浅红";
-		theme.style = u8R"(*{color:black;border:none;outline:none;font-size:12px;font-family:"Microsoft YaHei"}QLineEdit{color:#444}QMainWindow,QDialog{border:1px solid gray}QMenu,QToolTip,QLineEdit,QTextEdit,QKeyEdit,QCheckBox::indicator,QRadioButton::indicator,QHeaderView,QHeaderView::section,QTableWidget,QTableWidget QTableCornerButton::section,QComboBox,QComboBox QAbstractItemView{background-color:#FFF5FF}QMenu::disabled{color:gray}QPushButton,QTabBar::tab,QTabBar::tab:first,QTabBar::tab:last,QToolBox::tab{background-color:#FCE}QCheckBox::indicator,QRadioButton::indicator{width:20px;height:20px}QComboBox{padding-left:3px}QMenu::item:selected,QPushButton:hover,QCheckBox::indicator:hover,QRadioButton::indicator:hover,QTableWidget::item:hover,QTabBar::tab:hover,QTabBar::tab:first:hover,QTabBar::tab:last:hover{background-color:#FBE;color:black}QTableWidget::item:selected{background-color:#FCE;color:black}QTabBar::tab:selected,QTabBar::tab:first:selected,QTabBar::tab:last:selected{background-color:#FDF;color:black}QCheckBox::indicator:checked,QRadioButton::indicator:checked{image:url(:/checked.png)}QPushButton:disabled,QCheckBox:disabled,QRadioButton:disabled{color:gray}#bnWndSelect,#bnPos,#bnColorRect,#bnImageRect,#bnImageShot{background-color:#FFF5FF}#titleWidget{background-color:white}#titleWidget *{font-size:14px}#clientWidget,QTabWidget>QWidget,QToolBox>QWidget{background-color:#FDF})";
+		theme.style = R"(*{border:none;font-size:12px;font-family:"Microsoft YaHei"}*[group="frame"]{border:1px solid gray}*[group="title"]{background-color:white;font-size:14px}*[group="client"]{background-color:#FDF}*[group="get_button"],*[group="check"]::indicator,*[group="radio"]::indicator,*[group="combo"],*[group="context_menu"],*[group="context_tip"],*[group="line_edit"],*[group="text_edit"],*[group="key_edit"],*[group="table"],*[group="table_header"],QToolTip{background-color:#FFF5FF}*[group="macro-button"],*[group="settings-button"],*[group="edit-add_button"],*[group="edit-edit_button"],*[group="record-button"],*[group="tab_widget_bar"]::tab:first,*[group="tab_widget_bar"]::tab,*[group="tab_widget_bar"]::tab:last,*[group="ltab_widget"]::tab{background-color:#FCE}*[group="get_button"]:hover,*[group="macro-button"]:hover,*[group="settings-button"]:hover,*[group="edit-add_button"]:hover,*[group="edit-edit_button"]:hover,*[group="record-button"]:hover,*[group="check"]::indicator:hover,*[group="radio"]::indicator:hover,*[group="radio"]::item:selected,*[group="tab_widget_bar"]::tab:first:hover,*[group="tab_widget_bar"]::tab:hover,*[group="tab_widget_bar"]::tab:last:hover,*[group="table"]::item:hover{background-color:#FBE}*[group="tab_widget_bar"]::tab:first:selected,*[group="tab_widget_bar"]::tab:selected,*[group="tab_widget_bar"]::tab:last:selected{background-color:#FDF}*[group="table"]::item:selected{background-color:#FCE;color:black}*[group="check"]::indicator:checked,*[group="radio"]::indicator:checked{image:url(:/checked.png)}*[group="get_button"]:disabled,*[group="macro-button"]:disabled,*[group="settings-button"]:disabled,*[group="edit-add_button"]:disabled,*[group="edit-edit_button"]:disabled,*[group="record-button"]:disabled,*[group="check"]:disabled,*[group="radio"]:disabled,*[group="combo"]:disabled,*[group="context_menu"]::item:disabled,*[group="line_edit"]:disabled,*[group="text_edit"]:disabled,*[group="key_edit"]:disabled{color:gray}*[group="check"]::indicator,*[group="radio"]::indicator{width:20px;height:20px})";
 		qis.ui.themes.Add(theme);
 
 		theme.name = "橘子";
-		theme.style = u8R"(*{color:black;border:none;outline:none;font-size:12px;font-family:"Microsoft YaHei"}QLineEdit{color:#444}QMainWindow,QDialog{border:1px solid gray}QMenu,QToolTip,QLineEdit,QTextEdit,QKeyEdit,QCheckBox::indicator,QRadioButton::indicator,QHeaderView,QHeaderView::section,QTableWidget,QTableWidget QTableCornerButton::section,QComboBox,QComboBox QAbstractItemView{background-color:#FFFFF5}QMenu::disabled{color:gray}QPushButton,QTabBar::tab,QTabBar::tab:first,QTabBar::tab:last,QToolBox::tab{background-color:#FDA}QCheckBox::indicator,QRadioButton::indicator{width:20px;height:20px}QComboBox{padding-left:3px}QMenu::item:selected,QPushButton:hover,QCheckBox::indicator:hover,QRadioButton::indicator:hover,QTableWidget::item:hover,QTabBar::tab:hover,QTabBar::tab:first:hover,QTabBar::tab:last:hover{background-color:#FFD0B0;color:black}QTableWidget::item:selected{background-color:#FFD0B0;color:black}QTabBar::tab:selected,QTabBar::tab:first:selected,QTabBar::tab:last:selected{background-color:#FEC;color:black}QCheckBox::indicator:checked,QRadioButton::indicator:checked{image:url(:/checked.png)}QPushButton:disabled,QCheckBox:disabled,QRadioButton:disabled{color:gray}#bnWndSelect,#bnPos,#bnColorRect,#bnImageRect,#bnImageShot{background-color:#FFFFF5}#titleWidget{background-color:white}#titleWidget *{font-size:14px}#clientWidget,QTabWidget>QWidget,QToolBox>QWidget{background-color:#FEC})";
+		theme.style = R"(*{border:none;font-size:12px;font-family:"Microsoft YaHei"}*[group="frame"]{border:1px solid gray}*[group="title"]{background-color:white;font-size:14px}*[group="client"]{background-color:#FEC}*[group="get_button"],*[group="check"]::indicator,*[group="radio"]::indicator,*[group="combo"],*[group="context_menu"],*[group="context_tip"],*[group="line_edit"],*[group="text_edit"],*[group="key_edit"],*[group="table"],*[group="table_header"],QToolTip{background-color:#FFFFF5}*[group="macro-button"],*[group="settings-button"],*[group="edit-add_button"],*[group="edit-edit_button"],*[group="record-button"],*[group="tab_widget_bar"]::tab:first,*[group="tab_widget_bar"]::tab,*[group="tab_widget_bar"]::tab:last,*[group="ltab_widget"]::tab{background-color:#FDA}*[group="get_button"]:hover,*[group="macro-button"]:hover,*[group="settings-button"]:hover,*[group="edit-add_button"]:hover,*[group="edit-edit_button"]:hover,*[group="record-button"]:hover,*[group="check"]::indicator:hover,*[group="radio"]::indicator:hover,*[group="radio"]::item:selected,*[group="tab_widget_bar"]::tab:first:hover,*[group="tab_widget_bar"]::tab:hover,*[group="tab_widget_bar"]::tab:last:hover,*[group="table"]::item:hover{background-color:#FFD0B0}*[group="tab_widget_bar"]::tab:first:selected,*[group="tab_widget_bar"]::tab:selected,*[group="tab_widget_bar"]::tab:last:selected{background-color:#FEC}*[group="table"]::item:selected{background-color:#FFD0B0;color:black}*[group="check"]::indicator:checked,*[group="radio"]::indicator:checked{image:url(:/checked.png)}*[group="get_button"]:disabled,*[group="macro-button"]:disabled,*[group="settings-button"]:disabled,*[group="edit-add_button"]:disabled,*[group="edit-edit_button"]:disabled,*[group="record-button"]:disabled,*[group="check"]:disabled,*[group="radio"]:disabled,*[group="combo"]:disabled,*[group="context_menu"]::item:disabled,*[group="line_edit"]:disabled,*[group="text_edit"]:disabled,*[group="key_edit"]:disabled{color:gray}*[group="check"]::indicator,*[group="radio"]::indicator{width:20px;height:20px})";
 		qis.ui.themes.Add(theme);
 
 		theme.name = "薄荷";
-		theme.style = u8R"(*{color:black;border:none;outline:none;font-size:12px;font-family:"Microsoft YaHei"}QLineEdit{color:#444}QMainWindow,QDialog{border:1px solid gray}QMenu,QToolTip,QLineEdit,QTextEdit,QKeyEdit,QCheckBox::indicator,QRadioButton::indicator,QHeaderView,QHeaderView::section,QTableWidget,QTableWidget QTableCornerButton::section,QComboBox,QComboBox QAbstractItemView{background-color:#F5FFFF}QMenu::disabled{color:gray}QPushButton,QTabBar::tab,QTabBar::tab:first,QTabBar::tab:last,QToolBox::tab{background-color:#9DC}QCheckBox::indicator,QRadioButton::indicator{width:20px;height:20px}QComboBox{padding-left:3px}QMenu::item:selected,QPushButton:hover,QCheckBox::indicator:hover,QRadioButton::indicator:hover,QTableWidget::item:hover,QTabBar::tab:hover,QTabBar::tab:first:hover,QTabBar::tab:last:hover{background-color:#8EB;color:black}QTableWidget::item:selected{background-color:#A5E5D5;color:black}QTabBar::tab:selected,QTabBar::tab:first:selected,QTabBar::tab:last:selected{background-color:#AED;color:black}QCheckBox::indicator:checked,QRadioButton::indicator:checked{image:url(:/checked.png)}QPushButton:disabled,QCheckBox:disabled,QRadioButton:disabled{color:gray}#bnWndSelect,#bnPos,#bnColorRect,#bnImageRect,#bnImageShot{background-color:#F5FFFF}#titleWidget{background-color:white}#titleWidget *{font-size:14px}#clientWidget,QTabWidget>QWidget,QToolBox>QWidget{background-color:#AED})";
+		theme.style = R"(*{border:none;font-size:12px;font-family:"Microsoft YaHei"}*[group="frame"]{border:1px solid gray}*[group="title"]{background-color:white;font-size:14px}*[group="client"]{background-color:#AED}*[group="get_button"],*[group="check"]::indicator,*[group="radio"]::indicator,*[group="combo"],*[group="context_menu"],*[group="context_tip"],*[group="line_edit"],*[group="text_edit"],*[group="key_edit"],*[group="table"],*[group="table_header"],QToolTip{background-color:#F5FFFF}*[group="macro-button"],*[group="settings-button"],*[group="edit-add_button"],*[group="edit-edit_button"],*[group="record-button"],*[group="tab_widget_bar"]::tab:first,*[group="tab_widget_bar"]::tab,*[group="tab_widget_bar"]::tab:last,*[group="ltab_widget"]::tab{background-color:#9DC}*[group="get_button"]:hover,*[group="macro-button"]:hover,*[group="settings-button"]:hover,*[group="edit-add_button"]:hover,*[group="edit-edit_button"]:hover,*[group="record-button"]:hover,*[group="check"]::indicator:hover,*[group="radio"]::indicator:hover,*[group="radio"]::item:selected,*[group="tab_widget_bar"]::tab:first:hover,*[group="tab_widget_bar"]::tab:hover,*[group="tab_widget_bar"]::tab:last:hover,*[group="table"]::item:hover{background-color:#8EB}*[group="tab_widget_bar"]::tab:first:selected,*[group="tab_widget_bar"]::tab:selected,*[group="tab_widget_bar"]::tab:last:selected{background-color:#AED}*[group="table"]::item:selected{background-color:#A5E5D5;color:black}*[group="check"]::indicator:checked,*[group="radio"]::indicator:checked{image:url(:/checked.png)}*[group="get_button"]:disabled,*[group="macro-button"]:disabled,*[group="settings-button"]:disabled,*[group="edit-add_button"]:disabled,*[group="edit-edit_button"]:disabled,*[group="record-button"]:disabled,*[group="check"]:disabled,*[group="radio"]:disabled,*[group="combo"]:disabled,*[group="context_menu"]::item:disabled,*[group="line_edit"]:disabled,*[group="text_edit"]:disabled,*[group="key_edit"]:disabled{color:gray}*[group="check"]::indicator,*[group="radio"]::indicator{width:20px;height:20px})";
 		qis.ui.themes.Add(theme);
 
 		theme.name = "黑暗";
-		theme.style = u8R"(*{color:white;border:none;outline:none;font-size:12px;font-family:"Microsoft YaHei"}QLineEdit{color:#DDD}QMainWindow,QDialog{border:1px solid gray}QToolTip,QLineEdit,QTextEdit,QKeyEdit,QCheckBox::indicator,QRadioButton::indicator,QHeaderView,QHeaderView::section,QTableWidget,QTableWidget QTableCornerButton::section,QComboBox,QComboBox QAbstractItemView{background-color:#555}QMenu::disabled{color:gray}QPushButton,QTabBar::tab,QTabBar::tab:first,QTabBar::tab:last,QToolBox::tab{background-color:#666}QCheckBox::indicator,QRadioButton::indicator{width:20px;height:20px}QComboBox{padding-left:3px}QMenu::item:selected,QPushButton:hover,QCheckBox::indicator:hover,QRadioButton::indicator:hover,QTableWidget::item:hover,QTabBar::tab:hover,QTabBar::tab:first:hover,QTabBar::tab:last:hover{background-color:#777;color:white}QTableWidget::item:selected{background-color:#888;color:white}QTabBar::tab:selected,QTabBar::tab:first:selected,QTabBar::tab:last:selected{background-color:#333;color:white}QCheckBox::indicator:checked,QRadioButton::indicator:checked{image:url(:/checked.png)}QPushButton:disabled,QCheckBox:disabled,QRadioButton:disabled{color:gray}#bnWndSelect,#bnPos,#bnColorRect,#bnImageRect,#bnImageShot{background-color:#666}#titleWidget{background-color:black}#titleWidget *{font-size:14px}QMenu,#clientWidget,QTabWidget>QWidget,QToolBox>QWidget{background-color:#333})";
+		theme.style = R"(*{color:white;border:none;font-size:12px;font-family:"Microsoft YaHei"}*[group="frame"]{border:1px solid gray}*[group="title"]{background-color:black;font-size:14px}*[group="client"]{background-color:#333}*[group="get_button"],*[group="check"]::indicator,*[group="radio"]::indicator,*[group="combo"],*[group="context_menu"],*[group="context_tip"],*[group="line_edit"],*[group="text_edit"],*[group="key_edit"],*[group="table"],*[group="table_header"],QToolTip{background-color:#555}*[group="macro-button"],*[group="settings-button"],*[group="edit-add_button"],*[group="edit-edit_button"],*[group="record-button"],*[group="tab_widget_bar"]::tab:first,*[group="tab_widget_bar"]::tab,*[group="tab_widget_bar"]::tab:last,*[group="ltab_widget"]::tab{background-color:#666}*[group="get_button"]:hover,*[group="macro-button"]:hover,*[group="settings-button"]:hover,*[group="edit-add_button"]:hover,*[group="edit-edit_button"]:hover,*[group="record-button"]:hover,*[group="check"]::indicator:hover,*[group="radio"]::indicator:hover,*[group="radio"]::item:selected,*[group="tab_widget_bar"]::tab:first:hover,*[group="tab_widget_bar"]::tab:hover,*[group="tab_widget_bar"]::tab:last:hover,*[group="table"]::item:hover{background-color:#777}*[group="tab_widget_bar"]::tab:first:selected,*[group="tab_widget_bar"]::tab:selected,*[group="tab_widget_bar"]::tab:last:selected{background-color:#333}*[group="table"]::item:selected{background-color:#888;color:white}*[group="check"]::indicator:checked,*[group="radio"]::indicator:checked{image:url(:/checked.png)}*[group="get_button"]:disabled,*[group="macro-button"]:disabled,*[group="settings-button"]:disabled,*[group="edit-add_button"]:disabled,*[group="edit-edit_button"]:disabled,*[group="record-button"]:disabled,*[group="check"]:disabled,*[group="radio"]:disabled,*[group="combo"]:disabled,*[group="context_menu"]::item:disabled,*[group="line_edit"]:disabled,*[group="text_edit"]:disabled,*[group="key_edit"]:disabled{color:gray}*[group="check"]::indicator,*[group="radio"]::indicator{width:20px;height:20px})";
 		qis.ui.themes.Add(theme);
+	}
+
+	// style load
+	{
+		File::FileList fl = File::FindFile(L"style\\*.css");
+		for (size_t i = 0; i < fl.size(); i++)
+		{
+			if (String::Compare(fl.at(i).name, L"style属性说明.css") == 0 || String::Compare(fl.at(i).name, L"style示例.css") == 0) continue;
+			QiUi::Theme theme;
+			theme.name = QString::fromWCharArray(Path::RemoveExtension(fl.at(i).name).c_str());
+			theme.style = QString::fromUtf8(File::TextReadU(Path::Append(L"style", fl.at(i).name)).c_str());
+			qis.ui.themes.Add(theme);
+		}
 	}
 }
 void Install()

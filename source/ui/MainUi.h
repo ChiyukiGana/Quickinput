@@ -36,6 +36,22 @@ public:
 			hide();
 		}
 	}
+
+	void SetStyleGroup()
+	{
+		setProperty("group", QVariant(QString::fromUtf8("frame")));
+		ui.titleWidget->setProperty("group", QVariant(QString::fromUtf8("title")));
+		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
+
+		ui.bnClose->setProperty("group", QVariant(QString::fromUtf8("title-close_button")));
+		ui.bnHide->setProperty("group", QVariant(QString::fromUtf8("title-hide_button")));
+		ui.bnMin->setProperty("group", QVariant(QString::fromUtf8("title-min_button")));
+
+		ui.tabWidget->setProperty("group", QVariant(QString::fromUtf8("tab_widget")));
+		ui.tabWidget->tabBar()->setProperty("group", QVariant(QString::fromUtf8("tab_widget_bar")));
+
+		menu->setProperty("group", QVariant(QString::fromUtf8("context_menu")));
+	}
 	void ReStyle()
 	{
 		setStyleSheet("");
@@ -48,27 +64,7 @@ public:
 		ws->ReStyle();
 	}
 private:
-	void MenuInit()
-	{
-		menu = new QMenu(this);
-		QAction* tnon = new QAction(qis.ui.text.muOn, this);
-		QAction* tnoff = new QAction(qis.ui.text.muOff, this);
-		QAction* show = new QAction(qis.ui.text.muShow, this);
-		QAction* hide = new QAction(qis.ui.text.muHide, this);
-		QAction* exit = new QAction(qis.ui.text.muExit, this);
-		menu->addAction(tnon);
-		menu->addAction(tnoff);
-		menu->addAction(show);
-		menu->addAction(hide);
-		menu->addAction(exit);
-		tray->setContextMenu(menu);
-		tray->setToolTip("Quick input");
-		connect(tnon, SIGNAL(triggered()), this, SLOT(OnMenuTnon()));
-		connect(tnoff, SIGNAL(triggered()), this, SLOT(OnMenuTnoff()));
-		connect(show, SIGNAL(triggered()), this, SLOT(OnMenuShow()));
-		connect(hide, SIGNAL(triggered()), this, SLOT(OnMenuHide()));
-		connect(exit, SIGNAL(triggered()), this, SLOT(OnMenuExit()));
-	}
+
 	void WidInit()
 	{
 		{
@@ -90,12 +86,34 @@ private:
 		}
 
 		{
+			menu = new QMenu(this);
+			QAction* tnon = new QAction(qis.ui.text.muOn, this);
+			QAction* tnoff = new QAction(qis.ui.text.muOff, this);
+			QAction* show = new QAction(qis.ui.text.muShow, this);
+			QAction* hide = new QAction(qis.ui.text.muHide, this);
+			QAction* exit = new QAction(qis.ui.text.muExit, this);
+			menu->addAction(tnon);
+			menu->addAction(tnoff);
+			menu->addAction(show);
+			menu->addAction(hide);
+			menu->addAction(exit);
+			tray->setContextMenu(menu);
+			tray->setToolTip("Quick input");
+			connect(tnon, SIGNAL(triggered()), this, SLOT(OnMenuTnon()));
+			connect(tnoff, SIGNAL(triggered()), this, SLOT(OnMenuTnoff()));
+			connect(show, SIGNAL(triggered()), this, SLOT(OnMenuShow()));
+			connect(hide, SIGNAL(triggered()), this, SLOT(OnMenuHide()));
+			connect(exit, SIGNAL(triggered()), this, SLOT(OnMenuExit()));
+		}
+
+		{
 			connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(OnTrayClick(QSystemTrayIcon::ActivationReason)));
 			connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
 			connect(ui.bnMin, SIGNAL(clicked()), this, SLOT(OnBnMin()));
 			connect(ui.bnHide, SIGNAL(clicked()), this, SLOT(OnBnHide()));
 		}
-		MenuInit();
+		
+		SetStyleGroup();
 	}
 	void showEvent(QShowEvent* et)
 	{

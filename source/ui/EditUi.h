@@ -34,6 +34,7 @@ class EditUi : public QDialog
 	const int32 moveRandMax = 9999;
 	const int32 delayMax = 999999;
 	const int32 loopCountMax = 9999;
+	const int32 timerMax = 999999;
 	const int32 colorMax = 255;
 	const int32 imageSimMax = 99;
 	const int32 popTextTimeMax = 9999;
@@ -74,15 +75,152 @@ public:
 		WidEvent();
 	}
 
+	void SetStyleGroup()
+	{
+		setProperty("group", QVariant(QString::fromUtf8("frame")));
+		ui.titleWidget->setProperty("group", QVariant(QString::fromUtf8("title")));
+		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
+
+		ui.bnRun->setProperty("group", QVariant(QString::fromUtf8("title-run_button")));
+		ui.bnClose->setProperty("group", QVariant(QString::fromUtf8("title-close_button")));
+
+		ui.bnPos->setProperty("group", QVariant(QString::fromUtf8("get_button")));
+		ui.bnColorRect->setProperty("group", QVariant(QString::fromUtf8("get_button")));
+		ui.bnImageRect->setProperty("group", QVariant(QString::fromUtf8("get_button")));
+		ui.bnImageShot->setProperty("group", QVariant(QString::fromUtf8("get_button")));
+		ui.bnWndSelect->setProperty("group", QVariant(QString::fromUtf8("get_button")));
+
+		ui.bnKeyAdd->setProperty("group", QVariant(QString::fromUtf8("edit-add_button")));
+		ui.bnMoveAdd->setProperty("group", QVariant(QString::fromUtf8("edit-add_button")));
+		ui.bnDelayAdd->setProperty("group", QVariant(QString::fromUtf8("edit-add_button")));
+		ui.bnLoopAdd->setProperty("group", QVariant(QString::fromUtf8("edit-add_button")));
+		ui.bnTimerAdd->setProperty("group", QVariant(QString::fromUtf8("edit-add_button")));
+		ui.bnStateAdd->setProperty("group", QVariant(QString::fromUtf8("edit-add_button")));
+		ui.bnRememberPosAdd->setProperty("group", QVariant(QString::fromUtf8("edit-add_button")));
+		ui.bnRecoverPosAdd->setProperty("group", QVariant(QString::fromUtf8("edit-add_button")));
+		ui.bnEndLoopAdd->setProperty("group", QVariant(QString::fromUtf8("edit-add_button")));
+		ui.bnEndAdd->setProperty("group", QVariant(QString::fromUtf8("edit-add_button")));
+		ui.bnColorAdd->setProperty("group", QVariant(QString::fromUtf8("edit-add_button")));
+		ui.bnImageAdd->setProperty("group", QVariant(QString::fromUtf8("edit-add_button")));
+		ui.bnTextAdd->setProperty("group", QVariant(QString::fromUtf8("edit-add_button")));
+		ui.bnPopTextAdd->setProperty("group", QVariant(QString::fromUtf8("edit-add_button")));
+
+		ui.bnLoopEdit->setProperty("group", QVariant(QString::fromUtf8("edit-edit_button")));
+		ui.bnTimerEdit->setProperty("group", QVariant(QString::fromUtf8("edit-edit_button")));
+		ui.bnStateEdit->setProperty("group", QVariant(QString::fromUtf8("edit-edit_button")));
+		ui.bnColorEdit->setProperty("group", QVariant(QString::fromUtf8("edit-edit_button")));
+		ui.bnImageEdit->setProperty("group", QVariant(QString::fromUtf8("edit-edit_button")));
+
+		ui.chbMoveTrack->setProperty("group", QVariant(QString::fromUtf8("check")));
+		ui.chbColorMove->setProperty("group", QVariant(QString::fromUtf8("check")));
+		ui.chbImageMove->setProperty("group", QVariant(QString::fromUtf8("check")));
+		ui.chbWnd->setProperty("group", QVariant(QString::fromUtf8("check")));
+		ui.chbChildWnd->setProperty("group", QVariant(QString::fromUtf8("check")));
+
+		ui.rbRunning->setProperty("group", QVariant(QString::fromUtf8("radio")));
+		ui.rbEnding->setProperty("group", QVariant(QString::fromUtf8("radio")));
+		ui.rbStateDown->setProperty("group", QVariant(QString::fromUtf8("radio")));
+		ui.rbClick->setProperty("group", QVariant(QString::fromUtf8("radio")));
+		ui.rbDown->setProperty("group", QVariant(QString::fromUtf8("radio")));
+		ui.rbUp->setProperty("group", QVariant(QString::fromUtf8("radio")));
+		ui.rbPos->setProperty("group", QVariant(QString::fromUtf8("radio")));
+		ui.rbMove->setProperty("group", QVariant(QString::fromUtf8("radio")));
+		ui.rbStateDown->setProperty("group", QVariant(QString::fromUtf8("radio")));
+		ui.rbStateUp->setProperty("group", QVariant(QString::fromUtf8("radio")));
+		ui.rbColorFind->setProperty("group", QVariant(QString::fromUtf8("radio")));
+		ui.rbColorNFind->setProperty("group", QVariant(QString::fromUtf8("radio")));
+		ui.rbImageFind->setProperty("group", QVariant(QString::fromUtf8("radio")));
+		ui.rbImageNFind->setProperty("group", QVariant(QString::fromUtf8("radio")));
+
+		menu->setProperty("group", QVariant(QString::fromUtf8("context_menu")));
+
+		ui.etX->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etY->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etMoveSpeed->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etMoveRand->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etDelayMin->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etDelayMax->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etCountMin->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etCountMax->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etTimerMin->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etTimerMax->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etColorL->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etColorT->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etColorR->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etColorB->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etColorRed->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etColorGreen->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etColorBlue->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etColorSim->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etImageL->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etImageT->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etImageR->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etImageB->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etImageSim->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etPopText->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etPopTextTime->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		ui.etWndName->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+
+		ui.etText->setProperty("group", QVariant(QString::fromUtf8("text_edit")));
+
+		ui.hkKey->setProperty("group", QVariant(QString::fromUtf8("key_edit")));
+		ui.hkState->setProperty("group", QVariant(QString::fromUtf8("key_edit")));
+
+		ui.tabWidget->setProperty("group", QVariant(QString::fromUtf8("tab_widget")));
+		ui.tabWidget->tabBar()->setProperty("group", QVariant(QString::fromUtf8("tab_widget_bar")));
+
+		ui.tbActions->setProperty("group", QVariant(QString::fromUtf8("table")));
+		ui.tbActions->horizontalHeader()->setProperty("group", QVariant(QString::fromUtf8("table_header")));
+		ui.tbActions->verticalHeader()->setProperty("group", QVariant(QString::fromUtf8("table_header")));
+		for (size_t i = 0; i < ui.tbActions->children().size(); i++)
+		{
+			if (!String::Compare(ui.tbActions->children().at(i)->metaObject()->className(), "QTableCornerButton"))
+			{
+				QWidget* corner = (QWidget*)ui.tbActions->children().at(i);
+				QHBoxLayout* box = new QHBoxLayout(corner);
+				box->setMargin(0);
+				QWidget* widget = new QWidget(corner);
+				box->addWidget(widget);
+				widget->setProperty("group", QVariant(QString::fromUtf8("table_header")));
+				break;
+			}
+		}
+	}
 	void ReStyle()
 	{
 		setStyleSheet("");
 		setStyleSheet(qis.ui.themes[qis.set.theme].style);
+		ui.hkKey->setStyleSheet("");
+		ui.hkKey->setStyleSheet(qis.ui.themes[qis.set.theme].style);
+		ui.hkState->setStyleSheet("");
+		ui.hkState->setStyleSheet(qis.ui.themes[qis.set.theme].style);
 	}
 
 private:
 	void WidInit()
 	{
+		// Table Menu
+		{
+			menu = new QMenu(this);
+			muDel = new QAction("删除", this);
+			muChange = new QAction("修改", this);
+			muCut = new QAction("剪切", this);
+			muCopy = new QAction("复制", this);
+			muPaste = new QAction("粘贴", this);
+
+			menu->addAction(muDel);
+			menu->addAction(muChange);
+			menu->addAction(muCut);
+			menu->addAction(muCopy);
+			menu->addAction(muPaste);
+			menu->setFont(QFont("Microsoft YaHei"));
+
+			connect(muDel, SIGNAL(triggered()), this, SLOT(OnMenuDel()));
+			connect(muChange, SIGNAL(triggered()), this, SLOT(OnMenuChange()));
+			connect(muCut, SIGNAL(triggered()), this, SLOT(OnMenuCut()));
+			connect(muCopy, SIGNAL(triggered()), this, SLOT(OnMenuCopy()));
+			connect(muPaste, SIGNAL(triggered()), this, SLOT(OnMenuPaste()));
+		}
 		// Button
 		{
 			// text
@@ -172,6 +310,8 @@ private:
 			ui.etDelayMax->setValidator(new QIntValidator(0, delayMax, this));
 			ui.etCountMin->setValidator(new QIntValidator(0, loopCountMax, this));
 			ui.etCountMax->setValidator(new QIntValidator(0, loopCountMax, this));
+			ui.etTimerMax->setValidator(new QIntValidator(0, timerMax, this));
+			ui.etTimerMin->setValidator(new QIntValidator(0, timerMax, this));
 			ui.etColorRed->setValidator(new QIntValidator(0, colorMax, this));
 			ui.etColorGreen->setValidator(new QIntValidator(0, colorMax, this));
 			ui.etColorBlue->setValidator(new QIntValidator(0, colorMax, this));
@@ -186,28 +326,6 @@ private:
 			ui.etImageB->setValidator(new QIntValidator(0, posMax, this));
 			ui.etImageSim->setValidator(new QIntValidator(0, imageSimMax, this));
 			ui.etPopTextTime->setValidator(new QIntValidator(0, popTextTimeMax, this));
-		}
-		// Table Menu
-		{
-			menu = new QMenu(this);
-			muDel = new QAction("删除", this);
-			muChange = new QAction("修改", this);
-			muCut = new QAction("剪切", this);
-			muCopy = new QAction("复制", this);
-			muPaste = new QAction("粘贴", this);
-
-			menu->addAction(muDel);
-			menu->addAction(muChange);
-			menu->addAction(muCut);
-			menu->addAction(muCopy);
-			menu->addAction(muPaste);
-			menu->setFont(QFont("Microsoft YaHei"));
-
-			connect(muDel, SIGNAL(triggered()), this, SLOT(OnMenuDel()));
-			connect(muChange, SIGNAL(triggered()), this, SLOT(OnMenuChange()));
-			connect(muCut, SIGNAL(triggered()), this, SLOT(OnMenuCut()));
-			connect(muCopy, SIGNAL(triggered()), this, SLOT(OnMenuCopy()));
-			connect(muPaste, SIGNAL(triggered()), this, SLOT(OnMenuPaste()));
 		}
 		// Table
 		{
@@ -229,6 +347,8 @@ private:
 			ui.hkKey->VirtualKey(VK_LBUTTON);
 			ui.hkState->VirtualKey(VK_LBUTTON);
 		}
+
+		SetStyleGroup();
 
 		// enable qlable scale
 		ui.lbImageView->setScaledContents(true);
@@ -278,6 +398,9 @@ private:
 		connect(ui.bnLoopAdd, SIGNAL(clicked()), this, SLOT(OnBnLoopAdd()));
 		connect(ui.bnLoopEdit, SIGNAL(clicked()), this, SLOT(OnBnLoopEdit()));
 		connect(ui.etCountMin, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtLoopMin(const QString&)));
+		connect(ui.bnTimerAdd, SIGNAL(clicked()), this, SLOT(OnBnTimerAdd()));
+		connect(ui.bnTimerEdit, SIGNAL(clicked()), this, SLOT(OnBnTimerEdit()));
+		connect(ui.etTimerMin, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtTimerMin(const QString&)));
 		connect(ui.bnColorAdd, SIGNAL(clicked()), this, SLOT(OnBnColorAdd()));
 		connect(ui.bnColorEdit, SIGNAL(clicked()), this, SLOT(OnBnColorEdit()));
 		connect(ui.bnColorRect, SIGNAL(clicked()), this, SLOT(OnBnColorRect()));
@@ -310,6 +433,7 @@ private:
 		case Action::_color: title = "编辑 - 查找颜色"; break;
 		case Action::_keyState: title = "编辑 - 按键状态"; break;
 		case Action::_image: title = "编辑 - 查找图片"; break;
+		case Action::_timer: title = "编辑 - 定时"; break;
 		}
 		EditParam epc;
 		epc.macro = macro;
@@ -348,8 +472,8 @@ private:
 					ps += QString::number(actions->at(i).d.delay.tmax);
 				}
 				else ps = QString::number(actions->at(i).d.delay.tmin);
+				break;
 			}
-			break;
 
 			case Action::_key:
 			{
@@ -357,8 +481,8 @@ private:
 				else if (actions->at(i).d.key.state == QiKey::down) ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acDown));
 				else if (actions->at(i).d.key.state == QiKey::click) ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acClick));
 				ps = QString::fromWCharArray(Input::Name(actions->at(i).d.key.vk));
+				break;
 			}
-			break;
 
 			case Action::_mouse:
 			{
@@ -377,8 +501,8 @@ private:
 					ps += "ㅤㅤ轨迹：";
 					ps += QString::number(actions->at(i).d.mouse.speed);
 				}
+				break;
 			}
-			break;
 
 			case Action::_text:
 			{
@@ -386,8 +510,8 @@ private:
 				std::wstring text = actions->at(i).d.text.str.str();
 				ps = QString::fromWCharArray(text.substr(0, 32).c_str());
 				if (text.length() > 31) ps += "...";
+				break;
 			}
-			break;
 
 			case Action::_color:
 			{
@@ -415,8 +539,8 @@ private:
 					if (actions->at(i).d.color.move) ps += "并移动";
 					else ps += "不移动";
 				}
+				break;
 			}
-			break;
 
 			case Action::_loop:
 			{
@@ -431,8 +555,8 @@ private:
 					ps += " ~ ";
 					ps += QString::number(actions->at(i).d.loop.cmax);
 				}
+				break;
 			}
-			break;
 
 			case Action::_loopEnd: ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acEndLoop)); break;
 
@@ -442,8 +566,8 @@ private:
 				if (actions->at(i).d.keyState.state) ps = "按下了　";
 				else ps = "松开了　";
 				ps += QString::fromWCharArray(Input::Name(actions->at(i).d.keyState.vk));
+				break;
 			}
-			break;
 
 			case Action::_revocerPos: ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acRecoverPos)); break;
 
@@ -471,8 +595,8 @@ private:
 					if (actions->at(i).d.image.move) ps += "并移动";
 					else ps += "不移动";
 				}
+				break;
 			}
-			break;
 
 			case Action::_popText:
 			{
@@ -480,10 +604,24 @@ private:
 				ps = QString::fromWCharArray(actions->at(i).d.popText.str.str());
 				ps += "　时长：";
 				ps += QString::number(actions->at(i).d.popText.time);
+				break;
 			}
-			break;
 
 			case Action::_rememberPos: ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acRememberPos)); break;
+
+			case Action::_timer:
+			{
+				ui.tbActions->setItem(i, 0, new QTableWidgetItem(qis.ui.text.acTimer));
+				if (actions->at(i).d.timer.tmin == actions->at(i).d.timer.tmax)
+					ps = QString::number(actions->at(i).d.timer.tmin);
+				else
+				{
+					ps = QString::number(actions->at(i).d.timer.tmin);
+					ps += " ~ ";
+					ps += QString::number(actions->at(i).d.timer.tmax);
+				}
+				break;
+			}
 
 			default: ui.tbActions->setItem(i, 0, new QTableWidgetItem("加载失败")); break;
 			}
@@ -657,9 +795,10 @@ private slots:
 	}
 	void OnTbClicked(int row, int column)
 	{
-		ui.bnColorEdit->setDisabled(true);
 		ui.bnLoopEdit->setDisabled(true);
+		ui.bnTimerEdit->setDisabled(true);
 		ui.bnStateEdit->setDisabled(true);
+		ui.bnColorEdit->setDisabled(true);
 		ui.bnImageEdit->setDisabled(true);
 
 		pv.hide();
@@ -671,16 +810,6 @@ private slots:
 		{
 			switch (actions->at(row).type)
 			{
-			case Action::_end:
-			{
-				ui.tabWidget->setCurrentIndex(1);
-				break;
-			}
-			case Action::_delay:
-			{
-				ui.tabWidget->setCurrentIndex(0);
-				break;
-			}
 			case Action::_key:
 			{
 				ui.tabWidget->setCurrentIndex(0);
@@ -712,9 +841,47 @@ private slots:
 				ui.tabWidget->setCurrentIndex(0);
 				break;
 			}
-			case Action::_text:
+			case Action::_delay:
 			{
-				ui.tabWidget->setCurrentIndex(4);
+				ui.tabWidget->setCurrentIndex(0);
+				break;
+			}
+			case Action::_loop:
+			{
+				ui.bnLoopEdit->setEnabled(true);
+				ui.tabWidget->setCurrentIndex(1);
+				break;
+			}
+			case Action::_timer:
+			{
+				ui.bnTimerEdit->setEnabled(true);
+				ui.tabWidget->setCurrentIndex(1);
+				break;
+			}
+			case Action::_keyState:
+			{
+				ui.bnStateEdit->setEnabled(true);
+				ui.tabWidget->setCurrentIndex(2);
+				break;
+			}
+			case Action::_rememberPos:
+			{
+				ui.tabWidget->setCurrentIndex(2);
+				break;
+			}
+			case Action::_end:
+			{
+				ui.tabWidget->setCurrentIndex(2);
+				break;
+			}
+			case Action::_loopEnd:
+			{
+				ui.tabWidget->setCurrentIndex(2);
+				break;
+			}
+			case Action::_revocerPos:
+			{
+				ui.tabWidget->setCurrentIndex(2);
 				break;
 			}
 			case Action::_color:
@@ -738,29 +905,7 @@ private slots:
 				}
 				rv.Show(rect);
 				ui.bnColorEdit->setEnabled(true);
-				ui.tabWidget->setCurrentIndex(2);
-				break;
-			}
-			case Action::_loop:
-			{
-				ui.bnLoopEdit->setEnabled(true);
-				ui.tabWidget->setCurrentIndex(0);
-				break;
-			}
-			case Action::_loopEnd:
-			{
-				ui.tabWidget->setCurrentIndex(1);
-				break;
-			}
-			case Action::_keyState:
-			{
-				ui.bnStateEdit->setEnabled(true);
-				ui.tabWidget->setCurrentIndex(1);
-				break;
-			}
-			case Action::_revocerPos:
-			{
-				ui.tabWidget->setCurrentIndex(1);
+				ui.tabWidget->setCurrentIndex(3);
 				break;
 			}
 			case Action::_image:
@@ -784,18 +929,18 @@ private slots:
 				}
 				rv.Show(rect);
 				ui.bnImageEdit->setEnabled(true);
-				ui.tabWidget->setCurrentIndex(3);
+				ui.tabWidget->setCurrentIndex(4);
 				WidgetSetImage(actions->at(row));
+				break;
+			}
+			case Action::_text:
+			{
+				ui.tabWidget->setCurrentIndex(5);
 				break;
 			}
 			case Action::_popText:
 			{
-				ui.tabWidget->setCurrentIndex(4);
-				break;
-			}
-			case Action::_rememberPos:
-			{
-				ui.tabWidget->setCurrentIndex(1);
+				ui.tabWidget->setCurrentIndex(5);
 				break;
 			}
 			}
@@ -955,6 +1100,19 @@ private slots:
 	{
 		ui.etCountMax->setText(text);
 	}
+	void OnBnTimerAdd()
+	{
+		if (changing) ItemChange(Action::_timer);
+		else ItemAdd(Action::_timer);
+	}
+	void OnBnTimerEdit()
+	{
+		NextEdit();
+	}
+	void OnEtTimerMin(const QString& text)
+	{
+		ui.etTimerMax->setText(text);
+	}
 	void OnBnColorAdd()
 	{
 		if (changing) ItemChange(Action::_color);
@@ -1086,6 +1244,7 @@ private:
 				ui.bnMoveAdd->setText(qis.ui.text.etChange);
 				ui.bnDelayAdd->setText(qis.ui.text.etChange);
 				ui.bnLoopAdd->setText(qis.ui.text.etChange);
+				ui.bnTimerAdd->setText(qis.ui.text.etChange);
 				ui.bnTextAdd->setText(qis.ui.text.etChange);
 				ui.bnColorAdd->setText(qis.ui.text.etChange);
 				ui.bnEndAdd->setText(qis.ui.text.etChange);
@@ -1105,6 +1264,7 @@ private:
 				ui.bnMoveAdd->setText(qis.ui.text.etAdd);
 				ui.bnDelayAdd->setText(qis.ui.text.etAdd);
 				ui.bnLoopAdd->setText(qis.ui.text.etAdd);
+				ui.bnTimerAdd->setText(qis.ui.text.etAdd);
 				ui.bnTextAdd->setText(qis.ui.text.etAdd);
 				ui.bnColorAdd->setText(qis.ui.text.etAdd);
 				ui.bnEndAdd->setText(qis.ui.text.etAdd);
@@ -1146,6 +1306,7 @@ private:
 		case Action::_keyState: WidgetSetKeyState(actions->at(p)); break;
 		case Action::_image: WidgetSetImage(actions->at(p)); break;
 		case Action::_popText: WidgetSetPopText(actions->at(p)); break;
+		case Action::_timer: WidgetSetTimer(actions->at(p));
 		}
 	}
 	void ItemSet(Action::ActionType type, int32 p)
@@ -1167,6 +1328,7 @@ private:
 		case Action::_image: action = WidgetGetImage(); break;
 		case Action::_popText: action = WidgetGetPopText(); break;
 		case Action::_rememberPos: action.type = Action::_rememberPos; break;
+		case Action::_timer: action = WidgetGetTimer(); break;
 		default: action.type = Action::_none; break;
 		}
 		action.mark.copy(mark);
@@ -1252,7 +1414,7 @@ private:
 	Action WidgetGetMouse() {
 		Action action(Action::_mouse);
 		action.d.mouse.move = ui.rbMove->isChecked();
-		action.d.mouse.track = ui.rbMoveTrack->isChecked();
+		action.d.mouse.track = ui.chbMoveTrack->isChecked();
 		int x = ui.etX->text().toInt();
 		int y = ui.etY->text().toInt();
 		int r = ui.etMoveRand->text().toInt();
@@ -1364,6 +1526,19 @@ private:
 		action.d.popText.time = time;
 		return action;
 	}
+	Action WidgetGetTimer()
+	{
+		Action action(Action::_timer);
+		int mn = 1;
+		if (ui.etTimerMin->text() != "") mn = ui.etTimerMin->text().toInt();
+		int mx = ui.etTimerMax->text().toInt();
+		if (mn > timerMax) mn = timerMax;
+		if (mx > timerMax) mx = timerMax;
+		if (mx < mn) mx = mn;
+		action.d.timer.tmin = mn;
+		action.d.timer.tmax = mx;
+		return action;
+	}
 
 	// Load widget data
 	void WidgetSetKey(const Action& action) {
@@ -1381,7 +1556,7 @@ private:
 	void WidgetSetMouse(const Action& action) {
 		if (action.d.mouse.move) ui.rbMove->setChecked(true), OnRbMouseMove(true);
 		else ui.rbPos->setChecked(true), OnRbMousePos(true);
-		ui.rbMoveTrack->setChecked(action.d.mouse.track);
+		ui.chbMoveTrack->setChecked(action.d.mouse.track);
 		ui.etMoveSpeed->setText(QString::number(action.d.mouse.speed));
 		ui.etX->setText(QString::number(action.d.mouse.x)); ui.etY->setText(QString::number(action.d.mouse.y)); if (action.d.mouse.ex > -1) ui.etMoveRand->setText(QString::number(action.d.mouse.ex));
 	}
@@ -1445,5 +1620,10 @@ private:
 	void WidgetSetPopText(const Action& action) {
 		ui.etPopText->setText(QString::fromWCharArray(action.d.popText.str.str()));
 		ui.etPopTextTime->setText(QString::number(action.d.popText.time));
+	}
+	void WidgetSetTimer(const Action& action)
+	{
+		ui.etTimerMin->setText(QString::number(action.d.timer.tmin));
+		ui.etTimerMax->setText(QString::number(action.d.timer.tmax));
 	}
 };

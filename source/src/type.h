@@ -59,6 +59,7 @@ namespace QiUi
 		QString acImage;
 		QString acPopText;
 		QString acRememberPos;
+		QString acTimer;
 		QString trOn;
 		QString trOff;
 		QString etChange;
@@ -177,6 +178,7 @@ struct QiLoop { uint32 cmin = 0; uint32 cmax = 0; };
 struct QiKeyState { uint32 vk = 0; bool state = true; };
 struct QiImage { RgbMap map; uint32 sim; RECT rect = {}; bool unfind = false; bool move = false; void release() { map.release(); } };
 struct QiPopText { wcstr str; uint32 time = 0; void release() { str.release(); } };
+struct QiTimer { uint32 tmin = 0; uint32 tmax = 0; };
 struct Action
 {
 	typedef enum
@@ -194,7 +196,8 @@ struct Action
 		_revocerPos,
 		_image,
 		_popText,
-		_rememberPos
+		_rememberPos,
+		_timer
 	} ActionType;
 
 	ActionType type = _none;
@@ -211,6 +214,7 @@ struct Action
 		QiKeyState keyState;
 		QiImage image;
 		QiPopText popText;
+		QiTimer timer;
 	} Data;
 	Data d;
 	Actions next;
@@ -267,6 +271,9 @@ struct Action
 			d.popText = action.d.popText;
 			break;
 		case _rememberPos: type = ActionType::_rememberPos;
+			break;
+		case _timer: type = ActionType::_timer;
+			d.timer = action.d.timer;
 			break;
 		default: type = ActionType::_none;
 		}

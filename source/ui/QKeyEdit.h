@@ -10,7 +10,9 @@
 #define VK_WHEELUP 0x0A
 #define VK_WHEELDOWN 0x0B
 
-class  QKeyEdit : public QLabel
+QT_BEGIN_NAMESPACE
+
+class QKeyEdit : public QLabel
 {
 	Q_OBJECT;
 
@@ -39,7 +41,7 @@ public:
 		setMaximumSize(QSize(16777215, 24));
 		setWindowFlags(Qt::FramelessWindowHint);
 		setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-		setStyleSheet(QString::fromUtf8("background-color: white; border: 1px solid gray;"));
+		setStyleSheet(QString::fromUtf8("background-color:white;border:1px solid gray;"));
 		setAlignment(Qt::AlignCenter);
 		setText(text);
 	}
@@ -193,7 +195,7 @@ public:
 		return (k2 << 16) | k1;
 	}
 
-signals:
+Q_SIGNALS:
 
 	void changed();
 
@@ -664,7 +666,7 @@ private:
 		return qk;
 	}
 
-private slots:
+private Q_SLOTS:
 
 	void Paint()
 	{
@@ -889,3 +891,5 @@ private slots:
 		}
 	}
 };
+
+QT_END_NAMESPACE

@@ -46,9 +46,9 @@ namespace QiFn
 	{
 		PopBox::Popup(ParseQPop(pop.t), pop.c);
 	}
-	void WPop(std::wstring text, std::wstring window)
+	void WPop(std::wstring window, QiUi::PopBoxBase pop)
 	{
-		PopBox::Popup(ParseWPop(text, window));
+		PopBox::Popup(ParseWPop(pop.t, window), pop.c);
 	}
 	void QcPop(QiUi::PopBoxBase pop)
 	{
@@ -471,6 +471,26 @@ namespace QiFn
 		case Action::_rememberPos:
 		{
 			cursor = Input::pos();
+			return r_continue;
+		}
+
+		case Action::_timer:
+		{
+			clock_t time = Rand(action.d.timer.tmax, action.d.timer.tmin);
+			clock_t begin = clock();
+			while (qis.run && !QiThread::PeekExitMsg())
+			{
+				if (!((begin + time) > clock())) break;
+				for (uint32 i = 0; i < action.next.size(); i++)
+				{
+					uint8 r = ActionExecute(action.next.at(i), cursor, wi);
+					if (r != r_continue)
+					{
+						if (r == r_break) return r_continue;
+						else if (r == r_exit) return r_exit;
+					}
+				}
+			}
 			return r_continue;
 		}
 		}
