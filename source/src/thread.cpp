@@ -52,7 +52,7 @@ namespace QiThread
 		while (Qi::run && !PeekExitMsg())
 		{
 			if (pMacro->count) { count++; if (count > pMacro->count) break; } // if count = 0 then while is infinite
-			if (QiFn::ActionExecute(pMacro->acRun, pMacro->cursor, pWi, jumpId) != r_continue) break;
+			if (QiFn::ActionExecute(pMacro->acRun, pMacro->cursor, pWi, jumpId, true) != r_continue) break;
 		}
 		return 0;
 	}
@@ -72,7 +72,7 @@ namespace QiThread
 		}
 
 		int jumpId = 0;
-		QiFn::ActionExecute(pMacro->acEnd, pMacro->cursor, pWi, jumpId);
+		QiFn::ActionExecute(pMacro->acEnd, pMacro->cursor, pWi, jumpId, true);
 		return 0;
 	}
 

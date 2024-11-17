@@ -556,11 +556,12 @@ private:
 			edit.move(pt);
 			edit.exec();
 			move(pt);
-			JumpPointUpdate();
+			TableUpdate();
 		}
 	}
 
-	void JumpPointCall(const Actions& actions)
+
+	void JumpPoints(List<QiJumpPoint>& jumpPoints, const Actions& actions)
 	{
 		for (size_t i = 0; i < actions.size(); i++)
 		{
@@ -570,9 +571,7 @@ private:
 					if constexpr (std::is_same_v<T, QiJumpPoint>)
 					{
 						const QiJumpPoint& jumpPoint = var;
-						QListWidgetItem* item = new QListWidgetItem(QString::number(jumpPoint.id) + QString::fromUtf8("　　　") + WToQString(jumpPoint.mark));
-						item->setData(DataRole::id, jumpPoint.id);
-						ui.lsJumpPoint->addItem(item);
+						jumpPoints.Add(jumpPoint);
 					}
 					else
 					{
@@ -604,22 +603,99 @@ private:
 							if (timer.next.size()) next = &timer.next;
 						}
 
-						if (next) JumpPointCall(*next);
+						if (next) JumpPoints(jumpPoints, *next);
 					}
 				}, actions.at(i));
 		}
 	}
-	void JumpPointUpdate()
+	bool JumpPointFind(const List<QiJumpPoint>& jumpPoints, int32 id)
+	{
+		for (size_t i = 0; i < jumpPoints.size(); i++)
+		{
+			if (jumpPoints[i].id == id) return true;
+		}
+		return false;
+	}
+	void JumpInvalidCheck(const List<QiJumpPoint>& jumpPoints, Actions& actions)
+	{
+		for (size_t i = 0; i < actions.size(); i++)
+		{
+			std::visit([&](auto&& var)
+				{
+					using T = std::decay_t<decltype(var)>;
+					if constexpr (std::is_same_v<T, QiJump>)
+					{
+						QiJump& jump = var;
+						if (!JumpPointFind(jumpPoints, jump.id))
+						{
+							jump.id = -1;
+						}
+					}
+					else
+					{
+						Actions* next = nullptr;
+
+						if constexpr (std::is_same_v<T, QiColor>)
+						{
+							QiColor& color = var;
+							if (color.next.size()) next = &color.next;
+						}
+						else if constexpr (std::is_same_v<T, QiLoop>)
+						{
+							QiLoop& loop = var;
+							if (loop.next.size()) next = &loop.next;
+						}
+						else if constexpr (std::is_same_v<T, QiKeyState>)
+						{
+							QiKeyState& keyState = var;
+							if (keyState.next.size()) next = &keyState.next;
+						}
+						else if constexpr (std::is_same_v<T, QiImage>)
+						{
+							QiImage& image = var;
+							if (image.next.size()) next = &image.next;
+						}
+						else if constexpr (std::is_same_v<T, QiTimer>)
+						{
+							QiTimer& timer = var;
+							if (timer.next.size()) next = &timer.next;
+						}
+
+						if (next) JumpInvalidCheck(jumpPoints, *next);
+					}
+				}, actions.at(i));
+		}
+	}
+	void ListJumpPointCall(const List<QiJumpPoint>& jumpPoints, const Actions& actions)
+	{
+		for (size_t i = 0; i < jumpPoints.size(); i++)
+		{
+			const QiJumpPoint& jumpPoint = jumpPoints[i];
+			QListWidgetItem* item = new QListWidgetItem(QString::number(jumpPoint.id) + QString::fromUtf8("　　　") + WToQString(jumpPoint.mark));
+			item->setData(DataRole::id, jumpPoint.id);
+			ui.lsJumpPoint->addItem(item);
+		}
+	}
+	void ListJumpPointUpdate()
 	{
 		Actions* actions = &macro->acRun;
 		if (ui.rbEnding->isChecked()) actions = &macro->acEnd;
+
+		List<QiJumpPoint> jumpPoints;
+		JumpPoints(jumpPoints, *actions);
+
+		JumpInvalidCheck(jumpPoints, *actions);
+
 		ui.lsJumpPoint->clear();
-		JumpPointCall(*actions);
+		ListJumpPointCall(jumpPoints, *actions);
 	}
+
 
 	void TableUpdate()
 	{
 		DisableButtons();
+		ListJumpPointUpdate();
+
 		updating = true;
 		ui.tbActions->clearMask();
 		ui.tbActions->setRowCount(actions->size());
@@ -829,8 +905,15 @@ private:
 						type = Qi::ui.text.acJump;
 						mark = WToQString(jump.mark);
 
-						param = "id：";
-						param += QString::number(jump.id);
+						if (jump.id < 1)
+						{
+							param = "指定无效的锚点";
+						}
+						else
+						{
+							param = "id：";
+							param += QString::number(jump.id);
+						}
 					}
 					else if constexpr (std::is_same_v<T, QiJumpPoint>)
 					{
@@ -859,7 +942,6 @@ private:
 			item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 			ui.tbActions->setItem(i, 2, item);
 		}
-		JumpPointUpdate();
 		updating = false;
 	}
 
@@ -1040,7 +1122,7 @@ private Q_SLOTS:
 		if (column != 2) return;
 		QiBase& base = actions->at(row).base();
 		base.mark = QStringToW(ui.tbActions->item(row, 2)->text());
-		if (actions->at(row).base().type == QiType::jumpPoint) JumpPointUpdate();
+		if (actions->at(row).base().type == QiType::jumpPoint) TableUpdate();
 	}
 	void OnTbClicked(int row, int column)
 	{

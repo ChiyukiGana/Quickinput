@@ -26,14 +26,14 @@ namespace QiFn
 	void MacroPop(Macro* macro, bool state);
 	// ~Pop text
 
-	uint32 UniqueJumpPoint(const Actions& actions);
+	int32 UniqueJumpPoint(const Actions& actions);
 
 	bool SelfActive();
 	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, void(*CallBack)(int x, int y, int stepx, int stepy));
 	WndInfo WindowSelection();
 	std::wstring AllocName(std::wstring name);
 
-	int ActionExecute(const Actions& actions, POINT& cursor, WndInput* wi, int& jumpId);
+	int ActionExecute(const Actions& actions, POINT& cursor, WndInput* wi, int& jumpId, bool parent);
 	void Trigger(short vk, const bool* state);
 
 	void QiHook(bool state);

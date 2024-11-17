@@ -51,19 +51,17 @@ namespace QiFn
 		}
 	}
 
-	uint32 UniqueJumpPoint(const Actions& actions)
+	int32 UniqueJumpPointCallBack(const Actions& actions, int32& id)
 	{
-		uint32 id = 1;
 		for (size_t i = 0; i < actions.size(); i++)
 		{
 			std::visit([&](auto&& var)
 				{
-					uint32 cur = 0;
 					using T = std::decay_t<decltype(var)>;
 					if constexpr (std::is_same_v<T, QiJumpPoint>)
 					{
 						const QiJumpPoint& jumpPoint = var;
-						cur = jumpPoint.id;
+						if (id <= jumpPoint.id) id = jumpPoint.id + 1;
 					}
 					else
 					{
@@ -95,12 +93,16 @@ namespace QiFn
 							if (timer.next.size()) next = &timer.next;
 						}
 
-						if (next) cur = UniqueJumpPoint(*next);
+						if (next) UniqueJumpPointCallBack(*next, id);
 					}
-
-					if (cur >= id) id = cur + 1;
 				}, actions.at(i));
 		}
+		return id;
+	}
+	int32 UniqueJumpPoint(const Actions& actions)
+	{
+		int32 id = 1;
+		UniqueJumpPointCallBack(actions, id);
 		return id;
 	}
 
@@ -147,9 +149,8 @@ namespace QiFn
 		return File::Unique(names, name);
 	}
 
-	int ActionExecute(const Actions& actions, POINT& cursor, WndInput* wi, int& jumpId)
+	int ActionExecute(const Actions& actions, POINT& cursor, WndInput* wi, int& jumpId, bool parent)
 	{
-		//if (!Qi::run || QiThread::PeekExitMsg()) return r_exit;
 		for (size_t i = 0; i < actions.size();)
 		{
 			if (!Qi::run || QiThread::PeekExitMsg()) return r_exit;
@@ -194,7 +195,7 @@ namespace QiFn
 								const QiTimer& timer = var;
 								if (timer.next.size()) next = &timer.next;
 							}
-							if (next) ActionExecute(*next, cursor, wi, jumpId);
+							if (next) ActionExecute(*next, cursor, wi, jumpId, false);
 						}
 					}
 					else
@@ -375,7 +376,7 @@ namespace QiFn
 								}
 								else return r_continue;
 							}
-							return ActionExecute(color.next, cursor, wi, jumpId);
+							return ActionExecute(color.next, cursor, wi, jumpId, false);
 						}
 						else if constexpr (std::is_same_v<T, QiLoop>)
 						{
@@ -387,7 +388,7 @@ namespace QiFn
 							while (Qi::run && !QiThread::PeekExitMsg())
 							{
 								if (uloop) { n++; if (n > e) return r_continue; }
-								int r = ActionExecute(loop.next, cursor, wi, jumpId);
+								int r = ActionExecute(loop.next, cursor, wi, jumpId, false);
 								if (r != r_continue) return r;
 							}
 							return r_continue;
@@ -408,7 +409,7 @@ namespace QiFn
 							{
 								if (Input::stateEx(keyState.vk)) return r_continue;
 							}
-							return ActionExecute(keyState.next, cursor, wi, jumpId);
+							return ActionExecute(keyState.next, cursor, wi, jumpId, false);
 						}
 						else if constexpr (std::is_same_v<T, QiRecoverPos>)
 						{
@@ -460,7 +461,7 @@ namespace QiFn
 								else return r_continue;
 							}
 
-							return ActionExecute(image.next, cursor, wi, jumpId);
+							return ActionExecute(image.next, cursor, wi, jumpId, false);
 						}
 						else if constexpr (std::is_same_v<T, QiPopText>)
 						{
@@ -483,7 +484,7 @@ namespace QiFn
 							while (Qi::run && !QiThread::PeekExitMsg())
 							{
 								if (!((begin + time) > clock())) return r_continue;
-								int r = ActionExecute(timer.next, cursor, wi, jumpId);
+								int r = ActionExecute(timer.next, cursor, wi, jumpId, false);
 								if (r != r_continue) return r;
 							}
 							return r_continue;
@@ -491,24 +492,28 @@ namespace QiFn
 						else if constexpr (std::is_same_v<T, QiJump>)
 						{
 							const QiJump& jump = var;
-							return r_jump(((int)jump.id));
+							if (jump.id > 0) return r_jump(jump.id);
 						}
 					}
 					return r_continue;
 			}, actions[i]);
-			if (r != r_continue)
+
+			if (r == r_exit) return r_exit;
+			else if (r == r_break) return r_continue;
+			else if (is_jump(r))
 			{
-				if (is_jump(r))
+				if (parent)
 				{
 					jumpId = jump_id(r);
 					i = 0;
 				}
-				else return r_exit;
+				else return r;
 			}
 			else i++;
 		}
 		return r_continue;
 	}
+	
 	void Trigger(short vk, const bool* state)
 	{
 		// state swtich
