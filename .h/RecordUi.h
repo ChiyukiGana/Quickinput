@@ -79,9 +79,9 @@ public:
 		if (tim)
 		{
 			// delay
-			macro.actions.AddNull();
-			macro.actions.Get().type = Action::_delay;
-			macro.actions.Get().delay.ms = clock() - tim;
+			Action& action = macro.actions.AddNull();
+			action.type = Action::_delay;
+			action.d.delay.ms = clock() - tim;
 			tim = clock();
 		}
 		else tim = clock();
@@ -89,25 +89,25 @@ public:
 		// pos
 		if (Input::Type(vk))
 		{
-			macro.actions.AddNull();
-			macro.actions.Get().type = Action::_mouse;
+			Action& action = macro.actions.AddNull();
+			action.type = Action::_mouse;
 			if (wnd)
 			{
 				POINT wpt = Window::pos(wnd);
 				pt = WRTA({ pt.x - wpt.x, pt.y - wpt.y }, wnd);
 			}
 			else pt = RTA(pt);
-			macro.actions.Get().mouse.x = pt.x;
-			macro.actions.Get().mouse.y = pt.y;
+			action.d.mouse.x = pt.x;
+			action.d.mouse.y = pt.y;
 		}
 
 		// key
 		{
-			macro.actions.AddNull();
-			macro.actions.Get().type = Action::_key;
-			macro.actions.Get().key.vk = vk;
-			if (state) macro.actions.Get().key.state = QiKey::down;
-			else macro.actions.Get().key.state = QiKey::up;
+			Action& action = macro.actions.AddNull();
+			action.type = Action::_key;
+			action.d.key.vk = vk;
+			if (state) action.d.key.state = QiKey::down;
+			else action.d.key.state = QiKey::up;
 		}
 	}
 
@@ -131,30 +131,15 @@ public slots:
 		if (start)
 		{
 			Global::qi.rec = 0;
-
-#ifdef _DEBUG
-			MsgWnd::log(L"Rec ending");
-#endif
-
 			TipsWindow::Hide();
 			if (!keyTrigger) macro.actions.DelBack(6);
 			Global::qi.macros.Add(macro);
-			SaveMacro(Global::qi.macros.Get());
-
-#ifdef _DEBUG
-			MsgWnd::log(L"Rec saved");
-#endif
-
+			SaveMacro(macro);
 			close();
 		}
 		// start
 		else
 		{
-
-#ifdef _DEBUG
-			MsgWnd::log(L"Rec starting");
-#endif
-
 			if (wnd && !IsWindowVisible(wnd))
 			{
 				Global::qi.rec = 0;
@@ -176,11 +161,6 @@ public slots:
 	}
 	void OnBnClose()
 	{
-
-#ifdef _DEBUG
-		MsgWnd(L"Rec close");
-#endif
-
 		TipsWindow::Hide();
 		Global::qi.rec = 0;
 		Global::qi.macros.DelBack();

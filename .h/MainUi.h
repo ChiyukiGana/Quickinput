@@ -99,15 +99,15 @@ private:
 		}
 		else if (et->type() == QEvent::WindowActivate)
 		{
-			if (Global::qi.state) QiState(0);
-			HookState(0);
+			if (Global::qi.state) QiState(false);
+			HookState(false);
 		}
 		else if (et->type() == QEvent::WindowDeactivate)
 		{
 			if (!((MacroUi*)wm)->working && !((FuncUi*)wf)->working)
 			{
-				if (Global::qi.set.defOn) QiState(1);
-				HookState(1);
+				if (Global::qi.set.defOn) QiState(true);
+				HookState(true);
 			}
 		}
 		return QWidget::event(et);

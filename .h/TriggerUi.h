@@ -8,7 +8,7 @@ class TriggerUi : public QWidget
 	const int32 countMax = 9999;
 
 	Ui::TriggerUiClass ui;
-	Macros& macros = Global::qi.macros;
+	Macros* macros = &Global::qi.macros;
 
 public:
 	TriggerUi(QWidget* parent) : QWidget(parent)
@@ -18,7 +18,7 @@ public:
 
 		WidInit();
 		WidEvent();
-		LockControl(1);
+		LockControl(true);
 		TbUpdate();
 		ReStyle();
 	}
@@ -94,54 +94,54 @@ private:
 	void TbUpdate()
 	{
 		ui.tbActions->clearMask();
-		ui.tbActions->setRowCount(macros.size());
+		ui.tbActions->setRowCount(macros->size());
 		ui.tbActions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
 		ui.tbActions->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
 		ui.tbActions->verticalHeader()->setDefaultSectionSize(0);
 
-		for (uint32 u = 0; u < macros.size(); u++) {
-			ui.tbActions->setItem(u, 0, new QTableWidgetItem(QString::fromWCharArray(macros[u].name.c_str())));
-			ui.tbActions->item(u, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		for (size_t i = 0; i < macros->size(); i++) {
+			ui.tbActions->setItem(i, 0, new QTableWidgetItem(QString::fromWCharArray(macros->at(i).name.c_str())));
+			ui.tbActions->item(i, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 			//
 			QString qs = u8"----";
-			if ((macros[u].key & 0xFFFF) != 0)
+			if ((macros->at(i).key & 0xFFFF) != 0)
 			{
-				qs = QString::fromWCharArray(Input::Name(macros[u].key & 0xFFFF));
-				if ((macros[u].key >> 16) != 0)
+				qs = QString::fromWCharArray(Input::Name(macros->at(i).key & 0xFFFF));
+				if ((macros->at(i).key >> 16) != 0)
 				{
 					qs += u8" + ";
-					qs += QString::fromWCharArray(Input::Name(macros[u].key >> 16));
+					qs += QString::fromWCharArray(Input::Name(macros->at(i).key >> 16));
 				}
 			}
-			ui.tbActions->setItem(u, 1, new QTableWidgetItem(qs));
-			ui.tbActions->item(u, 1)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			ui.tbActions->setItem(i, 1, new QTableWidgetItem(qs));
+			ui.tbActions->item(i, 1)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 			//
 			qs = "";
-			switch (macros[u].mode)
+			switch (macros->at(i).mode)
 			{
 			case Macro::sw:
 				qs = u8"切换";
 				break;
 			case Macro::down:
 				qs = u8"按下(";
-				if (macros[u].count) qs += QString::number(macros[u].count);
+				if (macros->at(i).count) qs += QString::number(macros->at(i).count);
 				else qs += u8"无限";
 				qs += u8")";
 				break;
 			case Macro::up:
 				qs = u8"松开(";
-				if (macros[u].count) qs += QString::number(macros[u].count);
+				if (macros->at(i).count) qs += QString::number(macros->at(i).count);
 				else qs += u8"无限";
 				qs += u8")";
 				break;
 			}
-			ui.tbActions->setItem(u, 2, new QTableWidgetItem(qs));
-			ui.tbActions->item(u, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			ui.tbActions->setItem(i, 2, new QTableWidgetItem(qs));
+			ui.tbActions->item(i, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 			//
-			if (macros[u].state) qs = UI::trOn;
+			if (macros->at(i).state) qs = UI::trOn;
 			else qs = UI::trOff;
-			ui.tbActions->setItem(u, 3, new QTableWidgetItem(qs));
-			ui.tbActions->item(u, 3)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			ui.tbActions->setItem(i, 3, new QTableWidgetItem(qs));
+			ui.tbActions->item(i, 3)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		}
 
 		ui.tbActions->setStyleSheet(u8"QHeaderView::section,QScrollBar{background:transparent}");
@@ -159,83 +159,72 @@ private slots:
 	void OnTbClicked(int row, int column)
 	{
 		ResetControl();
-		LockControl(1);
+		LockControl(true);
 		if (row < 0) return;
 
-		if (column == 3) macros[row].state ? macros[row].state = 0 : macros[row].state = 1;
-		ui.chbBlock->setChecked(macros[row].block);
-		ui.cmbMode->setCurrentIndex(macros[row].mode);
-		ui.hkTr->VirtualKey(macros[row].key & 0xFFFF, macros[row].key >> 16);
-		if (macros[row].mode >= Macro::down)
+		if (column == 3) macros->at(row).state = !macros->at(row).state;
+		ui.chbBlock->setChecked(macros->at(row).block);
+		ui.cmbMode->setCurrentIndex(macros->at(row).mode);
+		ui.hkTr->VirtualKey(macros->at(row).key & 0xFFFF, macros->at(row).key >> 16);
+		if (macros->at(row).mode >= Macro::down)
 		{
-			ui.etCount->setText(QString::number(macros[row].count));
+			ui.etCount->setText(QString::number(macros->at(row).count));
 			ui.etCount->setDisabled(0);
 		}
 
 		LockControl(0);
 		TbUpdate();
-		SaveMacro(macros[row]);
+		SaveMacro(macros->at(row));
 	}
 	void OnKeyChanged()
 	{
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) return;
-
-		macros[pos].key = ui.hkTr->virtualKey();
-
+		int p = ui.tbActions->currentRow(); if (p < 0) return;
+		macros->at(p).key = ui.hkTr->virtualKey();
 		TbUpdate();
-		SaveMacro(macros[pos]);
+		SaveMacro(macros->at(p));
 	}
 	void OnChbBlock()
 	{
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) return;
-
-		macros[pos].block = ui.chbBlock->isChecked();
-
+		int p = ui.tbActions->currentRow(); if (p < 0) return;
+		macros->at(p).block = ui.chbBlock->isChecked();
 		TbUpdate();
-		SaveMacro(macros[pos]);
+		SaveMacro(macros->at(p));
 	}
 	void OnCmbMode(int index)
 	{
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) return;
-
+		int p = ui.tbActions->currentRow(); if (p < 0) return;
 		switch (index)
 		{
 		case Macro::sw:
 			ui.etCount->setText(u8"无限");
 			ui.etCount->setDisabled(1);
-			macros[pos].count = 0;
-			macros[pos].mode = Macro::sw;
+			macros->at(p).count = 0;
+			macros->at(p).mode = Macro::sw;
 			break;
 		case Macro::down:
 			ui.etCount->setText("");
 			ui.etCount->setDisabled(0);
-			macros[pos].count = 1;
-			macros[pos].mode = Macro::down;
+			macros->at(p).count = 1;
+			macros->at(p).mode = Macro::down;
 			break;
 		case Macro::up:
 			ui.etCount->setText("");
 			ui.etCount->setDisabled(0);
-			macros[pos].count = 1;
-			macros[pos].mode = Macro::up;
+			macros->at(p).count = 1;
+			macros->at(p).mode = Macro::up;
 			break;
 		}
 
 		TbUpdate();
-		SaveMacro(macros[pos]);
+		SaveMacro(macros->at(p));
 	}
 	void OnEtCount(const QString& count)
 	{
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) return;
-
-		int i = count.toInt();
-		if (i > countMax) i = countMax;
-		macros[pos].count = i;
-
+		int p = ui.tbActions->currentRow(); if (p < 0) return;
+		int n = count.toInt();
+		if (n > countMax) n = countMax;
+		macros->at(p).count = n;
 		TbUpdate();
-		SaveMacro(macros[pos]);
+		SaveMacro(macros->at(p));
 	}
 };

@@ -4,7 +4,12 @@
 #include <QWidget>
 #include "../cg/cg.h"
 
-#define _NDEBUG
+// Change to your Qt directory
+#ifdef DEBUG
+#pragma comment(lib, "C:/Qt32/lib/Qt5WinExtrasd.lib")
+#else
+#pragma comment(lib, "C:/Qt32s/lib/Qt5WinExtras.lib")
+#endif
 
 struct UI
 {
@@ -30,6 +35,7 @@ struct UI
 	static QString syText;
 	static QString syLoop;
 	static QString syColor;
+	static QString syImage;
 
 	static std::wstring qiOn;
 	static std::wstring qiOff;
@@ -51,6 +57,8 @@ struct UI
 	static QString acEndLoop;
 	static QString acKeyState;
 	static QString acRecoverPos;
+	static QString acImage;
+	static QString acPopText;
 	static QString trOn;
 	static QString trOff;
 	static QString etChange;
@@ -122,18 +130,33 @@ struct WndLock
 	}
 };
 
-struct Action;
+extern struct Action;
 typedef List<Action> Actions;
 struct QiDelay { uint32 ms; uint32 ex; };
 struct QiKey { enum { up, down, click }; uint32 vk = 0; uint32 state = down; };
 struct QiMouse { int32 x = 0; int32 y = 0; uint32 ex = 0; bool move = false; };
-struct QiText { wcstring str; };
-struct QiColor { Rgba rgbe = 0; RECT rect = { 0 }; bool unfind = false; bool move = false; Actions next; };
-struct QiLoop { uint32 count = 0; uint32 rand = 0; Actions next; };
-struct QiKeyState { uint32 vk = 0; bool state = true; Actions next; };
+struct QiText 
+{
+	void release() { str.release(); }
+	wcstring str;
+};
+struct QiColor { Rgba rgbe = 0; RECT rect = {}; bool unfind = false; bool move = false; };
+struct QiLoop { uint32 count = 0; uint32 rand = 0; };
+struct QiKeyState { uint32 vk = 0; bool state = true; };
+struct QiImage
+{
+	void release() { map.release(); }
+	RgbMap map; uint32 sim; RECT rect = {}; bool unfind = false; bool move = false;
+};
+struct QiPopText
+{
+	void release() { str.release(); }
+	wcstring str; uint32 time = 0;
+};
+
 struct Action
 {
-	typedef enum _ActionType
+	typedef enum
 	{
 		_none,
 		_end,
@@ -145,12 +168,16 @@ struct Action
 		_loop,
 		_loopEnd,
 		_keyState,
-		_revocerPos
+		_revocerPos,
+		_image,
+		_popText
 	} ActionType;
-
-	union
+	
+	ActionType type = _none;
+	typedef union _Data
 	{
-		byte memsize[36];
+		_Data() {}
+		~_Data() {}
 		QiDelay delay;
 		QiKey key;
 		QiMouse mouse;
@@ -158,42 +185,77 @@ struct Action
 		QiColor color;
 		QiLoop loop;
 		QiKeyState keyState;
-	};
+		QiImage image;
+		QiPopText popText;
+	} Data;
+	Data d;
+	Actions next;
+	wcstring mark;
 
-	ActionType type = _none;
-	std::wstring mark;
-
-	Action() { emp(); }
-	Action(const ActionType actionType) { emp(); type = actionType; }
-	Action(const Action& action) { emp(); cpy(action); }
-	~Action() { emp(); }
+	Action() { release(); }
+	Action(const ActionType actionType) { release(); type = actionType; }
+	Action(const Action& action) { release(); cpy(action); }
+	~Action() { release(); }
 
 	void operator=(const Action& action) { cpy(action); }
 
 	void cpy(const Action& action)
 	{
-		emp();
-		mark = action.mark;
-		type = action.type;
-		switch (type)
+		release();
+		mark.cpy(action.mark);
+		switch (action.type)
 		{
-		case _end: break;
-		case _delay: delay = action.delay; break;
-		case _key: key = action.key; break;
-		case _mouse: mouse = action.mouse; break;
-		case _text: text.str = action.text.str; break;
-		case _color: color = action.color; break;
-		case _loop: loop = action.loop; break;
-		case _loopEnd: break;
-		case _keyState: keyState = action.keyState; break;
-		case _revocerPos: break;
+		case _end: type = ActionType::_end;
+			break;
+		case _delay: type = ActionType::_delay;
+			d.delay = action.d.delay;
+			break;
+		case _key: type = ActionType::_key;
+			d.key = action.d.key;
+			break;
+		case _mouse: type = ActionType::_mouse;
+			d.mouse = action.d.mouse;
+			break;
+		case _text: type = ActionType::_text;
+			d.text = action.d.text;
+			break;
+		case _color: type = ActionType::_color;
+			d.color = action.d.color;
+			next = action.next;
+			break;
+		case _loop: type = ActionType::_loop;
+			d.loop = action.d.loop;
+			next = action.next;
+			break;
+		case _loopEnd: type = ActionType::_loopEnd;
+			break;
+		case _keyState: type = ActionType::_keyState;
+			d.keyState = action.d.keyState;
+			next = action.next;
+			break;
+		case _revocerPos: type = ActionType::_revocerPos;
+			break;
+		case _image: type = ActionType::_image;
+			d.image = action.d.image;
+			next = action.next;
+			break;
+		case _popText: type = ActionType::_popText;
+			d.popText = action.d.popText;
+			break;
+		default: type = ActionType::_none;
 		}
 	}
 
-	void emp() {
-		if (type == _text) text.str.emp();
+	void release() {
+		switch (type)
+		{
+		case _text: d.text.release(); break;
+		case _image: d.image.release(); break;
+		case _popText: d.popText.release(); break;
+		}
+		mark.release();
 		type = _none;
-		mark = L""; memset(&memsize, 0, sizeof(memsize));
+		memset(&d, 0, sizeof(Data));
 	}
 };
 

@@ -10,7 +10,7 @@ class MacroUi : public QWidget
 {
 	Q_OBJECT;
 	Ui::MacroUiClass ui;
-	Macros& macros = Global::qi.macros;
+	Macros* macros = &Global::qi.macros;
 	QTimer* timer = 0;
 
 public:
@@ -60,6 +60,7 @@ private:
 		connect(ui.bnEdit, SIGNAL(clicked()), this, SLOT(OnBnEdit()));
 		connect(ui.bnExp, SIGNAL(clicked()), this, SLOT(OnBnExp()));
 		connect(ui.bnImp, SIGNAL(clicked()), this, SLOT(OnBnImp()));
+		connect(ui.bnLoad, SIGNAL(clicked()), this, SLOT(OnBnLoad()));
 		connect(ui.bnDel, SIGNAL(clicked()), this, SLOT(OnBnDel()));
 	}
 
@@ -79,14 +80,14 @@ private:
 	void TbUpdate()
 	{
 		ui.tbActions->clearMask();
-		ui.tbActions->setRowCount(macros.size());
+		ui.tbActions->setRowCount(macros->size());
 		ui.tbActions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
 		ui.tbActions->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
 		ui.tbActions->verticalHeader()->setDefaultSectionSize(0);
 
-		for (uint32 u = 0; u < macros.size(); u++) {
-			ui.tbActions->setItem(u, 0, new QTableWidgetItem(QString::fromWCharArray(macros[u].name.c_str())));
-			ui.tbActions->item(u, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		for (size_t i = 0; i < macros->size(); i++) {
+			ui.tbActions->setItem(i, 0, new QTableWidgetItem(QString::fromWCharArray(macros->at(i).name.c_str())));
+			ui.tbActions->item(i, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		}
 
 		ui.tbActions->setStyleSheet(u8"QHeaderView::section,QScrollBar{background:transparent}");
@@ -94,20 +95,26 @@ private:
 
 	void RecStart(bool wnd)
 	{
-		RecordUi rw;
-		Global::qi.rec = &rw;
-		Global::qi.state = 0, Global::qi.run = 0;
-
-		HookState(true);
 		working = true;
 		Global::qi.main->hide();
 		if (wnd)
 		{
 			WndInfo wi = WindowSelection();
-			if (wi.wnd) rw.Start(&wi);
+			if (wi.wnd)
+			{
+				RecordUi rw; Global::qi.rec = &rw, Global::qi.state = false, Global::qi.run = false;
+				HookState(true);
+				rw.Start(&wi);
+			}
 		}
-		else rw.Start(0);
+		else
+		{
+			RecordUi rw; Global::qi.rec = &rw, Global::qi.state = false, Global::qi.run = false;
+			HookState(true);
+			rw.Start(0);
+		}
 		HookState(false);
+		Global::qi.rec = nullptr;
 		working = false;
 		Global::qi.main->show();
 	}
@@ -115,18 +122,18 @@ private:
 	void showEvent(QShowEvent*)
 	{
 		ResetControl();
-		LockControl(1);
+		LockControl(true);
 		TbUpdate();
 	}
 
 private slots:
 	void OnTimeOut()
 	{
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) return;
+		int p = ui.tbActions->currentRow();
+		if (p < 0) return;
 		timer->stop();
 		ui.etName->setDisabled(0);
-		ui.etName->setText(QString::fromWCharArray(macros[pos].name.c_str()));
+		ui.etName->setText(QString::fromWCharArray(macros->at(p).name.c_str()));
 	}
 
 	void OnTbClicked(int row, int column)
@@ -134,15 +141,15 @@ private slots:
 		LockControl(1);
 		if (row < 0) return;
 
-		ui.etName->setText(QString::fromWCharArray(macros[row].name.c_str()));
+		ui.etName->setText(QString::fromWCharArray(macros->at(row).name.c_str()));
 
 		LockControl(0);
 	}
 
 	void OnEtReturn()
 	{
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) return;
+		int p = ui.tbActions->currentRow();
+		if (p < 0) return;
 
 		std::wstring name = (LPCWSTR)ui.etName->text().utf16();
 
@@ -152,7 +159,7 @@ private slots:
 			timer->start(1000);
 
 			ui.etName->setDisabled(1);
-			ui.etName->setText("名称不可用");
+			ui.etName->setText(u8"名称不可用");
 			return;
 		}
 
@@ -166,19 +173,18 @@ private slots:
 			timer->start(1000);
 
 			ui.etName->setDisabled(1);
-			ui.etName->setText("已存在该名称");
+			ui.etName->setText(u8"已存在该名称");
 			return;
 		}
 
 		std::wstring oldPath(Global::qi.path);
-		oldPath += macros[pos].name;
+		oldPath += macros->at(p).name;
 		oldPath += L".json";
 
-		macros[pos].name = name;
+		macros->at(p).name = name;
 
 		File::Rename(oldPath.c_str(), newPath.c_str());
 
-		LoadJson();
 		TbUpdate();
 		ResetControl();
 		LockControl(1);
@@ -187,8 +193,6 @@ private slots:
 	void OnBnRec()
 	{
 		RecStart(false);
-
-		LoadJson();
 		TbUpdate();
 		ResetControl();
 		LockControl(1);
@@ -196,65 +200,57 @@ private slots:
 	void OnBnWndRec()
 	{
 		RecStart(true);
-
-		LoadJson();
 		TbUpdate();
 		ResetControl();
 		LockControl(1);
 	}
 	void OnBnAdd()
 	{
-		macros.AddNull();
-		macros.Get().name = NameFilter(L"宏");
-		macros.Get().mode = Macro::down;
-		macros.Get().count = 1;
-
-		SaveMacro(macros.Get());
-		LoadJson();
+		Macro macro;
+		macro.name = NameFilter(L"宏");
+		macro.mode = Macro::down;
+		macro.count = 1;
+		Global::qi.macros.Add(macro);
+		SaveMacro(macro);
 		TbUpdate();
 		ResetControl();
 		LockControl(1);
 	}
 	void OnBnEdit()
 	{
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) return;
-
+		int p = ui.tbActions->currentRow(); if (p < 0) return;
 		EditParam ep;
-		ep.macro = &macros[pos];
-		ep.actions = &macros[pos].actions;
-		ep.firstLayer = true;
-		ep.prevState = false;
+		ep.macro = &macros->at(p);
+		ep.actions = &macros->at(p).actions;
+		ep.child = false;
 		EditUi edit(ep);
-		edit.setWindowTitle(u8"编辑 - " + QString::fromWCharArray(macros[pos].name.c_str()));
+		edit.setWindowTitle(u8"编辑 - " + QString::fromWCharArray(macros->at(p).name.c_str()));
 
-		working = 1;
+		working = true;
+		Global::qi.main->hide();
 		edit.exec();
-		working = 0;
+		Global::qi.main->show();
+		working = false;
 
-		SaveMacro(macros[pos]);
-		LoadJson();
-		TbUpdate();
+		SaveMacro(macros->at(p));
 		ResetControl();
 		LockControl(1);
 	}
 	void OnBnExp()
 	{
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) return;
+		int p = ui.tbActions->currentRow();
+		if (p < 0) return;
 
-		QString path = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, u8"导出到", QString::fromWCharArray((macros[pos].name + L".json").c_str()), u8"Quick input macro (*.json)"));
+		QString path = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, u8"导出到", QString::fromWCharArray((macros->at(p).name + L".json").c_str()), u8"Quick input macro (*.json)"));
 		if (!path.length()) return;
 
 		std::wstring srcFile(Global::qi.path);
-		srcFile += macros[pos].name;
+		srcFile += macros->at(p).name;
 		srcFile += L".json";
 		std::wstring newFile = (LPCWSTR)path.utf16();
 
 		CopyFileW(srcFile.c_str(), newFile.c_str(), 0);
 
-		LoadJson();
-		TbUpdate();
 		ResetControl();
 		LockControl(1);
 	}
@@ -274,25 +270,30 @@ private slots:
 		}
 		else CopyFileW(srcFile.c_str(), newFile.c_str(), 0);
 
-		LoadJson();
+		LoadMacro();
+		TbUpdate();
+		ResetControl();
+		LockControl(1);
+	}
+	void OnBnLoad()
+	{
+		LoadMacro();
 		TbUpdate();
 		ResetControl();
 		LockControl(1);
 	}
 	void OnBnDel()
 	{
-		int pos = ui.tbActions->currentRow();
-		if (pos < 0) return;
+		int p = ui.tbActions->currentRow(); if (p < 0) return;
 
 		std::wstring path(Global::qi.path);
-		path += macros[pos].name;
+		path += macros->at(p).name;
 		path += L".json";
-		macros.Del(pos);
+		macros->Del(p);
 
 		File::FileDelete(path.c_str());
 		ui.tbActions->setCurrentItem(0);
 
-		LoadJson();
 		TbUpdate();
 		ResetControl();
 		LockControl(1);

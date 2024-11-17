@@ -30,6 +30,7 @@ QString UI::syTime;
 QString UI::syText;
 QString UI::syLoop;
 QString UI::syColor;
+QString UI::syImage;
 
 std::wstring UI::qiOn;
 std::wstring UI::qiOff;
@@ -51,6 +52,8 @@ QString UI::acEnd;
 QString UI::acEndLoop;
 QString UI::acKeyState;
 QString UI::acRecoverPos;
+QString UI::acImage;
+QString UI::acPopText;
 QString UI::trOn;
 QString UI::trOff;
 QString UI::etChange;
