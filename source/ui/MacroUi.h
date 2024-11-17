@@ -124,7 +124,7 @@ private:
 			if (!wi.wnd)
 			{
 				
-				Qi::popText->Popup("窗口已失效", RGB(255, 64, 64), 2000);
+				Qi::popText->Popup(2000, "窗口已失效", RGB(255, 64, 64));
 				return;
 			}
 		}

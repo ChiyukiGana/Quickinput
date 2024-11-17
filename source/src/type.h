@@ -98,13 +98,14 @@ namespace QiUi
 		PopTextInfo dwd;
 		PopTextInfo upe;
 		PopTextInfo upd;
-		int time = 1000;
 		POINT p = {};
+		uint32 size = 100;
+		uint32 time = 1000;
 	};
 
 	struct QuickInputUi
 	{
-		QString dialogStyle = "QPushButton{width:60px;border:2px solid blue}";
+		QString dialogStyle = R"(*{color:black}QPushButton{width:60px;border:2px solid blue})";
 		Themes themes;
 		Text text;
 		PopText pop;

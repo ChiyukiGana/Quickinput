@@ -176,7 +176,7 @@ namespace CG
 			DXGI_OUTDUPL_FRAME_INFO dxgiFrameInfo;
 
 			IDXGIResource* dxgiRes;
-			HRESULT hr = dxgiDupl->AcquireNextFrame(100, &dxgiFrameInfo, &dxgiRes);
+			HRESULT hr = dxgiDupl->AcquireNextFrame(500, &dxgiFrameInfo, &dxgiRes);
 			if (FAILED(hr)) return false;
 
 			ID3D11Texture2D* currentTexture = nullptr;

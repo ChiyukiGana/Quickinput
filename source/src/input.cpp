@@ -8,7 +8,7 @@ void RecordInput(BYTE vk, bool state, POINT pt)
 	if (Qi::recordWindow && !IsWindowVisible(Qi::recordWindow))
 	{
 		QApplication::postEvent(Qi::widget.record, new QEvent((QEvent::Type)RecordUi::_close));
-		Qi::popText->Popup("窗口已失效", RGB(255, 64, 64), 2000);
+		Qi::popText->Popup(2000, "窗口已失效", RGB(255, 64, 64));
 	}
 
 	// delay
@@ -182,18 +182,18 @@ bool _stdcall InputHook::InputProc(BYTE key, bool press, POINT cursor, PULONG_PT
 		{
 			if (!Qi::keyState[key])
 			{
-				Qi::keyState[key] = true;
+				Qi::keyState[key] = press;
 				InputStruct is;
-				is.key = key,is.press = true,is.x = cursor.x,is.y = cursor.y;
+				is.key = key,is.press = press,is.x = cursor.x,is.y = cursor.y;
 				memcpy(&is.state, Qi::keyState, Qi::keySize);
 				inputQueue.push(is);
 			}
 		}
 		else
 		{
-			Qi::keyState[key] = false;
+			Qi::keyState[key] = press;
 			InputStruct is;
-			is.key = key, is.press = true, is.x = cursor.x, is.y = cursor.y;
+			is.key = key, is.press = press, is.x = cursor.x, is.y = cursor.y;
 			memcpy(&is.state, Qi::keyState, Qi::keySize);
 			inputQueue.push(is);
 		}

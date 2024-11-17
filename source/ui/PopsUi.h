@@ -73,6 +73,8 @@ private:
 
 		ui.sdLR->installEventFilter(this);
 		ui.sdTB->installEventFilter(this);
+		ui.sdSize->installEventFilter(this);
+		ui.sdTime->installEventFilter(this);
 
 		StyleGroup();
 		Update();
@@ -109,6 +111,8 @@ private:
 
 		connect(ui.sdLR, SIGNAL(valueChanged(int)), this, SLOT(OnSdLR(int)));
 		connect(ui.sdTB, SIGNAL(valueChanged(int)), this, SLOT(OnSdTB(int)));
+		connect(ui.sdSize, SIGNAL(valueChanged(int)), this, SLOT(OnSdSize(int)));
+		connect(ui.sdTime, SIGNAL(valueChanged(int)), this, SLOT(OnSdTime(int)));
 	}
 	void SetColor(const QColor& color, QPushButton* button)
 	{
@@ -151,6 +155,8 @@ private:
 
 		ui.sdLR->setValue(Qi::ui.pop.p.x);
 		ui.sdTB->setValue(Qi::ui.pop.p.y);
+		ui.sdSize->setValue(Qi::ui.pop.size);
+		ui.sdTime->setValue(Qi::ui.pop.time);
 	}
 	bool eventFilter(QObject* obj, QEvent* e)
 	{
@@ -160,23 +166,35 @@ private:
 			bool qs = false;
 			bool ws = false;
 			bool qc = false;
+			bool mc = false;
+			bool pt = false;
+			bool sz = false;
+			bool tm = false;
+
 			if (obj == ui.etQE) p = &Qi::ui.pop.qe, qs = true;
 			else if (obj == ui.etQD) p = &Qi::ui.pop.qd, qs = true;
 			else if (obj == ui.etWE) p = &Qi::ui.pop.we, ws = true;
 			else if (obj == ui.etWD) p = &Qi::ui.pop.wd, ws = true;
 			else if (obj == ui.etQcE) p = &Qi::ui.pop.qce, qc = true;
 			else if (obj == ui.etQcD) p = &Qi::ui.pop.qcd, qc = true;
-			else if (obj == ui.etSwE) p = &Qi::ui.pop.swe;
-			else if (obj == ui.etSwD) p = &Qi::ui.pop.swd;
-			else if (obj == ui.etDwE) p = &Qi::ui.pop.dwe;
-			else if (obj == ui.etDwD) p = &Qi::ui.pop.dwd;
-			else if (obj == ui.etUpE) p = &Qi::ui.pop.upe;
-			else if (obj == ui.etUpD) p = &Qi::ui.pop.upd;
-			if (!p) Qi::popText->Show("提示框位置");
-			else if (qs) Qi::popText->Show(QiFn::ParseCustom(p->t, "(文件夹)", ""), p->c);
+			else if (obj == ui.etSwE) p = &Qi::ui.pop.swe, mc = true;
+			else if (obj == ui.etSwD) p = &Qi::ui.pop.swd, mc = true;
+			else if (obj == ui.etDwE) p = &Qi::ui.pop.dwe, mc = true;
+			else if (obj == ui.etDwD) p = &Qi::ui.pop.dwd, mc = true;
+			else if (obj == ui.etUpE) p = &Qi::ui.pop.upe, mc = true;
+			else if (obj == ui.etUpD) p = &Qi::ui.pop.upd, mc = true;
+			else if (obj == ui.sdLR) pt = true;
+			else if (obj == ui.sdTB) pt = true;
+			else if (obj == ui.sdSize) sz = true;
+			else if (obj == ui.sdTime) tm = true;
+
+			if (qs) Qi::popText->Show(QiFn::ParseCustom(p->t, "(文件夹)", ""), p->c);
 			else if (ws) Qi::popText->Show(QiFn::ParseCustom(p->t, "(窗口名)", ""), p->c);
 			else if (qc) Qi::popText->Show(QiFn::ParseCustom(p->t, "(按键)", ""), p->c);
-			else Qi::popText->Show(QiFn::ParseCustom(p->t, "(宏名称)", "(1)"), p->c);
+			else if (mc) Qi::popText->Show(QiFn::ParseCustom(p->t, "(宏名称)", "(1)"), p->c);
+			else if (pt) Qi::popText->Show("提示框位置");
+			else if (sz) Qi::popText->Show("提示框大小");
+			else if (tm) Qi::popText->Popup("提示框时间");
 		}
 		else if (e->type() == QEvent::HoverLeave)
 		{
@@ -220,4 +238,6 @@ private Q_SLOTS:
 	void OnBnUpD() { SelectColor(Qi::ui.pop.upd); Update(); }
 	void OnSdLR(int value) { Qi::ui.pop.p.x = value; Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y); Qi::popText->Show("提示框位置"); }
 	void OnSdTB(int value) { Qi::ui.pop.p.y = value; Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y); Qi::popText->Show("提示框位置"); }
+	void OnSdSize(int value) { Qi::ui.pop.size = value; Qi::popText->setSize(Qi::ui.pop.size); Qi::popText->Show("提示框大小"); }
+	void OnSdTime(int value) { Qi::ui.pop.time = value; Qi::popText->setTime(Qi::ui.pop.time); Qi::popText->Popup("提示框时间"); }
 };

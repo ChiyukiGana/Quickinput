@@ -19,35 +19,35 @@ namespace QiFn
 	QString ParseMacro(QString text, QString macro, int count) { if (count) text.replace("$", QString::number(count)); else text.replace("$", "∞"); return text.replace("@", macro); }
 	void StatePop(bool state)
 	{
-		if (state) Qi::popText->Popup(ParseState(Qi::ui.pop.qe.t), Qi::ui.pop.qe.c, Qi::ui.pop.time);
-		else Qi::popText->Popup(ParseState(Qi::ui.pop.qd.t), Qi::ui.pop.qd.c, Qi::ui.pop.time);
+		if (state) Qi::popText->Popup(ParseState(Qi::ui.pop.qe.t), Qi::ui.pop.qe.c);
+		else Qi::popText->Popup(ParseState(Qi::ui.pop.qd.t), Qi::ui.pop.qd.c);
 	}
 	void WindowPop(std::wstring window, bool state)
 	{
-		if (state) Qi::popText->Popup(ParseWindow(Qi::ui.pop.we.t, QString::fromWCharArray(window.c_str())), Qi::ui.pop.we.c, Qi::ui.pop.time);
-		else Qi::popText->Popup(ParseWindow(Qi::ui.pop.wd.t, QString::fromWCharArray(window.c_str())), Qi::ui.pop.wd.c, Qi::ui.pop.time);
+		if (state) Qi::popText->Popup(ParseWindow(Qi::ui.pop.we.t, QString::fromWCharArray(window.c_str())), Qi::ui.pop.we.c);
+		else Qi::popText->Popup(ParseWindow(Qi::ui.pop.wd.t, QString::fromWCharArray(window.c_str())), Qi::ui.pop.wd.c);
 	}
 	void QuickClickPop(bool state)
 	{
-		if (state) Qi::popText->Popup(ParseQuickClick(Qi::ui.pop.qce.t, Qi::fun.quickClick.key), Qi::ui.pop.qce.c, Qi::ui.pop.time);
-		else Qi::popText->Popup(ParseQuickClick(Qi::ui.pop.qcd.t, Qi::fun.quickClick.key), Qi::ui.pop.qcd.c, Qi::ui.pop.time);
+		if (state) Qi::popText->Popup(ParseQuickClick(Qi::ui.pop.qce.t, Qi::fun.quickClick.key), Qi::ui.pop.qce.c);
+		else Qi::popText->Popup(ParseQuickClick(Qi::ui.pop.qcd.t, Qi::fun.quickClick.key), Qi::ui.pop.qcd.c);
 	}
 	void MacroPop(Macro* macro, bool state)
 	{
 		if (macro->mode == Macro::sw)
 		{
-			if (state) Qi::popText->Popup(ParseMacro(Qi::ui.pop.swe.t, QString::fromWCharArray(macro->name.c_str()), 0), Qi::ui.pop.swe.c, Qi::ui.pop.time);
-			else Qi::popText->Popup(ParseMacro(Qi::ui.pop.swd.t, QString::fromWCharArray(macro->name.c_str()), 0), Qi::ui.pop.swd.c, Qi::ui.pop.time);
+			if (state) Qi::popText->Popup(ParseMacro(Qi::ui.pop.swe.t, QString::fromWCharArray(macro->name.c_str()), 0), Qi::ui.pop.swe.c);
+			else Qi::popText->Popup(ParseMacro(Qi::ui.pop.swd.t, QString::fromWCharArray(macro->name.c_str()), 0), Qi::ui.pop.swd.c);
 		}
 		else if (macro->mode == Macro::down)
 		{
-			if (state) Qi::popText->Popup(ParseMacro(Qi::ui.pop.dwe.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.dwe.c, Qi::ui.pop.time);
-			else Qi::popText->Popup(ParseMacro(Qi::ui.pop.dwd.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.dwd.c, Qi::ui.pop.time);
+			if (state) Qi::popText->Popup(ParseMacro(Qi::ui.pop.dwe.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.dwe.c);
+			else Qi::popText->Popup(ParseMacro(Qi::ui.pop.dwd.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.dwd.c);
 		}
 		else if (macro->mode == Macro::up)
 		{
-			if (state) Qi::popText->Popup(ParseMacro(Qi::ui.pop.upe.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.upe.c, Qi::ui.pop.time);
-			else Qi::popText->Popup(ParseMacro(Qi::ui.pop.upd.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.upd.c, Qi::ui.pop.time);
+			if (state) Qi::popText->Popup(ParseMacro(Qi::ui.pop.upe.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.upe.c);
+			else Qi::popText->Popup(ParseMacro(Qi::ui.pop.upd.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.upd.c);
 		}
 	}
 
@@ -445,7 +445,7 @@ namespace QiFn
 				else if constexpr (std::is_same_v<T, QiPopText>)
 				{
 					const QiPopText& popText = var;
-					Qi::popText->Popup(WToQString(popText.str), RGB(223, 223, 223), popText.time);
+					Qi::popText->Popup(popText.time, WToQString(popText.str), RGB(223, 223, 223));
 					return r_continue;
 				}
 				else if constexpr (std::is_same_v<T, QiRememberPos>)
