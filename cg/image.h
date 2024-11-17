@@ -139,10 +139,10 @@ namespace CG {
 			bitmapInfo.bmiHeader.biSizeImage = rgbaMap.bytes();
 			bitmapInfo.bmiHeader.biPlanes = 1;
 
-			_ABGR_* buffer = new _ABGR_[rgbaMap.width() * rgbaMap.height()];
+			_RGBA_* buffer = new _RGBA_[rgbaMap.width() * rgbaMap.height()];
 			for (size_t i = 0; i < rgbaMap.count(); i++)
 			{
-				_ABGR_* ptr = buffer + i;
+				_RGBA_* ptr = buffer + i;
 				const CG::Rgba& rgba = rgbaMap.map(i);
 				ptr->r = rgba.r, ptr->g = rgba.g, ptr->b = rgba.b, ptr->a = rgba.a;
 			}

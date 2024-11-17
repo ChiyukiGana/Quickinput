@@ -3,7 +3,7 @@
 #include <QFont>
 #include <QWidget>
 #include <QApplication>
-#include "../cg/cg.h"
+#include "C:/#/Dev/cg/cg.h"
 
 // Change to your Qt directory
 #ifdef DEBUG
@@ -80,25 +80,13 @@ struct WndLock
 extern struct Action; typedef List<Action> Actions;
 struct QiDelay { uint32 tmin; uint32 tmax; };
 struct QiKey { enum { up, down, click }; uint32 vk = 0; uint32 state = down; };
-struct QiMouse { int32 x = 0; int32 y = 0; uint32 ex = 0; bool move = false; bool track = false; };
-struct QiText
-{
-	void release() { str.release(); }
-	wcstring str;
-};
+struct QiMouse { int32 x = 0; int32 y = 0; uint32 ex = 0; uint32 speed = 0; bool move = false; bool track = false; };
+struct QiText { wcstr str; void release() { str.release(); } };
 struct QiColor { Rgba rgbe = 0; RECT rect = {}; bool unfind = false; bool move = false; };
 struct QiLoop { uint32 cmin = 0; uint32 cmax = 0; };
 struct QiKeyState { uint32 vk = 0; bool state = true; };
-struct QiImage
-{
-	void release() { map.release(); }
-	RgbMap map; uint32 sim; RECT rect = {}; bool unfind = false; bool move = false;
-};
-struct QiPopText
-{
-	void release() { str.release(); }
-	wcstring str; uint32 time = 0;
-};
+struct QiImage { RgbMap map; uint32 sim; RECT rect = {}; bool unfind = false; bool move = false; void release() { map.release(); } };
+struct QiPopText { wcstr str; uint32 time = 0; void release() { str.release(); } };
 struct Action
 {
 	typedef enum
@@ -136,7 +124,7 @@ struct Action
 	} Data;
 	Data d;
 	Actions next;
-	wcstring mark;
+	wcstr mark;
 
 	Action() { release(); }
 	Action(const ActionType actionType) { release(); type = actionType; }
@@ -148,7 +136,7 @@ struct Action
 	void cpy(const Action& action)
 	{
 		release();
-		mark.cpy(action.mark);
+		mark.copy(action.mark);
 		switch (action.type)
 		{
 		case _end: type = ActionType::_end;

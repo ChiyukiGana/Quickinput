@@ -22,7 +22,7 @@ namespace CG
 					if (wp == 1)
 					{
 						const RgbMap* map = (const RgbMap*)lp;
-						size.cx = map->width(), size.cy = map->height();
+						size.cx = map->width() + 30, size.cy = map->height() + 58;
 						if (map->count()) hbmp = Image::toBmp32(*map, hdc);
 
 					}

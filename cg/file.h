@@ -168,8 +168,8 @@ namespace CG {
 		}
 
 		static LPCWSTR FindFileWindow(HWND mainWnd, LPCWSTR title = L"Select File", LPCWSTR type = 0) {
-			WCHAR path[MAX_PATH] = { 0 };
-			OPENFILENAMEW ofn = { 0 };
+			WCHAR path[MAX_PATH_NEW] = {};
+			OPENFILENAMEW ofn = {};
 			ofn.lStructSize = sizeof(OPENFILENAMEW);
 			ofn.hwndOwner = mainWnd;
 			ofn.lpstrTitle = title;
@@ -184,8 +184,8 @@ namespace CG {
 		}
 
 		static LPCWSTR FindFolderWindow(HWND mainWnd, LPCWSTR title = L"Select Folder") {
-			WCHAR path[MAX_PATH] = { 0 };
-			BROWSEINFOW bi = { 0 };
+			WCHAR path[MAX_PATH_NEW] = {};
+			BROWSEINFOW bi = {};
 
 			bi.hwndOwner = mainWnd;
 			bi.lpszTitle = title;

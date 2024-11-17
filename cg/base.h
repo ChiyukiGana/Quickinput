@@ -28,6 +28,8 @@ typedef std::uint64_t uint64;
 #define int64Min ((int64)0x8000000000000000)
 #define uint64Max ((uint64)0xFFFFFFFFFFFFFFFF)
 
+#define MAX_PATH_NEW 0x7FFF
+
 #define AlignmentSize(num, size) ((num%size)?(num+(size-(num%size))):(num))
 
 #define forxy(xmax, ymax) for (size_t y = 0, ym = ymax; y < ym; y++) for (size_t x = 0, xm = xmax; x < xm; x++)
