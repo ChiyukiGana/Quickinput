@@ -1,9 +1,10 @@
 <RCC>
     <qresource prefix="/">
         <file>arrow.png</file>
-        <file>icon.png</file>
-        <file>about.png</file>
         <file>checked.png</file>
         <file>neko.png</file>
+        <file>icon.png</file>
+        <file>blade.png</file>
+        <file>candy.png</file>
     </qresource>
 </RCC>

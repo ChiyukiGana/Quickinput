@@ -31,9 +31,6 @@
     <ClCompile Include="source\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\src\InputHook.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\src\json.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -46,7 +43,7 @@
     <ClCompile Include="source\src\ginc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\src\PopBox.cpp">
+    <ClCompile Include="source\src\input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -55,9 +52,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\src\json.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\src\PopBox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\src\thread.h">
@@ -101,10 +95,10 @@
     <QtUic Include="source\ui\SettingsUi.ui">
       <Filter>Form Files\ui</Filter>
     </QtUic>
-    <QtUic Include="source\ui\TriggerUi.ui">
+    <QtUic Include="source\ui\PopsUi.ui">
       <Filter>Form Files\ui</Filter>
     </QtUic>
-    <QtUic Include="source\ui\PopsUi.ui">
+    <QtUic Include="source\ui\TriggerUi.ui">
       <Filter>Form Files\ui</Filter>
     </QtUic>
   </ItemGroup>
@@ -160,6 +154,9 @@
     <QtMoc Include="source\ui\widget\QKeyEdit.h">
       <Filter>Form Files\widget</Filter>
     </QtMoc>
+    <QtMoc Include="source\ui\widget\QPopText.h">
+      <Filter>Form Files\widget</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="source\res\QuickInput.rc">
@@ -170,5 +167,10 @@
     <QtRcc Include="source\res\QuickInput.qrc">
       <Filter>Resource Files</Filter>
     </QtRcc>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="versions.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

@@ -56,9 +56,9 @@ public:
 	}
 
 private:
-	void SetColor(QMouseEvent* et)
+	void SetColor(QMouseEvent* e)
 	{
-		QPoint ms = et->pos();
+		QPoint ms = e->pos();
 		QPoint pt(ms.x() + 25, ms.y() + 25);
 		POINT ams; GetCursorPos(&ams);
 		COLORREF rgb = GetPixel(hdc, ams.x, ams.y);
@@ -71,7 +71,7 @@ private:
 
 protected:
 	void paintEvent(QPaintEvent*) { if (!end) { QPainter pa(this); pa.fillRect(this->rect(), QColor(127, 127, 127, 1)); } }
-	void mousePressEvent(QMouseEvent* et) { SetColor(et); }
-	void mouseReleaseEvent(QMouseEvent* et) { end = 1; repaint(); SetColor(et); releaseMouse(); close(); }
-	void mouseMoveEvent(QMouseEvent* et) { SetColor(et); }
+	void mousePressEvent(QMouseEvent* e) { SetColor(e); }
+	void mouseReleaseEvent(QMouseEvent* e) { end = 1; repaint(); SetColor(e); releaseMouse(); close(); }
+	void mouseMoveEvent(QMouseEvent* e) { SetColor(e); }
 };

@@ -70,12 +70,11 @@ public:
 
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
-
-		WidInit();
-		WidEvent();
+		Init();
+		Event();
 	}
 
-	void SetStyleGroup()
+	void StyleGroup()
 	{
 		setProperty("group", QVariant(QString::fromUtf8("frame")));
 		ui.titleWidget->setProperty("group", QVariant(QString::fromUtf8("title")));
@@ -186,18 +185,9 @@ public:
 			}
 		}
 	}
-	void ReStyle()
-	{
-		setStyleSheet("");
-		setStyleSheet(qis.ui.themes[qis.set.theme].style);
-		ui.hkKey->setStyleSheet("");
-		ui.hkKey->setStyleSheet(qis.ui.themes[qis.set.theme].style);
-		ui.hkState->setStyleSheet("");
-		ui.hkState->setStyleSheet(qis.ui.themes[qis.set.theme].style);
-	}
 
 private:
-	void WidInit()
+	void Init()
 	{
 		if ("table context menu")
 		{
@@ -361,7 +351,7 @@ private:
 			ui.hkState->setKey(QKeyEdit::Key(VK_LBUTTON));
 		}
 
-		SetStyleGroup();
+		StyleGroup();
 
 		// enable qlable scale
 		ui.lbImageView->setScaledContents(true);
@@ -377,7 +367,7 @@ private:
 
 		TableUpdate();
 	}
-	void WidEvent()
+	void Event()
 	{
 		if ("title")
 		{
@@ -658,13 +648,13 @@ private:
 	}
 
 private:
-	bool eventFilter(QObject* obj, QEvent* et)
+	bool eventFilter(QObject* obj, QEvent* e)
 	{
 		if (obj == ui.tbActions)
 		{
-			if (et->type() == QEvent::KeyPress)
+			if (e->type() == QEvent::KeyPress)
 			{
-				QKeyEvent* key = (QKeyEvent*)et;
+				QKeyEvent* key = (QKeyEvent*)e;
 				if (key->modifiers() == Qt::NoModifier)
 				{
 					if (key->key() == Qt::Key_Backspace)
@@ -713,9 +703,9 @@ private:
 		}
 		else if (obj == ui.tbActions->viewport()) // move drop
 		{
-			if (et->type() == QEvent::Drop)
+			if (e->type() == QEvent::Drop)
 			{
-				QDropEvent* drop = static_cast<QDropEvent*>(et);
+				QDropEvent* drop = static_cast<QDropEvent*>(e);
 				QTableWidgetItem* item = ui.tbActions->itemAt(drop->pos());
 				int before = 0, after = 0;
 				before = ui.tbActions->currentRow();
@@ -736,10 +726,10 @@ private:
 	}
 	void showEvent(QShowEvent*)
 	{
-		ReStyle();
+		qis.application->setStyleSheet(qis.ui.themes[qis.set.theme].style);
 		SetForegroundWindow((HWND)QWidget::winId());
 	}
-	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) msPos = et->pos(), mouseDown = true; et->accept(); }void mouseMoveEvent(QMouseEvent* et) { if (mouseDown) move(et->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) mouseDown = false; }
+	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) msPos = e->pos(), mouseDown = true; e->accept(); }void mouseMoveEvent(QMouseEvent* e) { if (mouseDown) move(e->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) mouseDown = false; }
 private Q_SLOTS:
 	// Title
 	void OnBnClose()
@@ -1173,7 +1163,7 @@ private Q_SLOTS:
 	void OnBnColorValue()
 	{
 		QColorSelection cs;
-		QColorDialog cd(cs.Start());
+		QColorDialog cd(cs.Start(), this);
 		cd.exec();
 		Action action = WidgetGetColor();
 		action.d.color.rgbe.r = cd.currentColor().red();

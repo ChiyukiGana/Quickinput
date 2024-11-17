@@ -17,10 +17,10 @@ public:
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 
-		WidInit();
-		WidEvent();
+		Init();
+		Event();
 	}
-	void SetStyleGroup()
+	void StyleGroup()
 	{
 		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
 		ui.bnWndSelect->setProperty("group", QVariant(QString::fromUtf8("get_button")));
@@ -34,17 +34,9 @@ public:
 		ui.hkClock->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
 		ui.cmbMode->view()->setProperty("group", QVariant(QString::fromUtf8("table")));
 	}
-	void ReStyle()
-	{
-		setStyleSheet("");
-		setStyleSheet(qis.ui.themes[qis.set.theme].style);
-		ui.hkQkClick->setStyleSheet("");
-		ui.hkQkClick->setStyleSheet(qis.ui.themes[qis.set.theme].style);
-		ui.hkClock->setStyleSheet("");
-		ui.hkClock->setStyleSheet(qis.ui.themes[qis.set.theme].style);
-	}
+
 private:
-	void WidInit()
+	void Init()
 	{
 		ui.hkQkClick->setMode(QKeyEdit::Mode::solid);
 		ui.hkQkClick->setMouseEnable(true);
@@ -86,9 +78,9 @@ private:
 			ui.chbClock->setShortcut(Qt::Key_unknown);
 		}
 
-		SetStyleGroup();
+		StyleGroup();
 	}
-	void WidEvent()
+	void Event()
 	{
 		connect(ui.chbQkClick, SIGNAL(stateChanged(int)), this, SLOT(OnQcState(int)));
 		connect(ui.hkQkClick, SIGNAL(changed()), this, SLOT(OnQcKey()));

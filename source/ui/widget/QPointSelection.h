@@ -74,7 +74,7 @@ protected:
 		lb.setGeometry(QRect(pt, QSize(cx + 6, cy)));
 	}
 	void paintEvent(QPaintEvent*) { QPainter pa(this); pa.fillRect(0, 0, vrect.width(), vrect.height(), QColor(0, 0, 0, 50)); }
-	void mouseMoveEvent(QMouseEvent* et) { ClipCursor(&mrect); ms = et->pos(); updateLabel(); }
-	void mousePressEvent(QMouseEvent* et) { ClipCursor(&mrect); ms = et->pos(); updateLabel(); }
-	void mouseReleaseEvent(QMouseEvent* et) { GetCursorPos(&ams); ClipCursor(0); releaseMouse(); close(); }
+	void mouseMoveEvent(QMouseEvent* e) { ClipCursor(&mrect); ms = e->pos(); updateLabel(); }
+	void mousePressEvent(QMouseEvent* e) { ClipCursor(&mrect); ms = e->pos(); updateLabel(); }
+	void mouseReleaseEvent(QMouseEvent* e) { GetCursorPos(&ams); ClipCursor(0); releaseMouse(); close(); }
 };

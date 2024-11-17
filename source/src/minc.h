@@ -2,14 +2,14 @@
 #pragma once
 #include "ginc.h"
 
-#define msg_exit (WM_USER + 0xFF)
+constexpr int msg_exit = (WM_USER + 0xFF);
+constexpr int r_exit = 0;
+constexpr int r_continue = 1;
+constexpr int r_break = 2;
 
-#define r_exit 0
-#define r_continue 1
-#define r_break 2
-
+#include "../ui/widget/QKeyEdit.h"
+#include "../ui/widget/QPopText.h"
 #include "type.h"
 #include "func.h"
 #include "thread.h"
 #include "json.h"
-#include "PopBox.h"

@@ -15,10 +15,9 @@ public:
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
-		SetStyleGroup();
-		ReStyle();
+		StyleGroup();
 	}
-	void SetStyleGroup()
+	void StyleGroup()
 	{
 		setProperty("group", QVariant(QString::fromUtf8("frame")));
 		ui.titleWidget->setProperty("group", QVariant(QString::fromUtf8("title")));
@@ -28,21 +27,16 @@ public:
 		ui.tabWidget->tabBar()->setProperty("group", QVariant(QString::fromUtf8("tab_widget_bar")));
 		ui.toolBox->setProperty("group", QVariant(QString::fromUtf8("ltab_widget")));
 	}
-	void ReStyle()
-	{
-		setStyleSheet("");
-		setStyleSheet(qis.ui.themes[qis.set.theme].style);
-	}
 private:
-	bool event(QEvent* et)
+	bool event(QEvent* e)
 	{
-		if (et->type() == QEvent::WindowActivate)
+		if (e->type() == QEvent::WindowActivate)
 		{
 			qis.widget.moreActive = true;
 			if (qis.state) QiFn::QiState(false);
 			QiFn::QiHook(false);
 		}
-		else if (et->type() == QEvent::WindowDeactivate)
+		else if (e->type() == QEvent::WindowDeactivate)
 		{
 			qis.widget.moreActive = false;
 			if (QiFn::SelfActive())
@@ -51,14 +45,13 @@ private:
 				QiFn::QiHook(true);
 			}
 		}
-		return QWidget::event(et);
+		return QWidget::event(e);
 	}
 	void showEvent(QShowEvent*)
 	{
-		ReStyle();
 		SetForegroundWindow((HWND)QWidget::winId());
 	}
-	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) msPos = et->pos(), mouseDown = true; et->accept(); }void mouseMoveEvent(QMouseEvent* et) { if (mouseDown) move(et->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) mouseDown = false; }
+	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) msPos = e->pos(), mouseDown = true; e->accept(); }void mouseMoveEvent(QMouseEvent* e) { if (mouseDown) move(e->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) mouseDown = false; }
 private Q_SLOTS:
 	void OnBnClose()
 	{

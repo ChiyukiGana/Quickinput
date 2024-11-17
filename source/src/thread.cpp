@@ -6,7 +6,7 @@ namespace QiThread
 	ThreadPool releaseKeyPool(1);
 	void _stdcall ReleaseKey(byte key)
 	{
-		Input::State(key, 0, 214);
+		Input::State(key, false, 214);
 	}
 
 	bool PeekExitMsg()
@@ -84,17 +84,17 @@ namespace QiThread
 	DWORD _stdcall QuickClick(PVOID)
 	{
 		srand(clock());
-		uint32 b = 0, e = 0;
-		if (qis.fun.quickClick.delay > 99) b = Rand(70, 30), e = qis.fun.quickClick.delay - Rand(70, 30);
-		else if (qis.fun.quickClick.delay > 1) b = Rand(qis.fun.quickClick.delay, qis.fun.quickClick.delay >> 2), e = Rand(qis.fun.quickClick.delay, qis.fun.quickClick.delay >> 2);
-		else e = qis.fun.quickClick.delay;
-
+		size_t max, min;
+		if (qis.fun.quickClick.delay > 99) max = 70, min = 30;
+		else if (qis.fun.quickClick.delay > 1) max = (qis.fun.quickClick.delay >> 1) + (qis.fun.quickClick.delay >> 2), min = (qis.fun.quickClick.delay >> 1) - (qis.fun.quickClick.delay >> 2);
+		else if (qis.fun.quickClick.delay == 1) max = 1, min = 0;
+		else max = 0, min = 0;
 		while (qis.run && !PeekExitMsg())
 		{
-			Input::State(qis.fun.quickClick.key, 1, 214);
-			Thread::Sleep(b);
-			Input::State(qis.fun.quickClick.key, 0, 214);
-			Thread::Sleep(e);
+			Input::State(qis.fun.quickClick.key, true, 214);
+			Thread::Sleep(Rand(max, min));
+			Input::State(qis.fun.quickClick.key, false, 214);
+			Thread::Sleep(Rand(max, min));
 		}
 		return 0;
 	}
@@ -110,20 +110,20 @@ namespace QiThread
 				if (!qis.run && active)
 				{
 					qis.run = true;
-					if (qis.set.showTips) QiFn::WPop(qis.fun.wndActive.wi.wndName, qis.ui.pop.we);
+					if (qis.set.showTips) QiFn::WindowPop(qis.fun.wndActive.wi.wndName, true);
 				}
 				else if (qis.run && !active)
 				{
 					qis.run = false;
-					if (qis.set.showTips) QiFn::WPop(qis.fun.wndActive.wi.wndName, qis.ui.pop.wd);
+					if (qis.set.showTips) QiFn::WindowPop(qis.fun.wndActive.wi.wndName, false);
 				}
 			}
 			else if (qis.run)
 			{
 				qis.run = false;
-				if (qis.set.showTips) QiFn::WPop(qis.fun.wndActive.wi.wndName, qis.ui.pop.wd);
+				if (qis.set.showTips) QiFn::WindowPop(qis.fun.wndActive.wi.wndName, false);
 			}
-			sleep(100);
+			Thread::Sleep(100);
 		}
 		qis.fun.wndActive.thread = 0;
 		return 0;

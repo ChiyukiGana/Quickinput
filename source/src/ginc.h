@@ -11,5 +11,10 @@
 #include <QApplication>
 #include <QMainWindow>
 #include <QWidget>
+#include <QLabel>
+#include <QPainter>
+#include <QEvent>
 #include <QFont>
+#include <QTimer>
+#include <regex>
 #include "cg/cg.h"

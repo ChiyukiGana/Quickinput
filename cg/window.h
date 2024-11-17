@@ -77,23 +77,41 @@ namespace CG {
 		}
 
 		//size: pixel, weight: 0 ~ 900, font: name
-		static HFONT Font(UINT size, USHORT weight = 0, LPCWSTR font = L"Microsoft YaHei") { return CreateFontW(size, 0, 0, 0, weight, 0, 0, 0, UNICODE, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, font); }
+		static HFONT CreateHFont(UINT size, USHORT weight = 0, LPCWSTR font = L"Microsoft YaHei") { return CreateFontW(size, 0, 0, 0, weight, 0, 0, 0, UNICODE, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, font); }
 
 		static bool Redraw(HWND wnd) { return RedrawWindow(wnd, 0, 0, RDW_ERASE | RDW_INVALIDATE); }
 
 		static SIZE size(HWND wnd) { RECT rect = {}; GetWindowRect(wnd, &rect); return { rect.right - rect.left, rect.bottom - rect.top }; }
 		static SIZE sizeF(HWND wnd) { RECT rect = {}; DwmGetWindowAttribute(wnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(RECT)); return { rect.right - rect.left, rect.bottom - rect.top }; }
-		static bool Size(HWND wnd, SIZE size) { return SetWindowPos(wnd, 0, 0, 0, size.cx, size.cy, SWP_NOMOVE | SWP_NOZORDER); }
-		static bool Size(HWND wnd, int cx, int cy) { return SetWindowPos(wnd, 0, 0, 0, cx, cy, SWP_NOMOVE | SWP_NOZORDER); }
+		static bool setSize(HWND wnd, SIZE size) { return SetWindowPos(wnd, 0, 0, 0, size.cx, size.cy, SWP_NOMOVE | SWP_NOZORDER); }
+		static bool setSize(HWND wnd, int cx, int cy) { return SetWindowPos(wnd, 0, 0, 0, cx, cy, SWP_NOMOVE | SWP_NOZORDER); }
+
+		static void setClientSize(HWND wnd, SIZE size)
+		{
+			HDC dc = GetDC(0);
+			LONG cx = 0;
+			LONG cy = 0;
+			while (true)
+			{
+				SetWindowPos(wnd, 0, 0, 0, size.cx + cx, size.cy + cy, SWP_NOMOVE | SWP_NOZORDER);
+				if (GetDeviceCaps(dc, HORZRES) >= size.cx || GetDeviceCaps(dc, VERTRES) >= size.cy) break;
+				RECT client;
+				GetClientRect(wnd, &client);
+				if (client.right != size.cx) cx++;
+				if (client.bottom != size.cy) cy++;
+				if (client.right == size.cx && client.bottom == size.cy) break;
+			}
+			ReleaseDC(0, dc);
+		}
 
 		static POINT pos(HWND wnd) { RECT rect = {}; GetWindowRect(wnd, &rect); return { rect.left, rect.top }; }
 		static POINT posF(HWND wnd) { RECT rect = {}; DwmGetWindowAttribute(wnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(RECT)); return { rect.left, rect.top }; }
-		static bool Pos(HWND wnd, POINT point) { return SetWindowPos(wnd, 0, point.x, point.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER); }
-		static bool Pos(HWND wnd, int x, int y) { return SetWindowPos(wnd, 0, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER); }
+		static bool setPos(HWND wnd, POINT point) { return SetWindowPos(wnd, 0, point.x, point.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER); }
+		static bool setPos(HWND wnd, int x, int y) { return SetWindowPos(wnd, 0, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER); }
 
 		static RECT rect(HWND wnd) { RECT rect = {}; GetWindowRect(wnd, &rect); return rect; }
 		static RECT rectF(HWND wnd) { RECT rect = {}; DwmGetWindowAttribute(wnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(RECT)); return rect; }
-		static bool Rect(HWND wnd, RECT rect) { return SetWindowPos(wnd, 0, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER); }
+		static bool setRect(HWND wnd, RECT rect) { return SetWindowPos(wnd, 0, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, SWP_NOZORDER); }
 		static RECT childRect(HWND parent, HWND child) { RECT rParent = {}; RECT rChild = {}; GetWindowRect(parent, &rParent); GetWindowRect(child, &rChild); return { rChild.left - rParent.left, rChild.top - rParent.top, rChild.right - rParent.left, rChild.bottom - rParent.top }; }
 
 		static SIZE clientSize(HWND wnd) { RECT rect; GetClientRect(wnd, &rect); return { rect.right, rect.bottom }; }
@@ -101,15 +119,18 @@ namespace CG {
 		static RECT clientRect(HWND wnd) { RECT rect; GetClientRect(wnd, &rect); return rect; }
 		static RECT clientRectA(HWND wnd) { POINT point; ClientToScreen(wnd, &point); RECT rect; GetClientRect(wnd, &rect); return { point.x, point.y, point.x + rect.right, point.y + rect.bottom }; }
 
-		static bool UnTop(HWND wnd) { return SetWindowPos(wnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE); }
-		static bool Top(HWND wnd) { return SetWindowPos(wnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE); }
-		static bool TopMost(HWND wnd) { if (SetWindowPos(wnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE)) return SetWindowPos(wnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE); return 0; }
+		static bool setTop(HWND wnd, bool top = true)
+		{
+			if (top) return SetWindowPos(wnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+			return SetWindowPos(wnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+		}
+		static bool setTopMost(HWND wnd) { if (SetWindowPos(wnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE)) return SetWindowPos(wnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE); return 0; }
 
 		static long style(HWND wnd) { return GetWindowLongW(wnd, GWL_STYLE); }
-		static void Style(HWND wnd, long style, bool remove = false) { if (remove) SetWindowLongW(wnd, GWL_STYLE, GetWindowLongW(wnd, GWL_STYLE) & ~(style)); else SetWindowLongW(wnd, GWL_STYLE, GetWindowLongW(wnd, GWL_STYLE) | (style)); }
+		static void setStyle(HWND wnd, long style, bool remove = false) { if (remove) SetWindowLongW(wnd, GWL_STYLE, GetWindowLongW(wnd, GWL_STYLE) & ~(style)); else SetWindowLongW(wnd, GWL_STYLE, GetWindowLongW(wnd, GWL_STYLE) | (style)); }
 
 		static long exStyle(HWND wnd) { return GetWindowLongW(wnd, GWL_EXSTYLE); }
-		static void ExStyle(HWND wnd, long exStyle, bool remove = false) { if (remove) SetWindowLongW(wnd, GWL_EXSTYLE, GetWindowLongW(wnd, GWL_EXSTYLE) & ~(exStyle)); else SetWindowLongW(wnd, GWL_EXSTYLE, GetWindowLongW(wnd, GWL_EXSTYLE) | (exStyle)); }
+		static void setExStyle(HWND wnd, long exStyle, bool remove = false) { if (remove) SetWindowLongW(wnd, GWL_EXSTYLE, GetWindowLongW(wnd, GWL_EXSTYLE) & ~(exStyle)); else SetWindowLongW(wnd, GWL_EXSTYLE, GetWindowLongW(wnd, GWL_EXSTYLE) | (exStyle)); }
 
 		typedef List<HWND> HWNDS;
 		static uint32 FindChild(HWND parent, HWNDS& children)

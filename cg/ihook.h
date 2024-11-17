@@ -15,8 +15,8 @@ class InputHook
 	static inline bool keys[255] = {};
 
 	// return true: block
-	static bool CALLBACK InputProc(BYTE vkCode, bool press, POINT cursor, PULONG_PTR param);
-	static LRESULT CALLBACK MouseHook(int code, WPARAM msg, LPARAM param)
+	static bool _stdcall InputProc(BYTE key, bool press, POINT corsor, PULONG_PTR param);
+	static LRESULT _stdcall MouseHook(int code, WPARAM msg, LPARAM param)
 	{
 		PMSLLHOOKSTRUCT ms = (PMSLLHOOKSTRUCT)param;
 		if (mouseState)
@@ -80,7 +80,7 @@ class InputHook
 		}
 		return CallNextHookEx(mouseHook, code, msg, param);
 	}
-	static LRESULT CALLBACK KeybdHook(int code, WPARAM msg, LPARAM param)
+	static LRESULT _stdcall KeybdHook(int code, WPARAM msg, LPARAM param)
 	{
 		PKBDLLHOOKSTRUCT kb = (PKBDLLHOOKSTRUCT)param;
 		if (keybdState)
@@ -102,7 +102,7 @@ class InputHook
 		}
 		return CallNextHookEx(keybdHook, code, msg, param);
 	}
-	static DWORD CALLBACK HookThread(PVOID)
+	static DWORD _stdcall HookThread(void*)
 	{
 		mouseHook = SetWindowsHookExW(WH_MOUSE_LL, MouseHook, GetModuleHandleW(0), 0);
 		keybdHook = SetWindowsHookExW(WH_KEYBOARD_LL, KeybdHook, GetModuleHandleW(0), 0);

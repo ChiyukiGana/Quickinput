@@ -16,17 +16,17 @@ public:
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 
-		WidInit();
-		WidEvent();
+		Init();
+		Event();
 	}
-	void WidInit()
+	void Init()
 	{
 		program = QString::fromWCharArray(Path::ExpandEnvironment(EnvProgram).c_str());
 		ui.etPath->setText(program + "\\QuickInput");
 		ui.ckDesktop->setChecked(true);
 		ui.ckStart->setChecked(true);
 	}
-	void WidEvent()
+	void Event()
 	{
 		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
 		connect(ui.bnPath, SIGNAL(clicked()), this, SLOT(OnBnPath()));
@@ -37,7 +37,7 @@ private:
 	{
 		SetForegroundWindow((HWND)QWidget::winId());
 	}
-	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) msPos = et->pos(), mouseDown = true; et->accept(); }void mouseMoveEvent(QMouseEvent* et) { if (mouseDown) move(et->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* et) { if (et->button() == Qt::LeftButton) mouseDown = false; }
+	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) msPos = e->pos(), mouseDown = true; e->accept(); }void mouseMoveEvent(QMouseEvent* e) { if (mouseDown) move(e->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) mouseDown = false; }
 private Q_SLOTS:
 	void OnBnClose()
 	{

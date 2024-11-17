@@ -5,22 +5,26 @@
 #include <time.h>
 #include <windows.h>
 
-typedef std::uint8_t byte;
-typedef std::int8_t int8;
-typedef std::uint8_t uint8;
-typedef std::int16_t int16;
-typedef std::uint16_t uint16;
-typedef std::int32_t int32;
-typedef std::uint32_t uint32;
-typedef std::int64_t int64;
-typedef std::uint64_t uint64;
+namespace typedefs
+{
+	typedef std::uint8_t byte;
+	typedef std::int8_t int8;
+	typedef std::uint8_t uint8;
+	typedef std::int16_t int16;
+	typedef std::uint16_t uint16;
+	typedef std::int32_t int32;
+	typedef std::uint32_t uint32;
+	typedef std::int64_t int64;
+	typedef std::uint64_t uint64;
 
-#ifdef _M_AMD64
-typedef std::uint64_t pointer;
-#else _M_IX86
-typedef std::uint32_t pointer;
-#endif // _M_AMD64 
+	#ifdef _M_AMD64
+	typedef std::uint64_t pointer;
+	#else _M_IX86
+	typedef std::uint32_t pointer;
+	#endif // _M_AMD64 
+}
 
+using namespace typedefs;
 
 #define int8Max ((int8)0x7F)
 #define int8Min ((int8)0x80)
@@ -132,7 +136,7 @@ namespace CG {
 	{
 		clock_t end = 0;
 	public:
-		TimeOut(clock_t ms) { set(ms); }
+		TimeOut(clock_t ms = clock()) { set(ms); }
 		void set(clock_t ms) { end = clock() + ms; }
 		bool get() const { if(clock() - end < 0) return true; return false; }
 		clock_t out() { clock_t out = clock() - end; if (out > 0) return out; return 0; }

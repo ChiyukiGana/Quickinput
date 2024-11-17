@@ -8,6 +8,7 @@
 namespace CG {
 	struct _RGB_ { byte r; byte g; byte b; };
 	struct _BGR_ { byte b; byte g; byte r; };
+	struct _ARGB_ { byte a; byte r; byte g; byte b; };
 	struct _RGBA_ { byte r; byte g; byte b; byte a; };
 	struct _ABGR_ { byte a; byte b; byte g; byte r; };
 	struct _BGRA_ { byte b; byte g; byte r; byte a; };

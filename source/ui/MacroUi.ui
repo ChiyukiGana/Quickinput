@@ -31,9 +31,6 @@
   <property name="windowTitle">
    <string>Macro</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true">*{color:black;border:none;outline:none;font-size:12px;font-family:&quot;Microsoft YaHei&quot;}QMainWindow,QDialog{border:1px solid gray}QMenu,QToolTip,QLineEdit,QTextEdit,QKeyEdit,QCheckBox::indicator,QRadioButton::indicator,QHeaderView,QHeaderView::section,QTableWidget,QTableWidget QTableCornerButton::section,QComboBox,QComboBox QAbstractItemView{background-color:white}QPushButton,QTabBar::tab,QTabBar::tab:first,QTabBar::tab:last,QToolBox::tab{background-color:#ADE}QCheckBox::indicator,QRadioButton::indicator{width:20px;height:20px}QComboBox{padding-left:3px}QMenu::item:selected,QPushButton:hover,QCheckBox::indicator:hover,QRadioButton::indicator:hover,QTableWidget::item:hover,QTabBar::tab:hover,QTabBar::tab:first:hover,QTabBar::tab:last:hover{background-color:#BEF;color:black}QTableWidget::item:selected{background-color:#CEF;color:black}QTabBar::tab:selected,QTabBar::tab:first:selected,QTabBar::tab:last:selected{background-color:#CEF;color:black}QCheckBox::indicator:checked,QRadioButton::indicator:checked{image:url(:/checked.png)}QPushButton:disabled,QCheckBox:disabled,QRadioButton:disabled{color:gray}#bnWndSelect,#bnPos,#bnColorRect,#bnImageRect,#bnImageShot{background-color:white}#titleWidget{background-color:white}#titleWidget *{font-size:14px}#clientWidget,QTabWidget&gt;QWidget,QToolBox&gt;QWidget{background-color:#CEF}</string>
-  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="spacing">
     <number>0</number>
@@ -99,7 +96,6 @@
           <property name="font">
            <font>
             <family>Microsoft YaHei</family>
-            <pointsize>-1</pointsize>
             <weight>75</weight>
             <bold>true</bold>
            </font>
@@ -160,7 +156,6 @@
             <property name="font">
              <font>
               <family>Microsoft YaHei</family>
-              <pointsize>-1</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -205,7 +200,6 @@
             <property name="font">
              <font>
               <family>Microsoft YaHei</family>
-              <pointsize>-1</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -238,7 +232,6 @@
             <property name="font">
              <font>
               <family>Microsoft YaHei</family>
-              <pointsize>-1</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -271,7 +264,6 @@
             <property name="font">
              <font>
               <family>Microsoft YaHei</family>
-              <pointsize>-1</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -304,7 +296,6 @@
             <property name="font">
              <font>
               <family>Microsoft YaHei</family>
-              <pointsize>-1</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -337,7 +328,6 @@
             <property name="font">
              <font>
               <family>Microsoft YaHei</family>
-              <pointsize>-1</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -370,7 +360,6 @@
             <property name="font">
              <font>
               <family>Microsoft YaHei</family>
-              <pointsize>-1</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -403,7 +392,6 @@
             <property name="font">
              <font>
               <family>Microsoft YaHei</family>
-              <pointsize>-1</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
@@ -436,7 +424,6 @@
             <property name="font">
              <font>
               <family>Microsoft YaHei</family>
-              <pointsize>-1</pointsize>
               <weight>75</weight>
               <bold>true</bold>
              </font>
