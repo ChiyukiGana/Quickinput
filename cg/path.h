@@ -9,61 +9,36 @@ public:
     /* "C:\A\1.exe" - n  >  -n */
     static std::wstring args(std::wstring path)
     {
-        size_t size = path.size();
-        wchar_t* s = new wchar_t[size + 1];
-        wcscpy_s(s, size + 1, path.c_str());
-        s[size] = L'\0';
-        path = PathGetArgsW(s);
-        delete[] s;
-        return path;
+        wchar_t s[MAX_PATH]; wcscpy_s(s, MAX_PATH, path.c_str());
+        return PathGetArgsW(s);
     }
     /* "C:\A\1.exe"  >  "C:\A" */
     static std::wstring RemoveFile(std::wstring path)
     {
-        size_t size = path.size();
-        wchar_t* s = new wchar_t[size + 1];
-        wcscpy_s(s, size + 1, path.c_str());
-        s[size] = L'\0';
+        wchar_t s[MAX_PATH]; wcscpy_s(s, MAX_PATH, path.c_str());
         PathRemoveFileSpecW(s);
-        path = s;
-        delete[] s;
-        return path;
+        return s;
     }
     /* "C:\A\1.exe" -n  >  "C:\A\1.exe" */
     static std::wstring RemoveArgs(std::wstring path)
     {
-        size_t size = path.size();
-        wchar_t* s = new wchar_t[size + 1];
-        wcscpy_s(s, size + 1, path.c_str());
-        s[size] = L'\0';
+        wchar_t s[MAX_PATH]; wcscpy_s(s, MAX_PATH, path.c_str());
         PathRemoveArgsW(s);
-        path = s;
-        delete[] s;
-        return path;
+        return s;
     }
     /* " C:\A\1.exe "  >  "C:\A\1.exe" */
     static std::wstring RemoveBlanks(std::wstring path)
     {
-        size_t size = path.size();
-        wchar_t* s = new wchar_t[size + 1];
-        wcscpy_s(s, size + 1, path.c_str());
-        s[size] = L'\0';
+        wchar_t s[MAX_PATH]; wcscpy_s(s, MAX_PATH, path.c_str());
         PathRemoveBlanksW(s);
-        path = s;
-        delete[] s;
-        return path;
+        return s;
     }
     /* "C:\A\"  >  "C:\A" */
     static std::wstring RemoveBackslash(std::wstring path)
     {
-        size_t size = path.size();
-        wchar_t* s = new wchar_t[size + 1];
-        wcscpy_s(s, size + 1, path.c_str());
-        s[size] = L'\0';
+        wchar_t s[MAX_PATH]; wcscpy_s(s, MAX_PATH, path.c_str());
         PathRemoveBackslashW(s);
-        path = s;
-        delete[] s;
-        return path;
+        return s;
     }
     /* "C:\A\1.exe"  >  "C:/A/1.exe" */
     static std::wstring PathToUrl(std::wstring path)
@@ -91,6 +66,7 @@ public:
     }
 
     static bool PathState(std::wstring path) { if (_waccess(path.c_str(), 0)) return false; return true; }
+
     /* "C:\A\1.exe"  >  "1.exe" */
     static std::wstring Last(std::wstring path) {
         size_t p =path.find_last_of(L"\\");

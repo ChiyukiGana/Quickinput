@@ -106,6 +106,7 @@ private:
 			ui.etTime->setValidator(new QIntValidator(0, delayMax, this));
 			ui.etDelayRand->setValidator(new QIntValidator(0, delayRandMax, this));
 			ui.etCount->setValidator(new QIntValidator(0, loopCountMax, this));
+			ui.etCountRand->setValidator(new QIntValidator(0, loopCountMax, this));
 			ui.etR->setValidator(new QIntValidator(0, colorMax, this));
 			ui.etG->setValidator(new QIntValidator(0, colorMax, this));
 			ui.etB->setValidator(new QIntValidator(0, colorMax, this));
@@ -336,7 +337,20 @@ private:
 			case Action::_loop:
 			{
 				ui.tbActions->setItem(u, 0, new QTableWidgetItem(UI::acLoop));
-				if (ep.actions[0][u].loop.count) ps = QString::number(ep.actions[0][u].loop.count);
+				if (ep.actions[0][u].loop.count)
+				{
+					ps = QString::number(ep.actions[0][u].loop.count);
+					if (ep.actions[0][u].loop.rand)
+					{
+						ps += u8" ~ ";
+						ps += QString::number(ep.actions[0][u].loop.rand);
+					}
+				}
+				else if (ep.actions[0][u].loop.rand)
+				{
+					ps += u8"0 ~ ";
+					ps += QString::number(ep.actions[0][u].loop.rand);
+				}
 				else ps = u8"无限";
 			}
 			break;
@@ -829,6 +843,7 @@ private: // Widget data
 	void SetEtColorValue(Rgba color) { ui.etR->setText(QString::number(color.r)); ui.etG->setText(QString::number(color.g)); ui.etB->setText(QString::number(color.b)); ui.etCX->setText(QString::number(color.a)); }
 	void SetColor(Rgba color) { ui.etR->setText(QString::number(color.r)); ui.etG->setText(QString::number(color.g)); ui.etB->setText(QString::number(color.b)); }
 	void SetEtLoopCount(uint32 count) { ui.etCount->setText(QString::number(count)); }
+	void SetEtLoopCountRand(uint32 count) { ui.etCountRand->setText(QString::number(count)); }
 	
 	// Get data by Wid
 	Action GetKey() {
@@ -909,11 +924,19 @@ private: // Widget data
 	Action GetLoop()
 	{
 		Action action(Action::_loop);
-		int i = 0;
-		if (ui.etCount->text() == "") i = 1;
-		else i = ui.etCount->text().toInt();
-		if (i > loopCountMax) i = loopCountMax;
-		action.loop.count = i;
+		{
+			int i = 1;
+			if (ui.etCount->text() != "") i = ui.etCount->text().toInt();
+			if (i > loopCountMax) i = loopCountMax;
+			action.loop.count = i;
+		}
+		{
+			int i = 0;
+			if (ui.etCountRand->text() != "") i = ui.etCountRand->text().toInt();
+			if (i > loopCountMax) i = loopCountMax;
+			if (i < action.loop.count) i = action.loop.count;
+			action.loop.rand = i;
+		}
 		return action;
 	}
 
@@ -946,5 +969,5 @@ private: // Widget data
 	void LoadDelay(const Action& action) { SetEtDelay({ (long)action.delay.ms, (long)action.delay.ex }); }
 	void LoadText(const Action& action) { ui.etText->setText(QString::fromWCharArray(action.text.str.str)); }
 	void LoadColor(const Action& action) { SetRbColorMode(action.color.unfind); SetChbColorMove(action.color.move); SetEtColorRect(action.color.rect); SetEtColorValue(action.color.rgbe); }
-	void LoadLoop(const Action& action) { SetEtLoopCount(action.loop.count); }
+	void LoadLoop(const Action& action) { SetEtLoopCount(action.loop.count); SetEtLoopCountRand(action.loop.rand); }
 };
