@@ -2,83 +2,28 @@
 #include <QString>
 #include <QFont>
 #include <QWidget>
+#include <QApplication>
 #include "../cg/cg.h"
 
 // Change to your Qt directory
 #ifdef DEBUG
-#pragma comment(lib, "C:/Qt32/lib/Qt5WinExtrasd.lib")
+#pragma comment(lib, "D:/Qt/32/lib/Qt5WinExtrasd.lib")
 #else
-#pragma comment(lib, "C:/Qt32s/lib/Qt5WinExtras.lib")
+#pragma comment(lib, "D:/Qt/32s/lib/Qt5WinExtras.lib")
 #endif
 
-struct UI
-{
-	static QString syOn;
-	static QString syOff;
-	static QString syOk;
-	static QString syYes;
-	static QString syNot;
-	static QString syStop;
-	static QString syShow;
-	static QString syHide;
-	static QString syOption;
-	static QString syLink;
-	static QString syEdit;
-	static QString syUp;
-	static QString syDown;
-	static QString syTurn;
-	static QString syLeft;
-	static QString syTop;
-	static QString syRight;
-	static QString syMove;
-	static QString syTime;
-	static QString syText;
-	static QString syLoop;
-	static QString syColor;
-	static QString syImage;
+#define MacroPath L"macro\\"
+#define MacroType L".json"
 
-	static std::wstring qiOn;
-	static std::wstring qiOff;
-	static QString muOn;
-	static QString muOff;
-	static QString muShow;
-	static QString muHide;
-	static QString muExit;
-	static QString acWait;
-	static QString acDown;
-	static QString acUp;
-	static QString acClick;
-	static QString acPos;
-	static QString acMove;
-	static QString acLoop;
-	static QString acText;
-	static QString acColor;
-	static QString acEnd;
-	static QString acEndLoop;
-	static QString acKeyState;
-	static QString acRecoverPos;
-	static QString acImage;
-	static QString acPopText;
-	static QString trOn;
-	static QString trOff;
-	static QString etChange;
-	static QString etAdd;
-	static QString etDel;
-	static QString etEdit;
-	static QString etFunc;
-	static QString etParam;
-	static QString rcStart;
-	static QString rcStop;
-	static QString rcClose;
+enum QiEvent
+{
+	recStart = QEvent::User + 1,
+	recStop = QEvent::User + 2,
+	recClose = QEvent::User + 3,
+	setTheme = QEvent::User + 4
 };
 
-struct Style
-{
-	QString name;
-	QString style;
-};
-typedef List<Style> Styles;
-
+////////////////// Window
 struct ChildWindow
 {
 	HWND wnd; // child
@@ -103,13 +48,13 @@ struct WndInfo
 };
 struct WndLock
 {
-	static HANDLE thread;
-	static DWORD CALLBACK LockThread(PVOID wnd)
+	static inline HANDLE thread;
+	static DWORD _stdcall LockThread(PVOID wnd)
 	{
 		while (IsWindowVisible((HWND)wnd)) {
 			RECT rect = Window::rect((HWND)wnd);
 			ClipCursor(&rect);
-			sleep(10);
+			Thread::Sleep(10);
 		}
 		thread = 0;
 		return 0;
@@ -129,9 +74,10 @@ struct WndLock
 		ClipCursor(0);
 	}
 };
+////////////////// #Actions
 
-extern struct Action;
-typedef List<Action> Actions;
+////////////////// Actions
+extern struct Action; typedef List<Action> Actions;
 struct QiDelay { uint32 ms; uint32 ex; };
 struct QiKey { enum { up, down, click }; uint32 vk = 0; uint32 state = down; };
 struct QiMouse { int32 x = 0; int32 y = 0; uint32 ex = 0; bool move = false; };
@@ -258,6 +204,7 @@ struct Action
 		memset(&d, 0, sizeof(Data));
 	}
 };
+////////////////// #Actions
 
 struct Macro
 {
@@ -283,6 +230,7 @@ struct Macro
 };
 typedef List<Macro> Macros;
 
+////////////////// Datas
 struct QuickClick
 {
 	bool state = 0;
@@ -304,7 +252,7 @@ struct WndActive
 };
 struct SettingsData
 {
-	uint32 style = 0;
+	uint32 theme = 0;
 	uint32 key = 0;
 	uint32 recKey = 0;
 	bool defOn = 0;
@@ -319,34 +267,108 @@ struct FuncData
 	ShowClock showClock;
 	WndActive wndActive;
 };
+struct Widget
+{
+	QWidget* main = 0;
+	QWidget* record = 0;
+};
+////////////////// #Datas
 
+struct Theme { QString name; QString style; }; typedef List<Theme> Themes;
+struct QuickInputUi
+{
+	QString syOn;
+	QString syOff;
+	QString syOk;
+	QString syYes;
+	QString syNot;
+	QString syStop;
+	QString syShow;
+	QString syHide;
+	QString syOption;
+	QString syLink;
+	QString syEdit;
+	QString syUp;
+	QString syDown;
+	QString syTurn;
+	QString syLeft;
+	QString syTop;
+	QString syRight;
+	QString syMove;
+	QString syTime;
+	QString syText;
+	QString syLoop;
+	QString syColor;
+	QString syImage;
+
+	std::wstring qiOn;
+	std::wstring qiOff;
+	QString muOn;
+	QString muOff;
+	QString muShow;
+	QString muHide;
+	QString muExit;
+	QString acWait;
+	QString acDown;
+	QString acUp;
+	QString acClick;
+	QString acPos;
+	QString acMove;
+	QString acLoop;
+	QString acText;
+	QString acColor;
+	QString acEnd;
+	QString acEndLoop;
+	QString acKeyState;
+	QString acRecoverPos;
+	QString acImage;
+	QString acPopText;
+	QString trOn;
+	QString trOff;
+	QString etChange;
+	QString etAdd;
+	QString etDel;
+	QString etEdit;
+	QString etFunc;
+	QString etParam;
+	QString rcStart;
+	QString rcStop;
+	QString rcClose;
+};
 struct QuickInputStruct
 {
-	bool state = 0;
-	bool run = 0;
+	bool state = false;
+	bool run = false;
+
+	bool recordState = false;
+	bool recording = false;
+	clock_t recordClock = 0;
+	HWND recordWindow = 0;
+	Actions record;
+
 	Actions clipboard;
 	Macros macros;
+
 	FuncData fun;
 	SettingsData set;
-	QWidget* main = 0;
-	QWidget* rec = 0;
 
-	Styles styles;
+	Widget widget;
 
-	LPCWSTR path = L"macro\\";
-	HDC hdc = GetDC(0);
-	SIZE screen = System::screenSize();
+	HDC hdc = 0;
+	SIZE screen = {};
+
+	byte keyState[255];
+	List<byte> blockKeys;
+
+	Themes themes;
+	QuickInputUi ui;
 
 	void ReScreen()
 	{
-		ReleaseDC(0, hdc);
+		if (hdc) ReleaseDC(0, hdc);
 		hdc = GetDC(0);
 		screen = System::screenSize();
 	}
 };
 
-struct Global {
-	static QuickInputStruct qi;
-	static List<byte> trBlock;
-	static byte keyState[255];
-};
+inline QuickInputStruct qis;

@@ -2,7 +2,7 @@
 #include <qevent.h>
 #include <qfiledialog.h>
 #include "ui_InstallUi.h"
-#include "../static.h"
+#include "header.h"
 
 class InstallUi : public QDialog
 {

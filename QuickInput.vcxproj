@@ -36,16 +36,16 @@
     <Import Project="$(QtMsBuild)\qt_defaults.props" />
   </ImportGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'" Label="QtSettings">
-    <QtInstall>5.15.11s</QtInstall>
+    <QtInstall>32s</QtInstall>
     <QtModules>core;widgets</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
-    <QtPlugin>true</QtPlugin>
+    <QtToolsDesignTime>false</QtToolsDesignTime>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="QtSettings">
-    <QtInstall>5.15.2</QtInstall>
+    <QtInstall>32</QtInstall>
     <QtModules>core;widgets</QtModules>
     <QtBuildConfig>debug</QtBuildConfig>
-    <QtPlugin>true</QtPlugin>
+    <QtToolsDesignTime>false</QtToolsDesignTime>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
     <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
@@ -62,11 +62,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'">
-    <OutDir>$(Configuration)\Application</OutDir>
+    <OutDir>$(Configuration)\Application\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">
-    <OutDir>$(Configuration)\Application</OutDir>
+    <OutDir>$(Configuration)\Application\</OutDir>
     <IntDir>$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -78,6 +78,7 @@
     <ClCompile>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Manifest>
       <AdditionalManifestFiles>manifest.xml</AdditionalManifestFiles>
@@ -87,6 +88,7 @@
     <ClCompile>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
@@ -136,57 +138,6 @@
     <QtUic Include=".ui\TriggerUi.ui" />
   </ItemGroup>
   <ItemGroup>
-    <QtMoc Include=".h\AboutUi.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include=".h\EditUi.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include=".h\FuncUi.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include=".h\InstallUi.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include=".h\MacroUi.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include=".h\MainUi.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include=".h\MoreUi.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include=".h\QColorSelection.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include=".h\QKeyEdit.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include=".h\QPointSelection.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include=".h\QPointView.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include=".h\QRectSelection.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include=".h\QRectView.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include=".h\QuickInputDef.h" />
-    <ClInclude Include=".h\TipsWindow.h" />
-    <ClInclude Include="static.h" />
-    <QtMoc Include=".h\TriggerUi.h" />
-    <QtMoc Include=".h\SettingsUi.h" />
-    <QtMoc Include=".h\RecordUi.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="static.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <Image Include=".res\about.png" />
     <Image Include=".res\checked.png" />
     <Image Include=".res\icon.ico" />
@@ -202,6 +153,63 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include=".res\QuickInput.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include=".src\InputHook.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".src\ui\AboutUi.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".src\ui\EditUi.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".src\ui\FuncUi.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".src\ui\InstallUi.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".src\ui\MacroUi.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".src\ui\MainUi.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".src\ui\MoreUi.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".src\ui\QKeyEdit.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".src\ui\RecordUi.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".src\ui\SettingsUi.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".src\ui\TriggerUi.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".src\widget\QColorSelection.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".src\widget\QPointSelection.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".src\widget\QPointView.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".src\widget\QRectSelection.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include=".src\widget\QRectView.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include=".src\func.h" />
+    <ClInclude Include=".src\MsgPop.h" />
+    <ClInclude Include=".src\type.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

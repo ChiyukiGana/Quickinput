@@ -28,6 +28,10 @@ typedef unsigned __int64 uint64;
 #define int64Min ((int64)0x8000000000000000)
 #define uint64Max ((uint64)0xFFFFFFFFFFFFFFFF)
 
+#define AlignmentSize(num, size) ((num%size)?(num+(size-(num%size))):(num))
+
+#define forxy(xmax, ymax) for (size_t y = 0, ym = ymax; y < ym; y++) for (size_t x = 0, xm = xmax; x < xm; x++)
+#define forxyx(xnam, ynam, xmin, ymin, xmax, ymax) for (size_t ynam = ymin, ym = ymax; ynam < ym; ynam++) for (size_t xnam = xmin, xm = xmax; xnam < xm; xnam++)
 #define forlt(xmax, ymax) for (int32 x = 0, y = 0, xs = 0, ys = 0, xm = xmax, ym = ymax; x <= xm && y <= ym; xs < xm -1?xs++:ys++) for (x = xs, y = ys; x >= 0 && x < xm && y < ym; x--, y++)
 #define forltx(xnam, ynam, xmin, ymin, xmax, ymax) for (int32 xnam = 0, ynam = 0, xs = xmin, ys = ymin, xm = xmax, ym = ymax; xnam <= xm && ynam <= ym; xs < xm -1?xs++:ys++) for (xnam = xs, ynam = ys; xnam >= 0 && xnam < xm && ynam < ym; xnam--, ynam++)
 
@@ -80,15 +84,12 @@ namespace CG {
 		}
 	}
 
-	static bool InRange(int num, int _min, int _max, int extent) { return ((num >= _min - extent) && (num <= _max + extent)); }
-	static bool InRange(int num, int refer, int extend) { return (num <= (refer + extend)) && (num >= (refer - extend)); }
-	static bool InRect(RECT rect, int x, int y, int extend = 0) { if (x >= rect.left - extend && x <= rect.right + extend && y >= rect.top - extend && y <= rect.bottom + extend) return true; return false; }
-	static bool InRect(RECT rect, POINT pt, int extend = 0) { if (pt.x >= rect.left - extend && pt.x <= rect.right + extend && pt.y >= rect.top - extend && pt.y <= rect.bottom + extend) return true; return false; }
-	static POINT PointInRect(RECT rect, POINT pt, int extend = 0) {
-		if (pt.x >= rect.left - extend && pt.x <= rect.right + extend && pt.y >= rect.top - extend && pt.y <= rect.bottom + extend)
-			return { pt.x - rect.left, pt.y - rect.top };
-		return { -1, -1 };
-	}
+	static bool InRange(const int& num, const int& _min, const int& _max, const int& extent) { return ((num >= _min - extent) && (num <= _max + extent)); }
+	static bool InRange(const int& num, const int& refer, const int& extend) { return (num <= (refer + extend)) && (num >= (refer - extend)); }
+	static bool InRect(const RECT& rect, const int& x, const int& y) { if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) return false; return true; }
+	static bool InRect(const RECT& rect, const POINT& pt) { if (pt.x < rect.left || pt.x > rect.right && pt.y < rect.top || pt.y > rect.bottom) return false; return true; }
+	static bool InRect(const RECT& rectParent, const RECT& rectChild) { if (rectChild.left < rectParent.left || rectChild.top < rectParent.top || rectChild.right > rectParent.right || rectChild.bottom > rectParent.bottom) return false; return true; }
+	static POINT InRectPos(const RECT& rect, const POINT& pt) { if (pt.x >= rect.left && pt.x <= rect.right && pt.y >= rect.top && pt.y <= rect.bottom ) return { pt.x - rect.left, pt.y - rect.top }; return { -1, -1 }; }
 	
 	static RECT RectAbs(RECT rect) {
 		if (rect.left > rect.right) std::swap(rect.left, rect.right);
@@ -104,7 +105,7 @@ namespace CG {
 		return { rect.right + 1, rect.bottom + 1 };
 	}
 
-	static uint32 RectArea(RECT rect)
+	static uint32 RectArea(const RECT& rect)
 	{
 		SIZE size = RectSize(rect);
 		return size.cx * size.cy;

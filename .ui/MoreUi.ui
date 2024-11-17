@@ -457,7 +457,7 @@ QPushButton:hover{background-color:#C00;}</string>
            <x>0</x>
            <y>0</y>
            <width>756</width>
-           <height>2611</height>
+           <height>2696</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -496,7 +496,12 @@ QPushButton:hover{background-color:#C00;}</string>
              </font>
             </property>
             <property name="text">
-             <string>2024-5-8
+             <string>2024-5-23
+ㅤㅤ1：修复查找图像错误
+ㅤㅤ2：查找图像移动从左上角改为到中心
+2024-5-11
+ㅤㅤ1：优化输入处理，在不启用时不会占用输入，减少延迟
+2024-5-8
 ㅤㅤ1：增加查找图像
 ㅤㅤ2：增加弹出文字
 ㅤㅤ3：增加编辑的测试运行

@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <qevent.h>
 #include "ui_MoreUi.h"
-#include "../static.h"
+#include "header.h"
 
 class MoreUi : public QDialog
 {
@@ -20,9 +20,9 @@ public:
 
 	void ReStyle()
 	{
-		setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
-		ui.lbHowUseText->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
-		ui.lbLogText->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
+		setStyleSheet(qis.themes[qis.set.theme].style);
+		ui.lbHowUseText->setStyleSheet(qis.themes[qis.set.theme].style);
+		ui.lbLogText->setStyleSheet(qis.themes[qis.set.theme].style);
 	}
 
 private:

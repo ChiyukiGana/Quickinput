@@ -77,11 +77,12 @@ namespace CG {
 		}
 
 		//size: pixel, weight: 0 ~ 900, font: name
-		static HFONT setFont(UINT size, USHORT weight = 0, LPCWSTR font = L"Microsoft YaHei") { return CreateFontW(size, 0, 0, 0, weight, 0, 0, 0, UNICODE, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, font); }
+		static HFONT Font(UINT size, USHORT weight = 0, LPCWSTR font = L"Microsoft YaHei") { return CreateFontW(size, 0, 0, 0, weight, 0, 0, 0, UNICODE, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_SWISS, font); }
 
 		static bool Redraw(HWND wnd) { return RedrawWindow(wnd, 0, 0, RDW_ERASE | RDW_INVALIDATE); }
 
-		static SIZE size(HWND wnd) { RECT rect = {}; DwmGetWindowAttribute(wnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(RECT)); return { rect.right - rect.left, rect.bottom - rect.top }; }
+		static SIZE size(HWND wnd) { RECT rect = {}; GetWindowRect(wnd, &rect); return { rect.right - rect.left, rect.bottom - rect.top }; }
+		static SIZE sizeF(HWND wnd) { RECT rect = {}; DwmGetWindowAttribute(wnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(RECT)); return { rect.right - rect.left, rect.bottom - rect.top }; }
 		static bool Size(HWND wnd, SIZE size) { return SetWindowPos(wnd, 0, 0, 0, size.cx, size.cy, SWP_NOMOVE | SWP_NOZORDER); }
 		static bool Size(HWND wnd, int cx, int cy) { return SetWindowPos(wnd, 0, 0, 0, cx, cy, SWP_NOMOVE | SWP_NOZORDER); }
 
@@ -105,10 +106,10 @@ namespace CG {
 		static bool TopMost(HWND wnd) { if (SetWindowPos(wnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE)) return SetWindowPos(wnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE); return 0; }
 
 		static long style(HWND wnd) { return GetWindowLongW(wnd, GWL_STYLE); }
-		static void Style(HWND wnd, long style, bool remove = 0) { if (remove) SetWindowLongW(wnd, GWL_STYLE, GetWindowLongW(wnd, GWL_STYLE) & ~(style)); else SetWindowLongW(wnd, GWL_STYLE, GetWindowLongW(wnd, GWL_STYLE) | (style)); }
+		static void Style(HWND wnd, long style, bool remove = false) { if (remove) SetWindowLongW(wnd, GWL_STYLE, GetWindowLongW(wnd, GWL_STYLE) & ~(style)); else SetWindowLongW(wnd, GWL_STYLE, GetWindowLongW(wnd, GWL_STYLE) | (style)); }
 
 		static long exStyle(HWND wnd) { return GetWindowLongW(wnd, GWL_EXSTYLE); }
-		static void ExStyle(HWND wnd, long exStyle, bool remove = 0) { if (remove) SetWindowLongW(wnd, GWL_EXSTYLE, GetWindowLongW(wnd, GWL_EXSTYLE) & ~(exStyle)); else SetWindowLongW(wnd, GWL_EXSTYLE, GetWindowLongW(wnd, GWL_EXSTYLE) | (exStyle)); }
+		static void ExStyle(HWND wnd, long exStyle, bool remove = false) { if (remove) SetWindowLongW(wnd, GWL_EXSTYLE, GetWindowLongW(wnd, GWL_EXSTYLE) & ~(exStyle)); else SetWindowLongW(wnd, GWL_EXSTYLE, GetWindowLongW(wnd, GWL_EXSTYLE) | (exStyle)); }
 
 		typedef List<HWND> HWNDS;
 		static uint32 FindChild(HWND parent, HWNDS& children)

@@ -7,7 +7,7 @@
 #include "SettingsUi.h"
 #include "AboutUi.h"
 #include "ui_MainUi.h"
-#include "../static.h"
+#include "header.h"
 
 class MainUi : public QMainWindow
 {
@@ -27,6 +27,7 @@ class MainUi : public QMainWindow
 public:
 	MainUi() : QMainWindow()
 	{
+		qis.widget.main = this;
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		WidInit();
@@ -36,9 +37,8 @@ public:
 	void ReStyle()
 	{
 		setStyleSheet("");
-		setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
-		
-		menu->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
+		setStyleSheet(qis.themes[qis.set.theme].style);
+		menu->setStyleSheet(qis.themes[qis.set.theme].style);
 		wm->ReStyle();
 		wt->ReStyle();
 		wf->ReStyle();
@@ -50,11 +50,11 @@ private:
 	void MenuInit()
 	{
 		menu = new QMenu(this);
-		QAction* tnon = new QAction(UI::muOn, this);
-		QAction* tnoff = new QAction(UI::muOff, this);
-		QAction* show = new QAction(UI::muShow, this);
-		QAction* hide = new QAction(UI::muHide, this);
-		QAction* exit = new QAction(UI::muExit, this);
+		QAction* tnon = new QAction(qis.ui.muOn, this);
+		QAction* tnoff = new QAction(qis.ui.muOff, this);
+		QAction* show = new QAction(qis.ui.muShow, this);
+		QAction* hide = new QAction(qis.ui.muHide, this);
+		QAction* exit = new QAction(qis.ui.muExit, this);
 		menu->addAction(tnon);
 		menu->addAction(tnoff);
 		menu->addAction(show);
@@ -91,23 +91,25 @@ private:
 		MenuInit();
 	}
 
+	void customEvent(QEvent* et)
+	{
+		if (et->type() == QiEvent::setTheme) ReStyle();
+	}
+
 	bool event(QEvent* et)
 	{
-		if (et->type() == QEvent::User)
+
+		if (et->type() == QEvent::WindowActivate)
 		{
-			ReStyle();
-		}
-		else if (et->type() == QEvent::WindowActivate)
-		{
-			if (Global::qi.state) QiState(false);
-			HookState(false);
+			if (qis.state) QiFn::QiState(false);
+			QiFn::QiHook(false);
 		}
 		else if (et->type() == QEvent::WindowDeactivate)
 		{
 			if (!((MacroUi*)wm)->working && !((FuncUi*)wf)->working)
 			{
-				if (Global::qi.set.defOn) QiState(true);
-				HookState(true);
+				if (qis.set.defOn) QiFn::QiState(true);
+				QiFn::QiHook(true);
 			}
 		}
 		return QWidget::event(et);
@@ -119,8 +121,8 @@ private:
 
 private slots:
 	void OnTrayClick(QSystemTrayIcon::ActivationReason reason) { if (reason == QSystemTrayIcon::Trigger) setWindowState(Qt::WindowNoState), show(); }
-	void OnMenuTnon() { if (!((MacroUi*)wm)->working && !((FuncUi*)wf)->working) QiState(1), HookState(1); }
-	void OnMenuTnoff() { QiState(0); HookState(0); }
+	void OnMenuTnon() { if (!((MacroUi*)wm)->working && !((FuncUi*)wf)->working) QiFn::QiFn::QiState(true), QiFn::QiHook(true); }
+	void OnMenuTnoff() { QiFn::QiState(false); QiFn::QiHook(false); }
 	void OnMenuShow() { setWindowState(Qt::WindowNoState), show(); }
 	void OnMenuHide() { hide(); }
 	void OnMenuExit() { exit(0); }

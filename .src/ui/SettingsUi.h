@@ -1,13 +1,13 @@
 ﻿#pragma once
 #include <qevent.h>
 #include "ui_SettingsUi.h"
-#include "../static.h"
+#include "header.h"
 
 class SettingsUi : public QWidget
 {
 	Q_OBJECT;
 	Ui::SettingsUiClass ui;
-	SettingsData* sets = &Global::qi.set;
+	SettingsData* sets = &qis.set;
 
 public:
 	SettingsUi(QWidget* parent) : QWidget(parent)
@@ -22,20 +22,17 @@ public:
 
 	void ReStyle()
 	{
-		ui.clientWidget->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
-		ui.hkKey->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
-		ui.hkRec->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
+		ui.clientWidget->setStyleSheet(qis.themes[qis.set.theme].style);
+		ui.hkKey->setStyleSheet(qis.themes[qis.set.theme].style);
+		ui.hkRec->setStyleSheet(qis.themes[qis.set.theme].style);
 	}
 
 private:
 	void WidInit()
 	{
-		for (size_t i = 0; i < Global::qi.styles.size(); i++)
-		{
-			ui.cmbTheme->addItem(Global::qi.styles[i].name);
-		}
-		if (Global::qi.set.style >= Global::qi.styles.size()) Global::qi.set.style = 0;
-		ui.cmbTheme->setCurrentIndex(Global::qi.set.style);
+		for (size_t i = 0; i < qis.themes.size(); i++) ui.cmbTheme->addItem(qis.themes[i].name);
+		if (qis.set.theme >= qis.themes.size()) qis.set.theme = 0;
+		ui.cmbTheme->setCurrentIndex(qis.set.theme);
 
 		ui.hkKey->Mode(2);
 		ui.hkRec->Mode(0);
@@ -67,34 +64,38 @@ private slots:
 
 	void OnCmbTheme(int item)
 	{
-		if (Global::qi.set.style != item)
+		if (qis.set.theme != item)
 		{
-			Global::qi.set.style = item;
-			QApplication::sendEvent(Global::qi.main, new QEvent(QEvent::Type::User));
-			SaveJson();
+			qis.set.theme = item;
+			QApplication::sendEvent(qis.widget.main, new QEvent((QEvent::Type)QiEvent::setTheme));
+			QiFn::SaveJson();
 		}
 	}
 	void OnHkKey() {
-		sets->key = ui.hkKey->virtualKey();
-		if (ui.hkKey->virtualKey() == VK_LBUTTON)
+		DWORD vk = ui.hkKey->virtualKey();
+		if (vk == VK_LBUTTON)
 		{
 			ui.hkKey->VirtualKey(VK_F8);
+			vk = VK_F8;
 		}
-		SaveJson();
+		qis.set.key = vk;
+		QiFn::SaveJson();
 	}
 	void OnHkRec() {
-		sets->recKey = ui.hkRec->virtualKey();
-		if (ui.hkRec->virtualKey() == VK_LBUTTON)
+		DWORD vk = ui.hkRec->virtualKey();
+		if (vk == VK_LBUTTON)
 		{
 			ui.hkRec->VirtualKey(VK_F8);
+			vk = VK_F8;
 		}
-		SaveJson();
+		qis.set.recKey = vk;
+		QiFn::SaveJson();
 	}
-	void OnDefOn() { sets->defOn = ui.chbDefOn->isChecked(); SaveJson(); }
-	void OnShowTips() { sets->showTips = ui.chbShowTips->isChecked(); SaveJson(); }
-	void OnAudFx() { sets->audFx = ui.chbAudFx->isChecked(); SaveJson(); }
-	void OnMinMode() { sets->minMode = ui.chbMinMode->isChecked(); SaveJson(); }
-	void OnZoomBlock() { sets->zoomBlock = ui.chbZoomBlock->isChecked(); SaveJson(); }
+	void OnDefOn() { sets->defOn = ui.chbDefOn->isChecked(); QiFn::SaveJson(); }
+	void OnShowTips() { sets->showTips = ui.chbShowTips->isChecked(); QiFn::SaveJson(); }
+	void OnAudFx() { sets->audFx = ui.chbAudFx->isChecked(); QiFn::SaveJson(); }
+	void OnMinMode() { sets->minMode = ui.chbMinMode->isChecked(); QiFn::SaveJson(); }
+	void OnZoomBlock() { sets->zoomBlock = ui.chbZoomBlock->isChecked(); QiFn::SaveJson(); }
 	void OnStart()
 	{
 		if (Task::Find(L"QuickInput"))

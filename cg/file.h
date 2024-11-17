@@ -55,6 +55,7 @@ namespace CG {
 				CloseHandle(handle);
 				return size;
 			}
+			return 0;
 		}
 
 		static bool FileNameUsable(std::wstring file)

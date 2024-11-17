@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 
 #include <windows.h>
 #include <QtWidgets/qwidget.h>
@@ -13,6 +13,7 @@
 class  QKeyEdit : public QLabel
 {
 	Q_OBJECT;
+
 	struct Keys
 	{
 		quint8 type = 0; // 0: keybd, 1: mouse, 2: wheel
@@ -23,7 +24,7 @@ class  QKeyEdit : public QLabel
 		bool state = 0;
 	};
 
-	QString text = "None";
+	QString text = u8"None";
 	quint8 mode = 2; // 0: solid, 1: mod + key, 2: key + key
 	bool input = 0;
 	bool disable = 0;
@@ -51,9 +52,14 @@ public:
 	}
 
 	// 0: solid, 1: mod + key, 2: key + key
-	void Mode(quint8 mode) { this->mode = mode; }
+	void Mode(quint8 mode) {
+		this->mode = mode;
+	}
 
-	QString Name() { return text; }
+	QString Name()
+	{
+		return text;
+	}
 
 	void VirtualKey(BYTE k1, USHORT k2 = 0)
 	{
@@ -194,14 +200,14 @@ signals:
 private:
 	QString Name(BYTE vk) {
 		switch (vk) {
-		case VK_LBUTTON: return u8"×ó¼ü";
-		case VK_RBUTTON: return u8"ÓÒ¼ü";
+		case VK_LBUTTON: return u8"å·¦é”®";
+		case VK_RBUTTON: return u8"å³é”®";
 		case VK_CANCEL: return u8"Cancel";
-		case VK_MBUTTON: return u8"ÖĞ¼ü";
-		case VK_XBUTTON1: return u8"X1¼ü";
-		case VK_XBUTTON2: return u8"X2¼ü";
-		case VK_WHEELUP: return u8"¹öÂÖÉÏ";
-		case VK_WHEELDOWN: return u8"¹öÂÖÏÂ";
+		case VK_MBUTTON: return u8"ä¸­é”®";
+		case VK_XBUTTON1: return u8"ä¾§é”®1";
+		case VK_XBUTTON2: return u8"ä¾§é”®2";
+		case VK_WHEELUP: return u8"æ»šè½®ä¸Š";
+		case VK_WHEELDOWN: return u8"æ»šè½®ä¸‹";
 		case VK_BACK: return u8"Back";
 		case VK_TAB: return u8"Tab";
 		case VK_CLEAR: return u8"Clear";
@@ -220,15 +226,15 @@ private:
 		case VK_NONCONVERT: return u8"NonConvert";
 		case VK_ACCEPT: return u8"Accept";
 		case VK_MODECHANGE: return u8"ModeChange";
-		case VK_SPACE: return u8"¿Õ¸ñ";
+		case VK_SPACE: return u8"ç©ºæ ¼";
 		case VK_PRIOR: return u8"PageUp";
 		case VK_NEXT: return u8"PageDown";
 		case VK_END: return u8"End";
 		case VK_HOME: return u8"Home";
-		case VK_LEFT: return u8"¡û";
-		case VK_UP: return u8"¡ü";
-		case VK_RIGHT: return u8"¡ú";
-		case VK_DOWN: return u8"¡ı";
+		case VK_LEFT: return u8"â†";
+		case VK_UP: return u8"â†‘";
+		case VK_RIGHT: return u8"â†’";
+		case VK_DOWN: return u8"â†“";
 		case VK_SELECT: return u8"Select";
 		case VK_PRINT: return u8"Print";
 		case VK_EXECUTE: return u8"Execute";

@@ -4,13 +4,13 @@
 #include "RecordUi.h"
 #include "EditUi.h"
 #include "ui_MacroUi.h"
-#include "../static.h"
+#include "header.h"
 
 class MacroUi : public QWidget
 {
 	Q_OBJECT;
 	Ui::MacroUiClass ui;
-	Macros* macros = &Global::qi.macros;
+	Macros* macros = &qis.macros;
 	QTimer* timer = 0;
 
 public:
@@ -30,7 +30,7 @@ public:
 
 	void ReStyle()
 	{
-		ui.clientWidget->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
+		ui.clientWidget->setStyleSheet(qis.themes[qis.set.theme].style);
 	}
 
 private:
@@ -96,27 +96,23 @@ private:
 	void RecStart(bool wnd)
 	{
 		working = true;
-		Global::qi.main->hide();
+		qis.widget.main->hide();
+		WndInfo wi;
 		if (wnd)
 		{
-			WndInfo wi = WindowSelection();
-			if (wi.wnd)
+			wi = QiFn::WindowSelection();
+			if (!wi.wnd)
 			{
-				RecordUi rw; Global::qi.rec = &rw, Global::qi.state = false, Global::qi.run = false;
-				HookState(true);
-				rw.Start(&wi);
+				MsgPop::Popup(L"窗口已失效", RGB(255, 64, 64), 2000);
+				return;
 			}
 		}
-		else
-		{
-			RecordUi rw; Global::qi.rec = &rw, Global::qi.state = false, Global::qi.run = false;
-			HookState(true);
-			rw.Start(0);
-		}
-		HookState(false);
-		Global::qi.rec = nullptr;
+		
+		if (wi.wnd) RecordUi rw(&wi);
+		else RecordUi rw(nullptr);
+
 		working = false;
-		Global::qi.main->show();
+		qis.widget.main->show();
 	}
 
 	void showEvent(QShowEvent*)
@@ -163,9 +159,9 @@ private slots:
 			return;
 		}
 
-		std::wstring newPath(Global::qi.path);
+		std::wstring newPath(MacroPath);
 		newPath += name;
-		newPath += L".json";
+		newPath += MacroType;
 
 		if (File::FileState(newPath.c_str()))
 		{
@@ -177,9 +173,9 @@ private slots:
 			return;
 		}
 
-		std::wstring oldPath(Global::qi.path);
+		std::wstring oldPath(MacroPath);
 		oldPath += macros->at(p).name;
-		oldPath += L".json";
+		oldPath += MacroType;
 
 		macros->at(p).name = name;
 
@@ -207,11 +203,11 @@ private slots:
 	void OnBnAdd()
 	{
 		Macro macro;
-		macro.name = NameFilter(L"宏");
+		macro.name = QiFn::NameFilter(L"宏");
 		macro.mode = Macro::down;
 		macro.count = 1;
-		Global::qi.macros.Add(macro);
-		SaveMacro(macro);
+		qis.macros.Add(macro);
+		QiFn::SaveMacro(macro);
 		TbUpdate();
 		ResetControl();
 		LockControl(1);
@@ -227,12 +223,12 @@ private slots:
 		edit.setWindowTitle(u8"编辑 - " + QString::fromWCharArray(macros->at(p).name.c_str()));
 
 		working = true;
-		Global::qi.main->hide();
+		qis.widget.main->hide();
 		edit.exec();
-		Global::qi.main->show();
+		qis.widget.main->show();
 		working = false;
 
-		SaveMacro(macros->at(p));
+		QiFn::SaveMacro(macros->at(p));
 		ResetControl();
 		LockControl(1);
 	}
@@ -241,12 +237,12 @@ private slots:
 		int p = ui.tbActions->currentRow();
 		if (p < 0) return;
 
-		QString path = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, u8"导出到", QString::fromWCharArray((macros->at(p).name + L".json").c_str()), u8"Quick input macro (*.json)"));
+		QString path = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, u8"导出到", QString::fromWCharArray((macros->at(p).name + MacroType).c_str()), u8"Quick input macro (*.json)"));
 		if (!path.length()) return;
 
-		std::wstring srcFile(Global::qi.path);
+		std::wstring srcFile(MacroPath);
 		srcFile += macros->at(p).name;
-		srcFile += L".json";
+		srcFile += MacroType;
 		std::wstring newFile = (LPCWSTR)path.utf16();
 
 		CopyFileW(srcFile.c_str(), newFile.c_str(), 0);
@@ -260,24 +256,24 @@ private slots:
 		if (path == "") return;
 
 		std::wstring srcFile = (LPCWSTR)path.utf16();
-		std::wstring newFile(Global::qi.path);
+		std::wstring newFile(MacroPath);
 		newFile += Path::Last(srcFile);
 
-		File::FolderCreate(Global::qi.path);
+		File::FolderCreate(MacroPath);
 		if (File::FileState(newFile))
 		{
 			if (MsgBox::Warning(L"文件已存在，是否覆盖？", L"Warning", MB_YESNO | MB_ICONWARNING | MB_TOPMOST) == IDYES) CopyFileW(srcFile.c_str(), newFile.c_str(), 0);
 		}
 		else CopyFileW(srcFile.c_str(), newFile.c_str(), 0);
 
-		LoadMacro();
+		QiFn::LoadMacro();
 		TbUpdate();
 		ResetControl();
 		LockControl(1);
 	}
 	void OnBnLoad()
 	{
-		LoadMacro();
+		QiFn::LoadMacro();
 		TbUpdate();
 		ResetControl();
 		LockControl(1);
@@ -286,9 +282,9 @@ private slots:
 	{
 		int p = ui.tbActions->currentRow(); if (p < 0) return;
 
-		std::wstring path(Global::qi.path);
+		std::wstring path(MacroPath);
 		path += macros->at(p).name;
-		path += L".json";
+		path += MacroType;
 		macros->Del(p);
 
 		File::FileDelete(path.c_str());

@@ -18,7 +18,7 @@ namespace CG {
 	public:
 
 		static bool state(BYTE vk) { return GetAsyncKeyState(vk) & 0x8000; }
-		static POINT pos() { POINT pt; GetCursorPos(&pt); }
+		static POINT pos() { POINT pt; GetCursorPos(&pt); return pt; }
 
 		static void Loop(BYTE vk, UINT delay = 10) { while (state(vk)) sleep(delay); }
 		static void LoopU(BYTE vk, UINT delay = 10) { while (!state(vk)) sleep(delay); }

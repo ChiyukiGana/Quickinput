@@ -305,7 +305,7 @@ QPushButton:hover{background-color:#0B0}</string>
           <enum>Qt::ClickFocus</enum>
          </property>
          <property name="styleSheet">
-          <string notr="true">QTabBar::tab,QTabBar::tab::first,QTabBar::tab::last{border:none;width:128px;height:40px;font-size:18px}#tabMacro,#tabTrigger,#tabFunc,#tabSettings,#tabAbout{background:transparent}</string>
+          <string notr="true">QTabBar::tab,QTabBar::tab::first,QTabBar::tab::last{width:128px;height:40px;padding:0px;font-size:18px}#tabMacro,#tabTrigger,#tabFunc,#tabSettings,#tabAbout{background:transparent}</string>
          </property>
          <property name="tabPosition">
           <enum>QTabWidget::North</enum>

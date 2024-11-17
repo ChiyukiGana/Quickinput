@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "ui_TriggerUi.h"
-#include "../static.h"
+#include "header.h"
 
 class TriggerUi : public QWidget
 {
@@ -8,7 +8,7 @@ class TriggerUi : public QWidget
 	const int32 countMax = 9999;
 
 	Ui::TriggerUiClass ui;
-	Macros* macros = &Global::qi.macros;
+	Macros* macros = &qis.macros;
 
 public:
 	TriggerUi(QWidget* parent) : QWidget(parent)
@@ -25,8 +25,8 @@ public:
 
 	void ReStyle()
 	{
-		ui.clientWidget->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
-		ui.hkTr->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
+		ui.clientWidget->setStyleSheet(qis.themes[qis.set.theme].style);
+		ui.hkTr->setStyleSheet(qis.themes[qis.set.theme].style);
 	}
 
 private:
@@ -138,8 +138,8 @@ private:
 			ui.tbActions->setItem(i, 2, new QTableWidgetItem(qs));
 			ui.tbActions->item(i, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 			//
-			if (macros->at(i).state) qs = UI::trOn;
-			else qs = UI::trOff;
+			if (macros->at(i).state) qs = qis.ui.trOn;
+			else qs = qis.ui.trOff;
 			ui.tbActions->setItem(i, 3, new QTableWidgetItem(qs));
 			ui.tbActions->item(i, 3)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		}
@@ -174,21 +174,21 @@ private slots:
 
 		LockControl(0);
 		TbUpdate();
-		SaveMacro(macros->at(row));
+		QiFn::SaveMacro(macros->at(row));
 	}
 	void OnKeyChanged()
 	{
 		int p = ui.tbActions->currentRow(); if (p < 0) return;
 		macros->at(p).key = ui.hkTr->virtualKey();
 		TbUpdate();
-		SaveMacro(macros->at(p));
+		QiFn::SaveMacro(macros->at(p));
 	}
 	void OnChbBlock()
 	{
 		int p = ui.tbActions->currentRow(); if (p < 0) return;
 		macros->at(p).block = ui.chbBlock->isChecked();
 		TbUpdate();
-		SaveMacro(macros->at(p));
+		QiFn::SaveMacro(macros->at(p));
 	}
 	void OnCmbMode(int index)
 	{
@@ -216,7 +216,7 @@ private slots:
 		}
 
 		TbUpdate();
-		SaveMacro(macros->at(p));
+		QiFn::SaveMacro(macros->at(p));
 	}
 	void OnEtCount(const QString& count)
 	{
@@ -225,6 +225,6 @@ private slots:
 		if (n > countMax) n = countMax;
 		macros->at(p).count = n;
 		TbUpdate();
-		SaveMacro(macros->at(p));
+		QiFn::SaveMacro(macros->at(p));
 	}
 };

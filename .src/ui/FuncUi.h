@@ -1,13 +1,13 @@
 ﻿#pragma once
 #include <qvalidator.h>
 #include "ui_FuncUi.h"
-#include "../static.h"
+#include "header.h"
 
 class FuncUi : public QWidget
 {
 	Q_OBJECT;
 	Ui::FuncUiClass ui;
-	FuncData* func = &Global::qi.fun;
+	FuncData* func = &qis.fun;
 
 public:
 	bool working = 0;
@@ -24,9 +24,9 @@ public:
 
 	void ReStyle()
 	{
-		ui.clientWidget->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
-		ui.hkQkClick->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
-		ui.hkClock->setStyleSheet(Global::qi.styles[Global::qi.set.style].style);
+		ui.clientWidget->setStyleSheet(qis.themes[qis.set.theme].style);
+		ui.hkQkClick->setStyleSheet(qis.themes[qis.set.theme].style);
+		ui.hkClock->setStyleSheet(qis.themes[qis.set.theme].style);
 	}
 
 private:
@@ -66,23 +66,23 @@ private:
 
 private slots:
 	// Click
-	void OnQkClick(int state) { func->quickClick.state = state; SaveJson(); }
-	void OnQkClickKey() { func->quickClick.key = ui.hkQkClick->virtualKey(); SaveJson(); }
-	void OnQkDelay(const QString& text) { func->quickClick.delay = text.toInt(); SaveJson(); }
-	void OnCmbMode(int row) { func->quickClick.mode = row; SaveJson(); }
+	void OnQkClick(int state) { func->quickClick.state = state; QiFn::SaveJson(); }
+	void OnQkClickKey() { func->quickClick.key = ui.hkQkClick->virtualKey(); QiFn::SaveJson(); }
+	void OnQkDelay(const QString& text) { func->quickClick.delay = text.toInt(); QiFn::SaveJson(); }
+	void OnCmbMode(int row) { func->quickClick.mode = row; QiFn::SaveJson(); }
 	// WndControl
-	void OnWndActive(int state) { func->wndActive.state = state; SaveJson(); }
+	void OnWndActive(int state) { func->wndActive.state = state; QiFn::SaveJson(); }
 	void OnBnWndActive()
 	{
 		working = 1;
-		Global::qi.main->hide();
-		func->wndActive.wi = WindowSelection();
+		qis.widget.main->hide();
+		func->wndActive.wi = QiFn::WindowSelection();
 		ui.etWndActive->setText(QString::fromWCharArray(func->wndActive.wi.wndName.c_str()));
 		working = 0;
-		Global::qi.main->show();
-		SaveJson();
+		qis.widget.main->show();
+		QiFn::SaveJson();
 	}
 	// Clock
-	void OnClock(int state) { func->showClock.state = state; SaveJson(); }
-	void OnShowClock() { func->showClock.key = ui.hkClock->virtualKey(); SaveJson(); }
+	void OnClock(int state) { func->showClock.state = state; QiFn::SaveJson(); }
+	void OnShowClock() { func->showClock.key = ui.hkClock->virtualKey(); QiFn::SaveJson(); }
 };
