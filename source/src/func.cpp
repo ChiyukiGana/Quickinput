@@ -19,36 +19,89 @@ namespace QiFn
 	QString ParseMacro(QString text, QString macro, int count) { if (count) text.replace("$", QString::number(count)); else text.replace("$", "∞"); return text.replace("@", macro); }
 	void StatePop(bool state)
 	{
-		if (state) Qi::popText->Popup(ParseState(Qi::ui.pop.qe.t), Qi::ui.pop.qe.c);
-		else Qi::popText->Popup(ParseState(Qi::ui.pop.qd.t), Qi::ui.pop.qd.c);
+		if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseState(Qi::ui.pop.qe.t), Qi::ui.pop.qe.c);
+		else Qi::popText->Popup(Qi::ui.pop.time, ParseState(Qi::ui.pop.qd.t), Qi::ui.pop.qd.c);
 	}
 	void WindowPop(std::wstring window, bool state)
 	{
-		if (state) Qi::popText->Popup(ParseWindow(Qi::ui.pop.we.t, QString::fromWCharArray(window.c_str())), Qi::ui.pop.we.c);
-		else Qi::popText->Popup(ParseWindow(Qi::ui.pop.wd.t, QString::fromWCharArray(window.c_str())), Qi::ui.pop.wd.c);
+		if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseWindow(Qi::ui.pop.we.t, QString::fromWCharArray(window.c_str())), Qi::ui.pop.we.c);
+		else Qi::popText->Popup(Qi::ui.pop.time, ParseWindow(Qi::ui.pop.wd.t, QString::fromWCharArray(window.c_str())), Qi::ui.pop.wd.c);
 	}
 	void QuickClickPop(bool state)
 	{
-		if (state) Qi::popText->Popup(ParseQuickClick(Qi::ui.pop.qce.t, Qi::fun.quickClick.key), Qi::ui.pop.qce.c);
-		else Qi::popText->Popup(ParseQuickClick(Qi::ui.pop.qcd.t, Qi::fun.quickClick.key), Qi::ui.pop.qcd.c);
+		if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseQuickClick(Qi::ui.pop.qce.t, Qi::fun.quickClick.key), Qi::ui.pop.qce.c);
+		else Qi::popText->Popup(Qi::ui.pop.time, ParseQuickClick(Qi::ui.pop.qcd.t, Qi::fun.quickClick.key), Qi::ui.pop.qcd.c);
 	}
 	void MacroPop(Macro* macro, bool state)
 	{
 		if (macro->mode == Macro::sw)
 		{
-			if (state) Qi::popText->Popup(ParseMacro(Qi::ui.pop.swe.t, QString::fromWCharArray(macro->name.c_str()), 0), Qi::ui.pop.swe.c);
-			else Qi::popText->Popup(ParseMacro(Qi::ui.pop.swd.t, QString::fromWCharArray(macro->name.c_str()), 0), Qi::ui.pop.swd.c);
+			if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.swe.t, QString::fromWCharArray(macro->name.c_str()), 0), Qi::ui.pop.swe.c);
+			else Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.swd.t, QString::fromWCharArray(macro->name.c_str()), 0), Qi::ui.pop.swd.c);
 		}
 		else if (macro->mode == Macro::down)
 		{
-			if (state) Qi::popText->Popup(ParseMacro(Qi::ui.pop.dwe.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.dwe.c);
-			else Qi::popText->Popup(ParseMacro(Qi::ui.pop.dwd.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.dwd.c);
+			if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.dwe.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.dwe.c);
+			else Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.dwd.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.dwd.c);
 		}
 		else if (macro->mode == Macro::up)
 		{
-			if (state) Qi::popText->Popup(ParseMacro(Qi::ui.pop.upe.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.upe.c);
-			else Qi::popText->Popup(ParseMacro(Qi::ui.pop.upd.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.upd.c);
+			if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.upe.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.upe.c);
+			else Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.upd.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.upd.c);
 		}
+	}
+
+	uint32 UniqueJumpPoint(const Actions& actions)
+	{
+		uint32 id = 1;
+		for (size_t i = 0; i < actions.size(); i++)
+		{
+			std::visit([&](auto&& var)
+				{
+					uint32 cur = 0;
+					using T = std::decay_t<decltype(var)>;
+					if constexpr (std::is_same_v<T, QiJumpPoint>)
+					{
+						const QiJumpPoint& jumpPoint = var;
+						cur = jumpPoint.id;
+					}
+					else
+					{
+						const Actions* next = nullptr;
+
+						if constexpr (std::is_same_v<T, QiColor>)
+						{
+							const QiColor& color = var;
+							if (color.next.size()) next = &color.next;
+						}
+						else if constexpr (std::is_same_v<T, QiLoop>)
+						{
+							const QiLoop& loop = var;
+							if (loop.next.size()) next = &loop.next;
+						}
+						else if constexpr (std::is_same_v<T, QiKeyState>)
+						{
+							const QiKeyState& keyState = var;
+							if (keyState.next.size()) next = &keyState.next;
+						}
+						else if constexpr (std::is_same_v<T, QiImage>)
+						{
+							const QiImage& image = var;
+							if (image.next.size()) next = &image.next;
+						}
+						else if constexpr (std::is_same_v<T, QiTimer>)
+						{
+							const QiTimer& timer = var;
+							if (timer.next.size()) next = &timer.next;
+						}
+
+						if (next) cur = UniqueJumpPoint(*next);
+					}
+
+					if (cur >= id) id = cur + 1;
+				}, actions.at(i));
+		}
+		return id;
 	}
 
 	bool SelfActive() { if (Qi::widget.mainActive || Qi::widget.dialogActive || Qi::widget.moreActive) return false; }
@@ -94,339 +147,367 @@ namespace QiFn
 		return File::Unique(names, name);
 	}
 
-	int ActionExecute(const Action& action, POINT& cursor, WndInput* wi)
+	int ActionExecute(const Actions& actions, POINT& cursor, WndInput* wi, int& jumpId)
 	{
-		if (!Qi::run || QiThread::PeekExitMsg()) return r_exit;
+		//if (!Qi::run || QiThread::PeekExitMsg()) return r_exit;
+		for (size_t i = 0; i < actions.size();)
+		{
+			if (!Qi::run || QiThread::PeekExitMsg()) return r_exit;
+			int r = std::visit([&cursor, &wi, &jumpId](auto&& var)
+				{
+					using T = std::decay_t<decltype(var)>;
+					if (jumpId)
+					{
+						if constexpr (std::is_same_v<T, QiJumpPoint>)
+						{
+							const QiJumpPoint& jumpPoint = var;
+							if (jumpPoint.id == jumpId)
+							{
+								jumpId = 0;
+							}
+						}
+						else
+						{
+							const Actions* next = nullptr;
+							if constexpr (std::is_same_v<T, QiColor>)
+							{
+								const QiColor& color = var;
+								if (color.next.size()) next = &color.next;
+							}
+							else if constexpr (std::is_same_v<T, QiLoop>)
+							{
+								const QiLoop& loop = var;
+								if (loop.next.size()) next = &loop.next;
+							}
+							else if constexpr (std::is_same_v<T, QiKeyState>)
+							{
+								const QiKeyState& keyState = var;
+								if (keyState.next.size()) next = &keyState.next;
+							}
+							else if constexpr (std::is_same_v<T, QiImage>)
+							{
+								const QiImage& image = var;
+								if (image.next.size()) next = &image.next;
+							}
+							else if constexpr (std::is_same_v<T, QiTimer>)
+							{
+								const QiTimer& timer = var;
+								if (timer.next.size()) next = &timer.next;
+							}
+							if (next) ActionExecute(*next, cursor, wi, jumpId);
+						}
+					}
+					else
+					{
+						if constexpr (std::is_same_v<T, QiEnd>)
+						{
+							const QiEnd& end = var;
+							return r_exit;
+						}
+						else if constexpr (std::is_same_v<T, QiDelay>)
+						{
+							const QiDelay& delay = var;
+							Thread::Sleep(Rand(delay.max, delay.min));
+							return r_continue;
+						}
+						else if constexpr (std::is_same_v<T, QiKey>)
+						{
+							const QiKey& key = var;
+							if (wi)
+							{
+								if (key.state == QiKey::up)
+								{
+									Input::State(wi->current, key.vk, wi->pt, false);
+									if (key.vk == VK_LBUTTON) wi->mk &= ~MK_LBUTTON;
+									else if (key.vk == VK_RBUTTON) wi->mk &= ~MK_RBUTTON;
+									else if (key.vk == VK_MBUTTON) wi->mk &= ~MK_MBUTTON;
+									else if (key.vk == VK_XBUTTON1) wi->mk &= ~MK_XBUTTON1;
+									else if (key.vk == VK_XBUTTON2) wi->mk &= ~MK_XBUTTON2;
+									else if (key.vk == VK_CONTROL) wi->mk &= ~MK_CONTROL;
+									else if (key.vk == VK_SHIFT) wi->mk &= ~MK_SHIFT;
+								}
+								else if (key.state == QiKey::down)
+								{
+									Input::State(wi->current, key.vk, wi->pt, true);
+									if (key.vk == VK_LBUTTON) wi->mk |= MK_LBUTTON;
+									else if (key.vk == VK_RBUTTON) wi->mk |= MK_RBUTTON;
+									else if (key.vk == VK_MBUTTON) wi->mk |= MK_MBUTTON;
+									else if (key.vk == VK_XBUTTON1) wi->mk |= MK_XBUTTON1;
+									else if (key.vk == VK_XBUTTON2) wi->mk |= MK_XBUTTON2;
+									else if (key.vk == VK_CONTROL) wi->mk |= MK_CONTROL;
+									else if (key.vk == VK_SHIFT) wi->mk |= MK_SHIFT;
+								}
+								else if (key.state == QiKey::click)
+								{
+									Input::Click(wi->current, key.vk, wi->pt, 10);
+									if (key.vk == VK_LBUTTON) wi->mk |= MK_LBUTTON;
+									else if (key.vk == VK_RBUTTON) wi->mk |= MK_RBUTTON;
+									else if (key.vk == VK_MBUTTON) wi->mk |= MK_MBUTTON;
+									else if (key.vk == VK_XBUTTON1) wi->mk |= MK_XBUTTON1;
+									else if (key.vk == VK_XBUTTON2) wi->mk |= MK_XBUTTON2;
+									else if (key.vk == VK_CONTROL) wi->mk |= MK_CONTROL;
+									else if (key.vk == VK_SHIFT) wi->mk |= MK_SHIFT;
+								}
+							}
+							else
+							{
+								if (key.state == QiKey::up) Input::State(key.vk, false, key_info);
+								else if (key.state == QiKey::down) Input::State(key.vk, true, key_info);
+								else if (key.state == QiKey::click) Input::Click(key.vk, 10, key_info);
+							}
+							return r_continue;
+						}
+						else if constexpr (std::is_same_v<T, QiMouse>)
+						{
+							const QiMouse& mouse = var;
+							if (wi)
+							{
+								POINT pt = {};
+								pt.x = mouse.x + (Rand(mouse.ex, (~mouse.ex + 1)));
+								pt.y = mouse.y + (Rand(mouse.ex, (~mouse.ex + 1)));
+								if (mouse.move) wi->pt.x += pt.x, wi->pt.y += pt.y;
+								else wi->pt = WATR({ pt.x, pt.y }, wi->wnd);
+								wi->current = 0;
+								List<ChildWindow> cws;
+								for (uint32 u = wi->children.size(); wi->children.size(); u--)
+								{
+									if (InRect(wi->children[u].rect, wi->pt)) cws.Add(wi->children[u]);
+									if (u == 0) return r_continue;
+								}
+								if (cws.size())
+								{
+									// select minimum window
+									ChildWindow min = {};
+									uint64 minArea = uint64Max;
+									for (uint32 u = 0; u < cws.size(); u++)
+									{
+										uint64 area = RectArea(cws[u].rect);
+										if (area < minArea) min = cws[u], minArea = area;
+									}
+									if (min.wnd) wi->current = min.wnd;
+									else wi->current = wi->wnd;
 
-		return std::visit([&cursor, &wi](auto&& var)
+									wi->pt = InRectPos(min.rect, wi->pt);
+								}
+								else
+								{
+									wi->current = wi->wnd;
+								}
+								Input::MoveTo(wi->wnd, wi->pt.x, wi->pt.y, wi->mk);
+							}
+							else
+							{
+								int x = mouse.x + (Rand(mouse.ex, (~mouse.ex + 1)));
+								int y = mouse.y + (Rand(mouse.ex, (~mouse.ex + 1)));
+								if (mouse.move)
+								{
+									if (mouse.track)
+									{
+										SmoothMove(0, 0, x, y, mouse.speed, [](int x, int y, int stepx, int stepy)->void {
+											Input::Move(stepx, stepy);
+											Thread::Sleep(5);
+											});
+									}
+									else Input::Move(x, y);
+								}
+								else
+								{
+									if (mouse.track)
+									{
+										POINT spt = {};
+										GetCursorPos(&spt);
+										spt = RTA(spt);
+										SmoothMove(spt.x, spt.y, x, y, mouse.speed, [](int x, int y, int stepx, int stepy)->void {
+											Input::MoveToA(x * 6.5535f, y * 6.5535f);
+											Thread::Sleep(5);
+											});
+									}
+									else Input::MoveToA(x * 6.5535f, y * 6.5535f);
+								}
+							}
+							return r_continue;
+						}
+						else if constexpr (std::is_same_v<T, QiText>)
+						{
+							const QiText& text = var;
+							System::ClipBoardText(text.str.c_str());
+							return r_continue;
+						}
+						else if constexpr (std::is_same_v<T, QiColor>)
+						{
+							const QiColor& color = var;
+							RgbMap rgbMap;
+							RECT rect;
+							HDC hdc;
+							if (wi)
+							{
+								hdc = GetDC(wi->wnd);
+								rect = WATRR(color.rect, wi->wnd);
+								Image::toRgbMap(hdc, rgbMap, rect);
+								ReleaseDC(wi->wnd, hdc);
+							}
+							else
+							{
+								hdc = GetDC(nullptr);
+								rect = ATRR(color.rect);
+								Image::toRgbMap(hdc, rgbMap, rect);
+								ReleaseDC(nullptr, hdc);
+							}
+							Color::FindResult result = Color::FindOr(rgbMap, color.rgbe.toRgb(), color.rgbe.a);
+							if (color.unfind)
+							{
+								if (result.find) return r_continue;
+							}
+							else
+							{
+								if (result.find)
+								{
+									if (color.move)
+									{
+										result.pt.x += rect.left, result.pt.y += rect.top;
+										if (wi)
+										{
+											wi->pt = result.pt;
+											Input::MoveTo(wi->wnd, wi->pt.x, wi->pt.y, wi->mk);
+										}
+										else Input::MoveTo(result.pt.x, result.pt.y);
+									}
+								}
+								else return r_continue;
+							}
+							return ActionExecute(color.next, cursor, wi, jumpId);
+						}
+						else if constexpr (std::is_same_v<T, QiLoop>)
+						{
+							const QiLoop& loop = var;
+							uint32 n = 0;
+							uint32 e = 0;
+							bool uloop = false;
+							if (loop.max) uloop = true, e = Rand(loop.max, loop.min);
+							while (Qi::run && !QiThread::PeekExitMsg())
+							{
+								if (uloop) { n++; if (n > e) return r_continue; }
+								int r = ActionExecute(loop.next, cursor, wi, jumpId);
+								if (r != r_continue) return r;
+							}
+							return r_continue;
+						}
+						else if constexpr (std::is_same_v<T, QiLoopEnd>)
+						{
+							const QiLoopEnd& loopEnd = var;
+							return r_break;
+						}
+						else if constexpr (std::is_same_v<T, QiKeyState>)
+						{
+							const QiKeyState& keyState = var;
+							if (keyState.state)
+							{
+								if (!Input::stateEx(keyState.vk)) return r_continue;
+							}
+							else
+							{
+								if (Input::stateEx(keyState.vk)) return r_continue;
+							}
+							return ActionExecute(keyState.next, cursor, wi, jumpId);
+						}
+						else if constexpr (std::is_same_v<T, QiRecoverPos>)
+						{
+							const QiRecoverPos& recoverPos = var;
+							Input::MoveTo(cursor.x, cursor.y);
+							return r_continue;
+						}
+						else if constexpr (std::is_same_v<T, QiImage>)
+						{
+							const QiImage& image = var;
+							RgbMap rgbMap;
+							RECT rect;
+							HDC hdc;
+							if (wi)
+							{
+								hdc = GetDC(wi->wnd);
+								rect = WATRR(image.rect, wi->wnd);
+								Image::toRgbMap(hdc, rgbMap, rect);
+								ReleaseDC(wi->wnd, hdc);
+							}
+							else
+							{
+								hdc = GetDC(nullptr);
+								rect = ATRR(image.rect);
+								Image::toRgbMap(hdc, rgbMap, rect);
+								ReleaseDC(nullptr, hdc);
+							}
+							POINT pt = Image::Find(rgbMap, image.map, image.sim, 10);
+
+							if (image.unfind)
+							{
+								if (pt.x != Image::npos) return r_continue;
+							}
+							else
+							{
+								if (pt.x != Image::npos)
+								{
+									if (image.move)
+									{
+										pt.x += rect.left + (image.map.width() >> 1), pt.y += rect.top + (image.map.height() >> 1);
+										if (wi)
+										{
+											wi->pt = pt;
+											Input::MoveTo(wi->wnd, wi->pt.x, wi->pt.y, wi->mk);
+										}
+										else Input::MoveTo(pt.x, pt.y);
+									}
+								}
+								else return r_continue;
+							}
+
+							return ActionExecute(image.next, cursor, wi, jumpId);
+						}
+						else if constexpr (std::is_same_v<T, QiPopText>)
+						{
+							const QiPopText& popText = var;
+							Qi::popText->Popup(popText.time, WToQString(popText.str), RGB(223, 223, 223));
+							if (popText.sync) Thread::Sleep(popText.time);
+							return r_continue;
+						}
+						else if constexpr (std::is_same_v<T, QiRememberPos>)
+						{
+							const QiRememberPos& rememberPos = var;
+							cursor = Input::pos();
+							return r_continue;
+						}
+						else if constexpr (std::is_same_v<T, QiTimer>)
+						{
+							const QiTimer& timer = var;
+							clock_t time = Rand(timer.max, timer.min);
+							clock_t begin = clock();
+							while (Qi::run && !QiThread::PeekExitMsg())
+							{
+								if (!((begin + time) > clock())) return r_continue;
+								int r = ActionExecute(timer.next, cursor, wi, jumpId);
+								if (r != r_continue) return r;
+							}
+							return r_continue;
+						}
+						else if constexpr (std::is_same_v<T, QiJump>)
+						{
+							const QiJump& jump = var;
+							return r_jump(((int)jump.id));
+						}
+					}
+					return r_continue;
+			}, actions[i]);
+			if (r != r_continue)
 			{
-				using T = std::decay_t<decltype(var)>;
-				if constexpr (std::is_same_v<T, QiEnd>)
+				if (is_jump(r))
 				{
-					const QiEnd& end = var;
-					return r_exit;
+					jumpId = jump_id(r);
+					i = 0;
 				}
-				else if constexpr (std::is_same_v<T, QiDelay>)
-				{
-					const QiDelay& delay = var;
-					Thread::Sleep(Rand(delay.max, delay.min));
-					return r_continue;
-				}
-				else if constexpr (std::is_same_v<T, QiKey>)
-				{
-					const QiKey& key = var;
-					if (wi)
-					{
-						if (key.state == QiKey::up)
-						{
-							Input::State(wi->current, key.vk, wi->pt, false);
-							if (key.vk == VK_LBUTTON) wi->mk &= ~MK_LBUTTON;
-							else if (key.vk == VK_RBUTTON) wi->mk &= ~MK_RBUTTON;
-							else if (key.vk == VK_MBUTTON) wi->mk &= ~MK_MBUTTON;
-							else if (key.vk == VK_XBUTTON1) wi->mk &= ~MK_XBUTTON1;
-							else if (key.vk == VK_XBUTTON2) wi->mk &= ~MK_XBUTTON2;
-							else if (key.vk == VK_CONTROL) wi->mk &= ~MK_CONTROL;
-							else if (key.vk == VK_SHIFT) wi->mk &= ~MK_SHIFT;
-						}
-						else if (key.state == QiKey::down)
-						{
-							Input::State(wi->current, key.vk, wi->pt, true);
-							if (key.vk == VK_LBUTTON) wi->mk |= MK_LBUTTON;
-							else if (key.vk == VK_RBUTTON) wi->mk |= MK_RBUTTON;
-							else if (key.vk == VK_MBUTTON) wi->mk |= MK_MBUTTON;
-							else if (key.vk == VK_XBUTTON1) wi->mk |= MK_XBUTTON1;
-							else if (key.vk == VK_XBUTTON2) wi->mk |= MK_XBUTTON2;
-							else if (key.vk == VK_CONTROL) wi->mk |= MK_CONTROL;
-							else if (key.vk == VK_SHIFT) wi->mk |= MK_SHIFT;
-						}
-						else if (key.state == QiKey::click)
-						{
-							Input::Click(wi->current, key.vk, wi->pt, 10);
-							if (key.vk == VK_LBUTTON) wi->mk |= MK_LBUTTON;
-							else if (key.vk == VK_RBUTTON) wi->mk |= MK_RBUTTON;
-							else if (key.vk == VK_MBUTTON) wi->mk |= MK_MBUTTON;
-							else if (key.vk == VK_XBUTTON1) wi->mk |= MK_XBUTTON1;
-							else if (key.vk == VK_XBUTTON2) wi->mk |= MK_XBUTTON2;
-							else if (key.vk == VK_CONTROL) wi->mk |= MK_CONTROL;
-							else if (key.vk == VK_SHIFT) wi->mk |= MK_SHIFT;
-						}
-					}
-					else
-					{
-						if (key.state == QiKey::up) Input::State(key.vk, false, key_info);
-						else if (key.state == QiKey::down) Input::State(key.vk, true, key_info);
-						else if (key.state == QiKey::click) Input::Click(key.vk, 10, key_info);
-					}
-					return r_continue;
-				}
-				else if constexpr (std::is_same_v<T, QiMouse>)
-				{
-					const QiMouse& mouse = var;
-					if (wi)
-					{
-						POINT pt = {};
-						pt.x = mouse.x + (Rand(mouse.ex, (~mouse.ex + 1)));
-						pt.y = mouse.y + (Rand(mouse.ex, (~mouse.ex + 1)));
-						if (mouse.move) wi->pt.x += pt.x, wi->pt.y += pt.y;
-						else wi->pt = WATR({ pt.x, pt.y }, wi->wnd);
-						wi->current = 0;
-						List<ChildWindow> cws;
-						for (uint32 u = wi->children.size(); wi->children.size(); u--)
-						{
-							if (InRect(wi->children[u].rect, wi->pt)) cws.Add(wi->children[u]);
-							if (u == 0) return r_continue;
-						}
-						if (cws.size())
-						{
-							// select minimum window
-							ChildWindow min = {};
-							uint64 minArea = uint64Max;
-							for (uint32 u = 0; u < cws.size(); u++)
-							{
-								uint64 area = RectArea(cws[u].rect);
-								if (area < minArea) min = cws[u], minArea = area;
-							}
-							if (min.wnd) wi->current = min.wnd;
-							else wi->current = wi->wnd;
-
-							wi->pt = InRectPos(min.rect, wi->pt);
-						}
-						else
-						{
-							wi->current = wi->wnd;
-						}
-						Input::MoveTo(wi->wnd, wi->pt.x, wi->pt.y, wi->mk);
-					}
-					else
-					{
-						int x = mouse.x + (Rand(mouse.ex, (~mouse.ex + 1)));
-						int y = mouse.y + (Rand(mouse.ex, (~mouse.ex + 1)));
-						if (mouse.move)
-						{
-							if (mouse.track)
-							{
-								SmoothMove(0, 0, x, y, mouse.speed, [](int x, int y, int stepx, int stepy)->void {
-									Input::Move(stepx, stepy);
-									Thread::Sleep(5);
-								});
-							}
-							else Input::Move(x, y);
-						}
-						else
-						{
-							if (mouse.track)
-							{
-								POINT spt = {};
-								GetCursorPos(&spt);
-								spt = RTA(spt);
-								SmoothMove(spt.x, spt.y, x, y, mouse.speed, [](int x, int y, int stepx, int stepy)->void {
-									Input::MoveToA(x * 6.5535f, y * 6.5535f);
-									Thread::Sleep(5);
-								});
-							}
-							else Input::MoveToA(x * 6.5535f, y * 6.5535f);
-						}
-					}
-					return r_continue;
-				}
-				else if constexpr (std::is_same_v<T, QiText>)
-				{
-					const QiText& text = var;
-					System::ClipBoardText(text.str.c_str());
-					return r_continue;
-				}
-				else if constexpr (std::is_same_v<T, QiColor>)
-				{
-					const QiColor& color = var;
-					RgbMap rgbMap;
-					RECT rect;
-					HDC hdc;
-					if (wi)
-					{
-						hdc = GetDC(wi->wnd);
-						rect = WATRR(color.rect, wi->wnd);
-						Image::toRgbMap(hdc, rgbMap, rect);
-						ReleaseDC(wi->wnd, hdc);
-					}
-					else
-					{
-						hdc = GetDC(nullptr);
-						rect = ATRR(color.rect);
-						Image::toRgbMap(hdc, rgbMap, rect);
-						ReleaseDC(nullptr, hdc);
-					}
-					Color::FindResult result = Color::FindOr(rgbMap, color.rgbe.toRgb(), color.rgbe.a);
-					if (color.unfind)
-					{
-						if (result.find) return r_continue;
-					}
-					else
-					{
-						if (result.find)
-						{
-							if (color.move)
-							{
-								result.pt.x += rect.left, result.pt.y += rect.top;
-								if (wi)
-								{
-									wi->pt = result.pt;
-									Input::MoveTo(wi->wnd, wi->pt.x, wi->pt.y, wi->mk);
-								}
-								else Input::MoveTo(result.pt.x, result.pt.y);
-							}
-						}
-						else return r_continue;
-					}
-					for (uint32 i = 0; i < color.next.size(); i++)
-					{
-						int r = ActionExecute(color.next.at(i), cursor, wi);
-						if (r != r_continue) return r;
-					}
-					return r_continue;
-				}
-				else if constexpr (std::is_same_v<T, QiLoop>)
-				{
-					const QiLoop& loop = var;
-					uint32 n = 0;
-					uint32 e = 0;
-					bool uloop = false;
-					if (loop.max) uloop = true, e = Rand(loop.max, loop.min);
-					while (Qi::run && !QiThread::PeekExitMsg())
-					{
-						if (uloop)
-						{
-							n++;
-							if (n > e) return r_continue;
-						}
-						for (uint32 i = 0; i < loop.next.size(); i++)
-						{
-							int r = ActionExecute(loop.next.at(i), cursor, wi);
-							if (r != r_continue)
-							{
-								if (r == r_break) return r_continue;
-								else if (r == r_exit) return r_exit;
-							}
-						}
-					}
-					return r_continue;
-				}
-				else if constexpr (std::is_same_v<T, QiLoopEnd>)
-				{
-					const QiLoopEnd& loopEnd = var;
-					return r_break;
-				}
-				else if constexpr (std::is_same_v<T, QiKeyState>)
-				{
-					const QiKeyState& keyState = var;
-					if (keyState.state)
-					{
-						if (!Input::stateEx(keyState.vk)) return r_continue;
-					}
-					else
-					{
-						if (Input::stateEx(keyState.vk)) return r_continue;
-					}
-					for (uint32 i = 0; i < keyState.next.size(); i++)
-					{
-						int r = ActionExecute(keyState.next.at(i), cursor, wi);
-						if (r != r_continue) return r;
-					}
-					return r_continue;
-				}
-				else if constexpr (std::is_same_v<T, QiRecoverPos>)
-				{
-					const QiRecoverPos& recoverPos = var;
-					Input::MoveTo(cursor.x, cursor.y);
-					return r_continue;
-				}
-				else if constexpr (std::is_same_v<T, QiImage>)
-				{
-					const QiImage& image = var;
-					RgbMap rgbMap;
-					RECT rect;
-					HDC hdc;
-					if (wi)
-					{
-						hdc = GetDC(wi->wnd);
-						rect = WATRR(image.rect, wi->wnd);
-						Image::toRgbMap(hdc, rgbMap, rect);
-						ReleaseDC(wi->wnd, hdc);
-					}
-					else
-					{
-						hdc = GetDC(nullptr);
-						rect = ATRR(image.rect);
-						Image::toRgbMap(hdc, rgbMap, rect);
-						ReleaseDC(nullptr, hdc);
-					}
-					POINT pt = Image::Find(rgbMap, image.map, image.sim, 10);
-
-					if (image.unfind)
-					{
-						if (pt.x != Image::npos) return r_continue;
-					}
-					else
-					{
-						if (pt.x != Image::npos)
-						{
-							if (image.move)
-							{
-								pt.x += rect.left + (image.map.width() >> 1), pt.y += rect.top + (image.map.height() >> 1);
-								if (wi)
-								{
-									wi->pt = pt;
-									Input::MoveTo(wi->wnd, wi->pt.x, wi->pt.y, wi->mk);
-								}
-								else Input::MoveTo(pt.x, pt.y);
-							}
-						}
-						else return r_continue;
-					}
-
-					for (uint32 i = 0; i < image.next.size(); i++)
-					{
-						int r = ActionExecute(image.next.at(i), cursor, wi);
-						if (r != r_continue) return r;
-					}
-					return r_continue;
-				}
-				else if constexpr (std::is_same_v<T, QiPopText>)
-				{
-					const QiPopText& popText = var;
-					Qi::popText->Popup(popText.time, WToQString(popText.str), RGB(223, 223, 223));
-					return r_continue;
-				}
-				else if constexpr (std::is_same_v<T, QiRememberPos>)
-				{
-					const QiRememberPos& rememberPos = var;
-					cursor = Input::pos();
-					return r_continue;
-				}
-				else if constexpr (std::is_same_v<T, QiTimer>)
-				{
-					const QiTimer& timer = var;
-					clock_t time = Rand(timer.max, timer.min);
-					clock_t begin = clock();
-					while (Qi::run && !QiThread::PeekExitMsg())
-					{
-						if (!((begin + time) > clock())) return r_continue;
-						for (uint32 i = 0; i < timer.next.size(); i++)
-						{
-							int r = ActionExecute(timer.next.at(i), cursor, wi);
-							if (r != r_continue)
-							{
-								if (r == r_break) return r_continue;
-								else if (r == r_exit) return r_exit;
-							}
-						}
-					}
-					return r_continue;
-				}
-				else
-				{
-					return r_continue;
-				}
-			}, action);
+				else return r_exit;
+			}
+			else i++;
+		}
+		return r_continue;
 	}
 	void Trigger(short vk, const bool* state)
 	{

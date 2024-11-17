@@ -5,6 +5,14 @@
 inline const std::wstring macroPath = L"macro\\";
 inline const std::wstring macroType = L".json";
 
+struct DataRole
+{
+	enum
+	{
+		id = Qt::UserRole
+	};
+};
+
 struct PopTextInfo
 {
 	QString t;
@@ -48,6 +56,8 @@ namespace QiUi
 		QString syLoop;
 		QString syColor;
 		QString syImage;
+		QString syJump;
+		QString syPoint;
 
 		QString muOn;
 		QString muOff;
@@ -71,6 +81,8 @@ namespace QiUi
 		QString acPopText;
 		QString acRememberPos;
 		QString acTimer;
+		QString acJump;
+		QString acJumpPoint;
 		QString trOn;
 		QString trOff;
 		QString etChange;
@@ -188,7 +200,9 @@ struct QiType
 		image,
 		popText,
 		rememberPos,
-		timer
+		timer,
+		jump,
+		jumpPoint
 	};
 };
 
@@ -318,12 +332,12 @@ public:
 class QiPopText : public QiBase
 {
 public:
-	std::wstring str; uint32 time = 0;
+	std::wstring str; uint32 time = 0; bool sync = false;
 	QiPopText() noexcept : QiBase(QiType::popText) {}
 	QiPopText(const QiPopText& r) noexcept { operator=(r); }
 	QiPopText(QiPopText&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiPopText& r) noexcept { QiBase::operator=(r); time = r.time; str = r.str; }
-	void operator=(QiPopText&& r) noexcept { QiBase::operator=(std::move(r)); time = r.time; str = std::move(r.str); }
+	void operator=(const QiPopText& r) noexcept { QiBase::operator=(r); time = r.time; str = r.str; sync = r.sync; }
+	void operator=(QiPopText&& r) noexcept { QiBase::operator=(std::move(r)); time = r.time; str = std::move(r.str); sync = r.sync; }
 };
 class QiRememberPos : public QiBase
 {
@@ -344,6 +358,26 @@ public:
 	void operator=(const QiTimer& r) noexcept { QiBase::operator=(r); min = r.min; max = r.max; }
 	void operator=(QiTimer&& r) noexcept { QiBase::operator=(std::move(r)); min = r.min; max = r.max; }
 };
+class QiJump : public QiBase
+{
+public:
+	int32 id = 0;
+	QiJump() noexcept : QiBase(QiType::jump) {}
+	QiJump(const QiJump& r) noexcept { operator=(r); }
+	QiJump(QiJump&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiJump& r) noexcept { QiBase::operator=(r); id = r.id; }
+	void operator=(QiJump&& r) noexcept { QiBase::operator=(std::move(r)); id = r.id; }
+};
+class QiJumpPoint : public QiBase
+{
+public:
+	int32 id = 0;
+	QiJumpPoint() noexcept : QiBase(QiType::jumpPoint) {}
+	QiJumpPoint(const QiJumpPoint& r) noexcept { operator=(r); }
+	QiJumpPoint(QiJumpPoint&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiJumpPoint& r) noexcept { QiBase::operator=(r); id = r.id; }
+	void operator=(QiJumpPoint&& r) noexcept { QiBase::operator=(std::move(r)); id = r.id; }
+};
 
 using ActionVariant = std::variant
 <
@@ -361,7 +395,9 @@ using ActionVariant = std::variant
 	QiImage,
 	QiPopText,
 	QiRememberPos,
-	QiTimer
+	QiTimer,
+	QiJump,
+	QiJumpPoint
 >;
 
 class Action : public ActionVariant
@@ -442,6 +478,14 @@ std::visit([](auto&& var)
 		{
 			const QiTimer& timer = var;
 		}
+		else if constexpr (std::is_same_v<T, QiJump>)
+		{
+			const QiJump& jump = var;
+		}
+		else if constexpr (std::is_same_v<T, QiJumpPoint>)
+		{
+			const QiJumpPoint& jumpPoint = var;
+		}
 		else
 		{
 		}
@@ -449,7 +493,6 @@ std::visit([](auto&& var)
 );
 */
 ////////////////// ~Actions
-
 
 
 ////////////////// Macros
@@ -464,6 +507,8 @@ struct Macro
 	uint32 mode = 0;
 	uint32 count = 0;
 	std::wstring name;
+
+	POINT cursor = {};
 
 	WndInfo wi;
 

@@ -193,7 +193,7 @@ private:
 			else if (mc) Qi::popText->Show(QiFn::ParseCustom(p->t, "(宏名称)", "(1)"), p->c);
 			else if (pt) Qi::popText->Show("提示框位置");
 			else if (sz) Qi::popText->Show("提示框大小");
-			else if (tm) Qi::popText->Popup("提示框时间");
+			else if (tm) Qi::popText->Popup(Qi::ui.pop.time, "提示框时间");
 		}
 		else if (e->type() == QEvent::HoverLeave)
 		{
@@ -238,5 +238,5 @@ private Q_SLOTS:
 	void OnSdLR(int value) { Qi::ui.pop.p.x = value; Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y); Qi::popText->Show("提示框位置"); }
 	void OnSdTB(int value) { Qi::ui.pop.p.y = value; Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y); Qi::popText->Show("提示框位置"); }
 	void OnSdSize(int value) { Qi::ui.pop.size = value; Qi::popText->setSize(Qi::ui.pop.size); Qi::popText->Show("提示框大小"); }
-	void OnSdTime(int value) { Qi::ui.pop.time = value; Qi::popText->setTime(Qi::ui.pop.time); Qi::popText->Popup("提示框时间"); }
+	void OnSdTime(int value) { Qi::ui.pop.time = value; Qi::popText->Popup(Qi::ui.pop.time, "提示框时间"); }
 };

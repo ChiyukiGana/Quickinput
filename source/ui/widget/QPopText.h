@@ -21,15 +21,13 @@ public:
 		show,
 		hide,
 		setPos,
-		setSize,
-		setTime
+		setSize
 	};
 	PopTextEvent(int type, const QString& text, const QColor& color, int time) : QEvent((QEvent::Type)type), _text(text), _color(color), _time(time) {}
 	PopTextEvent(int type, const QString& text, const QColor& color) : QEvent((QEvent::Type)type), _text(text), _color(color) {}
 	PopTextEvent(int type) : QEvent((QEvent::Type)type) {}
 	PopTextEvent(int type, const QPoint& point) : QEvent((QEvent::Type)type), _point(point) {}
 	PopTextEvent(int type, int size) : QEvent((QEvent::Type)type), _size(size) {}
-	PopTextEvent(int type, int time, bool t) : QEvent((QEvent::Type)type), _time(time) {}
 	QString text() const { return _text; }
 	QColor color() const { return _color; }
 	QPoint point() const { return _point; }
@@ -44,9 +42,8 @@ class QPopText : public QDialog
 	QString text;
 	QColor color;
 	QTimer* timer;
-	int left;
-	int size;
 	int time;
+	int size;
 public:
 
 public:
@@ -55,9 +52,8 @@ public:
 		point = QPoint(5000, 0);
 		color = QColor(0xC0, 0xE0, 0xFF);
 		timer = new QTimer(this);
-		left = 0;
-		size = 20;
 		time = 1000;
+		size = 20;
 		connect(timer, SIGNAL(timeout()), this, SLOT(OnTimer()));
 
 		setAttribute(Qt::WA_TransparentForMouseEvents, true);
@@ -75,10 +71,6 @@ public:
 	{
 		QApplication::postEvent(this, new PopTextEvent(PopTextEvent::setSize, size));
 	}
-	void setTime(int time)
-	{
-		QApplication::postEvent(this, new PopTextEvent(PopTextEvent::setTime, time, true));
-	}
 	void Show(const QString& text, const QColor color = QColor(0xC0, 0xE0, 0xFF)) { QApplication::postEvent(this, new PopTextEvent(PopTextEvent::show, text, color)); }
 	void Popup(const QString& text, const QColor color = QColor(0xC0, 0xE0, 0xFF)) { QApplication::postEvent(this, new PopTextEvent(PopTextEvent::pop, text, color, 1000)); }
 	void Popup(int time, const QString& text, const QColor color = QColor(0xC0, 0xE0, 0xFF)) { QApplication::postEvent(this, new PopTextEvent(PopTextEvent::pop, text, color, time)); }
@@ -92,7 +84,7 @@ private:
 			timer->stop();
 			color = popText->color();
 			text = popText->text();
-			left = popText->time();
+			time = popText->time();
 			setWindowOpacity(1.0);
 			timer->start(32);
 			repaint();
@@ -121,12 +113,6 @@ private:
 			if (size < 10) size = 10;
 			else if (size > 72) size = 72;
 		}
-		else if (popText->type() == PopTextEvent::setTime)
-		{
-			time = popText->time();
-			if (time < 100) time = 100;
-			else if (time > 5000) time = 5000;
-		}
 	}
 	void paintEvent(QPaintEvent* e)
 	{
@@ -150,15 +136,15 @@ private:
 private Q_SLOTS:
 	void OnTimer()
 	{
-		if (left < 1000)
+		if (time < 1000)
 		{
-			double opacity = ((double)left) / 1000.0;
+			double opacity = ((double)time) / 1000.0;
 			setWindowOpacity(opacity);
 		}
-		if (left > 32) left -= 32;
+		if (time > 32) time -= 32;
 		else
 		{
-			left = 0;
+			time = 0;
 			timer->stop();
 			setWindowOpacity(0.0);
 		}

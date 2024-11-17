@@ -88,7 +88,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>ver.2024-11-8</string>
+         <string>ver.2024-11-13</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -104,7 +104,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>修复低分辨率屏幕移动卡住</string>
+         <string>增加跳转功能
+增加弹出文字等待</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

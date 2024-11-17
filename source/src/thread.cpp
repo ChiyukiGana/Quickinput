@@ -46,20 +46,15 @@ namespace QiThread
 			pWi = &wi;
 		}
 
-		POINT cursor;
-		GetCursorPos(&cursor);
+		GetCursorPos(&pMacro->cursor);
+		int jumpId = 0;
 		uint32 count = 0;
 		while (Qi::run && !PeekExitMsg())
 		{
 			if (pMacro->count) { count++; if (count > pMacro->count) break; } // if count = 0 then while is infinite
-			for (uint32 i = 0; i < pMacro->acRun.size(); i++)
-			{
-				if (QiFn::ActionExecute(pMacro->acRun.at(i), cursor, pWi) != r_continue)
-				{
-					return 0;
-				}
-			}
+			if (QiFn::ActionExecute(pMacro->acRun, pMacro->cursor, pWi, jumpId) != r_continue) break;
 		}
+		return 0;
 	}
 	DWORD _stdcall MacroEnd(PVOID pParam)
 	{
@@ -76,9 +71,9 @@ namespace QiThread
 			}
 		}
 
-		POINT cursor;
-		GetCursorPos(&cursor);
-		for (uint32 i = 0; i < pMacro->acEnd.size(); i++) if (QiFn::ActionExecute(pMacro->acEnd.at(i), cursor, pWi) != r_continue) break;
+		int jumpId = 0;
+		QiFn::ActionExecute(pMacro->acEnd, pMacro->cursor, pWi, jumpId);
+		return 0;
 	}
 
 	DWORD _stdcall QuickClick(PVOID)

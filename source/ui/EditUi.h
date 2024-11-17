@@ -27,13 +27,17 @@ class EditUi : public QDialog
 {
 	Q_OBJECT;
 
-	const int32 tab_base = 0;
-	const int32 tab_loop = 1;
-	const int32 tab_state = 2;
-	const int32 tab_color = 3;
-	const int32 tab_image = 4;
-	const int32 tab_text = 5;
-	const int32 tab_window = 6;
+	enum TabIndex
+	{
+		tab_base,
+		tab_loop,
+		tab_state,
+		tab_jump,
+		tab_color,
+		tab_image,
+		tab_text,
+		tab_window
+	};
 
 	// edit box range
 	const int32 posMin = -10000;
@@ -116,6 +120,8 @@ public:
 		ui.bnImageAdd->setProperty("group", "edit-add_button");
 		ui.bnTextAdd->setProperty("group", "edit-add_button");
 		ui.bnPopTextAdd->setProperty("group", "edit-add_button");
+		ui.bnJumpAdd->setProperty("group", "edit-add_button");
+		ui.bnJumpPointAdd->setProperty("group", "edit-add_button");
 
 		ui.bnLoopEdit->setProperty("group", "edit-edit_button");
 		ui.bnTimerEdit->setProperty("group", "edit-edit_button");
@@ -126,6 +132,7 @@ public:
 		ui.chbMoveTrack->setProperty("group", "check");
 		ui.chbColorMove->setProperty("group", "check");
 		ui.chbImageMove->setProperty("group", "check");
+		ui.chbPopTextWait->setProperty("group", "check");
 		ui.chbWnd->setProperty("group", "check");
 		ui.chbChildWnd->setProperty("group", "check");
 
@@ -184,6 +191,8 @@ public:
 		ui.tbActions->setProperty("group", "table");
 		ui.tbActions->horizontalHeader()->setProperty("group", "table_header");
 		ui.tbActions->verticalHeader()->setProperty("group", "table_header");
+
+		ui.lsJumpPoint->setProperty("group", "table");
 
 		const QObjectList& objs = ui.tbActions->children();
 		for (size_t i = 0; i < objs.size(); i++)
@@ -250,10 +259,13 @@ private:
 				ui.bnImageAdd->setText(Qi::ui.text.etAdd);
 				ui.bnEndAdd->setText(Qi::ui.text.etAdd);
 				ui.bnEndLoopAdd->setText(Qi::ui.text.etAdd);
+				ui.bnJumpAdd->setText(Qi::ui.text.etAdd);
+				ui.bnJumpPointAdd->setText(Qi::ui.text.etAdd);
 				ui.bnStateEdit->setText(Qi::ui.text.etEdit);
 				ui.bnLoopEdit->setText(Qi::ui.text.etEdit);
 				ui.bnColorEdit->setText(Qi::ui.text.etEdit);
 				ui.bnImageEdit->setText(Qi::ui.text.etEdit);
+				ui.bnTimerEdit->setText(Qi::ui.text.etEdit);
 			}
 			if ("clear shortcut")
 			{
@@ -275,6 +287,9 @@ private:
 				ui.bnImageAdd->setShortcut(Qt::Key_unknown);
 				ui.bnEndAdd->setShortcut(Qt::Key_unknown);
 				ui.bnEndLoopAdd->setShortcut(Qt::Key_unknown);
+				ui.bnTimerEdit->setShortcut(Qt::Key_unknown);
+				ui.bnJumpAdd->setShortcut(Qt::Key_unknown);
+				ui.bnJumpPointAdd->setShortcut(Qt::Key_unknown);
 				ui.bnStateEdit->setShortcut(Qt::Key_unknown);
 				ui.bnLoopEdit->setShortcut(Qt::Key_unknown);
 				ui.bnColorEdit->setShortcut(Qt::Key_unknown);
@@ -282,11 +297,7 @@ private:
 			}
 			if ("disable edit buttons")
 			{
-				ui.bnStateEdit->setDisabled(true);
-				ui.bnLoopEdit->setDisabled(true);
-				ui.bnTimerEdit->setDisabled(true);
-				ui.bnColorEdit->setDisabled(true);
-				ui.bnImageEdit->setDisabled(true);
+				DisableButtons();
 			}
 		}
 		if ("set radio group")
@@ -416,6 +427,10 @@ private:
 			connect(ui.tbActions, SIGNAL(cellDoubleClicked(int, int)), this, SLOT(OnTbDoubleClick(int, int)));
 			connect(ui.tbActions, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(OnTableMenu(const QPoint&)));
 		}
+		if ("list")
+		{
+			connect(ui.lsJumpPoint, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(OnLsJumpClick(QListWidgetItem*)));
+		}
 		if ("action widget")
 		{
 			connect(ui.bnKeyAdd, SIGNAL(clicked()), this, SLOT(OnBnKeyAdd()));
@@ -447,11 +462,23 @@ private:
 			connect(ui.bnImageRect, SIGNAL(clicked()), this, SLOT(OnBnImageRect()));
 			connect(ui.bnImageShot, SIGNAL(clicked()), this, SLOT(OnBnImageShot()));
 			connect(ui.bnPopTextAdd, SIGNAL(clicked()), this, SLOT(OnBnPopTextAdd()));
+			connect(ui.bnJumpAdd, SIGNAL(clicked()), this, SLOT(OnBnJumpAdd()));
+			connect(ui.bnJumpPointAdd, SIGNAL(clicked()), this, SLOT(OnBnJumpPointAdd()));
 		}
 		if ("timer")
 		{
 			connect(testTimer, SIGNAL(timeout()), this, SLOT(OnTestTimer()));
 		}
+	}
+
+	void DisableButtons()
+	{
+		ui.bnStateEdit->setDisabled(true);
+		ui.bnLoopEdit->setDisabled(true);
+		ui.bnTimerEdit->setDisabled(true);
+		ui.bnColorEdit->setDisabled(true);
+		ui.bnImageEdit->setDisabled(true);
+		ui.bnJumpAdd->setDisabled(true);
 	}
 
 	void SelectWindow()
@@ -529,17 +556,77 @@ private:
 			edit.move(pt);
 			edit.exec();
 			move(pt);
+			JumpPointUpdate();
 		}
+	}
+
+	void JumpPointCall(const Actions& actions)
+	{
+		for (size_t i = 0; i < actions.size(); i++)
+		{
+			std::visit([&](auto&& var)
+				{
+					using T = std::decay_t<decltype(var)>;
+					if constexpr (std::is_same_v<T, QiJumpPoint>)
+					{
+						const QiJumpPoint& jumpPoint = var;
+						QListWidgetItem* item = new QListWidgetItem(QString::number(jumpPoint.id) + QString::fromUtf8("　　　") + WToQString(jumpPoint.mark));
+						item->setData(DataRole::id, jumpPoint.id);
+						ui.lsJumpPoint->addItem(item);
+					}
+					else
+					{
+						const Actions* next = nullptr;
+
+						if constexpr (std::is_same_v<T, QiColor>)
+						{
+							const QiColor& color = var;
+							if (color.next.size()) next = &color.next;
+						}
+						else if constexpr (std::is_same_v<T, QiLoop>)
+						{
+							const QiLoop& loop = var;
+							if (loop.next.size()) next = &loop.next;
+						}
+						else if constexpr (std::is_same_v<T, QiKeyState>)
+						{
+							const QiKeyState& keyState = var;
+							if (keyState.next.size()) next = &keyState.next;
+						}
+						else if constexpr (std::is_same_v<T, QiImage>)
+						{
+							const QiImage& image = var;
+							if (image.next.size()) next = &image.next;
+						}
+						else if constexpr (std::is_same_v<T, QiTimer>)
+						{
+							const QiTimer& timer = var;
+							if (timer.next.size()) next = &timer.next;
+						}
+
+						if (next) JumpPointCall(*next);
+					}
+				}, actions.at(i));
+		}
+	}
+	void JumpPointUpdate()
+	{
+		Actions* actions = &macro->acRun;
+		if (ui.rbEnding->isChecked()) actions = &macro->acEnd;
+		ui.lsJumpPoint->clear();
+		JumpPointCall(*actions);
 	}
 
 	void TableUpdate()
 	{
+		DisableButtons();
 		updating = true;
 		ui.tbActions->clearMask();
 		ui.tbActions->setRowCount(actions->size());
 		ui.tbActions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
 		ui.tbActions->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
 		ui.tbActions->verticalHeader()->setDefaultSectionSize(0);
+
 		for (size_t i = 0; i < actions->size(); i++)
 		{
 			QString type;
@@ -736,6 +823,24 @@ private:
 							param += QString::number(timer.max);
 						}
 					}
+					else if constexpr (std::is_same_v<T, QiJump>)
+					{
+						const QiJump& jump = var;
+						type = Qi::ui.text.acJump;
+						mark = WToQString(jump.mark);
+
+						param = "id：";
+						param += QString::number(jump.id);
+					}
+					else if constexpr (std::is_same_v<T, QiJumpPoint>)
+					{
+						const QiJumpPoint& jumpPoint = var;
+						type = Qi::ui.text.acJumpPoint;
+						mark = WToQString(jumpPoint.mark);
+
+						param = "id：";
+						param += QString::number(jumpPoint.id);
+					}
 					else
 					{
 						type = "加载失败";
@@ -754,6 +859,7 @@ private:
 			item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 			ui.tbActions->setItem(i, 2, item);
 		}
+		JumpPointUpdate();
 		updating = false;
 	}
 
@@ -903,6 +1009,13 @@ private Q_SLOTS:
 		NextEdit();
 	}
 
+	// List
+	void OnLsJumpClick(QListWidgetItem*)
+	{
+		if (ui.lsJumpPoint->currentRow() < 0) ui.bnJumpAdd->setDisabled(true);
+		else ui.bnJumpAdd->setEnabled(true);
+	}
+
 	// Table
 	void OnRbRunning(bool state)
 	{
@@ -927,14 +1040,11 @@ private Q_SLOTS:
 		if (column != 2) return;
 		QiBase& base = actions->at(row).base();
 		base.mark = QStringToW(ui.tbActions->item(row, 2)->text());
+		if (actions->at(row).base().type == QiType::jumpPoint) JumpPointUpdate();
 	}
 	void OnTbClicked(int row, int column)
 	{
-		ui.bnLoopEdit->setDisabled(true);
-		ui.bnColorEdit->setDisabled(true);
-		ui.bnStateEdit->setDisabled(true);
-		ui.bnImageEdit->setDisabled(true);
-		ui.bnTimerEdit->setDisabled(true);
+		DisableButtons();
 
 		pv.hide();
 		rv.hide();
@@ -1065,7 +1175,6 @@ private Q_SLOTS:
 							rect = QiFn::ATRR(image.rect);
 						}
 						rv.Show(rect);
-						ui.tabWidget->setCurrentIndex(4);
 
 						WidgetSetImage(image);
 					}
@@ -1085,6 +1194,20 @@ private Q_SLOTS:
 						ui.tabWidget->setCurrentIndex(tab_loop);
 
 						ui.bnTimerEdit->setEnabled(true);
+					}
+					else if constexpr (std::is_same_v<T, QiJump>)
+					{
+						const QiJump& jump = var;
+						ui.tabWidget->setCurrentIndex(tab_jump);
+					}
+					else if constexpr (std::is_same_v<T, QiJumpPoint>)
+					{
+						const QiJumpPoint& jumpPoint = var;
+						ui.tabWidget->setCurrentIndex(tab_jump);
+					}
+					else
+					{
+						ui.tabWidget->setCurrentIndex(tab_base);
 					}
 				},
 			actions->at(row));
@@ -1400,6 +1523,16 @@ private Q_SLOTS:
 		if (changing) ItemChange(QiType::popText);
 		else ItemAdd(QiType::popText);
 	}
+	void OnBnJumpAdd()
+	{
+		if (changing) ItemChange(QiType::jump);
+		else ItemAdd(QiType::jump);
+	}
+	void OnBnJumpPointAdd()
+	{
+		if (changing) ItemChange(QiType::jumpPoint);
+		else ItemAdd(QiType::jumpPoint);
+	}
 
 private:
 	// Action
@@ -1425,6 +1558,8 @@ private:
 				ui.bnImageAdd->setText(Qi::ui.text.etChange);
 				ui.bnPopTextAdd->setText(Qi::ui.text.etChange);
 				ui.bnRememberPosAdd->setText(Qi::ui.text.etChange);
+				ui.bnJumpAdd->setText(Qi::ui.text.etChange);
+				ui.bnJumpPointAdd->setText(Qi::ui.text.etChange);
 			}
 		}
 		else
@@ -1445,6 +1580,8 @@ private:
 				ui.bnImageAdd->setText(Qi::ui.text.etAdd);
 				ui.bnPopTextAdd->setText(Qi::ui.text.etAdd);
 				ui.bnRememberPosAdd->setText(Qi::ui.text.etAdd);
+				ui.bnJumpAdd->setText(Qi::ui.text.etAdd);
+				ui.bnJumpPointAdd->setText(Qi::ui.text.etAdd);
 			}
 		}
 	}
@@ -1542,6 +1679,8 @@ private:
 		case QiType::popText: action = WidgetGetPopText(); break;
 		case QiType::rememberPos: action = QiRememberPos(); break;
 		case QiType::timer: action = WidgetGetTimer(); break;
+		case QiType::jump: action = WidgetGetJump(); break;
+		case QiType::jumpPoint: action = WidgetGetJumpPoint(); break;
 		}
 		return std::move(action);
 	}
@@ -1550,7 +1689,7 @@ private:
 		int p = ui.tbActions->currentRow();
 		if (p < 0) p = actions->size();
 		else p++;
-		actions->Add(ItemGet(type));
+		actions->Ins(ItemGet(type), p);
 		TableUpdate();
 		ui.tbActions->setCurrentItem(ui.tbActions->item(p, 0));
 	}
@@ -1744,6 +1883,7 @@ private:
 		if (ui.etPopTextTime->text() != "") time = ui.etPopTextTime->text().toInt();
 		if (time > popTextTimeMax) time = popTextTimeMax;
 		popText.time = time;
+		popText.sync = ui.chbPopTextWait->isChecked();
 		return std::move(popText);
 	}
 	QiTimer WidgetGetTimer()
@@ -1758,6 +1898,20 @@ private:
 		timer.min = mn;
 		timer.max = mx;
 		return std::move(timer);
+	}
+	QiJump WidgetGetJump()
+	{
+		QiJump jump;
+		int row = ui.lsJumpPoint->currentRow();
+		if (row > -1) jump.id = ui.lsJumpPoint->item(row)->data(DataRole::id).toUInt();
+		return std::move(jump);
+	}
+	QiJumpPoint WidgetGetJumpPoint()
+	{
+		QiJumpPoint jumpPoint;
+		if (ui.rbEnding->isChecked()) jumpPoint.id = QiFn::UniqueJumpPoint(macro->acEnd);
+		else jumpPoint.id = QiFn::UniqueJumpPoint(macro->acRun);
+		return std::move(jumpPoint);
 	}
 
 	// Load widget data
@@ -1840,6 +1994,7 @@ private:
 	void WidgetSetPopText(const QiPopText& popText) {
 		ui.etPopText->setText(WToQString(popText.str));
 		ui.etPopTextTime->setText(QString::number(popText.time));
+		ui.chbPopTextWait->setChecked(popText.sync);
 	}
 	void WidgetSetTimer(const QiTimer& timer)
 	{

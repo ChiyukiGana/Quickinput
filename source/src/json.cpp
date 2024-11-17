@@ -192,6 +192,7 @@ namespace QiJson
 						jItem.Add("mark", String::toString(popText.mark));
 						jItem.Add("text", String::toString(popText.str));
 						jItem.Add("time", popText.time);
+						jItem.Add("sync", popText.sync, true);
 					}
 					else if constexpr (std::is_same_v<T, QiRememberPos>)
 					{
@@ -207,6 +208,20 @@ namespace QiJson
 						jItem.Add("min", timer.min);
 						jItem.Add("max", timer.max);
 						SaveAction(jNext, timer.next), jItem.Add("next", jNext);
+					}
+					else if constexpr (std::is_same_v<T, QiJump>)
+					{
+						const QiJump& jump = var;
+						jItem.Add("type", QiType::jump);
+						jItem.Add("mark", String::toString(jump.mark));
+						jItem.Add("id", jump.id);
+					}
+					else if constexpr (std::is_same_v<T, QiJumpPoint>)
+					{
+						const QiJumpPoint& jumpPoint = var;
+						jItem.Add("type", QiType::jumpPoint);
+						jItem.Add("mark", String::toString(jumpPoint.mark));
+						jItem.Add("id", jumpPoint.id);
 					}
 					else
 					{
@@ -409,7 +424,13 @@ namespace QiJson
 					break;
 				}
 
-				case QiType::loopEnd: actions.Add(QiLoopEnd()); break;
+				case QiType::loopEnd:
+				{
+					QiLoopEnd loopEnd; loopEnd.mark = String::toWString(str);
+					
+					actions.Add(QiLoopEnd());
+					break;
+				}
 
 				case QiType::keyState:
 				{
@@ -468,13 +489,20 @@ namespace QiJson
 
 					jItem.Get("text", str);
 					jItem.Get("time", popText.time);
+					jItem.Get("sync", popText.sync);
 					popText.str = String::toWString(str).c_str();
 
 					actions.Add(std::move(popText));
 					break;
 				}
 
-				case QiType::rememberPos: actions.Add(QiRememberPos()); break;
+				case QiType::rememberPos:
+				{
+					QiRememberPos rememberPos; rememberPos.mark = String::toWString(str);
+
+					actions.Add(std::move(rememberPos));
+					break;
+				}
 
 				case QiType::timer:
 				{
@@ -488,6 +516,23 @@ namespace QiJson
 					LoadAction(jNext, timer.next);
 
 					actions.Add(std::move(timer));
+					break;
+				}
+
+				case QiType::jump:
+				{
+					QiJump jump; jump.mark = String::toWString(str);
+
+					jItem.Get("id", jump.id);
+					actions.Add(std::move(jump));
+					break;
+				}
+				case QiType::jumpPoint:
+				{
+					QiJumpPoint jumpPoint; jumpPoint.mark = String::toWString(str);
+
+					jItem.Get("id", jumpPoint.id);
+					actions.Add(std::move(jumpPoint));
 					break;
 				}
 				}

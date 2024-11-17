@@ -5,6 +5,9 @@
 #define WToQString(stdwstring) (QString::fromWCharArray(stdwstring.c_str()))
 #define QStringToW(qstring) ((const wchar_t*)(qstring.utf16()))
 
+#define r_jump(id) (id << 16)
+#define is_jump(r) (r & 0xFFFF0000)
+#define jump_id(r) (r >> 16)
 constexpr int r_exit = 0;
 constexpr int r_continue = 1;
 constexpr int r_break = 2;

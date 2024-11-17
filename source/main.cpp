@@ -32,7 +32,6 @@ int main(int argc, char* argv[])
 	Qi::popText = new QPopText;
 	Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y);
 	Qi::popText->setSize(Qi::ui.pop.size);
-	Qi::popText->setTime(Qi::ui.pop.time);
 
 	MainUi mainWindow;
 	application.exec();
@@ -41,7 +40,7 @@ int main(int argc, char* argv[])
 
 void Init()
 {
-	if ("simple style")
+	if ("sample style")
 	{
 		std::wstring path = Path::Append(Process::runPath(), L"style");
 		if (!File::FolderState(path))
@@ -332,6 +331,8 @@ QTableWidget QLineEdit {})");
 			Qi::ui.text.syLoop = "♾️";
 			Qi::ui.text.syColor = "🌈";
 			Qi::ui.text.syImage = "🖼";
+			Qi::ui.text.syPoint = "🪂";
+			Qi::ui.text.syJump = "🛩";
 		}
 		else
 		{
@@ -358,6 +359,8 @@ QTableWidget QLineEdit {})");
 			Qi::ui.text.syLoop = "↩";
 			Qi::ui.text.syColor = "☀";
 			Qi::ui.text.syImage = "☀";
+			Qi::ui.text.syPoint = "☟";
+			Qi::ui.text.syJump = "✈";
 		}
 	}
 
@@ -385,6 +388,8 @@ QTableWidget QLineEdit {})");
 		Qi::ui.text.acPopText = (QString::fromUtf8("弹出") + Qi::ui.text.syText);
 		Qi::ui.text.acRememberPos = (QString::fromUtf8("记录位置") + Qi::ui.text.syTurn);
 		Qi::ui.text.acTimer = (QString::fromUtf8("定时") + Qi::ui.text.syLoop);
+		Qi::ui.text.acJump = (QString::fromUtf8("跳转") + Qi::ui.text.syJump);
+		Qi::ui.text.acJumpPoint = (QString::fromUtf8("锚点") + Qi::ui.text.syPoint);
 		Qi::ui.text.trOn = (QString::fromUtf8("启用") + Qi::ui.text.syOn);
 		Qi::ui.text.trOff = (QString::fromUtf8("禁用") + Qi::ui.text.syOff);
 		Qi::ui.text.etFunc = (QString::fromUtf8("动作") + Qi::ui.text.syOption);
