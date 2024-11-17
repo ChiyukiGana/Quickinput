@@ -458,7 +458,7 @@ QPushButton:hover{background-color:#C00;}</string>
            <x>0</x>
            <y>0</y>
            <width>776</width>
-           <height>3062</height>
+           <height>3130</height>
           </rect>
          </property>
          <property name="styleSheet">
@@ -500,7 +500,11 @@ QPushButton:hover{background-color:#C00;}</string>
              <string notr="true">font-size:12px;</string>
             </property>
             <property name="text">
-             <string>2024-2-28
+             <string>2024-3-6
+ㅤㅤ1：增加窗口录制时检测目标窗口是否有效
+ㅤㅤ2：增加选择窗口时按ESC取消
+
+2024-2-28
 ㅤㅤ1：优化触发判断速度
 ㅤㅤ2：修改时保留备注
 

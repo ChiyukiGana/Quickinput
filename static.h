@@ -334,8 +334,13 @@ static WndInfo WindowSelection()
 {
 	WndInfo wi;
 	sleep(20);
-	TipsWindow::Show(L"按回车开始，在对应窗口中再按回车获取窗口", RGB(0x20, 0xFF, 0x20));
-	while (!Input::state(VK_RETURN)) sleep(10);
+	TipsWindow::Show(L"按ESC取消，按回车开始，再按回车获取窗口", RGB(0x20, 0xFF, 0x20));
+	while (true)
+	{
+		if (Input::state(VK_RETURN)) break;
+		if (Input::state(VK_ESCAPE)) { TipsWindow::Hide(); return wi; }
+		sleep(10);
+	}
 	Input::Loop(VK_RETURN);
 	while (!Input::state(VK_RETURN))
 	{

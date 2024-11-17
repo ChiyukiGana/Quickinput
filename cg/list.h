@@ -48,31 +48,32 @@ namespace CG
 		}
 		bool Del(uint32 p = uint32Max)
 		{
-			if (std::vector<T>::size() == 0) return 0;
+			if (std::vector<T>::size() == 0) return false;
 			if (p >= std::vector<T>::size()) p = std::vector<T>::size() - 1;
 			std::vector<T>::erase(std::vector<T>::begin() + p);
-			return 1;
+			return true;
 		}
 		bool DelBack(uint32 count = 1, uint32 p = uint32Max)
 		{
-			if (std::vector<T>::size() == 0) return 0;
+			if (std::vector<T>::size() == 0) return false;
 			if (p >= std::vector<T>::size()) p = std::vector<T>::size();
 			if (count > p) count = p;
 			std::vector<T>::erase(std::vector<T>::begin() + (p - count), std::vector<T>::begin() + p);
-			return 1;
+			return true;
 		}
 		bool DelFront(uint32 count = 1, uint32 p = 0)
 		{
-			if (std::vector<T>::size() == 0) return 0;
+			if (std::vector<T>::size() == 0) return false;
 			if (p >= std::vector<T>::size()) p = std::vector<T>::size();
 			if ((p + count) >= std::vector<T>::size()) count = std::vector<T>::size() - p;
 			std::vector<T>::erase(std::vector<T>::begin() + p, std::vector<T>::begin() + (p + count));
-			return 1;
+			return true;
 		}
 		bool Swp(uint32 p1, uint32 p2)
 		{
-			if (p1 >= std::vector<T>::size() || p2 >= std::vector<T>::size()) return 0;
+			if (p1 >= std::vector<T>::size() || p2 >= std::vector<T>::size()) return false;
 			std::swap(std::vector<T>::operator[](p1), std::vector<T>::operator[](p2));
+			return true;
 		}
 		bool Mov(uint32 p1, uint32 p2)
 		{
@@ -80,14 +81,14 @@ namespace CG
 			if (p1 < p2)
 			{
 				for (uint32 p = p1; p < p2; p++) Swp(p, p + 1);
-				return 1;
+				return true;
 			}
 			else if (p1 > p2)
 			{
 				for (uint32 p = p1; p > p2; p--) Swp(p, p - 1);
-				return 1;
+				return true;
 			}
-			return 0;
+			return false;
 		}
 	};
 }

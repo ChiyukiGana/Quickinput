@@ -86,15 +86,12 @@ private:
 
 	void RecStart(bool wnd)
 	{
-		macros.AddNull();
-		macros.Get().mode = Macro::down;
-		macros.Get().count = 1;
-		RecordUi rw(&macros.Get().actions);
+		RecordUi rw;
 		Global::qi.rec = &rw;
 		Global::qi.state = 0, Global::qi.run = 0;
 
-		HookState(1);
-		working = 1;
+		HookState(true);
+		working = true;
 		Global::qi.main->hide();
 		if (wnd)
 		{
@@ -107,9 +104,9 @@ private:
 			}
 		}
 		else rw.Start(0);
-		working = 0;
+		working = false;
 		Global::qi.main->show();
-		HookState(0);
+		HookState(false);
 	}
 
 	void showEvent(QShowEvent*)
