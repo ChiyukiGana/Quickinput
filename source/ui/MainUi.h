@@ -13,6 +13,7 @@
 class MainUi : public QMainWindow
 {
 	Q_OBJECT;
+	using This = MainUi;
 	Ui::MainUiClass ui;
 	QSystemTrayIcon* tray = nullptr;
 	QMenu* menu = nullptr;
@@ -81,19 +82,19 @@ private:
 			menu->addAction(exit);
 			tray->setContextMenu(menu);
 			tray->setToolTip("Quick input");
-			connect(tnon, SIGNAL(triggered()), this, SLOT(OnMenuTnon()));
-			connect(tnoff, SIGNAL(triggered()), this, SLOT(OnMenuTnoff()));
-			connect(show, SIGNAL(triggered()), this, SLOT(OnMenuShow()));
-			connect(hide, SIGNAL(triggered()), this, SLOT(OnMenuHide()));
-			connect(exit, SIGNAL(triggered()), this, SLOT(OnMenuExit()));
+			connect(tnon, &QAction::triggered, this, &This::OnMenuTnon);
+			connect(tnoff, &QAction::triggered, this, &This::OnMenuTnoff);
+			connect(show, &QAction::triggered, this, &This::OnMenuShow);
+			connect(hide, &QAction::triggered, this, &This::OnMenuHide);
+			connect(exit, &QAction::triggered, this, &This::OnMenuExit);
 		}
 
 		if ("event")
 		{
-			connect(tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)), this, SLOT(OnTrayClick(QSystemTrayIcon::ActivationReason)));
-			connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
-			connect(ui.bnMin, SIGNAL(clicked()), this, SLOT(OnBnMin()));
-			connect(ui.bnHide, SIGNAL(clicked()), this, SLOT(OnBnHide()));
+			connect(tray, &QSystemTrayIcon::activated, this, &This::OnTrayClick);
+			connect(ui.bnClose, &QPushButton::clicked, this, &This::OnBnClose);
+			connect(ui.bnMin, &QPushButton::clicked, this, &This::OnBnMin);
+			connect(ui.bnHide, &QPushButton::clicked, this, &This::OnBnHide);
 		}
 	}
 

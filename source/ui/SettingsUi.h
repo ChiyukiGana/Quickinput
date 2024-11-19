@@ -10,6 +10,7 @@
 class SettingsUi : public QWidget
 {
 	Q_OBJECT;
+	using This = SettingsUi;
 	Ui::SettingsUiClass ui;
 	MoreUi more;
 	SettingsData* sets = &Qi::set;
@@ -99,18 +100,18 @@ private:
 	}
 	void Event()
 	{
-		connect(ui.bnReadme, SIGNAL(clicked()), this, SLOT(OnBnReadme()));
-		connect(ui.bnTboxs, SIGNAL(clicked()), this, SLOT(OnBnTboxs()));
-		connect(ui.cmbTheme, SIGNAL(activated(int)), this, SLOT(OnCmbTheme(int)));
-		connect(ui.hkKey, SIGNAL(changed()), this, SLOT(OnHkKey()));
-		connect(ui.hkRec, SIGNAL(changed()), this, SLOT(OnHkRec()));
-		connect(ui.chbRecTrack, SIGNAL(clicked()), this, SLOT(OnRecTrack()));
-		connect(ui.chbDefOn, SIGNAL(clicked()), this, SLOT(OnDefOn()));
-		connect(ui.chbShowTips, SIGNAL(clicked()), this, SLOT(OnShowTips()));
-		connect(ui.chbAudFx, SIGNAL(clicked()), this, SLOT(OnAudFx()));
-		connect(ui.chbMinMode, SIGNAL(clicked()), this, SLOT(OnMinMode()));
-		connect(ui.chbStart, SIGNAL(clicked()), this, SLOT(OnStart()));
-		connect(ui.chbScaleBlock, SIGNAL(clicked()), this, SLOT(OnScaleBlock()));
+		connect(ui.bnReadme, &QPushButton::clicked, this, &This::OnBnReadme);
+		connect(ui.bnTboxs, &QPushButton::clicked, this, &This::OnBnTboxs);
+		connect(ui.cmbTheme, QOverload<int>::of(&QComboBox::activated), this, &This::OnCmbTheme);
+		connect(ui.hkKey, &QKeyEdit::changed, this, &This::OnHkKey);
+		connect(ui.hkRec, &QKeyEdit::changed, this, &This::OnHkRec);
+		connect(ui.chbRecTrack, &QPushButton::clicked, this, &This::OnRecTrack);
+		connect(ui.chbDefOn, &QPushButton::clicked, this, &This::OnDefOn);
+		connect(ui.chbShowTips, &QPushButton::clicked, this, &This::OnShowTips);
+		connect(ui.chbAudFx, &QPushButton::clicked, this, &This::OnAudFx);
+		connect(ui.chbMinMode, &QPushButton::clicked, this, &This::OnMinMode);
+		connect(ui.chbStart, &QPushButton::clicked, this, &This::OnStart);
+		connect(ui.chbScaleBlock, &QPushButton::clicked, this, &This::OnScaleBlock);
 	}
 
 	bool event(QEvent* e)

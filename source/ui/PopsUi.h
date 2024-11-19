@@ -8,6 +8,7 @@
 class PopsUi : public QDialog
 {
 	Q_OBJECT;
+	using This = PopsUi;
 	Ui::PopsUiClass ui;
 	SettingsData* sets = &Qi::set;
 public:
@@ -80,38 +81,38 @@ private:
 	}
 	void Event()
 	{
-		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
+		connect(ui.bnClose, &QPushButton::clicked, this, &This::OnBnClose);
 
-		connect(ui.etQE, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtQE(const QString&)));
-		connect(ui.etQD, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtQD(const QString&)));
-		connect(ui.etWE, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtWE(const QString&)));
-		connect(ui.etWD, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtWD(const QString&)));
-		connect(ui.etQcE, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtQcE(const QString&)));
-		connect(ui.etQcD, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtQcD(const QString&)));
-		connect(ui.etSwE, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtSwE(const QString&)));
-		connect(ui.etSwD, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtSwD(const QString&)));
-		connect(ui.etDwE, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtDwE(const QString&)));
-		connect(ui.etDwD, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtDwD(const QString&)));
-		connect(ui.etUpE, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtUpE(const QString&)));
-		connect(ui.etUpD, SIGNAL(textChanged(const QString&)), this, SLOT(OnEtUpD(const QString&)));
+		connect(ui.etQE, &QLineEdit::textChanged, this, &This::OnEtQE);
+		connect(ui.etQD, &QLineEdit::textChanged, this, &This::OnEtQD);
+		connect(ui.etWE, &QLineEdit::textChanged, this, &This::OnEtWE);
+		connect(ui.etWD, &QLineEdit::textChanged, this, &This::OnEtWD);
+		connect(ui.etQcE, &QLineEdit::textChanged, this, &This::OnEtQcE);
+		connect(ui.etQcD, &QLineEdit::textChanged, this, &This::OnEtQcD);
+		connect(ui.etSwE, &QLineEdit::textChanged, this, &This::OnEtSwE);
+		connect(ui.etSwD, &QLineEdit::textChanged, this, &This::OnEtSwD);
+		connect(ui.etDwE, &QLineEdit::textChanged, this, &This::OnEtDwE);
+		connect(ui.etDwD, &QLineEdit::textChanged, this, &This::OnEtDwD);
+		connect(ui.etUpE, &QLineEdit::textChanged, this, &This::OnEtUpE);
+		connect(ui.etUpD, &QLineEdit::textChanged, this, &This::OnEtUpD);
 
-		connect(ui.bnQE, SIGNAL(clicked()), this, SLOT(OnBnQE()));
-		connect(ui.bnQD, SIGNAL(clicked()), this, SLOT(OnBnQD()));
-		connect(ui.bnWE, SIGNAL(clicked()), this, SLOT(OnBnWE()));
-		connect(ui.bnWD, SIGNAL(clicked()), this, SLOT(OnBnWD()));
-		connect(ui.bnQcE, SIGNAL(clicked()), this, SLOT(OnBnQcE()));
-		connect(ui.bnQcD, SIGNAL(clicked()), this, SLOT(OnBnQcD()));
-		connect(ui.bnSwE, SIGNAL(clicked()), this, SLOT(OnBnSwE()));
-		connect(ui.bnSwD, SIGNAL(clicked()), this, SLOT(OnBnSwD()));
-		connect(ui.bnDwE, SIGNAL(clicked()), this, SLOT(OnBnDwE()));
-		connect(ui.bnDwD, SIGNAL(clicked()), this, SLOT(OnBnDwD()));
-		connect(ui.bnUpE, SIGNAL(clicked()), this, SLOT(OnBnUpE()));
-		connect(ui.bnUpD, SIGNAL(clicked()), this, SLOT(OnBnUpD()));
+		connect(ui.bnQE, &QPushButton::clicked, this, &This::OnBnQE);
+		connect(ui.bnQD, &QPushButton::clicked, this, &This::OnBnQD);
+		connect(ui.bnWE, &QPushButton::clicked, this, &This::OnBnWE);
+		connect(ui.bnWD, &QPushButton::clicked, this, &This::OnBnWD);
+		connect(ui.bnQcE, &QPushButton::clicked, this, &This::OnBnQcE);
+		connect(ui.bnQcD, &QPushButton::clicked, this, &This::OnBnQcD);
+		connect(ui.bnSwE, &QPushButton::clicked, this, &This::OnBnSwE);
+		connect(ui.bnSwD, &QPushButton::clicked, this, &This::OnBnSwD);
+		connect(ui.bnDwE, &QPushButton::clicked, this, &This::OnBnDwE);
+		connect(ui.bnDwD, &QPushButton::clicked, this, &This::OnBnDwD);
+		connect(ui.bnUpE, &QPushButton::clicked, this, &This::OnBnUpE);
+		connect(ui.bnUpD, &QPushButton::clicked, this, &This::OnBnUpD);
 
-		connect(ui.sdLR, SIGNAL(valueChanged(int)), this, SLOT(OnSdLR(int)));
-		connect(ui.sdTB, SIGNAL(valueChanged(int)), this, SLOT(OnSdTB(int)));
-		connect(ui.sdSize, SIGNAL(valueChanged(int)), this, SLOT(OnSdSize(int)));
-		connect(ui.sdTime, SIGNAL(valueChanged(int)), this, SLOT(OnSdTime(int)));
+		connect(ui.sdLR, &QSlider::valueChanged, this, &This::OnSdLR);
+		connect(ui.sdTB, &QSlider::valueChanged, this, &This::OnSdTB);
+		connect(ui.sdSize, &QSlider::valueChanged, this, &This::OnSdSize);
+		connect(ui.sdTime, &QSlider::valueChanged, this, &This::OnSdTime);
 	}
 	void SetColor(const QColor& color, QPushButton* button)
 	{

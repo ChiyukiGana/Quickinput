@@ -22,13 +22,13 @@
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <PreferredToolArchitecture>x86</PreferredToolArchitecture>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
-    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <PreferredToolArchitecture>x86</PreferredToolArchitecture>
     <UseDebugLibraries>true</UseDebugLibraries>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -41,9 +41,9 @@
     <QtBuildConfig>release</QtBuildConfig>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="QtSettings">
-    <QtInstall>Qt5.15.15_32_static</QtInstall>
-    <QtModules>widgets;winextras</QtModules>
+    <QtInstall>Qt5.15.15_32_shared</QtInstall>
     <QtBuildConfig>debug</QtBuildConfig>
+    <QtModules>widgets;winextras</QtModules>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
     <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
@@ -66,7 +66,7 @@
     <PreLinkEventUseInBuild>false</PreLinkEventUseInBuild>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
-    <ExternalIncludePath>$(SolutionDir)source;$(SolutionDir)source\ui;$(SolutionDir)source\ui\widget;$(SolutionDir)cg;C:\#\Dev\cg;$(ExternalIncludePath)</ExternalIncludePath>
+    <ExternalIncludePath>$(ProjectDir)source;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget;$(ProjectDir)source\libcurl\include;$(ProjectDir);C:\#\Dev;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">
     <OutDir>$(Configuration)\Application\</OutDir>
@@ -75,7 +75,7 @@
     <PreLinkEventUseInBuild>false</PreLinkEventUseInBuild>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
-    <ExternalIncludePath>$(SolutionDir)source;$(SolutionDir)source\ui;$(SolutionDir)source\ui\widget;$(SolutionDir)cg;C:\#\Dev\cg;$(ExternalIncludePath)</ExternalIncludePath>
+    <ExternalIncludePath>$(ProjectDir)source;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget;$(ProjectDir)source\libcurl\include;$(ProjectDir);C:\#\Dev;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Link>
@@ -88,7 +88,7 @@
     <ClCompile>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <PrecompiledHeaderFile />
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -101,7 +101,7 @@
     <ClCompile>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <Optimization>MaxSpeed</Optimization>
       <FavorSizeOrSpeed>Size</FavorSizeOrSpeed>
@@ -151,7 +151,6 @@
   <ItemGroup>
     <ClCompile Include="source\main.cpp" />
     <ClCompile Include="source\src\func.cpp" />
-    <ClCompile Include="source\src\ginc.cpp" />
     <ClCompile Include="source\src\input.cpp" />
     <ClCompile Include="source\src\interpreter.cpp" />
     <ClCompile Include="source\src\json.cpp" />
@@ -166,6 +165,8 @@
     <ClInclude Include="source\src\qitype.h" />
     <ClInclude Include="source\src\thread.h" />
     <ClInclude Include="source\src\type.h" />
+    <ClInclude Include="source\src\update.h" />
+    <QtMoc Include="source\ui\UpdateUi.h" />
     <QtMoc Include="source\ui\widget\QWindowSelection.h" />
     <QtMoc Include="source\ui\widget\QPopText.h" />
     <QtMoc Include="source\ui\widget\QKeyEdit.h" />
@@ -198,6 +199,7 @@
     <QtUic Include="source\ui\SettingsUi.ui" />
     <QtUic Include="source\ui\PopsUi.ui" />
     <QtUic Include="source\ui\TriggerUi.ui" />
+    <QtUic Include="source\ui\UpdateUi.ui" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="source\res\QuickInput.rc" />

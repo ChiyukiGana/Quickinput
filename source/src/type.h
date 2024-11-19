@@ -2,8 +2,9 @@
 #pragma once
 #include "minc.h"
 
-inline const std::wstring macroPath = L"macro\\";
-inline const std::wstring macroType = L".json";
+inline const QString configFile = "QuickInput.json";
+inline const QString macroPath = "macro\\";
+inline const QString macroType = ".json";
 
 struct DataRole
 {
@@ -84,6 +85,9 @@ namespace QiUi
 		QString acJump;
 		QString acJumpPoint;
 		QString acDialog;
+		QString acBlock;
+		QString acBlockExec;
+
 		QString trOn;
 		QString trOff;
 		QString etChange;
@@ -128,27 +132,67 @@ namespace QiUi
 
 
 ////////////////// Window
-struct ChildWindow
-{
-	HWND wnd; // child
-	RECT rect; // child rect
-};
-typedef List<ChildWindow> ChildWindows;
+using HWNDS = List<HWND>;
 struct WndInput
 {
-	HWND wnd = 0; // parent
-	HWND current = 0; // currented (pt in rect)
-	ChildWindows children;
+	HWND wnd = nullptr; // parent
+	HWNDS children;
+	bool child = false;
+	HWND current = nullptr;
+
 	POINT pt = {}; // prev point
 	WORD mk = 0; // prev key
+	bool active()
+	{
+		return IsWindow(wnd);
+	}
+	HWND find(const POINT& pt, POINT& ptrel, bool child)
+	{
+		if (!active()) return nullptr;
+
+		if (child)
+		{
+			Window::FindChild(wnd, children);
+			for (uint32 i = 0; i < children.size(); i++) if (!IsWindowVisible(children[i])) children.Del(i);
+			
+			HWNDS inrect;
+			for (int32 u = (int32)children.size() - 1; u > -1; u--) if (InRect(Window::childRect(wnd, children[u]), pt)) inrect.Add(children[u]);
+
+			if (inrect.size())
+			{
+				// select minimum window
+				HWND min = nullptr;
+				uint64 minArea = uint64_max;
+				for (uint32 i = 0; i < inrect.size(); i++)
+				{
+					uint64 area = RectArea(Window::rect(inrect[i]));
+					if (area < minArea) min = inrect[i], minArea = area;
+				}
+
+				if (min)
+				{
+					ptrel = InRectPos(Window::childRect(wnd, min), pt);
+					return min;
+				}
+			}
+		}
+		ptrel = InRectPos(Window::sizeRect(wnd), pt);
+		return wnd;
+	}
 };
 struct WndInfo
 {
-	HWND wnd = 0;
+	HWND wnd = nullptr;
 	bool child = false;
-	std::wstring wndName;
-	std::wstring wndClass;
-	bool Update() { return wnd = FindWindowW(wndClass.c_str(), wndName.c_str()); }
+	QString wndName;
+	QString wndClass;
+	bool update() {
+		if (!IsWindow(wnd))
+		{
+			return wnd = FindWindowW(QStringToW(wndClass), QStringToW(wndName));
+		}
+		return true;
+	}
 };
 struct WndLock
 {
@@ -225,6 +269,8 @@ struct Widget
 	bool dialogActive = false;
 	bool mainActive = false;
 	bool moreActive = false;
+	bool versionActive = false;
+	bool licenseActive = false;
 	QWidget* main = nullptr;
 	QWidget* record = nullptr;
 };
@@ -244,11 +290,12 @@ struct Macro
 	uint32 key = 0;
 	uint32 mode = 0;
 	uint32 count = 0;
-	std::wstring name;
+	QString name;
 
 	POINT cursor = {};
 
 	WndInfo wi;
+	WndInput wp;
 
 	Actions acRun;
 	Actions acEnd;

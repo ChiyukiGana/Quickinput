@@ -8,13 +8,14 @@
 class MoreUi : public QDialog
 {
 	Q_OBJECT;
+	using This = MoreUi;
 	Ui::MoreUiClass ui;
 public:
-	MoreUi() : QDialog()
+	MoreUi()
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
-		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
+		connect(ui.bnClose, &QPushButton::clicked, this, &This::OnBnClose);
 		StyleGroup();
 	}
 	void StyleGroup()

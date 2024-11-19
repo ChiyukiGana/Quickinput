@@ -9,6 +9,8 @@
 class QWindowSelection : public QDialog
 {
 	Q_OBJECT;
+	using This = QWindowSelection;
+
 	QTimer* timer;
 	QRect prev;
 	HWND hWnd;
@@ -29,7 +31,7 @@ public:
 
 		timer = new QTimer(this);
 
-		connect(timer, SIGNAL(timeout()), this, SLOT(timerEvent()));
+		connect(timer, &QTimer::timeout, this, &This::timerEvent);
 		timer->start(16);
 	}
 
@@ -71,7 +73,6 @@ private Q_SLOTS:
 					setGeometry(rect);
 					repaint();
 				}
-
 			}
 		}
 	}

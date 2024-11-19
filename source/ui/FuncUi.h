@@ -9,6 +9,7 @@
 class FuncUi : public QWidget
 {
 	Q_OBJECT;
+	using This = FuncUi;
 	Ui::FuncUiClass ui;
 	FuncData* func = &Qi::fun;
 public:
@@ -65,7 +66,7 @@ private:
 		ui.cmbMode->setCurrentIndex(func->quickClick.mode);
 
 		ui.chbWndActive->setChecked(func->wndActive.state);
-		ui.etWndActive->setText(QString::fromWCharArray(func->wndActive.wi.wndName.c_str()));
+		ui.etWndActive->setText(func->wndActive.wi.wndName);
 
 		ui.chbClock->setChecked(func->showClock.state);
 		ui.hkClock->setKey(QKeyEdit::Key(func->showClock.key));
@@ -81,14 +82,14 @@ private:
 	}
 	void Event()
 	{
-		connect(ui.chbQkClick, SIGNAL(stateChanged(int)), this, SLOT(OnQcState(int)));
-		connect(ui.hkQkClick, SIGNAL(changed()), this, SLOT(OnQcKey()));
-		connect(ui.etQkDelay, SIGNAL(textEdited(const QString&)), this, SLOT(OnQcDelay(const QString&)));
-		connect(ui.cmbMode, SIGNAL(activated(int)), this, SLOT(OnQcMode(int)));
-		connect(ui.chbWndActive, SIGNAL(stateChanged(int)), this, SLOT(OnWcState(int)));
-		connect(ui.bnWndSelect, SIGNAL(clicked()), this, SLOT(OnWcSelect()));
-		connect(ui.chbClock, SIGNAL(stateChanged(int)), this, SLOT(OnClockState(int)));
-		connect(ui.hkClock, SIGNAL(changed()), this, SLOT(OnClockKey()));
+		connect(ui.chbQkClick,&QCheckBox::stateChanged, this, &This::OnQcState);
+		connect(ui.hkQkClick, &QKeyEdit::changed, this, &This::OnQcKey);
+		connect(ui.etQkDelay, &QLineEdit::textEdited, this, &This::OnQcDelay);
+		connect(ui.cmbMode, QOverload<int>::of(&QComboBox::activated), this, &This::OnQcMode);
+		connect(ui.chbWndActive, &QCheckBox::stateChanged, this, &This::OnWcState);
+		connect(ui.bnWndSelect, &QPushButton::clicked, this, &This::OnWcSelect);
+		connect(ui.chbClock, &QCheckBox::stateChanged, this, &This::OnClockState);
+		connect(ui.hkClock, &QKeyEdit::changed, this, &This::OnClockKey);
 	}
 
 	bool event(QEvent* e)
@@ -136,7 +137,7 @@ private Q_SLOTS:
 		Qi::widget.dialogActive = true;
 		Qi::widget.main->hide();
 		func->wndActive.wi = QiFn::WindowSelection();
-		ui.etWndActive->setText(QString::fromWCharArray(func->wndActive.wi.wndName.c_str()));
+		ui.etWndActive->setText(func->wndActive.wi.wndName);
 		Qi::widget.dialogActive = false;
 		Qi::widget.main->show();
 		QiJson::SaveJson();

@@ -1,5 +1,11 @@
 ﻿#pragma execution_character_set("utf-8")
 #include "json.h"
+#include <qdir.h>
+#include <qfile.h>
+#include <qjsondocument.h>
+#include <qjsonobject.h>
+#include <qjsonarray.h>
+#include <qjsonvalue.h>
 
 namespace QiJson
 {
@@ -20,7 +26,7 @@ namespace QiJson
 		Qi::fun.showClock.state = false;
 		Qi::fun.showClock.key = VK_MENU;
 		Qi::fun.wndActive.state = false;
-		Qi::fun.wndActive.wi.wndName = L"";
+		Qi::fun.wndActive.wi.wndName = "";
 	}
 	void LoadDefaultPopBox()
 	{
@@ -53,557 +59,500 @@ namespace QiJson
 		Qi::ui.pop.time = 1000;
 	}
 
-	void SavePopTextInfo(neb::CJsonObject& json, const PopTextInfo& p)
+	QJsonObject SavePopTextInfo(const PopTextInfo& p)
 	{
-		json.Clear();
-		json.Add("t", (const char*)p.t.toUtf8());
-		json.Add("c", (uint32)RGB(p.c.red(), p.c.green(), p.c.blue()));
+		QJsonObject json;
+		json.insert("t", p.t);
+		json.insert("c", (int)RGB(p.c.red(), p.c.green(), p.c.blue()));
+		return json;
 	}
-	void LoadPopTextInfo(const neb::CJsonObject& json, PopTextInfo& p)
+	PopTextInfo LoadPopTextInfo(const QJsonObject& json)
 	{
-		std::string str;
-		json.Get("t", str);
-		p.t = str.c_str();
-
-		uint32 color;
-		json.Get("c", color);
-		p.c = QColor(GetRValue(color), GetGValue(color), GetBValue(color));
+		PopTextInfo info;
+		info.t = json.value("t").toString();
+		int c = json.value("c").toInt();
+		info.c = QColor(GetRValue(c), GetGValue(c), GetBValue(c));
+		return info;
 	}
 
-	void SaveAction(neb::CJsonObject& jActions, const Actions& actions)
+	QJsonArray SaveAction(const Actions& actions)
 	{
-		for (uint32 u = 0; u < actions.size(); u++)
+		QJsonArray jActions;
+		for (uint32 i = 0; i < actions.size(); i++)
 		{
-			const Action& action = actions[u];
-			neb::CJsonObject jItem;
-			neb::CJsonObject jNext;
-			neb::CJsonObject jNext2;
+			const Action& action = actions[i];
+			QJsonObject jAction;
 
-			bool failed = false;
-			std::visit([&jItem, &jNext, &jNext2, &failed](auto&& var)
-				{
-					using T = std::decay_t<decltype(var)>;
-					if constexpr (std::is_same_v<T, QiEnd>)
-					{
-						const QiEnd& end = var;
-						jItem.Add("type", QiType::end);
-						jItem.Add("mark", String::toString(end.mark));
-					}
-					else if constexpr (std::is_same_v<T, QiDelay>)
-					{
-						const QiDelay& delay = var;
-						jItem.Add("type", QiType::delay);
-						jItem.Add("mark", String::toString(delay.mark));
-						jItem.Add("ms", delay.min);
-						jItem.Add("ex", delay.max);
-					}
-					else if constexpr (std::is_same_v<T, QiKey>)
-					{
-						const QiKey& key = var;
-						jItem.Add("type", QiType::key);
-						jItem.Add("mark", String::toString(key.mark));
-						jItem.Add("state", key.state);
-						jItem.Add("vk", key.vk);
-					}
-					else if constexpr (std::is_same_v<T, QiMouse>)
-					{
-						const QiMouse& mouse = var;
-						jItem.Add("type", QiType::mouse);
-						jItem.Add("mark", String::toString(mouse.mark));
-						jItem.Add("move", mouse.move, true);
-						jItem.Add("x", mouse.x);
-						jItem.Add("y", mouse.y);
-						jItem.Add("ex", mouse.ex);
-						jItem.Add("trk", mouse.track, true);
-						jItem.Add("spd", mouse.speed);
-					}
-					else if constexpr (std::is_same_v<T, QiText>)
-					{
-						const QiText& text = var;
-						jItem.Add("type", QiType::text);
-						jItem.Add("mark", String::toString(text.mark));
-						jItem.Add("text", String::toString(text.str));
-					}
-					else if constexpr (std::is_same_v<T, QiColor>)
-					{
-						const QiColor& color = var;
-						jItem.Add("type", QiType::color);
-						jItem.Add("mark", String::toString(color.mark));
-						jItem.Add("move", color.move, true);
-						jItem.Add("left", (int32)color.rect.left);
-						jItem.Add("top", (int32)color.rect.top);
-						jItem.Add("right", (int32)color.rect.right);
-						jItem.Add("bottom", (int32)color.rect.bottom);
-						jItem.Add("rgbe", (uint32)color.rgbe.toCOLORREF());
-						SaveAction(jNext, color.next), jItem.Add("next", jNext);
-						SaveAction(jNext2, color.next2), jItem.Add("next2", jNext2);
-					}
-					else if constexpr (std::is_same_v<T, QiLoop>)
-					{
-						const QiLoop& loop = var;
-						jItem.Add("type", QiType::loop);
-						jItem.Add("mark", String::toString(loop.mark));
-						jItem.Add("count", loop.min);
-						jItem.Add("rand", loop.max);
-						SaveAction(jNext, loop.next), jItem.Add("next", jNext);
-						SaveAction(jNext2, loop.next2), jItem.Add("next2", jNext2);
-					}
-					else if constexpr (std::is_same_v<T, QiLoopEnd>)
-					{
-						const QiLoopEnd& loopEnd = var;
-						jItem.Add("type", QiType::loopEnd);
-						jItem.Add("mark", String::toString(loopEnd.mark));
-					}
-					else if constexpr (std::is_same_v<T, QiKeyState>)
-					{
-						const QiKeyState& keyState = var;
-						jItem.Add("type", QiType::keyState);
-						jItem.Add("mark", String::toString(keyState.mark));
-						jItem.Add("vk", keyState.vk);
-						SaveAction(jNext, keyState.next), jItem.Add("next", jNext);
-						SaveAction(jNext2, keyState.next2), jItem.Add("next2", jNext2);
-					}
-					else if constexpr (std::is_same_v<T, QiRecoverPos>)
-					{
-						const QiRecoverPos& recoverPos = var;
-						jItem.Add("type", QiType::recoverPos);
-						jItem.Add("mark", String::toString(recoverPos.mark));
-					}
-					else if constexpr (std::is_same_v<T, QiImage>)
-					{
-						const QiImage& image = var;
-						jItem.Add("type", QiType::image);
-						jItem.Add("mark", String::toString(image.mark));
-						jItem.Add("move", image.move, true);
-						jItem.Add("left", (int32)(image.rect.left));
-						jItem.Add("top", (int32)(image.rect.top));
-						jItem.Add("right", (int32)(image.rect.right));
-						jItem.Add("bottom", (int32)(image.rect.bottom));
-						jItem.Add("sim", image.sim);
-						jItem.Add("width", image.map.width());
-						jItem.Add("height", image.map.height());
-						std::string data(Base64::EncodedLength(image.map.bytes()), '\0');
-						if (Base64::Encode((const char*)image.map.data(), image.map.bytes(), &data[0], data.size())) jItem.Add("data", data);
-						SaveAction(jNext, image.next), jItem.Add("next", jNext);
-						SaveAction(jNext2, image.next2), jItem.Add("next2", jNext2);
-					}
-					else if constexpr (std::is_same_v<T, QiPopText>)
-					{
-						const QiPopText& popText = var;
-						jItem.Add("type", QiType::popText);
-						jItem.Add("mark", String::toString(popText.mark));
-						jItem.Add("text", String::toString(popText.str));
-						jItem.Add("time", popText.time);
-						jItem.Add("sync", popText.sync, true);
-					}
-					else if constexpr (std::is_same_v<T, QiRememberPos>)
-					{
-						const QiRememberPos& rememberPos = var;
-						jItem.Add("type", QiType::rememberPos);
-						jItem.Add("mark", String::toString(rememberPos.mark));
-					}
-					else if constexpr (std::is_same_v<T, QiTimer>)
-					{
-						const QiTimer& timer = var;
-						jItem.Add("type", QiType::timer);
-						jItem.Add("mark", String::toString(timer.mark));
-						jItem.Add("min", timer.min);
-						jItem.Add("max", timer.max);
-						SaveAction(jNext, timer.next), jItem.Add("next", jNext);
-						SaveAction(jNext2, timer.next2), jItem.Add("next2", jNext2);
-					}
-					else if constexpr (std::is_same_v<T, QiJump>)
-					{
-						const QiJump& jump = var;
-						jItem.Add("type", QiType::jump);
-						jItem.Add("mark", String::toString(jump.mark));
-						jItem.Add("id", jump.id);
-					}
-					else if constexpr (std::is_same_v<T, QiJumpPoint>)
-					{
-						const QiJumpPoint& jumpPoint = var;
-						jItem.Add("type", QiType::jumpPoint);
-						jItem.Add("mark", String::toString(jumpPoint.mark));
-						jItem.Add("id", jumpPoint.id);
-					}
-					else if constexpr (std::is_same_v<T, QiDialog>)
-					{
-						const QiDialog& dialog = var;
-						jItem.Add("type", QiType::dialog);
-						jItem.Add("mark", String::toString(dialog.mark));
-						jItem.Add("style", dialog.style);
-						jItem.Add("title", String::toString(dialog.title));
-						jItem.Add("text", String::toString(dialog.text));
-						SaveAction(jNext, dialog.next), jItem.Add("next", jNext);
-						SaveAction(jNext2, dialog.next2), jItem.Add("next2", jNext2);
-					}
-					else
-					{
-						failed = true;
-					}
-				}, actions[u]);
+			bool success = true;
 
-			if (!failed) jActions.Add(jItem);
+			const Action& var = actions[i];
+
+			jAction.insert("type", (int)var.base().type);
+			jAction.insert("mark", var.base().mark);
+
+			switch (var.index())
+			{
+			case QiType::end:
+			{
+			} break;
+			case QiType::delay:
+			{
+				const QiDelay& delay = std::get<QiDelay>(var);
+				jAction.insert("ms", (int)delay.min);
+				jAction.insert("ex", (int)delay.max);
+			} break;
+			case QiType::key:
+			{
+				const QiKey& key = std::get<QiKey>(var);
+				jAction.insert("state", (int)key.state);
+				jAction.insert("vk", (int)key.vk);
+			} break;
+			case QiType::mouse:
+			{
+				const QiMouse& mouse = std::get<QiMouse>(var);
+				jAction.insert("move", (bool)mouse.move);
+				jAction.insert("x", (int)mouse.x);
+				jAction.insert("y", (int)mouse.y);
+				jAction.insert("ex", (int)mouse.ex);
+				jAction.insert("trk", (bool)mouse.track);
+				jAction.insert("spd", (int)mouse.speed);
+			} break;
+			case QiType::text:
+			{
+				const QiText& text = std::get<QiText>(var);
+				jAction.insert("text", text.text);
+			} break;
+			case QiType::color:
+			{
+				const QiColor& color = std::get<QiColor>(var);
+				jAction.insert("move", (bool)color.move);
+				jAction.insert("left", (int)color.rect.left);
+				jAction.insert("top", (int)color.rect.top);
+				jAction.insert("right", (int)color.rect.right);
+				jAction.insert("bottom", (int)color.rect.bottom);
+				jAction.insert("rgbe", (int)color.rgbe.toCOLORREF());
+				jAction.insert("next", SaveAction(color.next));
+				jAction.insert("next2", SaveAction(color.next2));
+			} break;
+			case QiType::loop:
+			{
+				const QiLoop& loop = std::get<QiLoop>(var);
+				jAction.insert("count", (int)loop.min);
+				jAction.insert("rand", (int)loop.max);
+				jAction.insert("next", SaveAction(loop.next));
+				jAction.insert("next2", SaveAction(loop.next2));
+			} break;
+			case QiType::loopEnd:
+			{
+			} break;
+			case QiType::keyState:
+			{
+				const QiKeyState& keyState = std::get<QiKeyState>(var);
+				jAction.insert("vk", (int)keyState.vk);
+				jAction.insert("next", SaveAction(keyState.next));
+				jAction.insert("next2", SaveAction(keyState.next2));
+			} break;
+			case QiType::recoverPos:
+			{
+			} break;
+			case QiType::image:
+			{
+				const QiImage& image = std::get<QiImage>(var);
+				jAction.insert("move", (bool)image.move);
+				jAction.insert("left", (int)(image.rect.left));
+				jAction.insert("top", (int)(image.rect.top));
+				jAction.insert("right", (int)(image.rect.right));
+				jAction.insert("bottom", (int)(image.rect.bottom));
+				jAction.insert("sim", (int)image.sim);
+				jAction.insert("width", (int)image.map.width());
+				jAction.insert("height", (int)image.map.height());
+
+				QByteArray data((const char*)image.map.data(), image.map.bytes());
+				
+				jAction.insert("data", data.toBase64().data());
+
+				jAction.insert("next", SaveAction(image.next));
+				jAction.insert("next2", SaveAction(image.next2));
+			} break;
+			case QiType::popText:
+			{
+				const QiPopText& popText = std::get<QiPopText>(var);
+				jAction.insert("text", popText.text);
+				jAction.insert("time", (int)popText.time);
+				jAction.insert("sync", (bool)popText.sync);
+			} break;
+			case QiType::timer:
+			{
+				const QiTimer& timer = std::get<QiTimer>(var);
+				jAction.insert("min", (int)timer.min);
+				jAction.insert("max", (int)timer.max);
+				jAction.insert("next", SaveAction(timer.next));
+				jAction.insert("next2", SaveAction(timer.next2));
+			} break;
+			case QiType::jump:
+			{
+				const QiJump& jump = std::get<QiJump>(var);
+				jAction.insert("id", (int)jump.id);
+			} break;
+			case QiType::jumpPoint:
+			{
+				const QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(var);
+				jAction.insert("id", (int)jumpPoint.id);
+			} break;
+			case QiType::dialog:
+			{
+				const QiDialog& dialog = std::get<QiDialog>(var);
+				jAction.insert("style", (int)dialog.style);
+				jAction.insert("title", dialog.title);
+				jAction.insert("text", dialog.text);
+				jAction.insert("next", SaveAction(dialog.next));
+				jAction.insert("next2", SaveAction(dialog.next2));
+			} break;
+			case QiType::block:
+			{
+				const QiBlock& block = std::get<QiBlock>(var);
+				jAction.insert("id", (int)block.id);
+				jAction.insert("next", SaveAction(block.next));
+			} break;
+			case QiType::blockExec:
+			{
+				const QiBlockExec& blockExec = std::get<QiBlockExec>(var);
+				jAction.insert("id", (int)blockExec.id);
+			} break;
+			default: success = false;
+			}
+
+			if (success) jActions.append(jAction);
 		}
+		return jActions;
 	}
 	void SaveMacro(Macro& macro)
 	{
-		neb::CJsonObject json;
-		neb::CJsonObject jActions;
-		neb::CJsonObject jActionsEnding;
-		SaveAction(jActions, macro.acRun);
-		SaveAction(jActionsEnding, macro.acEnd);
-		json.Add("document_ charset", std::string("UTF8"));
-		json.Add("type", std::string("QuickInputMacro"));
-		json.Add("wndState", macro.wndState, true);
-		json.Add("wndChild", macro.wi.child, true);
-		json.Add("wndName", String::toString(macro.wi.wndName));
-		json.Add("wndClass", String::toString(macro.wi.wndClass));
-		json.Add("state", macro.state, true);
-		json.Add("block", macro.block, true);
-		json.Add("mode", macro.mode);
-		json.Add("key", macro.key);
-		json.Add("count", macro.count);
-		json.Add("actions", jActions);
-		json.Add("actionsEnding", jActionsEnding);
-		std::string jstr = json.ToString();
-		File::FolderCreate(L"macro");
-		std::wstring path = Path::Append(Path::Append(Process::runPath(), L"macro"), macro.name + L".json");
-		File::TextSaveU(path, jstr);
+		QJsonObject jMacro;
+		jMacro.insert("document_charset", "UTF8");
+		jMacro.insert("type", "QuickInputMacro");
+		jMacro.insert("wndState", (bool)macro.wndState);
+		jMacro.insert("wndChild", (bool)macro.wi.child);
+		jMacro.insert("wndName", macro.wi.wndName);
+		jMacro.insert("wndClass", macro.wi.wndClass);
+		jMacro.insert("state", (bool)macro.state);
+		jMacro.insert("block", (bool)macro.block);
+		jMacro.insert("mode", (int)macro.mode);
+		jMacro.insert("key", (int)macro.key);
+		jMacro.insert("count", (int)macro.count);
+		jMacro.insert("actions", SaveAction(macro.acRun));
+		jMacro.insert("actionsEnding", SaveAction(macro.acEnd));
+
+		QJsonDocument json(jMacro);
+		QDir dir; dir.mkdir(macroPath);
+		QFile file(macroPath + macro.name + macroType);
+		file.open(QFile::WriteOnly | QFile::Text);
+		file.write(json.toJson());
+		file.close();
 	}
 	void SaveJson()
 	{
-		neb::CJsonObject cfg;
-		std::string str;
-		cfg.Add("document_charset", std::string("UTF8"));
-		cfg.Add("type", std::string("QuickInputConfig"));
-		cfg.Add("theme", Qi::set.theme);
-		cfg.Add("key", Qi::set.key);
-		cfg.Add("recKey", Qi::set.recKey);
-		cfg.Add("recTrack", Qi::set.recTrack, true);
-		cfg.Add("defOn", Qi::set.defOn, true);
-		cfg.Add("showTips", Qi::set.showTips, true);
-		cfg.Add("audFx", Qi::set.audFx, true);
-		cfg.Add("minMode", Qi::set.minMode, true);
-		cfg.Add("scaleBlock", Qi::set.scaleBlock, true);
-		cfg.Add("quickClickKey", Qi::fun.quickClick.key);
-		cfg.Add("quickClickState", Qi::fun.quickClick.state, true);
-		cfg.Add("quickClickDelay", Qi::fun.quickClick.delay);
-		cfg.Add("quickClickMode", Qi::fun.quickClick.mode);
-		cfg.Add("showClockKey", Qi::fun.showClock.key);
-		cfg.Add("showClockState", Qi::fun.showClock.state, true);
-		cfg.Add("wndActiveState", Qi::fun.wndActive.state, true);
-		cfg.Add("wndActiveName", String::toString(Qi::fun.wndActive.wi.wndName));
+		QJsonObject cfg;
+		cfg.insert("document_charset", "UTF8");
+		cfg.insert("type", "QuickInputConfig");
+		cfg.insert("theme", (int)Qi::set.theme);
+		cfg.insert("key", (int)Qi::set.key);
+		cfg.insert("recKey", (int)Qi::set.recKey);
+		cfg.insert("recTrack", (bool)Qi::set.recTrack);
+		cfg.insert("defOn", (bool)Qi::set.defOn);
+		cfg.insert("showTips", (bool)Qi::set.showTips);
+		cfg.insert("audFx", (bool)Qi::set.audFx);
+		cfg.insert("minMode", (bool)Qi::set.minMode);
+		cfg.insert("scaleBlock", (bool)Qi::set.scaleBlock);
+		cfg.insert("quickClickKey", (int)Qi::fun.quickClick.key);
+		cfg.insert("quickClickState", (bool)Qi::fun.quickClick.state);
+		cfg.insert("quickClickDelay", (int)Qi::fun.quickClick.delay);
+		cfg.insert("quickClickMode", (int)Qi::fun.quickClick.mode);
+		cfg.insert("showClockKey", (int)Qi::fun.showClock.key);
+		cfg.insert("showClockState", (bool)Qi::fun.showClock.state);
+		cfg.insert("wndActiveState", (bool)Qi::fun.wndActive.state);
+		cfg.insert("wndActiveName", Qi::fun.wndActive.wi.wndName);
+		cfg.insert("wndActiveClass", Qi::fun.wndActive.wi.wndClass);
+		if ("pop config")
 		{
-			neb::CJsonObject pbox;
-			neb::CJsonObject buf;
-			pbox.Add("px", (uint32)Qi::ui.pop.p.x);
-			pbox.Add("py", (uint32)Qi::ui.pop.p.y);
-			pbox.Add("size", Qi::ui.pop.size);
-			pbox.Add("time", Qi::ui.pop.time);
-			SavePopTextInfo(buf, Qi::ui.pop.qe);
-			pbox.Add("qe", buf);
-			SavePopTextInfo(buf, Qi::ui.pop.qd);
-			pbox.Add("qd", buf);
-			SavePopTextInfo(buf, Qi::ui.pop.we);
-			pbox.Add("we", buf);
-			SavePopTextInfo(buf, Qi::ui.pop.wd);
-			pbox.Add("wd", buf);
-			SavePopTextInfo(buf, Qi::ui.pop.qce);
-			pbox.Add("qce", buf);
-			SavePopTextInfo(buf, Qi::ui.pop.qcd);
-			pbox.Add("qcd", buf);
-			SavePopTextInfo(buf, Qi::ui.pop.swe);
-			pbox.Add("swe", buf);
-			SavePopTextInfo(buf, Qi::ui.pop.swd);
-			pbox.Add("swd", buf);
-			SavePopTextInfo(buf, Qi::ui.pop.dwe);
-			pbox.Add("dwe", buf);
-			SavePopTextInfo(buf, Qi::ui.pop.dwd);
-			pbox.Add("dwd", buf);
-			SavePopTextInfo(buf, Qi::ui.pop.upe);
-			pbox.Add("upe", buf);
-			SavePopTextInfo(buf, Qi::ui.pop.upd);
-			pbox.Add("upd", buf);
-			cfg.Add("popbox", pbox);
+			QJsonObject pop;
+			pop.insert("px", (int)Qi::ui.pop.p.x);
+			pop.insert("py", (int)Qi::ui.pop.p.y);
+			pop.insert("size", (int)Qi::ui.pop.size);
+			pop.insert("time", (int)Qi::ui.pop.time);
+			pop.insert("qe", SavePopTextInfo(Qi::ui.pop.qe));
+			pop.insert("qd", SavePopTextInfo(Qi::ui.pop.qd));
+			pop.insert("we", SavePopTextInfo(Qi::ui.pop.we));
+			pop.insert("wd", SavePopTextInfo(Qi::ui.pop.wd));
+			pop.insert("qce", SavePopTextInfo(Qi::ui.pop.qce));
+			pop.insert("qcd", SavePopTextInfo(Qi::ui.pop.qcd));
+			pop.insert("swe", SavePopTextInfo(Qi::ui.pop.swe));
+			pop.insert("swd", SavePopTextInfo(Qi::ui.pop.swd));
+			pop.insert("dwe", SavePopTextInfo(Qi::ui.pop.dwe));
+			pop.insert("dwd", SavePopTextInfo(Qi::ui.pop.dwd));
+			pop.insert("upe", SavePopTextInfo(Qi::ui.pop.upe));
+			pop.insert("upd", SavePopTextInfo(Qi::ui.pop.upd));
+			cfg.insert("popbox", pop);
 		}
-		File::TextSaveU(L"QuickInput.json", cfg.ToString());
+
+		QJsonDocument json(cfg);
+
+		QFile file(configFile);
+		file.open(QFile::WriteOnly | QFile::Text);
+		file.write(json.toJson());
+		file.close();
 	}
 
-	void LoadAction(const neb::CJsonObject jActions, Actions& actions)
+	Actions LoadAction(QJsonArray jActions)
 	{
-		size_t size = jActions.GetArraySize();
-		for (uint32 i = 0; i < size; i++)
+		Actions actions;
+		for (uint32 i = 0; i < jActions.size(); i++)
 		{
-			neb::CJsonObject jItem;
-			neb::CJsonObject jNext;
-			neb::CJsonObject jNext2;
-			jActions.Get(i, jItem);
+			QJsonObject jAction;
+			jAction = jActions.at(i).toObject();
 
-			uint32 ui32 = 0;
-			std::string str;
-			jItem.Get("type", ui32);
-			if (ui32)
+			int type = jAction.value("type").toInt();
+			QString mark;
+
+			if (type)
 			{
-				jItem.Get("mark", str);
-				switch (ui32)
+				mark = jAction.value("mark").toString();
+				switch (type)
 				{
 				case QiType::end:
 				{
-					QiEnd end; end.mark = String::toWString(str);
+					QiEnd end; end.mark = mark;
 
 					actions.Add(std::move(end));
-					break;
-				}
-
+				} break;
 				case QiType::delay:
 				{
-					QiDelay delay; delay.mark = String::toWString(str);
+					QiDelay delay; delay.mark = mark;
 
-					jItem.Get("ms", delay.min);
-					jItem.Get("ex", delay.max);
+					delay.min = jAction.value("ms").toInt();
+					delay.max = jAction.value("ex").toInt();
 					if (delay.max < delay.min) delay.max = delay.min;
 
 					actions.Add(std::move(delay));
-					break;
-				}
-
+				} break;
 				case QiType::key:
 				{
-					QiKey key; key.mark = String::toWString(str);
+					QiKey key; key.mark = mark;
 
-					jItem.Get("state", key.state);
-					jItem.Get("vk", key.vk);
+					key.state = jAction.value("state").toInt();
+					key.vk = jAction.value("vk").toInt();
 
 					actions.Add(std::move(key));
-					break;
-				}
-
+				} break;
 				case QiType::mouse:
 				{
-					QiMouse mouse; mouse.mark = String::toWString(str);
+					QiMouse mouse; mouse.mark = mark;
 
-					jItem.Get("move", mouse.move);
-					jItem.Get("x", mouse.x);
-					jItem.Get("y", mouse.y);
-					jItem.Get("ex", mouse.ex);
-					jItem.Get("trk", mouse.track);
-					jItem.Get("spd", mouse.speed);
+					mouse.move = jAction.value("move").toBool();
+					mouse.x = jAction.value("x").toInt();
+					mouse.y = jAction.value("y").toInt();
+					mouse.ex = jAction.value("ex").toInt();
+					mouse.track = jAction.value("trk").toBool();
+					mouse.speed = jAction.value("spd").toInt();
 					if (!mouse.speed) mouse.speed = 1;
+					if (mouse.speed > 99) mouse.speed = 99;
 
 					actions.Add(std::move(mouse));
-					break;
-				}
-
+				} break;
 				case QiType::text:
 				{
-					QiText text; text.mark = String::toWString(str);
+					QiText text; text.mark = mark;
 
-					jItem.Get("text", str);
-					text.str = String::toWString(str);
+					text.text = jAction.value("text").toString();
 
 					actions.Add(std::move(text));
-					break;
-				}
-
+				} break;
 				case QiType::color:
 				{
-					QiColor color; color.mark = String::toWString(str);
+					QiColor color; color.mark = mark;
 
-					jItem.Get("move", color.move);
-					jItem.Get("left", (int32&)(color.rect.left));
-					jItem.Get("top", (int32&)(color.rect.top));
-					jItem.Get("right", (int32&)(color.rect.right));
-					jItem.Get("bottom", (int32&)(color.rect.bottom));
-					jItem.Get("rgbe", ui32); color.rgbe.set(ui32);
-					jItem.Get("next", jNext);
-					jItem.Get("next2", jNext2);
-					LoadAction(jNext, color.next);
-					LoadAction(jNext2, color.next2);
+					color.move = jAction.value("move").toBool();
+					color.rect.left = jAction.value("left").toInt();
+					color.rect.top = jAction.value("top").toInt();
+					color.rect.right = jAction.value("right").toInt();
+					color.rect.bottom = jAction.value("bottom").toInt();
+					color.rgbe.set(jAction.value("rgbe").toInt());
+					jAction.value("next2").toArray();
+					color.next = LoadAction(jAction.value("next").toArray());
+					color.next2 = LoadAction(jAction.value("next").toArray());
 
 					actions.Add(std::move(color));
-					break;
-				}
-
+				} break;
 				case QiType::loop:
 				{
-					QiLoop loop; loop.mark = String::toWString(str);
+					QiLoop loop; loop.mark = mark;
 
-					jItem.Get("count", loop.min);
-					jItem.Get("rand", loop.max);
+					loop.min = jAction.value("count").toInt();
+					loop.max = jAction.value("rand").toInt();
 					if (loop.max < loop.min) loop.max = loop.min;
 
-					jItem.Get("next", jNext);
-					LoadAction(jNext, loop.next);
+					loop.next = LoadAction(jAction.value("next").toArray());
 
 					actions.Add(std::move(loop));
-					break;
-				}
-
+				} break;
 				case QiType::loopEnd:
 				{
-					QiLoopEnd loopEnd; loopEnd.mark = String::toWString(str);
-					
-					actions.Add(QiLoopEnd());
-					break;
-				}
+					QiLoopEnd loopEnd; loopEnd.mark = mark;
 
+					actions.Add(QiLoopEnd());
+				} break;
 				case QiType::keyState:
 				{
-					QiKeyState keyState; keyState.mark = String::toWString(str);
+					QiKeyState keyState; keyState.mark = mark;
 
-					jItem.Get("vk", keyState.vk);
-
-					jItem.Get("next", jNext);
-					jItem.Get("next2", jNext2);
-					LoadAction(jNext, keyState.next);
-					LoadAction(jNext2, keyState.next2);
+					keyState.vk = jAction.value("vk").toInt();
+					keyState.next = LoadAction(jAction.value("next").toArray());
+					keyState.next2 = LoadAction(jAction.value("next").toArray());
 
 					actions.Add(std::move(keyState));
-					break;
-				}
-
+				} break;
 				case QiType::recoverPos:
 				{
-					QiRecoverPos recoverPos; recoverPos.mark = String::toWString(str);
+					QiRecoverPos recoverPos; recoverPos.mark = mark;
 
 					actions.Add(std::move(recoverPos));
-					break;
-				}
-
+				} break;
 				case QiType::image:
 				{
-					QiImage image; image.mark = String::toWString(str);
+					QiImage image; image.mark = mark;
 
-					jItem.Get("move", image.move);
-					jItem.Get("left", (int32&)(image.rect.left));
-					jItem.Get("top", (int32&)(image.rect.top));
-					jItem.Get("right", (int32&)(image.rect.right));
-					jItem.Get("bottom", (int32&)(image.rect.bottom));
-					jItem.Get("sim", image.sim);
+					image.move = jAction.value("move").toBool();
+					image.rect.left = jAction.value("left").toInt();
+					image.rect.top = jAction.value("top").toInt();
+					image.rect.right = jAction.value("right").toInt();
+					image.rect.bottom = jAction.value("bottom").toInt();
+					image.sim = jAction.value("sim").toInt();
 
-					uint32 width, height;
-					jItem.Get("width", width);
-					jItem.Get("height", height);
-					std::string str; jItem.Get("data", str);
-					if (width && height && str.size())
+					int width = jAction.value("width").toInt();
+					int height = jAction.value("height").toInt();
+
+					QByteArray data;
+					data.fromBase64(jAction.value("data").toString().toUtf8());
+
+					if (width && height && data.size())
 					{
 						image.map.create(width, height);
-						if (!Base64::Decode(str.c_str(), str.size(), (char*)image.map.data(), image.map.bytes())) image.map.release();
+						memcpy_s(image.map.data(), image.map.bytes(), data.data(), data.size());
 					}
 
-					jItem.Get("next", jNext);
-					jItem.Get("next2", jNext2);
-					LoadAction(jNext, image.next);
-					LoadAction(jNext2, image.next2);
+					image.next = LoadAction(jAction.value("next").toArray());
+					image.next2 = LoadAction(jAction.value("next").toArray());
 
 					actions.Add(std::move(image));
-					break;
-				}
-
+				} break;
 				case QiType::popText:
 				{
-					QiPopText popText; popText.mark = String::toWString(str);
+					QiPopText popText; popText.mark = mark;
 
-					jItem.Get("text", str);
-					jItem.Get("time", popText.time);
-					jItem.Get("sync", popText.sync);
-					popText.str = String::toWString(str).c_str();
+					popText.text = jAction.value("text").toString();
+					popText.time = jAction.value("time").toInt();
+					popText.sync = jAction.value("sync").toBool();
 
 					actions.Add(std::move(popText));
-					break;
-				}
-
+				} break;
 				case QiType::rememberPos:
 				{
-					QiRememberPos rememberPos; rememberPos.mark = String::toWString(str);
+					QiRememberPos rememberPos; rememberPos.mark = mark;
 
 					actions.Add(std::move(rememberPos));
-					break;
-				}
-
+				} break;
 				case QiType::timer:
 				{
-					QiTimer timer; timer.mark = String::toWString(str);
+					QiTimer timer; timer.mark = mark;
 
-					jItem.Get("min", timer.min);
-					jItem.Get("max", timer.max);
+					timer.min = jAction.value("min").toInt();
+					timer.max = jAction.value("max").toInt();
 					if (timer.max < timer.min) timer.max = timer.min;
-
-					jItem.Get("next", jNext);
-					LoadAction(jNext, timer.next);
+					timer.next = LoadAction(jAction.value("next").toArray());
 
 					actions.Add(std::move(timer));
-					break;
-				}
-
+				} break;
 				case QiType::jump:
 				{
-					QiJump jump; jump.mark = String::toWString(str);
+					QiJump jump; jump.mark = mark;
 
-					jItem.Get("id", jump.id);
+					jump.id = jAction.value("id").toInt();
 					actions.Add(std::move(jump));
-					break;
-				}
-
+				} break;
 				case QiType::jumpPoint:
 				{
-					QiJumpPoint jumpPoint; jumpPoint.mark = String::toWString(str);
+					QiJumpPoint jumpPoint; jumpPoint.mark = mark;
 
-					jItem.Get("id", jumpPoint.id);
+					jumpPoint.id = jAction.value("id").toInt();
 					actions.Add(std::move(jumpPoint));
-					break;
-				}
-
+				} break;
 				case QiType::dialog:
 				{
-					QiDialog dialog; dialog.mark = String::toWString(str);
+					QiDialog dialog; dialog.mark = mark;
 
-					jItem.Get("style", dialog.style);
-					jItem.Get("title", str);
-					dialog.title = String::toWString(str).c_str();
-					jItem.Get("text", str);
-					dialog.text = String::toWString(str).c_str();
-
-					jItem.Get("next", jNext);
-					jItem.Get("next2", jNext2);
-					LoadAction(jNext, dialog.next);
-					LoadAction(jNext2, dialog.next2);
+					dialog.style = jAction.value("style").toInt();
+					dialog.title = jAction.value("title").toString();
+					dialog.text = jAction.value("text").toString();
+					dialog.next = LoadAction(jAction.value("next").toArray());
+					dialog.next2 = LoadAction(jAction.value("next").toArray());
 
 					actions.Add(std::move(dialog));
-					break;
-				}
+				} break;
+				case QiType::block:
+				{
+					QiBlock block; block.mark = mark;
+
+					block.id = jAction.value("id").toInt();
+					block.next = LoadAction(jAction.value("next").toArray());
+
+					actions.Add(std::move(block));
+				} break;
+				case QiType::blockExec:
+				{
+					QiBlockExec blockExec; blockExec.mark = mark;
+
+					blockExec.id = jAction.value("id").toInt();
+					actions.Add(std::move(blockExec));
+				} break;
+				default: actions.Add(QiBase(type)); break;
 				}
 			}
 		}
+		return actions;
 	}
 	void LoadMacro()
 	{
 		Qi::macros.clear();
+
 		File::FileList files = File::FindFile(L"macro\\*.json");
 		for (uint32 i = 0; i < files.size(); i++) {
-			std::wstring path = Path::Append(Path::Append(Process::runPath(), L"macro"), files[i].name);
-			Macro& macro = Qi::macros.AddNull(); macro.name = Path::RemoveExtension(files[i].name);
+			QFile file(macroPath + QString::fromWCharArray(files[i].name));
+			file.open(QFile::ReadOnly | QFile::Text);
 
-			std::string jstr = File::TextReadU(path);
-			if (jstr.size())
+			if (file.isOpen())
 			{
-				neb::CJsonObject jMacro(jstr);
-				std::string str;
-				jMacro.Get("wndState", macro.wndState);
-				jMacro.Get("wndChild", macro.wi.child);
-				jMacro.Get("wndName", str); macro.wi.wndName = String::toWString(str);
-				jMacro.Get("wndClass", str); macro.wi.wndClass = String::toWString(str);
-				jMacro.Get("state", macro.state);
-				jMacro.Get("block", macro.block);
-				jMacro.Get("mode", macro.mode);
-				jMacro.Get("key", macro.key);
-				jMacro.Get("count", macro.count);
+				QByteArray data = file.readAll();
+				file.close();
+				QJsonDocument json(QJsonDocument::fromJson(data));
 
-				neb::CJsonObject jActions; jMacro.Get("actions", jActions);
-				neb::CJsonObject jActionsEnding; jMacro.Get("actionsEnding", jActionsEnding);
-				LoadAction(jActions, macro.acRun);
-				LoadAction(jActionsEnding, macro.acEnd);
+				if (json.isObject())
+				{
+					Macro& macro = Qi::macros.AddNull(); macro.name = WToQString(Path::RemoveExtension(files[i].name));
+					QJsonObject jMacro(json.object());
+
+					macro.wndState = jMacro.value("wndState").toBool();
+					macro.wi.child = jMacro.value("wndChild").toBool();
+					macro.wi.wndName = jMacro.value("wndName").toString();
+					macro.wi.wndClass = jMacro.value("wndClass").toString();
+					macro.state = jMacro.value("state").toBool();
+					macro.block = jMacro.value("block").toBool();
+					macro.mode = jMacro.value("mode").toInt();
+					macro.key = jMacro.value("key").toInt();
+					macro.count = jMacro.value("count").toInt();
+
+					macro.acRun = LoadAction(jMacro.value("actions").toArray());
+					macro.acEnd = LoadAction(jMacro.value("actionsEnding").toArray());
+				}
 			}
 		}
 	}
@@ -611,66 +560,60 @@ namespace QiJson
 	{
 		LoadDefault();
 		LoadDefaultPopBox();
-		std::wstring path = Path::Append(Process::runPath(), L"QuickInput.json");
-		if (File::FileState(path))
+
+		QFile file(configFile);
+		file.open(QFile::ReadOnly | QFile::Text);
+
+		if (file.isOpen())
 		{
-			std::string jstr = File::TextReadU(path);
-			if (jstr.size())
+			QByteArray data = file.readAll();
+			file.close();
+			QJsonDocument json(QJsonDocument::fromJson(data));
+
+			if (json.isObject())
 			{
-				neb::CJsonObject cfg(jstr);
-				std::string str;
-				cfg.Get("theme", Qi::set.theme);
-				cfg.Get("key", Qi::set.key);
-				cfg.Get("recTrack", Qi::set.recTrack);
-				cfg.Get("recKey", Qi::set.recKey);
-				cfg.Get("defOn", Qi::set.defOn);
-				cfg.Get("showTips", Qi::set.showTips);
-				cfg.Get("audFx", Qi::set.audFx);
-				cfg.Get("minMode", Qi::set.minMode);
-				cfg.Get("scaleBlock", Qi::set.scaleBlock);
-				cfg.Get("quickClickState", Qi::fun.quickClick.state);
-				cfg.Get("quickClickKey", Qi::fun.quickClick.key);
-				cfg.Get("quickClickDelay", Qi::fun.quickClick.delay);
-				cfg.Get("quickClickMode", Qi::fun.quickClick.mode);
-				cfg.Get("showClockState", Qi::fun.showClock.state);
-				cfg.Get("showClockKey", Qi::fun.showClock.key);
-				cfg.Get("wndActiveState", Qi::fun.wndActive.state);
-				cfg.Get("wndActiveName", str); Qi::fun.wndActive.wi.wndName = String::toWString(str);
+				QJsonObject cfg(json.object());
+
+				Qi::set.theme = cfg.value("theme").toInt();
+				Qi::set.key = cfg.value("key").toInt();
+				Qi::set.recTrack = cfg.value("recTrack").toBool();
+				Qi::set.recKey = cfg.value("recKey").toInt();
+				Qi::set.defOn = cfg.value("defOn").toBool();
+				Qi::set.showTips = cfg.value("showTips").toBool();
+				Qi::set.audFx = cfg.value("audFx").toBool();
+				Qi::set.minMode = cfg.value("minMode").toBool();
+				Qi::set.scaleBlock = cfg.value("scaleBlock").toBool();
+				Qi::fun.quickClick.state = cfg.value("quickClickState").toBool();
+				Qi::fun.quickClick.key = cfg.value("quickClickKey").toInt();
+				Qi::fun.quickClick.delay = cfg.value("quickClickDelay").toInt();
+				Qi::fun.quickClick.mode = cfg.value("quickClickMode").toInt();
+				Qi::fun.showClock.state = cfg.value("showClockState").toBool();
+				Qi::fun.showClock.key = cfg.value("showClockKey").toInt();
+				Qi::fun.wndActive.state = cfg.value("wndActiveState").toBool();
+				Qi::fun.wndActive.wi.wndName = cfg.value("wndActiveName").toString();
+				Qi::fun.wndActive.wi.wndClass = cfg.value("wndActiveClass").toString();
 				{
-					neb::CJsonObject pbox;
-					cfg.Get("popbox", pbox);
-					if (pbox.IsEmpty()) LoadDefaultPopBox();
+					QJsonObject pop;
+					pop = cfg.value("popbox").toObject();
+					if (pop.isEmpty()) LoadDefaultPopBox();
 					else
 					{
-						neb::CJsonObject buf;
-						pbox.Get("qe", buf);
-						LoadPopTextInfo(buf, Qi::ui.pop.qe);
-						pbox.Get("qd", buf);
-						LoadPopTextInfo(buf, Qi::ui.pop.qd);
-						pbox.Get("we", buf);
-						LoadPopTextInfo(buf, Qi::ui.pop.we);
-						pbox.Get("wd", buf);
-						LoadPopTextInfo(buf, Qi::ui.pop.wd);
-						pbox.Get("qce", buf);
-						LoadPopTextInfo(buf, Qi::ui.pop.qce);
-						pbox.Get("qcd", buf);
-						LoadPopTextInfo(buf, Qi::ui.pop.qcd);
-						pbox.Get("swe", buf);
-						LoadPopTextInfo(buf, Qi::ui.pop.swe);
-						pbox.Get("swd", buf);
-						LoadPopTextInfo(buf, Qi::ui.pop.swd);
-						pbox.Get("dwe", buf);
-						LoadPopTextInfo(buf, Qi::ui.pop.dwe);
-						pbox.Get("dwd", buf);
-						LoadPopTextInfo(buf, Qi::ui.pop.dwd);
-						pbox.Get("upe", buf);
-						LoadPopTextInfo(buf, Qi::ui.pop.upe);
-						pbox.Get("upd", buf);
-						LoadPopTextInfo(buf, Qi::ui.pop.upd);
-						pbox.Get("time", Qi::ui.pop.time);
-						pbox.Get("size", Qi::ui.pop.size);
-						pbox.Get("px", (uint32&)Qi::ui.pop.p.x);
-						pbox.Get("py", (uint32&)Qi::ui.pop.p.y);
+						Qi::ui.pop.qe = LoadPopTextInfo(pop.value("qe").toObject());
+						Qi::ui.pop.qd = LoadPopTextInfo(pop.value("qd").toObject());
+						Qi::ui.pop.we = LoadPopTextInfo(pop.value("we").toObject());
+						Qi::ui.pop.wd = LoadPopTextInfo(pop.value("wd").toObject());
+						Qi::ui.pop.qce = LoadPopTextInfo(pop.value("qce").toObject());
+						Qi::ui.pop.qcd = LoadPopTextInfo(pop.value("qcd").toObject());
+						Qi::ui.pop.swe = LoadPopTextInfo(pop.value("swe").toObject());
+						Qi::ui.pop.swd = LoadPopTextInfo(pop.value("swd").toObject());
+						Qi::ui.pop.dwe = LoadPopTextInfo(pop.value("dwe").toObject());
+						Qi::ui.pop.dwd = LoadPopTextInfo(pop.value("dwd").toObject());
+						Qi::ui.pop.upe = LoadPopTextInfo(pop.value("upe").toObject());
+						Qi::ui.pop.upd = LoadPopTextInfo(pop.value("upd").toObject());
+						Qi::ui.pop.time = pop.value("time").toInt();
+						Qi::ui.pop.size = pop.value("size").toInt();
+						Qi::ui.pop.p.x = pop.value("px").toInt();
+						Qi::ui.pop.p.y = pop.value("py").toInt();
 					}
 				}
 				LoadMacro();

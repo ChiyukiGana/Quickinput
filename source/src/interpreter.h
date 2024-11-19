@@ -4,5 +4,5 @@
 
 namespace QiInterpreter
 {
-	int ActionInterpreter(const Actions& actions, POINT& cursor, WndInput* wi, int& jumpId, bool parent);
+	int ActionInterpreter(const Actions& parent, const Actions& current, POINT& cursor, WndInput* wp, int& jumpId);
 }

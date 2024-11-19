@@ -40,9 +40,6 @@
     <ClCompile Include="source\src\func.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="source\src\ginc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\src\input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -73,6 +70,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="source\src\qitype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\update.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -108,6 +108,9 @@
       <Filter>Form Files\ui</Filter>
     </QtUic>
     <QtUic Include="source\ui\TriggerUi.ui">
+      <Filter>Form Files\ui</Filter>
+    </QtUic>
+    <QtUic Include="source\ui\UpdateUi.ui">
       <Filter>Form Files\ui</Filter>
     </QtUic>
   </ItemGroup>
@@ -168,6 +171,9 @@
     </QtMoc>
     <QtMoc Include="source\ui\widget\QWindowSelection.h">
       <Filter>Form Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\UpdateUi.h">
+      <Filter>Form Files\header</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

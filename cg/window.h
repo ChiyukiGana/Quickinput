@@ -82,6 +82,7 @@ namespace CG {
 		static bool Redraw(HWND wnd) { return RedrawWindow(wnd, 0, 0, RDW_ERASE | RDW_INVALIDATE); }
 
 		static SIZE size(HWND wnd) { RECT rect = {}; GetWindowRect(wnd, &rect); return { rect.right - rect.left, rect.bottom - rect.top }; }
+		static RECT sizeRect(HWND wnd) { RECT rect = {}; GetWindowRect(wnd, &rect); return { 0, 0, rect.right - rect.left, rect.bottom - rect.top }; }
 		static SIZE sizeF(HWND wnd) { RECT rect = {}; DwmGetWindowAttribute(wnd, DWMWA_EXTENDED_FRAME_BOUNDS, &rect, sizeof(RECT)); return { rect.right - rect.left, rect.bottom - rect.top }; }
 		static bool setSize(HWND wnd, SIZE size) { return SetWindowPos(wnd, 0, 0, 0, size.cx, size.cy, SWP_NOMOVE | SWP_NOZORDER); }
 		static bool setSize(HWND wnd, int cx, int cy) { return SetWindowPos(wnd, 0, 0, 0, cx, cy, SWP_NOMOVE | SWP_NOZORDER); }
@@ -132,20 +133,20 @@ namespace CG {
 		static long exStyle(HWND wnd) { return GetWindowLongW(wnd, GWL_EXSTYLE); }
 		static void setExStyle(HWND wnd, long exStyle, bool remove = false) { if (remove) SetWindowLongW(wnd, GWL_EXSTYLE, GetWindowLongW(wnd, GWL_EXSTYLE) & ~(exStyle)); else SetWindowLongW(wnd, GWL_EXSTYLE, GetWindowLongW(wnd, GWL_EXSTYLE) | (exStyle)); }
 
-		typedef List<HWND> HWNDS;
-		static uint32 FindChild(HWND parent, HWNDS& children)
+		static uint32 FindChild(HWND parent, List<HWND>& children)
 		{
-			HWND child = 0;
+			children.clear();
+			HWND child = nullptr;
 			do
 			{
 				child = FindWindowExW(parent, child, 0, 0);
-				if (child) children.Add(child);
+				if (child) children.emplace_back(child);
 			} while (child);
 			return children.size();
 		}
 
 	private:
-		struct _EnumWindowsStruct { HWNDS wnds; DWORD pid; };
+		struct _EnumWindowsStruct { List<HWND> wnds; DWORD pid; };
 		static BOOL _stdcall _EnumWindowsProc(HWND wnd, LPARAM lParam) {
 			_EnumWindowsStruct* ews = (_EnumWindowsStruct*)lParam;
 			DWORD pid; GetWindowThreadProcessId(wnd, &pid);
@@ -154,14 +155,14 @@ namespace CG {
 		}
 	public:
 
-		static HWNDS ProcessWindows(DWORD pid) {
+		static List<HWND> ProcessWindows(DWORD pid) {
 			_EnumWindowsStruct ews;
 			ews.pid = pid;
 			EnumWindows(_EnumWindowsProc, (LPARAM)&ews);
 			return ews.wnds;
 		}
 
-		static HWNDS ProcessWindows(HANDLE proc) { return ProcessWindows(GetProcessId(proc)); }
+		static List<HWND> ProcessWindows(HANDLE proc) { return ProcessWindows(GetProcessId(proc)); }
 
 		static LPCWSTR StyleName(long style) {
 			switch (style) {

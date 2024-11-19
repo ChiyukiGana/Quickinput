@@ -38,6 +38,8 @@ public:
 class QPopText : public QDialog
 {
 	Q_OBJECT;
+	using This = QPopText;
+
 	QPoint point;
 	QString text;
 	QColor color;
@@ -54,7 +56,7 @@ public:
 		timer = new QTimer(this);
 		time = 1000;
 		size = 20;
-		connect(timer, SIGNAL(timeout()), this, SLOT(OnTimer()));
+		connect(timer, &QTimer::timeout, this, &This::OnTimer);
 
 		setAttribute(Qt::WA_TransparentForMouseEvents, true);
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);

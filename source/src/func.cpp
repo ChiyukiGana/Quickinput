@@ -22,10 +22,10 @@ namespace QiFn
 		if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseState(Qi::ui.pop.qe.t), Qi::ui.pop.qe.c);
 		else Qi::popText->Popup(Qi::ui.pop.time, ParseState(Qi::ui.pop.qd.t), Qi::ui.pop.qd.c);
 	}
-	void WindowPop(std::wstring window, bool state)
+	void WindowPop(QString window, bool state)
 	{
-		if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseWindow(Qi::ui.pop.we.t, QString::fromWCharArray(window.c_str())), Qi::ui.pop.we.c);
-		else Qi::popText->Popup(Qi::ui.pop.time, ParseWindow(Qi::ui.pop.wd.t, QString::fromWCharArray(window.c_str())), Qi::ui.pop.wd.c);
+		if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseWindow(Qi::ui.pop.we.t, window), Qi::ui.pop.we.c);
+		else Qi::popText->Popup(Qi::ui.pop.time, ParseWindow(Qi::ui.pop.wd.t, window), Qi::ui.pop.wd.c);
 	}
 	void QuickClickPop(bool state)
 	{
@@ -36,23 +36,23 @@ namespace QiFn
 	{
 		if (macro->mode == Macro::sw)
 		{
-			if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.swe.t, QString::fromWCharArray(macro->name.c_str()), 0), Qi::ui.pop.swe.c);
-			else Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.swd.t, QString::fromWCharArray(macro->name.c_str()), 0), Qi::ui.pop.swd.c);
+			if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.swe.t, macro->name, 0), Qi::ui.pop.swe.c);
+			else Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.swd.t, macro->name, 0), Qi::ui.pop.swd.c);
 		}
 		else if (macro->mode == Macro::down)
 		{
-			if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.dwe.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.dwe.c);
-			else Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.dwd.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.dwd.c);
+			if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.dwe.t, macro->name, macro->count), Qi::ui.pop.dwe.c);
+			else Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.dwd.t, macro->name, macro->count), Qi::ui.pop.dwd.c);
 		}
 		else if (macro->mode == Macro::up)
 		{
-			if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.upe.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.upe.c);
-			else Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.upd.t, QString::fromWCharArray(macro->name.c_str()), macro->count), Qi::ui.pop.upd.c);
+			if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.upe.t, macro->name, macro->count), Qi::ui.pop.upe.c);
+			else Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.upd.t, macro->name, macro->count), Qi::ui.pop.upd.c);
 		}
 	}
 
-	bool SelfActive() { if (Qi::widget.mainActive || Qi::widget.dialogActive || Qi::widget.moreActive) return false; }
-	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, void(*CallBack)(int x, int y, int stepx, int stepy))
+	bool SelfActive() { if (Qi::widget.mainActive || Qi::widget.dialogActive || Qi::widget.moreActive || Qi::widget.versionActive || Qi::widget.licenseActive) return false; }
+	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, std::function<void(int x, int y, int stepx, int stepy)> CallBack)
 	{
 		int cx = dx - sx;
 		int cy = dy - sy;
@@ -80,8 +80,8 @@ namespace QiFn
 		WndInfo wi;
 		QWindowSelection ws;
 		wi.wnd = ws.Start();
-		wi.wndClass = Window::className(wi.wnd);
-		wi.wndName = Window::text(wi.wnd);
+		wi.wndClass = WToQString(Window::className(wi.wnd));
+		wi.wndName = WToQString(Window::text(wi.wnd));
 		return wi;
 	}
 	std::wstring AllocName(std::wstring name)
@@ -89,9 +89,33 @@ namespace QiFn
 		wstringList names;
 		for (size_t i = 0; i < Qi::macros.size(); i++)
 		{
-			names.push_back(Qi::macros[i].name);
+			names.push_back(QStringToW(Qi::macros[i].name));
 		}
 		return File::Unique(names, name);
+	}
+	QiBlock* FindBlock(Actions& actions, int32 id)
+	{
+		for (size_t i = 0; (i < actions.size()); i++)
+		{
+			if (actions[i].index() == QiType::block)
+			{
+				QiBlock& block = (QiBlock&)actions[i].base();
+				if (block.id == id) return &block;
+			}
+		}
+		return nullptr;
+	}
+	const QiBlock* FindBlock(const Actions& actions, int32 id)
+	{
+		for (size_t i = 0; (i < actions.size()); i++)
+		{
+			if (actions[i].index() == QiType::block)
+			{
+				const QiBlock& block = (const QiBlock&)actions[i].base();
+				if (block.id == id) return &block;
+			}
+		}
+		return nullptr;
 	}
 
 	void Trigger(short vk, const bool* state)

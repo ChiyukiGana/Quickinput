@@ -7,6 +7,7 @@
 class RecordUi : public QDialog
 {
 	Q_OBJECT;
+	using This = RecordUi;
 	Ui::RecordUiClass ui;
 	Macro macro;
 public:
@@ -32,8 +33,8 @@ public:
 				ui.bnStart->installEventFilter(this);
 				ui.bnClose->installEventFilter(this);
 			}
-			connect(ui.bnStart, SIGNAL(clicked()), this, SLOT(OnBnStart()));
-			connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
+			connect(ui.bnStart, &QPushButton::clicked, this, &This::OnBnStart);
+			connect(ui.bnClose, &QPushButton::clicked, this, &This::OnBnClose);
 			StyleGroup();
 		}
 
@@ -57,7 +58,7 @@ public:
 			Qi::recordWindow = wi->wnd;
 			macro.wi = *wi;
 			macro.wndState = true;
-			macro.name = QiFn::AllocName(L"窗口录制");
+			macro.name = WToQString(QiFn::AllocName(L"窗口录制"));
 
 			POINT wpt = Window::pos(Qi::recordWindow);
 			move(wpt.x, wpt.y);
@@ -67,7 +68,7 @@ public:
 		}
 		else
 		{
-			macro.name = QiFn::AllocName(L"录制");
+			macro.name = WToQString(QiFn::AllocName(L"录制"));
 			exec();
 		}
 		QiFn::QiHook(false);

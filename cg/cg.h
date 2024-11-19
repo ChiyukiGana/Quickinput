@@ -34,7 +34,4 @@
 
 #include "ini.h"
 
-#include "CJsonObject/CJsonObject.hpp"
-#include "base64/base64.h"
-
 using namespace CG;

@@ -3,9 +3,6 @@
 #include <mmsystem.h>
 #pragma comment(lib, "Winmm.lib")
 
-#define MINIMP3_IMPLEMENTATION
-#include "minimp3/minimp3.h"
-
 #define audfx_err L"C:/Windows/Media/Windows Foreground.wav"
 #define audfx_fail L"C:/Windows/Media/Windows Hardware Fail.wav"
 #define audfx_war L"C:/Windows/Media/Windows Background.wav"
@@ -150,64 +147,9 @@ namespace CG {
 			wavFile->pData = new char[wavFile->sData.dataBytes];
 			memcpy_s(wavFile->pData, wavFile->sData.dataBytes, data, bytes);
 		}
-		bool fromMp3(std::wstring file)
-		{
-			Release();
 
-			size_t file_size = File::FileSize(file);
-			if (file_size)
-			{
-				unsigned char* file_data = new unsigned char[file_size];
-				if (File::FileRead(file, file_data, file_size))
-				{
-					mp3dec_t dec;
-					mp3dec_init(&dec);
+		virtual bool fromMp3(std::wstring file) = 0;
 
-					mp3dec_frame_info_t info;
-					mp3d_sample_t frame_data[MINIMP3_MAX_SAMPLES_PER_FRAME];
-					mp3dec_decode_frame(&dec, file_data, file_size, frame_data, &info);
-
-					size_t pcm_samples = MINIMP3_MAX_SAMPLES_PER_FRAME;
-					size_t current_samples = 0;
-					mp3d_sample_t* pcm_data = (mp3d_sample_t*)malloc(sizeof(mp3d_sample_t) * info.channels * pcm_samples);
-
-					unsigned char* file_pointer = file_data;
-					while (true)
-					{
-						size_t samples = mp3dec_decode_frame(&dec, file_pointer, file_size, frame_data, &info);
-						if (pcm_samples < (current_samples + samples))
-						{
-							pcm_samples = pcm_samples << 1;
-							mp3d_sample_t* tmp = (mp3d_sample_t*)realloc(pcm_data, sizeof(mp3d_sample_t) * info.channels * pcm_samples);
-							if (tmp) pcm_data = tmp;
-						}
-
-						memcpy(pcm_data + current_samples * info.channels, frame_data, sizeof(mp3d_sample_t) * info.channels * samples);
-
-						current_samples += samples;
-						if (info.frame_bytes <= 0 || file_size <= (info.frame_bytes + 4)) break;
-						file_pointer += info.frame_bytes;
-						file_size -= info.frame_bytes;
-					}
-					if (pcm_samples > current_samples)
-					{
-						mp3d_sample_t* tmp = (mp3d_sample_t*)realloc(pcm_data, sizeof(mp3d_sample_t) * info.channels * current_samples);
-						if (tmp) pcm_data = tmp;
-					}
-
-					bits = sizeof(mp3d_sample_t) * 8;
-					channels = info.channels;
-					samples = info.hz;
-					bytes = sizeof(mp3d_sample_t) * info.channels * current_samples;
-					data = pcm_data;
-
-					delete[] file_data;
-					return true;
-				}
-				delete[] file_data;
-			}
-			return false;
-		}
 		void Release() { if (data) { delete data; data = nullptr; } }
 	};
 

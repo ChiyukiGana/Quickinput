@@ -18,41 +18,29 @@ namespace QiThread
 	{
 		Macro* pMacro = (Macro*)pParam;
 		srand(clock());
-		WndInput wi, * pWi = nullptr;
+		WndInput* pWi = nullptr;
 		if (pMacro->wndState)
 		{
-			// window is not found
-			pMacro->wi.wnd = FindWindowW(pMacro->wi.wndClass.c_str(), pMacro->wi.wndName.c_str());
-			if (!pMacro->wi.wnd) pMacro->wi = QiFn::WindowSelection();
-			if (!pMacro->wi.wnd) return -1;
-
-			wi.wnd = pMacro->wi.wnd;
-
-			// select child windows
-			if (pMacro->wi.child)
+			pMacro->wp.wnd = pMacro->wi.wnd;
+			pMacro->wp.child = pMacro->wi.child;
+			// window not found
+			if (!pMacro->wp.active())
 			{
-				Window::HWNDS wnds; Window::FindChild(wi.wnd, wnds);
-				wi.children.resize(wnds.size());
-				for (uint32 i = 0; i < wnds.size(); i++)
-				{
-					if (IsWindowVisible(wnds.at(1)))
-					{
-						wi.children.at(i).wnd = wnds[i];
-						wi.children.at(i).rect = Window::childRect(wi.wnd, wi.children.at(i).wnd);
-					}
-				}
+				pMacro->wp.wnd = pMacro->wi.wnd = FindWindowW(QStringToW(pMacro->wi.wndClass), QStringToW(pMacro->wi.wndName));
+				if (!pMacro->wp.wnd) pMacro->wp.wnd = (pMacro->wi = QiFn::WindowSelection()).wnd;
+				if (!pMacro->wp.wnd) return -1;
 			}
 
-			pWi = &wi;
+			pWi = &pMacro->wp;
 		}
 
 		GetCursorPos(&pMacro->cursor);
-		int jumpId = 0;
 		uint32 count = 0;
+		int jumpId = 0;
 		while (Qi::run && !PeekExitMsg())
 		{
 			if (pMacro->count) { count++; if (count > pMacro->count) break; } // if count = 0 then while is infinite
-			if (QiInterpreter::ActionInterpreter(pMacro->acRun, pMacro->cursor, pWi, jumpId, true) != r_continue) break;
+			if (QiInterpreter::ActionInterpreter(pMacro->acRun, pMacro->acRun, pMacro->cursor, pWi, jumpId) != r_continue) break;
 		}
 		return 0;
 	}
@@ -60,19 +48,22 @@ namespace QiThread
 	{
 		Macro* pMacro = (Macro*)pParam;
 		srand(clock());
-		WndInput wi, * pWi = 0;
+		WndInput* pWi = nullptr;
 		if (pMacro->wndState)
 		{
-			// window is not found
-			pMacro->wi.wnd = FindWindowW(pMacro->wi.wndClass.c_str(), pMacro->wi.wndName.c_str());
-			if (!pMacro->wi.wnd)
+			pMacro->wp.wnd = pMacro->wi.wnd;
+			// window not found
+			if (!pMacro->wp.active())
 			{
-				return -1;
+				pMacro->wp.wnd = pMacro->wi.wnd = FindWindowW(QStringToW(pMacro->wi.wndClass), QStringToW(pMacro->wi.wndName));
+				if (!pMacro->wp.wnd) pMacro->wp.wnd = (pMacro->wi = QiFn::WindowSelection()).wnd;
+				if (!pMacro->wp.wnd) return -1;
 			}
-		}
 
+			pWi = &pMacro->wp;
+		}
 		int jumpId = 0;
-		QiInterpreter::ActionInterpreter(pMacro->acEnd, pMacro->cursor, pWi, jumpId, true);
+		QiInterpreter::ActionInterpreter(pMacro->acEnd, pMacro->acEnd, pMacro->cursor, pWi, jumpId);
 		return 0;
 	}
 
@@ -98,7 +89,7 @@ namespace QiThread
 	{
 		while (Qi::state)
 		{
-			Qi::fun.wndActive.wi.wnd = FindWindowW(0, Qi::fun.wndActive.wi.wndName.c_str());
+			Qi::fun.wndActive.wi.update();
 			if (Qi::fun.wndActive.wi.wnd)
 			{
 				bool active = (GetForegroundWindow() == Qi::fun.wndActive.wi.wnd);

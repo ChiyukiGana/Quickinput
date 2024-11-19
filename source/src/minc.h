@@ -2,15 +2,17 @@
 #pragma once
 #include "ginc.h"
 
-#define WToQString(stdwstring) (QString::fromWCharArray(stdwstring.c_str()))
-#define QStringToW(qstring) ((const wchar_t*)(qstring.utf16()))
+#define WToQString(stdwstring) (QString::fromWCharArray((stdwstring).c_str()))
+#define QStringToW(qstring) ((const wchar_t*)((qstring).utf16()))
 
-#define r_jump(id) (id << 16)
-#define is_jump(r) (r & 0xFFFF0000)
-#define jump_id(r) (r >> 16)
-constexpr int r_exit = 0;
-constexpr int r_continue = 1;
-constexpr int r_break = 2;
+enum InterpreterResult
+{
+	r_exit,
+	r_continue,
+	r_break,
+	r_top
+};
+
 constexpr int key_info = 214;
 constexpr int msg_exit = (WM_USER + 0xFF);
 

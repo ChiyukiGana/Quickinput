@@ -1,40 +1,42 @@
 ﻿#pragma once
 
 #include <stdint.h>
-#include <utility>
-#include <time.h>
 #include <windows.h>
+#include <utility>
 
 namespace CG
 {
-	typedef std::uint8_t byte;
-	typedef std::int8_t int8;
-	typedef std::uint8_t uint8;
-	typedef std::int16_t int16;
-	typedef std::uint16_t uint16;
-	typedef std::int32_t int32;
-	typedef std::uint32_t uint32;
-	typedef std::int64_t int64;
-	typedef std::uint64_t uint64;
+	typedef uint8_t byte;
 
-#ifdef _M_AMD64
-	typedef std::uint64_t pointer;
-#else _M_IX86
-	typedef std::uint32_t pointer;
-#endif // _M_AMD64 
+	typedef int8_t int8;
+	constexpr int8 int8_max((int8)0x7F);
+	constexpr int8 int8_min((int8)0x80);
 
-#define int8Max ((int8)0x7F)
-#define int8Min ((int8)0x80)
-#define uint8Max ((uint8)0xFF)
-#define int16Max ((int16)0x7FFF)
-#define int16Min ((int16)0x8000)
-#define uint16Max ((uint16)0xFFFF)
-#define int32Max ((int32)0x7FFFFFFF)
-#define int32Min ((int32)0x80000000)
-#define uint32Max ((uint32)0xFFFFFFFF)
-#define int64Max ((int64)0x7FFFFFFFFFFFFFFF)
-#define int64Min ((int64)0x8000000000000000)
-#define uint64Max ((uint64)0xFFFFFFFFFFFFFFFF)
+	typedef uint8_t uint8;
+	constexpr uint8 uint8_max((uint8)0xFF);
+
+	typedef int16_t int16;
+	constexpr int16 int16_max((int16)0x7FFF);
+	constexpr int16 int16_min((int16)0x8000);
+
+	typedef uint16_t uint16;
+	constexpr uint16 uint16_max((uint16)0xFFFF);
+
+	typedef int32_t int32;
+	constexpr int32 int32_max((int32)0x7FFFFFFF);
+	constexpr int32 int32_min((int32)0x80000000);
+
+	typedef uint32_t uint32;
+	constexpr uint32 uint32_max((uint32)0xFFFFFFFF);
+
+	typedef int64_t int64;
+	constexpr int64 int64_max((int64)0x7FFFFFFFFFFFFFFF);
+	constexpr int64 int64_min((int64)0x8000000000000000);
+
+	typedef uint64_t uint64;
+	constexpr uint64 uint64_max((uint64)0xFFFFFFFFFFFFFFFF);
+
+	typedef size_t pointer;
 
 #define MAX_PATH_NEW 0x7FFF
 
@@ -48,7 +50,7 @@ namespace CG
 #define RGBA(r,g,b,a) ((COLORREF)((BYTE)(r)|((BYTE)(g)<<8)|((BYTE)(b)<<16)|((BYTE)(a)<<24)))
 #define GetAValue(rgba) ((BYTE)((rgba)>>24))
 
-	template <typename T>
+		template <typename T>
 	static void ArrLeftMove(T arr, uint32 end, uint32 pos, uint32 len) {
 		for (uint32 u = pos; u + len - 1 < end; u++) {
 			arr[u] = arr[u + len];

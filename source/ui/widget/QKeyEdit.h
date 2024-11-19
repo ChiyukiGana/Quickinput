@@ -19,6 +19,7 @@ QT_BEGIN_NAMESPACE
 class QKeyEdit : public QLineEdit
 {
 	Q_OBJECT;
+	using This = QKeyEdit;
 
 public:
 	struct XBoxPadButton
@@ -370,7 +371,7 @@ public:
 		setKeyboardEnable(true);
 		setMode(Mode::combination);
 		setMaxKeys(1);
-		connect(padTimer, SIGNAL(timeout()), this, SLOT(XBoxPadStateTimer()));
+		connect(padTimer, &QTimer::timeout, this, &This::XBoxPadStateTimer);
 	}
 
 	void setKeyboardEnable(bool enable)

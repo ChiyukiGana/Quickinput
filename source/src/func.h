@@ -21,15 +21,17 @@ namespace QiFn
 	QString ParseQuickClick(QString text, short key);
 	QString ParseMacro(QString text, QString macro, int count);
 	void StatePop(bool state);
-	void WindowPop(std::wstring window, bool state);
+	void WindowPop(QString window, bool state);
 	void QuickClickPop(bool state);
 	void MacroPop(Macro* macro, bool state);
 	// ~Pop text
 
 	bool SelfActive();
-	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, void(*CallBack)(int x, int y, int stepx, int stepy));
+	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, std::function<void(int x, int y, int stepx, int stepy)> CallBack);
 	WndInfo WindowSelection();
 	std::wstring AllocName(std::wstring name);
+	QiBlock* FindBlock(Actions& actions, int32 id);
+	const QiBlock* FindBlock(const Actions& actions, int32 id);
 
 	void Trigger(short vk, const bool* state);
 

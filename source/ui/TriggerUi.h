@@ -8,6 +8,7 @@
 class TriggerUi : public QWidget
 {
 	Q_OBJECT;
+	using This = TriggerUi;
 	const int32 countMax = 9999;
 	Ui::TriggerUiClass ui;
 	Macros* macros = &Qi::macros;
@@ -85,11 +86,11 @@ private:
 	}
 	void Event()
 	{
-		connect(ui.tbActions, SIGNAL(cellClicked(int, int)), this, SLOT(OnTbClicked(int, int)));
-		connect(ui.chbBlock, SIGNAL(clicked()), this, SLOT(OnChbBlock()));
-		connect(ui.cmbMode, SIGNAL(activated(int)), this, SLOT(OnCmbMode(int)));
-		connect(ui.hkTr, SIGNAL(changed()), this, SLOT(OnKeyChanged()));
-		connect(ui.etCount, SIGNAL(textEdited(const QString&)), this, SLOT(OnEtCount(const QString&)));
+		connect(ui.tbActions, &QTableWidget::cellClicked, this, &This::OnTbClicked);
+		connect(ui.chbBlock, &QCheckBox::stateChanged, this, &This::OnChbBlock);
+		connect(ui.cmbMode, QOverload<int>::of(&QComboBox::activated), this, &This::OnCmbMode);
+		connect(ui.hkTr, &QKeyEdit::changed, this, &This::OnKeyChanged);
+		connect(ui.etCount, &QLineEdit::textEdited, this, &This::OnEtCount);
 	}
 	void ResetControl()
 	{
@@ -113,7 +114,7 @@ private:
 		ui.tbActions->verticalHeader()->setDefaultSectionSize(0);
 
 		for (size_t i = 0; i < macros->size(); i++) {
-			ui.tbActions->setItem(i, 0, new QTableWidgetItem(QString::fromWCharArray(macros->at(i).name.c_str())));
+			ui.tbActions->setItem(i, 0, new QTableWidgetItem(macros->at(i).name));
 			ui.tbActions->item(i, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 			//
 			QString qs = "----";
@@ -222,7 +223,7 @@ private Q_SLOTS:
 		QiJson::SaveMacro(macros->at(p));
 		TableUpdate();
 	}
-	void OnChbBlock()
+	void OnChbBlock(int)
 	{
 		int p = ui.tbActions->currentRow(); if (p < 0) return;
 		macros->at(p).block = ui.chbBlock->isChecked();

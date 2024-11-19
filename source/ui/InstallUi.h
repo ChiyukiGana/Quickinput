@@ -8,6 +8,7 @@
 class InstallUi : public QDialog
 {
 	Q_OBJECT;
+	using This = InstallUi;
 	Ui::InstallUiClass ui;
 	QString program;
 public:
@@ -27,9 +28,9 @@ public:
 	}
 	void Event()
 	{
-		connect(ui.bnClose, SIGNAL(clicked()), this, SLOT(OnBnClose()));
-		connect(ui.bnPath, SIGNAL(clicked()), this, SLOT(OnBnPath()));
-		connect(ui.bnInstall, SIGNAL(clicked()), this, SLOT(OnBnInstall()));
+		connect(ui.bnClose, &QPushButton::clicked, this, &This::OnBnClose);
+		connect(ui.bnPath, &QPushButton::clicked, this, &This::OnBnPath);
+		connect(ui.bnInstall, &QPushButton::clicked, this, &This::OnBnInstall);
 	}
 private:
 	void showEvent(QShowEvent*)

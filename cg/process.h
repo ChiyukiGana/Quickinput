@@ -1,5 +1,4 @@
 ﻿#pragma once
-
 #include <windows.h>
 #include <TlHelp32.h>
 
@@ -13,7 +12,7 @@ namespace CG {
 
 		typedef List<DWORD> PIDS;
 
-		static std::wstring runPath() { u16string str(GetCurrentDirectoryW(0, 0) + 1, '\0'); GetCurrentDirectoryW(str.arr_size(), str.write(0)); return str.str(); }
+		static std::wstring runPath() { WCHAR path[MAX_PATH_NEW]; GetCurrentDirectoryW(MAX_PATH_NEW, path); return path; }
 
 		static bool RunPath(std::wstring path = L"") {
 			if (path.size()) return SetCurrentDirectoryW(path.c_str());

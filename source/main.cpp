@@ -368,6 +368,7 @@ QTableWidget QLineEdit {})");
 		Qi::ui.text.muShow = (QString::fromUtf8("显示") + Qi::ui.text.syShow);
 		Qi::ui.text.muHide = (QString::fromUtf8("隐藏") + Qi::ui.text.syHide);
 		Qi::ui.text.muExit = (QString::fromUtf8("退出") + Qi::ui.text.syStop);
+		
 		Qi::ui.text.acDown = (QString::fromUtf8("按下") + Qi::ui.text.syDown);
 		Qi::ui.text.acUp = (QString::fromUtf8("松开") + Qi::ui.text.syUp);
 		Qi::ui.text.acClick = (QString::fromUtf8("点击") + Qi::ui.text.syTurn);
@@ -388,14 +389,19 @@ QTableWidget QLineEdit {})");
 		Qi::ui.text.acJump = (QString::fromUtf8("跳转") + Qi::ui.text.syJump);
 		Qi::ui.text.acJumpPoint = (QString::fromUtf8("锚点") + Qi::ui.text.syPoint);
 		Qi::ui.text.acDialog= (QString::fromUtf8("对话框") + Qi::ui.text.syText);
+		Qi::ui.text.acBlock = (QString::fromUtf8("块") + Qi::ui.text.syText);
+		Qi::ui.text.acBlockExec = (QString::fromUtf8("执行") + Qi::ui.text.syText);
+
 		Qi::ui.text.trOn = (QString::fromUtf8("启用") + Qi::ui.text.syOn);
 		Qi::ui.text.trOff = (QString::fromUtf8("禁用") + Qi::ui.text.syOff);
+
 		Qi::ui.text.etFunc = (QString::fromUtf8("动作") + Qi::ui.text.syOption);
 		Qi::ui.text.etParam = (QString::fromUtf8("参数") + Qi::ui.text.syLink);
 		Qi::ui.text.etAdd = (QString::fromUtf8("添加") + Qi::ui.text.syYes);
 		Qi::ui.text.etDel = (QString::fromUtf8("删除") + Qi::ui.text.syNot);
 		Qi::ui.text.etChange = (QString::fromUtf8("修改") + Qi::ui.text.syOk);
 		Qi::ui.text.etEdit = (QString::fromUtf8("编辑") + Qi::ui.text.syEdit);
+
 		Qi::ui.text.rcStart = (QString::fromUtf8("开始") + Qi::ui.text.syOk);
 		Qi::ui.text.rcStop = (QString::fromUtf8("停止") + Qi::ui.text.syOk);
 		Qi::ui.text.rcClose = (QString::fromUtf8("取消") + Qi::ui.text.syNot);

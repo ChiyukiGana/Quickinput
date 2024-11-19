@@ -24,7 +24,9 @@ struct QiType
 		timer,
 		jump,
 		jumpPoint,
-		dialog
+		dialog,
+		block,
+		blockExec
 	};
 };
 
@@ -35,10 +37,10 @@ class QiBase
 {
 public:
 	uint32 type;
-	std::wstring mark;
+	QString mark;
 	Actions next;
 	Actions next2;
-	QiBase(uint32 qiType = QiType::none) noexcept : type(qiType), mark(std::wstring()), next(Actions()), next2(Actions()) {}
+	QiBase(uint32 qiType = QiType::none) noexcept : type(qiType), mark(QString()), next(Actions()), next2(Actions()) {}
 	QiBase(const QiBase& r) noexcept { operator=(r); }
 	QiBase(QiBase&& r) noexcept { operator=(std::move(r)); }
 	void operator=(const QiBase& r) noexcept { type = r.type; mark = r.mark; next = r.next; next2 = r.next2; }
@@ -87,12 +89,12 @@ public:
 class QiText : public QiBase
 {
 public:
-	std::wstring str;
+	QString text;
 	QiText() noexcept : QiBase(QiType::text) {}
 	QiText(const QiText& r) noexcept { operator=(r); }
 	QiText(QiText&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiText& r) noexcept { QiBase::operator=(r); str = r.str; }
-	void operator=(QiText&& r) noexcept { QiBase::operator=(std::move(r)); str = std::move(r.str); }
+	void operator=(const QiText& r) noexcept { QiBase::operator=(r); text = r.text; }
+	void operator=(QiText&& r) noexcept { QiBase::operator=(std::move(r)); text = std::move(r.text); }
 };
 class QiColor : public QiBase
 {
@@ -155,12 +157,12 @@ public:
 class QiPopText : public QiBase
 {
 public:
-	std::wstring str; uint32 time = 0; bool sync = false;
+	QString text; uint32 time = 0; bool sync = false;
 	QiPopText() noexcept : QiBase(QiType::popText) {}
 	QiPopText(const QiPopText& r) noexcept { operator=(r); }
 	QiPopText(QiPopText&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiPopText& r) noexcept { QiBase::operator=(r); time = r.time; str = r.str; sync = r.sync; }
-	void operator=(QiPopText&& r) noexcept { QiBase::operator=(std::move(r)); time = r.time; str = std::move(r.str); sync = r.sync; }
+	void operator=(const QiPopText& r) noexcept { QiBase::operator=(r); time = r.time; text = r.text; sync = r.sync; }
+	void operator=(QiPopText&& r) noexcept { QiBase::operator=(std::move(r)); time = r.time; text = std::move(r.text); sync = r.sync; }
 };
 class QiRememberPos : public QiBase
 {
@@ -211,13 +213,33 @@ public:
 		error
 	};
 	uint32 style;
-	std::wstring title;
-	std::wstring text;
+	QString title;
+	QString text;
 	QiDialog() noexcept : QiBase(QiType::dialog) {}
 	QiDialog(const QiDialog& r) noexcept { operator=(r); }
 	QiDialog(QiDialog&& r) noexcept { operator=(std::move(r)); }
 	void operator=(const QiDialog& r) noexcept { QiBase::operator=(r); style = r.style; title = r.title; text = r.text; }
 	void operator=(QiDialog&& r) noexcept { QiBase::operator=(std::move(r)); style = r.style; title = std::move(r.title); text = std::move(r.text); }
+};
+class QiBlock : public QiBase
+{
+public:
+	int32 id;
+	QiBlock() noexcept : QiBase(QiType::block) {}
+	QiBlock(const QiBlock& r) noexcept { operator=(r); }
+	QiBlock(QiBlock&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiBlock& r) noexcept { QiBase::operator=(r); id = r.id; }
+	void operator=(QiBlock&& r) noexcept { QiBase::operator=(std::move(r)); id = r.id; }
+};
+class QiBlockExec : public QiBase
+{
+public:
+	int32 id;
+	QiBlockExec() noexcept : QiBase(QiType::blockExec) {}
+	QiBlockExec(const QiBlockExec& r) noexcept { operator=(r); }
+	QiBlockExec(QiBlockExec&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiBlockExec& r) noexcept { QiBase::operator=(r); id = r.id; }
+	void operator=(QiBlockExec&& r) noexcept { QiBase::operator=(std::move(r)); id = r.id; }
 };
 
 using ActionVariant = std::variant
@@ -239,7 +261,9 @@ using ActionVariant = std::variant
 	QiTimer,
 	QiJump,
 	QiJumpPoint,
-	QiDialog
+	QiDialog,
+	QiBlock,
+	QiBlockExec
 >;
 
 class Action : public ActionVariant
@@ -247,7 +271,7 @@ class Action : public ActionVariant
 public:
 	using ActionVariant::ActionVariant;
 
-	Action() : ActionVariant(QiBase()) { }
+	Action() : ActionVariant(QiBase()) {}
 
 	QiBase& base()
 	{
@@ -259,83 +283,183 @@ public:
 		);
 		return *base;
 	}
-};
-/*
-std::visit([](auto&& var)
+	const QiBase& base() const
 	{
-		using T = std::decay_t<decltype(var)>;
-		if constexpr (std::is_same_v<T, QiEnd>)
-		{
-			const QiEnd& end = var;
-		}
-		else if constexpr (std::is_same_v<T, QiDelay>)
-		{
-			const QiDelay& delay = var;
-		}
-		else if constexpr (std::is_same_v<T, QiKey>)
-		{
-			const QiKey& key = var;
-		}
-		else if constexpr (std::is_same_v<T, QiMouse>)
-		{
-			const QiMouse& mouse = var;
-		}
-		else if constexpr (std::is_same_v<T, QiText>)
-		{
-			const QiText& text = var;
-		}
-		else if constexpr (std::is_same_v<T, QiColor>)
-		{
-			const QiColor& color = var;
-		}
-		else if constexpr (std::is_same_v<T, QiLoop>)
-		{
-			const QiLoop& loop = var;
-		}
-		else if constexpr (std::is_same_v<T, QiLoopEnd>)
-		{
-			const QiLoopEnd& loopEnd = var;
-		}
-		else if constexpr (std::is_same_v<T, QiKeyState>)
-		{
-			const QiKeyState& keyState = var;
-		}
-		else if constexpr (std::is_same_v<T, QiRecoverPos>)
-		{
-			const QiRecoverPos& recoverPos = var;
-		}
-		else if constexpr (std::is_same_v<T, QiImage>)
-		{
-			const QiImage& image = var;
-		}
-		else if constexpr (std::is_same_v<T, QiPopText>)
-		{
-			const QiPopText& popText = var;
-		}
-		else if constexpr (std::is_same_v<T, QiRememberPos>)
-		{
-			const QiRememberPos& rememberPos = var;
-		}
-		else if constexpr (std::is_same_v<T, QiTimer>)
-		{
-			const QiTimer& timer = var;
-		}
-		else if constexpr (std::is_same_v<T, QiJump>)
-		{
-			const QiJump& jump = var;
-		}
-		else if constexpr (std::is_same_v<T, QiJumpPoint>)
-		{
-			const QiJumpPoint& jumpPoint = var;
-		}
-		else if constexpr (std::is_same_v<T, QiDialog>)
-		{
-			const QiDialog& dialog = var;
-		}
-		else
-		{
-		}
-	}, var
-);
+		const QiBase* base;
+		std::visit([&base](auto&& const var)
+			{
+				base = &var;
+			}, *this
+		);
+		return *base;
+	}
+};
+
+// action visit
+/*
+const Action& var = actions->at(i);
+switch (var.index())
+{
+case QiType::end:
+{
+	QiEnd& end = std::get<QiEnd>(var);
+} break;
+case QiType::delay:
+{
+	QiDelay& delay = std::get<QiDelay>(var);
+} break;
+case QiType::key:
+{
+	QiKey& key = std::get<QiKey>(var);
+} break;
+case QiType::mouse:
+{
+	QiMouse& mouse = std::get<QiMouse>(var);
+} break;
+case QiType::text:
+{
+	QiText& text = std::get<QiText>(var);
+} break;
+case QiType::color:
+{
+	QiColor& color = std::get<QiColor>(var);
+} break;
+case QiType::loop:
+{
+	QiLoop& loop = std::get<QiLoop>(var);
+} break;
+case QiType::loopEnd:
+{
+	QiLoopEnd& loopEnd = std::get<QiLoopEnd>(var);
+} break;
+case QiType::keyState:
+{
+	QiKeyState& keyState = std::get<QiKeyState>(var);
+} break;
+case QiType::recoverPos:
+{
+	QiRecoverPos& recoverPos = std::get<QiRecoverPos>(var);
+} break;
+case QiType::image:
+{
+	QiImage& image = std::get<QiImage>(var);
+} break;
+case QiType::popText:
+{
+	QiPopText& popText = std::get<QiPopText>(var);
+} break;
+case QiType::rememberPos:
+{
+	QiRememberPos& rememberPos = std::get<QiRememberPos>(var);
+} break;
+case QiType::timer:
+{
+	QiTimer& timer = std::get<QiTimer>(var);
+} break;
+case QiType::jump:
+{
+	QiJump& jump = std::get<QiJump>(var);
+} break;
+case QiType::jumpPoint:
+{
+	QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(var);
+} break;
+case QiType::dialog:
+{
+	QiDialog& dialog = std::get<QiDialog>(var);
+} break;
+case QiType::block:
+{
+	QiBlock& block = std::get<QiBlock>(var);
+} break;
+case QiType::blockExec:
+{
+	QiBlockExec& blockExec = std::get<QiBlockExec>(var);
+} break;
 */
+
+// action visit, const
+/*
+const Action& var = actions->at(i);
+switch (var.index())
+{
+case QiType::end:
+{
+	const QiEnd& end = std::get<QiEnd>(var);
+} break;
+case QiType::delay:
+{
+	const QiDelay& delay = std::get<QiDelay>(var);
+} break;
+case QiType::key:
+{
+	const QiKey& key = std::get<QiKey>(var);
+} break;
+case QiType::mouse:
+{
+	const QiMouse& mouse = std::get<QiMouse>(var);
+} break;
+case QiType::text:
+{
+	const QiText& text = std::get<QiText>(var);
+} break;
+case QiType::color:
+{
+	const QiColor& color = std::get<QiColor>(var);
+} break;
+case QiType::loop:
+{
+	const QiLoop& loop = std::get<QiLoop>(var);
+} break;
+case QiType::loopEnd:
+{
+	const QiLoopEnd& loopEnd = std::get<QiLoopEnd>(var);
+} break;
+case QiType::keyState:
+{
+	const QiKeyState& keyState = std::get<QiKeyState>(var);
+} break;
+case QiType::recoverPos:
+{
+	const QiRecoverPos& recoverPos = std::get<QiRecoverPos>(var);
+} break;
+case QiType::image:
+{
+	const QiImage& image = std::get<QiImage>(var);
+} break;
+case QiType::popText:
+{
+	const QiPopText& popText = std::get<QiPopText>(var);
+} break;
+case QiType::rememberPos:
+{
+	const QiRememberPos& rememberPos = std::get<QiRememberPos>(var);
+} break;
+case QiType::timer:
+{
+	const QiTimer& timer = std::get<QiTimer>(var);
+} break;
+case QiType::jump:
+{
+	const QiJump& jump = std::get<QiJump>(var);
+} break;
+case QiType::jumpPoint:
+{
+	const QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(var);
+} break;
+case QiType::dialog:
+{
+	const QiDialog& dialog = std::get<QiDialog>(var);
+} break;
+case QiType::block:
+{
+	const QiBlock& block = std::get<QiBlock>(var);
+} break;
+case QiType::blockExec:
+{
+	const QiBlockExec& blockExec = std::get<QiBlockExec>(var);
+} break;
+}
+*/
+
 ////////////////// ~Actions

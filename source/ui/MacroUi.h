@@ -10,6 +10,7 @@
 class MacroUi : public QWidget
 {
 	Q_OBJECT;
+	using This = MacroUi;
 	Ui::MacroUiClass ui;
 	Macros* macros = &Qi::macros;
 	QTimer* timer = nullptr;
@@ -76,17 +77,17 @@ private:
 	}
 	void Event()
 	{
-		connect(timer, SIGNAL(timeout()), this, SLOT(OnTimeOut()));
-		connect(ui.tbActions, SIGNAL(cellClicked(int, int)), this, SLOT(OnTbClicked(int, int)));
-		connect(ui.etName, SIGNAL(returnPressed()), this, SLOT(OnEtReturn()));
-		connect(ui.bnRec, SIGNAL(clicked()), this, SLOT(OnBnRec()));
-		connect(ui.bnWndRec, SIGNAL(clicked()), this, SLOT(OnBnWndRec()));
-		connect(ui.bnAdd, SIGNAL(clicked()), this, SLOT(OnBnAdd()));
-		connect(ui.bnEdit, SIGNAL(clicked()), this, SLOT(OnBnEdit()));
-		connect(ui.bnExp, SIGNAL(clicked()), this, SLOT(OnBnExp()));
-		connect(ui.bnImp, SIGNAL(clicked()), this, SLOT(OnBnImp()));
-		connect(ui.bnLoad, SIGNAL(clicked()), this, SLOT(OnBnLoad()));
-		connect(ui.bnDel, SIGNAL(clicked()), this, SLOT(OnBnDel()));
+		connect(timer, &QTimer::timeout, this, &This::OnTimeOut);
+		connect(ui.tbActions, &QTableWidget::cellClicked, this, &This::OnTbClicked);
+		connect(ui.etName, &QLineEdit::returnPressed, this, &This::OnEtReturn);
+		connect(ui.bnRec, &QPushButton::clicked, this, &This::OnBnRec);
+		connect(ui.bnWndRec, &QPushButton::clicked, this, &This::OnBnWndRec);
+		connect(ui.bnAdd, &QPushButton::clicked, this, &This::OnBnAdd);
+		connect(ui.bnEdit, &QPushButton::clicked, this, &This::OnBnEdit);
+		connect(ui.bnExp, &QPushButton::clicked, this, &This::OnBnExp);
+		connect(ui.bnImp, &QPushButton::clicked, this, &This::OnBnImp);
+		connect(ui.bnLoad, &QPushButton::clicked, this, &This::OnBnLoad);
+		connect(ui.bnDel, &QPushButton::clicked, this, &This::OnBnDel);
 	}
 	void ResetControl()
 	{
@@ -109,7 +110,7 @@ private:
 		ui.tbActions->verticalHeader()->setDefaultSectionSize(0);
 
 		for (size_t i = 0; i < macros->size(); i++) {
-			ui.tbActions->setItem(i, 0, new QTableWidgetItem(QString::fromWCharArray(macros->at(i).name.c_str())));
+			ui.tbActions->setItem(i, 0, new QTableWidgetItem(macros->at(i).name));
 			ui.tbActions->item(i, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		}
 	}
@@ -163,14 +164,14 @@ private Q_SLOTS:
 		if (p < 0) return;
 		timer->stop();
 		ui.etName->setDisabled(0);
-		ui.etName->setText(QString::fromWCharArray(macros->at(p).name.c_str()));
+		ui.etName->setText(macros->at(p).name);
 	}
 	void OnTbClicked(int row, int column)
 	{
 		LockControl(1);
 		if (row < 0) return;
 
-		ui.etName->setText(QString::fromWCharArray(macros->at(row).name.c_str()));
+		ui.etName->setText(macros->at(row).name);
 
 		LockControl(false);
 	}
@@ -179,6 +180,7 @@ private Q_SLOTS:
 		int p = ui.tbActions->currentRow();
 		if (p < 0) return;
 
+		QString mname = ui.etName->text();
 		std::wstring name = (LPCWSTR)ui.etName->text().utf16();
 
 		if (!File::FileNameUsable(name))
@@ -191,7 +193,8 @@ private Q_SLOTS:
 			return;
 		}
 
-		std::wstring newPath = macroPath + name + macroType;
+		QString mnewPath = macroPath + mname + macroType;
+		std::wstring newPath = QStringToW(mnewPath);
 
 		if (File::FileState(newPath))
 		{
@@ -203,9 +206,10 @@ private Q_SLOTS:
 			return;
 		}
 
-		std::wstring oldPath = macroPath + macros->at(p).name + macroType;
+		QString moldPath = macroPath + macros->at(p).name + macroType;
+		std::wstring oldPath = QStringToW(moldPath);
 
-		macros->at(p).name = name;
+		macros->at(p).name = mname;
 
 		File::Rename(oldPath.c_str(), newPath.c_str());
 
@@ -232,7 +236,7 @@ private Q_SLOTS:
 		Macro macro;
 		macro.mode = Macro::down;
 		macro.count = 1;
-		macro.name = QiFn::AllocName(L"宏");
+		macro.name = WToQString(QiFn::AllocName(L"宏"));
 
 		Qi::macros.Add(macro);
 		QiJson::SaveMacro(macro);
@@ -260,11 +264,11 @@ private Q_SLOTS:
 		int p = ui.tbActions->currentRow();
 		if (p < 0) return;
 		Qi::widget.dialogActive = true;
-		QString path = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, "导出", QString::fromWCharArray((macros->at(p).name + macroType).c_str()), "Quick input macro (*.json)"));
+		QString path = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, "导出", macros->at(p).name + macroType, "Quick input macro (*.json)"));
 		Qi::widget.dialogActive = false;
 		if (path.size())
 		{
-			CopyFileW((macroPath + macros->at(p).name + macroType).c_str(), (wchar_t*)path.utf16(), 0);
+			CopyFileW((const wchar_t*)(macroPath + macros->at(p).name + macroType).utf16(), (const wchar_t*)path.utf16(), 0);
 			ResetControl();
 			LockControl(true);
 		}
@@ -277,8 +281,8 @@ private Q_SLOTS:
 		if (path.size())
 		{
 			std::wstring file = (wchar_t*)path.utf16();
-			File::FolderCreate(macroPath);
-			CopyFileW(file.c_str(), File::FileUnique(macroPath + Path::GetFile(file)).c_str(), 0);
+			File::FolderCreate(QStringToW(macroPath));
+			CopyFileW(file.c_str(), File::FileUnique(std::wstring(QStringToW(macroPath)) + Path::GetFile(file)).c_str(), 0);
 			QiJson::LoadMacro();
 			TableUpdate();
 			ResetControl();
@@ -295,7 +299,7 @@ private Q_SLOTS:
 	void OnBnDel()
 	{
 		int p = ui.tbActions->currentRow(); if (p < 0) return;
-		File::FileDelete(macroPath + macros->at(p).name + macroType);
+		File::FileDelete(QStringToW(macroPath + macros->at(p).name + macroType));
 		ui.tbActions->setCurrentItem(0);
 		QiJson::LoadMacro();
 		TableUpdate();
