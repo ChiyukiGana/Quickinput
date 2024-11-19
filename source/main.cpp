@@ -30,6 +30,8 @@ int main(int argc, char* argv[])
 	Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y);
 	Qi::popText->setSize(Qi::ui.pop.size);
 
+	Qi::windowSelection = new QWindowSelection;
+
 	MainUi mainWindow;
 	application.exec();
 	return 0;
@@ -330,6 +332,8 @@ QTableWidget QLineEdit {})");
 			Qi::ui.text.syImage = "🖼";
 			Qi::ui.text.syPoint = "🪂";
 			Qi::ui.text.syJump = "🛩";
+			Qi::ui.text.syBlock = "🪂";
+			Qi::ui.text.syBlockExec = "🛩";
 		}
 		else
 		{
@@ -358,6 +362,8 @@ QTableWidget QLineEdit {})");
 			Qi::ui.text.syImage = "☀";
 			Qi::ui.text.syPoint = "☟";
 			Qi::ui.text.syJump = "✈";
+			Qi::ui.text.syBlock = "☟";
+			Qi::ui.text.syBlockExec = "✈";
 		}
 	}
 
@@ -389,8 +395,8 @@ QTableWidget QLineEdit {})");
 		Qi::ui.text.acJump = (QString::fromUtf8("跳转") + Qi::ui.text.syJump);
 		Qi::ui.text.acJumpPoint = (QString::fromUtf8("锚点") + Qi::ui.text.syPoint);
 		Qi::ui.text.acDialog= (QString::fromUtf8("对话框") + Qi::ui.text.syText);
-		Qi::ui.text.acBlock = (QString::fromUtf8("块") + Qi::ui.text.syText);
-		Qi::ui.text.acBlockExec = (QString::fromUtf8("执行") + Qi::ui.text.syText);
+		Qi::ui.text.acBlock = (QString::fromUtf8("块") + Qi::ui.text.syBlock);
+		Qi::ui.text.acBlockExec = (QString::fromUtf8("执行") + Qi::ui.text.syBlockExec);
 
 		Qi::ui.text.trOn = (QString::fromUtf8("启用") + Qi::ui.text.syOn);
 		Qi::ui.text.trOff = (QString::fromUtf8("禁用") + Qi::ui.text.syOff);

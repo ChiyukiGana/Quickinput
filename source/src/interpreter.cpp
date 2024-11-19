@@ -9,6 +9,8 @@ namespace QiInterpreter
 		for (size_t i = 0; i < current.size(); i++)
 		{
 			if (!Qi::run || QiThread::PeekExitMsg()) return r_exit;
+			if (wp && !IsWindow(wp->wnd)) { 2000, Qi::popText->Popup("´°¿ÚÊ§Ð§"); return r_exit; }
+
 			result = r_continue;
 			const Action& var = current[i];
 			size_t index = var.index();

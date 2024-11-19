@@ -51,7 +51,7 @@ namespace QiFn
 		}
 	}
 
-	bool SelfActive() { if (Qi::widget.mainActive || Qi::widget.dialogActive || Qi::widget.moreActive || Qi::widget.versionActive || Qi::widget.licenseActive) return false; }
+	bool SelfActive() { return !(Qi::widget.mainActive || Qi::widget.dialogActive || Qi::widget.moreActive); }
 	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, std::function<void(int x, int y, int stepx, int stepy)> CallBack)
 	{
 		int cx = dx - sx;
@@ -78,8 +78,7 @@ namespace QiFn
 	WndInfo WindowSelection()
 	{
 		WndInfo wi;
-		QWindowSelection ws;
-		wi.wnd = ws.Start();
+		wi.wnd = Qi::windowSelection->Start();
 		wi.wndClass = WToQString(Window::className(wi.wnd));
 		wi.wndName = WToQString(Window::text(wi.wnd));
 		return wi;

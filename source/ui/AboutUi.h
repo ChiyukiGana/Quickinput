@@ -15,7 +15,7 @@ class AboutUi : public QWidget
 	std::string version, content;
 
 public:
-	AboutUi(QWidget* parent) : QWidget(parent), update(20241119, 0)
+	AboutUi(QWidget* parent) : QWidget(parent), update(20241119, 1)
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
@@ -46,11 +46,13 @@ private:
 			if (obj == ui.lb_url) QDesktopServices::openUrl(QUrl("http://qinput.cyk.moe"));
 			else if (obj == ui.lb_version)
 			{
+				Qi::widget.dialogActive = true;
 				UpdateUi u(version.c_str(), content.c_str());
+				Qi::widget.dialogActive = false;
 			}
 			else if (obj == ui.lb_license)
 			{
-				Qi::widget.licenseActive = true;
+				Qi::widget.dialogActive = true;
 				MessageBoxW((HWND)Qi::widget.main->winId(), LR"(软件授权许可证
 
 软件：Quickinput 键盘鼠标宏
@@ -87,7 +89,7 @@ private:
 ----------------------------------------
 
 若违反非商用或商用许可条款所规定的事项，作者将根据《中华人民共和国著作权法》追其究法律责任)", L"许可证", MB_TOPMOST);
-				Qi::widget.licenseActive = false;
+				Qi::widget.dialogActive = false;
 			}
 			e->accept();
 		}

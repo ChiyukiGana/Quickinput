@@ -90,6 +90,7 @@ class EditUi : public QDialog
 public:
 	EditUi(Macro* macro, Actions* actions)
 	{
+		Qi::popText->Hide();
 		Layer layer;
 		this->macro = macro;
 		layer.actions = this->actionsRoot = this->actions = actions;
@@ -1212,6 +1213,10 @@ private:
 		Qi::application->setStyleSheet(Qi::ui.themes[Qi::set.theme].style);
 		SetForegroundWindow((HWND)QWidget::winId());
 	}
+	void customEvent(QEvent* e)
+	{
+		close();
+	}
 	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) msPos = e->pos(), mouseDown = true; e->accept(); }void mouseMoveEvent(QMouseEvent* e) { if (mouseDown) move(e->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) mouseDown = false; }
 private Q_SLOTS:
 	void OnTestTimer()
@@ -1237,12 +1242,16 @@ private Q_SLOTS:
 	// Title
 	void OnBnClose()
 	{
-		close();
+		Qi::popText->Show("正在保存宏");
+		QApplication::postEvent(this, new QEvent(QEvent::User));
 	}
 	void OnBnBack()
 	{
 		layers.DelBack();
-		if (layers.empty()) close();
+		if (layers.empty())
+		{
+			OnBnClose();
+		}
 		else
 		{
 			actions = layers.End()->actions;

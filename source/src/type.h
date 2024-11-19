@@ -59,6 +59,8 @@ namespace QiUi
 		QString syImage;
 		QString syJump;
 		QString syPoint;
+		QString syBlock;
+		QString syBlockExec;
 
 		QString muOn;
 		QString muOff;
@@ -269,8 +271,6 @@ struct Widget
 	bool dialogActive = false;
 	bool mainActive = false;
 	bool moreActive = false;
-	bool versionActive = false;
-	bool licenseActive = false;
 	QWidget* main = nullptr;
 	QWidget* record = nullptr;
 };
@@ -331,6 +331,7 @@ namespace Qi
 	inline SettingsData set;
 	inline Widget widget;
 	inline QPopText* popText = nullptr;
+	inline QWindowSelection* windowSelection = nullptr;
 
 	inline bool keyState[keySize];
 	inline List<byte> blockKeys;

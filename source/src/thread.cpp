@@ -28,7 +28,11 @@ namespace QiThread
 			{
 				pMacro->wp.wnd = pMacro->wi.wnd = FindWindowW(QStringToW(pMacro->wi.wndClass), QStringToW(pMacro->wi.wndName));
 				if (!pMacro->wp.wnd) pMacro->wp.wnd = (pMacro->wi = QiFn::WindowSelection()).wnd;
-				if (!pMacro->wp.wnd) return -1;
+				if (!pMacro->wp.wnd)
+				{
+					2000, Qi::popText->Popup("窗口失效");
+					return -1;
+				}
 			}
 
 			pWi = &pMacro->wp;
@@ -57,7 +61,11 @@ namespace QiThread
 			{
 				pMacro->wp.wnd = pMacro->wi.wnd = FindWindowW(QStringToW(pMacro->wi.wndClass), QStringToW(pMacro->wi.wndName));
 				if (!pMacro->wp.wnd) pMacro->wp.wnd = (pMacro->wi = QiFn::WindowSelection()).wnd;
-				if (!pMacro->wp.wnd) return -1;
+				if (!pMacro->wp.wnd)
+				{
+					2000, Qi::popText->Popup("窗口失效");
+					return -1;
+				}
 			}
 
 			pWi = &pMacro->wp;

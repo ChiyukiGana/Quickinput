@@ -431,8 +431,7 @@ namespace QiJson
 					int width = jAction.value("width").toInt();
 					int height = jAction.value("height").toInt();
 
-					QByteArray data;
-					data.fromBase64(jAction.value("data").toString().toUtf8());
+					QByteArray data = QByteArray::fromBase64(jAction.value("data").toString().toUtf8());
 
 					if (width && height && data.size())
 					{

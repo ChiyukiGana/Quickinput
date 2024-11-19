@@ -125,7 +125,7 @@ private:
 			if (!wi.wnd)
 			{
 				
-				Qi::popText->Popup(2000, "窗口已失效", RGB(255, 64, 64));
+				Qi::popText->Popup(2000, "窗口已失效");
 				return;
 			}
 		}
@@ -156,6 +156,23 @@ private:
 		ResetControl();
 		LockControl(true);
 		TableUpdate();
+	}
+	void customEvent(QEvent*)
+	{
+		int p = ui.tbActions->currentRow(); if (p < 0) return;
+		EditUi edit(&macros->at(p), &macros->at(p).acRun);
+
+		Qi::widget.dialogActive = true;
+		Qi::widget.main->hide();
+		edit.exec();
+		Qi::widget.main->show();
+		Qi::widget.dialogActive = false;
+
+		QiJson::SaveMacro(macros->at(p));
+		Qi::popText->Hide();
+
+		ResetControl();
+		LockControl(true);
 	}
 private Q_SLOTS:
 	void OnTimeOut()
@@ -246,18 +263,8 @@ private Q_SLOTS:
 	}
 	void OnBnEdit()
 	{
-		int p = ui.tbActions->currentRow(); if (p < 0) return;
-		EditUi edit(&macros->at(p), &macros->at(p).acRun);
-
-		Qi::widget.dialogActive = true;
-		Qi::widget.main->hide();
-		edit.exec();
-		Qi::widget.main->show();
-		Qi::widget.dialogActive = false;
-
-		QiJson::SaveMacro(macros->at(p));
-		ResetControl();
-		LockControl(true);
+		Qi::popText->Show("正在加载宏");
+		QApplication::postEvent(this, new QEvent(QEvent::User));
 	}
 	void OnBnExp()
 	{

@@ -1,43 +1,77 @@
 #pragma execution_character_set("utf-8")
 #pragma once
+#include <cg/cg.h>
 #include <windows.h>
 #include <qdialog.h>
 #include <qtimer.h>
 #include <qevent.h>
 #include <qpainter.h>
+#include <qapplication.h>
 
 class QWindowSelection : public QDialog
 {
 	Q_OBJECT;
 	using This = QWindowSelection;
 
+	enum Event
+	{
+		_begin = QEvent::User
+	};
+
 	QTimer* timer;
 	QRect prev;
 	HWND hWnd;
 	float scale;
+	bool active;
+
+	DWORD current;
+	DWORD call;
 
 public:
-	QWindowSelection(QWidget* parent = nullptr) : QDialog(parent)
+	QWindowSelection()
 	{
 		setAttribute(Qt::WA_TranslucentBackground, true);
 		setAttribute(Qt::WA_TransparentForMouseEvents, true);
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setStyleSheet("background-color:rgba(0,128,255,0.2)");
 
-		hWnd = nullptr;
-
 		QString scale_env = qgetenv("QT_SCALE_FACTOR");
 		scale = scale_env.toFloat();
 
 		timer = new QTimer(this);
-
 		connect(timer, &QTimer::timeout, this, &This::timerEvent);
-		timer->start(16);
+
+		current = GetCurrentThreadId();
+
+		hide();
 	}
 
-	HWND Start() { exec(); return hWnd; }
+	HWND Start() {
+		call = GetCurrentThreadId();
+		hWnd = nullptr;
+		active = true;
+		if (current == call)
+		{
+			timer->start(32);
+			exec();
+		}
+		else
+		{
+			QApplication::postEvent(this, new QEvent((QEvent::Type)_begin));
+			while (active) Sleep(32);
+		}
+		return hWnd;
+	}
 
 private:
+	void customEvent(QEvent* e)
+	{
+		if (e->type() == _begin)
+		{
+			timer->start(32);
+			show();
+		}
+	}
 	void paintEvent(QPaintEvent* e)
 	{
 		QPainter painter(this);
@@ -54,10 +88,26 @@ private Q_SLOTS:
 
 	void timerEvent()
 	{
+		if (!active) return;
+
 		hWnd = GetForegroundWindow();
 		if (hWnd)
 		{
-			if (GetAsyncKeyState(VK_RETURN) & 0x8000) close();
+			if (GetAsyncKeyState(VK_RETURN) & 0x8000)
+			{
+				active = false;
+				timer->stop();
+				if (current == call) close();
+				else hide();
+			}
+			else if (GetAsyncKeyState(VK_ESCAPE) & 0x8000)
+			{
+				active = false;
+				hWnd = nullptr;
+				timer->stop();
+				if (current == call) close();
+				else hide();
+			}
 			RECT window_rect = {};
 			if (GetWindowRect(hWnd, &window_rect))
 			{

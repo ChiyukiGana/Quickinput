@@ -20,9 +20,7 @@ public:
 
 		connect(ui.bnClose, &QPushButton::clicked, this, [this](bool) { close(); });
 
-		Qi::widget.versionActive = true;
 		exec();
-		Qi::widget.versionActive = false;
 	}
 	void StyleGroup()
 	{
