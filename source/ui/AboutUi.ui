@@ -88,7 +88,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2024-11-19_1</string>
+         <string>2024-11-21</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -104,8 +104,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>修复图像的保存
-修复窗口选择</string>
+         <string>修复编辑错误加载到编辑2
+修复未保存记录鼠标位置</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

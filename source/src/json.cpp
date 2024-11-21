@@ -181,6 +181,9 @@ namespace QiJson
 				jAction.insert("time", (int)popText.time);
 				jAction.insert("sync", (bool)popText.sync);
 			} break;
+			case QiType::rememberPos:
+			{
+			} break;
 			case QiType::timer:
 			{
 				const QiTimer& timer = std::get<QiTimer>(var);
@@ -377,9 +380,8 @@ namespace QiJson
 					color.rect.right = jAction.value("right").toInt();
 					color.rect.bottom = jAction.value("bottom").toInt();
 					color.rgbe.set(jAction.value("rgbe").toInt());
-					jAction.value("next2").toArray();
 					color.next = LoadAction(jAction.value("next").toArray());
-					color.next2 = LoadAction(jAction.value("next").toArray());
+					color.next2 = LoadAction(jAction.value("next2").toArray());
 
 					actions.Add(std::move(color));
 				} break;
@@ -407,7 +409,7 @@ namespace QiJson
 
 					keyState.vk = jAction.value("vk").toInt();
 					keyState.next = LoadAction(jAction.value("next").toArray());
-					keyState.next2 = LoadAction(jAction.value("next").toArray());
+					keyState.next2 = LoadAction(jAction.value("next2").toArray());
 
 					actions.Add(std::move(keyState));
 				} break;
@@ -440,7 +442,7 @@ namespace QiJson
 					}
 
 					image.next = LoadAction(jAction.value("next").toArray());
-					image.next2 = LoadAction(jAction.value("next").toArray());
+					image.next2 = LoadAction(jAction.value("next2").toArray());
 
 					actions.Add(std::move(image));
 				} break;
@@ -493,7 +495,7 @@ namespace QiJson
 					dialog.title = jAction.value("title").toString();
 					dialog.text = jAction.value("text").toString();
 					dialog.next = LoadAction(jAction.value("next").toArray());
-					dialog.next2 = LoadAction(jAction.value("next").toArray());
+					dialog.next2 = LoadAction(jAction.value("next2").toArray());
 
 					actions.Add(std::move(dialog));
 				} break;
