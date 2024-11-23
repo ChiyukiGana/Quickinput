@@ -1,10 +1,8 @@
-﻿#pragma execution_character_set("utf-8")
-#pragma once
-#include "minc.h"
-
+﻿#pragma once
+#include "inc_header.h"
 namespace QiJson
 {
-	void SaveMacro(Macro& macro);
+	void SaveMacro(const Macro& macro);
 	void SaveJson();
 	void LoadMacro();
 	void LoadJson();

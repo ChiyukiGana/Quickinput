@@ -1,10 +1,6 @@
-﻿#pragma execution_character_set("utf-8")
-#pragma once
-#include <qevent.h>
-#include <qfiledialog.h>
-#include "../src/minc.h"
+﻿#pragma once
+#include <src/inc_header.h>
 #include "ui_InstallUi.h"
-
 class InstallUi : public QDialog
 {
 	Q_OBJECT;
@@ -12,7 +8,7 @@ class InstallUi : public QDialog
 	Ui::InstallUiClass ui;
 	QString program;
 public:
-	InstallUi() : QDialog()
+	InstallUi()
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
@@ -21,60 +17,83 @@ public:
 	}
 	void Init()
 	{
-		program = QString::fromWCharArray(Path::ExpandEnvironment(EnvProgram).c_str());
-		ui.etPath->setText(program + "\\QuickInput");
-		ui.ckDesktop->setChecked(true);
-		ui.ckStart->setChecked(true);
+		ui.path_edit->setText(QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation) + "/" + "QuickInput");
+		ui.desktop_check->setChecked(true);
+		ui.start_check->setChecked(true);
 	}
 	void Event()
 	{
-		connect(ui.bnClose, &QPushButton::clicked, this, &This::OnBnClose);
-		connect(ui.bnPath, &QPushButton::clicked, this, &This::OnBnPath);
-		connect(ui.bnInstall, &QPushButton::clicked, this, &This::OnBnInstall);
+		connect(ui.title_close_button, &QPushButton::clicked, this, [this]{ exit(0); });
+		connect(ui.path_button, &QPushButton::clicked, this, &This::OnBnPath);
+		connect(ui.install_button, &QPushButton::clicked, this, &This::OnBnInstall);
 	}
 private:
 	void showEvent(QShowEvent*)
 	{
 		SetForegroundWindow((HWND)QWidget::winId());
 	}
-	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) msPos = e->pos(), mouseDown = true; e->accept(); }void mouseMoveEvent(QMouseEvent* e) { if (mouseDown) move(e->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) mouseDown = false; }
-private Q_SLOTS:
-	void OnBnClose()
+	// window move
+	QPoint mouse_positon;
+	bool mouse_down = false;
+	void mousePressEvent(QMouseEvent* e)
 	{
-		exit(0);
+		if (e->button() == Qt::LeftButton)
+		{
+			mouse_positon = e->pos();
+			mouse_down = true;
+			e->accept();
+		}
 	}
+	void mouseMoveEvent(QMouseEvent* e)
+	{
+		if (mouse_down)
+		{
+			if (Distance(mouse_positon.x(), mouse_positon.y(), e->pos().x(), e->pos().y()) < 100)
+			{
+				move(e->pos() + pos() - mouse_positon);
+				e->accept();
+			}
+		}
+	}
+	void mouseReleaseEvent(QMouseEvent* e)
+	{
+		if (e->button() == Qt::LeftButton)
+		{
+			mouse_down = false;
+			e->accept();
+		}
+	}
+private Q_SLOTS:
 	void OnBnPath()
 	{
-		QString path = QDir::toNativeSeparators(QFileDialog::getExistingDirectory(this, "安装位置", program));
-		if (path.size())
-		{
-			if (Path::PathState((wchar_t*)(path.utf16()))) path += L"\\QuickInput";
-			ui.etPath->setText(path);
-		}
+		QString path = QFileDialog::getExistingDirectory(this, "安装位置", program);
+		if (path.size()) ui.path_edit->setText(path);
 	}
 	void OnBnInstall()
 	{
-		std::wstring path = (wchar_t*)(ui.etPath->text().utf16());
-		std::wstring procPath = Path::Append(path, L"QuickInput.exe");
-		std::wstring desktopPath = System::folderPath(CSIDL_DESKTOP);
-		std::wstring startPath = Path::Append(System::folderPath(CSIDL_STARTMENU), L"Programs\\QuickInput");
+		QString name = "/Quickinput.exe";
+		QString resDir = ui.path_edit->text();
+		QString desktopDir = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+		QString startDir = QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
 
-		File::FolderCreate(path.c_str());
-		CopyFileW(Process::exePath().c_str(), procPath.c_str(), 0);
+		if (!QDir(resDir).exists() && !QDir(resDir).mkdir(resDir)) MsgBox::Error(L"创建目录失败"), exit(0);
 
-		if (ui.ckDesktop->isChecked())
+		QString resFile = resDir + name;
+		if (QFile::exists(resFile)) QFile::remove(resFile);
+		if (!QFile::copy(QApplication::applicationFilePath(), resFile)) MsgBox::Error(L"创建文件失败"), exit(0);
+
+		if (ui.desktop_check->isChecked())
 		{
-			std::wstring desktopFile = File::FileUnique(Path::Append(desktopPath, L"Quick input.lnk"));
-			File::CreateShortcut(desktopFile, procPath);
+			QString desktopFile = desktopDir + "/" + File::Unique(desktopDir, "Quickinput", ".lnk");
+			if (!QFile::link(resFile, desktopFile)) MsgBox::Error(L"创建快捷方式失败"), exit(0);
 		}
-		if (ui.ckStart->isChecked())
+		if (ui.start_check->isChecked())
 		{
-			std::wstring startFile = File::FileUnique(Path::Append(startPath, L"Quick input.lnk"));
-			File::FolderCreate(startPath.c_str());
-			File::CreateShortcut(startFile, procPath);
+			if (!QDir(startDir).exists() && !QDir(startDir).mkdir(startDir)) MsgBox::Error(L"创建目录失败"), exit(0);
+			QString startFile = startDir + "/" + File::Unique(startDir, "Quickinput", ".lnk");
+			if (!QFile::link(resFile, startFile)) MsgBox::Error(L"创建快捷方式失败"), exit(0);
 		}
-
-		Process::Start(procPath);
+		ShellExecuteW(NULL, L"open", (LPCWSTR)resFile.utf16(), NULL, NULL, SW_SHOW);
 		exit(0);
 	}
 };

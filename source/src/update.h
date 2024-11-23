@@ -1,4 +1,8 @@
 #pragma once
+#include <src/tools/msgbox.h>
+#include <qapplication.h>
+#include <qwidget.h>
+#include <qevent.h>
 #include <curl/ccurl.h>
 #include <sstream>
 #include <regex>
@@ -6,27 +10,30 @@
 #include <qjsonobject.h>
 #include <qjsonarray.h>
 #include <qjsonvalue.h>
-
 class QiUpdate
 {
     // format: YYYY-MM-DD_N  2024-1-11_1
     const int current_date, current_count;
     int latest_date, latest_count;
-
     ccurl curl;
+    bool response_state;
     std::string header;
     std::string url;
+    std::string response;
     std::string version;
     std::string content;
-
+    std::thread thread;
+    QWidget* parent;
 public:
-    QiUpdate(int current_date, int current_count) : current_date(current_date), current_count(current_count), latest_date(0), latest_count(0),
+    QiUpdate(QWidget* parent, int current_date, int current_count) : parent(parent), current_date(current_date), current_count(current_count), latest_date(0), latest_count(0),
         url(R"(https://api.github.com/repos/ChiyukiGana/Quickinput/releases/latest)"),
         header(R"(user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0)")
     {
+        response_state = false;
         if (!good()) return;
     }
     bool good() const { return curl.good(); }
+    bool response_good() const { return curl.good() && response_state; }
     bool parse(std::string version)
     {
         if (version.empty()) return false;
@@ -63,13 +70,22 @@ public:
         }
         latest_date = id, latest_count = ic;
     }
-    bool latest()
+    bool getlatest()
     {
         if (!good()) return false;
-        std::list<std::string> headerlist(1, header);
-        std::string response;
-        curl.get(url, response, nullptr, 5000, &headerlist);
-        if (response.empty()) return false;
+        thread = std::thread
+        (
+            [this]
+            {
+                bool result = curl.get(url, response, nullptr, 10000, &std::list<std::string>(1, header));
+                QApplication::postEvent(parent, new QEvent(QEvent::Type::User));
+                response_state = (result && !response.empty());
+            }
+        );
+    }
+    bool parselatest()
+    {
+        if (!good()) return false;
         QJsonDocument json(QJsonDocument::fromJson(response.c_str()));
         QJsonObject obj(json.object());
         version = obj.value("tag_name").toString().toUtf8();
@@ -86,7 +102,7 @@ public:
     bool check(std::string& version, std::string& content)
     {
         if (!good()) return false;
-        if (!latest()) return false;
+        if (!parselatest()) return false;
         if (compare())
         {
             version = this->version, content = this->content;

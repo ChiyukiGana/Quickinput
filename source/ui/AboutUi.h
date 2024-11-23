@@ -1,56 +1,42 @@
-﻿#pragma execution_character_set("utf-8")
-#pragma once
-#include <qurl.h>
-#include <qevent.h>
-#include <qdesktopservices.h>
+﻿#pragma once
 #include "UpdateUi.h"
 #include "ui_AboutUi.h"
-#include "src/minc.h"
-#include "src/update.h"
+#include <src/inc_header.h>
+#include <src/update.h>
 class AboutUi : public QWidget
 {
 	Q_OBJECT;
 	Ui::AboutUiClass ui;
 	QiUpdate update;
 	std::string version, content;
-
 public:
-	AboutUi(QWidget* parent) : QWidget(parent), update(20241121, 0)
+	AboutUi(QWidget* parent) : QWidget(parent), update(this, 20241123, 0)
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
-		ui.lb_url->installEventFilter(this);
-		ui.lb_license->installEventFilter(this);
+		ui.url_label->installEventFilter(this);
+		ui.license_label->installEventFilter(this);
 		StyleGroup();
-		CheckUpdate();
+		if (!update.good()) return;
+		update.getlatest();
 	}
 	void StyleGroup()
 	{
-		ui.clientWidget->setProperty("group", "client");
-	}
-	void CheckUpdate()
-	{
-		if (!update.good()) return;
-		if (update.check(version, content))
-		{
-			ui.lb_version->setText(ui.lb_version->text() + "（有新版本）");
-			ui.lb_version->setCursor(QCursor(Qt::CursorShape::WhatsThisCursor));
-			ui.lb_version->installEventFilter(this);
-		}
+		ui.content_widget->setProperty("group", "client");
 	}
 private:
 	bool eventFilter(QObject* obj, QEvent* e)
 	{
 		if (e->type() == QEvent::MouseButtonRelease)
 		{
-			if (obj == ui.lb_url) QDesktopServices::openUrl(QUrl("http://qinput.cyk.moe"));
-			else if (obj == ui.lb_version)
+			if (obj == ui.url_label) QDesktopServices::openUrl(QUrl("http://qinput.cyk.moe"));
+			else if (obj == ui.version_label)
 			{
 				Qi::widget.dialogActive = true;
 				UpdateUi u(version.c_str(), content.c_str());
 				Qi::widget.dialogActive = false;
 			}
-			else if (obj == ui.lb_license)
+			else if (obj == ui.license_label)
 			{
 				Qi::widget.dialogActive = true;
 				MessageBoxW((HWND)Qi::widget.main->winId(), LR"(软件授权许可证
@@ -94,5 +80,14 @@ private:
 			e->accept();
 		}
 		return QWidget::eventFilter(obj, e);
+	}
+	void customEvent(QEvent* e)
+	{
+		if (update.check(version, content))
+		{
+			ui.version_label->setText(ui.version_label->text() + "（有新版本）");
+			ui.version_label->setCursor(QCursor(Qt::CursorShape::WhatsThisCursor));
+			ui.version_label->installEventFilter(this);
+		}
 	}
 };

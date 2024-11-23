@@ -40,7 +40,7 @@
     <number>1</number>
    </property>
    <item>
-    <widget class="QWidget" name="titleWidget" native="true">
+    <widget class="QWidget" name="title_widget" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -79,7 +79,7 @@
        <number>5</number>
       </property>
       <item>
-       <widget class="QLabel" name="lbIcon">
+       <widget class="QLabel" name="title_icon">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -104,7 +104,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lbTitle">
+       <widget class="QLabel" name="title_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -137,7 +137,7 @@
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_4">
+       <spacer name="title_icon_spacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -153,7 +153,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QRadioButton" name="rbRunning">
+       <widget class="QRadioButton" name="action_running_radio">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -175,7 +175,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="rbEnding">
+       <widget class="QRadioButton" name="action_ending_radio">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -197,7 +197,7 @@
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_3">
+       <spacer name="title_center_spacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -210,7 +210,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QLabel" name="lbWndName_2">
+       <widget class="QLabel" name="title_run_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -233,7 +233,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="bnRun">
+       <widget class="QPushButton" name="title_run_button">
         <property name="enabled">
          <bool>true</bool>
         </property>
@@ -273,7 +273,7 @@
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_5">
+       <spacer name="title_run_spacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -289,7 +289,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="bnClose">
+       <widget class="QPushButton" name="title_close_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>20</horstretch>
@@ -326,7 +326,7 @@
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_6">
+       <spacer name="title_close_spacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -342,7 +342,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="bnBack">
+       <widget class="QPushButton" name="title_back_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>20</horstretch>
@@ -379,7 +379,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="clientWidget" native="true">
+    <widget class="QWidget" name="content_widget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0">
       <property name="spacing">
        <number>8</number>
@@ -397,7 +397,7 @@
        <number>8</number>
       </property>
       <item>
-       <widget class="QTableWidget" name="tbActions">
+       <widget class="QTableWidget" name="action_table">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
           <horstretch>0</horstretch>
@@ -627,7 +627,7 @@
               <number>5</number>
              </property>
              <item>
-              <layout class="QHBoxLayout" name="keyActionBox">
+              <layout class="QHBoxLayout" name="key_action_box">
                <property name="spacing">
                 <number>10</number>
                </property>
@@ -635,7 +635,7 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="QKeyEdit" name="hkKey">
+                <widget class="QKeyEdit" name="key_keyedit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -657,7 +657,7 @@
                 </widget>
                </item>
                <item>
-                <spacer name="keySpacer">
+                <spacer name="key_spacer">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
@@ -670,7 +670,7 @@
                 </spacer>
                </item>
                <item>
-                <widget class="QRadioButton" name="rbClick">
+                <widget class="QRadioButton" name="key_click_radio">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -692,7 +692,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QRadioButton" name="rbDown">
+                <widget class="QRadioButton" name="key_down_radio">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -714,7 +714,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QRadioButton" name="rbUp">
+                <widget class="QRadioButton" name="key_up_radio">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -738,7 +738,7 @@
               </layout>
              </item>
              <item>
-              <widget class="QPushButton" name="bnKeyAdd">
+              <widget class="QPushButton" name="key_add_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -807,7 +807,7 @@
               <number>5</number>
              </property>
              <item>
-              <layout class="QHBoxLayout" name="moveActionBox">
+              <layout class="QHBoxLayout" name="mouse_action_box">
                <property name="spacing">
                 <number>0</number>
                </property>
@@ -821,7 +821,7 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="QRadioButton" name="rbPos">
+                <widget class="QRadioButton" name="mouse_position_radio">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -849,7 +849,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="bnPos">
+                <widget class="QPushButton" name="mouse_position_button">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -886,7 +886,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QRadioButton" name="rbMove">
+                <widget class="QRadioButton" name="mouse_move_radio">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -911,7 +911,7 @@
                 </widget>
                </item>
                <item>
-                <spacer name="mouseActionSpacer">
+                <spacer name="mouse_spacer">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
@@ -924,7 +924,7 @@
                 </spacer>
                </item>
                <item>
-                <widget class="QCheckBox" name="chbMoveTrack">
+                <widget class="QCheckBox" name="mouse_track_check">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -955,7 +955,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="lbMoveSpeed">
+                <widget class="QLabel" name="mouse_speed_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -971,7 +971,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etMoveSpeed">
+                <widget class="QLineEdit" name="mouse_speed_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1017,7 +1017,7 @@
               </layout>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="moveParamBox">
+              <layout class="QHBoxLayout" name="mouse_move_box">
                <property name="spacing">
                 <number>5</number>
                </property>
@@ -1028,7 +1028,7 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="QLabel" name="lbX">
+                <widget class="QLabel" name="mouse_x_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1041,7 +1041,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etX">
+                <widget class="QLineEdit" name="mouse_x_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1079,7 +1079,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="lbY">
+                <widget class="QLabel" name="mouse_y_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1092,7 +1092,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etY">
+                <widget class="QLineEdit" name="mouse_y_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1124,7 +1124,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="lbMoveRand">
+                <widget class="QLabel" name="mouse_rand_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1140,7 +1140,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etMoveRand">
+                <widget class="QLineEdit" name="mouse_rand_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1174,7 +1174,7 @@
               </layout>
              </item>
              <item>
-              <widget class="QPushButton" name="bnMoveAdd">
+              <widget class="QPushButton" name="mouse_add_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1243,12 +1243,12 @@
               <number>5</number>
              </property>
              <item>
-              <layout class="QHBoxLayout" name="delayParamBox">
+              <layout class="QHBoxLayout" name="delay_param_box">
                <property name="spacing">
                 <number>5</number>
                </property>
                <item>
-                <widget class="QLabel" name="lbTime">
+                <widget class="QLabel" name="delay_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1264,7 +1264,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etDelayMin">
+                <widget class="QLineEdit" name="delay_min_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1302,7 +1302,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="lbDelayTo">
+                <widget class="QLabel" name="delay_to_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1321,7 +1321,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etDelayMax">
+                <widget class="QLineEdit" name="delay_max_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1361,7 +1361,7 @@
               </layout>
              </item>
              <item>
-              <widget class="QPushButton" name="bnDelayAdd">
+              <widget class="QPushButton" name="delay_add_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1399,7 +1399,7 @@
            </widget>
           </item>
           <item>
-           <spacer name="baseTabSpacer">
+           <spacer name="tab_base_spacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -1465,12 +1465,12 @@
               <number>5</number>
              </property>
              <item>
-              <layout class="QHBoxLayout" name="loopParamBox">
+              <layout class="QHBoxLayout" name="loop_param_box">
                <property name="spacing">
                 <number>5</number>
                </property>
                <item>
-                <widget class="QLabel" name="lbCount">
+                <widget class="QLabel" name="loop_count_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1486,7 +1486,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etCountMin">
+                <widget class="QLineEdit" name="loop_min_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1527,7 +1527,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="lbCountTo">
+                <widget class="QLabel" name="loop_to_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1543,7 +1543,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etCountMax">
+                <widget class="QLineEdit" name="loop_max_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1586,7 +1586,7 @@
               </layout>
              </item>
              <item>
-              <widget class="QPushButton" name="bnLoopEdit">
+              <widget class="QPushButton" name="loop_edit_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1624,7 +1624,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="bnLoopAdd">
+              <widget class="QPushButton" name="loop_add_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1696,12 +1696,12 @@
               <number>5</number>
              </property>
              <item>
-              <layout class="QHBoxLayout" name="timerParamBox">
+              <layout class="QHBoxLayout" name="timer_param_box">
                <property name="spacing">
                 <number>5</number>
                </property>
                <item>
-                <widget class="QLabel" name="lbTimerTime">
+                <widget class="QLabel" name="timer_time_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1717,7 +1717,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etTimerMin">
+                <widget class="QLineEdit" name="timer_min_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1758,7 +1758,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLabel" name="lbTimerTo">
+                <widget class="QLabel" name="timer_to_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1774,7 +1774,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etTimerMax">
+                <widget class="QLineEdit" name="timer_max_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1817,7 +1817,7 @@
               </layout>
              </item>
              <item>
-              <widget class="QPushButton" name="bnTimerEdit">
+              <widget class="QPushButton" name="timer_edit_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1855,7 +1855,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="bnTimerAdd">
+              <widget class="QPushButton" name="timer_add_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -1896,7 +1896,7 @@
            </widget>
           </item>
           <item>
-           <spacer name="loopTabSpacer">
+           <spacer name="tab_loop_spacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -1962,7 +1962,7 @@
               <number>5</number>
              </property>
              <item>
-              <layout class="QHBoxLayout" name="keyStateBox">
+              <layout class="QHBoxLayout" name="keyState_box">
                <property name="spacing">
                 <number>10</number>
                </property>
@@ -1976,7 +1976,7 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="QKeyEdit" name="hkState">
+                <widget class="QKeyEdit" name="keyState_keyedit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -1998,7 +1998,7 @@
                 </widget>
                </item>
                <item>
-                <spacer name="keyStateSpacer">
+                <spacer name="keyState_spacer">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
@@ -2013,7 +2013,7 @@
               </layout>
              </item>
              <item>
-              <widget class="QPushButton" name="bnStateEdit">
+              <widget class="QPushButton" name="keyState_edit_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -2048,7 +2048,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="bnStateEdit2">
+              <widget class="QPushButton" name="keyState_edit2_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -2083,7 +2083,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="bnStateAdd">
+              <widget class="QPushButton" name="keyState_add_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -2121,7 +2121,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QGroupBox" name="grp_curPos">
+           <widget class="QGroupBox" name="grp_mousePos">
             <property name="font">
              <font>
               <family>Microsoft YaHei</family>
@@ -2152,7 +2152,7 @@
               <number>5</number>
              </property>
              <item>
-              <widget class="QLabel" name="lbRememberPos">
+              <widget class="QLabel" name="rememberPos_label">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -2181,7 +2181,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="bnRememberPosAdd">
+              <widget class="QPushButton" name="rememberPos_add_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -2216,7 +2216,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="lbRecoverPos">
+              <widget class="QLabel" name="recoverPos_label">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -2245,7 +2245,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="bnRecoverPosAdd">
+              <widget class="QPushButton" name="recoverPos_add_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -2314,7 +2314,7 @@
               <number>5</number>
              </property>
              <item>
-              <widget class="QLabel" name="lbEndLoop">
+              <widget class="QLabel" name="endLoop_label">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -2343,7 +2343,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="bnEndLoopAdd">
+              <widget class="QPushButton" name="endLoop_add_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -2378,7 +2378,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="lbEnd">
+              <widget class="QLabel" name="end_label">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -2407,7 +2407,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="bnEndAdd">
+              <widget class="QPushButton" name="end_add_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -2511,7 +2511,7 @@
               <number>5</number>
              </property>
              <item>
-              <widget class="QLabel" name="lbJumpPoint">
+              <widget class="QLabel" name="jumpPoint_label">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -2540,7 +2540,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="bnJumpPointAdd">
+              <widget class="QPushButton" name="jumpPoint_add_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -2578,7 +2578,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="lbJump">
+              <widget class="QLabel" name="jump_label">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -2607,7 +2607,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QListWidget" name="lsJumpPoint">
+              <widget class="QListWidget" name="jumpPoint_list">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                  <horstretch>0</horstretch>
@@ -2626,7 +2626,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="bnJumpAdd">
+              <widget class="QPushButton" name="jump_add_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -2667,7 +2667,7 @@
            </widget>
           </item>
           <item>
-           <spacer name="JumpTabSpacer">
+           <spacer name="tab_jump_spacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -2927,7 +2927,7 @@
            </widget>
           </item>
           <item>
-           <spacer name="baseTabSpacer_2">
+           <spacer name="tab_block_spacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -2993,7 +2993,7 @@
               <number>5</number>
              </property>
              <item>
-              <layout class="QHBoxLayout" name="colorRectBox">
+              <layout class="QHBoxLayout" name="color_rect_box">
                <property name="spacing">
                 <number>5</number>
                </property>
@@ -3001,7 +3001,7 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="QLabel" name="lbColorRange">
+                <widget class="QLabel" name="color_rect_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3017,7 +3017,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etColorL">
+                <widget class="QLineEdit" name="color_left_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3058,7 +3058,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etColorT">
+                <widget class="QLineEdit" name="color_top_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3093,7 +3093,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etColorR">
+                <widget class="QLineEdit" name="color_right_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3134,7 +3134,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etColorB">
+                <widget class="QLineEdit" name="color_bottom_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3175,7 +3175,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="bnColorRect">
+                <widget class="QPushButton" name="color_rect_button">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3214,12 +3214,12 @@
               </layout>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="colorRgbBox">
+              <layout class="QHBoxLayout" name="color_rgb_box">
                <property name="spacing">
                 <number>5</number>
                </property>
                <item>
-                <widget class="QLabel" name="lbColorRgb">
+                <widget class="QLabel" name="color_rgb_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3232,7 +3232,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etColorRed">
+                <widget class="QLineEdit" name="color_red_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3273,7 +3273,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etColorGreen">
+                <widget class="QLineEdit" name="color_green_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3314,7 +3314,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etColorBlue">
+                <widget class="QLineEdit" name="color_blue_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3355,7 +3355,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etColorSim">
+                <widget class="QLineEdit" name="color_sim_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3396,7 +3396,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="bnColorValue">
+                <widget class="QPushButton" name="color_rgb_button">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3438,7 +3438,7 @@
               </layout>
              </item>
              <item>
-              <widget class="QCheckBox" name="chbColorMove">
+              <widget class="QCheckBox" name="color_move_check">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -3472,7 +3472,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="bnColorEdit">
+              <widget class="QPushButton" name="color_edit_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -3507,7 +3507,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="bnColorEdit2">
+              <widget class="QPushButton" name="color_edit2_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -3542,7 +3542,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="bnColorAdd">
+              <widget class="QPushButton" name="color_add_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -3580,7 +3580,7 @@
            </widget>
           </item>
           <item>
-           <spacer name="colorTabSpacer">
+           <spacer name="tab_color_spacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -3646,7 +3646,7 @@
               <number>5</number>
              </property>
              <item>
-              <layout class="QHBoxLayout" name="imageRectBox">
+              <layout class="QHBoxLayout" name="image_rect_box">
                <property name="spacing">
                 <number>5</number>
                </property>
@@ -3654,7 +3654,7 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="QLabel" name="lbImageRange">
+                <widget class="QLabel" name="image_rect_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3670,7 +3670,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etImageL">
+                <widget class="QLineEdit" name="image_left_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3711,7 +3711,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etImageT">
+                <widget class="QLineEdit" name="image_top_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3746,7 +3746,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etImageR">
+                <widget class="QLineEdit" name="image_right_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3787,7 +3787,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etImageB">
+                <widget class="QLineEdit" name="image_bottom_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3828,7 +3828,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="bnImageRect">
+                <widget class="QPushButton" name="image_rect_button">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3867,12 +3867,12 @@
               </layout>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="colorRgbBox_2">
+              <layout class="QHBoxLayout" name="image_data_box">
                <property name="spacing">
                 <number>5</number>
                </property>
                <item>
-                <widget class="QLabel" name="lbImageSim">
+                <widget class="QLabel" name="image_sim_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3885,7 +3885,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etImageSim">
+                <widget class="QLineEdit" name="image_sim_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3932,7 +3932,7 @@
                 </widget>
                </item>
                <item>
-                <spacer name="colorActionSpacer_3">
+                <spacer name="image_data_spacer">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
@@ -3945,7 +3945,7 @@
                 </spacer>
                </item>
                <item>
-                <widget class="QLabel" name="lbImageShot">
+                <widget class="QLabel" name="image_shot_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3958,7 +3958,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="bnImageShot">
+                <widget class="QPushButton" name="image_shot_button">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -3997,7 +3997,7 @@
               </layout>
              </item>
              <item>
-              <widget class="QCheckBox" name="chbImageMove">
+              <widget class="QCheckBox" name="image_move_check">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -4031,7 +4031,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QLabel" name="lbImageView">
+              <widget class="QLabel" name="image_view_label">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -4062,7 +4062,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="bnImageEdit">
+              <widget class="QPushButton" name="image_edit_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -4097,7 +4097,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="bnImageEdit2">
+              <widget class="QPushButton" name="image_edit2_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -4132,7 +4132,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="bnImageAdd">
+              <widget class="QPushButton" name="image_add_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -4205,7 +4205,7 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="QGroupBox" name="grp_textCopy">
+           <widget class="QGroupBox" name="grp_copyText">
             <property name="font">
              <font>
               <family>Microsoft YaHei</family>
@@ -4236,7 +4236,7 @@
               <number>5</number>
              </property>
              <item>
-              <widget class="QTextEdit" name="etText">
+              <widget class="QTextEdit" name="copyText_text">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                  <horstretch>0</horstretch>
@@ -4276,7 +4276,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="bnTextAdd">
+              <widget class="QPushButton" name="copyText_add_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -4314,7 +4314,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QGroupBox" name="grp_textPop">
+           <widget class="QGroupBox" name="grp_popText">
             <property name="font">
              <font>
               <family>Microsoft YaHei</family>
@@ -4345,12 +4345,12 @@
               <number>5</number>
              </property>
              <item>
-              <layout class="QHBoxLayout" name="textPopTextBox">
+              <layout class="QHBoxLayout" name="popText_text_box">
                <property name="spacing">
                 <number>5</number>
                </property>
                <item>
-                <widget class="QLabel" name="lbPopTextText">
+                <widget class="QLabel" name="popText_text_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -4369,7 +4369,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etPopText">
+                <widget class="QLineEdit" name="popText_text_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -4415,12 +4415,12 @@
               </layout>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="textPopTimeBox">
+              <layout class="QHBoxLayout" name="popText_time_box">
                <property name="spacing">
                 <number>5</number>
                </property>
                <item>
-                <widget class="QLabel" name="lbPopTextTime">
+                <widget class="QLabel" name="popText_time_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -4436,7 +4436,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etPopTextTime">
+                <widget class="QLineEdit" name="popText_time_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -4479,9 +4479,9 @@
               </layout>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="popTextWaitBox">
+              <layout class="QHBoxLayout" name="popText_wait_box">
                <item>
-                <widget class="QCheckBox" name="chbPopTextWait">
+                <widget class="QCheckBox" name="popText_wait_check">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -4512,7 +4512,7 @@
                 </widget>
                </item>
                <item>
-                <spacer name="horizontalSpacer">
+                <spacer name="popText_wait_spacer">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
@@ -4527,7 +4527,7 @@
               </layout>
              </item>
              <item>
-              <widget class="QPushButton" name="bnPopTextAdd">
+              <widget class="QPushButton" name="popText_add_button">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -4565,7 +4565,7 @@
            </widget>
           </item>
           <item>
-           <spacer name="textTabSpacer">
+           <spacer name="tab_text_spacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -4631,7 +4631,7 @@
               <number>5</number>
              </property>
              <item>
-              <layout class="QHBoxLayout" name="horizontalLayout_2">
+              <layout class="QHBoxLayout" name="dialog_style_box">
                <property name="spacing">
                 <number>5</number>
                </property>
@@ -4673,7 +4673,7 @@
                 </widget>
                </item>
                <item>
-                <spacer name="horizontalSpacer_2">
+                <spacer name="dialog_style_spacer">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
@@ -4688,7 +4688,7 @@
               </layout>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="dialog_layout">
+              <layout class="QHBoxLayout" name="dialog_title_box">
                <property name="spacing">
                 <number>5</number>
                </property>
@@ -4758,7 +4758,7 @@
               </layout>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="dialog_layout2">
+              <layout class="QHBoxLayout" name="dialog_text_box">
                <property name="spacing">
                 <number>5</number>
                </property>
@@ -4933,7 +4933,7 @@
            </widget>
           </item>
           <item>
-           <spacer name="verticalSpacer">
+           <spacer name="tab_dialog_spacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -4968,7 +4968,7 @@
            <number>0</number>
           </property>
           <item>
-           <widget class="QGroupBox" name="grp_wnd">
+           <widget class="QGroupBox" name="grp_window">
             <property name="font">
              <font>
               <family>Microsoft YaHei</family>
@@ -4999,7 +4999,7 @@
               <number>5</number>
              </property>
              <item>
-              <layout class="QHBoxLayout" name="wndStateBox">
+              <layout class="QHBoxLayout" name="winodw_state_box">
                <property name="spacing">
                 <number>5</number>
                </property>
@@ -5007,7 +5007,7 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="QCheckBox" name="chbWnd">
+                <widget class="QCheckBox" name="window_state_check">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -5048,7 +5048,7 @@
                 </widget>
                </item>
                <item>
-                <spacer name="wndStateSpacer">
+                <spacer name="window_state_spacer">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
@@ -5063,7 +5063,7 @@
               </layout>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="wndControlBox">
+              <layout class="QHBoxLayout" name="window_child_box">
                <property name="spacing">
                 <number>5</number>
                </property>
@@ -5074,7 +5074,7 @@
                 <number>0</number>
                </property>
                <item>
-                <widget class="QCheckBox" name="chbChildWnd">
+                <widget class="QCheckBox" name="window_child_check">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -5115,7 +5115,7 @@
                 </widget>
                </item>
                <item>
-                <spacer name="wndControlSpacer">
+                <spacer name="window_child_spacer">
                  <property name="orientation">
                   <enum>Qt::Horizontal</enum>
                  </property>
@@ -5130,9 +5130,9 @@
               </layout>
              </item>
              <item>
-              <layout class="QHBoxLayout" name="wndSelectBox">
+              <layout class="QHBoxLayout" name="window_name_box">
                <item>
-                <widget class="QLabel" name="lbWndName">
+                <widget class="QLabel" name="window_name_label">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -5155,7 +5155,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QLineEdit" name="etWndName">
+                <widget class="QLineEdit" name="window_name_edit">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -5199,7 +5199,7 @@
                 </widget>
                </item>
                <item>
-                <widget class="QPushButton" name="bnWndSelect">
+                <widget class="QPushButton" name="window_select_button">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>30</horstretch>
@@ -5232,7 +5232,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QGroupBox" name="grp_readme">
+           <widget class="QGroupBox" name="grp_tip">
             <property name="font">
              <font>
               <family>Microsoft YaHei</family>
@@ -5263,7 +5263,7 @@
               <number>5</number>
              </property>
              <item>
-              <widget class="QLabel" name="lbTips">
+              <widget class="QLabel" name="tip_label">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                  <horstretch>0</horstretch>
@@ -5332,7 +5332,7 @@
   <customwidget>
    <class>QKeyEdit</class>
    <extends>QLineEdit</extends>
-   <header>qkeyedit.h</header>
+   <header location="global">qkeyedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

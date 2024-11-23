@@ -1,7 +1,5 @@
-#pragma execution_character_set("utf-8")
 #pragma once
-#include <qevent.h>
-#include "src/minc.h"
+#include <src/inc_header.h>
 #include "ui_UpdateUi.h"
 class UpdateUi : public QDialog
 {
@@ -14,20 +12,48 @@ public:
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		StyleGroup();
-
-		ui.lb_version->setText(version);
-		ui.lb_content->setText(content);
-
-		connect(ui.bnClose, &QPushButton::clicked, this, [this](bool) { close(); });
-
+		ui.version_label->setText(version);
+		ui.content_label->setText(content);
+		connect(ui.title_close_button, &QPushButton::clicked, this, [this](bool) { close(); });
+		move(Qi::widget.main->pos());
 		exec();
 	}
 	void StyleGroup()
 	{
 		setProperty("group", "frame");
-		ui.titleWidget->setProperty("group", "title");
-		ui.clientWidget->setProperty("group", "client");
+		ui.title_widget->setProperty("group", "title");
+		ui.content_widget->setProperty("group", "client");
 	}
 private:
-	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) msPos = e->pos(), mouseDown = true; e->accept(); }void mouseMoveEvent(QMouseEvent* e) { if (mouseDown) move(e->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) mouseDown = false; }
+	// window move
+	QPoint mouse_positon;
+	bool mouse_down = false;
+	void mousePressEvent(QMouseEvent* e)
+	{
+		if (e->button() == Qt::LeftButton)
+		{
+			mouse_positon = e->pos();
+			mouse_down = true;
+			e->accept();
+		}
+	}
+	void mouseMoveEvent(QMouseEvent* e)
+	{
+		if (mouse_down)
+		{
+			if (Distance(mouse_positon.x(), mouse_positon.y(), e->pos().x(), e->pos().y()) < 100)
+			{
+				move(e->pos() + pos() - mouse_positon);
+				e->accept();
+			}
+		}
+	}
+	void mouseReleaseEvent(QMouseEvent* e)
+	{
+		if (e->button() == Qt::LeftButton)
+		{
+			mouse_down = false;
+			e->accept();
+		}
+	}
 };

@@ -51,7 +51,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QWidget" name="clientWidget" native="true">
+    <widget class="QWidget" name="content_widget" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <property name="spacing">
        <number>20</number>
@@ -69,7 +69,7 @@
        <number>60</number>
       </property>
       <item>
-       <widget class="QLabel" name="lb_version">
+       <widget class="QLabel" name="version_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -88,7 +88,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2024-11-21</string>
+         <string>2024-11-23 </string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -96,7 +96,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lb_update">
+       <widget class="QLabel" name="update_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -104,8 +104,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>修复编辑错误加载到编辑2
-修复未保存记录鼠标位置</string>
+         <string>修复切换模式包含循环无法退出</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -119,7 +118,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lb_urlt">
+       <widget class="QLabel" name="urlt_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -141,7 +140,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lb_url">
+       <widget class="QLabel" name="url_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -187,7 +186,7 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QLabel" name="lb_copyright">
+          <widget class="QLabel" name="copyright_label">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -216,7 +215,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QLabel" name="lb_license">
+          <widget class="QLabel" name="license_label">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>

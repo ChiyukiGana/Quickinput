@@ -1,5 +1,4 @@
-﻿#pragma execution_character_set("utf-8")
-#pragma once
+﻿#pragma once
 #include <qapplication.h>
 #include <qdialog.h>
 #include <qpainter.h>

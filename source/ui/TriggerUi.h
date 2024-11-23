@@ -1,15 +1,11 @@
-﻿#pragma execution_character_set("utf-8")
-#pragma once
-#include <qstandarditemmodel.h>
-#include <qabstractitemview.h>
-#include "../src/minc.h"
+﻿#pragma once
+#include <src/inc_header.h>
 #include "ui_TriggerUi.h"
-
 class TriggerUi : public QWidget
 {
 	Q_OBJECT;
 	using This = TriggerUi;
-	const int32 countMax = 9999;
+	const int countMax = 9999;
 	Ui::TriggerUiClass ui;
 	Macros* macros = &Qi::macros;
 public:
@@ -20,25 +16,26 @@ public:
 		Init();
 		Event();
 		StyleGroup();
-		LockControl(true);
+		DisableWidget(true);
 		TableUpdate();
 	}
+private:
 	void StyleGroup()
 	{
-		ui.clientWidget->setProperty("group", "client");
-		ui.chbBlock->setProperty("group", "check");
-		ui.cmbMode->setProperty("group", "combo");
-		ui.etCount->setProperty("group", "line_edit");
-		ui.hkTr->setProperty("group", "line_edit");
-		ui.cmbMode->view()->setProperty("group", "table");
-		ui.tbActions->setProperty("group", "table");
-		ui.tbActions->horizontalHeader()->setProperty("group", "table_header");
-		ui.tbActions->verticalHeader()->setProperty("group", "table_header");
-		for (size_t i = 0; i < ui.tbActions->children().size(); i++)
+		ui.content_widget->setProperty("group", "client");
+		ui.block_check->setProperty("group", "check");
+		ui.mode_combo->setProperty("group", "combo");
+		ui.count_edit->setProperty("group", "line_edit");
+		ui.key_keyedit->setProperty("group", "line_edit");
+		ui.mode_combo->view()->setProperty("group", "table");
+		ui.macro_table->setProperty("group", "table");
+		ui.macro_table->horizontalHeader()->setProperty("group", "table_header");
+		ui.macro_table->verticalHeader()->setProperty("group", "table_header");
+		for (size_t i = 0; i < ui.macro_table->children().size(); i++)
 		{
-			if (!String::Compare(ui.tbActions->children().at(i)->metaObject()->className(), "QTableCornerButton"))
+			if (QString(ui.macro_table->children().at(i)->metaObject()->className()) == QString("QTableCornerButton"))
 			{
-				QWidget* corner = (QWidget*)ui.tbActions->children().at(i);
+				QWidget* corner = (QWidget*)ui.macro_table->children().at(i);
 				QHBoxLayout* box = new QHBoxLayout(corner);
 				box->setMargin(0);
 				QWidget* widget = new QWidget(corner);
@@ -48,75 +45,79 @@ public:
 			}
 		}
 	}
-
-private:
 	void Init()
 	{
-		ui.hkTr->setMode(QKeyEdit::Mode::solid);
-		ui.hkTr->setMaxKeys(2);
-		ui.hkTr->setMouseEnable(true);
-		ui.hkTr->setWheelEnable(true);
-		ui.hkTr->setPadEnable(true);
-
-		ui.cmbMode->setEditable(true);
-		ui.cmbMode->lineEdit()->setReadOnly(true);
-		ui.cmbMode->lineEdit()->setAlignment(Qt::AlignCenter);
-		ui.cmbMode->addItem("切换");
-		ui.cmbMode->addItem("按下");
-		ui.cmbMode->addItem("松开");
-		QStandardItemModel* model = (QStandardItemModel*)ui.cmbMode->view()->model();
-		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
-
-		ui.etCount->setValidator(new QIntValidator(0, countMax, this));
-
+		if ("key")
+		{
+			ui.key_keyedit->setMode(QKeyEdit::Mode::solid);
+			ui.key_keyedit->setMaxKeys(2);
+			ui.key_keyedit->setMouseEnable(true);
+			ui.key_keyedit->setWheelEnable(true);
+			ui.key_keyedit->setPadEnable(true);
+		}
+		if ("mode")
+		{
+			ui.mode_combo->setEditable(true);
+			ui.mode_combo->lineEdit()->setReadOnly(true);
+			ui.mode_combo->lineEdit()->setAlignment(Qt::AlignCenter);
+			ui.mode_combo->addItem("切换");
+			ui.mode_combo->addItem("按下");
+			ui.mode_combo->addItem("松开");
+			QStandardItemModel* model = (QStandardItemModel*)ui.mode_combo->view()->model();
+			for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
+		}
+		if ("count")
+		{
+			ui.count_edit->setValidator(new QIntValidator(0, countMax, this));
+		}
 		if ("table")
 		{
-			ui.tbActions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-			ui.tbActions->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-			ui.tbActions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
-			ui.tbActions->setColumnWidth(1, 120);
-			ui.tbActions->setColumnWidth(2, 80);
-			ui.tbActions->setColumnWidth(3, 60);
+			ui.macro_table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
+			ui.macro_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
+			ui.macro_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
+			ui.macro_table->setColumnWidth(1, 120);
+			ui.macro_table->setColumnWidth(2, 80);
+			ui.macro_table->setColumnWidth(3, 60);
 		}
-
 		if ("clear shortcut")
 		{
-			ui.chbBlock->installEventFilter(this);
+			ui.block_check->installEventFilter(this);
+			ui.mode_combo->installEventFilter(this);
 		}
 	}
 	void Event()
 	{
-		connect(ui.tbActions, &QTableWidget::cellClicked, this, &This::OnTbClicked);
-		connect(ui.chbBlock, &QCheckBox::stateChanged, this, &This::OnChbBlock);
-		connect(ui.cmbMode, QOverload<int>::of(&QComboBox::activated), this, &This::OnCmbMode);
-		connect(ui.hkTr, &QKeyEdit::changed, this, &This::OnKeyChanged);
-		connect(ui.etCount, &QLineEdit::textEdited, this, &This::OnEtCount);
+		connect(ui.macro_table, &QTableWidget::cellClicked, this, &This::OnTbClicked);
+		connect(ui.block_check, &QCheckBox::stateChanged, this, &This::OnChbBlock);
+		connect(ui.mode_combo, QOverload<int>::of(&QComboBox::activated), this, &This::OnCmbMode);
+		connect(ui.key_keyedit, &QKeyEdit::changed, this, &This::OnKeyChanged);
+		connect(ui.count_edit, &QLineEdit::textEdited, this, &This::OnEtCount);
 	}
-	void ResetControl()
+	void ResetWidget()
 	{
-		ui.chbBlock->setChecked(0);
-		ui.hkTr->clear();
-		ui.etCount->setText("");
+		ui.block_check->setChecked(0);
+		ui.key_keyedit->clear();
+		ui.count_edit->setText("");
 	}
-	void LockControl(bool state)
+	void DisableWidget(bool state)
 	{
-		ui.chbBlock->setDisabled(state);
-		ui.cmbMode->setDisabled(state);
-		ui.hkTr->setDisabled(state);
-		if (state) ui.etCount->setDisabled(state);
+		ui.block_check->setDisabled(state);
+		ui.mode_combo->setDisabled(state);
+		ui.key_keyedit->setDisabled(state);
+		if (state) ui.count_edit->setDisabled(state);
 	}
 	void TableUpdate()
 	{
-		ui.tbActions->clearMask();
-		ui.tbActions->setRowCount(macros->size());
-		ui.tbActions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-		ui.tbActions->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
-		ui.tbActions->verticalHeader()->setDefaultSectionSize(0);
-
+		ui.macro_table->clearMask();
+		ui.macro_table->setRowCount(macros->size());
+		ui.macro_table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
+		ui.macro_table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+		ui.macro_table->verticalHeader()->setDefaultSectionSize(0);
 		for (size_t i = 0; i < macros->size(); i++) {
-			ui.tbActions->setItem(i, 0, new QTableWidgetItem(macros->at(i).name));
-			ui.tbActions->item(i, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			//
+			// name
+			ui.macro_table->setItem(i, 0, new QTableWidgetItem(macros->at(i).name));
+			ui.macro_table->item(i, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			// key
 			QString qs = "----";
 			if ((macros->at(i).key & 0xFFFF) != 0)
 			{
@@ -127,9 +128,9 @@ private:
 					qs += QKeyEdit::keyName(macros->at(i).key >> 16);
 				}
 			}
-			ui.tbActions->setItem(i, 1, new QTableWidgetItem(qs));
-			ui.tbActions->item(i, 1)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			//
+			ui.macro_table->setItem(i, 1, new QTableWidgetItem(qs));
+			ui.macro_table->item(i, 1)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			// mode and count
 			qs = "";
 			switch (macros->at(i).mode)
 			{
@@ -149,16 +150,15 @@ private:
 				qs += ")";
 				break;
 			}
-			ui.tbActions->setItem(i, 2, new QTableWidgetItem(qs));
-			ui.tbActions->item(i, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			//
+			ui.macro_table->setItem(i, 2, new QTableWidgetItem(qs));
+			ui.macro_table->item(i, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			// state
 			if (macros->at(i).state) qs = Qi::ui.text.trOn;
 			else qs = Qi::ui.text.trOff;
-			ui.tbActions->setItem(i, 3, new QTableWidgetItem(qs));
-			ui.tbActions->item(i, 3)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			ui.macro_table->setItem(i, 3, new QTableWidgetItem(qs));
+			ui.macro_table->item(i, 3)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		}
 	}
-
 	bool event(QEvent* e)
 	{
 		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
@@ -175,22 +175,24 @@ private:
 	}
 	void showEvent(QShowEvent*)
 	{
-		ui.tbActions->setCurrentItem(0);
+		ui.macro_table->setCurrentItem(0);
 		TableUpdate();
-		ResetControl();
-		LockControl(1);
+		ResetWidget();
+		DisableWidget(true);
 	}
 private Q_SLOTS:
 	void OnTbClicked(int row, int column)
 	{
-		ResetControl();
-		LockControl(true);
+		ResetWidget();
+		DisableWidget(true);
 		if (row < 0) return;
-
-		if (column == 3) macros->at(row).state = !macros->at(row).state;
-		ui.chbBlock->setChecked(macros->at(row).block);
-		ui.cmbMode->setCurrentIndex(macros->at(row).mode);
-
+		// state
+		{
+			if (column == 3) macros->at(row).state = !macros->at(row).state;
+			ui.block_check->setChecked(macros->at(row).block);
+			ui.mode_combo->setCurrentIndex(macros->at(row).mode);
+		}
+		// key
 		{
 			QList<QKeyEdit::Key> keys;
 			QKeyEdit::Key key;
@@ -198,24 +200,23 @@ private Q_SLOTS:
 			keys.push_back(key);
 			key.keyCode = macros->at(row).key >> 16;
 			keys.push_back(key);
-			ui.hkTr->setKeys(keys);
+			ui.key_keyedit->setKeys(keys);
 		}
-
+		// count
 		if (macros->at(row).mode >= Macro::down)
 		{
-			ui.etCount->setText(QString::number(macros->at(row).count));
-			ui.etCount->setDisabled(0);
+			ui.count_edit->setText(QString::number(macros->at(row).count));
+			ui.count_edit->setDisabled(0);
 		}
-
-		LockControl(0);
+		DisableWidget(false);
 		TableUpdate();
 		QiJson::SaveMacro(macros->at(row));
 	}
 	void OnKeyChanged()
 	{
-		int p = ui.tbActions->currentRow(); if (p < 0) return;
-
-		QList<QKeyEdit::Key> keys = ui.hkTr->keys();
+		int p = ui.macro_table->currentRow();
+		if (p < 0) return;
+		QList<QKeyEdit::Key> keys = ui.key_keyedit->keys();
 		DWORD vk = VK_SPACE;
 		if (keys.size() == 1) vk = keys[0].keyCode;
 		else if (keys.size() == 2) vk = keys[0].keyCode | (keys[1].keyCode << 16);
@@ -225,42 +226,41 @@ private Q_SLOTS:
 	}
 	void OnChbBlock(int)
 	{
-		int p = ui.tbActions->currentRow(); if (p < 0) return;
-		macros->at(p).block = ui.chbBlock->isChecked();
+		int p = ui.macro_table->currentRow(); if (p < 0) return;
+		macros->at(p).block = ui.block_check->isChecked();
 		TableUpdate();
 		QiJson::SaveMacro(macros->at(p));
 	}
 	void OnCmbMode(int index)
 	{
-		int p = ui.tbActions->currentRow(); if (p < 0) return;
+		int p = ui.macro_table->currentRow(); if (p < 0) return;
 		switch (index)
 		{
 		case Macro::sw:
-			ui.etCount->setText("无限");
-			ui.etCount->setDisabled(1);
+			ui.count_edit->setText("无限");
+			ui.count_edit->setDisabled(1);
 			macros->at(p).count = 0;
 			macros->at(p).mode = Macro::sw;
 			break;
 		case Macro::down:
-			ui.etCount->setText("");
-			ui.etCount->setDisabled(0);
+			ui.count_edit->setText("");
+			ui.count_edit->setDisabled(0);
 			macros->at(p).count = 1;
 			macros->at(p).mode = Macro::down;
 			break;
 		case Macro::up:
-			ui.etCount->setText("");
-			ui.etCount->setDisabled(0);
+			ui.count_edit->setText("");
+			ui.count_edit->setDisabled(0);
 			macros->at(p).count = 1;
 			macros->at(p).mode = Macro::up;
 			break;
 		}
-
 		TableUpdate();
 		QiJson::SaveMacro(macros->at(p));
 	}
 	void OnEtCount(const QString& count)
 	{
-		int p = ui.tbActions->currentRow(); if (p < 0) return;
+		int p = ui.macro_table->currentRow(); if (p < 0) return;
 		int n = count.toInt();
 		if (n > countMax) n = countMax;
 		macros->at(p).count = n;

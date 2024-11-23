@@ -1,10 +1,9 @@
-﻿#pragma execution_character_set("utf-8")
-#pragma once
+﻿#pragma once
 #include <qstandarditemmodel.h>
 #include <qabstractitemview.h>
 #include "MoreUi.h"
 #include "PopsUi.h"
-#include "../src/minc.h"
+#include <src/inc_header.h>
 #include "ui_SettingsUi.h"
 
 class SettingsUi : public QWidget
@@ -25,95 +24,88 @@ public:
 	}
 	void StyleGroup()
 	{
-		ui.clientWidget->setProperty("group", "client");
-		ui.bnReadme->setProperty("group", "settings-button");
-		ui.bnTboxs->setProperty("group", "settings-button");
-		ui.chbRecTrack->setProperty("group", "check");
-		ui.chbDefOn->setProperty("group", "check");
-		ui.chbShowTips->setProperty("group", "check");
-		ui.chbAudFx->setProperty("group", "check");
-		ui.chbMinMode->setProperty("group", "check");
-		ui.chbScaleBlock->setProperty("group", "check");
-		ui.chbStart->setProperty("group", "check");
-		ui.cmbTheme->setProperty("group", "combo");
-		ui.hkKey->setProperty("group", "line_edit");
-		ui.hkRec->setProperty("group", "line_edit");
-		ui.cmbTheme->view()->setProperty("group", "table");
+		ui.content_widget->setProperty("group", "client");
+		ui.readme_button->setProperty("group", "settings-button");
+		ui.popText_button->setProperty("group", "settings-button");
+		ui.recordTrack_check->setProperty("group", "check");
+		ui.enableDefault_check->setProperty("group", "check");
+		ui.showState_check->setProperty("group", "check");
+		ui.sound_check->setProperty("group", "check");
+		ui.hideDefault_check->setProperty("group", "check");
+		ui.start_check->setProperty("group", "check");
+		ui.theme_combo->setProperty("group", "combo");
+		ui.stateKey_keyedit->setProperty("group", "line_edit");
+		ui.recordKey_keyedit->setProperty("group", "line_edit");
+		ui.theme_combo->view()->setProperty("group", "table");
 	}
 private:
 	void Init()
 	{
-		ui.hkKey->setMode(QKeyEdit::Mode::solid);
-		ui.hkKey->setMaxKeys(2);
-		ui.hkKey->setMouseEnable(true);
-		ui.hkKey->setWheelEnable(true);
-		ui.hkKey->setPadEnable(true);
-
-		ui.hkRec->setMode(QKeyEdit::Mode::solid);
-		ui.hkRec->setMaxKeys(2);
-		ui.hkRec->setMouseEnable(true);
-		ui.hkRec->setWheelEnable(true);
-		ui.hkRec->setPadEnable(true);
-
-		ui.cmbTheme->setEditable(true);
-		ui.cmbTheme->lineEdit()->setReadOnly(true); 
-		ui.cmbTheme->lineEdit()->setAlignment(Qt::AlignCenter);
-		for (size_t i = 0; i < Qi::ui.themes.size(); i++) ui.cmbTheme->addItem(Qi::ui.themes[i].name);
-		QStandardItemModel* model = (QStandardItemModel*)ui.cmbTheme->view()->model();
+		// state key
+		ui.stateKey_keyedit->setMode(QKeyEdit::Mode::solid);
+		ui.stateKey_keyedit->setMaxKeys(2);
+		ui.stateKey_keyedit->setMouseEnable(true);
+		ui.stateKey_keyedit->setWheelEnable(true);
+		ui.stateKey_keyedit->setPadEnable(true);
+		// record key
+		ui.recordKey_keyedit->setMode(QKeyEdit::Mode::solid);
+		ui.recordKey_keyedit->setMaxKeys(2);
+		ui.recordKey_keyedit->setMouseEnable(true);
+		ui.recordKey_keyedit->setWheelEnable(true);
+		ui.recordKey_keyedit->setPadEnable(true);
+		// theme
+		ui.theme_combo->setEditable(true);
+		ui.theme_combo->lineEdit()->setReadOnly(true); 
+		ui.theme_combo->lineEdit()->setAlignment(Qt::AlignCenter);
+		for (size_t i = 0; i < Qi::ui.themes.size(); i++) ui.theme_combo->addItem(Qi::ui.themes[i].name);
+		QStandardItemModel* model = (QStandardItemModel*)ui.theme_combo->view()->model();
 		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
 		if (Qi::set.theme >= Qi::ui.themes.size()) Qi::set.theme = 0;
-		ui.cmbTheme->setCurrentIndex(Qi::set.theme);
-
+		ui.theme_combo->setCurrentIndex(Qi::set.theme);
 		if ("key edit")
 		{
 			QList<QKeyEdit::Key> keys;
 			keys.push_back(QKeyEdit::Key(sets->key & 0xFFFF));
 			keys.push_back(QKeyEdit::Key(sets->key >> 16));
-			ui.hkKey->setKeys(keys);
+			ui.stateKey_keyedit->setKeys(keys);
 			keys.clear();
 
 			keys.push_back(QKeyEdit::Key(sets->recKey & 0xFFFF));
 			keys.push_back(QKeyEdit::Key(sets->recKey >> 16));
-			ui.hkRec->setKeys(keys);
+			ui.recordKey_keyedit->setKeys(keys);
 		}
-
-		ui.chbRecTrack->setChecked(sets->recTrack);
-		ui.chbDefOn->setChecked(sets->defOn);
-		ui.chbShowTips->setChecked(sets->showTips);
-		ui.chbAudFx->setChecked(sets->audFx);
-		ui.chbMinMode->setChecked(sets->minMode);
-		ui.chbStart->setChecked(Task::Find(L"QuickInput"));
-		ui.chbScaleBlock->setChecked(sets->scaleBlock);
-
+		ui.recordTrack_check->setChecked(sets->recTrack);
+		ui.enableDefault_check->setChecked(sets->defOn);
+		ui.showState_check->setChecked(sets->showTips);
+		ui.sound_check->setChecked(sets->audFx);
+		ui.hideDefault_check->setChecked(sets->minMode);
+		ui.start_check->setChecked(Task::Find(L"QuickInput"));
 		if ("clear shortcut")
 		{
-			ui.bnReadme->installEventFilter(this);
-			ui.bnTboxs->installEventFilter(this);
-			ui.chbRecTrack->installEventFilter(this);
-			ui.chbDefOn->installEventFilter(this);
-			ui.chbShowTips->installEventFilter(this);
-			ui.chbAudFx->installEventFilter(this);
-			ui.chbMinMode->installEventFilter(this);
-			ui.chbScaleBlock->installEventFilter(this);
-			ui.chbStart->installEventFilter(this);
+			ui.readme_button->installEventFilter(this);
+			ui.popText_button->installEventFilter(this);
+			ui.recordTrack_check->installEventFilter(this);
+			ui.enableDefault_check->installEventFilter(this);
+			ui.showState_check->installEventFilter(this);
+			ui.sound_check->installEventFilter(this);
+			ui.hideDefault_check->installEventFilter(this);
+			ui.start_check->installEventFilter(this);
 		}
 	}
 	void Event()
 	{
-		connect(ui.bnReadme, &QPushButton::clicked, this, &This::OnBnReadme);
-		connect(ui.bnTboxs, &QPushButton::clicked, this, &This::OnBnTboxs);
-		connect(ui.cmbTheme, QOverload<int>::of(&QComboBox::activated), this, &This::OnCmbTheme);
-		connect(ui.hkKey, &QKeyEdit::changed, this, &This::OnHkKey);
-		connect(ui.hkRec, &QKeyEdit::changed, this, &This::OnHkRec);
-		connect(ui.chbRecTrack, &QPushButton::clicked, this, &This::OnRecTrack);
-		connect(ui.chbDefOn, &QPushButton::clicked, this, &This::OnDefOn);
-		connect(ui.chbShowTips, &QPushButton::clicked, this, &This::OnShowTips);
-		connect(ui.chbAudFx, &QPushButton::clicked, this, &This::OnAudFx);
-		connect(ui.chbMinMode, &QPushButton::clicked, this, &This::OnMinMode);
-		connect(ui.chbStart, &QPushButton::clicked, this, &This::OnStart);
-		connect(ui.chbScaleBlock, &QPushButton::clicked, this, &This::OnScaleBlock);
+		connect(ui.readme_button, &QPushButton::clicked, this, &This::OnBnReadme);
+		connect(ui.popText_button, &QPushButton::clicked, this, &This::OnBnTboxs);
+		connect(ui.theme_combo, QOverload<int>::of(&QComboBox::activated), this, &This::OnCmbTheme);
+		connect(ui.stateKey_keyedit, &QKeyEdit::changed, this, &This::OnHkKey);
+		connect(ui.recordKey_keyedit, &QKeyEdit::changed, this, &This::OnHkRec);
+		connect(ui.recordTrack_check, &QPushButton::clicked, this, &This::OnRecTrack);
+		connect(ui.enableDefault_check, &QPushButton::clicked, this, &This::OnDefOn);
+		connect(ui.showState_check, &QPushButton::clicked, this, &This::OnShowTips);
+		connect(ui.sound_check, &QPushButton::clicked, this, &This::OnAudFx);
+		connect(ui.hideDefault_check, &QPushButton::clicked, this, &This::OnMinMode);
+		connect(ui.start_check, &QPushButton::clicked, this, &This::OnStart);
 	}
-
 	bool event(QEvent* e)
 	{
 		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
@@ -154,11 +146,11 @@ private Q_SLOTS:
 		}
 	}
 	void OnHkKey() {
-		QList<QKeyEdit::Key> keys = ui.hkKey->keys();
+		QList<QKeyEdit::Key> keys = ui.stateKey_keyedit->keys();
 		DWORD vk = VK_F8;
 		if (keys.size() == 1)
 		{
-			if (keys[0].keyCode == VK_LBUTTON) ui.hkKey->setKey(QKeyEdit::Key(VK_F8));
+			if (keys[0].keyCode == VK_LBUTTON) ui.stateKey_keyedit->setKey(QKeyEdit::Key(VK_F8));
 			else vk = keys[0].keyCode;
 		}
 		else if (keys.size() == 2)
@@ -169,11 +161,11 @@ private Q_SLOTS:
 		QiJson::SaveJson();
 	}
 	void OnHkRec() {
-		QList<QKeyEdit::Key> keys = ui.hkRec->keys();
+		QList<QKeyEdit::Key> keys = ui.recordKey_keyedit->keys();
 		DWORD vk = VK_F8;
 		if (keys.size() == 1)
 		{
-			if (keys[0].keyCode == VK_LBUTTON) ui.hkRec->setKey(QKeyEdit::Key(VK_F8));
+			if (keys[0].keyCode == VK_LBUTTON) ui.recordKey_keyedit->setKey(QKeyEdit::Key(VK_F8));
 			else vk = keys[0].keyCode;
 		}
 		else if (keys.size() == 2)
@@ -185,30 +177,29 @@ private Q_SLOTS:
 	}
 	void OnRecTrack()
 	{
-		sets->recTrack = ui.chbRecTrack->isChecked(); QiJson::SaveJson();
+		sets->recTrack = ui.recordTrack_check->isChecked(); QiJson::SaveJson();
 	}
-	void OnDefOn() { sets->defOn = ui.chbDefOn->isChecked(); QiJson::SaveJson(); }
-	void OnShowTips() { sets->showTips = ui.chbShowTips->isChecked(); QiJson::SaveJson(); }
-	void OnAudFx() { sets->audFx = ui.chbAudFx->isChecked(); QiJson::SaveJson(); }
-	void OnMinMode() { sets->minMode = ui.chbMinMode->isChecked(); QiJson::SaveJson(); }
-	void OnScaleBlock() { sets->scaleBlock = ui.chbScaleBlock->isChecked(); QiJson::SaveJson(); }
+	void OnDefOn() { sets->defOn = ui.enableDefault_check->isChecked(); QiJson::SaveJson(); }
+	void OnShowTips() { sets->showTips = ui.showState_check->isChecked(); QiJson::SaveJson(); }
+	void OnAudFx() { sets->audFx = ui.sound_check->isChecked(); QiJson::SaveJson(); }
+	void OnMinMode() { sets->minMode = ui.hideDefault_check->isChecked(); QiJson::SaveJson(); }
 	void OnStart()
 	{
 		if (Task::Find(L"QuickInput"))
 		{
-			if (Task::Delete(L"QuickInput")) ui.chbStart->setChecked(false);
+			if (Task::Delete(L"QuickInput")) ui.start_check->setChecked(false);
 			else
 			{
-				ui.chbStart->setChecked(true);
+				ui.start_check->setChecked(true);
 				MsgBox::Error(L"需要以管理员权限运行", L"删除任务错误");
 			}
 		}
 		else
 		{
-			if (Task::Register(L"QuickInput")) ui.chbStart->setChecked(true);
+			if (Task::Register(L"QuickInput")) ui.start_check->setChecked(true);
 			else
 			{
-				ui.chbStart->setChecked(false);
+				ui.start_check->setChecked(false);
 				MsgBox::Error(L"需要以管理员权限运行", L"创建任务错误");
 			}
 		}

@@ -1,19 +1,11 @@
-﻿#pragma execution_character_set("utf-8")
-#include "thread.h"
-
+﻿#include "thread.h"
 namespace QiThread
 {
 	ThreadQueue releaseKeyQueue;
-	void _stdcall ReleaseKey(byte key)
-	{
-		Input::State(key, false, key_info);
-	}
-
 	bool PeekExitMsg()
 	{
-		return PeekMessageW(&Qi::msg, 0, msg_exit, msg_exit, PM_REMOVE);
+		return PeekMessageW(&Qi::msg, 0, msg_exit, msg_exit, PM_NOREMOVE);
 	}
-
 	DWORD _stdcall MacroRun(PVOID pParam)
 	{
 		Macro* pMacro = (Macro*)pParam;
@@ -26,7 +18,7 @@ namespace QiThread
 			// window not found
 			if (!pMacro->wp.active())
 			{
-				pMacro->wp.wnd = pMacro->wi.wnd = FindWindowW(QStringToW(pMacro->wi.wndClass), QStringToW(pMacro->wi.wndName));
+				pMacro->wp.wnd = pMacro->wi.wnd = FindWindowW((LPCWSTR)(pMacro->wi.wndClass.utf16()), (LPCWSTR)(pMacro->wi.wndName.utf16()));
 				if (!pMacro->wp.wnd) pMacro->wp.wnd = (pMacro->wi = QiFn::WindowSelection()).wnd;
 				if (!pMacro->wp.wnd)
 				{
@@ -39,7 +31,7 @@ namespace QiThread
 		}
 
 		GetCursorPos(&pMacro->cursor);
-		uint32 count = 0;
+		int count = 0;
 		int jumpId = 0;
 		while (Qi::run && !PeekExitMsg())
 		{
@@ -59,7 +51,7 @@ namespace QiThread
 			// window not found
 			if (!pMacro->wp.active())
 			{
-				pMacro->wp.wnd = pMacro->wi.wnd = FindWindowW(QStringToW(pMacro->wi.wndClass), QStringToW(pMacro->wi.wndName));
+				pMacro->wp.wnd = pMacro->wi.wnd = FindWindowW((LPCWSTR)(pMacro->wi.wndClass.utf16()), (LPCWSTR)(pMacro->wi.wndName.utf16()));
 				if (!pMacro->wp.wnd) pMacro->wp.wnd = (pMacro->wi = QiFn::WindowSelection()).wnd;
 				if (!pMacro->wp.wnd)
 				{
@@ -74,7 +66,6 @@ namespace QiThread
 		QiInterpreter::ActionInterpreter(pMacro->acEnd, pMacro->acEnd, pMacro->cursor, pWi, jumpId);
 		return 0;
 	}
-
 	DWORD _stdcall QuickClick(PVOID)
 	{
 		srand(clock());
@@ -86,13 +77,12 @@ namespace QiThread
 		while (Qi::run && !PeekExitMsg())
 		{
 			Input::State(Qi::fun.quickClick.key, true, key_info);
-			Thread::Sleep(Rand(max, min));
+			Sleep(Rand(max, min));
 			Input::State(Qi::fun.quickClick.key, false, key_info);
-			Thread::Sleep(Rand(max, min));
+			Sleep(Rand(max, min));
 		}
 		return 0;
 	}
-	
 	DWORD _stdcall WindowState(PVOID)
 	{
 		while (Qi::state)
@@ -117,12 +107,11 @@ namespace QiThread
 				Qi::run = false;
 				if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wi.wndName, false);
 			}
-			Thread::Sleep(100);
+			Sleep(100);
 		}
 		Qi::fun.wndActive.thread = 0;
 		return 0;
 	}
-
 	void StartMacroRun(Macro* pMacro)
 	{
 		pMacro->thRun = Thread::Start(MacroRun, pMacro);
@@ -139,7 +128,6 @@ namespace QiThread
 	{
 		Qi::fun.wndActive.thread = Thread::Start(WindowState, nullptr);
 	}
-
 	void ExitMacroRun(Macro* pMacro)
 	{
 		PostThreadMessageW(GetThreadId(pMacro->thRun), msg_exit, 0, 0);
@@ -160,7 +148,6 @@ namespace QiThread
 		PostThreadMessageW(GetThreadId(Qi::fun.wndActive.thread), msg_exit, 0, 0);
 		Qi::fun.wndActive.thread = nullptr;
 	}
-
 	bool MacroRunActive(Macro* pMacro)
 	{
 		if (pMacro->thRun)
@@ -197,9 +184,8 @@ namespace QiThread
 		}
 		return false;
 	}
-
 	void AddReleaseKey(byte key)
 	{
-		releaseKeyQueue.enqueue(ReleaseKey, key);
+		releaseKeyQueue.enqueue([](byte key) { Input::State(key, false, key_info); }, key);
 	}
 }

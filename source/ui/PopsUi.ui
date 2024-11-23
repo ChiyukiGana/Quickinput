@@ -40,7 +40,7 @@
     <number>1</number>
    </property>
    <item>
-    <widget class="QWidget" name="titleWidget" native="true">
+    <widget class="QWidget" name="title_widget" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -76,7 +76,7 @@
        <number>5</number>
       </property>
       <item>
-       <widget class="QLabel" name="lbIcon">
+       <widget class="QLabel" name="title_icon_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -101,7 +101,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lbTitle">
+       <widget class="QLabel" name="title_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -118,7 +118,7 @@
          <font>
           <family>Microsoft YaHei</family>
           <pointsize>-1</pointsize>
-          <weight>62</weight>
+          <weight>63</weight>
           <bold>true</bold>
          </font>
         </property>
@@ -134,7 +134,7 @@
        </widget>
       </item>
       <item>
-       <spacer name="titleSpacer">
+       <spacer name="title_spacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -147,7 +147,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="bnClose">
+       <widget class="QPushButton" name="title_close_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>20</horstretch>
@@ -187,7 +187,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="clientWidget" native="true">
+    <widget class="QWidget" name="content_widget" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <property name="spacing">
        <number>10</number>
@@ -205,7 +205,7 @@
        <number>10</number>
       </property>
       <item>
-       <widget class="QLabel" name="lbCustomText">
+       <widget class="QLabel" name="customText_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -240,7 +240,7 @@
          <number>10</number>
         </property>
         <item row="4" column="2">
-         <widget class="QPushButton" name="bnWD">
+         <widget class="QPushButton" name="window_off_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -256,7 +256,7 @@
          </widget>
         </item>
         <item row="9" column="2">
-         <widget class="QPushButton" name="bnDwE">
+         <widget class="QPushButton" name="down_on_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -272,10 +272,10 @@
          </widget>
         </item>
         <item row="9" column="1">
-         <widget class="QLineEdit" name="etDwE"/>
+         <widget class="QLineEdit" name="down_on_edit"/>
         </item>
         <item row="11" column="2">
-         <widget class="QPushButton" name="bnUpE">
+         <widget class="QPushButton" name="up_on_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -291,17 +291,17 @@
          </widget>
         </item>
         <item row="10" column="1">
-         <widget class="QLineEdit" name="etDwD"/>
+         <widget class="QLineEdit" name="down_off_edit"/>
         </item>
         <item row="10" column="0">
-         <widget class="QLabel" name="lbDwD">
+         <widget class="QLabel" name="down_off_label">
           <property name="text">
            <string>按下模式结束</string>
           </property>
          </widget>
         </item>
         <item row="1" column="2">
-         <widget class="QPushButton" name="bnQE">
+         <widget class="QPushButton" name="enable_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -317,17 +317,17 @@
          </widget>
         </item>
         <item row="12" column="1">
-         <widget class="QLineEdit" name="etUpD"/>
+         <widget class="QLineEdit" name="up_off_edit"/>
         </item>
         <item row="9" column="0">
-         <widget class="QLabel" name="lbDwE">
+         <widget class="QLabel" name="down_on_label">
           <property name="text">
            <string>按下模式开始</string>
           </property>
          </widget>
         </item>
         <item row="0" column="0">
-         <widget class="QLabel" name="lbType">
+         <widget class="QLabel" name="type_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
             <horstretch>0</horstretch>
@@ -340,7 +340,7 @@
          </widget>
         </item>
         <item row="12" column="2">
-         <widget class="QPushButton" name="bnUpD">
+         <widget class="QPushButton" name="up_off_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -356,24 +356,24 @@
          </widget>
         </item>
         <item row="8" column="1">
-         <widget class="QLineEdit" name="etSwD"/>
+         <widget class="QLineEdit" name="switch_off_edit"/>
         </item>
         <item row="3" column="0">
-         <widget class="QLabel" name="lbWE">
+         <widget class="QLabel" name="window_on_label">
           <property name="text">
            <string>窗口已激活</string>
           </property>
          </widget>
         </item>
         <item row="7" column="0">
-         <widget class="QLabel" name="lbSwE">
+         <widget class="QLabel" name="switch_on_label">
           <property name="text">
            <string>切换模式开始</string>
           </property>
          </widget>
         </item>
         <item row="10" column="2">
-         <widget class="QPushButton" name="bnDwD">
+         <widget class="QPushButton" name="down_off_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -389,20 +389,20 @@
          </widget>
         </item>
         <item row="4" column="1">
-         <widget class="QLineEdit" name="etWD"/>
+         <widget class="QLineEdit" name="window_off_edit"/>
         </item>
         <item row="8" column="0">
-         <widget class="QLabel" name="lbSwD">
+         <widget class="QLabel" name="switch_off_label">
           <property name="text">
            <string>切换模式结束</string>
           </property>
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QLineEdit" name="etQE"/>
+         <widget class="QLineEdit" name="enable_edit"/>
         </item>
         <item row="0" column="1">
-         <widget class="QLabel" name="lbText">
+         <widget class="QLabel" name="tip_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
             <horstretch>0</horstretch>
@@ -415,17 +415,17 @@
          </widget>
         </item>
         <item row="11" column="1">
-         <widget class="QLineEdit" name="etUpE"/>
+         <widget class="QLineEdit" name="up_on_edit"/>
         </item>
         <item row="1" column="0">
-         <widget class="QLabel" name="lbQE">
+         <widget class="QLabel" name="enable_label">
           <property name="text">
            <string>启用</string>
           </property>
          </widget>
         </item>
         <item row="0" column="2">
-         <widget class="QLabel" name="lbColor">
+         <widget class="QLabel" name="color_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
             <horstretch>0</horstretch>
@@ -438,7 +438,7 @@
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QPushButton" name="bnQD">
+         <widget class="QPushButton" name="disable_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -454,16 +454,16 @@
          </widget>
         </item>
         <item row="6" column="1">
-         <widget class="QLineEdit" name="etQcD"/>
+         <widget class="QLineEdit" name="click_off_edit"/>
         </item>
         <item row="2" column="1">
-         <widget class="QLineEdit" name="etQD"/>
+         <widget class="QLineEdit" name="disable_edit"/>
         </item>
         <item row="5" column="1">
-         <widget class="QLineEdit" name="etQcE"/>
+         <widget class="QLineEdit" name="click_on_edit"/>
         </item>
         <item row="6" column="2">
-         <widget class="QPushButton" name="bnQcD">
+         <widget class="QPushButton" name="click_off_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -479,14 +479,14 @@
          </widget>
         </item>
         <item row="5" column="0">
-         <widget class="QLabel" name="lbQcE">
+         <widget class="QLabel" name="click_on_label">
           <property name="text">
            <string>快捷连点开始</string>
           </property>
          </widget>
         </item>
         <item row="5" column="2">
-         <widget class="QPushButton" name="bnQcE">
+         <widget class="QPushButton" name="click_on_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -502,21 +502,21 @@
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QLabel" name="lbQD">
+         <widget class="QLabel" name="disable_label">
           <property name="text">
            <string>禁用</string>
           </property>
          </widget>
         </item>
         <item row="4" column="0">
-         <widget class="QLabel" name="lbWD">
+         <widget class="QLabel" name="window_off_label">
           <property name="text">
            <string>窗口已失效</string>
           </property>
          </widget>
         </item>
         <item row="7" column="2">
-         <widget class="QPushButton" name="bnSwE">
+         <widget class="QPushButton" name="switch_on_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -532,7 +532,7 @@
          </widget>
         </item>
         <item row="8" column="2">
-         <widget class="QPushButton" name="bnSwD">
+         <widget class="QPushButton" name="switch_off_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -548,10 +548,10 @@
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QLineEdit" name="etWE"/>
+         <widget class="QLineEdit" name="window_on_edit"/>
         </item>
         <item row="3" column="2">
-         <widget class="QPushButton" name="bnWE">
+         <widget class="QPushButton" name="window_on_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -567,24 +567,24 @@
          </widget>
         </item>
         <item row="7" column="1">
-         <widget class="QLineEdit" name="etSwE"/>
+         <widget class="QLineEdit" name="switch_on_edit"/>
         </item>
         <item row="6" column="0">
-         <widget class="QLabel" name="lbQcD">
+         <widget class="QLabel" name="click_off_label">
           <property name="text">
            <string>快捷连点停止</string>
           </property>
          </widget>
         </item>
         <item row="11" column="0">
-         <widget class="QLabel" name="lbUpE">
+         <widget class="QLabel" name="up_on_label">
           <property name="text">
            <string>松开模式开始</string>
           </property>
          </widget>
         </item>
         <item row="12" column="0">
-         <widget class="QLabel" name="lbUpD">
+         <widget class="QLabel" name="up_off_label">
           <property name="text">
            <string>松开模式结束</string>
           </property>
@@ -593,7 +593,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QLabel" name="lbPos">
+       <widget class="QLabel" name="disply_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -620,12 +620,12 @@
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
+       <layout class="QHBoxLayout" name="disply_box">
         <property name="spacing">
          <number>10</number>
         </property>
         <item>
-         <widget class="QLabel" name="lbLR">
+         <widget class="QLabel" name="disply_x_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -638,7 +638,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QSlider" name="sdLR">
+         <widget class="QSlider" name="disply_x_slider">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -663,7 +663,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="lbTB">
+         <widget class="QLabel" name="disply_y_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -676,7 +676,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QSlider" name="sdTB">
+         <widget class="QSlider" name="disply_y_slider">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -698,7 +698,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="lbSize">
+         <widget class="QLabel" name="disply_size_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -711,7 +711,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QSlider" name="sdSize">
+         <widget class="QSlider" name="disply_size_slider">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -739,7 +739,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QLabel" name="lbTime">
+         <widget class="QLabel" name="disply_time_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -752,7 +752,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QSlider" name="sdTime">
+         <widget class="QSlider" name="disply_time_slider">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
             <horstretch>0</horstretch>

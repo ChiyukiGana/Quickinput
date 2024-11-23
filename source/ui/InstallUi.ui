@@ -46,7 +46,7 @@
     <number>1</number>
    </property>
    <item>
-    <widget class="QWidget" name="title" native="true">
+    <widget class="QWidget" name="title_widget" native="true">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -80,7 +80,7 @@
        <number>5</number>
       </property>
       <item>
-       <widget class="QLabel" name="lbIcon">
+       <widget class="QLabel" name="title_icon_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -105,7 +105,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lbTitle">
+       <widget class="QLabel" name="title_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -139,7 +139,7 @@ font-size:14px;</string>
        </widget>
       </item>
       <item>
-       <spacer name="titleSpacer">
+       <spacer name="title_spacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -152,7 +152,7 @@ font-size:14px;</string>
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="bnClose">
+       <widget class="QPushButton" name="title_close_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>30</horstretch>
@@ -184,170 +184,180 @@ QPushButton:hover{background-color:#C00;}</string>
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="widget" native="true">
-     <widget class="QPushButton" name="bnInstall">
-      <property name="geometry">
-       <rect>
-        <x>380</x>
-        <y>110</y>
-        <width>101</width>
-        <height>28</height>
-       </rect>
-      </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="font">
-       <font>
-        <family>Microsoft YaHei</family>
-        <pointsize>-1</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QPushButton{background-color:white;border:none;}
-QPushButton:hover{background-color:#EEF;border:1px solid #88F;}</string>
-      </property>
-      <property name="text">
-       <string>安装</string>
-      </property>
-     </widget>
-     <widget class="QLabel" name="lbTip">
-      <property name="geometry">
-       <rect>
-        <x>60</x>
-        <y>10</y>
-        <width>371</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>Microsoft YaHei</family>
-        <pointsize>-1</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="mouseTracking">
-       <bool>true</bool>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">background:none;font-family:&quot;Microsoft YaHei&quot;;
+    <widget class="QWidget" name="content_widget" native="true">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QLabel" name="tip_label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background:none;font-family:&quot;Microsoft YaHei&quot;;
 font-size:14px;</string>
-      </property>
-      <property name="text">
-       <string>程序不会注册卸载程序，如需卸载请删除安装的文件夹即可</string>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="etPath">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>40</y>
-        <width>401</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">font-size:12px;</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="bnPath">
-      <property name="geometry">
-       <rect>
-        <x>430</x>
-        <y>40</y>
-        <width>51</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QPushButton{background-color:white;border:none;}
+        </property>
+        <property name="text">
+         <string>程序不会注册卸载程序，如需卸载请删除安装的文件夹即可</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="path_box">
+        <property name="spacing">
+         <number>12</number>
+        </property>
+        <item>
+         <widget class="QLineEdit" name="path_edit">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>28</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">font-size:12px;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="path_button">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>64</width>
+            <height>28</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton{background-color:white;border:none;}
 QPushButton:hover{background-color:#EEF;border:1px solid #88F;}</string>
-      </property>
-      <property name="text">
-       <string>路径</string>
-      </property>
-     </widget>
-     <widget class="QCheckBox" name="ckDesktop">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>90</y>
-        <width>139</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>Microsoft YaHei</family>
-        <pointsize>-1</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QCheckBox::indicator{background-color:#FFF;width:20px;height:20px;}
+          </property>
+          <property name="text">
+           <string>路径</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="desktop_check">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Microsoft YaHei</family>
+          <pointsize>-1</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QCheckBox::indicator{background-color:#FFF;width:20px;height:20px;}
 QCheckBox::indicator:checked{image:url(:/checked.png)}</string>
-      </property>
-      <property name="text">
-       <string>桌面快捷方式</string>
-      </property>
-     </widget>
-     <widget class="QCheckBox" name="ckStart">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>120</y>
-        <width>139</width>
-        <height>20</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>Microsoft YaHei</family>
-        <pointsize>-1</pointsize>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QCheckBox::indicator{background-color:#FFF;width:20px;height:20px;}
+        </property>
+        <property name="text">
+         <string>桌面快捷方式</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="bottom_box">
+        <property name="spacing">
+         <number>12</number>
+        </property>
+        <item>
+         <widget class="QCheckBox" name="start_check">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Microsoft YaHei</family>
+            <pointsize>-1</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QCheckBox::indicator{background-color:#FFF;width:20px;height:20px;}
 QCheckBox::indicator:checked{image:url(:/checked.png)}</string>
-      </property>
-      <property name="text">
-       <string>开始菜单快捷方式</string>
-      </property>
-     </widget>
+          </property>
+          <property name="text">
+           <string>开始菜单快捷方式</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="install_button">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>64</width>
+            <height>28</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Microsoft YaHei</family>
+            <pointsize>-1</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QPushButton{background-color:white;border:none;}
+QPushButton:hover{background-color:#EEF;border:1px solid #88F;}</string>
+          </property>
+          <property name="text">
+           <string>安装</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>

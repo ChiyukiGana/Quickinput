@@ -34,7 +34,7 @@
     <number>1</number>
    </property>
    <item>
-    <widget class="QWidget" name="titleWidget" native="true">
+    <widget class="QWidget" name="title_widget" native="true">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -64,7 +64,7 @@
        <number>5</number>
       </property>
       <item>
-       <widget class="QLabel" name="lbIcon">
+       <widget class="QLabel" name="title_icon_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -89,7 +89,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lbTitle">
+       <widget class="QLabel" name="title_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -122,7 +122,7 @@
        </widget>
       </item>
       <item>
-       <spacer name="titleSpacer">
+       <spacer name="title_spacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -135,7 +135,7 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="bnClose">
+       <widget class="QPushButton" name="title_close_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
           <horstretch>20</horstretch>
@@ -172,7 +172,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="clientWidget" native="true">
+    <widget class="QWidget" name="content_widget" native="true">
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <property name="spacing">
        <number>20</number>
@@ -190,7 +190,7 @@
        <number>20</number>
       </property>
       <item>
-       <widget class="QLabel" name="lb_version">
+       <widget class="QLabel" name="version_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -217,7 +217,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="lb_content">
+       <widget class="QLabel" name="content_label">
         <property name="styleSheet">
          <string notr="true">font-size:18px</string>
         </property>

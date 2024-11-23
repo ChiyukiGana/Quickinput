@@ -48,7 +48,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QWidget" name="clientWidget" native="true">
+    <widget class="QWidget" name="content_widget" native="true">
      <property name="styleSheet">
       <string notr="true"/>
      </property>
@@ -69,7 +69,7 @@
        <number>10</number>
       </property>
       <item>
-       <layout class="QHBoxLayout" name="box">
+       <layout class="QHBoxLayout" name="content_box">
         <property name="spacing">
          <number>10</number>
         </property>
@@ -80,7 +80,7 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QTableWidget" name="tbActions">
+         <widget class="QTableWidget" name="macro_table">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -135,12 +135,12 @@
          </widget>
         </item>
         <item>
-         <layout class="QVBoxLayout" name="bnBox">
+         <layout class="QVBoxLayout" name="button_box">
           <property name="spacing">
            <number>10</number>
           </property>
           <item>
-           <widget class="QLineEdit" name="etName">
+           <widget class="QLineEdit" name="name_edit">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -184,7 +184,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="bnRec">
+           <widget class="QPushButton" name="record_button">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -216,7 +216,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="bnWndRec">
+           <widget class="QPushButton" name="record_window_button">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -248,7 +248,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="bnAdd">
+           <widget class="QPushButton" name="add_button">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -280,7 +280,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="bnEdit">
+           <widget class="QPushButton" name="edit_button">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -312,7 +312,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="bnExp">
+           <widget class="QPushButton" name="export_button">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -344,7 +344,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="bnImp">
+           <widget class="QPushButton" name="import_button">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -376,7 +376,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="bnLoad">
+           <widget class="QPushButton" name="reload_button">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -408,7 +408,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="bnDel">
+           <widget class="QPushButton" name="delete_button">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -440,7 +440,7 @@
            </widget>
           </item>
           <item>
-           <spacer name="verticalSpacer">
+           <spacer name="button_spacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>

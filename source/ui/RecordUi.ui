@@ -42,7 +42,7 @@
     <number>1</number>
    </property>
    <item>
-    <widget class="QWidget" name="clientWidget" native="true">
+    <widget class="QWidget" name="content_widget" native="true">
      <property name="styleSheet">
       <string notr="true"/>
      </property>
@@ -63,7 +63,7 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QWidget" name="handle" native="true">
+       <widget class="QWidget" name="handle_widget" native="true">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
           <horstretch>0</horstretch>
@@ -82,7 +82,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="bnStart">
+       <widget class="QPushButton" name="start_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
           <horstretch>0</horstretch>
@@ -106,7 +106,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QPushButton" name="bnClose">
+       <widget class="QPushButton" name="close_button">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
           <horstretch>0</horstretch>

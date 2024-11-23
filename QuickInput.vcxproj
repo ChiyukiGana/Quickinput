@@ -66,7 +66,7 @@
     <PreLinkEventUseInBuild>false</PreLinkEventUseInBuild>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
-    <ExternalIncludePath>$(ProjectDir)source;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget;$(ProjectDir)source\libcurl\include;$(ProjectDir);C:\#\Dev;$(ExternalIncludePath)</ExternalIncludePath>
+    <ExternalIncludePath>$(ProjectDir);$(ProjectDir)source;$(ProjectDir)source\src\libcurl\include;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">
     <OutDir>$(Configuration)\Application\</OutDir>
@@ -75,7 +75,7 @@
     <PreLinkEventUseInBuild>false</PreLinkEventUseInBuild>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
     <EnableMicrosoftCodeAnalysis>false</EnableMicrosoftCodeAnalysis>
-    <ExternalIncludePath>$(ProjectDir)source;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget;$(ProjectDir)source\libcurl\include;$(ProjectDir);C:\#\Dev;$(ExternalIncludePath)</ExternalIncludePath>
+    <ExternalIncludePath>$(ProjectDir);$(ProjectDir)source;$(ProjectDir)source\src\libcurl\include;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Link>
@@ -84,6 +84,7 @@
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
       <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
+      <AdditionalDependencies>$(ProjectDir)source\src\libcurl\lib\libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
       <DisableSpecificWarnings>
@@ -92,6 +93,7 @@
       <PrecompiledHeaderFile />
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Manifest>
       <AdditionalManifestFiles>manifest.xml</AdditionalManifestFiles>
@@ -108,6 +110,7 @@
       <PrecompiledHeaderFile />
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
@@ -116,6 +119,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <GenerateDebugInformation>false</GenerateDebugInformation>
+      <AdditionalDependencies>$(ProjectDir)source\src\libcurl\lib\libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <AdditionalManifestFiles>manifest.xml</AdditionalManifestFiles>
@@ -155,15 +159,35 @@
     <ClCompile Include="source\src\interpreter.cpp" />
     <ClCompile Include="source\src\json.cpp" />
     <ClCompile Include="source\src\thread.cpp" />
+    <ClCompile Include="source\src\type.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\src\func.h" />
-    <ClInclude Include="source\src\ginc.h" />
+    <ClInclude Include="source\src\inc_external.h" />
+    <ClInclude Include="source\src\inc_header.h" />
+    <ClInclude Include="source\src\inc_project.h" />
     <ClInclude Include="source\src\interpreter.h" />
     <ClInclude Include="source\src\json.h" />
-    <ClInclude Include="source\src\minc.h" />
-    <ClInclude Include="source\src\qitype.h" />
     <ClInclude Include="source\src\thread.h" />
+    <ClInclude Include="source\src\tools\base.h" />
+    <ClInclude Include="source\src\tools\color.h" />
+    <ClInclude Include="source\src\tools\file.h" />
+    <ClInclude Include="source\src\tools\ihook.h" />
+    <ClInclude Include="source\src\tools\image.h" />
+    <ClInclude Include="source\src\tools\input.h" />
+    <ClInclude Include="source\src\tools\msgbox.h" />
+    <ClInclude Include="source\src\tools\path.h" />
+    <ClInclude Include="source\src\tools\process.h" />
+    <ClInclude Include="source\src\tools\sound.h" />
+    <ClInclude Include="source\src\tools\string.h" />
+    <ClInclude Include="source\src\tools\system.h" />
+    <ClInclude Include="source\src\tools\task.h" />
+    <ClInclude Include="source\src\tools\thread.h" />
+    <ClInclude Include="source\src\tools\threadpool.h" />
+    <ClInclude Include="source\src\tools\threadqueue.h" />
+    <ClInclude Include="source\src\tools\vector.h" />
+    <ClInclude Include="source\src\tools\windows.h" />
+    <ClInclude Include="source\src\tools\xboxpad.h" />
     <ClInclude Include="source\src\type.h" />
     <ClInclude Include="source\src\update.h" />
     <QtMoc Include="source\ui\UpdateUi.h" />

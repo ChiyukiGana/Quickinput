@@ -48,7 +48,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QWidget" name="clientWidget" native="true">
+    <widget class="QWidget" name="content_widget" native="true">
      <property name="styleSheet">
       <string notr="true"/>
      </property>
@@ -69,7 +69,7 @@
        <number>10</number>
       </property>
       <item>
-       <layout class="QHBoxLayout" name="box">
+       <layout class="QHBoxLayout" name="content_box">
         <property name="spacing">
          <number>10</number>
         </property>
@@ -77,7 +77,7 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QTableWidget" name="tbActions">
+         <widget class="QTableWidget" name="macro_table">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -156,17 +156,17 @@
          </widget>
         </item>
         <item>
-         <layout class="QVBoxLayout" name="enBox">
+         <layout class="QVBoxLayout" name="widget_box">
           <property name="spacing">
            <number>20</number>
           </property>
           <item>
-           <layout class="QHBoxLayout" name="blockBox">
+           <layout class="QHBoxLayout" name="block_box">
             <property name="spacing">
              <number>5</number>
             </property>
             <item>
-             <widget class="QCheckBox" name="chbBlock">
+             <widget class="QCheckBox" name="block_check">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -207,7 +207,7 @@
              </widget>
             </item>
             <item>
-             <spacer name="horizontalSpacer_2">
+             <spacer name="block_spacer">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -222,12 +222,12 @@
            </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="modeBox">
+           <layout class="QVBoxLayout" name="mode_box">
             <property name="spacing">
              <number>5</number>
             </property>
             <item>
-             <widget class="QLabel" name="lbMode">
+             <widget class="QLabel" name="mode_label">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -247,7 +247,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="cmbMode">
+             <widget class="QComboBox" name="mode_combo">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -287,12 +287,12 @@
            </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="keyBox">
+           <layout class="QVBoxLayout" name="key_box">
             <property name="spacing">
              <number>5</number>
             </property>
             <item>
-             <widget class="QLabel" name="lbTr">
+             <widget class="QLabel" name="key_label">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -312,7 +312,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QKeyEdit" name="hkTr">
+             <widget class="QKeyEdit" name="key_keyedit">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -336,12 +336,12 @@
            </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="countBox">
+           <layout class="QVBoxLayout" name="count_box">
             <property name="spacing">
              <number>5</number>
             </property>
             <item>
-             <widget class="QLabel" name="lbCount">
+             <widget class="QLabel" name="count_label">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -361,7 +361,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QLineEdit" name="etCount">
+             <widget class="QLineEdit" name="count_edit">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -407,7 +407,7 @@
            </layout>
           </item>
           <item>
-           <spacer name="verticalSpacer">
+           <spacer name="widget_spacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
             </property>
@@ -432,7 +432,7 @@
   <customwidget>
    <class>QKeyEdit</class>
    <extends>QLineEdit</extends>
-   <header>qkeyedit.h</header>
+   <header location="global">qkeyedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

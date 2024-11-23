@@ -1,7 +1,5 @@
-﻿#pragma execution_character_set("utf-8")
-#pragma once
-#include "minc.h"
-
+﻿#pragma once
+#include "inc_header.h"
 namespace QiFn
 {
 	// Pos convert
@@ -13,7 +11,6 @@ namespace QiFn
 	RECT WRTAR(RECT rel, HWND wnd);
 	POINT WATR(POINT abs, HWND wnd);
 	RECT WATRR(RECT abs, HWND wnd);
-
 	// Pop text
 	QString ParseCustom(QString text, QString name, QString number);
 	QString ParseState(QString text);
@@ -24,17 +21,16 @@ namespace QiFn
 	void WindowPop(QString window, bool state);
 	void QuickClickPop(bool state);
 	void MacroPop(Macro* macro, bool state);
-	// ~Pop text
-
+	// State
+	void Trigger(short vk, const bool* state);
+	void QiHook(bool state);
+	void QiState(bool state);
+	// Other
 	bool SelfActive();
 	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, std::function<void(int x, int y, int stepx, int stepy)> CallBack);
 	WndInfo WindowSelection();
-	std::wstring AllocName(std::wstring name);
-	QiBlock* FindBlock(Actions& actions, int32 id);
-	const QiBlock* FindBlock(const Actions& actions, int32 id);
-
-	void Trigger(short vk, const bool* state);
-
-	void QiHook(bool state);
-	void QiState(bool state);
+	QString Unique(const QString& name, const QStringList& names, const QString& left = " (", const QString& right = ")", int begin = 1);
+	QString AllocName(const QString& name);
+	QiBlock* FindBlock(Actions& actions, int id);
+	const QiBlock* FindBlock(const Actions& actions, int id);
 };

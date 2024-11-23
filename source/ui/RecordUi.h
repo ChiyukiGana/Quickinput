@@ -1,9 +1,6 @@
-﻿#pragma execution_character_set("utf-8")
-#pragma once
-#include <qevent.h>
-#include "../src/minc.h"
+﻿#pragma once
+#include <src/inc_header.h>
 #include "ui_RecordUi.h"
-
 class RecordUi : public QDialog
 {
 	Q_OBJECT;
@@ -22,26 +19,22 @@ public:
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
-		setMouseTracking(true);
-
 		if ("init")
 		{
-			ui.bnStart->setText(Qi::ui.text.rcStart);
-			ui.bnClose->setText(Qi::ui.text.rcClose);
+			ui.start_button->setText(Qi::ui.text.rcStart);
+			ui.close_button->setText(Qi::ui.text.rcClose);
 			if ("clear shortcut")
 			{
-				ui.bnStart->installEventFilter(this);
-				ui.bnClose->installEventFilter(this);
+				ui.start_button->installEventFilter(this);
+				ui.close_button->installEventFilter(this);
 			}
-			connect(ui.bnStart, &QPushButton::clicked, this, &This::OnBnStart);
-			connect(ui.bnClose, &QPushButton::clicked, this, &This::OnBnClose);
+			connect(ui.start_button, &QPushButton::clicked, this, [this]{ if (Qi::recording) RecStop(); else RecStart(); });
+			connect(ui.close_button, &QPushButton::clicked, this, [this] { RecClose(); });
 			StyleGroup();
 		}
-
 		Qi::widget.record = this;
 		Qi::recordState = true;
 		QiFn::QiHook(true);
-
 		if (Qi::set.recKey)
 		{
 			QString text("按下");
@@ -49,17 +42,14 @@ public:
 			text += L"开始录制";
 			Qi::popText->Show(text, QColor(0x20, 0xFF, 0x20));
 		}
-
 		macro.mode = Macro::down;
 		macro.count = 1;
-
 		if (wi)
 		{
 			Qi::recordWindow = wi->wnd;
 			macro.wi = *wi;
 			macro.wndState = true;
-			macro.name = WToQString(QiFn::AllocName(L"窗口录制"));
-
+			macro.name = QiFn::AllocName("窗口录制");
 			POINT wpt = Window::pos(Qi::recordWindow);
 			move(wpt.x, wpt.y);
 			WndLock::Lock(Qi::recordWindow);
@@ -68,7 +58,7 @@ public:
 		}
 		else
 		{
-			macro.name = WToQString(QiFn::AllocName(L"录制"));
+			macro.name = QiFn::AllocName("录制");
 			exec();
 		}
 		QiFn::QiHook(false);
@@ -78,11 +68,10 @@ public:
 	void StyleGroup()
 	{
 		setProperty("group", "frame");
-		ui.clientWidget->setProperty("group", "client");
-		ui.bnStart->setProperty("group", "record-button");
-		ui.bnClose->setProperty("group", "record-button");
+		ui.content_widget->setProperty("group", "client");
+		ui.start_button->setProperty("group", "record-button");
+		ui.close_button->setProperty("group", "record-button");
 	}
-
 private:
 	void RecStart()
 	{
@@ -93,10 +82,8 @@ private:
 			text += "停止录制";
 			Qi::popText->Show(text);
 		}
-
-		ui.bnStart->setText(Qi::ui.text.rcStop);
-
-		Qi::record = Actions();
+		ui.start_button->setText(Qi::ui.text.rcStop);
+		Qi::record.clear();
 		Qi::recordClock = 0;
 		Qi::recording = true;
 	}
@@ -105,9 +92,7 @@ private:
 		Qi::recording = false;
 		if (Qi::record.size())
 		{
-			macro.acRun = std::move(Qi::record);
-			Qi::macros.Add(macro);
-			QiJson::SaveMacro(macro);
+			QiJson::SaveMacro(Qi::macros.append(std::move(macro)));
 		}
 		Qi::popText->Hide();
 		close();
@@ -118,7 +103,37 @@ private:
 		Qi::popText->Hide();
 		close();
 	}
-	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) msPos = e->pos(), mouseDown = true; e->accept(); }void mouseMoveEvent(QMouseEvent* e) { if (mouseDown) move(e->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) mouseDown = false; }
+	// window move
+	QPoint mouse_positon;
+	bool mouse_down = false;
+	void mousePressEvent(QMouseEvent* e)
+	{
+		if (e->button() == Qt::LeftButton)
+		{
+			mouse_positon = e->pos();
+			mouse_down = true;
+			e->accept();
+		}
+	}
+	void mouseMoveEvent(QMouseEvent* e)
+	{
+		if (mouse_down)
+		{
+			if (Distance(mouse_positon.x(), mouse_positon.y(), e->pos().x(), e->pos().y()) < 100)
+			{
+				move(e->pos() + pos() - mouse_positon);
+				e->accept();
+			}
+		}
+	}
+	void mouseReleaseEvent(QMouseEvent* e)
+	{
+		if (e->button() == Qt::LeftButton)
+		{
+			mouse_down = false;
+			e->accept();
+		}
+	}
 private:
 	bool event(QEvent* e)
 	{
@@ -144,7 +159,4 @@ private:
 		else if (e->type() == _stop) RecStop();
 		else if (e->type() == _close) RecClose();
 	}
-public Q_SLOTS:
-	void OnBnStart() { if (Qi::recording) RecStop(); else RecStart(); }
-	void OnBnClose() { RecClose(); }
 };

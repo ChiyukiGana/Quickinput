@@ -1,36 +1,32 @@
 #include "interpreter.h"
-
 namespace QiInterpreter
 {
 	int ActionInterpreter(const Actions& parent, const Actions& current, POINT& cursor, WndInput* wp, int& jumpId)
 	{
 	go_top:
 		int result = r_continue;
-		for (size_t i = 0; i < current.size(); i++)
+		for (const Action& action : current)
 		{
 			if (!Qi::run || QiThread::PeekExitMsg()) return r_exit;
 			if (wp && !IsWindow(wp->wnd)) { 2000, Qi::popText->Popup("´°¿ÚÊ§Ð§"); return r_exit; }
-
 			result = r_continue;
-			const Action& var = current[i];
-			size_t index = var.index();
 			if (jumpId)
 			{
-				if (index == QiType::jumpPoint)
+				if (action.index() == QiType::jumpPoint)
 				{
-					const QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(var);
+					const QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(action);
 					if (jumpPoint.id == jumpId) jumpId = 0;
 				}
 				else
 				{
-					const QiBase& base = var.base();
+					const QiBase& base = action.base();
 					if (!base.next.empty()) ActionInterpreter(parent, base.next, cursor, wp, jumpId);
 					if (!base.next2.empty() && jumpId) ActionInterpreter(parent, base.next2, cursor, wp, jumpId);
 				}
 			}
 			else
 			{
-				switch (index)
+				switch (action.index())
 				{
 				case QiType::end:
 				{
@@ -38,12 +34,12 @@ namespace QiInterpreter
 				} break;
 				case QiType::delay:
 				{
-					const QiDelay& delay = std::get<QiDelay>(var);
-					Thread::Sleep(Rand(delay.max, delay.min));
+					const QiDelay& delay = std::get<QiDelay>(action);
+					Sleep(Rand(delay.max, delay.min));
 				} break;
 				case QiType::key:
 				{
-					const QiKey& key = std::get<QiKey>(var);
+					const QiKey& key = std::get<QiKey>(action);
 					if (wp)
 					{
 						if (key.state == QiKey::up)
@@ -89,7 +85,7 @@ namespace QiInterpreter
 				} break;
 				case QiType::mouse:
 				{
-					const QiMouse& mouse = std::get<QiMouse>(var);
+					const QiMouse& mouse = std::get<QiMouse>(action);
 					if (wp)
 					{
 						POINT pt = {};
@@ -107,7 +103,7 @@ namespace QiInterpreter
 							{
 								QiFn::SmoothMove(wp->pt.x, wp->pt.y, pt.x, pt.y, mouse.speed, [&wp](int x, int y, int stepx, int stepy) {
 									Input::MoveTo(wp->current, stepx, stepy, wp->mk);
-									Thread::Sleep(5);
+									Sleep(5);
 									});
 							}
 							else Input::MoveTo(wp->current, pt.x, pt.y, wp->mk);
@@ -124,7 +120,7 @@ namespace QiInterpreter
 							{
 								QiFn::SmoothMove(0, 0, x, y, mouse.speed, [](int x, int y, int stepx, int stepy) {
 									Input::Move(stepx, stepy);
-									Thread::Sleep(5);
+									Sleep(5);
 									});
 							}
 							else Input::Move(x, y);
@@ -138,21 +134,21 @@ namespace QiInterpreter
 								spt = QiFn::RTA(spt);
 								QiFn::SmoothMove(spt.x, spt.y, x, y, mouse.speed, [](int x, int y, int stepx, int stepy)->void {
 									Input::MoveToA(x * 6.5535f, y * 6.5535f);
-									Thread::Sleep(5);
+									Sleep(5);
 									});
 							}
 							else Input::MoveToA(x * 6.5535f, y * 6.5535f);
 						}
 					}
 				} break;
-				case QiType::text:
+				case QiType::copyText:
 				{
-					const QiText& text = std::get<QiText>(var);
-					System::ClipBoardText(QStringToW(text.text));
+					const QiCopyText& text = std::get<QiCopyText>(action);
+					System::ClipBoardText((LPCWSTR)(text.text.utf16()));
 				} break;
 				case QiType::color:
 				{
-					const QiColor& color = std::get<QiColor>(var);
+					const QiColor& color = std::get<QiColor>(action);
 					RgbMap rgbMap;
 					RECT rect;
 					HDC hdc;
@@ -192,9 +188,9 @@ namespace QiInterpreter
 				} break;
 				case QiType::loop:
 				{
-					const QiLoop& loop = std::get<QiLoop>(var);
-					uint32 n = 0;
-					uint32 e = 0;
+					const QiLoop& loop = std::get<QiLoop>(action);
+					int n = 0;
+					int e = 0;
 					bool uloop = false;
 					if (loop.max) uloop = true, e = Rand(loop.max, loop.min);
 					while (Qi::run && !QiThread::PeekExitMsg())
@@ -215,7 +211,7 @@ namespace QiInterpreter
 				} break;
 				case QiType::keyState:
 				{
-					const QiKeyState& keyState = std::get<QiKeyState>(var);
+					const QiKeyState& keyState = std::get<QiKeyState>(action);
 					if (Input::stateEx(keyState.vk))
 					{
 						result = ActionInterpreter(parent, keyState.next, cursor, wp, jumpId);
@@ -231,7 +227,7 @@ namespace QiInterpreter
 				} break;
 				case QiType::image:
 				{
-					const QiImage& image = std::get<QiImage>(var);
+					const QiImage& image = std::get<QiImage>(action);
 					RgbMap rgbMap;
 					RECT rect;
 					HDC hdc;
@@ -272,9 +268,9 @@ namespace QiInterpreter
 				} break;
 				case QiType::popText:
 				{
-					const QiPopText& popText = std::get<QiPopText>(var);
+					const QiPopText& popText = std::get<QiPopText>(action);
 					Qi::popText->Popup(popText.time, popText.text, RGB(223, 223, 223));
-					if (popText.sync) Thread::Sleep(popText.time);
+					if (popText.sync) Sleep(popText.time);
 				} break;
 				case QiType::rememberPos:
 				{
@@ -282,7 +278,7 @@ namespace QiInterpreter
 				} break;
 				case QiType::timer:
 				{
-					const QiTimer& timer = std::get<QiTimer>(var);
+					const QiTimer& timer = std::get<QiTimer>(action);
 					clock_t time = Rand(timer.max, timer.min);
 					clock_t begin = clock();
 					while (Qi::run && !QiThread::PeekExitMsg())
@@ -299,7 +295,7 @@ namespace QiInterpreter
 				} break;
 				case QiType::jump:
 				{
-					const QiJump& jump = std::get<QiJump>(var);
+					const QiJump& jump = std::get<QiJump>(action);
 					if (jump.id > 0)
 					{
 						jumpId = jump.id;
@@ -311,11 +307,11 @@ namespace QiInterpreter
 				} break;
 				case QiType::dialog:
 				{
-					const QiDialog& dialog = std::get<QiDialog>(var);
+					const QiDialog& dialog = std::get<QiDialog>(action);
 					int bn = IDYES;
-					if (dialog.style == QiDialog::warning) bn = MessageBoxW(GetForegroundWindow(), QStringToW(dialog.text), QStringToW(dialog.title), MB_YESNO | MB_TOPMOST | MB_ICONWARNING);
-					else if (dialog.style == QiDialog::error) bn = MessageBoxW(GetForegroundWindow(), QStringToW(dialog.text), QStringToW(dialog.title), MB_YESNO | MB_TOPMOST | MB_ICONERROR);
-					else bn = MessageBoxW(GetForegroundWindow(), QStringToW(dialog.text), QStringToW(dialog.title), MB_YESNO | MB_TOPMOST);
+					if (dialog.style == QiDialog::warning) bn = MessageBoxW(GetForegroundWindow(), (LPCWSTR)(dialog.text.utf16()), (LPCWSTR)(dialog.title.utf16()), MB_YESNO | MB_TOPMOST | MB_ICONWARNING);
+					else if (dialog.style == QiDialog::error) bn = MessageBoxW(GetForegroundWindow(), (LPCWSTR)(dialog.text.utf16()), (LPCWSTR)(dialog.title.utf16()), MB_YESNO | MB_TOPMOST | MB_ICONERROR);
+					else bn = MessageBoxW(GetForegroundWindow(), (LPCWSTR)(dialog.text.utf16()), (LPCWSTR)(dialog.title.utf16()), MB_YESNO | MB_TOPMOST);
 					if (bn == IDYES)
 					{
 						result = ActionInterpreter(parent, dialog.next, cursor, wp, jumpId);
@@ -330,7 +326,7 @@ namespace QiInterpreter
 				} break;
 				case QiType::blockExec:
 				{
-					const QiBlockExec& blockExec = std::get<QiBlockExec>(var);
+					const QiBlockExec& blockExec = std::get<QiBlockExec>(action);
 					const QiBlock* pBlock = QiFn::FindBlock(parent, blockExec.id);
 					if (pBlock) result = ActionInterpreter(parent, pBlock->next, cursor, wp, jumpId);
 				} break;

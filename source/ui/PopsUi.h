@@ -1,10 +1,6 @@
-﻿#pragma execution_character_set("utf-8")
-#pragma once
-#include <qcolordialog.h>
-#include <qevent.h>
-#include "../src/minc.h"
+﻿#pragma once
+#include <src/inc_header.h>
 #include "ui_PopsUi.h"
-
 class PopsUi : public QDialog
 {
 	Q_OBJECT;
@@ -22,103 +18,98 @@ public:
 	}
 	void StyleGroup()
 	{
-		setProperty("group", QVariant(QString::fromUtf8("frame")));
-		ui.titleWidget->setProperty("group", QVariant(QString::fromUtf8("title")));
-		ui.clientWidget->setProperty("group", QVariant(QString::fromUtf8("client")));
-		ui.bnClose->setProperty("group", QVariant(QString::fromUtf8("title-close_button")));
-		ui.etQE->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
-		ui.etQD->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
-		ui.etWE->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
-		ui.etWD->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
-		ui.etQcE->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
-		ui.etQcD->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
-		ui.etSwE->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
-		ui.etSwD->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
-		ui.etDwE->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
-		ui.etDwD->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
-		ui.etUpE->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
-		ui.etUpD->setProperty("group", QVariant(QString::fromUtf8("line_edit")));
+		setProperty("group", "frame");
+		ui.title_widget->setProperty("group", "title");
+		ui.content_widget->setProperty("group", "client");
+		ui.title_close_button->setProperty("group", "title-close_button");
+		ui.enable_edit->setProperty("group", "line_edit");
+		ui.disable_edit->setProperty("group", "line_edit");
+		ui.window_on_edit->setProperty("group", "line_edit");
+		ui.window_off_edit->setProperty("group", "line_edit");
+		ui.click_on_edit->setProperty("group", "line_edit");
+		ui.click_off_edit->setProperty("group", "line_edit");
+		ui.switch_on_edit->setProperty("group", "line_edit");
+		ui.switch_off_edit->setProperty("group", "line_edit");
+		ui.down_on_edit->setProperty("group", "line_edit");
+		ui.down_off_edit->setProperty("group", "line_edit");
+		ui.up_on_edit->setProperty("group", "line_edit");
+		ui.up_off_edit->setProperty("group", "line_edit");
 	}
-
 private:
 	void Init()
 	{
-		ui.etQE->setAttribute(Qt::WA_Hover, true);
-		ui.etQD->setAttribute(Qt::WA_Hover, true);
-		ui.etWE->setAttribute(Qt::WA_Hover, true);
-		ui.etWD->setAttribute(Qt::WA_Hover, true);
-		ui.etQcE->setAttribute(Qt::WA_Hover, true);
-		ui.etQcD->setAttribute(Qt::WA_Hover, true);
-		ui.etSwE->setAttribute(Qt::WA_Hover, true);
-		ui.etSwD->setAttribute(Qt::WA_Hover, true);
-		ui.etDwE->setAttribute(Qt::WA_Hover, true);
-		ui.etDwD->setAttribute(Qt::WA_Hover, true);
-		ui.etUpE->setAttribute(Qt::WA_Hover, true);
-		ui.etUpD->setAttribute(Qt::WA_Hover, true);
-
-		ui.sdLR->setAttribute(Qt::WA_Hover, true);
-		ui.sdTB->setAttribute(Qt::WA_Hover, true);
-
-		ui.etQE->installEventFilter(this);
-		ui.etQD->installEventFilter(this);
-		ui.etWE->installEventFilter(this);
-		ui.etWD->installEventFilter(this);
-		ui.etQcE->installEventFilter(this);
-		ui.etQcD->installEventFilter(this);
-		ui.etSwE->installEventFilter(this);
-		ui.etSwD->installEventFilter(this);
-		ui.etDwE->installEventFilter(this);
-		ui.etDwD->installEventFilter(this);
-		ui.etUpE->installEventFilter(this);
-		ui.etUpD->installEventFilter(this);
-
-		ui.sdLR->installEventFilter(this);
-		ui.sdTB->installEventFilter(this);
-		ui.sdSize->installEventFilter(this);
-		ui.sdTime->installEventFilter(this);
-
+		ui.enable_edit->setAttribute(Qt::WA_Hover, true);
+		ui.disable_edit->setAttribute(Qt::WA_Hover, true);
+		ui.window_on_edit->setAttribute(Qt::WA_Hover, true);
+		ui.window_off_edit->setAttribute(Qt::WA_Hover, true);
+		ui.click_on_edit->setAttribute(Qt::WA_Hover, true);
+		ui.click_off_edit->setAttribute(Qt::WA_Hover, true);
+		ui.switch_on_edit->setAttribute(Qt::WA_Hover, true);
+		ui.switch_off_edit->setAttribute(Qt::WA_Hover, true);
+		ui.down_on_edit->setAttribute(Qt::WA_Hover, true);
+		ui.down_off_edit->setAttribute(Qt::WA_Hover, true);
+		ui.up_on_edit->setAttribute(Qt::WA_Hover, true);
+		ui.up_off_edit->setAttribute(Qt::WA_Hover, true);
+		ui.enable_edit->installEventFilter(this);
+		ui.disable_edit->installEventFilter(this);
+		ui.window_on_edit->installEventFilter(this);
+		ui.window_off_edit->installEventFilter(this);
+		ui.click_on_edit->installEventFilter(this);
+		ui.click_off_edit->installEventFilter(this);
+		ui.switch_on_edit->installEventFilter(this);
+		ui.switch_off_edit->installEventFilter(this);
+		ui.down_on_edit->installEventFilter(this);
+		ui.down_off_edit->installEventFilter(this);
+		ui.up_on_edit->installEventFilter(this);
+		ui.up_off_edit->installEventFilter(this);
+		ui.disply_x_slider->setAttribute(Qt::WA_Hover, true);
+		ui.disply_y_slider->setAttribute(Qt::WA_Hover, true);
+		ui.disply_x_slider->installEventFilter(this);
+		ui.disply_y_slider->installEventFilter(this);
+		ui.disply_size_slider->installEventFilter(this);
+		ui.disply_time_slider->installEventFilter(this);
 		Update();
 	}
 	void Event()
 	{
-		connect(ui.bnClose, &QPushButton::clicked, this, &This::OnBnClose);
-
-		connect(ui.etQE, &QLineEdit::textChanged, this, &This::OnEtQE);
-		connect(ui.etQD, &QLineEdit::textChanged, this, &This::OnEtQD);
-		connect(ui.etWE, &QLineEdit::textChanged, this, &This::OnEtWE);
-		connect(ui.etWD, &QLineEdit::textChanged, this, &This::OnEtWD);
-		connect(ui.etQcE, &QLineEdit::textChanged, this, &This::OnEtQcE);
-		connect(ui.etQcD, &QLineEdit::textChanged, this, &This::OnEtQcD);
-		connect(ui.etSwE, &QLineEdit::textChanged, this, &This::OnEtSwE);
-		connect(ui.etSwD, &QLineEdit::textChanged, this, &This::OnEtSwD);
-		connect(ui.etDwE, &QLineEdit::textChanged, this, &This::OnEtDwE);
-		connect(ui.etDwD, &QLineEdit::textChanged, this, &This::OnEtDwD);
-		connect(ui.etUpE, &QLineEdit::textChanged, this, &This::OnEtUpE);
-		connect(ui.etUpD, &QLineEdit::textChanged, this, &This::OnEtUpD);
-
-		connect(ui.bnQE, &QPushButton::clicked, this, &This::OnBnQE);
-		connect(ui.bnQD, &QPushButton::clicked, this, &This::OnBnQD);
-		connect(ui.bnWE, &QPushButton::clicked, this, &This::OnBnWE);
-		connect(ui.bnWD, &QPushButton::clicked, this, &This::OnBnWD);
-		connect(ui.bnQcE, &QPushButton::clicked, this, &This::OnBnQcE);
-		connect(ui.bnQcD, &QPushButton::clicked, this, &This::OnBnQcD);
-		connect(ui.bnSwE, &QPushButton::clicked, this, &This::OnBnSwE);
-		connect(ui.bnSwD, &QPushButton::clicked, this, &This::OnBnSwD);
-		connect(ui.bnDwE, &QPushButton::clicked, this, &This::OnBnDwE);
-		connect(ui.bnDwD, &QPushButton::clicked, this, &This::OnBnDwD);
-		connect(ui.bnUpE, &QPushButton::clicked, this, &This::OnBnUpE);
-		connect(ui.bnUpD, &QPushButton::clicked, this, &This::OnBnUpD);
-
-		connect(ui.sdLR, &QSlider::valueChanged, this, &This::OnSdLR);
-		connect(ui.sdTB, &QSlider::valueChanged, this, &This::OnSdTB);
-		connect(ui.sdSize, &QSlider::valueChanged, this, &This::OnSdSize);
-		connect(ui.sdTime, &QSlider::valueChanged, this, &This::OnSdTime);
+		connect(ui.title_close_button, &QPushButton::clicked, this, &This::close);
+		// line edit
+		connect(ui.enable_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.qe.t = text; });
+		connect(ui.disable_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.qd.t = text; });
+		connect(ui.window_on_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.we.t = text; });
+		connect(ui.window_off_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.wd.t = text; });
+		connect(ui.click_on_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.qce.t = text; });
+		connect(ui.click_off_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.qcd.t = text; });
+		connect(ui.switch_on_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.swe.t = text; });
+		connect(ui.switch_off_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.swd.t = text; });
+		connect(ui.down_on_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.dwe.t = text; });
+		connect(ui.down_off_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.dwd.t = text; });
+		connect(ui.up_on_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.upe.t = text; });
+		connect(ui.up_off_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.upd.t = text; });
+		// button
+		connect(ui.enable_button, &QPushButton::clicked, this, [this](bool){ SelectColor(Qi::ui.pop.qe); Update(); });
+		connect(ui.disable_button, &QPushButton::clicked, this, [this](bool) { SelectColor(Qi::ui.pop.qd); Update(); });
+		connect(ui.window_on_button, &QPushButton::clicked, this, [this](bool){ SelectColor(Qi::ui.pop.we); Update(); });
+		connect(ui.window_off_button, &QPushButton::clicked, this, [this](bool){ SelectColor(Qi::ui.pop.wd); Update(); });
+		connect(ui.click_on_button, &QPushButton::clicked, this, [this](bool){ SelectColor(Qi::ui.pop.qce); Update(); });
+		connect(ui.click_off_button, &QPushButton::clicked, this, [this](bool){ SelectColor(Qi::ui.pop.qcd); Update(); });
+		connect(ui.switch_on_button, &QPushButton::clicked, this, [this](bool){ SelectColor(Qi::ui.pop.swe); Update(); });
+		connect(ui.switch_off_button, &QPushButton::clicked, this, [this](bool){ SelectColor(Qi::ui.pop.swd); Update(); });
+		connect(ui.down_on_button, &QPushButton::clicked, this, [this](bool){ SelectColor(Qi::ui.pop.dwe); Update(); });
+		connect(ui.down_off_button, &QPushButton::clicked, this, [this](bool){ SelectColor(Qi::ui.pop.dwd); Update(); });
+		connect(ui.up_on_button, &QPushButton::clicked, this, [this](bool){ SelectColor(Qi::ui.pop.upe); Update(); });
+		connect(ui.up_off_button, &QPushButton::clicked, this, [this](bool){ SelectColor(Qi::ui.pop.upd); Update(); });
+		// slider
+		connect(ui.disply_x_slider, &QSlider::valueChanged, this, [this](int value){ Qi::ui.pop.p.x = value; Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y); Qi::popText->Show("提示框位置"); });
+		connect(ui.disply_y_slider, &QSlider::valueChanged, this, [this](int value) { Qi::ui.pop.p.y = value; Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y); Qi::popText->Show("提示框位置"); });
+		connect(ui.disply_size_slider, &QSlider::valueChanged, this, [this](int value) { Qi::ui.pop.size = value; Qi::popText->setSize(Qi::ui.pop.size); Qi::popText->Show("提示框大小"); });
+		connect(ui.disply_time_slider, &QSlider::valueChanged, this, [this](int value) { Qi::ui.pop.time = value; Qi::popText->Popup(Qi::ui.pop.time, "提示框时间"); });
 	}
 	void SetColor(const QColor& color, QPushButton* button)
 	{
 		button->setStyleSheet(QString("border:1px solid black;background-color:rgb(") + QString::number(color.red()) + "," + QString::number(color.green()) + "," + QString::number(color.blue()) + ")");
 	}
-	void SelectColor(PopTextInfo& p)
+	void SelectColor(QiUi::PopTextInfo& p)
 	{
 		QColorDialog cd(p.c, this);
 		cd.setStyleSheet(Qi::ui.dialogStyle);
@@ -127,36 +118,34 @@ private:
 	}
 	void Update()
 	{
-		ui.etQE->setText(Qi::ui.pop.qe.t);
-		ui.etQD->setText(Qi::ui.pop.qd.t);
-		ui.etWE->setText(Qi::ui.pop.we.t);
-		ui.etWD->setText(Qi::ui.pop.wd.t);
-		ui.etQcE->setText(Qi::ui.pop.qce.t);
-		ui.etQcD->setText(Qi::ui.pop.qcd.t);
-		ui.etSwE->setText(Qi::ui.pop.swe.t);
-		ui.etSwD->setText(Qi::ui.pop.swd.t);
-		ui.etDwE->setText(Qi::ui.pop.dwe.t);
-		ui.etDwD->setText(Qi::ui.pop.dwd.t);
-		ui.etUpE->setText(Qi::ui.pop.upe.t);
-		ui.etUpD->setText(Qi::ui.pop.upd.t);
-
-		SetColor(Qi::ui.pop.qe.c, ui.bnQE);
-		SetColor(Qi::ui.pop.qd.c, ui.bnQD);
-		SetColor(Qi::ui.pop.we.c, ui.bnWE);
-		SetColor(Qi::ui.pop.wd.c, ui.bnWD);
-		SetColor(Qi::ui.pop.qce.c, ui.bnQcE);
-		SetColor(Qi::ui.pop.qcd.c, ui.bnQcD);
-		SetColor(Qi::ui.pop.swe.c, ui.bnSwE);
-		SetColor(Qi::ui.pop.swd.c, ui.bnSwD);
-		SetColor(Qi::ui.pop.dwe.c, ui.bnDwE);
-		SetColor(Qi::ui.pop.dwd.c, ui.bnDwD);
-		SetColor(Qi::ui.pop.upe.c, ui.bnUpE);
-		SetColor(Qi::ui.pop.upd.c, ui.bnUpD);
-
-		ui.sdLR->setValue(Qi::ui.pop.p.x);
-		ui.sdTB->setValue(Qi::ui.pop.p.y);
-		ui.sdSize->setValue(Qi::ui.pop.size);
-		ui.sdTime->setValue(Qi::ui.pop.time);
+		ui.enable_edit->setText(Qi::ui.pop.qe.t);
+		ui.disable_edit->setText(Qi::ui.pop.qd.t);
+		ui.window_on_edit->setText(Qi::ui.pop.we.t);
+		ui.window_off_edit->setText(Qi::ui.pop.wd.t);
+		ui.click_on_edit->setText(Qi::ui.pop.qce.t);
+		ui.click_off_edit->setText(Qi::ui.pop.qcd.t);
+		ui.switch_on_edit->setText(Qi::ui.pop.swe.t);
+		ui.switch_off_edit->setText(Qi::ui.pop.swd.t);
+		ui.down_on_edit->setText(Qi::ui.pop.dwe.t);
+		ui.down_off_edit->setText(Qi::ui.pop.dwd.t);
+		ui.up_on_edit->setText(Qi::ui.pop.upe.t);
+		ui.up_off_edit->setText(Qi::ui.pop.upd.t);
+		SetColor(Qi::ui.pop.qe.c, ui.enable_button);
+		SetColor(Qi::ui.pop.qd.c, ui.disable_button);
+		SetColor(Qi::ui.pop.we.c, ui.window_on_button);
+		SetColor(Qi::ui.pop.wd.c, ui.window_off_button);
+		SetColor(Qi::ui.pop.qce.c, ui.click_on_button);
+		SetColor(Qi::ui.pop.qcd.c, ui.click_off_button);
+		SetColor(Qi::ui.pop.swe.c, ui.switch_on_button);
+		SetColor(Qi::ui.pop.swd.c, ui.switch_off_button);
+		SetColor(Qi::ui.pop.dwe.c, ui.down_on_button);
+		SetColor(Qi::ui.pop.dwd.c, ui.down_off_button);
+		SetColor(Qi::ui.pop.upe.c, ui.up_on_button);
+		SetColor(Qi::ui.pop.upd.c, ui.up_off_button);
+		ui.disply_x_slider->setValue(Qi::ui.pop.p.x);
+		ui.disply_y_slider->setValue(Qi::ui.pop.p.y);
+		ui.disply_size_slider->setValue(Qi::ui.pop.size);
+		ui.disply_time_slider->setValue(Qi::ui.pop.time);
 	}
 	bool event(QEvent* e)
 	{
@@ -171,7 +160,7 @@ private:
 	{
 		if (e->type() == QEvent::HoverEnter)
 		{
-			PopTextInfo* p = nullptr;
+			QiUi::PopTextInfo* p = nullptr;
 			bool qs = false;
 			bool ws = false;
 			bool qc = false;
@@ -179,24 +168,22 @@ private:
 			bool pt = false;
 			bool sz = false;
 			bool tm = false;
-
-			if (obj == ui.etQE) p = &Qi::ui.pop.qe, qs = true;
-			else if (obj == ui.etQD) p = &Qi::ui.pop.qd, qs = true;
-			else if (obj == ui.etWE) p = &Qi::ui.pop.we, ws = true;
-			else if (obj == ui.etWD) p = &Qi::ui.pop.wd, ws = true;
-			else if (obj == ui.etQcE) p = &Qi::ui.pop.qce, qc = true;
-			else if (obj == ui.etQcD) p = &Qi::ui.pop.qcd, qc = true;
-			else if (obj == ui.etSwE) p = &Qi::ui.pop.swe, mc = true;
-			else if (obj == ui.etSwD) p = &Qi::ui.pop.swd, mc = true;
-			else if (obj == ui.etDwE) p = &Qi::ui.pop.dwe, mc = true;
-			else if (obj == ui.etDwD) p = &Qi::ui.pop.dwd, mc = true;
-			else if (obj == ui.etUpE) p = &Qi::ui.pop.upe, mc = true;
-			else if (obj == ui.etUpD) p = &Qi::ui.pop.upd, mc = true;
-			else if (obj == ui.sdLR) pt = true;
-			else if (obj == ui.sdTB) pt = true;
-			else if (obj == ui.sdSize) sz = true;
-			else if (obj == ui.sdTime) tm = true;
-
+			if (obj == ui.enable_edit) p = &Qi::ui.pop.qe, qs = true;
+			else if (obj == ui.disable_edit) p = &Qi::ui.pop.qd, qs = true;
+			else if (obj == ui.window_on_edit) p = &Qi::ui.pop.we, ws = true;
+			else if (obj == ui.window_off_edit) p = &Qi::ui.pop.wd, ws = true;
+			else if (obj == ui.click_on_edit) p = &Qi::ui.pop.qce, qc = true;
+			else if (obj == ui.click_off_edit) p = &Qi::ui.pop.qcd, qc = true;
+			else if (obj == ui.switch_on_edit) p = &Qi::ui.pop.swe, mc = true;
+			else if (obj == ui.switch_off_edit) p = &Qi::ui.pop.swd, mc = true;
+			else if (obj == ui.down_on_edit) p = &Qi::ui.pop.dwe, mc = true;
+			else if (obj == ui.down_off_edit) p = &Qi::ui.pop.dwd, mc = true;
+			else if (obj == ui.up_on_edit) p = &Qi::ui.pop.upe, mc = true;
+			else if (obj == ui.up_off_edit) p = &Qi::ui.pop.upd, mc = true;
+			else if (obj == ui.disply_x_slider) pt = true;
+			else if (obj == ui.disply_y_slider) pt = true;
+			else if (obj == ui.disply_size_slider) sz = true;
+			else if (obj == ui.disply_time_slider) tm = true;
 			if (qs) Qi::popText->Show(QiFn::ParseCustom(p->t, "(文件夹)", ""), p->c);
 			else if (ws) Qi::popText->Show(QiFn::ParseCustom(p->t, "(窗口名)", ""), p->c);
 			else if (qc) Qi::popText->Show(QiFn::ParseCustom(p->t, "(按键)", ""), p->c);
@@ -215,38 +202,35 @@ private:
 	{
 		SetForegroundWindow((HWND)QWidget::winId());
 	}
-	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) msPos = e->pos(), mouseDown = true; e->accept(); }void mouseMoveEvent(QMouseEvent* e) { if (mouseDown) move(e->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) mouseDown = false; }
-private Q_SLOTS:
-	void OnBnClose()
+	// window move
+	QPoint mouse_positon;
+	bool mouse_down = false;
+	void mousePressEvent(QMouseEvent* e)
 	{
-		close();
+		if (e->button() == Qt::LeftButton)
+		{
+			mouse_positon = e->pos();
+			mouse_down = true;
+			e->accept();
+		}
 	}
-	void OnEtQE(const QString& text) { Qi::ui.pop.qe.t = text; }
-	void OnEtQD(const QString& text) { Qi::ui.pop.qd.t = text; }
-	void OnEtWE(const QString& text) { Qi::ui.pop.we.t = text; }
-	void OnEtWD(const QString& text) { Qi::ui.pop.wd.t = text; }
-	void OnEtQcE(const QString& text) { Qi::ui.pop.qce.t = text; }
-	void OnEtQcD(const QString& text) { Qi::ui.pop.qcd.t = text; }
-	void OnEtSwE(const QString& text) { Qi::ui.pop.swe.t = text; }
-	void OnEtSwD(const QString& text) { Qi::ui.pop.swd.t = text; }
-	void OnEtDwE(const QString& text) { Qi::ui.pop.dwe.t = text; }
-	void OnEtDwD(const QString& text) { Qi::ui.pop.dwd.t = text; }
-	void OnEtUpE(const QString& text) { Qi::ui.pop.upe.t = text; }
-	void OnEtUpD(const QString& text) { Qi::ui.pop.upd.t = text; }
-	void OnBnQE() { SelectColor(Qi::ui.pop.qe); Update(); }
-	void OnBnQD() { SelectColor(Qi::ui.pop.qd); Update(); }
-	void OnBnWE() { SelectColor(Qi::ui.pop.we); Update(); }
-	void OnBnWD() { SelectColor(Qi::ui.pop.wd); Update(); }
-	void OnBnQcE() { SelectColor(Qi::ui.pop.qce); Update(); }
-	void OnBnQcD() { SelectColor(Qi::ui.pop.qcd); Update(); }
-	void OnBnSwE() { SelectColor(Qi::ui.pop.swe); Update(); }
-	void OnBnSwD() { SelectColor(Qi::ui.pop.swd); Update(); }
-	void OnBnDwE() { SelectColor(Qi::ui.pop.dwe); Update(); }
-	void OnBnDwD() { SelectColor(Qi::ui.pop.dwd); Update(); }
-	void OnBnUpE() { SelectColor(Qi::ui.pop.upe); Update(); }
-	void OnBnUpD() { SelectColor(Qi::ui.pop.upd); Update(); }
-	void OnSdLR(int value) { Qi::ui.pop.p.x = value; Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y); Qi::popText->Show("提示框位置"); }
-	void OnSdTB(int value) { Qi::ui.pop.p.y = value; Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y); Qi::popText->Show("提示框位置"); }
-	void OnSdSize(int value) { Qi::ui.pop.size = value; Qi::popText->setSize(Qi::ui.pop.size); Qi::popText->Show("提示框大小"); }
-	void OnSdTime(int value) { Qi::ui.pop.time = value; Qi::popText->Popup(Qi::ui.pop.time, "提示框时间"); }
+	void mouseMoveEvent(QMouseEvent* e)
+	{
+		if (mouse_down)
+		{
+			if (Distance(mouse_positon.x(), mouse_positon.y(), e->pos().x(), e->pos().y()) < 100)
+			{
+				move(e->pos() + pos() - mouse_positon);
+				e->accept();
+			}
+		}
+	}
+	void mouseReleaseEvent(QMouseEvent* e)
+	{
+		if (e->button() == Qt::LeftButton)
+		{
+			mouse_down = false;
+			e->accept();
+		}
+	}
 };

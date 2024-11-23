@@ -1,35 +1,17 @@
-﻿#pragma execution_character_set("utf-8")
-#pragma once
-#include <QtWinExtras/qwinfunctions.h>
-#include <qbuttongroup.h>
-#include <qcolordialog.h>
-#include <qpixmap.h>
-#include <qimage.h>
-#include <qevent.h>
-#include <qtimer.h>
-#include <qmenu.h>
-#include "widget/QColorSelection.h"
-#include "widget/QPointSelection.h"
-#include "widget/QRectSelection.h"
-#include "widget/QPointView.h"
-#include "widget/QRectView.h"
-#include "../src/minc.h"
+﻿#pragma once
+#include <src/inc_header.h>
 #include "ui_EditUi.h"
-
 class EditUi : public QDialog
 {
 	Q_OBJECT;
 	using This = EditUi;
-
-	using JumpPoints = List<QiJumpPoint>;
-	using Blocks = List<QiBlock>;
-
+	using JumpPoints = QiVector<QiJumpPoint>;
+	using Blocks = QiVector<QiBlock>;
 	struct Layer
 	{
 		Actions* actions;
 		QString title;
 	};
-
 	enum TabIndex
 	{
 		tab_base,
@@ -43,22 +25,23 @@ class EditUi : public QDialog
 		tab_dialog,
 		tab_window
 	};
-
-	// edit box range
-	const int32 posMin = -10000;
-	const int32 posMax = 10000;
-	const int32 moveSpeedMax = 99;
-	const int32 moveRandMax = 9999;
-	const int32 delayMax = 999999;
-	const int32 loopCountMax = 9999;
-	const int32 timerMax = 999999;
-	const int32 colorMax = 255;
-	const int32 imageSimMax = 99;
-	const int32 popTextTimeMax = 9999;
-
+	// line edit range
+	const int posMin = -10000;
+	const int posMax = 10000;
+	const int moveSpeedMax = 99;
+	const int moveRandMax = 9999;
+	const int delayMax = 999999;
+	const int loopCountMax = 9999;
+	const int timerMax = 999999;
+	const int colorMax = 255;
+	const int imageSimMax = 99;
+	const int popTextTimeMax = 9999;
 	Ui::EditUiClass ui;
-
-	// rbutton context menu
+	// edit
+	QList<Layer> layers;
+	bool changing = false;
+	bool updating = false;
+	// table context menu
 	QMenu* menu;
 	QAction* muDel;
 	QAction* muChange;
@@ -67,36 +50,30 @@ class EditUi : public QDialog
 	QAction* muPaste;
 	QAction* muEdit;
 	QAction* muEdit2;
-
+	// test run
 	QTimer* testTimer;
-	uint32 testCount = 0;
-
-	// widget
+	int testCount = 0;
+	// custom widget
 	QPointView pv;
 	QRectView rv;
-
-	// image viewer
+	// for image viewer
 	RgbMap imageMap;
-
+	// macro
 	Macro* macro = nullptr;
 	Actions* actions = nullptr;
 	Actions* actionsRoot = nullptr;
-
-	List<Layer> layers;
-
-	bool changing = false;
-	bool updating = false;
-
 public:
 	EditUi(Macro* macro, Actions* actions)
 	{
+		// loading tip
 		Qi::popText->Hide();
+		// top layer
 		Layer layer;
 		this->macro = macro;
 		layer.actions = this->actionsRoot = this->actions = actions;
 		layer.title = QString::fromUtf8("编辑 - ") + macro->name;
-		layers.Add(layer);
-
+		layers.append(layer);
+		// init
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		Init();
@@ -104,143 +81,166 @@ public:
 		StyleGroup();
 		WidgetUpdate();
 	}
-
+private:
 	void StyleGroup()
 	{
-		setProperty("group", "frame");
-		ui.titleWidget->setProperty("group", "title");
-		ui.clientWidget->setProperty("group", "client");
-
-		ui.bnRun->setProperty("group", "title-run_button");
-		ui.bnClose->setProperty("group", "title-close_button");
-
-		ui.bnPos->setProperty("group", "get_button");
-		ui.bnColorRect->setProperty("group", "get_button");
-		ui.bnImageRect->setProperty("group", "get_button");
-		ui.bnImageShot->setProperty("group", "get_button");
-		ui.bnWndSelect->setProperty("group", "get_button");
-
-		ui.bnKeyAdd->setProperty("group", "edit-add_button");
-		ui.bnMoveAdd->setProperty("group", "edit-add_button");
-		ui.bnDelayAdd->setProperty("group", "edit-add_button");
-		ui.bnLoopAdd->setProperty("group", "edit-add_button");
-		ui.bnTimerAdd->setProperty("group", "edit-add_button");
-		ui.bnStateAdd->setProperty("group", "edit-add_button");
-		ui.bnRememberPosAdd->setProperty("group", "edit-add_button");
-		ui.bnRecoverPosAdd->setProperty("group", "edit-add_button");
-		ui.bnEndLoopAdd->setProperty("group", "edit-add_button");
-		ui.bnEndAdd->setProperty("group", "edit-add_button");
-		ui.bnColorAdd->setProperty("group", "edit-add_button");
-		ui.bnImageAdd->setProperty("group", "edit-add_button");
-		ui.bnTextAdd->setProperty("group", "edit-add_button");
-		ui.bnPopTextAdd->setProperty("group", "edit-add_button");
-		ui.bnJumpAdd->setProperty("group", "edit-add_button");
-		ui.bnJumpPointAdd->setProperty("group", "edit-add_button");
-		ui.dialog_add_button->setProperty("group", "edit-add_button");
-		ui.block_add_button->setProperty("group", "edit-add_button");
-		ui.blockExec_add_button->setProperty("group", "edit-add_button");
-
-		ui.bnLoopEdit->setProperty("group", "edit-edit_button");
-		ui.bnTimerEdit->setProperty("group", "edit-edit_button");
-		ui.bnStateEdit->setProperty("group", "edit-edit_button");
-		ui.bnStateEdit2->setProperty("group", "edit-edit_button");
-		ui.bnColorEdit->setProperty("group", "edit-edit_button");
-		ui.bnColorEdit2->setProperty("group", "edit-edit_button");
-		ui.bnImageEdit->setProperty("group", "edit-edit_button");
-		ui.bnImageEdit2->setProperty("group", "edit-edit_button");
-		ui.dialog_edit_button->setProperty("group", "edit-edit_button");
-		ui.dialog_edit2_button->setProperty("group", "edit-edit_button");
-		ui.block_edit_button->setProperty("group", "edit-edit_button");
-
-		ui.chbMoveTrack->setProperty("group", "check");
-		ui.chbColorMove->setProperty("group", "check");
-		ui.chbImageMove->setProperty("group", "check");
-		ui.chbPopTextWait->setProperty("group", "check");
-		ui.chbWnd->setProperty("group", "check");
-		ui.chbChildWnd->setProperty("group", "check");
-
-		ui.rbRunning->setProperty("group", "radio");
-		ui.rbEnding->setProperty("group", "radio");
-		ui.rbClick->setProperty("group", "radio");
-		ui.rbDown->setProperty("group", "radio");
-		ui.rbUp->setProperty("group", "radio");
-		ui.rbPos->setProperty("group", "radio");
-		ui.rbMove->setProperty("group", "radio");
-		ui.dialog_style_none_radio->setProperty("group", "radio");
-		ui.dialog_style_warning_radio->setProperty("group", "radio");
-		ui.dialog_style_error_radio->setProperty("group", "radio");
-
-		menu->setProperty("group", "context_menu");
-
-		ui.etX->setProperty("group", "line_edit");
-		ui.etY->setProperty("group", "line_edit");
-		ui.etMoveSpeed->setProperty("group", "line_edit");
-		ui.etMoveRand->setProperty("group", "line_edit");
-		ui.etDelayMin->setProperty("group", "line_edit");
-		ui.etDelayMax->setProperty("group", "line_edit");
-		ui.etCountMin->setProperty("group", "line_edit");
-		ui.etCountMax->setProperty("group", "line_edit");
-		ui.etTimerMin->setProperty("group", "line_edit");
-		ui.etTimerMax->setProperty("group", "line_edit");
-		ui.etColorL->setProperty("group", "line_edit");
-		ui.etColorT->setProperty("group", "line_edit");
-		ui.etColorR->setProperty("group", "line_edit");
-		ui.etColorB->setProperty("group", "line_edit");
-		ui.etColorRed->setProperty("group", "line_edit");
-		ui.etColorGreen->setProperty("group", "line_edit");
-		ui.etColorBlue->setProperty("group", "line_edit");
-		ui.etColorSim->setProperty("group", "line_edit");
-		ui.etImageL->setProperty("group", "line_edit");
-		ui.etImageT->setProperty("group", "line_edit");
-		ui.etImageR->setProperty("group", "line_edit");
-		ui.etImageB->setProperty("group", "line_edit");
-		ui.etImageSim->setProperty("group", "line_edit");
-		ui.etPopText->setProperty("group", "line_edit");
-		ui.etPopTextTime->setProperty("group", "line_edit");
-		ui.dialog_title_edit->setProperty("group", "line_edit");
-		ui.dialog_text_edit->setProperty("group", "line_edit");
-		ui.etWndName->setProperty("group", "line_edit");
-
-		ui.etText->setProperty("group", "text_edit");
-
-		ui.hkKey->setProperty("group", "key_edit");
-		ui.hkState->setProperty("group", "key_edit");
-
-		ui.tabWidget->setProperty("group", "tab_widget");
-		ui.tabWidget->tabBar()->setProperty("group", "tab_widget_bar");
-
-		ui.tbActions->setProperty("group", "table");
-		ui.tbActions->horizontalHeader()->setProperty("group", "table_header");
-		ui.tbActions->verticalHeader()->setProperty("group", "table_header");
-
-		ui.lsJumpPoint->setProperty("group", "table");
-		ui.block_list->setProperty("group", "table");
-
-		const QObjectList& objs = ui.tbActions->children();
-		for (size_t i = 0; i < objs.size(); i++)
+		if ("this window")
 		{
-			const QObject* obj = objs[i];
-			QString name = obj->metaObject()->className();
-
-			if (name == "QTableCornerButton")
+			setProperty("group", "frame");
+			ui.title_widget->setProperty("group", "title");
+			ui.content_widget->setProperty("group", "client");
+			ui.title_run_button->setProperty("group", "title-title_run_button");
+			ui.title_back_button->setProperty("group", "title-back_button");
+			ui.title_close_button->setProperty("group", "title-close_button");
+		}
+		if ("action widget button")
+		{
+			ui.mouse_position_button->setProperty("group", "get_button");
+			ui.color_rect_button->setProperty("group", "get_button");
+			ui.image_rect_button->setProperty("group", "get_button");
+			ui.image_shot_button->setProperty("group", "get_button");
+			ui.window_select_button->setProperty("group", "get_button");
+		}
+		if ("action add button")
+		{
+			ui.key_add_button->setProperty("group", "edit-add_button");
+			ui.mouse_add_button->setProperty("group", "edit-add_button");
+			ui.delay_add_button->setProperty("group", "edit-add_button");
+			ui.loop_add_button->setProperty("group", "edit-add_button");
+			ui.timer_add_button->setProperty("group", "edit-add_button");
+			ui.keyState_add_button->setProperty("group", "edit-add_button");
+			ui.rememberPos_add_button->setProperty("group", "edit-add_button");
+			ui.recoverPos_add_button->setProperty("group", "edit-add_button");
+			ui.endLoop_add_button->setProperty("group", "edit-add_button");
+			ui.end_add_button->setProperty("group", "edit-add_button");
+			ui.color_add_button->setProperty("group", "edit-add_button");
+			ui.image_add_button->setProperty("group", "edit-add_button");
+			ui.copyText_add_button->setProperty("group", "edit-add_button");
+			ui.popText_add_button->setProperty("group", "edit-add_button");
+			ui.jump_add_button->setProperty("group", "edit-add_button");
+			ui.jumpPoint_add_button->setProperty("group", "edit-add_button");
+			ui.dialog_add_button->setProperty("group", "edit-add_button");
+			ui.block_add_button->setProperty("group", "edit-add_button");
+			ui.blockExec_add_button->setProperty("group", "edit-add_button");
+		}
+		if ("action edit button")
+		{
+			ui.loop_edit_button->setProperty("group", "edit-edit_button");
+			ui.timer_edit_button->setProperty("group", "edit-edit_button");
+			ui.keyState_edit_button->setProperty("group", "edit-edit_button");
+			ui.keyState_edit2_button->setProperty("group", "edit-edit_button");
+			ui.color_edit_button->setProperty("group", "edit-edit_button");
+			ui.color_edit2_button->setProperty("group", "edit-edit_button");
+			ui.image_edit_button->setProperty("group", "edit-edit_button");
+			ui.image_edit2_button->setProperty("group", "edit-edit_button");
+			ui.dialog_edit_button->setProperty("group", "edit-edit_button");
+			ui.dialog_edit2_button->setProperty("group", "edit-edit_button");
+			ui.block_edit_button->setProperty("group", "edit-edit_button");
+		}
+		if ("check box")
+		{
+			ui.mouse_track_check->setProperty("group", "check");
+			ui.color_move_check->setProperty("group", "check");
+			ui.image_move_check->setProperty("group", "check");
+			ui.popText_wait_check->setProperty("group", "check");
+			ui.window_state_check->setProperty("group", "check");
+			ui.window_child_check->setProperty("group", "check");
+		}
+		if ("radio button")
+		{
+			ui.action_running_radio->setProperty("group", "radio");
+			ui.action_ending_radio->setProperty("group", "radio");
+			ui.key_click_radio->setProperty("group", "radio");
+			ui.key_down_radio->setProperty("group", "radio");
+			ui.key_up_radio->setProperty("group", "radio");
+			ui.mouse_position_radio->setProperty("group", "radio");
+			ui.mouse_move_radio->setProperty("group", "radio");
+			ui.dialog_style_none_radio->setProperty("group", "radio");
+			ui.dialog_style_warning_radio->setProperty("group", "radio");
+			ui.dialog_style_error_radio->setProperty("group", "radio");
+		}
+		if ("line edit")
+		{
+			ui.mouse_x_edit->setProperty("group", "line_edit");
+			ui.mouse_y_edit->setProperty("group", "line_edit");
+			ui.mouse_speed_edit->setProperty("group", "line_edit");
+			ui.mouse_rand_edit->setProperty("group", "line_edit");
+			ui.delay_min_edit->setProperty("group", "line_edit");
+			ui.delay_max_edit->setProperty("group", "line_edit");
+			ui.loop_min_edit->setProperty("group", "line_edit");
+			ui.loop_max_edit->setProperty("group", "line_edit");
+			ui.timer_min_edit->setProperty("group", "line_edit");
+			ui.timer_max_edit->setProperty("group", "line_edit");
+			ui.color_left_edit->setProperty("group", "line_edit");
+			ui.color_top_edit->setProperty("group", "line_edit");
+			ui.color_right_edit->setProperty("group", "line_edit");
+			ui.color_bottom_edit->setProperty("group", "line_edit");
+			ui.color_red_edit->setProperty("group", "line_edit");
+			ui.color_green_edit->setProperty("group", "line_edit");
+			ui.color_blue_edit->setProperty("group", "line_edit");
+			ui.color_sim_edit->setProperty("group", "line_edit");
+			ui.image_left_edit->setProperty("group", "line_edit");
+			ui.image_top_edit->setProperty("group", "line_edit");
+			ui.image_right_edit->setProperty("group", "line_edit");
+			ui.image_bottom_edit->setProperty("group", "line_edit");
+			ui.image_sim_edit->setProperty("group", "line_edit");
+			ui.popText_text_edit->setProperty("group", "line_edit");
+			ui.popText_time_edit->setProperty("group", "line_edit");
+			ui.dialog_title_edit->setProperty("group", "line_edit");
+			ui.dialog_text_edit->setProperty("group", "line_edit");
+			ui.window_name_edit->setProperty("group", "line_edit");
+		}
+		if ("text edit")
+		{
+			ui.copyText_text->setProperty("group", "text_edit");
+		}
+		if ("hotkey edit")
+		{
+			ui.key_keyedit->setProperty("group", "key_edit");
+			ui.keyState_keyedit->setProperty("group", "key_edit");
+		}
+		if ("action tab widget")
+		{
+			ui.tabWidget->setProperty("group", "tab_widget");
+			ui.tabWidget->tabBar()->setProperty("group", "tab_widget_bar");
+		}
+		if ("action table")
+		{
+			ui.action_table->setProperty("group", "table");
+			ui.action_table->horizontalHeader()->setProperty("group", "table_header");
+			ui.action_table->verticalHeader()->setProperty("group", "table_header");
+			menu->setProperty("group", "context_menu");
+		}
+		if ("action list")
+		{
+			ui.jumpPoint_list->setProperty("group", "table");
+			ui.block_list->setProperty("group", "table");
+		}
+		if ("table corner button")
+		{
+			const QObjectList& objs = ui.action_table->children();
+			for (size_t i = 0; i < objs.size(); i++)
 			{
-				QWidget* corner = (QWidget*)obj;
-				QHBoxLayout* box = new QHBoxLayout(corner);
-				box->setMargin(0);
-				QWidget* widget = new QWidget(corner);
-				box->addWidget(widget);
-				widget->setProperty("group", "table_header");
-				break;
-			}
-			else if (name == "QLineEdit")
-			{
-				QLineEdit* lineEdit = (QLineEdit*)obj;
-				lineEdit->setProperty("group", "table_header");
+				const QObject* obj = objs[i];
+				QString name = obj->metaObject()->className();
+				if (name == "QTableCornerButton")
+				{
+					QWidget* corner = (QWidget*)obj;
+					QHBoxLayout* box = new QHBoxLayout(corner);
+					box->setMargin(0);
+					QWidget* widget = new QWidget(corner);
+					box->addWidget(widget);
+					widget->setProperty("group", "table_header");
+					break;
+				}
+				else if (name == "QLineEdit")
+				{
+					QLineEdit* lineEdit = (QLineEdit*)obj;
+					lineEdit->setProperty("group", "table_header");
+				}
 			}
 		}
 	}
-
-private:
 	void Init()
 	{
 		if ("table context menu")
@@ -253,7 +253,6 @@ private:
 			muPaste = new QAction("粘贴", this);
 			muEdit = new QAction("编辑", this);
 			muEdit2 = new QAction("编辑2", this);
-
 			menu->addAction(muDel);
 			menu->addAction(muChange);
 			menu->addAction(muCut);
@@ -261,7 +260,6 @@ private:
 			menu->addAction(muPaste);
 			menu->addAction(muEdit);
 			menu->addAction(muEdit2);
-
 			connect(muDel, &QAction::triggered, this, &This::OnMenuDel);
 			connect(muChange, &QAction::triggered, this, &This::OnMenuChange);
 			connect(muCut, &QAction::triggered, this, &This::OnMenuCut);
@@ -270,59 +268,61 @@ private:
 			connect(muEdit, &QAction::triggered, this, &This::OnMenuEdit);
 			connect(muEdit2, &QAction::triggered, this, &This::OnMenuEdit2);
 		}
-		if ("buttons")
+		if ("button")
 		{
 			if ("text")
 			{
-				ui.bnKeyAdd->setText(Qi::ui.text.etAdd);
-				ui.bnStateAdd->setText(Qi::ui.text.etAdd);
-				ui.bnMoveAdd->setText(Qi::ui.text.etAdd);
-				ui.bnDelayAdd->setText(Qi::ui.text.etAdd);
-				ui.bnLoopAdd->setText(Qi::ui.text.etAdd);
-				ui.bnTextAdd->setText(Qi::ui.text.etAdd);
-				ui.bnColorAdd->setText(Qi::ui.text.etAdd);
-				ui.bnImageAdd->setText(Qi::ui.text.etAdd);
-				ui.bnEndAdd->setText(Qi::ui.text.etAdd);
-				ui.bnEndLoopAdd->setText(Qi::ui.text.etAdd);
-				ui.bnJumpAdd->setText(Qi::ui.text.etAdd);
-				ui.bnJumpPointAdd->setText(Qi::ui.text.etAdd);
-				ui.bnLoopEdit->setText(Qi::ui.text.etEdit);
-				ui.bnTimerEdit->setText(Qi::ui.text.etEdit);
+				ui.key_add_button->setText(Qi::ui.text.etAdd);
+				ui.keyState_add_button->setText(Qi::ui.text.etAdd);
+				ui.mouse_add_button->setText(Qi::ui.text.etAdd);
+				ui.delay_add_button->setText(Qi::ui.text.etAdd);
+				ui.loop_add_button->setText(Qi::ui.text.etAdd);
+				ui.copyText_add_button->setText(Qi::ui.text.etAdd);
+				ui.color_add_button->setText(Qi::ui.text.etAdd);
+				ui.image_add_button->setText(Qi::ui.text.etAdd);
+				ui.end_add_button->setText(Qi::ui.text.etAdd);
+				ui.endLoop_add_button->setText(Qi::ui.text.etAdd);
+				ui.jump_add_button->setText(Qi::ui.text.etAdd);
+				ui.jumpPoint_add_button->setText(Qi::ui.text.etAdd);
+				ui.loop_edit_button->setText(Qi::ui.text.etEdit);
+				ui.timer_edit_button->setText(Qi::ui.text.etEdit);
 				ui.block_add_button->setText(Qi::ui.text.etAdd);
 				ui.blockExec_add_button->setText(Qi::ui.text.etAdd);
 			}
 			if ("clear shortcut")
 			{
-				ui.bnClose->installEventFilter(this);
-				ui.bnBack->installEventFilter(this);
-				ui.bnRun->installEventFilter(this);
-				ui.bnPos->installEventFilter(this);
-				ui.bnColorRect->installEventFilter(this);
-				ui.bnColorValue->installEventFilter(this);
-				ui.bnImageRect->installEventFilter(this);
-				ui.bnImageShot->installEventFilter(this);
-
-				ui.bnKeyAdd->installEventFilter(this);
-				ui.bnStateAdd->installEventFilter(this);
-				ui.bnMoveAdd->installEventFilter(this);
-				ui.bnDelayAdd->installEventFilter(this);
-				ui.bnLoopAdd->installEventFilter(this);
-				ui.bnTextAdd->installEventFilter(this);
-				ui.bnColorAdd->installEventFilter(this);
-				ui.bnImageAdd->installEventFilter(this);
-				ui.bnEndAdd->installEventFilter(this);
-				ui.bnEndLoopAdd->installEventFilter(this);
-				ui.bnJumpAdd->installEventFilter(this);
-				ui.bnJumpPointAdd->installEventFilter(this);
+				// title
+				ui.title_close_button->installEventFilter(this);
+				ui.title_back_button->installEventFilter(this);
+				ui.title_run_button->installEventFilter(this);
+				// action
+				ui.mouse_position_button->installEventFilter(this);
+				ui.color_rect_button->installEventFilter(this);
+				ui.color_rgb_button->installEventFilter(this);
+				ui.image_rect_button->installEventFilter(this);
+				ui.image_shot_button->installEventFilter(this);
+				// action add
+				ui.key_add_button->installEventFilter(this);
+				ui.keyState_add_button->installEventFilter(this);
+				ui.mouse_add_button->installEventFilter(this);
+				ui.delay_add_button->installEventFilter(this);
+				ui.loop_add_button->installEventFilter(this);
+				ui.copyText_add_button->installEventFilter(this);
+				ui.color_add_button->installEventFilter(this);
+				ui.image_add_button->installEventFilter(this);
+				ui.end_add_button->installEventFilter(this);
+				ui.endLoop_add_button->installEventFilter(this);
+				ui.jump_add_button->installEventFilter(this);
+				ui.jumpPoint_add_button->installEventFilter(this);
 				ui.dialog_add_button->installEventFilter(this);
 				ui.block_add_button->installEventFilter(this);
 				ui.blockExec_add_button->installEventFilter(this);
-
-				ui.bnStateEdit->installEventFilter(this);
-				ui.bnLoopEdit->installEventFilter(this);
-				ui.bnTimerEdit->installEventFilter(this);
-				ui.bnColorEdit->installEventFilter(this);
-				ui.bnImageEdit->installEventFilter(this);
+				// action edit
+				ui.keyState_edit_button->installEventFilter(this);
+				ui.loop_edit_button->installEventFilter(this);
+				ui.timer_edit_button->installEventFilter(this);
+				ui.color_edit_button->installEventFilter(this);
+				ui.image_edit_button->installEventFilter(this);
 				ui.dialog_edit_button->installEventFilter(this);
 				ui.dialog_edit2_button->installEventFilter(this);
 			}
@@ -334,21 +334,18 @@ private:
 		if ("set radio group")
 		{
 			QButtonGroup* actionRbs = new QButtonGroup(this);
-			actionRbs->addButton(ui.rbRunning);
-			actionRbs->addButton(ui.rbEnding);
-			ui.rbRunning->setChecked(true);
-
+			actionRbs->addButton(ui.action_running_radio);
+			actionRbs->addButton(ui.action_ending_radio);
+			ui.action_running_radio->setChecked(true);
 			QButtonGroup* keyRbs = new QButtonGroup(this);
-			keyRbs->addButton(ui.rbDown);
-			keyRbs->addButton(ui.rbUp);
-			keyRbs->addButton(ui.rbClick);
-			ui.rbClick->setChecked(true);
-
+			keyRbs->addButton(ui.key_down_radio);
+			keyRbs->addButton(ui.key_up_radio);
+			keyRbs->addButton(ui.key_click_radio);
+			ui.key_click_radio->setChecked(true);
 			QButtonGroup* moveRbs = new QButtonGroup(this);
-			moveRbs->addButton(ui.rbPos);
-			moveRbs->addButton(ui.rbMove);
-			ui.rbPos->setChecked(true);
-
+			moveRbs->addButton(ui.mouse_position_radio);
+			moveRbs->addButton(ui.mouse_move_radio);
+			ui.mouse_position_radio->setChecked(true);
 			QButtonGroup* dialogRbs = new QButtonGroup(this);
 			dialogRbs->addButton(ui.dialog_style_none_radio);
 			dialogRbs->addButton(ui.dialog_style_warning_radio);
@@ -357,65 +354,62 @@ private:
 		}
 		if ("line edit range")
 		{
-			ui.etX->setValidator(new QIntValidator(0, posMax, this));
-			ui.etY->setValidator(new QIntValidator(0, posMax, this));
-			ui.etMoveSpeed->setValidator(new QIntValidator(0, moveSpeedMax, this));
-			ui.etMoveRand->setValidator(new QIntValidator(0, moveRandMax, this));
-			ui.etDelayMin->setValidator(new QIntValidator(0, delayMax, this));
-			ui.etDelayMax->setValidator(new QIntValidator(0, delayMax, this));
-			ui.etCountMin->setValidator(new QIntValidator(0, loopCountMax, this));
-			ui.etCountMax->setValidator(new QIntValidator(0, loopCountMax, this));
-			ui.etTimerMax->setValidator(new QIntValidator(0, timerMax, this));
-			ui.etTimerMin->setValidator(new QIntValidator(0, timerMax, this));
-			ui.etColorRed->setValidator(new QIntValidator(0, colorMax, this));
-			ui.etColorGreen->setValidator(new QIntValidator(0, colorMax, this));
-			ui.etColorBlue->setValidator(new QIntValidator(0, colorMax, this));
-			ui.etColorSim->setValidator(new QIntValidator(0, colorMax, this));
-			ui.etColorL->setValidator(new QIntValidator(0, posMax, this));
-			ui.etColorT->setValidator(new QIntValidator(0, posMax, this));
-			ui.etColorR->setValidator(new QIntValidator(0, posMax, this));
-			ui.etColorB->setValidator(new QIntValidator(0, posMax, this));
-			ui.etImageL->setValidator(new QIntValidator(0, posMax, this));
-			ui.etImageT->setValidator(new QIntValidator(0, posMax, this));
-			ui.etImageR->setValidator(new QIntValidator(0, posMax, this));
-			ui.etImageB->setValidator(new QIntValidator(0, posMax, this));
-			ui.etImageSim->setValidator(new QIntValidator(0, imageSimMax, this));
-			ui.etPopTextTime->setValidator(new QIntValidator(0, popTextTimeMax, this));
+			ui.mouse_x_edit->setValidator(new QIntValidator(0, posMax, this));
+			ui.mouse_y_edit->setValidator(new QIntValidator(0, posMax, this));
+			ui.mouse_speed_edit->setValidator(new QIntValidator(0, moveSpeedMax, this));
+			ui.mouse_rand_edit->setValidator(new QIntValidator(0, moveRandMax, this));
+			ui.delay_min_edit->setValidator(new QIntValidator(0, delayMax, this));
+			ui.delay_max_edit->setValidator(new QIntValidator(0, delayMax, this));
+			ui.loop_min_edit->setValidator(new QIntValidator(0, loopCountMax, this));
+			ui.loop_max_edit->setValidator(new QIntValidator(0, loopCountMax, this));
+			ui.timer_max_edit->setValidator(new QIntValidator(0, timerMax, this));
+			ui.timer_min_edit->setValidator(new QIntValidator(0, timerMax, this));
+			ui.color_red_edit->setValidator(new QIntValidator(0, colorMax, this));
+			ui.color_green_edit->setValidator(new QIntValidator(0, colorMax, this));
+			ui.color_blue_edit->setValidator(new QIntValidator(0, colorMax, this));
+			ui.color_sim_edit->setValidator(new QIntValidator(0, colorMax, this));
+			ui.color_left_edit->setValidator(new QIntValidator(0, posMax, this));
+			ui.color_top_edit->setValidator(new QIntValidator(0, posMax, this));
+			ui.color_right_edit->setValidator(new QIntValidator(0, posMax, this));
+			ui.color_bottom_edit->setValidator(new QIntValidator(0, posMax, this));
+			ui.image_left_edit->setValidator(new QIntValidator(0, posMax, this));
+			ui.image_top_edit->setValidator(new QIntValidator(0, posMax, this));
+			ui.image_right_edit->setValidator(new QIntValidator(0, posMax, this));
+			ui.image_bottom_edit->setValidator(new QIntValidator(0, posMax, this));
+			ui.image_sim_edit->setValidator(new QIntValidator(0, imageSimMax, this));
+			ui.popText_time_edit->setValidator(new QIntValidator(0, popTextTimeMax, this));
 		}
 		if ("table")
 		{
-			ui.tbActions->setContextMenuPolicy(Qt::CustomContextMenu);
-			ui.tbActions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-			ui.tbActions->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
-			ui.tbActions->verticalHeader()->setDefaultSectionSize(0);
-			ui.tbActions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Fixed);
-			ui.tbActions->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::Interactive);
-			ui.tbActions->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Interactive);
-			ui.tbActions->setColumnWidth(0, 100);
-			ui.tbActions->setColumnWidth(1, 300);
-			ui.tbActions->setColumnWidth(2, 180);
+			ui.action_table->setContextMenuPolicy(Qt::CustomContextMenu);
+			ui.action_table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
+			ui.action_table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+			ui.action_table->verticalHeader()->setDefaultSectionSize(0);
+			ui.action_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Fixed);
+			ui.action_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::Interactive);
+			ui.action_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Interactive);
+			ui.action_table->setColumnWidth(0, 100);
+			ui.action_table->setColumnWidth(1, 300);
+			ui.action_table->setColumnWidth(2, 180);
 		}
 		if ("key edit")
 		{
-			ui.hkKey->setMode(QKeyEdit::Mode::solid);
-			ui.hkKey->setMouseEnable(true);
-			ui.hkKey->setWheelEnable(true);
-			ui.hkKey->setKey(QKeyEdit::Key(VK_LBUTTON));
-
-			ui.hkState->setMode(QKeyEdit::Mode::solid);
-			ui.hkState->setMouseEnable(true);
-			ui.hkState->setWheelEnable(true);
-			ui.hkState->setPadEnable(true);
-			ui.hkState->setKey(QKeyEdit::Key(VK_LBUTTON));
+			ui.key_keyedit->setMode(QKeyEdit::Mode::solid);
+			ui.key_keyedit->setMouseEnable(true);
+			ui.key_keyedit->setWheelEnable(true);
+			ui.key_keyedit->setKey(QKeyEdit::Key(VK_LBUTTON));
+			ui.keyState_keyedit->setMode(QKeyEdit::Mode::solid);
+			ui.keyState_keyedit->setMouseEnable(true);
+			ui.keyState_keyedit->setWheelEnable(true);
+			ui.keyState_keyedit->setPadEnable(true);
+			ui.keyState_keyedit->setKey(QKeyEdit::Key(VK_LBUTTON));
 		}
 		if ("timer")
 		{
 			testTimer = new QTimer(this);
 		}
-
 		// enable qlable scale
-		ui.lbImageView->setScaledContents(true);
-
+		ui.image_view_label->setScaledContents(true);
 		// load Window mode
 		if (macro->wndState) macro->wi.update(), SetWindowMode();
 	}
@@ -423,88 +417,111 @@ private:
 	{
 		if ("title")
 		{
-			connect(ui.bnClose, &QPushButton::clicked, this, &This::OnBnClose);
-			connect(ui.bnBack, &QPushButton::clicked, this, &This::OnBnBack);
-			connect(ui.bnRun, &QPushButton::clicked, this, &This::OnBnRun);
-			connect(ui.bnWndSelect, &QPushButton::clicked, this, &This::OnBnWndSelect);
-			connect(ui.chbWnd, &QPushButton::clicked, this, &This::OnChbWnd);
-			connect(ui.chbChildWnd, &QPushButton::clicked, this, &This::OnChbChildWnd);
+			connect(ui.title_close_button, &QPushButton::clicked, this, &This::OnBnClose);
+			connect(ui.title_back_button, &QPushButton::clicked, this, &This::OnBnBack);
+			connect(ui.title_run_button, &QPushButton::clicked, this, &This::OnBnRun);
+			connect(ui.window_select_button, &QPushButton::clicked, this, &This::OnBnWndSelect);
+			connect(ui.window_state_check, &QPushButton::clicked, this, &This::OnChbWnd);
+			connect(ui.window_child_check, &QPushButton::clicked, this, &This::OnChbChildWnd);
 		}
-		if ("table")
+		if ("action table")
 		{
-			ui.tbActions->installEventFilter(this);
-			ui.tbActions->viewport()->installEventFilter(this);
-			connect(ui.rbRunning, &QRadioButton::toggled, this, &This::OnRbRunning);
-			connect(ui.rbEnding, &QRadioButton::toggled, this, &This::OnRbEnding);
-			connect(ui.tbActions, &QTableWidget::cellChanged, this, &This::OnTbChanged);
-			connect(ui.tbActions, &QTableWidget::cellClicked, this, &This::OnTbClicked);
-			connect(ui.tbActions, &QTableWidget::currentItemChanged, this, &This::OnTbSelect);
-			connect(ui.tbActions, &QTableWidget::cellDoubleClicked, this, &This::OnTbDoubleClick);
-			connect(ui.tbActions, &QTableWidget::customContextMenuRequested, this, &This::OnTableMenu);
+			ui.action_table->installEventFilter(this);
+			ui.action_table->viewport()->installEventFilter(this);
+			connect(ui.action_running_radio, &QRadioButton::toggled, this, &This::OnRbRunning);
+			connect(ui.action_ending_radio, &QRadioButton::toggled, this, &This::OnRbEnding);
+			connect(ui.action_table, &QTableWidget::cellChanged, this, &This::OnTbChanged);
+			connect(ui.action_table, &QTableWidget::cellClicked, this, &This::OnTbClicked);
+			connect(ui.action_table, &QTableWidget::currentItemChanged, this, &This::OnTbSelect);
+			connect(ui.action_table, &QTableWidget::cellDoubleClicked, this, [this](int,int) { changing ? SetChangeState(false) : SetChangeState(true); });
+			connect(ui.action_table, &QTableWidget::customContextMenuRequested, this, [this](const QPoint&) { menu->exec(QCursor::pos()); });
 		}
-		if ("list")
+		if ("action list")
 		{
-			connect(ui.lsJumpPoint, &QListWidget::itemClicked, this, &This::OnLsJumpClick);
+			connect(ui.jumpPoint_list, &QListWidget::itemClicked, this, &This::OnLsJumpClick);
 			connect(ui.block_list, &QListWidget::itemClicked, this, &This::OnLsBlockExecClick);
 		}
 		if ("action widget")
 		{
-			connect(ui.bnKeyAdd, &QPushButton::clicked, this, [this](bool){ if (changing) ItemChange(QiType::key); else ItemAdd(QiType::key); });
-			connect(ui.bnMoveAdd, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::mouse); else ItemAdd(QiType::mouse); });
-			connect(ui.bnDelayAdd, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::delay); else ItemAdd(QiType::delay); });
-
-			connect(ui.bnStateAdd, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::keyState); else ItemAdd(QiType::keyState); });
-			connect(ui.bnRememberPosAdd, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::rememberPos); else ItemAdd(QiType::rememberPos); });
-			connect(ui.bnRecoverPosAdd, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::recoverPos); else ItemAdd(QiType::recoverPos); });
-			connect(ui.bnEndAdd, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::end); else ItemAdd(QiType::end); });
-			connect(ui.bnEndLoopAdd, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::loopEnd); else ItemAdd(QiType::loopEnd); });
-
-			connect(ui.bnLoopAdd, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::loop); else ItemAdd(QiType::loop); });
-			connect(ui.bnTimerAdd, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::timer); else ItemAdd(QiType::timer); });
-
-			connect(ui.bnTextAdd, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::text); else ItemAdd(QiType::text); });
-			connect(ui.bnPopTextAdd, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::popText); else ItemAdd(QiType::popText); });
-
-			connect(ui.bnColorAdd, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::color); else ItemAdd(QiType::color); });
-
-			connect(ui.bnImageAdd, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::image); else ItemAdd(QiType::image); });
-
-			connect(ui.bnJumpAdd, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::jump); else ItemAdd(QiType::jump); });
-			connect(ui.bnJumpPointAdd, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::jumpPoint); else ItemAdd(QiType::jumpPoint); });
-
-			connect(ui.block_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::block); else ItemAdd(QiType::block); });
-			connect(ui.blockExec_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::blockExec); else ItemAdd(QiType::blockExec); });
-
-			connect(ui.dialog_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::dialog); else ItemAdd(QiType::dialog); });
-
-
-			connect(ui.bnStateEdit, &QPushButton::clicked, this, [this](bool) { NextEdit(false); });
-			connect(ui.bnStateEdit2, &QPushButton::clicked, this, [this](bool) { NextEdit(true); });
-
-			connect(ui.bnLoopEdit, &QPushButton::clicked, this, [this](bool) { NextEdit(false); });
-			connect(ui.bnTimerEdit, &QPushButton::clicked, this, [this](bool) { NextEdit(false); });
-
-			connect(ui.bnColorEdit, &QPushButton::clicked, this, [this](bool) { NextEdit(false); });
-			connect(ui.bnColorEdit2, &QPushButton::clicked, this, [this](bool) { NextEdit(true); });
-
-			connect(ui.bnImageEdit, &QPushButton::clicked, this, [this](bool) { NextEdit(false); });
-			connect(ui.bnImageEdit2, &QPushButton::clicked, this, [this](bool) { NextEdit(true); });
-
-			connect(ui.dialog_edit_button, &QPushButton::clicked, this, [this](bool) { NextEdit(false); });
-			connect(ui.dialog_edit2_button, &QPushButton::clicked, this, [this](bool) { NextEdit(true); });
-
-			connect(ui.block_edit_button, &QPushButton::clicked, this, [this](bool) { NextEdit(false); });
-
-			connect(ui.bnPos, &QPushButton::clicked, this, &This::OnBnMousePos);
-			connect(ui.rbPos, &QRadioButton::toggled, this, &This::OnRbMousePos);
-			connect(ui.rbMove, &QRadioButton::toggled, this, &This::OnRbMouseMove);
-			connect(ui.etDelayMin, &QLineEdit::textChanged, this, &This::OnEtDelayMin);
-			connect(ui.etCountMin, &QLineEdit::textChanged, this, &This::OnEtLoopMin);
-			connect(ui.etTimerMin, &QLineEdit::textChanged, this, &This::OnEtTimerMin);
-			connect(ui.bnColorRect, &QPushButton::clicked, this, &This::OnBnColorRect);
-			connect(ui.bnColorValue, &QPushButton::clicked, this, &This::OnBnColorValue);
-			connect(ui.bnImageRect, &QPushButton::clicked, this, &This::OnBnImageRect);
-			connect(ui.bnImageShot, &QPushButton::clicked, this, &This::OnBnImageShot);
+			if ("base tab")
+			{
+				connect(ui.key_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::key); else ItemAdd(QiType::key); });
+				connect(ui.mouse_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::mouse); else ItemAdd(QiType::mouse); });
+				connect(ui.delay_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::delay); else ItemAdd(QiType::delay); });
+				// move
+				connect(ui.mouse_position_button, &QPushButton::clicked, this, &This::OnBnMousePos);
+				connect(ui.mouse_position_radio, &QRadioButton::toggled, this, &This::OnRbMousePos);
+				connect(ui.mouse_move_radio, &QRadioButton::toggled, this, &This::OnRbMouseMove);
+				// delay
+				connect(ui.delay_min_edit, &QLineEdit::textChanged, this, &This::OnEtDelayMin);
+			}
+			if ("state tab")
+			{
+				connect(ui.keyState_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::keyState); else ItemAdd(QiType::keyState); });
+				connect(ui.rememberPos_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::rememberPos); else ItemAdd(QiType::rememberPos); });
+				connect(ui.recoverPos_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::recoverPos); else ItemAdd(QiType::recoverPos); });
+				connect(ui.end_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::end); else ItemAdd(QiType::end); });
+				connect(ui.endLoop_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::loopEnd); else ItemAdd(QiType::loopEnd); });
+				// edit
+				connect(ui.keyState_edit_button, &QPushButton::clicked, this, [this](bool) { NextEdit(false); });
+				connect(ui.keyState_edit2_button, &QPushButton::clicked, this, [this](bool) { NextEdit(true); });
+			}
+			if ("loop tab")
+			{
+				connect(ui.loop_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::loop); else ItemAdd(QiType::loop); });
+				connect(ui.timer_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::timer); else ItemAdd(QiType::timer); });
+				// edit
+				connect(ui.loop_edit_button, &QPushButton::clicked, this, [this](bool) { NextEdit(false); });
+				connect(ui.timer_edit_button, &QPushButton::clicked, this, [this](bool) { NextEdit(false); });
+				// loop
+				connect(ui.loop_min_edit, &QLineEdit::textChanged, this, &This::OnEtLoopMin);
+				// timer
+				connect(ui.timer_min_edit, &QLineEdit::textChanged, this, &This::OnEtTimerMin);
+			}
+			if ("text tab")
+			{
+				connect(ui.copyText_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::copyText); else ItemAdd(QiType::copyText); });
+				connect(ui.popText_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::popText); else ItemAdd(QiType::popText); });
+			}
+			if ("color tab")
+			{
+				connect(ui.color_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::color); else ItemAdd(QiType::color); });
+				// edit
+				connect(ui.color_edit_button, &QPushButton::clicked, this, [this](bool) { NextEdit(false); });
+				connect(ui.color_edit2_button, &QPushButton::clicked, this, [this](bool) { NextEdit(true); });
+				// color
+				connect(ui.color_rect_button, &QPushButton::clicked, this, &This::OnBnColorRect);
+				connect(ui.color_rgb_button, &QPushButton::clicked, this, &This::OnBnColorValue);
+			}
+			if ("image tab")
+			{
+				connect(ui.image_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::image); else ItemAdd(QiType::image); });
+				// edit
+				connect(ui.image_edit_button, &QPushButton::clicked, this, [this](bool) { NextEdit(false); });
+				connect(ui.image_edit2_button, &QPushButton::clicked, this, [this](bool) { NextEdit(true); });
+				// image
+				connect(ui.image_rect_button, &QPushButton::clicked, this, &This::OnBnImageRect);
+				connect(ui.image_shot_button, &QPushButton::clicked, this, &This::OnBnImageShot);
+			}
+			if ("jump tab")
+			{
+				connect(ui.jump_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::jump); else ItemAdd(QiType::jump); });
+				connect(ui.jumpPoint_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::jumpPoint); else ItemAdd(QiType::jumpPoint); });
+			}
+			if ("block tab")
+			{
+				connect(ui.block_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::block); else ItemAdd(QiType::block); });
+				connect(ui.blockExec_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::blockExec); else ItemAdd(QiType::blockExec); });
+				// edit
+				connect(ui.block_edit_button, &QPushButton::clicked, this, [this](bool) { NextEdit(false); });
+			}
+			if ("dialog tab")
+			{
+				connect(ui.dialog_add_button, &QPushButton::clicked, this, [this](bool) { if (changing) ItemChange(QiType::dialog); else ItemAdd(QiType::dialog); });
+				// edit
+				connect(ui.dialog_edit_button, &QPushButton::clicked, this, [this](bool) { NextEdit(false); });
+				connect(ui.dialog_edit2_button, &QPushButton::clicked, this, [this](bool) { NextEdit(true); });
+			}
 		}
 		if ("timer")
 		{
@@ -513,146 +530,163 @@ private:
 	}
 	void DisableButtons()
 	{
-		ui.bnStateEdit->setDisabled(true);
-		ui.bnStateEdit2->setDisabled(true);
-		ui.bnLoopEdit->setDisabled(true);
-		ui.bnTimerEdit->setDisabled(true);
-		ui.bnColorEdit->setDisabled(true);
-		ui.bnColorEdit2->setDisabled(true);
-		ui.bnImageEdit->setDisabled(true);
-		ui.bnImageEdit2->setDisabled(true);
-		ui.bnJumpAdd->setDisabled(true);
+		ui.keyState_edit_button->setDisabled(true);
+		ui.keyState_edit2_button->setDisabled(true);
+		ui.loop_edit_button->setDisabled(true);
+		ui.timer_edit_button->setDisabled(true);
+		ui.color_edit_button->setDisabled(true);
+		ui.color_edit2_button->setDisabled(true);
+		ui.image_edit_button->setDisabled(true);
+		ui.image_edit2_button->setDisabled(true);
+		ui.jump_add_button->setDisabled(true);
 		ui.dialog_edit_button->setDisabled(true);
 		ui.dialog_edit2_button->setDisabled(true);
 		ui.block_edit_button->setDisabled(true);
 		ui.blockExec_add_button->setDisabled(true);
 	}
+	void DisableMenus()
+	{
+		muDel->setDisabled(true);
+		muChange->setDisabled(true);
+		muCut->setDisabled(true);
+		muCopy->setDisabled(true);
+		muPaste->setDisabled(true);
+		muEdit->setDisabled(true);
+		muEdit2->setDisabled(true);
+	}
 	void WidgetUpdate()
 	{
-		setWindowTitle(layers.End()->title);
-
+		setWindowTitle(layers.last().title);
 		if (layers.size() > 1)
 		{
-			ui.rbRunning->setVisible(false);
-			ui.rbEnding->setVisible(false);
+			ui.action_running_radio->setVisible(false);
+			ui.action_ending_radio->setVisible(false);
 			ui.block_add_button->setDisabled(true);
 			ui.block_edit_button->setDisabled(true);
 		}
 		else
 		{
-			ui.rbRunning->setVisible(true), ui.rbEnding->setVisible(true);
+			ui.action_running_radio->setVisible(true), ui.action_ending_radio->setVisible(true);
 			ui.block_add_button->setEnabled(true);
 			ui.block_edit_button->setEnabled(true);
 		}
-
 		TableUpdate();
 	}
 	void NextEdit(bool edit2)
 	{
-		SetChange(false);
-
-		int p = ui.tbActions->currentRow(); if (p < 0) return;
-
+		SetChangeState(false);
+		int p = ui.action_table->currentRow(); if (p < 0) return;
 		QString title;
 		Actions* next = nullptr;
-		bool failed = false;
-		std::visit([&title, &failed, &next, edit2](auto&& var)
+		Action& var = actions->at(p);
+		switch (var.index())
+		{
+		case QiType::color:
+		{
+			QiColor& color = std::get<QiColor>(var);
+			if (edit2)
 			{
-				using T = std::decay_t<decltype(var)>;
-				if constexpr (std::is_same_v<T, QiColor>)
-				{
-					QiColor& color = var;
-					if (edit2)
-					{
-						next = &color.next2;
-						title = "编辑 - 查找颜色（未找到）";
-					}
-					else
-					{
-						next = &color.next;
-						title = "编辑 - 查找颜色（找到）";
-					}
-				}
-				else if constexpr (std::is_same_v<T, QiLoop>)
-				{
-					QiLoop& loop = var;
-					next = &loop.next;
-					title = "编辑 - 循环";
-				}
-				else if constexpr (std::is_same_v<T, QiKeyState>)
-				{
-					QiKeyState& keyState = var;
-					if (edit2)
-					{
-						next = &keyState.next2;
-						title = "编辑 - 按键状态（未按下）";
-					}
-					else
-					{
-						next = &keyState.next;
-						title = "编辑 - 按键状态（按下）";
-					}
-
-				}
-				else if constexpr (std::is_same_v<T, QiImage>)
-				{
-					QiImage& image = var;
-					if (edit2)
-					{
-						next = &image.next2;
-						title = "编辑 - 查找图片（未找到）";
-					}
-					else
-					{
-						next = &image.next;
-						title = "编辑 - 查找图片（找到）";
-					}
-				}
-				else if constexpr (std::is_same_v<T, QiTimer>)
-				{
-					QiTimer& timer = var;
-					next = &timer.next;
-					title = "编辑 - 定时";
-				}
-				else if constexpr (std::is_same_v<T, QiDialog>)
-				{
-					QiDialog& dialog = var;
-					if (edit2)
-					{
-						next = &dialog.next2;
-						title = "编辑 - 对话框（取消）";
-					}
-					else
-					{
-						next = &dialog.next;
-						title = "编辑 - 对话框（确认）";
-					}
-				}
-				else if constexpr (std::is_same_v<T, QiBlock>)
-				{
-					QiBlock& block = var;
-					next = &block.next;
-					title = "编辑 - 块";
-				}
-				else
-				{
-					failed = true;
-				}
-			}, actions->at(p));
-
-		if (!failed)
+				next = &color.next2;
+				title = "编辑 - 查找颜色（未找到）";
+			}
+			else
+			{
+				next = &color.next;
+				title = "编辑 - 查找颜色（找到）";
+			}
+		} break;
+		case QiType::loop:
+		{
+			QiLoop& loop = std::get<QiLoop>(var);
+			next = &loop.next;
+			title = "编辑 - 循环";
+		} break;
+		case QiType::keyState:
+		{
+			QiKeyState& keyState = std::get<QiKeyState>(var);
+			if (edit2)
+			{
+				next = &keyState.next2;
+				title = "编辑 - 按键状态（未按下）";
+			}
+			else
+			{
+				next = &keyState.next;
+				title = "编辑 - 按键状态（按下）";
+			}
+		} break;
+		case QiType::image:
+		{
+			QiImage& image = std::get<QiImage>(var);
+			if (edit2)
+			{
+				next = &image.next2;
+				title = "编辑 - 查找图片（未找到）";
+			}
+			else
+			{
+				next = &image.next;
+				title = "编辑 - 查找图片（找到）";
+			}
+		} break;
+		case QiType::timer:
+		{
+			QiTimer& timer = std::get<QiTimer>(var);
+			next = &timer.next;
+			title = "编辑 - 定时";
+		} break;
+		case QiType::jump:
+		{
+			QiJump& jump = std::get<QiJump>(var);
+		} break;
+		case QiType::jumpPoint:
+		{
+			QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(var);
+		} break;
+		case QiType::dialog:
+		{
+			QiDialog& dialog = std::get<QiDialog>(var);
+			if (edit2)
+			{
+				next = &dialog.next2;
+				title = "编辑 - 对话框（取消）";
+			}
+			else
+			{
+				next = &dialog.next;
+				title = "编辑 - 对话框（确认）";
+			}
+		} break;
+		case QiType::block:
+		{
+			QiBlock& block = std::get<QiBlock>(var);
+			next = &block.next;
+			title = "编辑 - 块";
+		} break;
+		}
+		if (next)
 		{
 			Layer layer;
 			layer.actions = next;
 			layer.title = title;
-			layers.Add(layer);
-
+			layers.append(layer);
 			actions = next;
 			setWindowTitle(title);
 			WidgetUpdate();
 		}
 	}
-
+	void SetWindowMode()
+	{
+		ui.window_state_check->setChecked(macro->wndState);
+		OnChbWnd();
+		ui.window_child_check->setChecked(macro->wi.child);
+		ui.window_name_edit->setText(macro->wi.wndName);
+	}
+	void setWindowTitle(const QString& title)
+	{
+		QDialog::setWindowTitle(title);
+		ui.title_label->setText(title);
+	}
 	void SelectWindow()
 	{
 		QPoint pt = pos();
@@ -661,14 +695,7 @@ private:
 		move(pt);
 		SetWindowMode();
 	}
-	void SetWindowMode()
-	{
-		ui.chbWnd->setChecked(macro->wndState); OnChbWnd();
-		ui.chbChildWnd->setChecked(macro->wi.child);
-		ui.etWndName->setText(macro->wi.wndName);
-	}
-
-	// Jump
+	// jump
 	void LoadJumpPoints(JumpPoints& jumpPoints, const Actions& actions)
 	{
 		for (size_t i = 0; i < actions.size(); i++)
@@ -677,7 +704,7 @@ private:
 			if (var.index() == QiType::jumpPoint)
 			{
 				const QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(var);
-				jumpPoints.Add(jumpPoint);
+				jumpPoints.append_copy(jumpPoint);
 			}
 			else
 			{
@@ -687,7 +714,7 @@ private:
 			}
 		}
 	}
-	bool FindJumpPoint(const JumpPoints& jumpPoints, int32 id)
+	bool FindJumpPoint(const JumpPoints& jumpPoints, int id)
 	{
 		for (size_t i = 0; i < jumpPoints.size(); i++)
 		{
@@ -702,7 +729,7 @@ private:
 			Action& var = actions[i];
 			if (var.index() == QiType::jump)
 			{
-				QiJump& jump= std::get<QiJump>(var);
+				QiJump& jump = std::get<QiJump>(var);
 				if (!FindJumpPoint(jumpPoints, jump.id)) jump.id = -1;
 			}
 			else
@@ -713,9 +740,9 @@ private:
 			}
 		}
 	}
-	int32 JumpPointUnique(const JumpPoints& jumpPoints)
+	int JumpPointUnique(const JumpPoints& jumpPoints)
 	{
-		int32 id = 1;
+		int id = 1;
 		for (size_t i = 0; i < jumpPoints.size(); i++)
 		{
 			if (jumpPoints[i].id >= id) id = jumpPoints[i].id + 1;
@@ -743,9 +770,7 @@ private:
 			}
 		}
 	}
-	// Jump;
-
-	// Block
+	// block
 	void LoadBlocks(Blocks& blocks, const Actions& actions)
 	{
 		for (size_t i = 0; i < actions.size(); i++)
@@ -754,7 +779,7 @@ private:
 			if (var.index() == QiType::block)
 			{
 				const QiBlock& block = std::get<QiBlock>(var);
-				blocks.Add(block);
+				blocks.append_copy(block);
 			}
 			else
 			{
@@ -764,7 +789,7 @@ private:
 			}
 		}
 	}
-	bool FindBlock(const Blocks& blocks, int32 id)
+	bool FindBlock(const Blocks& blocks, int id)
 	{
 		for (size_t i = 0; i < blocks.size(); i++)
 		{
@@ -790,9 +815,9 @@ private:
 			}
 		}
 	}
-	int32 BlockUnique(const Blocks& blocks)
+	int BlockUnique(const Blocks& blocks)
 	{
-		int32 id = 1;
+		int id = 1;
 		for (size_t i = 0; i < blocks.size(); i++)
 		{
 			if (blocks[i].id >= id) id = blocks[i].id + 1;
@@ -820,8 +845,7 @@ private:
 			}
 		}
 	}
-	// Block;
-
+	// list
 	void ListJumpPointUpdate()
 	{
 		JumpPoints jumpPoints;
@@ -829,14 +853,14 @@ private:
 
 		CheckJumpInvalid(jumpPoints, *actionsRoot);
 
-		ui.lsJumpPoint->clear();
+		ui.jumpPoint_list->clear();
 
 		for (size_t i = 0; i < jumpPoints.size(); i++)
 		{
 			const QiJumpPoint& jumpPoint = jumpPoints[i];
 			QListWidgetItem* item = new QListWidgetItem(QString::number(jumpPoint.id) + QString::fromUtf8("　　　") + jumpPoint.mark);
 			item->setData(DataRole::id, jumpPoint.id);
-			ui.lsJumpPoint->addItem(item);
+			ui.jumpPoint_list->addItem(item);
 		}
 	}
 	void ListBlockUpdate()
@@ -856,6 +880,7 @@ private:
 			ui.block_list->addItem(item);
 		}
 	}
+	// table
 	void TableUpdate()
 	{
 		DisableButtons();
@@ -863,11 +888,11 @@ private:
 		ListBlockUpdate();
 
 		updating = true;
-		ui.tbActions->clearMask();
-		ui.tbActions->setRowCount(actions->size());
-		ui.tbActions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-		ui.tbActions->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
-		ui.tbActions->verticalHeader()->setDefaultSectionSize(0);
+		ui.action_table->clearMask();
+		ui.action_table->setRowCount(actions->size());
+		ui.action_table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
+		ui.action_table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+		ui.action_table->verticalHeader()->setDefaultSectionSize(0);
 
 		for (size_t i = 0; i < actions->size(); i++)
 		{
@@ -925,9 +950,9 @@ private:
 					param += QString::number(mouse.speed);
 				}
 			} break;
-			case QiType::text:
+			case QiType::copyText:
 			{
-				const QiText& text = std::get<QiText>(var);
+				const QiCopyText& text = std::get<QiCopyText>(var);
 				type = Qi::ui.text.acText;
 
 				param = text.text.mid(0, 32);
@@ -1099,26 +1124,19 @@ private:
 
 			QTableWidgetItem* item = new QTableWidgetItem(type);
 			item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			ui.tbActions->setItem(i, 0, item);
+			ui.action_table->setItem(i, 0, item);
 
 			item = new QTableWidgetItem(param);
 			item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			ui.tbActions->setItem(i, 1, item);
+			ui.action_table->setItem(i, 1, item);
 
 			item = new QTableWidgetItem(mark);
 			item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			ui.tbActions->setItem(i, 2, item);
+			ui.action_table->setItem(i, 2, item);
 		}
 		updating = false;
 	}
-
 private:
-	void setWindowTitle(const QString& title)
-	{
-		QDialog::setWindowTitle(title);
-		ui.lbTitle->setText(title);
-	}
-
 	bool event(QEvent* e)
 	{
 		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
@@ -1130,7 +1148,7 @@ private:
 	}
 	bool eventFilter(QObject* obj, QEvent* e)
 	{
-		if (obj == ui.tbActions)
+		if (obj == ui.action_table)
 		{
 			if (e->type() == QEvent::KeyPress)
 			{
@@ -1181,24 +1199,21 @@ private:
 				}
 			}
 		}
-		else if (obj == ui.tbActions->viewport()) // move drop
+		else if (obj == ui.action_table->viewport()) // move drop
 		{
 			if (e->type() == QEvent::Drop)
 			{
 				QDropEvent* drop = static_cast<QDropEvent*>(e);
-				QTableWidgetItem* item = ui.tbActions->itemAt(drop->pos());
+				QTableWidgetItem* item = ui.action_table->itemAt(drop->pos());
 				int before = 0, after = 0;
-				before = ui.tbActions->currentRow();
+				before = ui.action_table->currentRow();
 				if (before < 0) return 0;
-
 				if (item) after = item->row();
-				else after = ui.tbActions->rowCount() - 1;
-
+				else after = ui.action_table->rowCount() - 1;
 				if (after < 0) return 0;
-
-				actions->Mov(before, after);
+				actions->move(before, after);
 				TableUpdate();
-				ui.tbActions->setCurrentItem(ui.tbActions->item(after, 0));
+				ui.action_table->setCurrentItem(ui.action_table->item(after, 0));
 				return true;
 			}
 		}
@@ -1217,7 +1232,37 @@ private:
 	{
 		close();
 	}
-	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) msPos = e->pos(), mouseDown = true; e->accept(); }void mouseMoveEvent(QMouseEvent* e) { if (mouseDown) move(e->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) mouseDown = false; }
+	// window move
+	QPoint mouse_positon;
+	bool mouse_down = false;
+	void mousePressEvent(QMouseEvent* e)
+	{
+		if (e->button() == Qt::LeftButton)
+		{
+			mouse_positon = e->pos();
+			mouse_down = true;
+			e->accept();
+		}
+	}
+	void mouseMoveEvent(QMouseEvent* e)
+	{
+		if (mouse_down)
+		{
+			if (Distance(mouse_positon.x(), mouse_positon.y(), e->pos().x(), e->pos().y()) < 100)
+			{
+				move(e->pos() + pos() - mouse_positon);
+				e->accept();
+			}
+		}
+	}
+	void mouseReleaseEvent(QMouseEvent* e)
+	{
+		if (e->button() == Qt::LeftButton)
+		{
+			mouse_down = false;
+			e->accept();
+		}
+	}
 private Q_SLOTS:
 	void OnTestTimer()
 	{
@@ -1234,11 +1279,10 @@ private Q_SLOTS:
 			timeEndPeriod(1);
 			Qi::run = false;
 			macro->count = testCount;
-			Thread::Sleep(300);
+			Sleep(300);
 			setEnabled(true);
 		}
 	}
-
 	// Title
 	void OnBnClose()
 	{
@@ -1247,15 +1291,15 @@ private Q_SLOTS:
 	}
 	void OnBnBack()
 	{
-		layers.DelBack();
+		layers.removeLast();
 		if (layers.empty())
 		{
 			OnBnClose();
 		}
 		else
 		{
-			actions = layers.End()->actions;
-			setWindowTitle(layers.End()->title);
+			actions = layers.last().actions;
+			setWindowTitle(layers.last().title);
 			WidgetUpdate();
 		}
 	}
@@ -1269,7 +1313,6 @@ private Q_SLOTS:
 		QiThread::StartMacroRun(macro);
 		testTimer->start(16);
 	}
-
 	// Rutton context menu
 	void OnMenuDel()
 	{
@@ -1277,7 +1320,7 @@ private Q_SLOTS:
 	}
 	void OnMenuChange()
 	{
-		changing ? SetChange(false) : SetChange(true);
+		changing ? SetChangeState(false) : SetChangeState(true);
 	}
 	void OnMenuCut()
 	{
@@ -1299,25 +1342,23 @@ private Q_SLOTS:
 	{
 		NextEdit(true);
 	}
-
 	// List
 	void OnLsJumpClick(QListWidgetItem*)
 	{
-		if (ui.lsJumpPoint->currentRow() < 0) ui.bnJumpAdd->setDisabled(true);
-		else ui.bnJumpAdd->setEnabled(true);
+		if (ui.jumpPoint_list->currentRow() < 0) ui.jump_add_button->setDisabled(true);
+		else ui.jump_add_button->setEnabled(true);
 	}
 	void OnLsBlockExecClick(QListWidgetItem*)
 	{
 		if (ui.block_list->currentRow() < 0) ui.blockExec_add_button->setDisabled(true);
 		else ui.blockExec_add_button->setEnabled(true);
 	}
-
 	// Table
 	void OnRbRunning(bool state)
 	{
 		if (state && (layers.size() == 1))
 		{
-			layers.Begin()->actions = actionsRoot = actions = &macro->acRun;
+			layers.first().actions = actionsRoot = actions = &macro->acRun;
 			TableUpdate();
 		}
 	}
@@ -1325,7 +1366,7 @@ private Q_SLOTS:
 	{
 		if (state && (layers.size() == 1))
 		{
-			layers.Begin()->actions = actionsRoot = actions = &macro->acEnd;
+			layers.first().actions = actionsRoot = actions = &macro->acEnd;
 			TableUpdate();
 		}
 	}
@@ -1335,275 +1376,192 @@ private Q_SLOTS:
 		if (row < 0) return;
 		if (column != 2) return;
 		QiBase& base = actions->at(row).base();
-		base.mark = ui.tbActions->item(row, 2)->text();
+		base.mark = ui.action_table->item(row, 2)->text();
 		if ((base.type == QiType::jumpPoint) || (base.type == QiType::block)) TableUpdate();
-	}
-	void OnTbClicked(int row, int column)
-	{
-		DisableButtons();
-
-		pv.hide();
-		rv.hide();
-
-		if (row < 0) return;
-		if (column == 2) ui.tbActions->editItem(ui.tbActions->item(row, column));
-		else
-		{
-			std::visit([this](auto&& var)
-				{
-					using T = std::decay_t<decltype(var)>;
-					if constexpr (std::is_same_v<T, QiEnd>)
-					{
-						const QiEnd& end = var;
-						ui.tabWidget->setCurrentIndex(tab_state);
-					}
-					else if constexpr (std::is_same_v<T, QiDelay>)
-					{
-						const QiDelay& delay = var;
-						ui.tabWidget->setCurrentIndex(tab_base);
-					}
-					else if constexpr (std::is_same_v<T, QiKey>)
-					{
-						const QiKey& key = var;
-						ui.tabWidget->setCurrentIndex(tab_base);
-					}
-					else if constexpr (std::is_same_v<T, QiMouse>)
-					{
-						const QiMouse& mouse = var;
-						ui.tabWidget->setCurrentIndex(tab_base);
-
-						if (!mouse.move)
-						{
-							rv.hide();
-							POINT pt;
-							if (macro->wndState)
-							{
-								if (!macro->wi.update())
-								{
-									SelectWindow();
-								}
-								POINT rpt = QiFn::WATR({ mouse.x, mouse.y }, macro->wi.wnd);
-								pt = Window::pos(macro->wi.wnd);
-								pt.x += rpt.x, pt.y += rpt.y;
-							}
-							else
-							{
-								pt = QiFn::ATR({ mouse.x, mouse.y });
-							}
-							pv.Show(pt);
-						}
-					}
-					else if constexpr (std::is_same_v<T, QiText>)
-					{
-						const QiText& text = var;
-						ui.tabWidget->setCurrentIndex(tab_text);
-					}
-					else if constexpr (std::is_same_v<T, QiColor>)
-					{
-						const QiColor& color = var;
-						ui.tabWidget->setCurrentIndex(tab_color);
-						ui.bnColorEdit->setEnabled(true);
-						ui.bnColorEdit2->setEnabled(true);
-
-						pv.hide();
-						RECT rect;
-						if (macro->wndState)
-						{
-							if (!macro->wi.update())
-							{
-								SelectWindow();
-							}
-							rect = QiFn::WATRR(color.rect, macro->wi.wnd);
-							POINT pt = Window::pos(macro->wi.wnd);
-							rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
-						}
-						else
-						{
-							rect = QiFn::ATRR(color.rect);
-						}
-						rv.Show(rect);
-					}
-					else if constexpr (std::is_same_v<T, QiLoop>)
-					{
-						const QiLoop& loop = var;
-						ui.tabWidget->setCurrentIndex(tab_loop);
-						ui.bnLoopEdit->setEnabled(true);
-					}
-					else if constexpr (std::is_same_v<T, QiLoopEnd>)
-					{
-						const QiLoopEnd& loopEnd = var;
-						ui.tabWidget->setCurrentIndex(tab_state);
-					}
-					else if constexpr (std::is_same_v<T, QiKeyState>)
-					{
-						const QiKeyState& keyState = var;
-						ui.tabWidget->setCurrentIndex(tab_state);
-						ui.bnStateEdit->setEnabled(true);
-						ui.bnStateEdit2->setEnabled(true);
-					}
-					else if constexpr (std::is_same_v<T, QiRecoverPos>)
-					{
-						const QiRecoverPos& recoverPos = var;
-						ui.tabWidget->setCurrentIndex(tab_state);
-					}
-					else if constexpr (std::is_same_v<T, QiImage>)
-					{
-						const QiImage& image = var;
-						ui.tabWidget->setCurrentIndex(tab_image);
-						ui.bnImageEdit->setEnabled(true);
-						ui.bnImageEdit2->setEnabled(true);
-
-						pv.hide();
-						RECT rect;
-						if (macro->wndState)
-						{
-							if (!macro->wi.update())
-							{
-								SelectWindow();
-							}
-							rect = QiFn::WATRR(image.rect, macro->wi.wnd);
-							POINT pt = Window::pos(macro->wi.wnd);
-							rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
-						}
-						else
-						{
-							rect = QiFn::ATRR(image.rect);
-						}
-						rv.Show(rect);
-
-						WidgetSetImage(image);
-					}
-					else if constexpr (std::is_same_v<T, QiPopText>)
-					{
-						const QiPopText& popText = var;
-						ui.tabWidget->setCurrentIndex(tab_text);
-					}
-					else if constexpr (std::is_same_v<T, QiRememberPos>)
-					{
-						const QiRememberPos& rememberPos = var;
-						ui.tabWidget->setCurrentIndex(tab_state);
-					}
-					else if constexpr (std::is_same_v<T, QiTimer>)
-					{
-						const QiTimer& timer = var;
-						ui.tabWidget->setCurrentIndex(tab_loop);
-
-						ui.bnTimerEdit->setEnabled(true);
-					}
-					else if constexpr (std::is_same_v<T, QiJump>)
-					{
-						const QiJump& jump = var;
-						ui.tabWidget->setCurrentIndex(tab_jump);
-					}
-					else if constexpr (std::is_same_v<T, QiJumpPoint>)
-					{
-						const QiJumpPoint& jumpPoint = var;
-						ui.tabWidget->setCurrentIndex(tab_jump);
-					}
-					else if constexpr (std::is_same_v<T, QiDialog>)
-					{
-						const QiDialog& dialog = var;
-						ui.tabWidget->setCurrentIndex(tab_dialog);
-						ui.dialog_edit_button->setEnabled(true);
-						ui.dialog_edit2_button->setEnabled(true);
-					}
-					else if constexpr (std::is_same_v<T, QiBlock>)
-					{
-						const QiBlock& block = var;
-						ui.block_edit_button->setEnabled(true);
-						ui.tabWidget->setCurrentIndex(tab_block);
-					}
-					else if constexpr (std::is_same_v<T, QiBlockExec>)
-					{
-						const QiBlockExec& blockExec = var;
-						ui.tabWidget->setCurrentIndex(tab_block);
-					}
-					else
-					{
-						ui.tabWidget->setCurrentIndex(tab_base);
-					}
-				},
-				actions->at(row));
-		}
 	}
 	void OnTbSelect(QTableWidgetItem*, QTableWidgetItem*)
 	{
-		OnTbClicked(ui.tbActions->currentRow(), ui.tbActions->currentColumn());
-	}
-	void OnTbDoubleClick(int row, int column)
-	{
-		changing ? SetChange(false) : SetChange(true);
-	}
-	void OnTableMenu(const QPoint& pt)
-	{
-		muDel->setDisabled(true);
-		muChange->setDisabled(true);
-		muCut->setDisabled(true);
-		muCopy->setDisabled(true);
-		muPaste->setDisabled(true);
-		muEdit->setDisabled(true);
-		muEdit2->setDisabled(true);
-
-		QList<QTableWidgetItem*> items = ui.tbActions->selectedItems();
-		if (items.size())
+		int column = ui.action_table->currentColumn();
+		int row = ui.action_table->currentRow();
+		DisableButtons();
+		DisableMenus();
+		pv.hide();
+		rv.hide();
+		if (row < 0) return;
+		if (column == 2) ui.action_table->editItem(ui.action_table->item(row, column));
+		else
 		{
+			bool edit = false;
+			bool edit2 = false;
+			const Action& var = actions->at(row);
+			switch (var.index())
+			{
+			case QiType::end:
+			{
+				ui.tabWidget->setCurrentIndex(tab_state);
+			} break;
+			case QiType::delay:
+			{
+				ui.tabWidget->setCurrentIndex(tab_base);
+			} break;
+			case QiType::key:
+			{
+				ui.tabWidget->setCurrentIndex(tab_base);
+			} break;
+			case QiType::mouse:
+			{
+				const QiMouse& mouse = std::get<QiMouse>(var);
+				ui.tabWidget->setCurrentIndex(tab_base);
+				if (!mouse.move)
+				{
+					POINT pt;
+					if (macro->wndState)
+					{
+						if (!macro->wi.update())
+						{
+							SelectWindow();
+						}
+						POINT rpt = QiFn::WATR({ mouse.x, mouse.y }, macro->wi.wnd);
+						pt = Window::pos(macro->wi.wnd);
+						pt.x += rpt.x, pt.y += rpt.y;
+					}
+					else
+					{
+						pt = QiFn::ATR({ mouse.x, mouse.y });
+					}
+					pv.Show(pt);
+				}
+			} break;
+			case QiType::copyText:
+			{
+				ui.tabWidget->setCurrentIndex(tab_text);
+			} break;
+			case QiType::color:
+			{
+				const QiColor& color = std::get<QiColor>(var);
+				ui.tabWidget->setCurrentIndex(tab_color);
+				ui.color_edit_button->setEnabled(true);
+				ui.color_edit2_button->setEnabled(true);
+				edit = edit2 = true;
+				RECT rect;
+				if (macro->wndState)
+				{
+					if (!macro->wi.update())
+					{
+						SelectWindow();
+					}
+					rect = QiFn::WATRR(color.rect, macro->wi.wnd);
+					POINT pt = Window::pos(macro->wi.wnd);
+					rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
+				}
+				else
+				{
+					rect = QiFn::ATRR(color.rect);
+				}
+				rv.Show(rect);
+			} break;
+			case QiType::loop:
+			{
+				ui.tabWidget->setCurrentIndex(tab_loop);
+				ui.loop_edit_button->setEnabled(true);
+				edit = true;
+			} break;
+			case QiType::loopEnd:
+			{
+				ui.tabWidget->setCurrentIndex(tab_state);
+			} break;
+			case QiType::keyState:
+			{
+				ui.tabWidget->setCurrentIndex(tab_state);
+				ui.keyState_edit_button->setEnabled(true);
+				ui.keyState_edit2_button->setEnabled(true);
+				edit = edit2 = true;
+			} break;
+			case QiType::recoverPos:
+			{
+				ui.tabWidget->setCurrentIndex(tab_state);
+			} break;
+			case QiType::image:
+			{
+				const QiImage& image = std::get<QiImage>(var);
+				ui.tabWidget->setCurrentIndex(tab_image);
+				ui.image_edit_button->setEnabled(true);
+				ui.image_edit2_button->setEnabled(true);
+				edit = edit2 = true;
+				RECT rect;
+				if (macro->wndState)
+				{
+					if (!macro->wi.update())
+					{
+						SelectWindow();
+					}
+					rect = QiFn::WATRR(image.rect, macro->wi.wnd);
+					POINT pt = Window::pos(macro->wi.wnd);
+					rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
+				}
+				else
+				{
+					rect = QiFn::ATRR(image.rect);
+				}
+				rv.Show(rect);
+				WidgetSetImage(image);
+			} break;
+			case QiType::popText:
+			{
+				ui.tabWidget->setCurrentIndex(tab_text);
+			} break;
+			case QiType::rememberPos:
+			{
+				ui.tabWidget->setCurrentIndex(tab_state);
+			} break;
+			case QiType::timer:
+			{
+				ui.tabWidget->setCurrentIndex(tab_loop);
+				edit = true;
+			} break;
+			case QiType::jump:
+			{
+				ui.tabWidget->setCurrentIndex(tab_jump);
+			} break;
+			case QiType::jumpPoint:
+			{
+				ui.tabWidget->setCurrentIndex(tab_jump);
+			} break;
+			case QiType::dialog:
+			{
+				ui.tabWidget->setCurrentIndex(tab_dialog);
+				ui.dialog_edit_button->setEnabled(true);
+				ui.dialog_edit2_button->setEnabled(true);
+				edit = edit2 = true;
+			} break;
+			case QiType::block:
+			{
+				ui.tabWidget->setCurrentIndex(tab_block);
+				ui.block_edit_button->setEnabled(true);
+				edit = true;
+			} break;
+			case QiType::blockExec:
+			{
+				ui.tabWidget->setCurrentIndex(tab_block);
+			} break;
+			}
 			muDel->setEnabled(true);
 			muChange->setEnabled(true);
 			muCut->setEnabled(true);
 			muCopy->setEnabled(true);
-			if (items.size() == ui.tbActions->columnCount())
+			if (Qi::clipboard.size()) muPaste->setEnabled(true);
+			QList<QTableWidgetItem*> items = ui.action_table->selectedItems();
+			if (items.size() == ui.action_table->columnCount())
 			{
-				std::visit([this](auto&& var)
-					{
-						using T = std::decay_t<decltype(var)>;
-						if constexpr (std::is_same_v<T, QiColor>)
-						{
-							const QiColor& color = var;
-							muEdit->setEnabled(true);
-							muEdit2->setEnabled(true);
-						}
-						else if constexpr (std::is_same_v<T, QiLoop>)
-						{
-							const QiLoop& loop = var;
-							muEdit->setEnabled(true);
-						}
-						else if constexpr (std::is_same_v<T, QiKeyState>)
-						{
-							const QiKeyState& keyState = var;
-							muEdit->setEnabled(true);
-							muEdit2->setEnabled(true);
-						}
-						else if constexpr (std::is_same_v<T, QiImage>)
-						{
-							const QiImage& image = var;
-							muEdit->setEnabled(true);
-							muEdit2->setEnabled(true);
-						}
-						else if constexpr (std::is_same_v<T, QiTimer>)
-						{
-							const QiTimer& timer = var;
-							muEdit->setEnabled(true);
-						}
-						else if constexpr (std::is_same_v<T, QiDialog>)
-						{
-							const QiDialog& dialog = var;
-							muEdit->setEnabled(true);
-							muEdit2->setEnabled(true);
-						}
-						else if constexpr (std::is_same_v<T, QiBlock>)
-						{
-							const QiBlock& block = var;
-							muEdit->setEnabled(true);
-						}
-					}, actions->at(items[0]->row()));
+				if (edit) muEdit->setEnabled(true);
+				if (edit2) muEdit->setEnabled(true);
 			}
 		}
-
-		if (Qi::clipboard.size()) muPaste->setEnabled(true);
-
-		menu->exec(QCursor::pos());
 	}
-
+	void OnTbClicked(int row, int column)
+	{
+		//OnTbSelect(ui.action_table->currentRow(), ui.action_table->currentColumn());
+	}
 	// Window mode
 	void OnBnWndSelect()
 	{
@@ -1611,26 +1569,25 @@ private Q_SLOTS:
 	}
 	void OnChbWnd()
 	{
-		if (ui.chbWnd->isChecked())
+		if (ui.window_state_check->isChecked())
 		{
 			macro->wndState = true;
-			ui.bnWndSelect->setDisabled(false);
-			ui.chbChildWnd->setDisabled(false);
-			ui.etWndName->setDisabled(false);
+			ui.window_select_button->setDisabled(false);
+			ui.window_child_check->setDisabled(false);
+			ui.window_name_edit->setDisabled(false);
 		}
 		else
 		{
 			macro->wndState = false;
-			ui.bnWndSelect->setDisabled(true);
-			ui.chbChildWnd->setDisabled(true);
-			ui.etWndName->setDisabled(true);
+			ui.window_select_button->setDisabled(true);
+			ui.window_child_check->setDisabled(true);
+			ui.window_name_edit->setDisabled(true);
 		}
 	}
 	void OnChbChildWnd()
 	{
-		macro->wi.child = ui.chbChildWnd->isChecked();
+		macro->wi.child = ui.window_child_check->isChecked();
 	}
-
 	// Action widget
 	void OnBnMousePos()
 	{
@@ -1660,35 +1617,35 @@ private Q_SLOTS:
 	{
 		if (state)
 		{
-			ui.etX->setValidator(new QIntValidator(0, posMax, this));
-			ui.etY->setValidator(new QIntValidator(0, posMax, this));
-			if (ui.etX->text().toInt() < 0) ui.etX->setText("0");
-			if (ui.etY->text().toInt() < 0) ui.etY->setText("0");
-			ui.bnPos->setText("+");
-			ui.bnPos->setDisabled(0);
+			ui.mouse_x_edit->setValidator(new QIntValidator(0, posMax, this));
+			ui.mouse_y_edit->setValidator(new QIntValidator(0, posMax, this));
+			if (ui.mouse_x_edit->text().toInt() < 0) ui.mouse_x_edit->setText("0");
+			if (ui.mouse_y_edit->text().toInt() < 0) ui.mouse_y_edit->setText("0");
+			ui.mouse_position_button->setText("+");
+			ui.mouse_position_button->setDisabled(0);
 		}
 	}
 	void OnRbMouseMove(bool state)
 	{
 		if (state)
 		{
-			ui.etX->setValidator(new QIntValidator(posMin, posMax, this));
-			ui.etY->setValidator(new QIntValidator(posMin, posMax, this));
-			ui.bnPos->setText("×");
-			ui.bnPos->setDisabled(true);
+			ui.mouse_x_edit->setValidator(new QIntValidator(posMin, posMax, this));
+			ui.mouse_y_edit->setValidator(new QIntValidator(posMin, posMax, this));
+			ui.mouse_position_button->setText("×");
+			ui.mouse_position_button->setDisabled(true);
 		}
 	}
 	void OnEtDelayMin(const QString& text)
 	{
-		ui.etDelayMax->setText(text);
+		ui.delay_max_edit->setText(text);
 	}
 	void OnEtLoopMin(const QString& text)
 	{
-		ui.etCountMax->setText(text);
+		ui.loop_max_edit->setText(text);
 	}
 	void OnEtTimerMin(const QString& text)
 	{
-		ui.etTimerMax->setText(text);
+		ui.timer_max_edit->setText(text);
 	}
 	void OnBnColorRect()
 	{
@@ -1761,33 +1718,32 @@ private Q_SLOTS:
 		image.map = imageMap;
 		WidgetSetImage(image);
 	}
-
 private:
 	// Action
-	void SetChange(bool state)
+	void SetChangeState(bool state)
 	{
 		if (state)
 		{
-			int p = ui.tbActions->currentRow();  if (p < 0) return;
+			int p = ui.action_table->currentRow();  if (p < 0) return;
 			ItemUse(p);
 			changing = state;
 			{
-				ui.bnKeyAdd->setText(Qi::ui.text.etChange);
-				ui.bnStateAdd->setText(Qi::ui.text.etChange);
-				ui.bnMoveAdd->setText(Qi::ui.text.etChange);
-				ui.bnDelayAdd->setText(Qi::ui.text.etChange);
-				ui.bnLoopAdd->setText(Qi::ui.text.etChange);
-				ui.bnTimerAdd->setText(Qi::ui.text.etChange);
-				ui.bnTextAdd->setText(Qi::ui.text.etChange);
-				ui.bnColorAdd->setText(Qi::ui.text.etChange);
-				ui.bnEndAdd->setText(Qi::ui.text.etChange);
-				ui.bnEndLoopAdd->setText(Qi::ui.text.etChange);
-				ui.bnRecoverPosAdd->setText(Qi::ui.text.etChange);
-				ui.bnImageAdd->setText(Qi::ui.text.etChange);
-				ui.bnPopTextAdd->setText(Qi::ui.text.etChange);
-				ui.bnRememberPosAdd->setText(Qi::ui.text.etChange);
-				ui.bnJumpAdd->setText(Qi::ui.text.etChange);
-				ui.bnJumpPointAdd->setText(Qi::ui.text.etChange);
+				ui.key_add_button->setText(Qi::ui.text.etChange);
+				ui.keyState_add_button->setText(Qi::ui.text.etChange);
+				ui.mouse_add_button->setText(Qi::ui.text.etChange);
+				ui.delay_add_button->setText(Qi::ui.text.etChange);
+				ui.loop_add_button->setText(Qi::ui.text.etChange);
+				ui.timer_add_button->setText(Qi::ui.text.etChange);
+				ui.copyText_add_button->setText(Qi::ui.text.etChange);
+				ui.color_add_button->setText(Qi::ui.text.etChange);
+				ui.end_add_button->setText(Qi::ui.text.etChange);
+				ui.endLoop_add_button->setText(Qi::ui.text.etChange);
+				ui.recoverPos_add_button->setText(Qi::ui.text.etChange);
+				ui.image_add_button->setText(Qi::ui.text.etChange);
+				ui.popText_add_button->setText(Qi::ui.text.etChange);
+				ui.rememberPos_add_button->setText(Qi::ui.text.etChange);
+				ui.jump_add_button->setText(Qi::ui.text.etChange);
+				ui.jumpPoint_add_button->setText(Qi::ui.text.etChange);
 				ui.dialog_add_button->setText(Qi::ui.text.etChange);
 				ui.block_add_button->setText(Qi::ui.text.etChange);
 				ui.blockExec_add_button->setText(Qi::ui.text.etChange);
@@ -1797,109 +1753,91 @@ private:
 		{
 			changing = state;
 			{
-				ui.bnKeyAdd->setText(Qi::ui.text.etAdd);
-				ui.bnStateAdd->setText(Qi::ui.text.etAdd);
-				ui.bnMoveAdd->setText(Qi::ui.text.etAdd);
-				ui.bnDelayAdd->setText(Qi::ui.text.etAdd);
-				ui.bnLoopAdd->setText(Qi::ui.text.etAdd);
-				ui.bnTimerAdd->setText(Qi::ui.text.etAdd);
-				ui.bnTextAdd->setText(Qi::ui.text.etAdd);
-				ui.bnColorAdd->setText(Qi::ui.text.etAdd);
-				ui.bnEndAdd->setText(Qi::ui.text.etAdd);
-				ui.bnEndLoopAdd->setText(Qi::ui.text.etAdd);
-				ui.bnRecoverPosAdd->setText(Qi::ui.text.etAdd);
-				ui.bnImageAdd->setText(Qi::ui.text.etAdd);
-				ui.bnPopTextAdd->setText(Qi::ui.text.etAdd);
-				ui.bnRememberPosAdd->setText(Qi::ui.text.etAdd);
-				ui.bnJumpAdd->setText(Qi::ui.text.etAdd);
-				ui.bnJumpPointAdd->setText(Qi::ui.text.etAdd);
+				ui.key_add_button->setText(Qi::ui.text.etAdd);
+				ui.keyState_add_button->setText(Qi::ui.text.etAdd);
+				ui.mouse_add_button->setText(Qi::ui.text.etAdd);
+				ui.delay_add_button->setText(Qi::ui.text.etAdd);
+				ui.loop_add_button->setText(Qi::ui.text.etAdd);
+				ui.timer_add_button->setText(Qi::ui.text.etAdd);
+				ui.copyText_add_button->setText(Qi::ui.text.etAdd);
+				ui.color_add_button->setText(Qi::ui.text.etAdd);
+				ui.end_add_button->setText(Qi::ui.text.etAdd);
+				ui.endLoop_add_button->setText(Qi::ui.text.etAdd);
+				ui.recoverPos_add_button->setText(Qi::ui.text.etAdd);
+				ui.image_add_button->setText(Qi::ui.text.etAdd);
+				ui.popText_add_button->setText(Qi::ui.text.etAdd);
+				ui.rememberPos_add_button->setText(Qi::ui.text.etAdd);
+				ui.jump_add_button->setText(Qi::ui.text.etAdd);
+				ui.jumpPoint_add_button->setText(Qi::ui.text.etAdd);
 				ui.dialog_add_button->setText(Qi::ui.text.etAdd);
 				ui.block_add_button->setText(Qi::ui.text.etAdd);
 				ui.blockExec_add_button->setText(Qi::ui.text.etAdd);
 			}
 		}
 	}
-	void ItemMove(bool up)
+	void ItemUse(int p)
 	{
-		int p = ui.tbActions->currentRow();
-		if (p < 0) return;
-
-		if (up && ((p - 1) >= 0))
+		const Action& var = actions->at(p);
+		switch (var.index())
 		{
-			actions->Swp(p, p - 1);
-			ui.tbActions->setCurrentItem(ui.tbActions->item(p - 1, 0));
-		}
-		else if (!up && (p + 1) < ui.tbActions->rowCount())
+		case QiType::delay:
 		{
-			actions->Swp(p, p + 1);
-			ui.tbActions->setCurrentItem(ui.tbActions->item(p + 1, 0));
+			const QiDelay& delay = std::get<QiDelay>(var);
+			WidgetSetDelay(delay);
+		} break;
+		case QiType::key:
+		{
+			const QiKey& key = std::get<QiKey>(var);
+			WidgetSetKey(key);
+		} break;
+		case QiType::mouse:
+		{
+			const QiMouse& mouse = std::get<QiMouse>(var);
+			WidgetSetMouse(mouse);
+		} break;
+		case QiType::copyText:
+		{
+			const QiCopyText& text = std::get<QiCopyText>(var);
+			WidgetSetCopyText(text);
+		} break;
+		case QiType::color:
+		{
+			const QiColor& color = std::get<QiColor>(var);
+			WidgetSetColor(color);
+		} break;
+		case QiType::loop:
+		{
+			const QiLoop& loop = std::get<QiLoop>(var);
+			WidgetSetLoop(loop);
+		} break;
+		case QiType::keyState:
+		{
+			const QiKeyState& keyState = std::get<QiKeyState>(var);
+			WidgetSetKeyState(keyState);
+		} break;
+		case QiType::image:
+		{
+			const QiImage& image = std::get<QiImage>(var);
+			WidgetSetImage(image);
+		} break;
+		case QiType::popText:
+		{
+			const QiPopText& popText = std::get<QiPopText>(var);
+			WidgetSetPopText(popText);
+		} break;
+		case QiType::timer:
+		{
+			const QiTimer& timer = std::get<QiTimer>(var);
+			WidgetSetTimer(timer);
+		} break;
+		case QiType::dialog:
+		{
+			const QiDialog& dialog = std::get<QiDialog>(var);
+			WidgetSetDialog(dialog);
+		} break;
 		}
-		TableUpdate();
 	}
-	void ItemUse(int32 p)
-	{
-		std::visit([this](auto&& var)
-			{
-				using T = std::decay_t<decltype(var)>;
-				if constexpr (std::is_same_v<T, QiDelay>)
-				{
-					const QiDelay& delay = var;
-					WidgetSetDelay(delay);
-				}
-				else if constexpr (std::is_same_v<T, QiKey>)
-				{
-					const QiKey& key = var;
-					WidgetSetKey(key);
-				}
-				else if constexpr (std::is_same_v<T, QiMouse>)
-				{
-					const QiMouse& mouse = var;
-					WidgetSetMouse(mouse);
-				}
-				else if constexpr (std::is_same_v<T, QiText>)
-				{
-					const QiText& text = var;
-					WidgetSetText(text);
-				}
-				else if constexpr (std::is_same_v<T, QiColor>)
-				{
-					const QiColor& color = var;
-					WidgetSetColor(color);
-				}
-				else if constexpr (std::is_same_v<T, QiLoop>)
-				{
-					const QiLoop& loop = var;
-					WidgetSetLoop(loop);
-				}
-				else if constexpr (std::is_same_v<T, QiKeyState>)
-				{
-					const QiKeyState& keyState = var;
-					WidgetSetKeyState(keyState);
-				}
-				else if constexpr (std::is_same_v<T, QiImage>)
-				{
-					const QiImage& image = var;
-					WidgetSetImage(image);
-				}
-				else if constexpr (std::is_same_v<T, QiPopText>)
-				{
-					const QiPopText& popText = var;
-					WidgetSetPopText(popText);
-				}
-				else if constexpr (std::is_same_v<T, QiTimer>)
-				{
-					const QiTimer& timer = var;
-					WidgetSetTimer(timer);
-				}
-				else if constexpr (std::is_same_v<T, QiDialog>)
-				{
-					const QiDialog& dialog = var;
-					WidgetSetDialog(dialog);
-				}
-			}, actions->at(p)
-				);
-	}
-	Action ItemGet(uint32 type)
+	Action ItemGet(int type)
 	{
 		Action action;
 		switch (type)
@@ -1908,7 +1846,7 @@ private:
 		case QiType::delay: action = WidgetGetDelay(); break;
 		case QiType::key: action = WidgetGetKey(); break;
 		case QiType::mouse: action = WidgetGetMouse(); break;
-		case QiType::text: action = WidgetGetText(); break;
+		case QiType::copyText: action = WidgetGetText(); break;
 		case QiType::color: action = WidgetGetColor(); break;
 		case QiType::loop: action = WidgetGetLoop(); break;
 		case QiType::loopEnd: action = QiLoopEnd(); break;
@@ -1926,110 +1864,112 @@ private:
 		}
 		return action;
 	}
-	void ItemAdd(uint32 type)
+	void ItemMove(bool up)
 	{
-		int p = ui.tbActions->currentRow();
+		int p = ui.action_table->currentRow();
+		if (p < 0) return;
+
+		if (up && ((p - 1) >= 0))
+		{
+			actions->swap(p, p - 1);
+			ui.action_table->setCurrentItem(ui.action_table->item(p - 1, 0));
+		}
+		else if (!up && (p + 1) < ui.action_table->rowCount())
+		{
+			actions->swap(p, p + 1);
+			ui.action_table->setCurrentItem(ui.action_table->item(p + 1, 0));
+		}
+		TableUpdate();
+	}
+	void ItemAdd(int type)
+	{
+		int p = ui.action_table->currentRow();
 		if (p < 0) p = actions->size();
 		else p++;
-		actions->Ins(ItemGet(type), p);
+		actions->insert(p, ItemGet(type));
 		TableUpdate();
-		ui.tbActions->setCurrentItem(ui.tbActions->item(p, 0));
+		ui.action_table->setCurrentItem(ui.action_table->item(p, 0));
 	}
-	void ItemChange(uint32 type)
+	void ItemChange(int type)
 	{
-		int p = ui.tbActions->currentRow(); if (p < 0) return;
-
+		int p = ui.action_table->currentRow(); if (p < 0) return;
 		Action& current = actions->at(p);
-		QiBase base_old = current.base();
-
+		QiBase base_old(std::move(current.base()));
 		current = std::move(ItemGet(type));
 		QiBase& base_new = current.base();
-
 		base_new.mark = std::move(base_old.mark);
 		base_new.next = std::move(base_old.next);
 		base_new.next2 = std::move(base_old.next2);
-
 		TableUpdate();
-		ui.tbActions->setCurrentItem(0);
-		SetChange(false);
+		ui.action_table->setCurrentItem(0);
+		SetChangeState(false);
 	}
 	void ItemDel()
 	{
-		QList<QTableWidgetItem*> items = ui.tbActions->selectedItems();
-		if (!items.size()) return;
-
-		List<size_t> itemPos;
-		for (size_t i = 0; i < items.size(); i++) if (items[i]->column() == 0) itemPos.Add(items[i]->row());
-		actions->Del(itemPos);
-
+		QList<QTableWidgetItem*> items = ui.action_table->selectedItems();
+		if (items.empty()) return;
+		std::vector<size_t> positions;
+		for (int i = 0; i < items.size(); i++) if (items[i]->column() == 0) positions.push_back(items[i]->row());
+		actions->remove(positions);
 		TableUpdate();
-		ui.tbActions->setCurrentItem(0);
-
-		SetChange(false);
+		ui.action_table->setCurrentItem(0);
+		SetChangeState(false);
 	}
 	void ItemCut()
 	{
-		QList<QTableWidgetItem*> items = ui.tbActions->selectedItems();
-		if (!items.size()) return;
-
-		Qi::clipboard.resize(0);
-		for (size_t i = 0; i < items.size(); i++) if (items[i]->column() == 0) Qi::clipboard.Add(actions->at(items[i]->row()));
-
+		ItemCopy();
 		ItemDel();
 	}
 	void ItemCopy()
 	{
-		QList<QTableWidgetItem*> items = ui.tbActions->selectedItems();
-		if (!items.size()) return;
-
+		QList<QTableWidgetItem*> items = ui.action_table->selectedItems();
+		if (items.empty()) return;
 		Qi::clipboard.clear();
-		for (size_t i = 0; i < items.size(); i++) if (items[i]->column() == 0) Qi::clipboard.Add(actions->at(items[i]->row()));
+		for (size_t i = 0; i < items.size(); i++) if (items[i]->column() == 0) Qi::clipboard.append_copy(actions->at(items[i]->row()));
 	}
 	void ItemPaste()
 	{
-		int p = ui.tbActions->currentRow();
+		int p = ui.action_table->currentRow();
 		if (p < 0) p = actions->size();
 		else p++;
-
+		// reset jump id
 		JumpPoints jumpPoints;
 		LoadJumpPoints(jumpPoints, *actionsRoot);
 		JumpPointUniqueActions(jumpPoints, Qi::clipboard);
-
+		// reset block id
 		Blocks blocks;
 		LoadBlocks(blocks, *actionsRoot);
 		BlockUniqueActions(blocks, Qi::clipboard);
-
 		for (size_t i = Qi::clipboard.size(); i > 0; i--)
 		{
-			actions->Ins(Qi::clipboard[i - 1], p);
+			actions->insert_copy(p, Qi::clipboard[i - 1]);
 			if (i < 1) break;
 		}
 		TableUpdate();
 	}
-
-	// Get widget data
+	// get params from widget
 	QiKey WidgetGetKey() {
 		QiKey key;
-		if (ui.rbDown->isChecked()) key.state = QiKey::down;
-		else if (ui.rbUp->isChecked()) key.state = QiKey::up;
-		else if (ui.rbClick->isChecked()) key.state = QiKey::click;
-		key.vk = ui.hkKey->key().keyCode;
+		if (ui.key_down_radio->isChecked()) key.state = QiKey::down;
+		else if (ui.key_up_radio->isChecked()) key.state = QiKey::up;
+		else if (ui.key_click_radio->isChecked()) key.state = QiKey::click;
+		key.vk = ui.key_keyedit->key().keyCode;
 		return key;
 	}
 	QiKeyState WidgetGetKeyState() {
 		QiKeyState keyState;
-		keyState.vk = ui.hkState->key().keyCode;
+		keyState.vk = ui.keyState_keyedit->key().keyCode;
 		return keyState;
 	}
 	QiMouse WidgetGetMouse() {
 		QiMouse mouse;
-		mouse.move = ui.rbMove->isChecked();
-		mouse.track = ui.chbMoveTrack->isChecked();
-		int x = ui.etX->text().toInt();
-		int y = ui.etY->text().toInt();
-		int r = ui.etMoveRand->text().toInt();
+		mouse.move = ui.mouse_move_radio->isChecked();
+		mouse.track = ui.mouse_track_check->isChecked();
+		int x = ui.mouse_x_edit->text().toInt();
+		int y = ui.mouse_y_edit->text().toInt();
+		int r = ui.mouse_rand_edit->text().toInt();
 		int s = 50;
-		if (ui.etMoveSpeed->text() != "") s = ui.etMoveSpeed->text().toInt();
+		if (ui.mouse_speed_edit->text() != "") s = ui.mouse_speed_edit->text().toInt();
 		if (x > posMax) x = posMax;
 		if (y > posMax) y = posMax;
 		if (r > posMax) r = posMax;
@@ -2045,8 +1985,8 @@ private:
 	QiDelay WidgetGetDelay() {
 		QiDelay delay;
 		int mn = 10;
-		if (ui.etDelayMin->text() != "") mn = ui.etDelayMin->text().toInt();
-		int mx = ui.etDelayMax->text().toInt();
+		if (ui.delay_min_edit->text() != "") mn = ui.delay_min_edit->text().toInt();
+		int mx = ui.delay_max_edit->text().toInt();
 		if (mn > delayMax) mn = delayMax;
 		if (mx > delayMax) mx = delayMax;
 		if (mx < mn) mx = mn;
@@ -2054,19 +1994,19 @@ private:
 		delay.max = mx;
 		return delay;
 	}
-	QiText WidgetGetText() {
-		QiText text;
-		text.text = ui.etText->toPlainText();
+	QiCopyText WidgetGetText() {
+		QiCopyText text;
+		text.text = ui.copyText_text->toPlainText();
 		return text;
 	}
 	QiColor WidgetGetColor() {
 		QiColor color;
-		color.move = ui.chbColorMove->isChecked();
+		color.move = ui.color_move_check->isChecked();
 		{
-			int l = ui.etColorL->text().toInt();
-			int t = ui.etColorT->text().toInt();
-			int r = ui.etColorR->text().toInt();
-			int b = ui.etColorB->text().toInt();
+			int l = ui.color_left_edit->text().toInt();
+			int t = ui.color_top_edit->text().toInt();
+			int r = ui.color_right_edit->text().toInt();
+			int b = ui.color_bottom_edit->text().toInt();
 			if (l > posMax) l = posMax;
 			if (t > posMax) t = posMax;
 			if (r > posMax) r = posMax;
@@ -2074,11 +2014,11 @@ private:
 			color.rect = { l, t, r, b };
 		}
 		{
-			int r = ui.etColorRed->text().toInt();
-			int g = ui.etColorGreen->text().toInt();
-			int b = ui.etColorBlue->text().toInt();
+			int r = ui.color_red_edit->text().toInt();
+			int g = ui.color_green_edit->text().toInt();
+			int b = ui.color_blue_edit->text().toInt();
 			int e = 5;
-			if (ui.etColorSim->text() != "") e = ui.etColorSim->text().toInt();
+			if (ui.color_sim_edit->text() != "") e = ui.color_sim_edit->text().toInt();
 			if (r > colorMax) r = colorMax;
 			if (g > colorMax) g = colorMax;
 			if (b > colorMax) b = colorMax;
@@ -2091,8 +2031,8 @@ private:
 	{
 		QiLoop loop;
 		int mn = 1;
-		if (ui.etCountMin->text() != "") mn = ui.etCountMin->text().toInt();
-		int mx = ui.etCountMax->text().toInt();
+		if (ui.loop_min_edit->text() != "") mn = ui.loop_min_edit->text().toInt();
+		int mx = ui.loop_max_edit->text().toInt();
 		if (mn > loopCountMax) mn = loopCountMax;
 		if (mx > loopCountMax) mx = loopCountMax;
 		if (mx < mn) mx = mn;
@@ -2103,12 +2043,12 @@ private:
 	QiImage WidgetGetImage()
 	{
 		QiImage image;
-		image.move = ui.chbImageMove->isChecked();
+		image.move = ui.image_move_check->isChecked();
 		{
-			int l = ui.etImageL->text().toInt();
-			int t = ui.etImageT->text().toInt();
-			int r = ui.etImageR->text().toInt();
-			int b = ui.etImageB->text().toInt();
+			int l = ui.image_left_edit->text().toInt();
+			int t = ui.image_top_edit->text().toInt();
+			int r = ui.image_right_edit->text().toInt();
+			int b = ui.image_bottom_edit->text().toInt();
 			if (l > posMax) l = posMax;
 			if (t > posMax) t = posMax;
 			if (r > posMax) r = posMax;
@@ -2117,7 +2057,7 @@ private:
 		}
 		{
 			int s = 80;
-			if (ui.etImageSim->text() != "") s = ui.etImageSim->text().toInt();
+			if (ui.image_sim_edit->text() != "") s = ui.image_sim_edit->text().toInt();
 			if (s > imageSimMax) s = imageSimMax;
 			image.sim = s;
 		}
@@ -2127,20 +2067,20 @@ private:
 	QiPopText WidgetGetPopText()
 	{
 		QiPopText popText;
-		popText.text = ui.etPopText->text();
+		popText.text = ui.popText_text_edit->text();
 		int time = 1000;
-		if (ui.etPopTextTime->text() != "") time = ui.etPopTextTime->text().toInt();
+		if (ui.popText_time_edit->text() != "") time = ui.popText_time_edit->text().toInt();
 		if (time > popTextTimeMax) time = popTextTimeMax;
 		popText.time = time;
-		popText.sync = ui.chbPopTextWait->isChecked();
+		popText.sync = ui.popText_wait_check->isChecked();
 		return popText;
 	}
 	QiTimer WidgetGetTimer()
 	{
 		QiTimer timer;
 		int mn = 1;
-		if (ui.etTimerMin->text() != "") mn = ui.etTimerMin->text().toInt();
-		int mx = ui.etTimerMax->text().toInt();
+		if (ui.timer_min_edit->text() != "") mn = ui.timer_min_edit->text().toInt();
+		int mx = ui.timer_max_edit->text().toInt();
 		if (mn > timerMax) mn = timerMax;
 		if (mx > timerMax) mx = timerMax;
 		if (mx < mn) mx = mn;
@@ -2151,8 +2091,8 @@ private:
 	QiJump WidgetGetJump()
 	{
 		QiJump jump;
-		int row = ui.lsJumpPoint->currentRow();
-		if (row > -1) jump.id = ui.lsJumpPoint->item(row)->data(DataRole::id).toInt();
+		int row = ui.jumpPoint_list->currentRow();
+		if (row > -1) jump.id = ui.jumpPoint_list->item(row)->data(DataRole::id).toInt();
 		return jump;
 	}
 	QiJumpPoint WidgetGetJumpPoint()
@@ -2192,87 +2132,79 @@ private:
 		if (row > -1) blockExec.id = ui.block_list->item(row)->data(DataRole::id).toInt();
 		return blockExec;
 	}
-
-	// Load widget data
-	void WidgetSetKey(const QiKey& key) {
-		if (key.state == QiKey::down) ui.rbDown->setChecked(true);
-		else if (key.state == QiKey::up) ui.rbUp->setChecked(true);
-		else if (key.state == QiKey::click) ui.rbClick->setChecked(true);
-		ui.hkKey->setKey(QKeyEdit::Key(key.vk));
+	// load params from widget
+	void WidgetSetKey(const QiKey& key)
+	{
+		if (key.state == QiKey::down) ui.key_down_radio->setChecked(true);
+		else if (key.state == QiKey::up) ui.key_up_radio->setChecked(true);
+		else if (key.state == QiKey::click) ui.key_click_radio->setChecked(true);
+		ui.key_keyedit->setKey(QKeyEdit::Key(key.vk));
 	}
 	void WidgetSetKeyState(const QiKeyState& keyState)
 	{
-		ui.hkState->setKey(QKeyEdit::Key(keyState.vk));
+		ui.keyState_keyedit->setKey(QKeyEdit::Key(keyState.vk));
 	}
-	void WidgetSetMouse(const QiMouse& mouse) {
-		if (mouse.move) ui.rbMove->setChecked(true), OnRbMouseMove(true);
-		else ui.rbPos->setChecked(true), OnRbMousePos(true);
-		ui.chbMoveTrack->setChecked(mouse.track);
-		ui.etMoveSpeed->setText(QString::number(mouse.speed));
-		ui.etX->setText(QString::number(mouse.x)); ui.etY->setText(QString::number(mouse.y)); if (mouse.ex > -1) ui.etMoveRand->setText(QString::number(mouse.ex));
+	void WidgetSetMouse(const QiMouse& mouse)
+	{
+		if (mouse.move) ui.mouse_move_radio->setChecked(true), OnRbMouseMove(true);
+		else ui.mouse_position_radio->setChecked(true), OnRbMousePos(true);
+		ui.mouse_track_check->setChecked(mouse.track);
+		ui.mouse_speed_edit->setText(QString::number(mouse.speed));
+		ui.mouse_x_edit->setText(QString::number(mouse.x)); ui.mouse_y_edit->setText(QString::number(mouse.y)); if (mouse.ex > -1) ui.mouse_rand_edit->setText(QString::number(mouse.ex));
 	}
-	void WidgetSetDelay(const QiDelay& delay) {
-		ui.etDelayMin->setText(QString::number(delay.min));
-		ui.etDelayMax->setText(QString::number(delay.max));
+	void WidgetSetDelay(const QiDelay& delay)
+	{
+		ui.delay_min_edit->setText(QString::number(delay.min));
+		ui.delay_max_edit->setText(QString::number(delay.max));
 	}
-	void WidgetSetText(const QiText& text) {
-		ui.etText->setText(text.text);
+	void WidgetSetCopyText(const QiCopyText& text)
+	{
+		ui.copyText_text->setText(text.text);
 	}
 	void WidgetSetColor(const QiColor& color) {
-		ui.chbColorMove->setChecked(color.move);
-		// Rect
-		{
-			ui.etColorL->setText(QString::number(color.rect.left));
-			ui.etColorT->setText(QString::number(color.rect.top));
-			ui.etColorR->setText(QString::number(color.rect.right));
-			ui.etColorB->setText(QString::number(color.rect.bottom));
-		}
-		// Color
-		{
-			ui.etColorSim->setText(QString::number(color.rgbe.a));
-			ui.etColorRed->setText(QString::number(color.rgbe.r));
-			ui.etColorGreen->setText(QString::number(color.rgbe.g));
-			ui.etColorBlue->setText(QString::number(color.rgbe.b));
-			QString style = "background-color:rgb(";
-			style += QString::number(color.rgbe.r);
-			style += ",";
-			style += QString::number(color.rgbe.g);
-			style += ",";
-			style += QString::number(color.rgbe.b);
-			style += ");";
-			ui.bnColorValue->setStyleSheet(style);
-		}
+		ui.color_move_check->setChecked(color.move);
+		ui.color_left_edit->setText(QString::number(color.rect.left));
+		ui.color_top_edit->setText(QString::number(color.rect.top));
+		ui.color_right_edit->setText(QString::number(color.rect.right));
+		ui.color_bottom_edit->setText(QString::number(color.rect.bottom));
+		ui.color_sim_edit->setText(QString::number(color.rgbe.a));
+		ui.color_red_edit->setText(QString::number(color.rgbe.r));
+		ui.color_green_edit->setText(QString::number(color.rgbe.g));
+		ui.color_blue_edit->setText(QString::number(color.rgbe.b));
+		QString style = "background-color:rgb(";
+		style += QString::number(color.rgbe.r);
+		style += ",";
+		style += QString::number(color.rgbe.g);
+		style += ",";
+		style += QString::number(color.rgbe.b);
+		style += ");";
+		ui.color_rgb_button->setStyleSheet(style);
 	}
-	void WidgetSetLoop(const QiLoop& loop) {
-		ui.etCountMin->setText(QString::number(loop.min));
-		ui.etCountMax->setText(QString::number(loop.max));
+	void WidgetSetLoop(const QiLoop& loop)
+	{
+		ui.loop_min_edit->setText(QString::number(loop.min));
+		ui.loop_max_edit->setText(QString::number(loop.max));
 	}
 	void WidgetSetImage(const QiImage& image) {
-		ui.chbImageMove->setChecked(image.move);
-		// Rect
-		{
-			ui.etImageL->setText(QString::number(image.rect.left));
-			ui.etImageT->setText(QString::number(image.rect.top));
-			ui.etImageR->setText(QString::number(image.rect.right));
-			ui.etImageB->setText(QString::number(image.rect.bottom));
-		}
-		// Image
-		{
-			ui.etImageSim->setText(QString::number(image.sim));
-			imageMap = image.map;
-			HBITMAP hbmp = Image::toBmp32(imageMap);
-			if (hbmp) ui.lbImageView->setPixmap(QtWin::fromHBITMAP(hbmp));
-		}
+		ui.image_left_edit->setText(QString::number(image.rect.left));
+		ui.image_top_edit->setText(QString::number(image.rect.top));
+		ui.image_right_edit->setText(QString::number(image.rect.right));
+		ui.image_bottom_edit->setText(QString::number(image.rect.bottom));
+		ui.image_sim_edit->setText(QString::number(image.sim));
+		ui.image_move_check->setChecked(image.move);
+		imageMap = image.map;
+		HBITMAP hbmp = Image::toBmp32(imageMap);
+		if (hbmp) ui.image_view_label->setPixmap(QtWin::fromHBITMAP(hbmp));
 	}
 	void WidgetSetPopText(const QiPopText& popText) {
-		ui.etPopText->setText(popText.text);
-		ui.etPopTextTime->setText(QString::number(popText.time));
-		ui.chbPopTextWait->setChecked(popText.sync);
+		ui.popText_text_edit->setText(popText.text);
+		ui.popText_time_edit->setText(QString::number(popText.time));
+		ui.popText_wait_check->setChecked(popText.sync);
 	}
 	void WidgetSetTimer(const QiTimer& timer)
 	{
-		ui.etTimerMin->setText(QString::number(timer.min));
-		ui.etTimerMax->setText(QString::number(timer.max));
+		ui.timer_min_edit->setText(QString::number(timer.min));
+		ui.timer_max_edit->setText(QString::number(timer.max));
 	}
 	void WidgetSetDialog(const QiDialog& dialog)
 	{

@@ -38,7 +38,7 @@
    <iconset resource="../res/QuickInput.qrc">
     <normaloff>:/icon.png</normaloff>:/icon.png</iconset>
   </property>
-  <widget class="QWidget" name="mainWidget">
+  <widget class="QWidget" name="main_widget">
    <property name="styleSheet">
     <string notr="true"/>
    </property>
@@ -59,7 +59,7 @@
      <number>1</number>
     </property>
     <item>
-     <widget class="QWidget" name="titleWidget" native="true">
+     <widget class="QWidget" name="title_widget" native="true">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
         <horstretch>0</horstretch>
@@ -95,7 +95,7 @@
         <number>5</number>
        </property>
        <item>
-        <widget class="QLabel" name="lbIcon">
+        <widget class="QLabel" name="title_icon_label">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -120,7 +120,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="lbTitle">
+        <widget class="QLabel" name="title_label">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
            <horstretch>0</horstretch>
@@ -145,7 +145,7 @@
         </widget>
        </item>
        <item>
-        <spacer name="titleSpacer">
+        <spacer name="title_spacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
          </property>
@@ -158,7 +158,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="bnClose">
+        <widget class="QPushButton" name="title_close_button">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>20</horstretch>
@@ -192,7 +192,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="bnHide">
+        <widget class="QPushButton" name="title_hide_button">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>20</horstretch>
@@ -226,7 +226,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="bnMin">
+        <widget class="QPushButton" name="title_min_button">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
            <horstretch>20</horstretch>
@@ -263,7 +263,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QWidget" name="clientWidget" native="true">
+     <widget class="QWidget" name="content_widget" native="true">
       <layout class="QVBoxLayout" name="verticalLayout">
        <property name="spacing">
         <number>0</number>
@@ -313,7 +313,7 @@
          <property name="documentMode">
           <bool>true</bool>
          </property>
-         <widget class="QWidget" name="tabMacro">
+         <widget class="QWidget" name="tab_macro">
           <attribute name="title">
            <string>宏</string>
           </attribute>
@@ -338,7 +338,7 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="tabTrigger">
+         <widget class="QWidget" name="tab_trigger">
           <attribute name="title">
            <string>触发</string>
           </attribute>
@@ -363,7 +363,7 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="tabFunc">
+         <widget class="QWidget" name="tab_func">
           <attribute name="title">
            <string>功能</string>
           </attribute>
@@ -388,7 +388,7 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="tabSettings">
+         <widget class="QWidget" name="tab_settings">
           <attribute name="title">
            <string>设置</string>
           </attribute>
@@ -413,7 +413,7 @@
            </item>
           </layout>
          </widget>
-         <widget class="QWidget" name="tabAbout">
+         <widget class="QWidget" name="tab_about">
           <attribute name="title">
            <string>关于</string>
           </attribute>

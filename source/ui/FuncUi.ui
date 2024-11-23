@@ -51,7 +51,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QWidget" name="clientWidget" native="true">
+    <widget class="QWidget" name="content_widget" native="true">
      <property name="styleSheet">
       <string notr="true"/>
      </property>
@@ -72,7 +72,7 @@
        <number>0</number>
       </property>
       <item>
-       <layout class="QGridLayout" name="gridLayout">
+       <layout class="QGridLayout" name="content_box">
         <property name="leftMargin">
          <number>0</number>
         </property>
@@ -89,7 +89,7 @@
          <number>15</number>
         </property>
         <item row="1" column="1">
-         <widget class="QCheckBox" name="chbWndActive">
+         <widget class="QCheckBox" name="window_check">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -130,7 +130,7 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QCheckBox" name="chbClock">
+         <widget class="QCheckBox" name="clock_check">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -171,12 +171,12 @@
          </widget>
         </item>
         <item row="1" column="2">
-         <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <layout class="QHBoxLayout" name="window_box">
           <property name="spacing">
            <number>10</number>
           </property>
           <item>
-           <widget class="QLabel" name="lbWndActiveName">
+           <widget class="QLabel" name="window_name_label">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -199,7 +199,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="etWndActive">
+           <widget class="QLineEdit" name="window_name_edit">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -243,7 +243,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="bnWndSelect">
+           <widget class="QPushButton" name="window_select_button">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -281,7 +281,7 @@
            </widget>
           </item>
           <item>
-           <spacer name="horizontalSpacer_3">
+           <spacer name="window_spacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -296,7 +296,7 @@
          </layout>
         </item>
         <item row="2" column="0">
-         <widget class="QLabel" name="lbShowClock">
+         <widget class="QLabel" name="clock_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -316,7 +316,7 @@
          </widget>
         </item>
         <item row="0" column="0">
-         <widget class="QLabel" name="lbQkClick">
+         <widget class="QLabel" name="click_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -336,7 +336,7 @@
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QLabel" name="lbWndActive">
+         <widget class="QLabel" name="window_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -356,7 +356,7 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QCheckBox" name="chbQkClick">
+         <widget class="QCheckBox" name="click_check">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -397,12 +397,12 @@
          </widget>
         </item>
         <item row="2" column="2">
-         <layout class="QHBoxLayout" name="horizontalLayout_12">
+         <layout class="QHBoxLayout" name="clock_box">
           <property name="spacing">
            <number>10</number>
           </property>
           <item>
-           <widget class="QLabel" name="lbClockKey">
+           <widget class="QLabel" name="clock_key_label">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -425,7 +425,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QKeyEdit" name="hkClock">
+           <widget class="QKeyEdit" name="clock_keyedit">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -447,7 +447,7 @@
            </widget>
           </item>
           <item>
-           <spacer name="horizontalSpacer">
+           <spacer name="clock_spacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -467,7 +467,7 @@
            <number>10</number>
           </property>
           <item>
-           <widget class="QLabel" name="lbQkKey">
+           <widget class="QLabel" name="click_key_label">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -490,7 +490,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QKeyEdit" name="hkQkClick">
+           <widget class="QKeyEdit" name="click_keyedit">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -512,7 +512,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="lbQkDelay">
+           <widget class="QLabel" name="click_delay_label">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -535,7 +535,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="etQkDelay">
+           <widget class="QLineEdit" name="click_delay_edit">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -579,7 +579,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="lbQkMode">
+           <widget class="QLabel" name="click_mode_label">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -602,7 +602,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QComboBox" name="cmbMode">
+           <widget class="QComboBox" name="click_mode_combo">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -637,7 +637,7 @@
            </widget>
           </item>
           <item>
-           <spacer name="horizontalSpacer_2">
+           <spacer name="click_spacer">
             <property name="orientation">
              <enum>Qt::Horizontal</enum>
             </property>
@@ -657,7 +657,7 @@
        </layout>
       </item>
       <item>
-       <spacer name="verticalSpacer">
+       <spacer name="content_spacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
@@ -678,7 +678,7 @@
   <customwidget>
    <class>QKeyEdit</class>
    <extends>QLineEdit</extends>
-   <header>qkeyedit.h</header>
+   <header location="global">qkeyedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

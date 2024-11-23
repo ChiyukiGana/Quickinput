@@ -1,8 +1,8 @@
-﻿#pragma execution_character_set("utf-8")
-#include "func.h"
+﻿#include "func.h"
 
 namespace QiFn
 {
+	// Pos convert
 	POINT RTA(POINT rel) { return { (long)(((float)rel.x / (float)(Qi::screen.cx - 1)) * 10000.0f), (long)(((float)rel.y / (float)(Qi::screen.cy - 1)) * 10000.0f) }; }
 	RECT RTAR(RECT rel) { return { (long)(((float)rel.left / (float)(Qi::screen.cx - 1)) * 10000.0f), (long)(((float)rel.top / (float)(Qi::screen.cy - 1)) * 10000.0f), (long)(((float)rel.right / (float)(Qi::screen.cx - 1)) * 10000.0f), (long)(((float)rel.bottom / (float)(Qi::screen.cy - 1)) * 10000.0f) }; }
 	POINT ATR(POINT abs) { return { (long)((float)Qi::screen.cx / 10000.0f * (float)abs.x), (long)((float)Qi::screen.cy / 10000.0f * (float)abs.y) }; }
@@ -11,9 +11,9 @@ namespace QiFn
 	RECT WRTAR(RECT rel, HWND wnd) { SIZE size = Window::size(wnd); return { (long)(((float)rel.left / ((float)size.cx)) * 10000.0f), (long)(((float)rel.top / ((float)size.cy)) * 10000.0f), (long)(((float)rel.right / ((float)size.cx)) * 10000.0f), (long)(((float)rel.bottom / ((float)size.cy)) * 10000.0f) }; }
 	POINT WATR(POINT abs, HWND wnd) { SIZE size = Window::size(wnd); return { (long)((float)(size.cx + 1) / 10000.0f * (float)abs.x), (long)((float)(size.cy + 1) / 10000.0f * (float)abs.y) }; }
 	RECT WATRR(RECT abs, HWND wnd) { SIZE size = Window::size(wnd); return { (long)((float)(size.cx + 1) / 10000.0f * (float)abs.left), (long)((float)(size.cy + 1) / 10000.0f * (float)abs.top), (long)((float)(size.cx + 1) / 10000.0f * (float)abs.right), (long)((float)(size.cy + 1) / 10000.0f * (float)abs.bottom) }; }
-
+	// Pop text
 	QString ParseCustom(QString text, QString name, QString number) { text.replace("@", name); return text.replace("$", number); }
-	QString ParseState(QString text) { return text.replace("@", QString::fromWCharArray(Qi::dir.c_str())); }
+	QString ParseState(QString text) { return text.replace("@", Qi::folder); }
 	QString ParseWindow(QString text, QString window) { return text.replace("@", window); }
 	QString ParseQuickClick(QString text, short key) { return text.replace("@", QKeyEdit::keyName(key)); }
 	QString ParseMacro(QString text, QString macro, int count) { if (count) text.replace("$", QString::number(count)); else text.replace("$", "∞"); return text.replace("@", macro); }
@@ -50,73 +50,7 @@ namespace QiFn
 			else Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.upd.t, macro->name, macro->count), Qi::ui.pop.upd.c);
 		}
 	}
-
-	bool SelfActive() { return !(Qi::widget.mainActive || Qi::widget.dialogActive || Qi::widget.moreActive); }
-	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, std::function<void(int x, int y, int stepx, int stepy)> CallBack)
-	{
-		int cx = dx - sx;
-		int cy = dy - sy;
-
-		int px = 0;
-		int py = 0;
-
-		float step = (float)speed / 300.0f;
-		if (step < 0.01f) step = 0.01f;
-		if (step > 0.99f) step = 0.99f;
-
-		for (float i = 0.0f; i < 1.0f; i += step)
-		{
-			if (i > 1.0f) i = 1.0f;
-			int x = sx + (int)((float)cx * i);
-			int y = sy + (int)((float)cy * i);
-			CallBack(x, y, x - px, y - py);
-			px = x;
-			py = y;
-		}
-		CallBack(dx, dy, sx - px, sy - py);
-	}
-	WndInfo WindowSelection()
-	{
-		WndInfo wi;
-		wi.wnd = Qi::windowSelection->Start();
-		wi.wndClass = WToQString(Window::className(wi.wnd));
-		wi.wndName = WToQString(Window::text(wi.wnd));
-		return wi;
-	}
-	std::wstring AllocName(std::wstring name)
-	{
-		wstringList names;
-		for (size_t i = 0; i < Qi::macros.size(); i++)
-		{
-			names.push_back(QStringToW(Qi::macros[i].name));
-		}
-		return File::Unique(names, name);
-	}
-	QiBlock* FindBlock(Actions& actions, int32 id)
-	{
-		for (size_t i = 0; (i < actions.size()); i++)
-		{
-			if (actions[i].index() == QiType::block)
-			{
-				QiBlock& block = (QiBlock&)actions[i].base();
-				if (block.id == id) return &block;
-			}
-		}
-		return nullptr;
-	}
-	const QiBlock* FindBlock(const Actions& actions, int32 id)
-	{
-		for (size_t i = 0; (i < actions.size()); i++)
-		{
-			if (actions[i].index() == QiType::block)
-			{
-				const QiBlock& block = (const QiBlock&)actions[i].base();
-				if (block.id == id) return &block;
-			}
-		}
-		return nullptr;
-	}
-
+	// State
 	void Trigger(short vk, const bool* state)
 	{
 		// state swtich
@@ -131,12 +65,12 @@ namespace QiFn
 				else QiState(true);
 			}
 		}
-
 		// show clock
-		if (Qi::fun.showClock.state && Qi::fun.showClock.key == vk && state[Qi::fun.showClock.key]) { Qi::popText->Popup(QString::fromWCharArray(Time::toWStringT().c_str())); }
-
+		if (Qi::fun.showClock.state && Qi::fun.showClock.key == vk && state[Qi::fun.showClock.key])
+		{
+			Qi::popText->Popup(QDateTime::currentDateTime().toString(L"hh:mm:ss"));
+		}
 		if (!Qi::run) return;
-
 		// quick click
 		if (Qi::fun.quickClick.state && Qi::fun.quickClick.key == vk)
 		{
@@ -178,99 +112,90 @@ namespace QiFn
 				}
 			}
 		}
-
 		// macros
-		for (uint32 i = 0; i < Qi::macros.size(); i++)
+		for (Macro& macro : Qi::macros)
 		{
-			if (vk == (Qi::macros.at(i).key & 0xFFFF) || vk == (Qi::macros.at(i).key >> 16))
+			if (vk == (macro.key & 0xFFFF) || vk == (macro.key >> 16))
 			{
-				if (Qi::macros.at(i).state)
+				if (macro.state)
 				{
-					bool k1 = state[Qi::macros.at(i).key & 0xFFFF];
+					bool k1 = state[macro.key & 0xFFFF];
 					bool k2 = true;
-					if (Qi::macros.at(i).key >> 16) k2 = state[Qi::macros.at(i).key >> 16];
-
-					switch (Qi::macros.at(i).mode)
+					if (macro.key >> 16) k2 = state[macro.key >> 16];
+					switch (macro.mode)
 					{
 					case Macro::sw:
 					{
 						if (k1 && k2)
 						{
-							if (QiThread::MacroRunActive(&Qi::macros.at(i)))
+							if (QiThread::MacroRunActive(&macro))
 							{
-								QiThread::ExitMacroRun(&Qi::macros.at(i));
-								QiThread::StartMacroEnd(&Qi::macros.at(i));
-								if (Qi::set.showTips) MacroPop(&Qi::macros.at(i), false);
+								QiThread::ExitMacroRun(&macro);
+								QiThread::StartMacroEnd(&macro);
+								if (Qi::set.showTips) MacroPop(&macro, false);
 							}
 							else
 							{
-								QiThread::ExitMacroEnd(&Qi::macros.at(i));
-								QiThread::StartMacroRun(&Qi::macros.at(i));
-								if (Qi::set.showTips) MacroPop(&Qi::macros.at(i), true);
+								QiThread::ExitMacroEnd(&macro);
+								QiThread::StartMacroRun(&macro);
+								if (Qi::set.showTips) MacroPop(&macro, true);
 							}
 						}
-					}
-					break;
-
+					} break;
 					case Macro::down:
 					{
 						if (k1 && k2)
 						{
-							QiThread::ExitMacroRun(&Qi::macros.at(i));
-							QiThread::ExitMacroEnd(&Qi::macros.at(i));
-							QiThread::StartMacroRun(&Qi::macros.at(i));
-							if (Qi::set.showTips) MacroPop(&Qi::macros.at(i), true);
+							QiThread::ExitMacroRun(&macro);
+							QiThread::ExitMacroEnd(&macro);
+							QiThread::StartMacroRun(&macro);
+							if (Qi::set.showTips) MacroPop(&macro, true);
 						}
 						else
 						{
-							if (Qi::macros.at(i).count == 0 && QiThread::MacroRunActive(&Qi::macros.at(i)))
+							if (macro.count == 0 && QiThread::MacroRunActive(&macro))
 							{
-								QiThread::ExitMacroRun(&Qi::macros.at(i));
-								QiThread::StartMacroEnd(&Qi::macros.at(i));
-								if (Qi::set.showTips) MacroPop(&Qi::macros.at(i), false);
+								QiThread::ExitMacroRun(&macro);
+								QiThread::StartMacroEnd(&macro);
+								if (Qi::set.showTips) MacroPop(&macro, false);
 							}
 						}
-					}
-					break;
-
+					} break;
 					case Macro::up:
 					{
 						if (k1 && k2)
 						{
-							Qi::macros.at(i).active = true;
-							if (Qi::macros.at(i).count == 0 && QiThread::MacroRunActive(&Qi::macros.at(i)))
+							macro.active = true;
+							if (macro.count == 0 && QiThread::MacroRunActive(&macro))
 							{
-								QiThread::ExitMacroRun(&Qi::macros.at(i));
-								QiThread::StartMacroEnd(&Qi::macros.at(i));
-								if (Qi::set.showTips) MacroPop(&Qi::macros.at(i), false);
+								QiThread::ExitMacroRun(&macro);
+								QiThread::StartMacroEnd(&macro);
+								if (Qi::set.showTips) MacroPop(&macro, false);
 							}
 						}
 						else
 						{
-							if (Qi::macros.at(i).active)
+							if (macro.active)
 							{
-								Qi::macros.at(i).active = false;
+								macro.active = false;
 
-								QiThread::ExitMacroRun(&Qi::macros.at(i));
-								QiThread::ExitMacroEnd(&Qi::macros.at(i));
-								QiThread::StartMacroRun(&Qi::macros.at(i));
-								if (Qi::set.showTips) MacroPop(&Qi::macros.at(i), true);
+								QiThread::ExitMacroRun(&macro);
+								QiThread::ExitMacroEnd(&macro);
+								QiThread::StartMacroRun(&macro);
+								if (Qi::set.showTips) MacroPop(&macro, true);
 							}
 						}
-					}
-					break;
+					} break;
 					}
 				}
 			}
 		}
 	}
-
 	void XBoxPadProc(short keyCode, short state)
 	{
 		Qi::keyState[keyCode] = (bool)state;
 		Trigger(keyCode, Qi::keyState);
 	}
-
 	void QiHook(bool state)
 	{
 		if (state)
@@ -300,18 +225,18 @@ namespace QiFn
 			// Update block keys
 			{
 				Qi::blockKeys.clear();
-				for (uint32 u = 0; u < Qi::macros.size(); u++)
+				for (int u = 0; u < Qi::macros.size(); u++)
 				{
 					if (Qi::macros[u].state && Qi::macros[u].block)
 					{
-						if ((Qi::macros[u].key & 0xFFFF)) Qi::blockKeys.Add((Qi::macros[u].key & 0xFFFF));
-						if (Qi::macros[u].key >> 16) Qi::blockKeys.Add(Qi::macros[u].key >> 16);
+						if ((Qi::macros[u].key & 0xFFFF)) Qi::blockKeys.append((Qi::macros[u].key & 0xFFFF));
+						if (Qi::macros[u].key >> 16) Qi::blockKeys.append(Qi::macros[u].key >> 16);
 					}
 				}
 			}
 			Qi::state = true;
 			StatePop(true);
-			if (Qi::set.audFx) Media::WavePlay(audfx_on);
+			if (Qi::set.audFx) Sound::WavePlay(sound_on);
 			if (Qi::fun.wndActive.state) { if (!QiThread::WindowStateActive()) QiThread::StartWindowState(); }
 			else Qi::run = true;
 		}
@@ -320,7 +245,92 @@ namespace QiFn
 			Qi::state = false, Qi::run = false;
 			StatePop(false);
 			if (Qi::fun.wndActive.state) { if (QiThread::WindowStateActive()) QiThread::ExitWindowState(); }
-			if (Qi::set.audFx)Media::WavePlay(audfx_off);
+			if (Qi::set.audFx)Sound::WavePlay(sound_off);
 		}
+	}
+	bool SelfActive() { return !(Qi::widget.mainActive || Qi::widget.dialogActive || Qi::widget.moreActive); }
+	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, std::function<void(int x, int y, int stepx, int stepy)> CallBack)
+	{
+		int cx = dx - sx;
+		int cy = dy - sy;
+
+		int px = 0;
+		int py = 0;
+
+		float step = (float)speed / 300.0f;
+		if (step < 0.01f) step = 0.01f;
+		if (step > 0.99f) step = 0.99f;
+
+		for (float i = 0.0f; i < 1.0f; i += step)
+		{
+			if (i > 1.0f) i = 1.0f;
+			int x = sx + (int)((float)cx * i);
+			int y = sy + (int)((float)cy * i);
+			CallBack(x, y, x - px, y - py);
+			px = x;
+			py = y;
+		}
+		CallBack(dx, dy, sx - px, sy - py);
+	}
+	WndInfo WindowSelection()
+	{
+		WndInfo wi;
+		wi.wnd = Qi::windowSelection->Start();
+		if (wi.wnd)
+		{
+			wi.wndClass = Window::className(wi.wnd);
+			wi.wndName = Window::text(wi.wnd);
+		}
+		return wi;
+	}
+	QString Unique(const QString& name, const QStringList& names, const QString& left, const QString& right, int begin)
+	{
+		for (int i = begin;; i++)
+		{
+			bool exists = false;
+			for (const QString& current : names)
+			{
+				if (current == (name + left + QString::number(i) + right))
+				{
+					exists = true;
+					break;
+				}
+			}
+			if (!exists)
+			{
+				return name + left + QString::number(i) + right;
+			}
+		}
+		return name;
+	}
+	QString AllocName(const QString& name)
+	{
+		QStringList names;
+		for (const Macro& macro : Qi::macros) names.append(macro.name);
+		return Unique(name, names);
+	}
+	QiBlock* FindBlock(Actions& actions, int id)
+	{
+		for (size_t i = 0; (i < actions.size()); i++)
+		{
+			if (actions[i].index() == QiType::block)
+			{
+				QiBlock& block = (QiBlock&)actions[i].base();
+				if (block.id == id) return &block;
+			}
+		}
+		return nullptr;
+	}
+	const QiBlock* FindBlock(const Actions& actions, int id)
+	{
+		for (size_t i = 0; (i < actions.size()); i++)
+		{
+			if (actions[i].index() == QiType::block)
+			{
+				const QiBlock& block = (const QiBlock&)actions[i].base();
+				if (block.id == id) return &block;
+			}
+		}
+		return nullptr;
 	}
 }

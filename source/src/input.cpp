@@ -1,7 +1,5 @@
-﻿#pragma execution_character_set("utf-8")
-#include "../src/minc.h"
+﻿#include <src/inc_header.h>
 #include "../ui/RecordUi.h"
-
 void RecordInput(BYTE vk, bool state, POINT pt)
 {
 	if (Input::isMouse(vk) && InRect(Window::rect((HWND)Qi::widget.record->winId()), Input::pos())) return;
@@ -10,7 +8,6 @@ void RecordInput(BYTE vk, bool state, POINT pt)
 		QApplication::postEvent(Qi::widget.record, new QEvent((QEvent::Type)RecordUi::_close));
 		Qi::popText->Popup(2000, "窗口已失效", RGB(255, 64, 64));
 	}
-
 	// delay
 	if (Qi::recordClock)
 	{
@@ -18,14 +15,13 @@ void RecordInput(BYTE vk, bool state, POINT pt)
 		clock_t nowClock = clock();
 		delay.max = delay.min = nowClock - Qi::recordClock;
 		Qi::recordClock = nowClock;
-		Qi::record.Add(std::move(delay));
+		Qi::record.append(std::move(delay));
 	}
 	else
 	{
 		Qi::recordClock = clock();
 	}
-
-	// pos
+	// mouse
 	if (Input::isMouse(vk))
 	{
 		QiMouse mouse;
@@ -46,28 +42,25 @@ void RecordInput(BYTE vk, bool state, POINT pt)
 			mouse.track = true;
 			mouse.speed = 20;
 		}
-		Qi::record.Add(std::move(mouse));
+		Qi::record.append(std::move(mouse));
 	}
-
 	// key
 	{
 		QiKey key;
 		key.vk = vk;
 		if (state) key.state = QiKey::down;
 		else key.state = QiKey::up;
-		Qi::record.Add(std::move(key));
+		Qi::record.append(std::move(key));
 	}
 }
-
 struct KeyState
 {
-	bool state[Qi::keySize];
+	bool state[keySize];
 	KeyState(bool* keyState)
 	{
-		memcpy(state, Qi::keyState, Qi::keySize);
+		memcpy(state, Qi::keyState, keySize);
 	}
 };
-
 void InputTask(BYTE key, bool press, POINT cursor, KeyState keyState)
 {
 	if (Qi::recordState)
@@ -93,7 +86,6 @@ void InputTask(BYTE key, bool press, POINT cursor, KeyState keyState)
 		QiFn::Trigger(key, keyState.state);
 	}
 }
-
 ThreadQueue inputQueue;
 bool _stdcall InputHook::InputProc(BYTE key, bool press, POINT cursor, PULONG_PTR param)
 {
@@ -122,7 +114,7 @@ bool _stdcall InputHook::InputProc(BYTE key, bool press, POINT cursor, PULONG_PT
 			inputQueue.enqueue(InputTask, key, press, cursor, KeyState(Qi::keyState));
 		}
 		// block trigger key
-		if (Qi::run) for (uint32 i = 0; i < Qi::blockKeys.size(); i++) if (Qi::blockKeys[i] == key) return true;
+		if (Qi::run) for (int i = 0; i < Qi::blockKeys.size(); i++) if (Qi::blockKeys[i] == key) return true;
 	}
 	return false;
 }

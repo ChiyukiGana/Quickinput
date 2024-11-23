@@ -1,12 +1,8 @@
-﻿#pragma execution_character_set("utf-8")
-#pragma once
-#include <qfiledialog.h>
-#include <qtimer.h>
+﻿#pragma once
 #include "RecordUi.h"
 #include "EditUi.h"
-#include "../src/minc.h"
+#include <src/inc_header.h>
 #include "ui_MacroUi.h"
-
 class MacroUi : public QWidget
 {
 	Q_OBJECT;
@@ -17,34 +13,35 @@ class MacroUi : public QWidget
 public:
 	MacroUi(QWidget* parent) : QWidget(parent)
 	{
+		timer = new QTimer(this);
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		Init();
 		Event();
 		StyleGroup();
+		DisableWidget(true);
+		TableUpdate();
 	}
 	void StyleGroup()
 	{
-		ui.clientWidget->setProperty("group", "client");
-		ui.bnRec->setProperty("group", "macro-button");
-		ui.bnWndRec->setProperty("group", "macro-button");
-		ui.bnAdd->setProperty("group", "macro-button");
-		ui.bnEdit->setProperty("group", "macro-button");
-		ui.bnExp->setProperty("group", "macro-button");
-		ui.bnImp->setProperty("group", "macro-button");
-		ui.bnLoad->setProperty("group", "macro-button");
-		ui.bnDel->setProperty("group", "macro-button");
-
-		ui.etName->setProperty("group", "line_edit");
-
-		ui.tbActions->setProperty("group", "table");
-		ui.tbActions->horizontalHeader()->setProperty("group", "table_header");
-		ui.tbActions->verticalHeader()->setProperty("group", "table_header");
-		for (size_t i = 0; i < ui.tbActions->children().size(); i++)
+		ui.content_widget->setProperty("group", "client");
+		ui.name_edit->setProperty("group", "line_edit");
+		ui.record_button->setProperty("group", "macro-button");
+		ui.record_window_button->setProperty("group", "macro-button");
+		ui.add_button->setProperty("group", "macro-button");
+		ui.edit_button->setProperty("group", "macro-button");
+		ui.export_button->setProperty("group", "macro-button");
+		ui.import_button->setProperty("group", "macro-button");
+		ui.reload_button->setProperty("group", "macro-button");
+		ui.delete_button->setProperty("group", "macro-button");
+		ui.macro_table->setProperty("group", "table");
+		ui.macro_table->horizontalHeader()->setProperty("group", "table_header");
+		ui.macro_table->verticalHeader()->setProperty("group", "table_header");
+		for (size_t i = 0; i < ui.macro_table->children().size(); i++)
 		{
-			if (!String::Compare(ui.tbActions->children().at(i)->metaObject()->className(), "QTableCornerButton"))
+			if (QString(ui.macro_table->children().at(i)->metaObject()->className()) == QString("QTableCornerButton"))
 			{
-				QWidget* corner = (QWidget*)ui.tbActions->children().at(i);
+				QWidget* corner = (QWidget*)ui.macro_table->children().at(i);
 				QHBoxLayout* box = new QHBoxLayout(corner);
 				box->setMargin(0);
 				QWidget* widget = new QWidget(corner);
@@ -60,58 +57,54 @@ private:
 	{
 		if ("clear shortcut")
 		{
-			ui.bnRec->installEventFilter(this);
-			ui.bnWndRec->installEventFilter(this);
-			ui.bnAdd->installEventFilter(this);
-			ui.bnEdit->installEventFilter(this);
-			ui.bnExp->installEventFilter(this);
-			ui.bnImp->installEventFilter(this);
-			ui.bnLoad->installEventFilter(this);
-			ui.bnDel->installEventFilter(this);
+			ui.record_button->installEventFilter(this);
+			ui.record_window_button->installEventFilter(this);
+			ui.add_button->installEventFilter(this);
+			ui.edit_button->installEventFilter(this);
+			ui.export_button->installEventFilter(this);
+			ui.import_button->installEventFilter(this);
+			ui.reload_button->installEventFilter(this);
+			ui.delete_button->installEventFilter(this);
 		}
-
-		timer = new QTimer(this);
-		ui.tbActions->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
-		LockControl(true);
-		TableUpdate();
+		ui.macro_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
 	}
 	void Event()
 	{
 		connect(timer, &QTimer::timeout, this, &This::OnTimeOut);
-		connect(ui.tbActions, &QTableWidget::cellClicked, this, &This::OnTbClicked);
-		connect(ui.etName, &QLineEdit::returnPressed, this, &This::OnEtReturn);
-		connect(ui.bnRec, &QPushButton::clicked, this, &This::OnBnRec);
-		connect(ui.bnWndRec, &QPushButton::clicked, this, &This::OnBnWndRec);
-		connect(ui.bnAdd, &QPushButton::clicked, this, &This::OnBnAdd);
-		connect(ui.bnEdit, &QPushButton::clicked, this, &This::OnBnEdit);
-		connect(ui.bnExp, &QPushButton::clicked, this, &This::OnBnExp);
-		connect(ui.bnImp, &QPushButton::clicked, this, &This::OnBnImp);
-		connect(ui.bnLoad, &QPushButton::clicked, this, &This::OnBnLoad);
-		connect(ui.bnDel, &QPushButton::clicked, this, &This::OnBnDel);
+		connect(ui.macro_table, &QTableWidget::cellClicked, this, &This::OnTbClicked);
+		connect(ui.name_edit, &QLineEdit::returnPressed, this, &This::OnEtReturn);
+		connect(ui.record_button, &QPushButton::clicked, this, &This::OnBnRec);
+		connect(ui.record_window_button, &QPushButton::clicked, this, &This::OnBnWndRec);
+		connect(ui.add_button, &QPushButton::clicked, this, &This::OnBnAdd);
+		connect(ui.edit_button, &QPushButton::clicked, this, &This::OnBnEdit);
+		connect(ui.export_button, &QPushButton::clicked, this, &This::OnBnExp);
+		connect(ui.import_button, &QPushButton::clicked, this, &This::OnBnImp);
+		connect(ui.reload_button, &QPushButton::clicked, this, &This::OnBnLoad);
+		connect(ui.delete_button, &QPushButton::clicked, this, &This::OnBnDel);
 	}
-	void ResetControl()
+	void ResetWidget()
 	{
-		ui.etName->setText("");
-		ui.tbActions->setCurrentItem(0);
+		ui.name_edit->setText("");
+		ui.macro_table->setCurrentItem(0);
 	}
-	void LockControl(bool state)
+	void DisableWidget(bool state)
 	{
-		ui.etName->setDisabled(state);
-		ui.bnEdit->setDisabled(state);
-		ui.bnExp->setDisabled(state);
-		ui.bnDel->setDisabled(state);
+		ui.name_edit->setDisabled(state);
+		ui.edit_button->setDisabled(state);
+		ui.export_button->setDisabled(state);
+		ui.delete_button->setDisabled(state);
 	}
 	void TableUpdate()
 	{
-		ui.tbActions->clearMask();
-		ui.tbActions->setRowCount(macros->size());
-		ui.tbActions->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-		ui.tbActions->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
-		ui.tbActions->verticalHeader()->setDefaultSectionSize(0);
-
-		for (size_t i = 0; i < macros->size(); i++) {
-			ui.tbActions->setItem(i, 0, new QTableWidgetItem(macros->at(i).name));
-			ui.tbActions->item(i, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		ui.macro_table->clearMask();
+		ui.macro_table->setRowCount(macros->size());
+		ui.macro_table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
+		ui.macro_table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+		ui.macro_table->verticalHeader()->setDefaultSectionSize(0);
+		for (size_t i = 0; i < macros->size(); i++)
+		{
+			ui.macro_table->setItem(i, 0, new QTableWidgetItem(macros->at(i).name));
+			ui.macro_table->item(i, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		}
 	}
 	void RecStart(bool wnd)
@@ -129,10 +122,8 @@ private:
 				return;
 			}
 		}
-		
 		if (wi.wnd) RecordUi rw(&wi);
 		else RecordUi rw(nullptr);
-
 		Qi::widget.dialogActive = false;
 		Qi::widget.main->show();
 	}
@@ -153,113 +144,95 @@ private:
 	}
 	void showEvent(QShowEvent*)
 	{
-		ResetControl();
-		LockControl(true);
+		ResetWidget();
+		DisableWidget(true);
 		TableUpdate();
 	}
 	void customEvent(QEvent*)
 	{
-		int p = ui.tbActions->currentRow(); if (p < 0) return;
+		int p = ui.macro_table->currentRow(); if (p < 0) return;
 		EditUi edit(&macros->at(p), &macros->at(p).acRun);
-
 		Qi::widget.dialogActive = true;
 		Qi::widget.main->hide();
 		edit.exec();
 		Qi::widget.main->show();
 		Qi::widget.dialogActive = false;
-
 		QiJson::SaveMacro(macros->at(p));
 		Qi::popText->Hide();
-
-		ResetControl();
-		LockControl(true);
+		ResetWidget();
+		DisableWidget(true);
 	}
 private Q_SLOTS:
 	void OnTimeOut()
 	{
-		int p = ui.tbActions->currentRow();
+		int p = ui.macro_table->currentRow();
 		if (p < 0) return;
 		timer->stop();
-		ui.etName->setDisabled(0);
-		ui.etName->setText(macros->at(p).name);
+		ui.name_edit->setDisabled(0);
+		ui.name_edit->setText(macros->at(p).name);
 	}
 	void OnTbClicked(int row, int column)
 	{
-		LockControl(1);
+		DisableWidget(true);
 		if (row < 0) return;
-
-		ui.etName->setText(macros->at(row).name);
-
-		LockControl(false);
+		ui.name_edit->setText(macros->at(row).name);
+		DisableWidget(false);
 	}
 	void OnEtReturn()
 	{
-		int p = ui.tbActions->currentRow();
+		int p = ui.macro_table->currentRow();
 		if (p < 0) return;
-
-		QString mname = ui.etName->text();
-		std::wstring name = (LPCWSTR)ui.etName->text().utf16();
-
-		if (!File::FileNameUsable(name))
-		{
-			timer->setSingleShot(1);
-			timer->start(1000);
-
-			ui.etName->setDisabled(1);
-			ui.etName->setText("名称不可用");
-			return;
-		}
-
-		QString mnewPath = macroPath + mname + macroType;
-		std::wstring newPath = QStringToW(mnewPath);
-
-		if (File::FileState(newPath))
+		QString name = ui.name_edit->text();
+		// not usable
+		if (!File::UsableName(name))
 		{
 			timer->setSingleShot(true);
 			timer->start(1000);
-
-			ui.etName->setDisabled(true);
-			ui.etName->setText("已存在该名称");
+			ui.name_edit->setDisabled(true);
+			ui.name_edit->setText("名称不可用");
 			return;
 		}
-
-		QString moldPath = macroPath + macros->at(p).name + macroType;
-		std::wstring oldPath = QStringToW(moldPath);
-
-		macros->at(p).name = mname;
-
-		File::Rename(oldPath.c_str(), newPath.c_str());
-
+		// exists
+		QString newPath = Qi::macroDir + name + Qi::macroType;
+		if (QFile::exists(newPath))
+		{
+			timer->setSingleShot(true);
+			timer->start(1000);
+			ui.name_edit->setDisabled(true);
+			ui.name_edit->setText("已存在该名称");
+			return;
+		}
+		QString oldPath = Qi::macroDir + macros->at(p).name + Qi::macroType;
+		macros->at(p).name = name;
+		QFile::rename(oldPath, newPath);
 		TableUpdate();
-		ResetControl();
-		LockControl(true);
+		ResetWidget();
+		DisableWidget(true);
 	}
 	void OnBnRec()
 	{
 		RecStart(false);
 		TableUpdate();
-		ResetControl();
-		LockControl(true);
+		ResetWidget();
+		DisableWidget(true);
 	}
 	void OnBnWndRec()
 	{
 		RecStart(true);
 		TableUpdate();
-		ResetControl();
-		LockControl(true);
+		ResetWidget();
+		DisableWidget(true);
 	}
 	void OnBnAdd()
 	{
 		Macro macro;
 		macro.mode = Macro::down;
 		macro.count = 1;
-		macro.name = WToQString(QiFn::AllocName(L"宏"));
-
-		Qi::macros.Add(macro);
-		QiJson::SaveMacro(macro);
+		macro.name = QiFn::AllocName("宏");
+		QiJson::SaveMacro(Qi::macros.append(std::move(macro)));
 		TableUpdate();
-		ResetControl();
-		LockControl(true);
+		ResetWidget();
+		DisableWidget(true);
 	}
 	void OnBnEdit()
 	{
@@ -268,49 +241,49 @@ private Q_SLOTS:
 	}
 	void OnBnExp()
 	{
-		int p = ui.tbActions->currentRow();
+		int p = ui.macro_table->currentRow();
 		if (p < 0) return;
 		Qi::widget.dialogActive = true;
-		QString path = QDir::toNativeSeparators(QFileDialog::getSaveFileName(this, "导出", macros->at(p).name + macroType, "Quick input macro (*.json)"));
+		QString des = QFileDialog::getSaveFileName(this, "导出", macros->at(p).name + Qi::macroType, "Quickinput macro (*.json)");
 		Qi::widget.dialogActive = false;
-		if (path.size())
+		if (des.size())
 		{
-			CopyFileW((const wchar_t*)(macroPath + macros->at(p).name + macroType).utf16(), (const wchar_t*)path.utf16(), 0);
-			ResetControl();
-			LockControl(true);
+			if (!QFile::copy(Qi::macroDir + macros->at(p).name + Qi::macroType, des)) MsgBox::Error(L"导出宏失败"), exit(0);
+			ResetWidget();
+			DisableWidget(true);
 		}
 	}
 	void OnBnImp()
 	{
 		Qi::widget.dialogActive = true;
-		QString path = QDir::toNativeSeparators(QFileDialog::getOpenFileName(this, "导入", QString(), "Quick input macro (*.json)"));
+		QString src = QFileDialog::getOpenFileName(this, "导入", QString(), "Quickinput macro (*.json)");
 		Qi::widget.dialogActive = false;
-		if (path.size())
+		if (src.size())
 		{
-			std::wstring file = (wchar_t*)path.utf16();
-			File::FolderCreate(QStringToW(macroPath));
-			CopyFileW(file.c_str(), File::FileUnique(std::wstring(QStringToW(macroPath)) + Path::GetFile(file)).c_str(), 0);
+			QFileInfo info(src);
+			if (!QDir(Qi::macroDir).exists() && !QDir(Qi::macroDir).mkdir(Qi::macroDir)) MsgBox::Error(L"创建宏目录失败");
+			if (!QFile::copy(src, Qi::macroDir + File::Unique(Qi::macroDir, File::RemoveExtension(info.baseName()), Qi::macroType))) MsgBox::Error(L"导入宏失败"), exit(0);
 			QiJson::LoadMacro();
 			TableUpdate();
-			ResetControl();
-			LockControl(true);
+			ResetWidget();
+			DisableWidget(true);
 		}
 	}
 	void OnBnLoad()
 	{
 		QiJson::LoadMacro();
 		TableUpdate();
-		ResetControl();
-		LockControl(true);
+		ResetWidget();
+		DisableWidget(true);
 	}
 	void OnBnDel()
 	{
-		int p = ui.tbActions->currentRow(); if (p < 0) return;
-		File::FileDelete(QStringToW(macroPath + macros->at(p).name + macroType));
-		ui.tbActions->setCurrentItem(0);
+		int p = ui.macro_table->currentRow(); if (p < 0) return;
+		if (!QFile::remove(Qi::macroDir + macros->at(p).name + Qi::macroType)) MsgBox::Error(L"删除宏失败");
+		ui.macro_table->setCurrentItem(0);
 		QiJson::LoadMacro();
 		TableUpdate();
-		ResetControl();
-		LockControl(true);
+		ResetWidget();
+		DisableWidget(true);
 	}
 };

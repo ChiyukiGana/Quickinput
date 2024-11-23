@@ -1,12 +1,4 @@
-﻿#pragma execution_character_set("utf-8")
-#include "json.h"
-#include <qdir.h>
-#include <qfile.h>
-#include <qjsondocument.h>
-#include <qjsonobject.h>
-#include <qjsonarray.h>
-#include <qjsonvalue.h>
-
+﻿#include "json.h"
 namespace QiJson
 {
 	void LoadDefault()
@@ -18,7 +10,6 @@ namespace QiJson
 		Qi::set.showTips = true;
 		Qi::set.audFx = false;
 		Qi::set.minMode = false;
-		Qi::set.scaleBlock = false;
 		Qi::fun.quickClick.state = false;
 		Qi::fun.quickClick.key = VK_LBUTTON;
 		Qi::fun.quickClick.delay = 200;
@@ -58,27 +49,25 @@ namespace QiJson
 		Qi::ui.pop.size = 20;
 		Qi::ui.pop.time = 1000;
 	}
-
-	QJsonObject SavePopTextInfo(const PopTextInfo& p)
+	QJsonObject SavePopTextInfo(const QiUi::PopTextInfo& p)
 	{
 		QJsonObject json;
 		json.insert("t", p.t);
 		json.insert("c", (int)RGB(p.c.red(), p.c.green(), p.c.blue()));
 		return json;
 	}
-	PopTextInfo LoadPopTextInfo(const QJsonObject& json)
+	QiUi::PopTextInfo LoadPopTextInfo(const QJsonObject& json)
 	{
-		PopTextInfo info;
+		QiUi::PopTextInfo info;
 		info.t = json.value("t").toString();
 		int c = json.value("c").toInt();
 		info.c = QColor(GetRValue(c), GetGValue(c), GetBValue(c));
 		return info;
 	}
-
 	QJsonArray SaveAction(const Actions& actions)
 	{
 		QJsonArray jActions;
-		for (uint32 i = 0; i < actions.size(); i++)
+		for (int i = 0; i < actions.size(); i++)
 		{
 			const Action& action = actions[i];
 			QJsonObject jAction;
@@ -117,9 +106,9 @@ namespace QiJson
 				jAction.insert("trk", (bool)mouse.track);
 				jAction.insert("spd", (int)mouse.speed);
 			} break;
-			case QiType::text:
+			case QiType::copyText:
 			{
-				const QiText& text = std::get<QiText>(var);
+				const QiCopyText& text = std::get<QiCopyText>(var);
 				jAction.insert("text", text.text);
 			} break;
 			case QiType::color:
@@ -229,7 +218,7 @@ namespace QiJson
 		}
 		return jActions;
 	}
-	void SaveMacro(Macro& macro)
+	void SaveMacro(const Macro& macro)
 	{
 		QJsonObject jMacro;
 		jMacro.insert("document_charset", "UTF8");
@@ -247,11 +236,8 @@ namespace QiJson
 		jMacro.insert("actionsEnding", SaveAction(macro.acEnd));
 
 		QJsonDocument json(jMacro);
-		QDir dir; dir.mkdir(macroPath);
-		QFile file(macroPath + macro.name + macroType);
-		file.open(QFile::WriteOnly | QFile::Text);
-		file.write(json.toJson());
-		file.close();
+		if (!QDir(Qi::macroDir).exists() && !QDir(Qi::macroDir).mkdir(Qi::macroDir)) MsgBox::Error(L"创建宏目录失败");
+		if (!File::SaveText(Qi::macroDir + macro.name + Qi::macroType, json.toJson())) MsgBox::Error((const wchar_t*)macro.name.utf16(), L"保存宏失败");
 	}
 	void SaveJson()
 	{
@@ -266,7 +252,6 @@ namespace QiJson
 		cfg.insert("showTips", (bool)Qi::set.showTips);
 		cfg.insert("audFx", (bool)Qi::set.audFx);
 		cfg.insert("minMode", (bool)Qi::set.minMode);
-		cfg.insert("scaleBlock", (bool)Qi::set.scaleBlock);
 		cfg.insert("quickClickKey", (int)Qi::fun.quickClick.key);
 		cfg.insert("quickClickState", (bool)Qi::fun.quickClick.state);
 		cfg.insert("quickClickDelay", (int)Qi::fun.quickClick.delay);
@@ -297,19 +282,13 @@ namespace QiJson
 			pop.insert("upd", SavePopTextInfo(Qi::ui.pop.upd));
 			cfg.insert("popbox", pop);
 		}
-
 		QJsonDocument json(cfg);
-
-		QFile file(configFile);
-		file.open(QFile::WriteOnly | QFile::Text);
-		file.write(json.toJson());
-		file.close();
+		if (!File::SaveText(Qi::configFile, json.toJson())) MsgBox::Error(L"保存配置失败");
 	}
-
 	Actions LoadAction(QJsonArray jActions)
 	{
 		Actions actions;
-		for (uint32 i = 0; i < jActions.size(); i++)
+		for (int i = 0; i < jActions.size(); i++)
 		{
 			QJsonObject jAction;
 			jAction = jActions.at(i).toObject();
@@ -326,7 +305,7 @@ namespace QiJson
 				{
 					QiEnd end; end.mark = mark;
 
-					actions.Add(std::move(end));
+					actions.append(std::move(end));
 				} break;
 				case QiType::delay:
 				{
@@ -336,7 +315,7 @@ namespace QiJson
 					delay.max = jAction.value("ex").toInt();
 					if (delay.max < delay.min) delay.max = delay.min;
 
-					actions.Add(std::move(delay));
+					actions.append(std::move(delay));
 				} break;
 				case QiType::key:
 				{
@@ -345,7 +324,7 @@ namespace QiJson
 					key.state = jAction.value("state").toInt();
 					key.vk = jAction.value("vk").toInt();
 
-					actions.Add(std::move(key));
+					actions.append(std::move(key));
 				} break;
 				case QiType::mouse:
 				{
@@ -360,15 +339,15 @@ namespace QiJson
 					if (!mouse.speed) mouse.speed = 1;
 					if (mouse.speed > 99) mouse.speed = 99;
 
-					actions.Add(std::move(mouse));
+					actions.append(std::move(mouse));
 				} break;
-				case QiType::text:
+				case QiType::copyText:
 				{
-					QiText text; text.mark = mark;
+					QiCopyText text; text.mark = mark;
 
 					text.text = jAction.value("text").toString();
 
-					actions.Add(std::move(text));
+					actions.append(std::move(text));
 				} break;
 				case QiType::color:
 				{
@@ -383,7 +362,7 @@ namespace QiJson
 					color.next = LoadAction(jAction.value("next").toArray());
 					color.next2 = LoadAction(jAction.value("next2").toArray());
 
-					actions.Add(std::move(color));
+					actions.append(std::move(color));
 				} break;
 				case QiType::loop:
 				{
@@ -395,13 +374,13 @@ namespace QiJson
 
 					loop.next = LoadAction(jAction.value("next").toArray());
 
-					actions.Add(std::move(loop));
+					actions.append(std::move(loop));
 				} break;
 				case QiType::loopEnd:
 				{
 					QiLoopEnd loopEnd; loopEnd.mark = mark;
 
-					actions.Add(QiLoopEnd());
+					actions.append(QiLoopEnd());
 				} break;
 				case QiType::keyState:
 				{
@@ -411,13 +390,13 @@ namespace QiJson
 					keyState.next = LoadAction(jAction.value("next").toArray());
 					keyState.next2 = LoadAction(jAction.value("next2").toArray());
 
-					actions.Add(std::move(keyState));
+					actions.append(std::move(keyState));
 				} break;
 				case QiType::recoverPos:
 				{
 					QiRecoverPos recoverPos; recoverPos.mark = mark;
 
-					actions.Add(std::move(recoverPos));
+					actions.append(std::move(recoverPos));
 				} break;
 				case QiType::image:
 				{
@@ -444,7 +423,7 @@ namespace QiJson
 					image.next = LoadAction(jAction.value("next").toArray());
 					image.next2 = LoadAction(jAction.value("next2").toArray());
 
-					actions.Add(std::move(image));
+					actions.append(std::move(image));
 				} break;
 				case QiType::popText:
 				{
@@ -454,13 +433,13 @@ namespace QiJson
 					popText.time = jAction.value("time").toInt();
 					popText.sync = jAction.value("sync").toBool();
 
-					actions.Add(std::move(popText));
+					actions.append(std::move(popText));
 				} break;
 				case QiType::rememberPos:
 				{
 					QiRememberPos rememberPos; rememberPos.mark = mark;
 
-					actions.Add(std::move(rememberPos));
+					actions.append(std::move(rememberPos));
 				} break;
 				case QiType::timer:
 				{
@@ -471,21 +450,21 @@ namespace QiJson
 					if (timer.max < timer.min) timer.max = timer.min;
 					timer.next = LoadAction(jAction.value("next").toArray());
 
-					actions.Add(std::move(timer));
+					actions.append(std::move(timer));
 				} break;
 				case QiType::jump:
 				{
 					QiJump jump; jump.mark = mark;
 
 					jump.id = jAction.value("id").toInt();
-					actions.Add(std::move(jump));
+					actions.append(std::move(jump));
 				} break;
 				case QiType::jumpPoint:
 				{
 					QiJumpPoint jumpPoint; jumpPoint.mark = mark;
 
 					jumpPoint.id = jAction.value("id").toInt();
-					actions.Add(std::move(jumpPoint));
+					actions.append(std::move(jumpPoint));
 				} break;
 				case QiType::dialog:
 				{
@@ -497,7 +476,7 @@ namespace QiJson
 					dialog.next = LoadAction(jAction.value("next").toArray());
 					dialog.next2 = LoadAction(jAction.value("next2").toArray());
 
-					actions.Add(std::move(dialog));
+					actions.append(std::move(dialog));
 				} break;
 				case QiType::block:
 				{
@@ -506,16 +485,16 @@ namespace QiJson
 					block.id = jAction.value("id").toInt();
 					block.next = LoadAction(jAction.value("next").toArray());
 
-					actions.Add(std::move(block));
+					actions.append(std::move(block));
 				} break;
 				case QiType::blockExec:
 				{
 					QiBlockExec blockExec; blockExec.mark = mark;
 
 					blockExec.id = jAction.value("id").toInt();
-					actions.Add(std::move(blockExec));
+					actions.append(std::move(blockExec));
 				} break;
-				default: actions.Add(QiBase(type)); break;
+				default: actions.append(QiBase(type)); break;
 				}
 			}
 		}
@@ -524,23 +503,18 @@ namespace QiJson
 	void LoadMacro()
 	{
 		Qi::macros.clear();
-
-		File::FileList files = File::FindFile(L"macro\\*.json");
-		for (uint32 i = 0; i < files.size(); i++) {
-			QFile file(macroPath + QString::fromWCharArray(files[i].name));
-			file.open(QFile::ReadOnly | QFile::Text);
-
-			if (file.isOpen())
+		QFileInfoList files = File::Find(Qi::macroDir, QString("*") + Qi::macroType);
+		for (const QFileInfo& file : files)
+		{
+			QByteArray text;
+			if (File::LoadText(file.filePath(), text))
 			{
-				QByteArray data = file.readAll();
-				file.close();
-				QJsonDocument json(QJsonDocument::fromJson(data));
-
+				QJsonDocument json(QJsonDocument::fromJson(text));
 				if (json.isObject())
 				{
-					Macro& macro = Qi::macros.AddNull(); macro.name = WToQString(Path::RemoveExtension(files[i].name));
+					Macro macro;
+					macro.name = file.baseName();
 					QJsonObject jMacro(json.object());
-
 					macro.wndState = jMacro.value("wndState").toBool();
 					macro.wi.child = jMacro.value("wndChild").toBool();
 					macro.wi.wndName = jMacro.value("wndName").toString();
@@ -550,10 +524,14 @@ namespace QiJson
 					macro.mode = jMacro.value("mode").toInt();
 					macro.key = jMacro.value("key").toInt();
 					macro.count = jMacro.value("count").toInt();
-
 					macro.acRun = LoadAction(jMacro.value("actions").toArray());
 					macro.acEnd = LoadAction(jMacro.value("actionsEnding").toArray());
+					Qi::macros.append(std::move(macro));
 				}
+			}
+			else
+			{
+				MsgBox::Error((const wchar_t*)file.baseName().utf16(), L"加载宏失败");
 			}
 		}
 	}
@@ -561,16 +539,10 @@ namespace QiJson
 	{
 		LoadDefault();
 		LoadDefaultPopBox();
-
-		QFile file(configFile);
-		file.open(QFile::ReadOnly | QFile::Text);
-
-		if (file.isOpen())
+		QByteArray text;
+		if (File::LoadText(Qi::configFile, text))
 		{
-			QByteArray data = file.readAll();
-			file.close();
-			QJsonDocument json(QJsonDocument::fromJson(data));
-
+			QJsonDocument json(QJsonDocument::fromJson(text));
 			if (json.isObject())
 			{
 				QJsonObject cfg(json.object());
@@ -583,7 +555,6 @@ namespace QiJson
 				Qi::set.showTips = cfg.value("showTips").toBool();
 				Qi::set.audFx = cfg.value("audFx").toBool();
 				Qi::set.minMode = cfg.value("minMode").toBool();
-				Qi::set.scaleBlock = cfg.value("scaleBlock").toBool();
 				Qi::fun.quickClick.state = cfg.value("quickClickState").toBool();
 				Qi::fun.quickClick.key = cfg.value("quickClickKey").toInt();
 				Qi::fun.quickClick.delay = cfg.value("quickClickDelay").toInt();

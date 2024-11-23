@@ -1,10 +1,6 @@
-﻿#pragma execution_character_set("utf-8")
-#pragma once
-#include <qtabbar.h>
-#include <qevent.h>
-#include "../src/minc.h"
+﻿#pragma once
+#include <src/inc_header.h>
 #include "ui_MoreUi.h"
-
 class MoreUi : public QDialog
 {
 	Q_OBJECT;
@@ -15,15 +11,15 @@ public:
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
-		connect(ui.bnClose, &QPushButton::clicked, this, &This::OnBnClose);
+		connect(ui.title_close_button, &QPushButton::clicked, this, [this] { hide(); });
 		StyleGroup();
 	}
 	void StyleGroup()
 	{
 		setProperty("group", "frame");
-		ui.titleWidget->setProperty("group", "title");
-		ui.clientWidget->setProperty("group", "client");
-		ui.bnClose->setProperty("group", "title-close_button");
+		ui.title_widget->setProperty("group", "title");
+		ui.content_widget->setProperty("group", "client");
+		ui.title_close_button->setProperty("group", "title-close_button");
 		ui.tabWidget->setProperty("group", "tab_widget");
 		ui.tabWidget->tabBar()->setProperty("group", "tab_widget_bar");
 		ui.toolBox->setProperty("group", "ltab_widget");
@@ -57,10 +53,35 @@ private:
 	{
 		SetForegroundWindow((HWND)QWidget::winId());
 	}
-	QPoint msPos; bool mouseDown = false; void mousePressEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) msPos = e->pos(), mouseDown = true; e->accept(); }void mouseMoveEvent(QMouseEvent* e) { if (mouseDown) move(e->pos() + pos() - msPos); }void mouseReleaseEvent(QMouseEvent* e) { if (e->button() == Qt::LeftButton) mouseDown = false; }
-private Q_SLOTS:
-	void OnBnClose()
+	// window move
+	QPoint mouse_positon;
+	bool mouse_down = false;
+	void mousePressEvent(QMouseEvent* e)
 	{
-		hide();
+		if (e->button() == Qt::LeftButton)
+		{
+			mouse_positon = e->pos();
+			mouse_down = true;
+			e->accept();
+		}
+	}
+	void mouseMoveEvent(QMouseEvent* e)
+	{
+		if (mouse_down)
+		{
+			if (Distance(mouse_positon.x(), mouse_positon.y(), e->pos().x(), e->pos().y()) < 100)
+			{
+				move(e->pos() + pos() - mouse_positon);
+				e->accept();
+			}
+		}
+	}
+	void mouseReleaseEvent(QMouseEvent* e)
+	{
+		if (e->button() == Qt::LeftButton)
+		{
+			mouse_down = false;
+			e->accept();
+		}
 	}
 };
