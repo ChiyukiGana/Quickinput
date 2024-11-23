@@ -206,7 +206,6 @@
     <QtMoc Include="source\ui\MoreUi.h" />
     <QtMoc Include="source\ui\MainUi.h" />
     <QtMoc Include="source\ui\MacroUi.h" />
-    <QtMoc Include="source\ui\InstallUi.h" />
     <QtMoc Include="source\ui\FuncUi.h" />
     <QtMoc Include="source\ui\EditUi.h" />
     <QtMoc Include="source\ui\AboutUi.h" />
@@ -215,7 +214,6 @@
     <QtUic Include="source\ui\AboutUi.ui" />
     <QtUic Include="source\ui\EditUi.ui" />
     <QtUic Include="source\ui\FuncUi.ui" />
-    <QtUic Include="source\ui\InstallUi.ui" />
     <QtUic Include="source\ui\MacroUi.ui" />
     <QtUic Include="source\ui\MainUi.ui" />
     <QtUic Include="source\ui\MoreUi.ui" />

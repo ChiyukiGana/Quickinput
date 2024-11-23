@@ -155,9 +155,6 @@
     <QtUic Include="source\ui\FuncUi.ui">
       <Filter>Form Files\ui</Filter>
     </QtUic>
-    <QtUic Include="source\ui\InstallUi.ui">
-      <Filter>Form Files\ui</Filter>
-    </QtUic>
     <QtUic Include="source\ui\MacroUi.ui">
       <Filter>Form Files\ui</Filter>
     </QtUic>
@@ -191,9 +188,6 @@
       <Filter>Form Files\header</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\FuncUi.h">
-      <Filter>Form Files\header</Filter>
-    </QtMoc>
-    <QtMoc Include="source\ui\InstallUi.h">
       <Filter>Form Files\header</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\MacroUi.h">

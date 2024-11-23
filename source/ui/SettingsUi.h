@@ -94,17 +94,74 @@ private:
 	}
 	void Event()
 	{
-		connect(ui.readme_button, &QPushButton::clicked, this, &This::OnBnReadme);
-		connect(ui.popText_button, &QPushButton::clicked, this, &This::OnBnTboxs);
-		connect(ui.theme_combo, QOverload<int>::of(&QComboBox::activated), this, &This::OnCmbTheme);
-		connect(ui.stateKey_keyedit, &QKeyEdit::changed, this, &This::OnHkKey);
-		connect(ui.recordKey_keyedit, &QKeyEdit::changed, this, &This::OnHkRec);
-		connect(ui.recordTrack_check, &QPushButton::clicked, this, &This::OnRecTrack);
-		connect(ui.enableDefault_check, &QPushButton::clicked, this, &This::OnDefOn);
-		connect(ui.showState_check, &QPushButton::clicked, this, &This::OnShowTips);
-		connect(ui.sound_check, &QPushButton::clicked, this, &This::OnAudFx);
-		connect(ui.hideDefault_check, &QPushButton::clicked, this, &This::OnMinMode);
-		connect(ui.start_check, &QPushButton::clicked, this, &This::OnStart);
+		connect(ui.readme_button, &QPushButton::clicked, this, [this] { more.show(); });
+		connect(ui.popText_button, &QPushButton::clicked, this, [this]{
+			PopsUi ps;
+			Qi::widget.dialogActive = true;
+			Qi::widget.main->hide();
+			ps.exec();
+			Qi::widget.main->show();
+			Qi::widget.dialogActive = false;
+			QiJson::SaveJson(); });
+		connect(ui.theme_combo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) {
+			if (Qi::set.theme != index)
+			{
+				Qi::set.theme = index;
+				Qi::application->setStyleSheet(Qi::ui.themes[Qi::set.theme].style);
+				QiJson::SaveJson();
+			}});
+		connect(ui.stateKey_keyedit, &QKeyEdit::changed, this, [this] {
+			QList<QKeyEdit::Key> keys = ui.stateKey_keyedit->keys();
+			DWORD vk = VK_F8;
+			if (keys.size() == 1)
+			{
+				if (keys[0].keyCode == VK_LBUTTON) ui.stateKey_keyedit->setKey(QKeyEdit::Key(VK_F8));
+				else vk = keys[0].keyCode;
+			}
+			else if (keys.size() == 2)
+			{
+				vk = keys[0].keyCode | (keys[1].keyCode << 16);
+			}
+			Qi::set.key = vk;
+			QiJson::SaveJson(); });
+		connect(ui.recordKey_keyedit, &QKeyEdit::changed, this, [this] {
+			QList<QKeyEdit::Key> keys = ui.recordKey_keyedit->keys();
+			DWORD vk = VK_F8;
+			if (keys.size() == 1)
+			{
+				if (keys[0].keyCode == VK_LBUTTON) ui.recordKey_keyedit->setKey(QKeyEdit::Key(VK_F8));
+				else vk = keys[0].keyCode;
+			}
+			else if (keys.size() == 2)
+			{
+				vk = keys[0].keyCode | (keys[1].keyCode << 16);
+			}
+			Qi::set.recKey = vk;
+			QiJson::SaveJson(); });
+		connect(ui.recordTrack_check, &QCheckBox::clicked, this, [this](bool state) { sets->recTrack = state; QiJson::SaveJson(); });
+		connect(ui.enableDefault_check, &QCheckBox::clicked, this, [this](bool state) { sets->defOn = state; QiJson::SaveJson(); });
+		connect(ui.showState_check, &QCheckBox::clicked, this, [this](bool state) { sets->showTips = state; QiJson::SaveJson(); });
+		connect(ui.sound_check, &QCheckBox::clicked, this, [this](bool state) { sets->audFx = state; QiJson::SaveJson(); });
+		connect(ui.hideDefault_check, &QCheckBox::clicked, this, [this](bool state) { sets->minMode = state; QiJson::SaveJson(); });
+		connect(ui.start_check, &QCheckBox::clicked, this, [this] {
+			if (Task::Find(L"QuickInput"))
+			{
+				if (Task::Delete(L"QuickInput")) ui.start_check->setChecked(false);
+				else
+				{
+					ui.start_check->setChecked(true);
+					MsgBox::Error(L"需要以管理员权限运行", L"删除任务错误");
+				}
+			}
+			else
+			{
+				if (Task::Register(L"QuickInput")) ui.start_check->setChecked(true);
+				else
+				{
+					ui.start_check->setChecked(false);
+					MsgBox::Error(L"需要以管理员权限运行", L"创建任务错误");
+				}
+			}});
 	}
 	bool event(QEvent* e)
 	{
@@ -123,85 +180,5 @@ private:
 	void closeEvent(QCloseEvent* e)
 	{
 		more.close();
-	}
-private Q_SLOTS:
-	void OnBnReadme() { more.show(); }
-	void OnBnTboxs()
-	{
-		PopsUi ps;
-		Qi::widget.dialogActive = true;
-		Qi::widget.main->hide();
-		ps.exec();
-		Qi::widget.main->show();
-		Qi::widget.dialogActive = false;
-		QiJson::SaveJson();
-	}
-	void OnCmbTheme(int item)
-	{
-		if (Qi::set.theme != item)
-		{
-			Qi::set.theme = item;
-			Qi::application->setStyleSheet(Qi::ui.themes[Qi::set.theme].style);
-			QiJson::SaveJson();
-		}
-	}
-	void OnHkKey() {
-		QList<QKeyEdit::Key> keys = ui.stateKey_keyedit->keys();
-		DWORD vk = VK_F8;
-		if (keys.size() == 1)
-		{
-			if (keys[0].keyCode == VK_LBUTTON) ui.stateKey_keyedit->setKey(QKeyEdit::Key(VK_F8));
-			else vk = keys[0].keyCode;
-		}
-		else if (keys.size() == 2)
-		{
-			vk = keys[0].keyCode | (keys[1].keyCode << 16);
-		}
-		Qi::set.key = vk;
-		QiJson::SaveJson();
-	}
-	void OnHkRec() {
-		QList<QKeyEdit::Key> keys = ui.recordKey_keyedit->keys();
-		DWORD vk = VK_F8;
-		if (keys.size() == 1)
-		{
-			if (keys[0].keyCode == VK_LBUTTON) ui.recordKey_keyedit->setKey(QKeyEdit::Key(VK_F8));
-			else vk = keys[0].keyCode;
-		}
-		else if (keys.size() == 2)
-		{
-			vk = keys[0].keyCode | (keys[1].keyCode << 16);
-		}
-		Qi::set.recKey = vk;
-		QiJson::SaveJson();
-	}
-	void OnRecTrack()
-	{
-		sets->recTrack = ui.recordTrack_check->isChecked(); QiJson::SaveJson();
-	}
-	void OnDefOn() { sets->defOn = ui.enableDefault_check->isChecked(); QiJson::SaveJson(); }
-	void OnShowTips() { sets->showTips = ui.showState_check->isChecked(); QiJson::SaveJson(); }
-	void OnAudFx() { sets->audFx = ui.sound_check->isChecked(); QiJson::SaveJson(); }
-	void OnMinMode() { sets->minMode = ui.hideDefault_check->isChecked(); QiJson::SaveJson(); }
-	void OnStart()
-	{
-		if (Task::Find(L"QuickInput"))
-		{
-			if (Task::Delete(L"QuickInput")) ui.start_check->setChecked(false);
-			else
-			{
-				ui.start_check->setChecked(true);
-				MsgBox::Error(L"需要以管理员权限运行", L"删除任务错误");
-			}
-		}
-		else
-		{
-			if (Task::Register(L"QuickInput")) ui.start_check->setChecked(true);
-			else
-			{
-				ui.start_check->setChecked(false);
-				MsgBox::Error(L"需要以管理员权限运行", L"创建任务错误");
-			}
-		}
 	}
 };

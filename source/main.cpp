@@ -1,8 +1,6 @@
 ﻿#include <ui/MainUi.h>
-#include <ui/InstallUi.h>
 #include <src/inc_header.h>
 void Init();
-void Install();
 int main(int argc, char* argv[])
 {
 	// set utf8 for all streams
@@ -18,8 +16,6 @@ int main(int argc, char* argv[])
 	// qt event loop
 	QApplication application(argc, argv);
 	Qi::application = &application;
-	// if running in the temp dir
-	Install();
 	// widgets
 	Qi::popText = new QPopText;
 	Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y);
@@ -187,16 +183,4 @@ void Init()
 		}
 	}
 	if (Qi::set.theme >= Qi::ui.themes.size()) Qi::set.theme = 0;
-}
-void Install()
-{
-	std::wstring path = Process::runPath();
-	if (path.find(L"AppData\\Local\\Temp") != std::wstring::npos)
-	{
-		if (MsgBox::Message(L"这样将无法保存数据，请解压后使用。\n\n您也可以安装此程序，点击Yes安装程序。", L"您可能在压缩包内打开了程序", MB_ICONINFORMATION | MB_YESNO) == IDYES)
-		{
-			InstallUi install;
-			install.exec();
-		}
-	}
 }

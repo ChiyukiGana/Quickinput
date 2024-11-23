@@ -13,6 +13,11 @@ class MainUi : public QMainWindow
 	Ui::MainUiClass ui;
 	QSystemTrayIcon* tray = nullptr;
 	QMenu* menu = nullptr;
+	QAction* ac_on = nullptr;
+	QAction* ac_off = nullptr;
+	QAction* ac_show = nullptr;
+	QAction* ac_hide = nullptr;
+	QAction* ac_exit = nullptr;
 public:
 	MainUi(int tab = 0)
 	{
@@ -20,6 +25,7 @@ public:
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		Init();
+		Event();
 		StyleGroup();
 		ui.tabWidget->setCurrentIndex(tab);
 		Qi::application->setStyleSheet(Qi::ui.themes[Qi::set.theme].style);
@@ -72,19 +78,19 @@ private:
 			menu->addAction(ac_exit);
 			tray->setContextMenu(menu);
 			tray->setToolTip("Quick input");
-			connect(ac_on, &QAction::triggered, this, [] { if (QiFn::SelfActive()) QiFn::QiState(true), QiFn::QiHook(true); });
-			connect(ac_off, &QAction::triggered, this, [] { QiFn::QiState(false); QiFn::QiHook(false); });
-			connect(ac_show, &QAction::triggered, this, [this] { setWindowState(Qt::WindowNoState), show(); });
-			connect(ac_hide, &QAction::triggered, this, &This::hide);
-			connect(ac_exit, &QAction::triggered, this, [] { exit(0); });
 		}
-		if ("event")
-		{
-			connect(tray, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason) { setWindowState(Qt::WindowNoState), show(); });
-			connect(ui.title_close_button, &QPushButton::clicked, this, [] { exit(0); });
-			connect(ui.title_min_button, &QPushButton::clicked, this, [this] { setWindowState(Qt::WindowMinimized); });
-			connect(ui.title_hide_button, &QPushButton::clicked, this, &This::hide);
-		}
+	}
+	void Event()
+	{
+		connect(tray, &QSystemTrayIcon::activated, this, [this] { setWindowState(Qt::WindowNoState), show(); });
+		connect(ui.title_close_button, &QPushButton::clicked, this, [] { exit(0); });
+		connect(ui.title_min_button, &QPushButton::clicked, this, [this] { setWindowState(Qt::WindowMinimized); });
+		connect(ui.title_hide_button, &QPushButton::clicked, this, [this] { hide(); });
+		connect(ac_on, &QAction::triggered, this, [] { if (QiFn::SelfActive()) QiFn::QiState(true), QiFn::QiHook(true); });
+		connect(ac_off, &QAction::triggered, this, [] { QiFn::QiState(false); QiFn::QiHook(false); });
+		connect(ac_show, &QAction::triggered, this, [this] { setWindowState(Qt::WindowNoState), show(); });
+		connect(ac_hide, &QAction::triggered, this, [this] { hide(); });
+		connect(ac_exit, &QAction::triggered, this, [] { exit(0); });
 	}
 	bool event(QEvent* e)
 	{

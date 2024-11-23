@@ -16,7 +16,6 @@ public:
 		Init();
 		Event();
 		StyleGroup();
-		DisableWidget(true);
 		TableUpdate();
 	}
 private:
@@ -47,6 +46,7 @@ private:
 	}
 	void Init()
 	{
+		ui.param_widget->setDisabled(true);
 		if ("key")
 		{
 			ui.key_keyedit->setMode(QKeyEdit::Mode::solid);
@@ -87,24 +87,93 @@ private:
 	}
 	void Event()
 	{
-		connect(ui.macro_table, &QTableWidget::cellClicked, this, &This::OnTbClicked);
-		connect(ui.block_check, &QCheckBox::stateChanged, this, &This::OnChbBlock);
-		connect(ui.mode_combo, QOverload<int>::of(&QComboBox::activated), this, &This::OnCmbMode);
-		connect(ui.key_keyedit, &QKeyEdit::changed, this, &This::OnKeyChanged);
-		connect(ui.count_edit, &QLineEdit::textEdited, this, &This::OnEtCount);
+		connect(ui.macro_table, &QTableWidget::cellClicked, this, [this](int row, int column) {
+			ResetWidget();
+			ui.param_widget->setDisabled(true);
+			if (row < 0) return;
+			// state
+			{
+				if (column == 3) macros->at(row).state = !macros->at(row).state;
+				ui.block_check->setChecked(macros->at(row).block);
+				ui.mode_combo->setCurrentIndex(macros->at(row).mode);
+			}
+			// key
+			{
+				QList<QKeyEdit::Key> keys;
+				QKeyEdit::Key key;
+				key.keyCode = macros->at(row).key & 0xFFFF;
+				keys.push_back(key);
+				key.keyCode = macros->at(row).key >> 16;
+				keys.push_back(key);
+				ui.key_keyedit->setKeys(keys);
+			}
+			// count
+			if (macros->at(row).mode >= Macro::down)
+			{
+				ui.count_edit->setText(QString::number(macros->at(row).count));
+				ui.count_edit->setDisabled(0);
+			}
+			ui.param_widget->setDisabled(false);
+			TableUpdate();
+			QiJson::SaveMacro(macros->at(row));
+			});
+		connect(ui.block_check, &QCheckBox::clicked, this, [this](bool state) {
+			int p = ui.macro_table->currentRow(); if (p < 0) return;
+			macros->at(p).block = state;
+			TableUpdate();
+			QiJson::SaveMacro(macros->at(p));
+			});
+		connect(ui.mode_combo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) {
+			int p = ui.macro_table->currentRow(); if (p < 0) return;
+			switch (index)
+			{
+			case Macro::sw:
+				ui.count_edit->setText("无限");
+				ui.count_edit->setDisabled(1);
+				macros->at(p).count = 0;
+				macros->at(p).mode = Macro::sw;
+				break;
+			case Macro::down:
+				ui.count_edit->setText("");
+				ui.count_edit->setDisabled(0);
+				macros->at(p).count = 1;
+				macros->at(p).mode = Macro::down;
+				break;
+			case Macro::up:
+				ui.count_edit->setText("");
+				ui.count_edit->setDisabled(0);
+				macros->at(p).count = 1;
+				macros->at(p).mode = Macro::up;
+				break;
+			}
+			TableUpdate();
+			QiJson::SaveMacro(macros->at(p));
+			});
+		connect(ui.key_keyedit, &QKeyEdit::changed, this, [this] {
+			int p = ui.macro_table->currentRow();
+			if (p < 0) return;
+			QList<QKeyEdit::Key> keys = ui.key_keyedit->keys();
+			DWORD vk = VK_SPACE;
+			if (keys.size() == 1) vk = keys[0].keyCode;
+			else if (keys.size() == 2) vk = keys[0].keyCode | (keys[1].keyCode << 16);
+			macros->at(p).key = vk;
+			QiJson::SaveMacro(macros->at(p));
+			TableUpdate();
+			});
+		connect(ui.count_edit, &QLineEdit::textEdited, this, [this](const QString& text) {
+			int p = ui.macro_table->currentRow(); if (p < 0) return;
+			int n = text.toInt();
+			if (n > countMax) n = countMax;
+			macros->at(p).count = n;
+			TableUpdate();
+			QiJson::SaveMacro(macros->at(p));
+			});
 	}
 	void ResetWidget()
 	{
 		ui.block_check->setChecked(0);
 		ui.key_keyedit->clear();
 		ui.count_edit->setText("");
-	}
-	void DisableWidget(bool state)
-	{
-		ui.block_check->setDisabled(state);
-		ui.mode_combo->setDisabled(state);
-		ui.key_keyedit->setDisabled(state);
-		if (state) ui.count_edit->setDisabled(state);
 	}
 	void TableUpdate()
 	{
@@ -178,93 +247,6 @@ private:
 		ui.macro_table->setCurrentItem(0);
 		TableUpdate();
 		ResetWidget();
-		DisableWidget(true);
-	}
-private Q_SLOTS:
-	void OnTbClicked(int row, int column)
-	{
-		ResetWidget();
-		DisableWidget(true);
-		if (row < 0) return;
-		// state
-		{
-			if (column == 3) macros->at(row).state = !macros->at(row).state;
-			ui.block_check->setChecked(macros->at(row).block);
-			ui.mode_combo->setCurrentIndex(macros->at(row).mode);
-		}
-		// key
-		{
-			QList<QKeyEdit::Key> keys;
-			QKeyEdit::Key key;
-			key.keyCode = macros->at(row).key & 0xFFFF;
-			keys.push_back(key);
-			key.keyCode = macros->at(row).key >> 16;
-			keys.push_back(key);
-			ui.key_keyedit->setKeys(keys);
-		}
-		// count
-		if (macros->at(row).mode >= Macro::down)
-		{
-			ui.count_edit->setText(QString::number(macros->at(row).count));
-			ui.count_edit->setDisabled(0);
-		}
-		DisableWidget(false);
-		TableUpdate();
-		QiJson::SaveMacro(macros->at(row));
-	}
-	void OnKeyChanged()
-	{
-		int p = ui.macro_table->currentRow();
-		if (p < 0) return;
-		QList<QKeyEdit::Key> keys = ui.key_keyedit->keys();
-		DWORD vk = VK_SPACE;
-		if (keys.size() == 1) vk = keys[0].keyCode;
-		else if (keys.size() == 2) vk = keys[0].keyCode | (keys[1].keyCode << 16);
-		macros->at(p).key = vk;
-		QiJson::SaveMacro(macros->at(p));
-		TableUpdate();
-	}
-	void OnChbBlock(int)
-	{
-		int p = ui.macro_table->currentRow(); if (p < 0) return;
-		macros->at(p).block = ui.block_check->isChecked();
-		TableUpdate();
-		QiJson::SaveMacro(macros->at(p));
-	}
-	void OnCmbMode(int index)
-	{
-		int p = ui.macro_table->currentRow(); if (p < 0) return;
-		switch (index)
-		{
-		case Macro::sw:
-			ui.count_edit->setText("无限");
-			ui.count_edit->setDisabled(1);
-			macros->at(p).count = 0;
-			macros->at(p).mode = Macro::sw;
-			break;
-		case Macro::down:
-			ui.count_edit->setText("");
-			ui.count_edit->setDisabled(0);
-			macros->at(p).count = 1;
-			macros->at(p).mode = Macro::down;
-			break;
-		case Macro::up:
-			ui.count_edit->setText("");
-			ui.count_edit->setDisabled(0);
-			macros->at(p).count = 1;
-			macros->at(p).mode = Macro::up;
-			break;
-		}
-		TableUpdate();
-		QiJson::SaveMacro(macros->at(p));
-	}
-	void OnEtCount(const QString& count)
-	{
-		int p = ui.macro_table->currentRow(); if (p < 0) return;
-		int n = count.toInt();
-		if (n > countMax) n = countMax;
-		macros->at(p).count = n;
-		TableUpdate();
-		QiJson::SaveMacro(macros->at(p));
+		ui.param_widget->setDisabled(true);
 	}
 };

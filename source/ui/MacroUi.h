@@ -7,6 +7,11 @@ class MacroUi : public QWidget
 {
 	Q_OBJECT;
 	using This = MacroUi;
+	enum Event
+	{
+		e_edit = QEvent::User,
+		e_load
+	};
 	Ui::MacroUiClass ui;
 	Macros* macros = &Qi::macros;
 	QTimer* timer = nullptr;
@@ -19,7 +24,7 @@ public:
 		Init();
 		Event();
 		StyleGroup();
-		DisableWidget(true);
+		DisableWidget();
 		TableUpdate();
 	}
 	void StyleGroup()
@@ -51,7 +56,6 @@ public:
 			}
 		}
 	}
-
 private:
 	void Init()
 	{
@@ -70,29 +74,137 @@ private:
 	}
 	void Event()
 	{
-		connect(timer, &QTimer::timeout, this, &This::OnTimeOut);
-		connect(ui.macro_table, &QTableWidget::cellClicked, this, &This::OnTbClicked);
-		connect(ui.name_edit, &QLineEdit::returnPressed, this, &This::OnEtReturn);
-		connect(ui.record_button, &QPushButton::clicked, this, &This::OnBnRec);
-		connect(ui.record_window_button, &QPushButton::clicked, this, &This::OnBnWndRec);
-		connect(ui.add_button, &QPushButton::clicked, this, &This::OnBnAdd);
-		connect(ui.edit_button, &QPushButton::clicked, this, &This::OnBnEdit);
-		connect(ui.export_button, &QPushButton::clicked, this, &This::OnBnExp);
-		connect(ui.import_button, &QPushButton::clicked, this, &This::OnBnImp);
-		connect(ui.reload_button, &QPushButton::clicked, this, &This::OnBnLoad);
-		connect(ui.delete_button, &QPushButton::clicked, this, &This::OnBnDel);
+		connect(timer, &QTimer::timeout, this, [this] {
+			int p = ui.macro_table->currentRow();
+			if (p < 0) return;
+			timer->stop();
+			ui.name_edit->setDisabled(0);
+			ui.name_edit->setText(macros->at(p).name);
+			});
+		connect(ui.macro_table, &QTableWidget::itemSelectionChanged, this, [this] {
+			DisableWidget();
+			QList<QTableWidgetItem*> items = ui.macro_table->selectedItems();
+			if (items.empty()) return;
+			if (items.size() == 1)
+			{
+				ui.name_edit->setText(macros->at(items.first()->row()).name);
+				ui.name_edit->setEnabled(true);
+				ui.edit_button->setEnabled(true);
+				ui.export_button->setEnabled(true);
+				ui.delete_button->setEnabled(true);
+			}
+			else
+			{
+				ui.delete_button->setEnabled(true);
+			}
+			});
+		connect(ui.name_edit, &QLineEdit::returnPressed, this, [this] {
+			QList<QTableWidgetItem*> items = ui.macro_table->selectedItems();
+			if (items.empty() || (items.size() != 1)) return;
+			QString name = ui.name_edit->text();
+			// not usable
+			if (!File::UsableName(name))
+			{
+				timer->setSingleShot(true);
+				timer->start(1000);
+				ui.name_edit->setDisabled(true);
+				ui.name_edit->setText("名称不可用");
+				return;
+			}
+			// exists
+			QString newPath = Qi::macroDir + name + Qi::macroType;
+			if (QFile::exists(newPath))
+			{
+				timer->setSingleShot(true);
+				timer->start(1000);
+				ui.name_edit->setDisabled(true);
+				ui.name_edit->setText("已存在该名称");
+				return;
+			}
+			QString oldPath = Qi::macroDir + macros->at(items.first()->row()).name + Qi::macroType;
+			macros->at(items.first()->row()).name = name;
+			QFile::rename(oldPath, newPath);
+			TableUpdate();
+			ResetWidget();
+			DisableWidget();
+			});
+		connect(ui.record_button, &QPushButton::clicked, this, [this] {
+			RecStart(false);
+			TableUpdate();
+			ResetWidget();
+			DisableWidget();
+			});
+		connect(ui.record_window_button, &QPushButton::clicked, this, [this] {
+			RecStart(true);
+			TableUpdate();
+			ResetWidget();
+			DisableWidget();
+			});
+		connect(ui.add_button, &QPushButton::clicked, this, [this] {
+			Macro macro;
+			macro.mode = Macro::down;
+			macro.count = 1;
+			macro.name = QiFn::AllocName("宏");
+			QiJson::SaveMacro(Qi::macros.append(std::move(macro)));
+			TableUpdate();
+			ResetWidget();
+			DisableWidget();
+			});
+		connect(ui.edit_button, &QPushButton::clicked, this, [this] {
+			QList<QTableWidgetItem*> items = ui.macro_table->selectedItems();
+			if (items.empty() || (items.size() != 1)) return;
+			Qi::popText->Show("正在加载宏"); QApplication::postEvent(this, new QEvent((QEvent::Type)e_edit));
+			});
+		connect(ui.export_button, &QPushButton::clicked, this, [this] {
+			QList<QTableWidgetItem*> items = ui.macro_table->selectedItems();
+			if (items.empty() || (items.size() != 1)) return;
+			Qi::widget.dialogActive = true;
+			QString des = QFileDialog::getSaveFileName(this, "导出", macros->at(items.first()->row()).name + Qi::macroType, "Quickinput macro (*.json)");
+			Qi::widget.dialogActive = false;
+			if (des.size())
+			{
+				if (!QFile::copy(Qi::macroDir + macros->at(items.first()->row()).name + Qi::macroType, des)) MsgBox::Error(L"导出宏失败"), exit(0);
+				ResetWidget();
+				DisableWidget();
+			}
+			});
+		connect(ui.import_button, &QPushButton::clicked, this, [this] {
+			Qi::widget.dialogActive = true;
+			QString src = QFileDialog::getOpenFileName(this, "导入", QString(), "Quickinput macro (*.json)");
+			Qi::widget.dialogActive = false;
+			if (src.size())
+			{
+				QFileInfo info(src);
+				if (!QDir(Qi::macroDir).exists() && !QDir(Qi::macroDir).mkdir(Qi::macroDir)) MsgBox::Error(L"创建宏目录失败");
+				if (!QFile::copy(src, Qi::macroDir + File::Unique(Qi::macroDir, File::RemoveExtension(info.baseName()), Qi::macroType))) MsgBox::Error(L"导入宏失败"), exit(0);
+				QiJson::LoadMacro();
+				TableUpdate();
+				ResetWidget();
+				DisableWidget();
+			}
+			});
+		connect(ui.reload_button, &QPushButton::clicked, this, [this] { Qi::popText->Show("正在加载宏"); QApplication::postEvent(this, new QEvent((QEvent::Type)e_load)); });
+		connect(ui.delete_button, &QPushButton::clicked, this, [this] {
+			QList<QTableWidgetItem*> items = ui.macro_table->selectedItems();
+			if (items.empty()) return;
+			for (QTableWidgetItem*& item : items) if (!QFile::remove(Qi::macroDir + macros->at(item->row()).name + Qi::macroType)) MsgBox::Error(L"删除宏失败");
+			QiJson::LoadMacro();
+			TableUpdate();
+			ResetWidget();
+			DisableWidget();
+			});
 	}
 	void ResetWidget()
 	{
 		ui.name_edit->setText("");
 		ui.macro_table->setCurrentItem(0);
 	}
-	void DisableWidget(bool state)
+	void DisableWidget()
 	{
-		ui.name_edit->setDisabled(state);
-		ui.edit_button->setDisabled(state);
-		ui.export_button->setDisabled(state);
-		ui.delete_button->setDisabled(state);
+		ui.name_edit->setDisabled(true);
+		ui.edit_button->setDisabled(true);
+		ui.export_button->setDisabled(true);
+		ui.delete_button->setDisabled(true);
 	}
 	void TableUpdate()
 	{
@@ -127,7 +239,7 @@ private:
 		Qi::widget.dialogActive = false;
 		Qi::widget.main->show();
 	}
-
+private:
 	bool event(QEvent* e)
 	{
 		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
@@ -145,145 +257,32 @@ private:
 	void showEvent(QShowEvent*)
 	{
 		ResetWidget();
-		DisableWidget(true);
+		DisableWidget();
 		TableUpdate();
 	}
-	void customEvent(QEvent*)
+	void customEvent(QEvent* e)
 	{
-		int p = ui.macro_table->currentRow(); if (p < 0) return;
-		EditUi edit(&macros->at(p), &macros->at(p).acRun);
-		Qi::widget.dialogActive = true;
-		Qi::widget.main->hide();
-		edit.exec();
-		Qi::widget.main->show();
-		Qi::widget.dialogActive = false;
-		QiJson::SaveMacro(macros->at(p));
-		Qi::popText->Hide();
-		ResetWidget();
-		DisableWidget(true);
-	}
-private Q_SLOTS:
-	void OnTimeOut()
-	{
-		int p = ui.macro_table->currentRow();
-		if (p < 0) return;
-		timer->stop();
-		ui.name_edit->setDisabled(0);
-		ui.name_edit->setText(macros->at(p).name);
-	}
-	void OnTbClicked(int row, int column)
-	{
-		DisableWidget(true);
-		if (row < 0) return;
-		ui.name_edit->setText(macros->at(row).name);
-		DisableWidget(false);
-	}
-	void OnEtReturn()
-	{
-		int p = ui.macro_table->currentRow();
-		if (p < 0) return;
-		QString name = ui.name_edit->text();
-		// not usable
-		if (!File::UsableName(name))
+		if (e->type() == e_edit)
 		{
-			timer->setSingleShot(true);
-			timer->start(1000);
-			ui.name_edit->setDisabled(true);
-			ui.name_edit->setText("名称不可用");
-			return;
-		}
-		// exists
-		QString newPath = Qi::macroDir + name + Qi::macroType;
-		if (QFile::exists(newPath))
-		{
-			timer->setSingleShot(true);
-			timer->start(1000);
-			ui.name_edit->setDisabled(true);
-			ui.name_edit->setText("已存在该名称");
-			return;
-		}
-		QString oldPath = Qi::macroDir + macros->at(p).name + Qi::macroType;
-		macros->at(p).name = name;
-		QFile::rename(oldPath, newPath);
-		TableUpdate();
-		ResetWidget();
-		DisableWidget(true);
-	}
-	void OnBnRec()
-	{
-		RecStart(false);
-		TableUpdate();
-		ResetWidget();
-		DisableWidget(true);
-	}
-	void OnBnWndRec()
-	{
-		RecStart(true);
-		TableUpdate();
-		ResetWidget();
-		DisableWidget(true);
-	}
-	void OnBnAdd()
-	{
-		Macro macro;
-		macro.mode = Macro::down;
-		macro.count = 1;
-		macro.name = QiFn::AllocName("宏");
-		QiJson::SaveMacro(Qi::macros.append(std::move(macro)));
-		TableUpdate();
-		ResetWidget();
-		DisableWidget(true);
-	}
-	void OnBnEdit()
-	{
-		Qi::popText->Show("正在加载宏");
-		QApplication::postEvent(this, new QEvent(QEvent::User));
-	}
-	void OnBnExp()
-	{
-		int p = ui.macro_table->currentRow();
-		if (p < 0) return;
-		Qi::widget.dialogActive = true;
-		QString des = QFileDialog::getSaveFileName(this, "导出", macros->at(p).name + Qi::macroType, "Quickinput macro (*.json)");
-		Qi::widget.dialogActive = false;
-		if (des.size())
-		{
-			if (!QFile::copy(Qi::macroDir + macros->at(p).name + Qi::macroType, des)) MsgBox::Error(L"导出宏失败"), exit(0);
+			int p = ui.macro_table->currentRow(); if (p < 0) return;
+			EditUi edit(&macros->at(p), &macros->at(p).acRun);
+			Qi::widget.dialogActive = true;
+			Qi::widget.main->hide();
+			edit.exec();
+			Qi::widget.main->show();
+			Qi::widget.dialogActive = false;
+			QiJson::SaveMacro(macros->at(p));
+			Qi::popText->Hide();
 			ResetWidget();
-			DisableWidget(true);
+			DisableWidget();
 		}
-	}
-	void OnBnImp()
-	{
-		Qi::widget.dialogActive = true;
-		QString src = QFileDialog::getOpenFileName(this, "导入", QString(), "Quickinput macro (*.json)");
-		Qi::widget.dialogActive = false;
-		if (src.size())
+		else if (e->type() == e_load)
 		{
-			QFileInfo info(src);
-			if (!QDir(Qi::macroDir).exists() && !QDir(Qi::macroDir).mkdir(Qi::macroDir)) MsgBox::Error(L"创建宏目录失败");
-			if (!QFile::copy(src, Qi::macroDir + File::Unique(Qi::macroDir, File::RemoveExtension(info.baseName()), Qi::macroType))) MsgBox::Error(L"导入宏失败"), exit(0);
 			QiJson::LoadMacro();
 			TableUpdate();
 			ResetWidget();
-			DisableWidget(true);
+			DisableWidget();
+			Qi::popText->Hide();
 		}
-	}
-	void OnBnLoad()
-	{
-		QiJson::LoadMacro();
-		TableUpdate();
-		ResetWidget();
-		DisableWidget(true);
-	}
-	void OnBnDel()
-	{
-		int p = ui.macro_table->currentRow(); if (p < 0) return;
-		if (!QFile::remove(Qi::macroDir + macros->at(p).name + Qi::macroType)) MsgBox::Error(L"删除宏失败");
-		ui.macro_table->setCurrentItem(0);
-		QiJson::LoadMacro();
-		TableUpdate();
-		ResetWidget();
-		DisableWidget(true);
 	}
 };

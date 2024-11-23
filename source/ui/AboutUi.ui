@@ -88,7 +88,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2024-11-23 </string>
+         <string>2024-11-23_2</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -104,7 +104,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>修复切换模式包含循环无法退出</string>
+         <string>修复编辑删除位置错误
+增加宏页面多选</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

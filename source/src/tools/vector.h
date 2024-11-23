@@ -69,7 +69,7 @@ namespace QiTools
 		{
 			std::vector<size_t> sortedPositions(positions);
 			std::sort(sortedPositions.begin(), sortedPositions.end(), std::greater<size_t>());
-			for (size_t i = 0; i < sortedPositions.size(); i++) base_vector::erase(base_vector::begin() + (sortedPositions[i] - 1));
+			for (size_t i = 0; i < sortedPositions.size(); i++) base_vector::erase(base_vector::begin() + (sortedPositions[i]));
 		}
 		void remove_of_front(size_t count = 1, size_t where = 0)
 		{
