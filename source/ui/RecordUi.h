@@ -92,6 +92,7 @@ private:
 		Qi::recording = false;
 		if (Qi::record.size())
 		{
+			macro.acRun = std::move(Qi::record);
 			QiJson::SaveMacro(Qi::macros.append(std::move(macro)));
 		}
 		Qi::popText->Hide();

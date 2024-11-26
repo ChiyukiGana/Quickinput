@@ -478,16 +478,15 @@ private:
 				base.mark = ui.action_table->item(row, 2)->text();
 				if ((base.type == QiType::jumpPoint) || (base.type == QiType::block)) TableUpdate();
 				});
-			connect(ui.action_table, &QTableWidget::itemSelectionChanged, this, [this] {
+			connect(ui.action_table, &QTableWidget::cellClicked, this, [this](int row, int column) {
 				QList<QTableWidgetItem*> items = ui.action_table->selectedItems();
 				bool solid = items.size() == ui.action_table->columnCount();
-				int row = ui.action_table->currentRow();
 				DisableButtons();
 				DisableMenus();
 				pv.hide();
 				rv.hide();
 				if (items.empty()) return;
-				if (solid && ui.action_table->currentColumn() == 2) ui.action_table->editItem(ui.action_table->item(row, 2));
+				if (solid && column == 2) ui.action_table->editItem(ui.action_table->item(row, 2));
 				else
 				{
 					muDel->setEnabled(true);

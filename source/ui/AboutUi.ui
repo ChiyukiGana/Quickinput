@@ -88,7 +88,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2024-11-26</string>
+         <string>2024-11-26_1</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -104,7 +104,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>修复按下侧键1错误按下了侧键2</string>
+         <string>修复未保存录制结果</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
