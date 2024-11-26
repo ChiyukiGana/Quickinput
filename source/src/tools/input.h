@@ -27,7 +27,7 @@ namespace QiTools {
 					if (vk == VK_LBUTTON) { if (state) input.mi = { 0, 0, 0, MOUSEEVENTF_LEFTDOWN, 0, ex }; else input.mi = { 0, 0, 0, MOUSEEVENTF_LEFTUP, 0, ex }; }
 					else if (vk == VK_RBUTTON) { if (state) input.mi = { 0, 0, 0, MOUSEEVENTF_RIGHTDOWN, 0, ex }; else input.mi = { 0, 0, 0, MOUSEEVENTF_RIGHTUP, 0, ex }; }
 					else if (vk == VK_MBUTTON) { if (state) input.mi = { 0, 0, 0, MOUSEEVENTF_MIDDLEDOWN, 0, ex }; else input.mi = { 0, 0, 0, MOUSEEVENTF_MIDDLEUP, 0, ex }; }
-					else if (vk == VK_XBUTTON1) { if (state) input.mi = { 0, 0, XBUTTON2, MOUSEEVENTF_XDOWN, 0, ex }; else input.mi = { 0, 0, XBUTTON2, MOUSEEVENTF_XUP, 0, ex }; }
+					else if (vk == VK_XBUTTON1) { if (state) input.mi = { 0, 0, XBUTTON1, MOUSEEVENTF_XDOWN, 0, ex }; else input.mi = { 0, 0, XBUTTON1, MOUSEEVENTF_XUP, 0, ex }; }
 					else if (vk == VK_XBUTTON2) { if (state) input.mi = { 0, 0, XBUTTON2, MOUSEEVENTF_XDOWN, 0, ex }; else input.mi = { 0, 0, XBUTTON2, MOUSEEVENTF_XUP, 0, ex }; }
 					else if (vk == VK_WHEELUP) { input.mi = { 0, 0, (DWORD)(WHEEL_DELTA), MOUSEEVENTF_WHEEL, 0, ex }; }
 					else if (vk == VK_WHEELDOWN) { input.mi = { 0, 0, (DWORD)(-WHEEL_DELTA), MOUSEEVENTF_WHEEL, 0, ex }; }
