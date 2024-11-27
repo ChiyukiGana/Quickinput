@@ -88,34 +88,38 @@ private:
 	void Event()
 	{
 		connect(ui.macro_table, &QTableWidget::cellClicked, this, [this](int row, int column) {
-			ResetWidget();
-			ui.param_widget->setDisabled(true);
 			if (row < 0) return;
-			// state
-			{
-				if (column == 3) macros->at(row).state = !macros->at(row).state;
-				ui.block_check->setChecked(macros->at(row).block);
-				ui.mode_combo->setCurrentIndex(macros->at(row).mode);
-			}
-			// key
-			{
-				QList<QKeyEdit::Key> keys;
-				QKeyEdit::Key key;
-				key.keyCode = macros->at(row).key & 0xFFFF;
-				keys.push_back(key);
-				key.keyCode = macros->at(row).key >> 16;
-				keys.push_back(key);
-				ui.key_keyedit->setKeys(keys);
-			}
-			// count
-			if (macros->at(row).mode >= Macro::down)
-			{
-				ui.count_edit->setText(QString::number(macros->at(row).count));
-				ui.count_edit->setDisabled(0);
-			}
-			ui.param_widget->setDisabled(false);
+			if (column == 3) macros->at(row).state = !macros->at(row).state;
+			ui.block_check->setChecked(macros->at(row).block);
+			ui.mode_combo->setCurrentIndex(macros->at(row).mode);
 			TableUpdate();
 			QiJson::SaveMacro(macros->at(row));
+			});
+		connect(ui.macro_table, &QTableWidget::itemSelectionChanged, this, [this]() {
+			ResetWidget();
+			QList<QTableWidgetItem*> items = ui.macro_table->selectedItems();
+			if (items.size() == ui.macro_table->columnCount())
+			{
+				int row = items.first()->row();
+				// key
+				{
+					QList<QKeyEdit::Key> keys;
+					QKeyEdit::Key key;
+					key.keyCode = macros->at(row).key & 0xFFFF;
+					keys.push_back(key);
+					key.keyCode = macros->at(row).key >> 16;
+					keys.push_back(key);
+					ui.key_keyedit->setKeys(keys);
+				}
+				// count
+				if (macros->at(row).mode >= Macro::down)
+				{
+					ui.count_edit->setText(QString::number(macros->at(row).count));
+					ui.count_edit->setEnabled(true);
+				}
+				ui.param_widget->setEnabled(true);
+			}
+			else ui.param_widget->setDisabled(true);
 			});
 		connect(ui.block_check, &QCheckBox::clicked, this, [this](bool state) {
 			int p = ui.macro_table->currentRow(); if (p < 0) return;

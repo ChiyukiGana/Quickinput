@@ -454,7 +454,9 @@ private:
 		}
 		if ("action table")
 		{
+			// hotkey
 			ui.action_table->installEventFilter(this);
+			// drag
 			ui.action_table->viewport()->installEventFilter(this);
 			connect(ui.action_running_radio, &QRadioButton::toggled, this, [this](bool state) {
 				if (state && (layers.size() == 1))
@@ -478,185 +480,162 @@ private:
 				base.mark = ui.action_table->item(row, 2)->text();
 				if ((base.type == QiType::jumpPoint) || (base.type == QiType::block)) TableUpdate();
 				});
+			// mark edit
 			connect(ui.action_table, &QTableWidget::cellClicked, this, [this](int row, int column) {
 				QList<QTableWidgetItem*> items = ui.action_table->selectedItems();
-				bool solid = items.size() == ui.action_table->columnCount();
+				if ((items.size() == ui.action_table->columnCount()) && (column == 2)) ui.action_table->editItem(ui.action_table->item(row, 2));
+				});
+			// selection
+			connect(ui.action_table, &QTableWidget::itemSelectionChanged, this, [this]() {
+				QList<QTableWidgetItem*> items = ui.action_table->selectedItems();
 				DisableButtons();
 				DisableMenus();
 				pv.hide();
 				rv.hide();
-				if (items.empty()) return;
-				if (solid && column == 2) ui.action_table->editItem(ui.action_table->item(row, 2));
-				else
+				// selction is solid
+				if (items.size() == ui.action_table->columnCount())
 				{
-					muDel->setEnabled(true);
-					muCut->setEnabled(true);
-					muCopy->setEnabled(true);
-					// solid current
-					if (solid)
+					const Action& var = actions->at(items.first()->row());
+					switch (var.index())
 					{
-						bool edit = false;
-						bool edit2 = false;
-						const Action& var = actions->at(row);
-						switch (var.index())
+					case QiType::end: ui.tabWidget->setCurrentIndex(tab_state); break;
+					case QiType::delay: ui.tabWidget->setCurrentIndex(tab_base); break;
+					case QiType::key: ui.tabWidget->setCurrentIndex(tab_base); break;
+					case QiType::mouse:
+					{
+						const QiMouse& mouse = std::get<QiMouse>(var);
+						ui.tabWidget->setCurrentIndex(tab_base);
+						if (!mouse.move)
 						{
-						case QiType::end:
-						{
-							ui.tabWidget->setCurrentIndex(tab_state);
-						} break;
-						case QiType::delay:
-						{
-							ui.tabWidget->setCurrentIndex(tab_base);
-						} break;
-						case QiType::key:
-						{
-							ui.tabWidget->setCurrentIndex(tab_base);
-						} break;
-						case QiType::mouse:
-						{
-							const QiMouse& mouse = std::get<QiMouse>(var);
-							ui.tabWidget->setCurrentIndex(tab_base);
-							if (!mouse.move)
-							{
-								POINT pt;
-								if (macro->wndState)
-								{
-									if (!macro->wi.update())
-									{
-										SelectWindow();
-									}
-									POINT rpt = QiFn::WATR({ mouse.x, mouse.y }, macro->wi.wnd);
-									pt = Window::pos(macro->wi.wnd);
-									pt.x += rpt.x, pt.y += rpt.y;
-								}
-								else
-								{
-									pt = QiFn::ATR({ mouse.x, mouse.y });
-								}
-								pv.Show(pt);
-							}
-						} break;
-						case QiType::copyText:
-						{
-							ui.tabWidget->setCurrentIndex(tab_text);
-						} break;
-						case QiType::color:
-						{
-							const QiColor& color = std::get<QiColor>(var);
-							ui.tabWidget->setCurrentIndex(tab_color);
-							ui.color_edit_button->setEnabled(true);
-							ui.color_edit2_button->setEnabled(true);
-							edit = edit2 = true;
-							RECT rect;
+							POINT pt;
 							if (macro->wndState)
 							{
-								if (!macro->wi.update())
-								{
-									SelectWindow();
-								}
-								rect = QiFn::WATRR(color.rect, macro->wi.wnd);
-								POINT pt = Window::pos(macro->wi.wnd);
-								rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
+								if (!macro->wi.update()) SelectWindow();
+								POINT rpt = QiFn::WATR({ mouse.x, mouse.y }, macro->wi.wnd);
+								pt = Window::pos(macro->wi.wnd);
+								pt.x += rpt.x, pt.y += rpt.y;
 							}
-							else
-							{
-								rect = QiFn::ATRR(color.rect);
-							}
-							rv.Show(rect);
-						} break;
-						case QiType::loop:
-						{
-							ui.tabWidget->setCurrentIndex(tab_loop);
-							ui.loop_edit_button->setEnabled(true);
-							edit = true;
-						} break;
-						case QiType::loopEnd:
-						{
-							ui.tabWidget->setCurrentIndex(tab_state);
-						} break;
-						case QiType::keyState:
-						{
-							ui.tabWidget->setCurrentIndex(tab_state);
-							ui.keyState_edit_button->setEnabled(true);
-							ui.keyState_edit2_button->setEnabled(true);
-							edit = edit2 = true;
-						} break;
-						case QiType::recoverPos:
-						{
-							ui.tabWidget->setCurrentIndex(tab_state);
-						} break;
-						case QiType::image:
-						{
-							const QiImage& image = std::get<QiImage>(var);
-							ui.tabWidget->setCurrentIndex(tab_image);
-							ui.image_edit_button->setEnabled(true);
-							ui.image_edit2_button->setEnabled(true);
-							edit = edit2 = true;
-							RECT rect;
-							if (macro->wndState)
-							{
-								if (!macro->wi.update())
-								{
-									SelectWindow();
-								}
-								rect = QiFn::WATRR(image.rect, macro->wi.wnd);
-								POINT pt = Window::pos(macro->wi.wnd);
-								rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
-							}
-							else
-							{
-								rect = QiFn::ATRR(image.rect);
-							}
-							rv.Show(rect);
-							WidgetSetImage(image);
-						} break;
-						case QiType::popText:
-						{
-							ui.tabWidget->setCurrentIndex(tab_text);
-						} break;
-						case QiType::rememberPos:
-						{
-							ui.tabWidget->setCurrentIndex(tab_state);
-						} break;
-						case QiType::timer:
-						{
-							ui.tabWidget->setCurrentIndex(tab_loop);
-							edit = true;
-						} break;
-						case QiType::jump:
-						{
-							ui.tabWidget->setCurrentIndex(tab_jump);
-						} break;
-						case QiType::jumpPoint:
-						{
-							ui.tabWidget->setCurrentIndex(tab_jump);
-						} break;
-						case QiType::dialog:
-						{
-							ui.tabWidget->setCurrentIndex(tab_dialog);
-							ui.dialog_edit_button->setEnabled(true);
-							ui.dialog_edit2_button->setEnabled(true);
-							edit = edit2 = true;
-						} break;
-						case QiType::block:
-						{
-							ui.tabWidget->setCurrentIndex(tab_block);
-							ui.block_edit_button->setEnabled(true);
-							edit = true;
-						} break;
-						case QiType::blockExec:
-						{
-							ui.tabWidget->setCurrentIndex(tab_block);
-						} break;
+							else pt = QiFn::ATR({ mouse.x, mouse.y });
+							pv.Show(pt);
 						}
-						muChange->setEnabled(true);
-						if (edit) muEdit->setEnabled(true);
-						if (edit2) muEdit2->setEnabled(true);
+					} break;
+					case QiType::copyText: ui.tabWidget->setCurrentIndex(tab_text); break;
+					case QiType::color:
+					{
+						const QiColor& color = std::get<QiColor>(var);
+						ui.tabWidget->setCurrentIndex(tab_color);
+						ui.color_edit_button->setEnabled(true);
+						ui.color_edit2_button->setEnabled(true);
+						RECT rect;
+						if (macro->wndState)
+						{
+							if (!macro->wi.update()) SelectWindow();
+							rect = QiFn::WATRR(color.rect, macro->wi.wnd);
+							POINT pt = Window::pos(macro->wi.wnd);
+							rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
+						}
+						else rect = QiFn::ATRR(color.rect);
+						rv.Show(rect);
+					} break;
+					case QiType::loop:
+					{
+						ui.tabWidget->setCurrentIndex(tab_loop);
+						ui.loop_edit_button->setEnabled(true);
+					} break;
+					case QiType::loopEnd: ui.tabWidget->setCurrentIndex(tab_state);
+					break;
+					case QiType::keyState:
+					{
+						ui.tabWidget->setCurrentIndex(tab_state);
+						ui.keyState_edit_button->setEnabled(true);
+						ui.keyState_edit2_button->setEnabled(true);
+					} break;
+					case QiType::recoverPos: ui.tabWidget->setCurrentIndex(tab_state); break;
+					case QiType::image:
+					{
+						const QiImage& image = std::get<QiImage>(var);
+						ui.tabWidget->setCurrentIndex(tab_image);
+						ui.image_edit_button->setEnabled(true);
+						ui.image_edit2_button->setEnabled(true);
+						RECT rect;
+						if (macro->wndState)
+						{
+							if (!macro->wi.update()) SelectWindow();
+							rect = QiFn::WATRR(image.rect, macro->wi.wnd);
+							POINT pt = Window::pos(macro->wi.wnd);
+							rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
+						}
+						else rect = QiFn::ATRR(image.rect);
+						rv.Show(rect);
+						WidgetSetImage(image);
+					} break;
+					case QiType::popText: ui.tabWidget->setCurrentIndex(tab_text); break;
+					case QiType::rememberPos: ui.tabWidget->setCurrentIndex(tab_state); break;
+					case QiType::timer:
+					{
+						ui.tabWidget->setCurrentIndex(tab_loop);
+						ui.timer_edit_button->setEnabled(true);
+					} break;
+					case QiType::jump: ui.tabWidget->setCurrentIndex(tab_jump); break;
+					case QiType::jumpPoint: ui.tabWidget->setCurrentIndex(tab_jump); break;
+					case QiType::dialog:
+					{
+						ui.tabWidget->setCurrentIndex(tab_dialog);
+						ui.dialog_edit_button->setEnabled(true);
+						ui.dialog_edit2_button->setEnabled(true);
+					} break;
+					case QiType::block:
+					{
+						ui.tabWidget->setCurrentIndex(tab_block);
+						ui.block_edit_button->setEnabled(true);
+					} break;
+					case QiType::blockExec: ui.tabWidget->setCurrentIndex(tab_block); break;
 					}
 				}
 				});
+			// change
 			connect(ui.action_table, &QTableWidget::cellDoubleClicked, this, [this] { changing ? SetChangeState(false) : SetChangeState(true); });
-			connect(ui.action_table, &QTableWidget::customContextMenuRequested, this, [this] { menu->exec(QCursor::pos()); });
+			// mouse rbutton menu
+			connect(ui.action_table, &QTableWidget::customContextMenuRequested, this, [this] {
+				if ("set menu item state")
+				{
+					muPaste->setEnabled(Qi::clipboard.not_empty());
+					QList<QTableWidgetItem*> items = ui.action_table->selectedItems();
+					if (items.empty())
+					{
+						menu->exec(QCursor::pos());
+						return;
+					}
+					// selction is not empty
+					muDel->setEnabled(true);
+					muCut->setEnabled(true);
+					muCopy->setEnabled(true);
+					// selction is solid
+					if (items.size() == ui.action_table->columnCount())
+					{
+						muChange->setEnabled(true);
+						if ("have next")
+						{
+							bool edit = false;
+							bool edit2 = false;
+							const Action& var = actions->at(items.first()->row());
+							switch (var.index())
+							{
+							case QiType::color: edit = edit2 = true; break;
+							case QiType::loop: edit = true; break;
+							case QiType::keyState: edit = edit2 = true; break;
+							case QiType::image: edit = edit2 = true; break;
+							case QiType::timer: edit = true; break;
+							case QiType::dialog: edit = edit2 = true; break;
+							case QiType::block: edit = true; break;
+							}
+							muEdit->setEnabled(edit);
+							muEdit2->setEnabled(edit2);
+						}
+					}
+					menu->exec(QCursor::pos());
+				}
+				});
 		}
 		if ("action table menu")
 		{
@@ -1239,7 +1218,6 @@ private:
 	{
 		DisableButtons();
 		DisableMenus();
-		muPaste->setEnabled(Qi::clipboard.not_empty());
 		ListJumpPointUpdate();
 		ListBlockUpdate();
 
@@ -1827,7 +1805,6 @@ private:
 		if (items.empty()) return;
 		Qi::clipboard.clear();
 		for (size_t i = 0; i < items.size(); i++) if (items[i]->column() == 0) Qi::clipboard.append_copy(actions->at(items[i]->row()));
-		muPaste->setEnabled(Qi::clipboard.not_empty());
 	}
 	void ItemPaste()
 	{

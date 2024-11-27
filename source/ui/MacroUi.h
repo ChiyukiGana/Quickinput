@@ -85,7 +85,7 @@ private:
 			DisableWidget();
 			QList<QTableWidgetItem*> items = ui.macro_table->selectedItems();
 			if (items.empty()) return;
-			if (items.size() == 1)
+			if (items.size() == ui.macro_table->columnCount())
 			{
 				ui.name_edit->setText(macros->at(items.first()->row()).name);
 				ui.name_edit->setEnabled(true);
