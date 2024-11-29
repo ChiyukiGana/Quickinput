@@ -283,7 +283,7 @@ namespace QiInterpreter
 					clock_t begin = clock();
 					while (Qi::run && !QiThread::PeekExitMsg())
 					{
-						if (!((begin + time) > clock())) result = r_continue;
+						if (!((begin + time) > clock())) { break; }
 						int r = ActionInterpreter(parent, timer.next, cursor, wp, jumpId);
 						if (r != r_continue)
 						{

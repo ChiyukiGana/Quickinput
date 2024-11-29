@@ -384,7 +384,7 @@ class QiTimer : public QiBase
 {
 public:
 	int min = 0; int max = 0;
-	QiTimer() : QiBase(QiType::loop) {}
+	QiTimer() : QiBase(QiType::timer) {}
 	QiTimer(const QiTimer& r) { operator=(r); }
 	QiTimer(QiTimer&& r) noexcept { operator=(std::move(r)); }
 	void operator=(const QiTimer& r) { QiBase::operator=(r); min = r.min; max = r.max; }

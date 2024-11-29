@@ -88,7 +88,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2024-11-27</string>
+         <string>2024-11-29</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -104,7 +104,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>修复定时无法激活编辑按钮</string>
+         <string>修复定时保存为循环</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
