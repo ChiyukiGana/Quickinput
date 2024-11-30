@@ -69,17 +69,16 @@ namespace QiThread
 	DWORD _stdcall QuickClick(PVOID)
 	{
 		srand(clock());
-		size_t max, min;
-		if (Qi::fun.quickClick.delay > 99) max = 70, min = 30;
-		else if (Qi::fun.quickClick.delay > 1) max = (Qi::fun.quickClick.delay >> 1) + (Qi::fun.quickClick.delay >> 2), min = (Qi::fun.quickClick.delay >> 1) - (Qi::fun.quickClick.delay >> 2);
-		else if (Qi::fun.quickClick.delay == 1) max = 1, min = 0;
-		else max = 0, min = 0;
+		int dmax = 0, dmin = 0, umax = 0, umin = 0;
+		if (Qi::fun.quickClick.delay > 200) dmax = 70, dmin = 30, umax = umin = Qi::fun.quickClick.delay - 200;
+		else if (Qi::fun.quickClick.delay > 1) dmax = umax = (Qi::fun.quickClick.delay >> 1) + (Qi::fun.quickClick.delay >> 2), dmin = umin = (Qi::fun.quickClick.delay >> 1) - (Qi::fun.quickClick.delay >> 2);
+		else if (Qi::fun.quickClick.delay == 1) dmax = umax = 1, dmin = umin = 0;
 		while (Qi::run && !PeekExitMsg())
 		{
 			Input::State(Qi::fun.quickClick.key, true, key_info);
-			Sleep(Rand(max, min));
+			Sleep(Rand(dmax, dmin));
 			Input::State(Qi::fun.quickClick.key, false, key_info);
-			Sleep(Rand(max, min));
+			Sleep(Rand(umax, umin));
 		}
 		return 0;
 	}
