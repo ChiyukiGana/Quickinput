@@ -163,7 +163,12 @@ private:
 			Qi::widget.dialogActive = false;
 			if (des.size())
 			{
-				if (!QFile::copy(Qi::macroDir + macros->at(items.first()->row()).name + Qi::macroType, des)) MsgBox::Error(L"导出宏失败"), exit(0);
+				if (QFile::remove(des));
+				if (!QFile::copy(Qi::macroDir + macros->at(items.first()->row()).name + Qi::macroType, des))
+				{
+					MsgBox::Error(L"导出宏失败");
+					return;
+				}
 				ResetWidget();
 				DisableWidget();
 			}
@@ -176,7 +181,11 @@ private:
 			{
 				QFileInfo info(src);
 				if (!QDir(Qi::macroDir).exists() && !QDir(Qi::macroDir).mkdir(Qi::macroDir)) MsgBox::Error(L"创建宏目录失败");
-				if (!QFile::copy(src, Qi::macroDir + File::Unique(Qi::macroDir, File::RemoveExtension(info.baseName()), Qi::macroType))) MsgBox::Error(L"导入宏失败"), exit(0);
+				if (!QFile::copy(src, File::Unique(Qi::macroDir, info.baseName(), Qi::macroType)))
+				{
+					MsgBox::Error(L"导入宏失败");
+					return;
+				}
 				QiJson::LoadMacro();
 				TableUpdate();
 				ResetWidget();
