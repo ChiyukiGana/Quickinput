@@ -10,7 +10,7 @@ class AboutUi : public QWidget
 	QiUpdate update;
 	std::string version, content;
 public:
-	AboutUi(QWidget* parent) : QWidget(parent), update(this, 20241130, 1)
+	AboutUi(QWidget* parent) : QWidget(parent), update(this, 20241130, 2)
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);

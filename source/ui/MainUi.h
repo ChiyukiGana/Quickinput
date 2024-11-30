@@ -66,18 +66,18 @@ private:
 		if ("task bar icon")
 		{
 			menu = new QMenu(this);
-			QAction* ac_on = new QAction(Qi::ui.text.muOn, this);
-			QAction* ac_off = new QAction(Qi::ui.text.muOff, this);
-			QAction* ac_show = new QAction(Qi::ui.text.muShow, this);
-			QAction* ac_hide = new QAction(Qi::ui.text.muHide, this);
-			QAction* ac_exit = new QAction(Qi::ui.text.muExit, this);
+			ac_on = new QAction(Qi::ui.text.muOn, this);
+			ac_off = new QAction(Qi::ui.text.muOff, this);
+			ac_show = new QAction(Qi::ui.text.muShow, this);
+			ac_hide = new QAction(Qi::ui.text.muHide, this);
+			ac_exit = new QAction(Qi::ui.text.muExit, this);
 			menu->addAction(ac_on);
 			menu->addAction(ac_off);
 			menu->addAction(ac_show);
 			menu->addAction(ac_hide);
 			menu->addAction(ac_exit);
 			tray->setContextMenu(menu);
-			tray->setToolTip("Quick input");
+			tray->setToolTip("Quickinput");
 		}
 	}
 	void Event()
