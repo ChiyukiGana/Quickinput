@@ -243,15 +243,16 @@ using Actions = QiVector<class Action>;
 class QiBase
 {
 public:
+	bool disable;
 	int type;
 	QString mark;
 	Actions next;
 	Actions next2;
-	QiBase(int qiType = QiType::none) noexcept : type(qiType), mark(QString()), next(Actions()), next2(Actions()) {}
+	QiBase(int qiType = QiType::none) noexcept : disable(false), type(qiType), mark(QString()), next(Actions()), next2(Actions()) {}
 	QiBase(const QiBase& r) { operator=(r); }
 	QiBase(QiBase&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiBase& r) noexcept { type = r.type; mark = r.mark; next.copy(r.next); next2.copy(r.next2); }
-	void operator=(QiBase&& r) noexcept { type = r.type; mark = std::move(r.mark); next = std::move(r.next); next2 = std::move(r.next2); }
+	void operator=(const QiBase& r) noexcept { disable = r.disable; type = r.type; mark = r.mark; next.copy(r.next); next2.copy(r.next2); }
+	void operator=(QiBase&& r) noexcept { disable = r.disable; type = r.type; mark = std::move(r.mark); next = std::move(r.next); next2 = std::move(r.next2); }
 };
 class QiEnd : public QiBase
 {
@@ -684,6 +685,7 @@ struct Macro
 	{
 		state = v.state;
 		block = v.block;
+		block = v.blockCur;
 		wndState = v.wndState;
 		active = v.active;
 		key = v.key;
@@ -702,6 +704,7 @@ struct Macro
 	{
 		state = r.state;
 		block = r.block;
+		blockCur = r.blockCur;
 		wndState = r.wndState;
 		active = r.active;
 		key = r.key;
@@ -719,6 +722,7 @@ struct Macro
 	enum { sw, down, up };
 	bool state = false; // enable | disable
 	bool block = false; // block this trigger key
+	bool blockCur = false; // block cursor move
 	bool wndState = false; // window mode enable | disable
 	bool active = false; // state of release trigger
 	int key = 0;
@@ -805,6 +809,7 @@ namespace Qi
 	// input
 	extern bool keyState[keySize];
 	extern QList<byte> blockKeys;
+	extern int blockCur;
 	extern XBoxPad xboxpad;
 	// path
 	extern const QString dir;

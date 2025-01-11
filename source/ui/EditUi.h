@@ -36,6 +36,11 @@ class EditUi : public QDialog
 	const int colorMax = 255;
 	const int imageSimMax = 99;
 	const int popTextTimeMax = 9999;
+	// table column
+	const int tableColumn_type = 0;
+	const int tableColumn_disable = 1;
+	const int tableColumn_param = 2;
+	const int tableColumn_mark = 3;
 	Ui::EditUiClass ui;
 	// edit
 	QList<Layer> layers;
@@ -375,11 +380,12 @@ private:
 			ui.action_table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
 			ui.action_table->verticalHeader()->setDefaultSectionSize(0);
 			ui.action_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Fixed);
-			ui.action_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::Interactive);
+			ui.action_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::Fixed);
 			ui.action_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Interactive);
-			ui.action_table->setColumnWidth(0, 100);
-			ui.action_table->setColumnWidth(1, 300);
-			ui.action_table->setColumnWidth(2, 180);
+			ui.action_table->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeMode::Interactive);
+			ui.action_table->setColumnWidth(tableColumn_type, 100);
+			ui.action_table->setColumnWidth(tableColumn_disable, 50);
+			ui.action_table->setColumnWidth(tableColumn_param, 300);
 		}
 		if ("key edit")
 		{
@@ -475,15 +481,23 @@ private:
 			connect(ui.action_table, &QTableWidget::cellChanged, this, [this](int row, int column) {
 				if (updating) return;
 				if (row < 0) return;
-				if (column != 2) return;
+				if (column != tableColumn_mark) return;
 				QiBase& base = actions->at(row).base();
-				base.mark = ui.action_table->item(row, 2)->text();
+				base.mark = ui.action_table->item(row, tableColumn_mark)->text();
 				if ((base.type == QiType::jumpPoint) || (base.type == QiType::block)) TableUpdate();
 				});
 			// mark edit
 			connect(ui.action_table, &QTableWidget::cellClicked, this, [this](int row, int column) {
 				QList<QTableWidgetItem*> items = ui.action_table->selectedItems();
-				if ((items.size() == ui.action_table->columnCount()) && (column == 2)) ui.action_table->editItem(ui.action_table->item(row, 2));
+				if (items.size() == ui.action_table->columnCount())
+				{
+					if (column == tableColumn_mark) ui.action_table->editItem(ui.action_table->item(row, tableColumn_mark));
+					else if (column == tableColumn_disable)
+					{
+						actions->at(row).base().disable = !actions->at(row).base().disable;
+						TableUpdate();
+					}
+				}
 				});
 			// selection
 			connect(ui.action_table, &QTableWidget::itemSelectionChanged, this, [this]() {
@@ -1235,6 +1249,7 @@ private:
 			QString type;
 			QString param;
 			QString mark = var.base().mark;
+			bool failed = false;
 
 			switch (var.index())
 			{
@@ -1453,20 +1468,28 @@ private:
 					param += QString::number(blockExec.id);
 				}
 			} break;
-			default: type = "加载失败"; break;
+			default: type = "加载失败", failed = true; break;
 			}
 
 			QTableWidgetItem* item = new QTableWidgetItem(type);
 			item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			ui.action_table->setItem(i, 0, item);
+			ui.action_table->setItem(i, tableColumn_type, item);
 
-			item = new QTableWidgetItem(param);
-			item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			ui.action_table->setItem(i, 1, item);
+			if (!failed)
+			{
+				if (var.base().disable) item = new QTableWidgetItem(Qi::ui.text.syOff);
+				else item = new QTableWidgetItem(Qi::ui.text.syOn);
+				item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+				ui.action_table->setItem(i, tableColumn_disable, item);
 
-			item = new QTableWidgetItem(mark);
-			item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			ui.action_table->setItem(i, 2, item);
+				item = new QTableWidgetItem(param);
+				item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+				ui.action_table->setItem(i, tableColumn_param, item);
+
+				item = new QTableWidgetItem(mark);
+				item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+				ui.action_table->setItem(i, tableColumn_mark, item);
+			}
 		}
 		updating = false;
 	}
@@ -1547,7 +1570,7 @@ private:
 				if (after < 0) return 0;
 				actions->move(before, after);
 				TableUpdate();
-				ui.action_table->setCurrentItem(ui.action_table->item(after, 0));
+				ui.action_table->setCurrentItem(ui.action_table->item(after, tableColumn_type));
 				return true;
 			}
 		}
@@ -1751,12 +1774,12 @@ private:
 		if (up && ((p - 1) >= 0))
 		{
 			actions->swap(p, p - 1);
-			ui.action_table->setCurrentItem(ui.action_table->item(p - 1, 0));
+			ui.action_table->setCurrentItem(ui.action_table->item(p - 1, tableColumn_type));
 		}
 		else if (!up && (p + 1) < ui.action_table->rowCount())
 		{
 			actions->swap(p, p + 1);
-			ui.action_table->setCurrentItem(ui.action_table->item(p + 1, 0));
+			ui.action_table->setCurrentItem(ui.action_table->item(p + 1, tableColumn_type));
 		}
 		TableUpdate();
 	}
@@ -1767,7 +1790,7 @@ private:
 		else p++;
 		actions->insert(p, ItemGet(type));
 		TableUpdate();
-		ui.action_table->setCurrentItem(ui.action_table->item(p, 0));
+		ui.action_table->setCurrentItem(ui.action_table->item(p, tableColumn_type));
 	}
 	void ItemChange(int type)
 	{
@@ -1788,7 +1811,7 @@ private:
 		QList<QTableWidgetItem*> items = ui.action_table->selectedItems();
 		if (items.empty()) return;
 		std::vector<size_t> positions;
-		for (int i = 0; i < items.size(); i++) if (items[i]->column() == 0) positions.push_back(items[i]->row());
+		for (int i = 0; i < items.size(); i++) if (items[i]->column() == tableColumn_type) positions.push_back(items[i]->row());
 		actions->remove(positions);
 		TableUpdate();
 		ui.action_table->setCurrentItem(0);
@@ -1804,7 +1827,7 @@ private:
 		QList<QTableWidgetItem*> items = ui.action_table->selectedItems();
 		if (items.empty()) return;
 		Qi::clipboard.clear();
-		for (size_t i = 0; i < items.size(); i++) if (items[i]->column() == 0) Qi::clipboard.append_copy(actions->at(items[i]->row()));
+		for (size_t i = 0; i < items.size(); i++) if (items[i]->column() == tableColumn_type) Qi::clipboard.append_copy(actions->at(items[i]->row()));
 	}
 	void ItemPaste()
 	{

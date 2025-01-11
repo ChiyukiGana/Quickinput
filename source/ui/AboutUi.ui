@@ -88,7 +88,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2024-11-30_2</string>
+         <string>2025-1-11</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -104,7 +104,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>修复任务栏菜单</string>
+         <string>增加禁用鼠标移动
+增加禁用宏动作</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

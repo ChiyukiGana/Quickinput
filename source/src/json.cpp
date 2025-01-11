@@ -76,6 +76,7 @@ namespace QiJson
 
 			const Action& var = actions[i];
 
+			jAction.insert("dis", var.base().disable);
 			jAction.insert("type", (int)var.base().type);
 			jAction.insert("mark", var.base().mark);
 
@@ -229,6 +230,7 @@ namespace QiJson
 		jMacro.insert("wndClass", macro.wi.wndClass);
 		jMacro.insert("state", (bool)macro.state);
 		jMacro.insert("block", (bool)macro.block);
+		jMacro.insert("blockCur", (bool)macro.blockCur);
 		jMacro.insert("mode", (int)macro.mode);
 		jMacro.insert("key", (int)macro.key);
 		jMacro.insert("count", (int)macro.count);
@@ -294,22 +296,22 @@ namespace QiJson
 			jAction = jActions.at(i).toObject();
 
 			int type = jAction.value("type").toInt();
-			QString mark;
 
 			if (type)
 			{
-				mark = jAction.value("mark").toString();
+				bool dis = jAction.value("dis").toBool();
+				QString mark = jAction.value("mark").toString();
 				switch (type)
 				{
 				case QiType::end:
 				{
-					QiEnd end; end.mark = mark;
+					QiEnd end; end.disable = dis, end.mark = mark;
 
 					actions.append(std::move(end));
 				} break;
 				case QiType::delay:
 				{
-					QiDelay delay; delay.mark = mark;
+					QiDelay delay; delay.disable = dis, delay.mark = mark;
 
 					delay.min = jAction.value("ms").toInt();
 					delay.max = jAction.value("ex").toInt();
@@ -319,7 +321,7 @@ namespace QiJson
 				} break;
 				case QiType::key:
 				{
-					QiKey key; key.mark = mark;
+					QiKey key; key.disable = dis, key.mark = mark;
 
 					key.state = jAction.value("state").toInt();
 					key.vk = jAction.value("vk").toInt();
@@ -328,7 +330,7 @@ namespace QiJson
 				} break;
 				case QiType::mouse:
 				{
-					QiMouse mouse; mouse.mark = mark;
+					QiMouse mouse; mouse.disable = dis, mouse.mark = mark;
 
 					mouse.move = jAction.value("move").toBool();
 					mouse.x = jAction.value("x").toInt();
@@ -343,7 +345,7 @@ namespace QiJson
 				} break;
 				case QiType::copyText:
 				{
-					QiCopyText text; text.mark = mark;
+					QiCopyText text; text.disable = dis, text.mark = mark;
 
 					text.text = jAction.value("text").toString();
 
@@ -351,7 +353,7 @@ namespace QiJson
 				} break;
 				case QiType::color:
 				{
-					QiColor color; color.mark = mark;
+					QiColor color; color.disable = dis, color.mark = mark;
 
 					color.move = jAction.value("move").toBool();
 					color.rect.left = jAction.value("left").toInt();
@@ -366,7 +368,7 @@ namespace QiJson
 				} break;
 				case QiType::loop:
 				{
-					QiLoop loop; loop.mark = mark;
+					QiLoop loop; loop.disable = dis, loop.mark = mark;
 
 					loop.min = jAction.value("count").toInt();
 					loop.max = jAction.value("rand").toInt();
@@ -378,13 +380,13 @@ namespace QiJson
 				} break;
 				case QiType::loopEnd:
 				{
-					QiLoopEnd loopEnd; loopEnd.mark = mark;
+					QiLoopEnd loopEnd; loopEnd.disable = dis, loopEnd.mark = mark;
 
 					actions.append(QiLoopEnd());
 				} break;
 				case QiType::keyState:
 				{
-					QiKeyState keyState; keyState.mark = mark;
+					QiKeyState keyState; keyState.disable = dis, keyState.mark = mark;
 
 					keyState.vk = jAction.value("vk").toInt();
 					keyState.next = LoadAction(jAction.value("next").toArray());
@@ -394,13 +396,13 @@ namespace QiJson
 				} break;
 				case QiType::recoverPos:
 				{
-					QiRecoverPos recoverPos; recoverPos.mark = mark;
+					QiRecoverPos recoverPos; recoverPos.disable = dis, recoverPos.mark = mark;
 
 					actions.append(std::move(recoverPos));
 				} break;
 				case QiType::image:
 				{
-					QiImage image; image.mark = mark;
+					QiImage image; image.disable = dis, image.mark = mark;
 
 					image.move = jAction.value("move").toBool();
 					image.rect.left = jAction.value("left").toInt();
@@ -427,7 +429,7 @@ namespace QiJson
 				} break;
 				case QiType::popText:
 				{
-					QiPopText popText; popText.mark = mark;
+					QiPopText popText; popText.disable = dis, popText.mark = mark;
 
 					popText.text = jAction.value("text").toString();
 					popText.time = jAction.value("time").toInt();
@@ -437,13 +439,13 @@ namespace QiJson
 				} break;
 				case QiType::rememberPos:
 				{
-					QiRememberPos rememberPos; rememberPos.mark = mark;
+					QiRememberPos rememberPos; rememberPos.disable = dis, rememberPos.mark = mark;
 
 					actions.append(std::move(rememberPos));
 				} break;
 				case QiType::timer:
 				{
-					QiTimer timer; timer.mark = mark;
+					QiTimer timer; timer.disable = dis, timer.mark = mark;
 
 					timer.min = jAction.value("min").toInt();
 					timer.max = jAction.value("max").toInt();
@@ -454,21 +456,21 @@ namespace QiJson
 				} break;
 				case QiType::jump:
 				{
-					QiJump jump; jump.mark = mark;
+					QiJump jump; jump.disable = dis, jump.mark = mark;
 
 					jump.id = jAction.value("id").toInt();
 					actions.append(std::move(jump));
 				} break;
 				case QiType::jumpPoint:
 				{
-					QiJumpPoint jumpPoint; jumpPoint.mark = mark;
+					QiJumpPoint jumpPoint; jumpPoint.disable = dis, jumpPoint.mark = mark;
 
 					jumpPoint.id = jAction.value("id").toInt();
 					actions.append(std::move(jumpPoint));
 				} break;
 				case QiType::dialog:
 				{
-					QiDialog dialog; dialog.mark = mark;
+					QiDialog dialog; dialog.disable = dis, dialog.mark = mark;
 
 					dialog.style = jAction.value("style").toInt();
 					dialog.title = jAction.value("title").toString();
@@ -480,7 +482,7 @@ namespace QiJson
 				} break;
 				case QiType::block:
 				{
-					QiBlock block; block.mark = mark;
+					QiBlock block; block.disable = dis, block.mark = mark;
 
 					block.id = jAction.value("id").toInt();
 					block.next = LoadAction(jAction.value("next").toArray());
@@ -489,7 +491,7 @@ namespace QiJson
 				} break;
 				case QiType::blockExec:
 				{
-					QiBlockExec blockExec; blockExec.mark = mark;
+					QiBlockExec blockExec; blockExec.disable = dis, blockExec.mark = mark;
 
 					blockExec.id = jAction.value("id").toInt();
 					actions.append(std::move(blockExec));
@@ -521,6 +523,7 @@ namespace QiJson
 					macro.wi.wndClass = jMacro.value("wndClass").toString();
 					macro.state = jMacro.value("state").toBool();
 					macro.block = jMacro.value("block").toBool();
+					macro.blockCur = jMacro.value("blockCur").toBool();
 					macro.mode = jMacro.value("mode").toInt();
 					macro.key = jMacro.value("key").toInt();
 					macro.count = jMacro.value("count").toInt();

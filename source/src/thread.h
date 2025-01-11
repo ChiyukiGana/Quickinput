@@ -3,6 +3,7 @@
 namespace QiThread
 {
 	bool PeekExitMsg();
+	bool PeekSleep(clock_t ms);
 	// start
 	void StartMacroRun(Macro* pMacro);
 	void StartMacroEnd(Macro* pMacro);

@@ -224,13 +224,17 @@ namespace QiFn
 		{
 			// Update block keys
 			{
+				Qi::blockCur = 0;
 				Qi::blockKeys.clear();
-				for (int u = 0; u < Qi::macros.size(); u++)
+				for (const Macro& macro : Qi::macros)
 				{
-					if (Qi::macros[u].state && Qi::macros[u].block)
+					if (macro.state)
 					{
-						if ((Qi::macros[u].key & 0xFFFF)) Qi::blockKeys.append((Qi::macros[u].key & 0xFFFF));
-						if (Qi::macros[u].key >> 16) Qi::blockKeys.append(Qi::macros[u].key >> 16);
+						if (macro.block)
+						{
+							if (macro.key & 0xFFFF) Qi::blockKeys.append(macro.key & 0xFFFF);
+							if (macro.key >> 16) Qi::blockKeys.append(macro.key >> 16);
+						}
 					}
 				}
 			}

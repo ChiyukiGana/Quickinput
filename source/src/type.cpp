@@ -27,6 +27,7 @@ namespace Qi
 	// input
 	bool keyState[keySize];
 	QList<byte> blockKeys;
+	int blockCur = 0;
 	XBoxPad xboxpad;
 	// dir
 	const QString dir = QDir::fromNativeSeparators(QString::fromWCharArray(Process::runPath().c_str()));

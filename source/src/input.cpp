@@ -97,7 +97,7 @@ bool _stdcall InputHook::InputProc(BYTE key, bool press, POINT cursor, PULONG_PT
 		*param = 0;
 		return false;
 	}
-	// other
+	// key
 	else if (key)
 	{
 		if (press)
@@ -115,6 +115,11 @@ bool _stdcall InputHook::InputProc(BYTE key, bool press, POINT cursor, PULONG_PT
 		}
 		// block trigger key
 		if (Qi::run) for (int i = 0; i < Qi::blockKeys.size(); i++) if (Qi::blockKeys[i] == key) return true;
+	}
+	// cursor
+	else
+	{
+		if (Qi::run && Qi::blockCur > 0) return true;
 	}
 	return false;
 }

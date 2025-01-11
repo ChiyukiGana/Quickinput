@@ -117,7 +117,6 @@
       <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalDependencies>$(ProjectDir)source\src\libcurl\lib\libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>

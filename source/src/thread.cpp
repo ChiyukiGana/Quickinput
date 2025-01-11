@@ -6,6 +6,19 @@ namespace QiThread
 	{
 		return PeekMessageW(&Qi::msg, 0, msg_exit, msg_exit, PM_NOREMOVE);
 	}
+	bool PeekSleep(clock_t ms)
+	{
+		clock_t s = 8;
+		if (ms < 1) return false;
+		else if (ms < 16) s = ms << 3;
+		ms = clock() + ms;
+		while (clock() < ms)
+		{
+			if (PeekExitMsg()) return true;
+			Sleep(s);
+		}
+		return false;
+	}
 	DWORD _stdcall MacroRun(PVOID pParam)
 	{
 		Macro* pMacro = (Macro*)pParam;
@@ -33,11 +46,13 @@ namespace QiThread
 		GetCursorPos(&pMacro->cursor);
 		int count = 0;
 		int jumpId = 0;
+		Qi::blockCur += pMacro->blockCur;
 		while (Qi::run && !PeekExitMsg())
 		{
 			if (pMacro->count) { count++; if (count > pMacro->count) break; } // if count = 0 then while is infinite
 			if (QiInterpreter::ActionInterpreter(pMacro->acRun, pMacro->acRun, pMacro->cursor, pWi, jumpId) != r_continue) break;
 		}
+		Qi::blockCur -= pMacro->blockCur;
 		return 0;
 	}
 	DWORD _stdcall MacroEnd(PVOID pParam)
@@ -63,7 +78,9 @@ namespace QiThread
 			pWi = &pMacro->wp;
 		}
 		int jumpId = 0;
+		Qi::blockCur += pMacro->blockCur;
 		QiInterpreter::ActionInterpreter(pMacro->acEnd, pMacro->acEnd, pMacro->cursor, pWi, jumpId);
+		Qi::blockCur -= pMacro->blockCur;
 		return 0;
 	}
 	DWORD _stdcall QuickClick(PVOID)

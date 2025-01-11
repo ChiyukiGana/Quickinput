@@ -78,19 +78,19 @@ namespace QiTools {
 		static void Click(BYTE vk, UINT delay = 10, ULONG_PTR ex = 0) { State(vk, 1, ex); Sleep(delay); State(vk, 0, ex); Sleep(delay); }
 		static void Click(HWND wnd, BYTE vk, POINT pos = { 0 }, UINT delay = 10) { State(wnd, vk, pos, 1); Sleep(delay); State(wnd, vk, pos, 0); Sleep(delay); }
 		// param: x, y = Pixel
-		static void Move(LONG x, LONG y) { INPUT input = { 0 }; MOUSEINPUT mouseInput = { x, y, 0, MOUSEEVENTF_MOVE, 0, 0 }; input.type = INPUT_MOUSE; input.mi = mouseInput; SendInput(1, &input, sizeof(input)); }
+		static void Move(LONG x, LONG y, ULONG_PTR ex = 0) { INPUT input = { 0 }; MOUSEINPUT mouseInput = { x, y, 0, MOUSEEVENTF_MOVE, 0, ex }; input.type = INPUT_MOUSE; input.mi = mouseInput; SendInput(1, &input, sizeof(input)); }
 		// param: x, y = 0~ScreenPixel-1
-		static void MoveTo(int x, int y)
+		static void MoveTo(int x, int y, ULONG_PTR ex = 0)
 		{
 			HMONITOR hmt = MonitorFromWindow(nullptr, MONITOR_DEFAULTTOPRIMARY);
 			MONITORINFOEXW mti = {}; mti.cbSize = sizeof(MONITORINFOEXW); GetMonitorInfoW(hmt, &mti);
 			DEVMODEW dm = { sizeof(DEVMODEW) }; EnumDisplaySettingsW(mti.szDevice, ENUM_CURRENT_SETTINGS, &dm);
-			dm.dmPelsWidth -= 1, dm.dmPelsHeight -= 1; MoveToA((65536.0f / (float)dm.dmPelsWidth) * (float)x, 65536.0f / (float)dm.dmPelsHeight * (float)y);
+			dm.dmPelsWidth -= 1, dm.dmPelsHeight -= 1; MoveToA((65536.0f / (float)dm.dmPelsWidth) * (float)x, 65536.0f / (float)dm.dmPelsHeight * (float)y, ex);
 		}
 		// param: x, y = WindowPixel
 		static void MoveTo(HWND wnd, int x, int y, WORD mk = 0) { PostMessageW(wnd, WM_MOUSEMOVE, mk, (LONGLONG)(y << 16 | x)); }
 		// param: x, y = 0~65535
-		static void MoveToA(LONG x, LONG y) { INPUT input = { 0 }; MOUSEINPUT mouseInput = { x, y, 0, MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE, 0, 0 }; input.type = INPUT_MOUSE; input.mi = mouseInput; SendInput(1, &input, sizeof(input)); }
+		static void MoveToA(LONG x, LONG y, ULONG_PTR ex = 0) { INPUT input = { 0 }; MOUSEINPUT mouseInput = { x, y, 0, MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE, 0, ex }; input.type = INPUT_MOUSE; input.mi = mouseInput; SendInput(1, &input, sizeof(input)); }
 		// param: x, y = 0~ScreenPixel
 		static void MoveClick(BYTE vk, int x, int y, UINT delay = 10) { MoveTo(x, y); MoveLock(); Click(vk, delay); MoveLock(0); }
 		// param: x, y = 0~65535

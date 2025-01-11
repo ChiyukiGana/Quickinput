@@ -23,6 +23,7 @@ private:
 	{
 		ui.content_widget->setProperty("group", "client");
 		ui.block_check->setProperty("group", "check");
+		ui.block_cur_check->setProperty("group", "check");
 		ui.mode_combo->setProperty("group", "combo");
 		ui.count_edit->setProperty("group", "line_edit");
 		ui.key_keyedit->setProperty("group", "line_edit");
@@ -82,16 +83,15 @@ private:
 		if ("clear shortcut")
 		{
 			ui.block_check->installEventFilter(this);
+			ui.block_cur_check->installEventFilter(this);
 			ui.mode_combo->installEventFilter(this);
 		}
 	}
 	void Event()
 	{
 		connect(ui.macro_table, &QTableWidget::cellClicked, this, [this](int row, int column) {
-			if (row < 0) return;
-			if (column == 3) macros->at(row).state = !macros->at(row).state;
-			ui.block_check->setChecked(macros->at(row).block);
-			ui.mode_combo->setCurrentIndex(macros->at(row).mode);
+			if (row < 0 || column != 3) return;
+			macros->at(row).state = !macros->at(row).state;
 			TableUpdate();
 			QiJson::SaveMacro(macros->at(row));
 			});
@@ -101,20 +101,25 @@ private:
 			if (items.size() == ui.macro_table->columnCount())
 			{
 				int row = items.first()->row();
+				Macro& macro = macros->at(row);
+				// state
+				ui.block_check->setChecked(macro.block);
+				ui.block_cur_check->setChecked(macro.blockCur);
+				ui.mode_combo->setCurrentIndex(macro.mode);
 				// key
 				{
 					QList<QKeyEdit::Key> keys;
 					QKeyEdit::Key key;
-					key.keyCode = macros->at(row).key & 0xFFFF;
+					key.keyCode = macro.key & 0xFFFF;
 					keys.push_back(key);
-					key.keyCode = macros->at(row).key >> 16;
+					key.keyCode = macro.key >> 16;
 					keys.push_back(key);
 					ui.key_keyedit->setKeys(keys);
 				}
 				// count
-				if (macros->at(row).mode >= Macro::down)
+				if (macro.mode >= Macro::down)
 				{
-					ui.count_edit->setText(QString::number(macros->at(row).count));
+					ui.count_edit->setText(QString::number(macro.count));
 					ui.count_edit->setEnabled(true);
 				}
 				ui.param_widget->setEnabled(true);
@@ -127,6 +132,13 @@ private:
 			TableUpdate();
 			QiJson::SaveMacro(macros->at(p));
 			});
+		connect(ui.block_cur_check, &QCheckBox::clicked, this, [this](bool state) {
+			int p = ui.macro_table->currentRow(); if (p < 0) return;
+			macros->at(p).blockCur = state;
+			TableUpdate();
+			QiJson::SaveMacro(macros->at(p));
+			});
+
 		connect(ui.mode_combo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) {
 			int p = ui.macro_table->currentRow(); if (p < 0) return;
 			switch (index)
@@ -175,7 +187,8 @@ private:
 	}
 	void ResetWidget()
 	{
-		ui.block_check->setChecked(0);
+		ui.block_check->setChecked(false);
+		ui.block_cur_check->setChecked(false);
 		ui.key_keyedit->clear();
 		ui.count_edit->setText("");
 	}

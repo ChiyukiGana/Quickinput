@@ -24,7 +24,7 @@ namespace QiInterpreter
 					if (!base.next2.empty() && jumpId) ActionInterpreter(parent, base.next2, cursor, wp, jumpId);
 				}
 			}
-			else
+			else if (!action.base().disable)
 			{
 				switch (action.index())
 				{
@@ -35,7 +35,7 @@ namespace QiInterpreter
 				case QiType::delay:
 				{
 					const QiDelay& delay = std::get<QiDelay>(action);
-					Sleep(Rand(delay.max, delay.min));
+					if (QiThread::PeekSleep(Rand(delay.max, delay.min))) result = r_exit;
 				} break;
 				case QiType::key:
 				{
@@ -119,11 +119,11 @@ namespace QiInterpreter
 							if (mouse.track)
 							{
 								QiFn::SmoothMove(0, 0, x, y, mouse.speed, [](int x, int y, int stepx, int stepy) {
-									Input::Move(stepx, stepy);
+									Input::Move(stepx, stepy, key_info);
 									Sleep(5);
 									});
 							}
-							else Input::Move(x, y);
+							else Input::Move(x, y, key_info);
 						}
 						else
 						{
@@ -133,11 +133,11 @@ namespace QiInterpreter
 								GetCursorPos(&spt);
 								spt = QiFn::RTA(spt);
 								QiFn::SmoothMove(spt.x, spt.y, x, y, mouse.speed, [](int x, int y, int stepx, int stepy)->void {
-									Input::MoveToA(x * 6.5535f, y * 6.5535f);
+									Input::MoveToA(x * 6.5535f, y * 6.5535f, key_info);
 									Sleep(5);
 									});
 							}
-							else Input::MoveToA(x * 6.5535f, y * 6.5535f);
+							else Input::MoveToA(x * 6.5535f, y * 6.5535f, key_info);
 						}
 					}
 				} break;
