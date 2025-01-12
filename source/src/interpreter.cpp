@@ -177,7 +177,7 @@ namespace QiInterpreter
 								wp->pt = findResult.pt;
 								Input::MoveTo(wp->wnd, wp->pt.x, wp->pt.y, wp->mk);
 							}
-							else Input::MoveTo(findResult.pt.x, findResult.pt.y);
+							else Input::MoveTo(findResult.pt.x, findResult.pt.y, key_info);
 						}
 						result = ActionInterpreter(parent, color.next, cursor, wp, jumpId);
 					}
@@ -257,7 +257,7 @@ namespace QiInterpreter
 								wp->pt = pt;
 								Input::MoveTo(wp->wnd, wp->pt.x, wp->pt.y, wp->mk);
 							}
-							else Input::MoveTo(pt.x, pt.y);
+							else Input::MoveTo(pt.x, pt.y, key_info);
 						}
 						result = ActionInterpreter(parent, image.next, cursor, wp, jumpId);
 					}
