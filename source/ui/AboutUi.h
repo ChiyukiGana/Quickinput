@@ -10,7 +10,7 @@ class AboutUi : public QWidget
 	QiUpdate update;
 	std::string version, content;
 public:
-	AboutUi(QWidget* parent) : QWidget(parent), update(this, 20250117, 0)
+	AboutUi(QWidget* parent) : QWidget(parent), update(this, 20250118, 0)
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
@@ -43,7 +43,7 @@ private:
 
 软件：Quickinput 键盘鼠标宏
 
-版权所属© 2023-2024 ChiyukiGana
+版权所属© 2023-2025 ChiyukiGana
 
 
 以下内容中将 “Quickinput 键盘鼠标宏” 称为 "此软件"

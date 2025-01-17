@@ -223,7 +223,7 @@ namespace QiInterpreter
 				} break;
 				case QiType::recoverPos:
 				{
-					Input::MoveTo(cursor.x, cursor.y);
+					Input::MoveTo(cursor.x, cursor.y, key_info);
 				} break;
 				case QiType::image:
 				{

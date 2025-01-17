@@ -88,7 +88,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-1-17</string>
+         <string>2025-1-18</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -104,7 +104,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>提高等待精度</string>
+         <string>修复禁用鼠标移动导致恢复鼠标位置失效</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -194,7 +194,7 @@
             </sizepolicy>
            </property>
            <property name="text">
-            <string>© 2023-2024 ChiyukiGana</string>
+            <string>© 2023-2025 ChiyukiGana</string>
            </property>
            <property name="textFormat">
             <enum>Qt::PlainText</enum>
