@@ -2,22 +2,36 @@
 namespace QiThread
 {
 	ThreadQueue releaseKeyQueue;
+	void PrecSleep(clock_t ms)
+	{
+		clock_t begin = clock();
+		if (ms > 5)
+		{
+			begin--;
+			while ((begin + ms) > clock()) Sleep(1);
+		}
+		else while ((begin + ms) > clock()) Sleep(0);
+	}
+
 	bool PeekExitMsg()
 	{
 		return PeekMessageW(&Qi::msg, 0, msg_exit, msg_exit, PM_NOREMOVE);
 	}
 	bool PeekSleep(clock_t ms)
 	{
-		clock_t s = 8;
-		if (ms < 1) return false;
-		else if (ms < 16) s = ms << 3;
-		ms = clock() + ms;
-		while (clock() < ms)
+		clock_t begin = clock();
+		if (ms > 5)
 		{
-			if (PeekExitMsg()) return true;
-			Sleep(s);
+			begin--;
+			while ((begin + ms) > clock())
+			{
+				if (PeekExitMsg()) return true;
+				Sleep(1);
+			}
+			return false;
 		}
-		return false;
+		else while ((begin + ms) > clock()) Sleep(0);
+		return PeekExitMsg();
 	}
 	DWORD _stdcall MacroRun(PVOID pParam)
 	{
@@ -93,9 +107,9 @@ namespace QiThread
 		while (Qi::run && !PeekExitMsg())
 		{
 			Input::State(Qi::fun.quickClick.key, true, key_info);
-			Sleep(Rand(dmax, dmin));
+			PrecSleep(Rand(dmax, dmin));
 			Input::State(Qi::fun.quickClick.key, false, key_info);
-			Sleep(Rand(umax, umin));
+			PrecSleep(Rand(umax, umin));
 		}
 		return 0;
 	}

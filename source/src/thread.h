@@ -2,6 +2,7 @@
 #include "inc_header.h"
 namespace QiThread
 {
+	void PrecSleep(clock_t ms);
 	bool PeekExitMsg();
 	bool PeekSleep(clock_t ms);
 	// start

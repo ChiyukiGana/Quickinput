@@ -60,8 +60,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Win32'">
-    <OutDir>$(Configuration)\Application\</OutDir>
-    <IntDir>$(Configuration)\</IntDir>
+    <OutDir>.build\$(Configuration)\Application\</OutDir>
+    <IntDir>.build\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
     <PreLinkEventUseInBuild>false</PreLinkEventUseInBuild>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
@@ -69,8 +69,8 @@
     <ExternalIncludePath>$(ProjectDir);$(ProjectDir)source;$(ProjectDir)source\src\libcurl\include;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'">
-    <OutDir>$(Configuration)\Application\</OutDir>
-    <IntDir>$(Configuration)\</IntDir>
+    <OutDir>.build\$(Configuration)\Application\</OutDir>
+    <IntDir>.build\$(Configuration)\</IntDir>
     <PreBuildEventUseInBuild>false</PreBuildEventUseInBuild>
     <PreLinkEventUseInBuild>false</PreLinkEventUseInBuild>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
@@ -83,7 +83,6 @@
       </AdditionalManifestDependencies>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <LinkErrorReporting>NoErrorReport</LinkErrorReporting>
-      <ImageHasSafeExceptionHandlers>true</ImageHasSafeExceptionHandlers>
       <AdditionalDependencies>$(ProjectDir)source\src\libcurl\lib\libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <ClCompile>
