@@ -266,16 +266,22 @@ namespace QiFn
 		if (step < 0.01f) step = 0.01f;
 		if (step > 0.99f) step = 0.99f;
 
-		for (float i = 0.0f; i < 1.0f; i += step)
+		for (float i = 0.0f; true; i += step)
 		{
 			if (i > 1.0f) i = 1.0f;
 			int x = sx + (int)((float)cx * i);
 			int y = sy + (int)((float)cy * i);
-			CallBack(x, y, x - px, y - py);
-			px = x;
-			py = y;
+			if (i < 1.0f)
+			{
+				CallBack(x, y, x - px, y - py);
+				px = x, py = y;
+			}
+			else
+			{
+				CallBack(dx, dy, dx - px, dy - py);
+				break;
+			}
 		}
-		CallBack(dx, dy, sx - px, sy - py);
 	}
 	WndInfo WindowSelection()
 	{
