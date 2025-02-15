@@ -224,17 +224,13 @@ namespace QiFn
 		{
 			// Update block keys
 			{
-				Qi::blockCur = 0;
-				Qi::blockKeys.clear();
+				Qi::curBlock = 0;
 				for (const Macro& macro : Qi::macros)
 				{
-					if (macro.state)
+					if (macro.state && macro.keyBlock)
 					{
-						if (macro.block)
-						{
-							if (macro.key & 0xFFFF) Qi::blockKeys.append(macro.key & 0xFFFF);
-							if (macro.key >> 16) Qi::blockKeys.append(macro.key >> 16);
-						}
+						if (macro.key & 0xFFFF) Qi::keyBlock[macro.key & 0xFFFF] = true;
+						if (macro.key >> 16) Qi::keyBlock[macro.key >> 16] = true;
 					}
 				}
 			}

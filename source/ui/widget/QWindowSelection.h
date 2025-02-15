@@ -79,7 +79,7 @@ private:
 		painter.setFont(font);
 		painter.setPen(QColor(255, 255, 255));
 		painter.fillRect(0, 0, width(), height(), QColor(0, 128, 255, 64));
-		painter.drawText(0, 0, width(), height(), Qt::AlignCenter, "点击回车选择");
+		painter.drawText(0, 0, width(), height(), Qt::AlignCenter, "鐐瑰嚮鍥炶溅閫夋嫨");
 	}
 
 private Q_SLOTS:

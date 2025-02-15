@@ -22,6 +22,10 @@ namespace QiTools
 		{
 			base_vector::operator=(other);
 		}
+		void move(QiVector&& other)
+		{
+			base_vector::operator=(std::move(other));
+		}
 		// size
 		using base_vector::empty;
 		bool not_empty() const

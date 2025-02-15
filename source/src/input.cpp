@@ -113,13 +113,16 @@ bool _stdcall InputHook::InputProc(BYTE key, bool press, POINT cursor, PULONG_PT
 			Qi::keyState[key] = press;
 			inputQueue.enqueue(InputTask, key, press, cursor, KeyState(Qi::keyState));
 		}
-		// block trigger key
-		if (Qi::run) for (int i = 0; i < Qi::blockKeys.size(); i++) if (Qi::blockKeys[i] == key) return true;
+		// block
+		if (Qi::run && Qi::keyBlock[key]) return true;
 	}
 	// cursor
-	else
+	else if (Qi::run)
 	{
-		if (Qi::run && Qi::blockCur > 0) return true;
+		// trigger block
+		if (Qi::curBlock > 0) return true;
+		// macro block
+		else if (Qi::keyBlock[0]) return true;
 	}
 	return false;
 }

@@ -71,6 +71,8 @@ namespace QiUi
 		QString acDialog;
 		QString acBlock;
 		QString acBlockExec;
+		QString acQuickInput;
+		QString acKeyBlock;
 		// state
 		QString trOn;
 		QString trOff;
@@ -236,7 +238,9 @@ struct QiType
 		jumpPoint,
 		dialog,
 		block,
-		blockExec
+		blockExec,
+		quickInput,
+		keyBlock
 	};
 };
 using Actions = QiVector<class Action>;
@@ -449,6 +453,27 @@ public:
 	void operator=(const QiBlockExec& r) { QiBase::operator=(r); id = r.id; }
 	void operator=(QiBlockExec&& r) noexcept { QiBase::operator=(std::move(r)); id = r.id; }
 };
+class QiQuickInput : public QiBase
+{
+public:
+	QiVector<char> chars;
+	QiQuickInput() : QiBase(QiType::quickInput) {}
+	QiQuickInput(const QiQuickInput& r) { operator=(r); }
+	QiQuickInput(QiQuickInput&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiQuickInput& r) { QiBase::operator=(r); chars.copy(r.chars); }
+	void operator=(QiQuickInput&& r) noexcept { QiBase::operator=(std::move(r)); chars.move(std::move(r.chars)); }
+};
+class QiKeyBlock : public QiBase
+{
+public:
+	int vk = 0;
+	bool block = false;
+	QiKeyBlock() : QiBase(QiType::keyBlock) {}
+	QiKeyBlock(const QiKeyBlock& r) { operator=(r); }
+	QiKeyBlock(QiKeyBlock&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiKeyBlock& r) { QiBase::operator=(r); vk = r.vk; block = r.block; }
+	void operator=(QiKeyBlock&& r) noexcept { QiBase::operator=(std::move(r)); vk = r.vk; block = r.block; }
+};
 using ActionVariant = std::variant
 <
 	QiBase,
@@ -470,7 +495,9 @@ using ActionVariant = std::variant
 	QiJumpPoint,
 	QiDialog,
 	QiBlock,
-	QiBlockExec
+	QiBlockExec,
+	QiQuickInput,
+	QiKeyBlock
 > ;
 class Action : public ActionVariant
 {
@@ -506,169 +533,6 @@ public:
 		return *base;
 	}
 };
-/*
-Action& var = actions->at(i);
-switch (var.index())
-{
-case QiType::end:
-{
-	QiEnd& end = std::get<QiEnd>(var);
-} break;
-case QiType::delay:
-{
-	QiDelay& delay = std::get<QiDelay>(var);
-} break;
-case QiType::key:
-{
-	QiKey& key = std::get<QiKey>(var);
-} break;
-case QiType::mouse:
-{
-	QiMouse& mouse = std::get<QiMouse>(var);
-} break;
-case QiType::copyText:
-{
-	QiCopyText& text = std::get<QiCopyText>(var);
-} break;
-case QiType::color:
-{
-	QiColor& color = std::get<QiColor>(var);
-} break;
-case QiType::loop:
-{
-	QiLoop& loop = std::get<QiLoop>(var);
-} break;
-case QiType::loopEnd:
-{
-	QiLoopEnd& loopEnd = std::get<QiLoopEnd>(var);
-} break;
-case QiType::keyState:
-{
-	QiKeyState& keyState = std::get<QiKeyState>(var);
-} break;
-case QiType::recoverPos:
-{
-	QiRecoverPos& recoverPos = std::get<QiRecoverPos>(var);
-} break;
-case QiType::image:
-{
-	QiImage& image = std::get<QiImage>(var);
-} break;
-case QiType::popText:
-{
-	QiPopText& popText = std::get<QiPopText>(var);
-} break;
-case QiType::rememberPos:
-{
-	QiRememberPos& rememberPos = std::get<QiRememberPos>(var);
-} break;
-case QiType::timer:
-{
-	QiTimer& timer = std::get<QiTimer>(var);
-} break;
-case QiType::jump:
-{
-	QiJump& jump = std::get<QiJump>(var);
-} break;
-case QiType::jumpPoint:
-{
-	QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(var);
-} break;
-case QiType::dialog:
-{
-	QiDialog& dialog = std::get<QiDialog>(var);
-} break;
-case QiType::block:
-{
-	QiBlock& block = std::get<QiBlock>(var);
-} break;
-case QiType::blockExec:
-{
-	QiBlockExec& blockExec = std::get<QiBlockExec>(var);
-} break;
-}
-----------------------------------------
-const Action& var = actions->at(i);
-switch (var.index())
-{
-case QiType::end:
-{
-	const QiEnd& end = std::get<QiEnd>(var);
-} break;
-case QiType::delay:
-{
-	const QiDelay& delay = std::get<QiDelay>(var);
-} break;
-case QiType::key:
-{
-	const QiKey& key = std::get<QiKey>(var);
-} break;
-case QiType::mouse:
-{
-	const QiMouse& mouse = std::get<QiMouse>(var);
-} break;
-case QiType::copyText:
-{
-	const QiCopyText& text = std::get<QiCopyText>(var);
-} break;
-case QiType::color:
-{
-	const QiColor& color = std::get<QiColor>(var);
-} break;
-case QiType::loop:
-{
-	const QiLoop& loop = std::get<QiLoop>(var);
-} break;
-case QiType::loopEnd:
-{
-	const QiLoopEnd& loopEnd = std::get<QiLoopEnd>(var);
-} break;
-case QiType::keyState:
-{
-	const QiKeyState& keyState = std::get<QiKeyState>(var);
-} break;
-case QiType::recoverPos:
-{
-	const QiRecoverPos& recoverPos = std::get<QiRecoverPos>(var);
-} break;
-case QiType::image:
-{
-	const QiImage& image = std::get<QiImage>(var);
-} break;
-case QiType::popText:
-{
-	const QiPopText& popText = std::get<QiPopText>(var);
-} break;
-case QiType::rememberPos:
-{
-	const QiRememberPos& rememberPos = std::get<QiRememberPos>(var);
-} break;
-case QiType::timer:
-{
-	const QiTimer& timer = std::get<QiTimer>(var);
-} break;
-case QiType::jump:
-{
-	const QiJump& jump = std::get<QiJump>(var);
-} break;
-case QiType::jumpPoint:
-{
-	const QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(var);
-} break;
-case QiType::dialog:
-{
-	const QiDialog& dialog = std::get<QiDialog>(var);
-} break;
-case QiType::block:
-{
-	const QiBlock& block = std::get<QiBlock>(var);
-} break;
-case QiType::blockExec:
-{
-	const QiBlockExec& blockExec = std::get<QiBlockExec>(var);
-} break;
-}
-*/
 ////////////////// Macro
 struct Macro
 {
@@ -684,8 +548,8 @@ struct Macro
 	void operator=(const Macro& v)
 	{
 		state = v.state;
-		block = v.block;
-		block = v.blockCur;
+		keyBlock = v.keyBlock;
+		curBlock = v.curBlock;
 		wndState = v.wndState;
 		active = v.active;
 		key = v.key;
@@ -703,8 +567,8 @@ struct Macro
 	void operator=(Macro&& r) noexcept
 	{
 		state = r.state;
-		block = r.block;
-		blockCur = r.blockCur;
+		keyBlock = r.keyBlock;
+		curBlock = r.curBlock;
 		wndState = r.wndState;
 		active = r.active;
 		key = r.key;
@@ -721,8 +585,8 @@ struct Macro
 	}
 	enum { sw, down, up };
 	bool state = false; // enable | disable
-	bool block = false; // block this trigger key
-	bool blockCur = false; // block cursor move
+	bool keyBlock = false; // block this trigger key
+	bool curBlock = false; // block cursor move
 	bool wndState = false; // window mode enable | disable
 	bool active = false; // state of release trigger
 	int key = 0;
@@ -808,8 +672,8 @@ namespace Qi
 	extern QWindowSelection* windowSelection;
 	// input
 	extern bool keyState[keySize];
-	extern QList<byte> blockKeys;
-	extern int blockCur;
+	extern bool keyBlock[keySize];
+	extern int curBlock;
 	extern XBoxPad xboxpad;
 	// path
 	extern const QString dir;

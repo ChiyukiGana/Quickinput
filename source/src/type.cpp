@@ -26,8 +26,8 @@ namespace Qi
 	QWindowSelection* windowSelection = nullptr;
 	// input
 	bool keyState[keySize];
-	QList<byte> blockKeys;
-	int blockCur = 0;
+	bool keyBlock[keySize];
+	int curBlock = 0;
 	XBoxPad xboxpad;
 	// dir
 	const QString dir = QDir::fromNativeSeparators(QString::fromWCharArray(Process::runPath().c_str()));

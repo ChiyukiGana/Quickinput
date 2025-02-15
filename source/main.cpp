@@ -122,6 +122,8 @@ void Init()
 		Qi::ui.text.acDialog= (QString::fromUtf8("对话框") + Qi::ui.text.syText);
 		Qi::ui.text.acBlock = (QString::fromUtf8("块") + Qi::ui.text.syBlock);
 		Qi::ui.text.acBlockExec = (QString::fromUtf8("执行") + Qi::ui.text.syBlockExec);
+		Qi::ui.text.acQuickInput= (QString::fromUtf8("输入字符") + Qi::ui.text.syText);
+		Qi::ui.text.acKeyBlock= (QString::fromUtf8("屏蔽按键") + Qi::ui.text.syStop);
 		// state
 		Qi::ui.text.trOn = (QString::fromUtf8("启用") + Qi::ui.text.syOn);
 		Qi::ui.text.trOff = (QString::fromUtf8("禁用") + Qi::ui.text.syOff);

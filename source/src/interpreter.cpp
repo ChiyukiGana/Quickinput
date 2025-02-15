@@ -34,74 +34,74 @@ namespace QiInterpreter
 				} break;
 				case QiType::delay:
 				{
-					const QiDelay& delay = std::get<QiDelay>(action);
-					if (QiThread::PeekSleep(Rand(delay.max, delay.min))) result = r_exit;
+					const QiDelay& ref = std::get<QiDelay>(action);
+					if (QiThread::PeekSleep(Rand(ref.max, ref.min))) result = r_exit;
 				} break;
 				case QiType::key:
 				{
-					const QiKey& key = std::get<QiKey>(action);
+					const QiKey& ref = std::get<QiKey>(action);
 					if (wp)
 					{
-						if (key.state == QiKey::up)
+						if (ref.state == QiKey::up)
 						{
-							Input::State(wp->current, key.vk, wp->pt, false);
-							if (key.vk == VK_LBUTTON) wp->mk &= ~MK_LBUTTON;
-							else if (key.vk == VK_RBUTTON) wp->mk &= ~MK_RBUTTON;
-							else if (key.vk == VK_MBUTTON) wp->mk &= ~MK_MBUTTON;
-							else if (key.vk == VK_XBUTTON1) wp->mk &= ~MK_XBUTTON1;
-							else if (key.vk == VK_XBUTTON2) wp->mk &= ~MK_XBUTTON2;
-							else if (key.vk == VK_CONTROL) wp->mk &= ~MK_CONTROL;
-							else if (key.vk == VK_SHIFT) wp->mk &= ~MK_SHIFT;
+							Input::State(wp->current, ref.vk, wp->pt, false);
+							if (ref.vk == VK_LBUTTON) wp->mk &= ~MK_LBUTTON;
+							else if (ref.vk == VK_RBUTTON) wp->mk &= ~MK_RBUTTON;
+							else if (ref.vk == VK_MBUTTON) wp->mk &= ~MK_MBUTTON;
+							else if (ref.vk == VK_XBUTTON1) wp->mk &= ~MK_XBUTTON1;
+							else if (ref.vk == VK_XBUTTON2) wp->mk &= ~MK_XBUTTON2;
+							else if (ref.vk == VK_CONTROL) wp->mk &= ~MK_CONTROL;
+							else if (ref.vk == VK_SHIFT) wp->mk &= ~MK_SHIFT;
 						}
-						else if (key.state == QiKey::down)
+						else if (ref.state == QiKey::down)
 						{
-							Input::State(wp->current, key.vk, wp->pt, true);
-							if (key.vk == VK_LBUTTON) wp->mk |= MK_LBUTTON;
-							else if (key.vk == VK_RBUTTON) wp->mk |= MK_RBUTTON;
-							else if (key.vk == VK_MBUTTON) wp->mk |= MK_MBUTTON;
-							else if (key.vk == VK_XBUTTON1) wp->mk |= MK_XBUTTON1;
-							else if (key.vk == VK_XBUTTON2) wp->mk |= MK_XBUTTON2;
-							else if (key.vk == VK_CONTROL) wp->mk |= MK_CONTROL;
-							else if (key.vk == VK_SHIFT) wp->mk |= MK_SHIFT;
+							Input::State(wp->current, ref.vk, wp->pt, true);
+							if (ref.vk == VK_LBUTTON) wp->mk |= MK_LBUTTON;
+							else if (ref.vk == VK_RBUTTON) wp->mk |= MK_RBUTTON;
+							else if (ref.vk == VK_MBUTTON) wp->mk |= MK_MBUTTON;
+							else if (ref.vk == VK_XBUTTON1) wp->mk |= MK_XBUTTON1;
+							else if (ref.vk == VK_XBUTTON2) wp->mk |= MK_XBUTTON2;
+							else if (ref.vk == VK_CONTROL) wp->mk |= MK_CONTROL;
+							else if (ref.vk == VK_SHIFT) wp->mk |= MK_SHIFT;
 						}
-						else if (key.state == QiKey::click)
+						else if (ref.state == QiKey::click)
 						{
-							Input::Click(wp->current, key.vk, wp->pt, 10);
-							if (key.vk == VK_LBUTTON) wp->mk |= MK_LBUTTON;
-							else if (key.vk == VK_RBUTTON) wp->mk |= MK_RBUTTON;
-							else if (key.vk == VK_MBUTTON) wp->mk |= MK_MBUTTON;
-							else if (key.vk == VK_XBUTTON1) wp->mk |= MK_XBUTTON1;
-							else if (key.vk == VK_XBUTTON2) wp->mk |= MK_XBUTTON2;
-							else if (key.vk == VK_CONTROL) wp->mk |= MK_CONTROL;
-							else if (key.vk == VK_SHIFT) wp->mk |= MK_SHIFT;
+							Input::Click(wp->current, ref.vk, wp->pt, 10);
+							if (ref.vk == VK_LBUTTON) wp->mk |= MK_LBUTTON;
+							else if (ref.vk == VK_RBUTTON) wp->mk |= MK_RBUTTON;
+							else if (ref.vk == VK_MBUTTON) wp->mk |= MK_MBUTTON;
+							else if (ref.vk == VK_XBUTTON1) wp->mk |= MK_XBUTTON1;
+							else if (ref.vk == VK_XBUTTON2) wp->mk |= MK_XBUTTON2;
+							else if (ref.vk == VK_CONTROL) wp->mk |= MK_CONTROL;
+							else if (ref.vk == VK_SHIFT) wp->mk |= MK_SHIFT;
 						}
 					}
 					else
 					{
-						if (key.state == QiKey::up) Input::State(key.vk, false, key_info);
-						else if (key.state == QiKey::down) Input::State(key.vk, true, key_info);
-						else if (key.state == QiKey::click) Input::Click(key.vk, 10, key_info);
+						if (ref.state == QiKey::up) Input::State(ref.vk, false, key_info);
+						else if (ref.state == QiKey::down) Input::State(ref.vk, true, key_info);
+						else if (ref.state == QiKey::click) Input::Click(ref.vk, 10, key_info);
 					}
 				} break;
 				case QiType::mouse:
 				{
-					const QiMouse& mouse = std::get<QiMouse>(action);
+					const QiMouse& ref = std::get<QiMouse>(action);
 					if (wp)
 					{
 						POINT pt = {};
-						pt.x = mouse.x + (Rand(mouse.ex, (~mouse.ex + 1)));
-						pt.y = mouse.y + (Rand(mouse.ex, (~mouse.ex + 1)));
+						pt.x = ref.x + (Rand(ref.ex, (~ref.ex + 1)));
+						pt.y = ref.y + (Rand(ref.ex, (~ref.ex + 1)));
 
-						if (mouse.move) pt.x += wp->pt.x, pt.y += wp->pt.y;
+						if (ref.move) pt.x += wp->pt.x, pt.y += wp->pt.y;
 						else pt = QiFn::WATR({ pt.x, pt.y }, wp->wnd);
 
 						wp->current = wp->find(pt, pt, wp->child);
 
 						if (wp->current)
 						{
-							if (mouse.track)
+							if (ref.track)
 							{
-								QiFn::SmoothMove(wp->pt.x, wp->pt.y, pt.x, pt.y, mouse.speed, [&wp](int x, int y, int stepx, int stepy) {
+								QiFn::SmoothMove(wp->pt.x, wp->pt.y, pt.x, pt.y, ref.speed, [&wp](int x, int y, int stepx, int stepy) {
 									Input::MoveTo(wp->current, stepx, stepy, wp->mk);
 									Sleep(5);
 									});
@@ -112,13 +112,13 @@ namespace QiInterpreter
 					}
 					else
 					{
-						int x = mouse.x + (Rand(mouse.ex, (~mouse.ex + 1)));
-						int y = mouse.y + (Rand(mouse.ex, (~mouse.ex + 1)));
-						if (mouse.move)
+						int x = ref.x + (Rand(ref.ex, (~ref.ex + 1)));
+						int y = ref.y + (Rand(ref.ex, (~ref.ex + 1)));
+						if (ref.move)
 						{
-							if (mouse.track)
+							if (ref.track)
 							{
-								QiFn::SmoothMove(0, 0, x, y, mouse.speed, [](int x, int y, int stepx, int stepy) {
+								QiFn::SmoothMove(0, 0, x, y, ref.speed, [](int x, int y, int stepx, int stepy) {
 									Input::Move(stepx, stepy, key_info);
 									Sleep(5);
 									});
@@ -127,12 +127,12 @@ namespace QiInterpreter
 						}
 						else
 						{
-							if (mouse.track)
+							if (ref.track)
 							{
 								POINT spt = {};
 								GetCursorPos(&spt);
 								spt = QiFn::RTA(spt);
-								QiFn::SmoothMove(spt.x, spt.y, x, y, mouse.speed, [](int x, int y, int stepx, int stepy)->void {
+								QiFn::SmoothMove(spt.x, spt.y, x, y, ref.speed, [](int x, int y, int stepx, int stepy)->void {
 									Input::MoveToA(x * 6.5535f, y * 6.5535f, key_info);
 									Sleep(5);
 									});
@@ -143,33 +143,33 @@ namespace QiInterpreter
 				} break;
 				case QiType::copyText:
 				{
-					const QiCopyText& text = std::get<QiCopyText>(action);
-					System::ClipBoardText((LPCWSTR)(text.text.utf16()));
+					const QiCopyText& ref = std::get<QiCopyText>(action);
+					System::ClipBoardText((LPCWSTR)(ref.text.utf16()));
 				} break;
 				case QiType::color:
 				{
-					const QiColor& color = std::get<QiColor>(action);
+					const QiColor& ref = std::get<QiColor>(action);
 					RgbMap rgbMap;
 					RECT rect;
 					HDC hdc;
 					if (wp)
 					{
 						hdc = GetDC(wp->wnd);
-						rect = QiFn::WATRR(color.rect, wp->wnd);
+						rect = QiFn::WATRR(ref.rect, wp->wnd);
 						Image::toRgbMap(hdc, rgbMap, rect);
 						ReleaseDC(wp->wnd, hdc);
 					}
 					else
 					{
 						hdc = GetDC(nullptr);
-						rect = QiFn::ATRR(color.rect);
+						rect = QiFn::ATRR(ref.rect);
 						Image::toRgbMap(hdc, rgbMap, rect);
 						ReleaseDC(nullptr, hdc);
 					}
-					Color::FindResult findResult = Color::FindOr(rgbMap, color.rgbe.toRgb(), color.rgbe.a);
+					Color::FindResult findResult = Color::FindOr(rgbMap, ref.rgbe.toRgb(), ref.rgbe.a);
 					if (findResult.find)
 					{
-						if (color.move)
+						if (ref.move)
 						{
 							findResult.pt.x += rect.left, findResult.pt.y += rect.top;
 							if (wp)
@@ -179,24 +179,24 @@ namespace QiInterpreter
 							}
 							else Input::MoveTo(findResult.pt.x, findResult.pt.y, key_info);
 						}
-						result = ActionInterpreter(parent, color.next, cursor, wp, jumpId);
+						result = ActionInterpreter(parent, ref.next, cursor, wp, jumpId);
 					}
 					else
 					{
-						result = ActionInterpreter(parent, color.next2, cursor, wp, jumpId);
+						result = ActionInterpreter(parent, ref.next2, cursor, wp, jumpId);
 					}
 				} break;
 				case QiType::loop:
 				{
-					const QiLoop& loop = std::get<QiLoop>(action);
+					const QiLoop& ref = std::get<QiLoop>(action);
 					int n = 0;
 					int e = 0;
 					bool uloop = false;
-					if (loop.max) uloop = true, e = Rand(loop.max, loop.min);
+					if (ref.max) uloop = true, e = Rand(ref.max, ref.min);
 					while (Qi::run && !QiThread::PeekExitMsg())
 					{
 						if (uloop) { n++; if (n > e) break; }
-						int r = ActionInterpreter(parent, loop.next, cursor, wp, jumpId);
+						int r = ActionInterpreter(parent, ref.next, cursor, wp, jumpId);
 						if (r != r_continue)
 						{
 							if (r == r_break) break;
@@ -211,14 +211,14 @@ namespace QiInterpreter
 				} break;
 				case QiType::keyState:
 				{
-					const QiKeyState& keyState = std::get<QiKeyState>(action);
-					if (Input::stateEx(keyState.vk))
+					const QiKeyState& ref = std::get<QiKeyState>(action);
+					if (Input::stateEx(ref.vk))
 					{
-						result = ActionInterpreter(parent, keyState.next, cursor, wp, jumpId);
+						result = ActionInterpreter(parent, ref.next, cursor, wp, jumpId);
 					}
 					else
 					{
-						result = ActionInterpreter(parent, keyState.next2, cursor, wp, jumpId);
+						result = ActionInterpreter(parent, ref.next2, cursor, wp, jumpId);
 					}
 				} break;
 				case QiType::recoverPos:
@@ -227,31 +227,31 @@ namespace QiInterpreter
 				} break;
 				case QiType::image:
 				{
-					const QiImage& image = std::get<QiImage>(action);
+					const QiImage& ref = std::get<QiImage>(action);
 					RgbMap rgbMap;
 					RECT rect;
 					HDC hdc;
 					if (wp)
 					{
 						hdc = GetDC(wp->wnd);
-						rect = QiFn::WATRR(image.rect, wp->wnd);
+						rect = QiFn::WATRR(ref.rect, wp->wnd);
 						Image::toRgbMap(hdc, rgbMap, rect);
 						ReleaseDC(wp->wnd, hdc);
 					}
 					else
 					{
 						hdc = GetDC(nullptr);
-						rect = QiFn::ATRR(image.rect);
+						rect = QiFn::ATRR(ref.rect);
 						Image::toRgbMap(hdc, rgbMap, rect);
 						ReleaseDC(nullptr, hdc);
 					}
-					POINT pt = Image::Find(rgbMap, image.map, image.sim, 10);
+					POINT pt = Image::Find(rgbMap, ref.map, ref.sim, 10);
 
 					if (pt.x != Image::npos)
 					{
-						if (image.move)
+						if (ref.move)
 						{
-							pt.x += rect.left + (image.map.width() >> 1), pt.y += rect.top + (image.map.height() >> 1);
+							pt.x += rect.left + (ref.map.width() >> 1), pt.y += rect.top + (ref.map.height() >> 1);
 							if (wp)
 							{
 								wp->pt = pt;
@@ -259,18 +259,21 @@ namespace QiInterpreter
 							}
 							else Input::MoveTo(pt.x, pt.y, key_info);
 						}
-						result = ActionInterpreter(parent, image.next, cursor, wp, jumpId);
+						result = ActionInterpreter(parent, ref.next, cursor, wp, jumpId);
 					}
 					else
 					{
-						result = ActionInterpreter(parent, image.next2, cursor, wp, jumpId);
+						result = ActionInterpreter(parent, ref.next2, cursor, wp, jumpId);
 					}
 				} break;
 				case QiType::popText:
 				{
-					const QiPopText& popText = std::get<QiPopText>(action);
-					Qi::popText->Popup(popText.time, popText.text, RGB(223, 223, 223));
-					if (popText.sync) Sleep(popText.time);
+					const QiPopText& ref = std::get<QiPopText>(action);
+					Qi::popText->Popup(ref.time, ref.text, RGB(223, 223, 223));
+					if (ref.sync)
+					{
+						if (QiThread::PeekSleep(ref.time)) result = r_exit;
+					}
 				} break;
 				case QiType::rememberPos:
 				{
@@ -278,13 +281,13 @@ namespace QiInterpreter
 				} break;
 				case QiType::timer:
 				{
-					const QiTimer& timer = std::get<QiTimer>(action);
-					clock_t time = Rand(timer.max, timer.min);
+					const QiTimer& ref = std::get<QiTimer>(action);
+					clock_t time = Rand(ref.max, ref.min);
 					clock_t begin = clock();
 					while (Qi::run && !QiThread::PeekExitMsg())
 					{
 						if (!((begin + time) > clock())) { break; }
-						int r = ActionInterpreter(parent, timer.next, cursor, wp, jumpId);
+						int r = ActionInterpreter(parent, ref.next, cursor, wp, jumpId);
 						if (r != r_continue)
 						{
 							if (r == r_break) break;
@@ -295,10 +298,10 @@ namespace QiInterpreter
 				} break;
 				case QiType::jump:
 				{
-					const QiJump& jump = std::get<QiJump>(action);
-					if (jump.id > 0)
+					const QiJump& ref = std::get<QiJump>(action);
+					if (ref.id > 0)
 					{
-						jumpId = jump.id;
+						jumpId = ref.id;
 						result = r_top;
 					}
 				} break;
@@ -307,18 +310,18 @@ namespace QiInterpreter
 				} break;
 				case QiType::dialog:
 				{
-					const QiDialog& dialog = std::get<QiDialog>(action);
+					const QiDialog& ref = std::get<QiDialog>(action);
 					int bn = IDYES;
-					if (dialog.style == QiDialog::warning) bn = MessageBoxW(GetForegroundWindow(), (LPCWSTR)(dialog.text.utf16()), (LPCWSTR)(dialog.title.utf16()), MB_YESNO | MB_TOPMOST | MB_ICONWARNING);
-					else if (dialog.style == QiDialog::error) bn = MessageBoxW(GetForegroundWindow(), (LPCWSTR)(dialog.text.utf16()), (LPCWSTR)(dialog.title.utf16()), MB_YESNO | MB_TOPMOST | MB_ICONERROR);
-					else bn = MessageBoxW(GetForegroundWindow(), (LPCWSTR)(dialog.text.utf16()), (LPCWSTR)(dialog.title.utf16()), MB_YESNO | MB_TOPMOST);
+					if (ref.style == QiDialog::warning) bn = MessageBoxW(GetForegroundWindow(), (LPCWSTR)(ref.text.utf16()), (LPCWSTR)(ref.title.utf16()), MB_YESNO | MB_TOPMOST | MB_ICONWARNING);
+					else if (ref.style == QiDialog::error) bn = MessageBoxW(GetForegroundWindow(), (LPCWSTR)(ref.text.utf16()), (LPCWSTR)(ref.title.utf16()), MB_YESNO | MB_TOPMOST | MB_ICONERROR);
+					else bn = MessageBoxW(GetForegroundWindow(), (LPCWSTR)(ref.text.utf16()), (LPCWSTR)(ref.title.utf16()), MB_YESNO | MB_TOPMOST);
 					if (bn == IDYES)
 					{
-						result = ActionInterpreter(parent, dialog.next, cursor, wp, jumpId);
+						result = ActionInterpreter(parent, ref.next, cursor, wp, jumpId);
 					}
 					else
 					{
-						result = ActionInterpreter(parent, dialog.next2, cursor, wp, jumpId);
+						result = ActionInterpreter(parent, ref.next2, cursor, wp, jumpId);
 					}
 				} break;
 				case QiType::block:
@@ -326,9 +329,36 @@ namespace QiInterpreter
 				} break;
 				case QiType::blockExec:
 				{
-					const QiBlockExec& blockExec = std::get<QiBlockExec>(action);
-					const QiBlock* pBlock = QiFn::FindBlock(parent, blockExec.id);
+					const QiBlockExec& ref = std::get<QiBlockExec>(action);
+					const QiBlock* pBlock = QiFn::FindBlock(parent, ref.id);
 					if (pBlock) result = ActionInterpreter(parent, pBlock->next, cursor, wp, jumpId);
+				} break;
+				case QiType::quickInput:
+				{
+					const QiQuickInput& ref = std::get<QiQuickInput>(action);
+					for (auto i : ref.chars)
+					{
+						if (wp)
+						{
+							Input::Click(wp->current, i, wp->pt, 10);
+							if (i == VK_LBUTTON) wp->mk |= MK_LBUTTON;
+							else if (i == VK_RBUTTON) wp->mk |= MK_RBUTTON;
+							else if (i == VK_MBUTTON) wp->mk |= MK_MBUTTON;
+							else if (i == VK_XBUTTON1) wp->mk |= MK_XBUTTON1;
+							else if (i == VK_XBUTTON2) wp->mk |= MK_XBUTTON2;
+							else if (i == VK_CONTROL) wp->mk |= MK_CONTROL;
+							else if (i == VK_SHIFT) wp->mk |= MK_SHIFT;
+						}
+						else
+						{
+							Input::Click(i, 10, key_info);
+						}
+					}
+				} break;
+				case QiType::keyBlock:
+				{
+					const QiKeyBlock& ref = std::get<QiKeyBlock>(action);
+					Qi::keyBlock[ref.vk] = ref.block;
 				} break;
 				}
 			}

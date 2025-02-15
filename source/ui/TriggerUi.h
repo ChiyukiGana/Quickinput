@@ -103,8 +103,8 @@ private:
 				int row = items.first()->row();
 				Macro& macro = macros->at(row);
 				// state
-				ui.block_check->setChecked(macro.block);
-				ui.block_cur_check->setChecked(macro.blockCur);
+				ui.block_check->setChecked(macro.keyBlock);
+				ui.block_cur_check->setChecked(macro.curBlock);
 				ui.mode_combo->setCurrentIndex(macro.mode);
 				// key
 				{
@@ -128,13 +128,13 @@ private:
 			});
 		connect(ui.block_check, &QCheckBox::clicked, this, [this](bool state) {
 			int p = ui.macro_table->currentRow(); if (p < 0) return;
-			macros->at(p).block = state;
+			macros->at(p).keyBlock = state;
 			TableUpdate();
 			QiJson::SaveMacro(macros->at(p));
 			});
 		connect(ui.block_cur_check, &QCheckBox::clicked, this, [this](bool state) {
 			int p = ui.macro_table->currentRow(); if (p < 0) return;
-			macros->at(p).blockCur = state;
+			macros->at(p).curBlock = state;
 			TableUpdate();
 			QiJson::SaveMacro(macros->at(p));
 			});

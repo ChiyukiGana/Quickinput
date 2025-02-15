@@ -56,4 +56,8 @@ public:
 		condition.notify_one();
 		return result;
 	}
+	bool stopped() const
+	{
+		return stop;
+	}
 };
