@@ -1,6 +1,7 @@
 #pragma once
 #include <xmemory>
 #include <vector>
+#include <functional>
 namespace QiTools
 {
 	template<class Ty>
@@ -52,6 +53,14 @@ namespace QiTools
 			base_vector::push_back(element);
 			return base_vector::back();
 		}
+		void append_copy(const QiVector& other)
+		{
+			base_vector::insert(base_vector::end(), other.begin(), other.end());
+		}
+		void append_copy(const QiVector& other, size_t begin, size_t end)
+		{
+			base_vector::insert(base_vector::begin(), other.begin() + begin, other.begin() + end);
+		}
 		// insert
 		Ty& insert(size_t where, Ty&& right)
 		{
@@ -62,6 +71,14 @@ namespace QiTools
 		{
 			base_vector::insert(base_vector::begin() + where, element);
 			return base_vector::operator[](where);
+		}
+		void insert_copy(size_t where, const QiVector& other)
+		{
+			base_vector::insert(base_vector::begin() + where, other.begin(), other.end());
+		}
+		void insert_copy(size_t where, const QiVector& other, size_t begin, size_t end)
+		{
+			base_vector::insert(base_vector::begin() + where, other.begin() + begin, other.begin() + end);
 		}
 		// remove
 		using base_vector::clear;
@@ -110,6 +127,20 @@ namespace QiTools
 		{
 			if (element_where < target_where) for (size_t where = element_where; where < target_where; where++) swap(where, where + 1);
 			else if (element_where > target_where) for (size_t where = element_where; where > target_where; where--) swap(where, where - 1);
+		}
+		// find
+		const Ty* find(std::function<bool(const Ty&)> compareCallback) const
+		{
+			const Ty* result = nullptr;
+			for (size_t i = 0; i < base_vector::size(); i++)
+			{
+				if (compareCallback(base_vector::at(i)))
+				{
+					result = &base_vector::at(i);
+					break;
+				}
+			}
+			return result;
 		}
 	};
 }

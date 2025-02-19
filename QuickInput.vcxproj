@@ -39,11 +39,13 @@
     <QtInstall>Qt5.15.15_32_static</QtInstall>
     <QtModules>widgets;winextras</QtModules>
     <QtBuildConfig>release</QtBuildConfig>
+    <QtToolsDesignTime>false</QtToolsDesignTime>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Win32'" Label="QtSettings">
     <QtInstall>Qt5.15.15_32_shared</QtInstall>
     <QtBuildConfig>debug</QtBuildConfig>
     <QtModules>widgets;winextras</QtModules>
+    <QtToolsDesignTime>false</QtToolsDesignTime>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
     <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />

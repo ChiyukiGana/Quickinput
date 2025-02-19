@@ -88,7 +88,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-2-15</string>
+         <string>2025-2-20</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -104,8 +104,10 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加屏蔽按键
-增加输入字符</string>
+         <string>修复粘贴顺序
+修复粘贴跳转或块的id重复
+增加批量启动禁用动作
+增加批量修改动作</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

@@ -5,8 +5,6 @@ class EditUi : public QDialog
 {
 	Q_OBJECT;
 	using This = EditUi;
-	using JumpPoints = QiVector<QiJumpPoint>;
-	using Blocks = QiVector<QiBlock>;
 	struct Layer
 	{
 		Actions* actions;
@@ -46,6 +44,8 @@ class EditUi : public QDialog
 	QList<Layer> layers;
 	bool changing = false;
 	bool updating = false;
+	QList<int> tableCurrent;
+	QList<int> tableCurrentPrev;
 	// table context menu
 	QMenu* menu;
 	QAction* muDel;
@@ -514,31 +514,42 @@ private:
 				});
 			// mark edit
 			connect(ui.action_table, &QTableWidget::cellClicked, this, [this](int row, int column) {
-				QList<QTableWidgetItem*> items = ui.action_table->selectedItems();
-				if (items.size() == ui.action_table->columnCount())
+				if (column == tableColumn_mark) ui.action_table->editItem(ui.action_table->item(row, tableColumn_mark));
+				else if (column == tableColumn_disable)
 				{
-					if (column == tableColumn_mark) ui.action_table->editItem(ui.action_table->item(row, tableColumn_mark));
-					else if (column == tableColumn_disable)
+					if (tableCurrentPrev.empty())
 					{
-						actions->at(row).base().disable = !actions->at(row).base().disable;
-						TableUpdate();
+						QiBase& base = actions->at(row).base();
+						base.disable = !base.disable;
 					}
+					else
+					{
+						for (auto i : tableCurrentPrev)
+						{
+							QiBase& base = actions->at(i).base();
+							base.disable = !base.disable;
+						}
+					}
+					TableUpdate();
 				}
 				});
 			// selection
 			// >>>> new action set here
 			connect(ui.action_table, &QTableWidget::itemSelectionChanged, this, [this]() {
 				QList<QTableWidgetItem*> items = ui.action_table->selectedItems();
+				tableCurrentPrev = tableCurrent;
+				tableCurrent.clear();
+				for (auto i : items) if (i->column() == 0) tableCurrent.append(i->row());
 				DisableButtons();
 				DisableMenus();
 				pv.hide();
 				rv.hide();
 				// selction is solid
-				if (items.size() == ui.action_table->columnCount())
+				if (tableCurrent.size() == 1)
 				{
 					bool tabLock = ui.tab_lock_check->isChecked();
 					int tab = tab_base;
-					const Action& var = actions->at(items.first()->row());
+					const Action& var = actions->at(tableCurrent.first());
 					switch (var.index())
 					{
 					case QiType::end: tab = tab_state; break;
@@ -638,8 +649,7 @@ private:
 				if ("set menu item state")
 				{
 					muPaste->setEnabled(Qi::clipboard.not_empty());
-					QList<QTableWidgetItem*> items = ui.action_table->selectedItems();
-					if (items.empty())
+					if (tableCurrent.empty())
 					{
 						menu->exec(QCursor::pos());
 						return;
@@ -648,15 +658,15 @@ private:
 					muDel->setEnabled(true);
 					muCut->setEnabled(true);
 					muCopy->setEnabled(true);
+					muChange->setEnabled(true);
 					// selction is solid
-					if (items.size() == ui.action_table->columnCount())
+					if (tableCurrent.size() == 1)
 					{
-						muChange->setEnabled(true);
 						if ("have next")
 						{
 							bool edit = false;
 							bool edit2 = false;
-							const Action& var = actions->at(items.first()->row());
+							const Action& var = actions->at(tableCurrent.first());
 							switch (var.index())
 							{
 							case QiType::color: edit = edit2 = true; break;
@@ -1072,169 +1082,175 @@ private:
 		move(pt);
 		SetWindowMode();
 	}
-	// jump
-	void LoadJumpPoints(JumpPoints& jumpPoints, const Actions& actions)
+	// unique ids
+	// type: jumpPoint, jump, block, blockExec
+	QiVector<int> LoadIds(const Actions& actions, int type)
 	{
+		QiVector<int> ids;
 		for (size_t i = 0; i < actions.size(); i++)
 		{
 			const Action& var = actions[i];
-			if (var.index() == QiType::jumpPoint)
+			if (var.index() == type)
 			{
-				const QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(var);
-				jumpPoints.append_copy(jumpPoint);
+				switch (type)
+				{
+				case QiType::jumpPoint:
+				{
+					const QiJumpPoint& ref = std::get<QiJumpPoint>(var);
+					ids.append_copy(ref.id);
+				} break;
+				case QiType::jump:
+				{
+					const QiJump& ref = std::get<QiJump>(var);
+					ids.append_copy(ref.id);
+				} break;
+				case QiType::block:
+				{
+					const QiBlock& ref = std::get<QiBlock>(var);
+					ids.append_copy(ref.id);
+				} break;
+				case QiType::blockExec:
+				{
+					const QiBlockExec& ref = std::get<QiBlockExec>(var);
+					ids.append_copy(ref.id);
+				} break;
+				}
 			}
 			else
 			{
 				const QiBase& base = var.base();
-				if (!base.next.empty()) LoadJumpPoints(jumpPoints, base.next);
-				if (!base.next2.empty()) LoadJumpPoints(jumpPoints, base.next2);
+				if (!base.next.empty()) ids.append_copy(LoadIds(base.next, type));
+				if (!base.next2.empty()) ids.append_copy(LoadIds(base.next2, type));
 			}
 		}
+		return ids;
 	}
-	bool FindJumpPoint(const JumpPoints& jumpPoints, int id)
+	bool FindId(const QiVector<int>& ids, int id)
 	{
-		for (size_t i = 0; i < jumpPoints.size(); i++)
-		{
-			if (jumpPoints[i].id == id) return true;
-		}
+		for (auto i : ids) if (i == id) return true;
 		return false;
 	}
-	void CheckJumpInvalid(const JumpPoints& jumpPoints, Actions& actions)
+	// type: jump, blockExec
+	void InvalidId(const QiVector<int>& ids, Actions& actions, int type)
 	{
 		for (size_t i = 0; i < actions.size(); i++)
 		{
 			Action& var = actions[i];
-			if (var.index() == QiType::jump)
+			if (var.index() == type)
 			{
-				QiJump& jump = std::get<QiJump>(var);
-				if (!FindJumpPoint(jumpPoints, jump.id)) jump.id = -1;
+				switch (type)
+				{
+				case QiType::jump:
+				{
+					QiJump& jump = std::get<QiJump>(var);
+					if (!FindId(ids, jump.id)) jump.id = -1;
+				} break;
+				case QiType::blockExec:
+				{
+					QiBlockExec& blockExec = std::get<QiBlockExec>(var);
+					if (!FindId(ids, blockExec.id)) blockExec.id = -1;
+				} break;
+				}
 			}
 			else
 			{
 				QiBase& base = var.base();
-				if (!base.next.empty()) CheckJumpInvalid(jumpPoints, base.next);
-				if (!base.next2.empty()) CheckJumpInvalid(jumpPoints, base.next2);
+				if (!base.next.empty()) InvalidId(ids, base.next, type);
+				if (!base.next2.empty()) InvalidId(ids, base.next2, type);
 			}
 		}
 	}
-	int JumpPointUnique(const JumpPoints& jumpPoints)
+	int UniqueId(const QiVector<int>& ids)
 	{
 		int id = 1;
-		for (size_t i = 0; i < jumpPoints.size(); i++)
+		for (size_t i = 0; i < ids.size(); i++)
 		{
-			if (jumpPoints[i].id >= id) id = jumpPoints[i].id + 1;
+			if (ids[i] >= id) id = ids[i] + 1;
 		}
 		return id;
 	}
-	void JumpPointUniqueActions(const JumpPoints& jumpPoints, Actions& actions)
+	// type: jumpPoint, block
+	void UniqueActionsId_CallBack(QiVector<int>& ids, Actions& actions, int type)
 	{
 		for (size_t i = 0; i < actions.size(); i++)
 		{
 			Action& var = actions[i];
-			if (var.index() == QiType::jumpPoint)
+
+			if (var.index() == type)
 			{
-				QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(var);
-				if (FindJumpPoint(jumpPoints, jumpPoint.id))
+				switch (type)
 				{
-					jumpPoint.id = JumpPointUnique(jumpPoints);
-				}
-				else
+				case QiType::jumpPoint:
 				{
-					QiBase& base = var.base();
-					if (!base.next.empty()) JumpPointUniqueActions(jumpPoints, base.next);
-					if (!base.next2.empty()) JumpPointUniqueActions(jumpPoints, base.next2);
+					QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(var);
+					if (FindId(ids, jumpPoint.id))
+					{
+						int id_res = jumpPoint.id;
+						jumpPoint.id = UniqueId(ids);
+						ids.append_copy(jumpPoint.id);
+						for (size_t ix = 0; ix < actions.size(); ix++)
+						{
+							Action& var = actions[ix];
+							if (var.index() == QiType::jump)
+							{
+								QiJump& jump = std::get<QiJump>(var);
+								if (id_res == jump.id) jump.id = jumpPoint.id;
+							}
+						}
+					}
+				} break;
+				case QiType::block:
+				{
+					QiBlock& block = std::get<QiBlock>(var);
+					if (FindId(ids, block.id))
+					{
+						int id_res = block.id;
+						block.id = UniqueId(ids);
+						ids.append_copy(block.id);
+						for (size_t ix = 0; ix < actions.size(); ix++)
+						{
+							Action& var = actions[ix];
+							if (var.index() == QiType::blockExec)
+							{
+								QiBlockExec& blockExec = std::get<QiBlockExec>(var);
+								if (id_res == blockExec.id) blockExec.id = block.id;
+							}
+						}
+					}
+				} break;
 				}
-			}
-		}
-	}
-	// block
-	void LoadBlocks(Blocks& blocks, const Actions& actions)
-	{
-		for (size_t i = 0; i < actions.size(); i++)
-		{
-			const Action& var = actions[i];
-			if (var.index() == QiType::block)
-			{
-				const QiBlock& block = std::get<QiBlock>(var);
-				blocks.append_copy(block);
-			}
-			else
-			{
-				const QiBase& base = var.base();
-				if (!base.next.empty()) LoadBlocks(blocks, base.next);
-				if (!base.next2.empty()) LoadBlocks(blocks, base.next2);
-			}
-		}
-	}
-	bool FindBlock(const Blocks& blocks, int id)
-	{
-		for (size_t i = 0; i < blocks.size(); i++)
-		{
-			if (blocks[i].id == id) return true;
-		}
-		return false;
-	}
-	void CheckBlockInvalid(const Blocks& blocks, Actions& actions)
-	{
-		for (size_t i = 0; i < actions.size(); i++)
-		{
-			Action& var = actions[i];
-			if (var.index() == QiType::blockExec)
-			{
-				QiBlockExec& blockExec = std::get<QiBlockExec>(var);
-				if (!FindBlock(blocks, blockExec.id)) blockExec.id = -1;
 			}
 			else
 			{
 				QiBase& base = var.base();
-				if (!base.next.empty()) CheckBlockInvalid(blocks, base.next);
-				if (!base.next2.empty()) CheckBlockInvalid(blocks, base.next2);
+				if (!base.next.empty()) UniqueActionsId(ids, base.next, type);
+				if (!base.next2.empty()) UniqueActionsId(ids, base.next2, type);
 			}
 		}
 	}
-	int BlockUnique(const Blocks& blocks)
+	QiVector<int> UniqueActionsId(const QiVector<int>& ids, Actions& actions, int type)
 	{
-		int id = 1;
-		for (size_t i = 0; i < blocks.size(); i++)
-		{
-			if (blocks[i].id >= id) id = blocks[i].id + 1;
-		}
-		return id;
+		QiVector<int> ids_result;
+		ids_result.copy(ids);
+		UniqueActionsId_CallBack(ids_result, actions, type);
+		return ids_result;
 	}
-	void BlockUniqueActions(const Blocks& blocks, Actions& actions)
+
+	Actions LoadType(const Actions& actions, int type)
 	{
-		for (size_t i = 0; i < actions.size(); i++)
-		{
-			Action& var = actions[i];
-			if (var.index() == QiType::block)
-			{
-				QiBlock& block = std::get<QiBlock>(var);
-				if (FindBlock(blocks, block.id))
-				{
-					block.id = BlockUnique(blocks);
-				}
-				else
-				{
-					QiBase& base = var.base();
-					if (!base.next.empty()) BlockUniqueActions(blocks, base.next);
-					if (!base.next2.empty()) BlockUniqueActions(blocks, base.next2);
-				}
-			}
-		}
+		Actions result;
+		for (auto i : actions) if (i.index() == type) result.append_copy(i);
+		return result;
 	}
-	// list
 	void ListJumpPointUpdate()
 	{
-		JumpPoints jumpPoints;
-		LoadJumpPoints(jumpPoints, *actionsRoot);
-
-		CheckJumpInvalid(jumpPoints, *actionsRoot);
-
+		QiVector<int> ids = LoadIds(*actionsRoot, QiType::jump);
+		InvalidId(ids, *actionsRoot, QiType::jump);
 		ui.jumpPoint_list->clear();
-
-		for (size_t i = 0; i < jumpPoints.size(); i++)
+		Actions jumpPoints = LoadType(*actions, QiType::jumpPoint);
+		for (auto i : jumpPoints)
 		{
-			const QiJumpPoint& jumpPoint = jumpPoints[i];
+			const QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(i);
 			QListWidgetItem* item = new QListWidgetItem(QString::number(jumpPoint.id) + QString::fromUtf8("　　　") + jumpPoint.mark);
 			item->setData(DataRole::id, jumpPoint.id);
 			ui.jumpPoint_list->addItem(item);
@@ -1242,16 +1258,13 @@ private:
 	}
 	void ListBlockUpdate()
 	{
-		Blocks blocks;
-		LoadBlocks(blocks, *actionsRoot);
-
-		CheckBlockInvalid(blocks, *actionsRoot);
-
+		QiVector<int> ids = LoadIds(*actionsRoot, QiType::blockExec);
+		InvalidId(ids, *actionsRoot, QiType::blockExec);
 		ui.block_list->clear();
-
-		for (size_t i = 0; i < blocks.size(); i++)
+		Actions blocks = LoadType(*actions, QiType::block);
+		for (auto i : blocks)
 		{
-			const QiBlock& block = blocks[i];
+			const QiBlock& block = std::get<QiBlock>(i);
 			QListWidgetItem* item = new QListWidgetItem(QString::number(block.id) + QString::fromUtf8("　　　") + block.mark);
 			item->setData(DataRole::id, block.id);
 			ui.block_list->addItem(item);
@@ -1261,6 +1274,8 @@ private:
 	// >>>> new action set here
 	void TableUpdate()
 	{
+		tableCurrent.clear();
+		tableCurrentPrev.clear();
 		DisableButtons();
 		DisableMenus();
 		ListJumpPointUpdate();
@@ -1844,24 +1859,26 @@ private:
 	}
 	void ItemChange(int type)
 	{
-		int p = ui.action_table->currentRow(); if (p < 0) return;
-		Action& current = actions->at(p);
-		QiBase base_old(std::move(current.base()));
-		current = std::move(ItemGet(type));
-		QiBase& base_new = current.base();
-		base_new.mark = std::move(base_old.mark);
-		base_new.next = std::move(base_old.next);
-		base_new.next2 = std::move(base_old.next2);
+		for (auto i : tableCurrent)
+		{
+			Action& current = actions->at(i);
+			QiBase base_old(std::move(current.base()));
+			current = std::move(ItemGet(type));
+			QiBase& base_new = current.base();
+			base_new.disable = std::move(base_old.disable);
+			base_new.mark = std::move(base_old.mark);
+			base_new.next = std::move(base_old.next);
+			base_new.next2 = std::move(base_old.next2);
+		}
 		TableUpdate();
 		ui.action_table->setCurrentItem(0);
 		SetChangeState(false);
 	}
 	void ItemDel()
 	{
-		QList<QTableWidgetItem*> items = ui.action_table->selectedItems();
-		if (items.empty()) return;
+		if (tableCurrent.empty()) return;
 		std::vector<size_t> positions;
-		for (int i = 0; i < items.size(); i++) if (items[i]->column() == tableColumn_type) positions.push_back(items[i]->row());
+		for (auto i : tableCurrent) positions.push_back(i);
 		actions->remove(positions);
 		TableUpdate();
 		ui.action_table->setCurrentItem(0);
@@ -1874,10 +1891,9 @@ private:
 	}
 	void ItemCopy()
 	{
-		QList<QTableWidgetItem*> items = ui.action_table->selectedItems();
-		if (items.empty()) return;
+		if (tableCurrent.empty()) return;
 		Qi::clipboard.clear();
-		for (size_t i = 0; i < items.size(); i++) if (items[i]->column() == tableColumn_type) Qi::clipboard.append_copy(actions->at(items[i]->row()));
+		for (auto i : tableCurrent) Qi::clipboard.append_copy(actions->at(i));
 	}
 	void ItemPaste()
 	{
@@ -1885,18 +1901,10 @@ private:
 		if (p < 0) p = actions->size();
 		else p++;
 		// reset jump id
-		JumpPoints jumpPoints;
-		LoadJumpPoints(jumpPoints, *actionsRoot);
-		JumpPointUniqueActions(jumpPoints, Qi::clipboard);
+		UniqueActionsId(LoadIds(*actionsRoot, QiType::jumpPoint), Qi::clipboard, QiType::jumpPoint);
 		// reset block id
-		Blocks blocks;
-		LoadBlocks(blocks, *actionsRoot);
-		BlockUniqueActions(blocks, Qi::clipboard);
-		for (size_t i = Qi::clipboard.size(); i > 0; i--)
-		{
-			actions->insert_copy(p, Qi::clipboard[i - 1]);
-			if (i < 1) break;
-		}
+		UniqueActionsId(LoadIds(*actionsRoot, QiType::block), Qi::clipboard, QiType::block);
+		actions->insert_copy(p, Qi::clipboard);
 		TableUpdate();
 	}
 	// get params from widget
@@ -2050,11 +2058,8 @@ private:
 	QiJumpPoint WidgetGetJumpPoint()
 	{
 		QiJumpPoint jumpPoint;
-
-		JumpPoints jumpPoints;
-		LoadJumpPoints(jumpPoints, *actionsRoot);
-
-		jumpPoint.id = JumpPointUnique(jumpPoints);
+		QiVector<int> ids = LoadIds(*actionsRoot, QiType::jumpPoint);
+		jumpPoint.id = UniqueId(ids);
 		return jumpPoint;
 	}
 	QiDialog WidgetGetDialog()
@@ -2070,11 +2075,8 @@ private:
 	QiBlock WidgetGetBlock()
 	{
 		QiBlock block;
-
-		Blocks blocks;
-		LoadBlocks(blocks, *actionsRoot);
-
-		block.id = BlockUnique(blocks);
+		QiVector<int> ids = LoadIds(*actionsRoot, QiType::block);
+		block.id = UniqueId(ids);
 		return block;
 	}
 	QiBlockExec WidgetGetBlockExec()
