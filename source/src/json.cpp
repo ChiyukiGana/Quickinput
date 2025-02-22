@@ -216,7 +216,7 @@ namespace QiJson
 			{
 				const QiQuickInput& ref = std::get<QiQuickInput>(var);
 				QJsonArray chars;
-				for (auto i : ref.chars) chars.append((int)i);
+				for (auto &i : ref.chars) chars.append((int)i);
 				jAction.insert("c", chars);
 			} break;
 			case QiType::keyBlock:

@@ -336,7 +336,7 @@ namespace QiInterpreter
 				case QiType::quickInput:
 				{
 					const QiQuickInput& ref = std::get<QiQuickInput>(action);
-					for (auto i : ref.chars)
+					for (auto &i : ref.chars)
 					{
 						if (wp)
 						{

@@ -524,7 +524,7 @@ private:
 					}
 					else
 					{
-						for (auto i : tableCurrentPrev)
+						for (auto &i : tableCurrentPrev)
 						{
 							QiBase& base = actions->at(i).base();
 							base.disable = !base.disable;
@@ -539,7 +539,7 @@ private:
 				QList<QTableWidgetItem*> items = ui.action_table->selectedItems();
 				tableCurrentPrev = tableCurrent;
 				tableCurrent.clear();
-				for (auto i : items) if (i->column() == 0) tableCurrent.append(i->row());
+				for (auto &i : items) if (i->column() == 0) tableCurrent.append(i->row());
 				DisableButtons();
 				DisableMenus();
 				pv.hide();
@@ -1082,173 +1082,141 @@ private:
 		move(pt);
 		SetWindowMode();
 	}
-	// unique ids
+
+	// ids
+	bool IterActions(Actions& actions, int type, std::function<bool(Action&)> callBack)
+	{
+		for (auto &i : actions)
+		{
+			if (type == QiType::none || i.index() == type)
+			{
+				if (callBack(i)) return true;
+				if (i.base().next.not_empty() && IterActions(i.base().next, type, callBack)) return true;
+				if (i.base().next2.not_empty() && IterActions(i.base().next2, type, callBack)) return true;
+			}
+		}
+		return false;
+	}
 	// type: jumpPoint, jump, block, blockExec
 	QiVector<int> LoadIds(const Actions& actions, int type)
 	{
 		QiVector<int> ids;
-		for (size_t i = 0; i < actions.size(); i++)
-		{
-			const Action& var = actions[i];
-			if (var.index() == type)
+		IterActions((Actions&)actions, type, [&ids, type](const Action& action) {
+			if (action.index() == type)
 			{
 				switch (type)
 				{
 				case QiType::jumpPoint:
 				{
-					const QiJumpPoint& ref = std::get<QiJumpPoint>(var);
+					const QiJumpPoint& ref = std::get<QiJumpPoint>(action);
 					ids.append_copy(ref.id);
 				} break;
 				case QiType::jump:
 				{
-					const QiJump& ref = std::get<QiJump>(var);
+					const QiJump& ref = std::get<QiJump>(action);
 					ids.append_copy(ref.id);
 				} break;
 				case QiType::block:
 				{
-					const QiBlock& ref = std::get<QiBlock>(var);
+					const QiBlock& ref = std::get<QiBlock>(action);
 					ids.append_copy(ref.id);
 				} break;
 				case QiType::blockExec:
 				{
-					const QiBlockExec& ref = std::get<QiBlockExec>(var);
+					const QiBlockExec& ref = std::get<QiBlockExec>(action);
 					ids.append_copy(ref.id);
 				} break;
 				}
 			}
-			else
-			{
-				const QiBase& base = var.base();
-				if (!base.next.empty()) ids.append_copy(LoadIds(base.next, type));
-				if (!base.next2.empty()) ids.append_copy(LoadIds(base.next2, type));
-			}
-		}
+			return false;
+		});
 		return ids;
 	}
 	bool FindId(const QiVector<int>& ids, int id)
 	{
-		for (auto i : ids) if (i == id) return true;
-		return false;
+		for (auto &i : ids) if (i == id) return true; return false;
 	}
 	// type: jump, blockExec
-	void InvalidId(const QiVector<int>& ids, Actions& actions, int type)
+	void InvalidId(Actions& actions, int type)
 	{
-		for (size_t i = 0; i < actions.size(); i++)
+		if (type == QiType::jump)
 		{
-			Action& var = actions[i];
-			if (var.index() == type)
-			{
-				switch (type)
-				{
-				case QiType::jump:
-				{
-					QiJump& jump = std::get<QiJump>(var);
-					if (!FindId(ids, jump.id)) jump.id = -1;
-				} break;
-				case QiType::blockExec:
-				{
-					QiBlockExec& blockExec = std::get<QiBlockExec>(var);
-					if (!FindId(ids, blockExec.id)) blockExec.id = -1;
-				} break;
-				}
-			}
-			else
-			{
-				QiBase& base = var.base();
-				if (!base.next.empty()) InvalidId(ids, base.next, type);
-				if (!base.next2.empty()) InvalidId(ids, base.next2, type);
-			}
+			QiVector<int> ids = LoadIds(actions, QiType::jumpPoint);
+			IterActions(actions, type, [this, &ids](Action& action) {
+				QiJump& jump = std::get<QiJump>(action);
+				if (!FindId(ids, jump.id)) jump.id = -1;
+				return false;
+			});
+		}
+		else if (type == QiType::blockExec)
+		{
+			QiVector<int> ids = LoadIds(actions, QiType::block);
+			IterActions(actions, type, [this, &ids](Action& action) {
+				QiBlockExec& blockExec = std::get<QiBlockExec>(action);
+				if (!FindId(ids, blockExec.id)) blockExec.id = -1;
+				return false;
+			});
 		}
 	}
 	int UniqueId(const QiVector<int>& ids)
 	{
 		int id = 1;
-		for (size_t i = 0; i < ids.size(); i++)
-		{
-			if (ids[i] >= id) id = ids[i] + 1;
-		}
+		for (auto &i : ids) if (i >= id) id = i + 1;
 		return id;
 	}
 	// type: jumpPoint, block
-	void UniqueActionsId_CallBack(QiVector<int>& ids, Actions& actions, int type)
+	void UniqueActionsId(QiVector<int> ids, Actions& actions, int type)
 	{
-		for (size_t i = 0; i < actions.size(); i++)
+		if (type == QiType::jumpPoint)
 		{
-			Action& var = actions[i];
-
-			if (var.index() == type)
-			{
-				switch (type)
+			IterActions(actions, type, [this, &ids, &actions](Action& action) {
+				QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(action);
+				if (FindId(ids, jumpPoint.id))
 				{
-				case QiType::jumpPoint:
-				{
-					QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(var);
-					if (FindId(ids, jumpPoint.id))
-					{
-						int id_res = jumpPoint.id;
-						jumpPoint.id = UniqueId(ids);
-						ids.append_copy(jumpPoint.id);
-						for (size_t ix = 0; ix < actions.size(); ix++)
-						{
-							Action& var = actions[ix];
-							if (var.index() == QiType::jump)
-							{
-								QiJump& jump = std::get<QiJump>(var);
-								if (id_res == jump.id) jump.id = jumpPoint.id;
-							}
-						}
-					}
-				} break;
-				case QiType::block:
-				{
-					QiBlock& block = std::get<QiBlock>(var);
-					if (FindId(ids, block.id))
-					{
-						int id_res = block.id;
-						block.id = UniqueId(ids);
-						ids.append_copy(block.id);
-						for (size_t ix = 0; ix < actions.size(); ix++)
-						{
-							Action& var = actions[ix];
-							if (var.index() == QiType::blockExec)
-							{
-								QiBlockExec& blockExec = std::get<QiBlockExec>(var);
-								if (id_res == blockExec.id) blockExec.id = block.id;
-							}
-						}
-					}
-				} break;
+					int id_res = jumpPoint.id;
+					jumpPoint.id = UniqueId(ids);
+					ids.append_copy(jumpPoint.id);
+					IterActions(actions, QiType::jump, [id_res, jumpPoint](Action& action) {
+						QiJump& jump = std::get<QiJump>(action);
+						if (id_res == jump.id) jump.id = jumpPoint.id;
+						return false;
+					});
 				}
-			}
-			else
-			{
-				QiBase& base = var.base();
-				if (!base.next.empty()) UniqueActionsId(ids, base.next, type);
-				if (!base.next2.empty()) UniqueActionsId(ids, base.next2, type);
-			}
+				return false;
+			});
 		}
-	}
-	QiVector<int> UniqueActionsId(const QiVector<int>& ids, Actions& actions, int type)
-	{
-		QiVector<int> ids_result;
-		ids_result.copy(ids);
-		UniqueActionsId_CallBack(ids_result, actions, type);
-		return ids_result;
+		else if (type == QiType::block)
+		{
+			IterActions(actions, type, [this, &ids, &actions](Action& action) {
+				QiBlock& block = std::get<QiBlock>(action);
+				if (FindId(ids, block.id))
+				{
+					int id_res = block.id;
+					block.id = UniqueId(ids);
+					ids.append_copy(block.id);
+					IterActions(actions, QiType::blockExec, [id_res, block](Action& action) {
+						QiBlockExec& blockExec = std::get<QiBlockExec>(action);
+						if (id_res == blockExec.id) blockExec.id = block.id;
+						return false;
+					});
+				}
+				return false;
+			});
+		}
 	}
 
 	Actions LoadType(const Actions& actions, int type)
 	{
 		Actions result;
-		for (auto i : actions) if (i.index() == type) result.append_copy(i);
+		for (auto &i : actions) if (i.index() == type) result.append_copy(i);
 		return result;
 	}
 	void ListJumpPointUpdate()
 	{
-		QiVector<int> ids = LoadIds(*actionsRoot, QiType::jump);
-		InvalidId(ids, *actionsRoot, QiType::jump);
+		InvalidId(*actionsRoot, QiType::jump);
 		ui.jumpPoint_list->clear();
-		Actions jumpPoints = LoadType(*actions, QiType::jumpPoint);
-		for (auto i : jumpPoints)
+		Actions jumpPoints = LoadType(*actionsRoot, QiType::jumpPoint);
+		for (auto &i : jumpPoints)
 		{
 			const QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(i);
 			QListWidgetItem* item = new QListWidgetItem(QString::number(jumpPoint.id) + QString::fromUtf8("　　　") + jumpPoint.mark);
@@ -1258,11 +1226,10 @@ private:
 	}
 	void ListBlockUpdate()
 	{
-		QiVector<int> ids = LoadIds(*actionsRoot, QiType::blockExec);
-		InvalidId(ids, *actionsRoot, QiType::blockExec);
+		InvalidId(*actionsRoot, QiType::blockExec);
 		ui.block_list->clear();
-		Actions blocks = LoadType(*actions, QiType::block);
-		for (auto i : blocks)
+		Actions blocks = LoadType(*actionsRoot, QiType::block);
+		for (auto &i : blocks)
 		{
 			const QiBlock& block = std::get<QiBlock>(i);
 			QListWidgetItem* item = new QListWidgetItem(QString::number(block.id) + QString::fromUtf8("　　　") + block.mark);
@@ -1519,7 +1486,7 @@ private:
 				const QiQuickInput& ref = std::get<QiQuickInput>(var);
 				type = Qi::ui.text.acQuickInput;
 
-				for (auto i : ref.chars) param += i;
+				for (auto &i : ref.chars) param += i;
 
 			} break;
 			case QiType::keyBlock:
@@ -1859,7 +1826,7 @@ private:
 	}
 	void ItemChange(int type)
 	{
-		for (auto i : tableCurrent)
+		for (auto &i : tableCurrent)
 		{
 			Action& current = actions->at(i);
 			QiBase base_old(std::move(current.base()));
@@ -1878,7 +1845,7 @@ private:
 	{
 		if (tableCurrent.empty()) return;
 		std::vector<size_t> positions;
-		for (auto i : tableCurrent) positions.push_back(i);
+		for (auto &i : tableCurrent) positions.push_back(i);
 		actions->remove(positions);
 		TableUpdate();
 		ui.action_table->setCurrentItem(0);
@@ -1893,7 +1860,7 @@ private:
 	{
 		if (tableCurrent.empty()) return;
 		Qi::clipboard.clear();
-		for (auto i : tableCurrent) Qi::clipboard.append_copy(actions->at(i));
+		for (auto &i : tableCurrent) Qi::clipboard.append_copy(actions->at(i));
 	}
 	void ItemPaste()
 	{
@@ -2090,7 +2057,7 @@ private:
 	{
 		QiQuickInput quickInput;
 		QString text = ui.quickInput_text_edit->text();
-		for (auto i : text)
+		for (auto &i : text)
 		{
 			char c = i.toLatin1();
 			if (InRange(c, '0', '9', 0) || InRange(c, 'A', 'Z', 0)) quickInput.chars.append_copy(c);
@@ -2191,7 +2158,7 @@ private:
 	void WidgetSet(const QiQuickInput& quickInput)
 	{
 		QString text;
-		for (auto i : quickInput.chars) text += i;
+		for (auto &i : quickInput.chars) text += i;
 		ui.quickInput_text_edit->setText(text);
 	}
 	void WidgetSet(const QiKeyBlock& keyBlock)
