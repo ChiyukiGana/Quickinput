@@ -466,7 +466,7 @@ public:
 class QiQuickInput : public QiBase
 {
 public:
-	QiVector<char> chars;
+	QiVector<unsigned char> chars;
 	QiQuickInput() : QiBase(QiType::quickInput) {}
 	QiQuickInput(const QiQuickInput& r) { operator=(r); }
 	QiQuickInput(QiQuickInput&& r) noexcept { operator=(std::move(r)); }
@@ -681,10 +681,10 @@ class MacroGroups : public QiVector<MacroGroup>
 	using Base = QiVector<MacroGroup>;
 public: 
 	using Base::Base;
-	QString makeName(const QString& name = "组")
+	QString makeName(const QString& groupName = "组")
 	{
 		int i = 0;
-		QString alloc = name;
+		QString alloc = groupName;
 		bool not_unique = true;
 		while (true)
 		{
@@ -695,7 +695,7 @@ public:
 				{
 					not_unique = false;
 					i++;
-					alloc = name + QString::number(i);
+					alloc = groupName + QString::number(i);
 				}
 			}
 			if (not_unique) break;

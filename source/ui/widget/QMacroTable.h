@@ -152,6 +152,10 @@ public:
 				headerClicked(i, index);
 				if (i != row) currentChanged(i, table->currentRow(), table->currentColumn());
 				});
+			connect(table->horizontalHeader(), &QHeaderView::sectionDoubleClicked, this, [this, i](int index) {
+				if (selfAction) return;
+				headerDoubleClicked(i, index);
+				});
 		}
 		setReSize();
 		selfAction = false;
@@ -206,7 +210,7 @@ private:
 		for (int i = 0; i < rowCount(); i++)
 		{
 			QTableWidget* t = table(i);
-			int rowHeight = 25;
+			int rowHeight = t->horizontalHeader()->height();
 			if (!t->viewport()->isHidden())
 			{
 				int rowCount = t->rowCount();
@@ -255,4 +259,5 @@ Q_SIGNALS:
 	void itemClicked(int table, int row, int column) const;
 	void itemChanged(int table, int row, int column) const;
 	void headerClicked(int table, int column) const;
+	void headerDoubleClicked(int table, int column) const;
 };

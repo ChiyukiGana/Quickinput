@@ -1547,8 +1547,7 @@ private:
 				const QiQuickInput& ref = std::get<QiQuickInput>(var);
 				type = Qi::ui.text.acQuickInput;
 
-				for (auto &i : ref.chars) param += i;
-
+				param = KeyToString(ref.chars);
 			} break;
 			case QiType::keyBlock:
 			{
@@ -1585,6 +1584,77 @@ private:
 			}
 		}
 		updating = false;
+	}
+
+	// quickinput
+	QiVector<unsigned char> StringToKey(const QString str)
+	{
+		QiVector<unsigned char> keys;
+		for (auto& i : str)
+		{
+			unsigned char c = i.toLatin1();
+			unsigned char converted = 0;
+			if (InRange(c, '0', '9', 0) || InRange(c, 'A', 'Z', 0)) converted = c;
+			else if (InRange(c, 'a', 'z', 0))  converted = toupper(c);
+			else
+			{
+				switch (c)
+				{
+				case '`': converted = VK_OEM_3; break;
+				case '~': converted = VK_OEM_3; break;
+				case '-': converted = VK_OEM_MINUS; break;
+				case '_': converted = VK_OEM_MINUS; break;
+				case '=': converted = VK_OEM_PLUS; break;
+				case '+': converted = VK_OEM_PLUS; break;
+				case '[': converted = VK_OEM_4; break;
+				case '{': converted = VK_OEM_4; break;
+				case ']': converted = VK_OEM_6; break;
+				case '}': converted = VK_OEM_6; break;
+				case ';': converted = VK_OEM_1; break;
+				case ':': converted = VK_OEM_1; break;
+				case '\'': converted = VK_OEM_7; break;
+				case '\"': converted = VK_OEM_7; break;
+				case ',': converted = VK_OEM_COMMA; break;
+				case '<': converted = VK_OEM_COMMA; break;
+				case '.': converted = VK_OEM_PERIOD; break;
+				case '>': converted = VK_OEM_PERIOD; break;
+				case '/': converted = VK_OEM_2; break;
+				case '?': converted = VK_OEM_2; break;
+				case '\\': converted = VK_OEM_5; break;
+				case '|': converted = VK_OEM_5; break;
+				}
+			}
+			if (converted) keys.append_copy(converted);
+		}
+		return keys;
+	}
+	QString KeyToString(const QiVector<unsigned char > & keys)
+	{
+		QString str;
+		for (auto& i : keys)
+		{
+			unsigned char c = 0;
+			if (InRange(i, '0', '9', 0) || InRange(i, 'A', 'Z', 0)) c = i;
+			else
+			{
+				switch (i)
+				{
+				case VK_OEM_3: c = '`'; break;
+				case VK_OEM_MINUS: c = '-'; break;
+				case VK_OEM_PLUS: c = '='; break;
+				case VK_OEM_4: c = '['; break;
+				case VK_OEM_6: c = ']'; break;
+				case VK_OEM_1:c = ';'; break;
+				case VK_OEM_7: c = '\''; break;
+				case VK_OEM_COMMA: c = ','; break;
+				case VK_OEM_PERIOD: c = '.'; break;
+				case VK_OEM_2: c = '/'; break;
+				case VK_OEM_5: c = '\\'; break;
+				}
+			}
+			if (c) str += c;
+		}
+		return str;
 	}
 private:
 	bool event(QEvent* e)
@@ -2088,13 +2158,7 @@ private:
 	QiQuickInput WidgetGetQuickInput()
 	{
 		QiQuickInput quickInput;
-		QString text = ui.quickInput_text_edit->text();
-		for (auto &i : text)
-		{
-			char c = i.toLatin1();
-			if (InRange(c, '0', '9', 0) || InRange(c, 'A', 'Z', 0)) quickInput.chars.append_copy(c);
-			else if (InRange(c, 'a', 'z', 0)) quickInput.chars.append_copy(tolower(c));
-		}
+		quickInput.chars = StringToKey(ui.quickInput_text_edit->text());
 		return quickInput;
 	}
 	QiKeyBlock WidgetGetKeyBlock()
@@ -2188,9 +2252,7 @@ private:
 	}
 	void WidgetSet(const QiQuickInput& quickInput)
 	{
-		QString text;
-		for (auto &i : quickInput.chars) text += i;
-		ui.quickInput_text_edit->setText(text);
+		ui.quickInput_text_edit->setText(KeyToString(quickInput.chars));
 	}
 	void WidgetSet(const QiKeyBlock& keyBlock)
 	{

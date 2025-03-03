@@ -241,6 +241,9 @@
     <QtMoc Include="source\ui\widget\QMacroTable.h">
       <Filter>Form Files\widget</Filter>
     </QtMoc>
+    <QtMoc Include="source\ui\widget\QEditDialog.h">
+      <Filter>Form Files\widget</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="source\res\QuickInput.rc">

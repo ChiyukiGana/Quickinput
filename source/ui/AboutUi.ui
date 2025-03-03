@@ -88,7 +88,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-3-3</string>
+         <string>2025-3-3_1</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -104,9 +104,9 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加宏分组
-增加修改按钮
-增加编辑多选位置改变</string>
+         <string>增加保存宏分组折叠
+增加宏分组双击命名
+增加输入字符更多支持键</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

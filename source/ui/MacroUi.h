@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <QEditDialog.h>
 #include "RecordUi.h"
 #include "EditUi.h"
 #include <src/inc_header.h>
@@ -94,6 +95,28 @@ private:
 		connect(ui.macroGroup_table, &QMacroTable::currentChanged, this, currentChanged);
 		connect(ui.macroGroup_table, &QMacroTable::itemClicked, this, currentChanged);
 		connect(ui.macroGroup_table, &QMacroTable::headerClicked, this, currentChanged);
+		connect(ui.macroGroup_table, &QMacroTable::headerDoubleClicked, this, [this](int index, int column) {
+			if (index <= 0) return;
+			QTableWidget* table = ui.macroGroup_table->table(index);
+			if (!table) return;
+			currentGroup = &groups->at(index);
+			QEditDialog edit;
+			edit.edit()->setProperty("group", "line_edit");
+			QPoint pos = table->mapToGlobal(QPoint(0, 0));
+			edit.setGeometry(pos.x(), pos.y(), table->width(), table->horizontalHeader()->height());
+			edit.raise();
+
+			QString oldPath = currentGroup->makePath();
+			Qi::widget.dialogActive = true;
+			QString name = edit.Start(currentGroup->name);
+			Qi::widget.dialogActive = false;
+			if (name != currentGroup->name && !name.isEmpty())
+			{
+				currentGroup->name = groups->makeName(name);
+				QFile::rename(oldPath, currentGroup->makePath());
+				TableUpdate();
+			}
+			});
 		connect(ui.macroGroup_table, &QMacroTable::itemChanged, this, [this](int index, int row, int column) {
 			if (updating || index < 0 || row < 0) return;
 			QTableWidget* table = ui.macroGroup_table->table(index);
@@ -227,7 +250,7 @@ private:
 	{
 		updating = true;
 		currentMacros.clear();
-		ui.macroGroup_table->setTableCount(groups->size());
+		if (ui.macroGroup_table->rowCount() != groups->size()) ui.macroGroup_table->setTableCount(groups->size());
 
 		for (size_t mgPos = 0; mgPos < groups->size(); mgPos++)
 		{
