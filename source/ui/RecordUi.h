@@ -6,6 +6,7 @@ class RecordUi : public QDialog
 	Q_OBJECT;
 	using This = RecordUi;
 	Ui::RecordUiClass ui;
+	MacroGroup* group;
 	Macro macro;
 public:
 	enum
@@ -15,7 +16,7 @@ public:
 		_close,
 	};
 public:
-	RecordUi(WndInfo* wi) : QDialog()
+	RecordUi(MacroGroup* group, WndInfo* wi) : QDialog()
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
@@ -32,6 +33,9 @@ public:
 			connect(ui.close_button, &QPushButton::clicked, this, [this] { RecClose(); });
 			StyleGroup();
 		}
+		this->group = group;
+		macro.groupName = group->name;
+		macro.groupBase = group->base;
 		Qi::widget.record = this;
 		Qi::recordState = true;
 		QiFn::QiHook(true);
@@ -49,7 +53,7 @@ public:
 			Qi::recordWindow = wi->wnd;
 			macro.wi = *wi;
 			macro.wndState = true;
-			macro.name = QiFn::AllocName("窗口录制");
+			macro.name = group->makeName("窗口录制");
 			POINT wpt = Window::pos(Qi::recordWindow);
 			move(wpt.x, wpt.y);
 			WndLock::Lock(Qi::recordWindow);
@@ -58,7 +62,7 @@ public:
 		}
 		else
 		{
-			macro.name = QiFn::AllocName("录制");
+			macro.name = group->makeName("录制");
 			exec();
 		}
 		QiFn::QiHook(false);
@@ -93,7 +97,7 @@ private:
 		if (Qi::record.size())
 		{
 			macro.acRun = std::move(Qi::record);
-			QiJson::SaveMacro(Qi::macros.append(std::move(macro)));
+			QiJson::SaveMacro(group->macros.append(std::move(macro)));
 		}
 		Qi::popText->Hide();
 		close();

@@ -238,6 +238,9 @@
     <QtMoc Include="source\ui\UpdateUi.h">
       <Filter>Form Files\header</Filter>
     </QtMoc>
+    <QtMoc Include="source\ui\widget\QMacroTable.h">
+      <Filter>Form Files\widget</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="source\res\QuickInput.rc">

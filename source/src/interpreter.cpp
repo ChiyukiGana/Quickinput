@@ -221,7 +221,7 @@ namespace QiInterpreter
 						result = ActionInterpreter(parent, ref.next2, cursor, wp, jumpId);
 					}
 				} break;
-				case QiType::recoverPos:
+				case QiType::resetPos:
 				{
 					Input::MoveTo(cursor.x, cursor.y, key_info);
 				} break;
@@ -272,10 +272,11 @@ namespace QiInterpreter
 					Qi::popText->Popup(ref.time, ref.text, RGB(223, 223, 223));
 					if (ref.sync)
 					{
-						if (QiThread::PeekSleep(ref.time)) result = r_exit;
+						if (ref.sync && QiThread::PeekSleep(ref.time)) result = r_exit;
 					}
+					else Sleep(10);
 				} break;
-				case QiType::rememberPos:
+				case QiType::savePos:
 				{
 					cursor = Input::pos();
 				} break;

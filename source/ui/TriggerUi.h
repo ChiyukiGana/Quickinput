@@ -7,7 +7,9 @@ class TriggerUi : public QWidget
 	using This = TriggerUi;
 	const int countMax = 9999;
 	Ui::TriggerUiClass ui;
-	Macros* macros = &Qi::macros;
+	MacroGroups* groups = &Qi::macroGroups;
+	MacroGroup* currentGroup = &groups->front();
+	Macro* currentMacro;
 public:
 	TriggerUi(QWidget* parent) : QWidget(parent)
 	{
@@ -28,22 +30,6 @@ private:
 		ui.count_edit->setProperty("group", "line_edit");
 		ui.key_keyedit->setProperty("group", "line_edit");
 		ui.mode_combo->view()->setProperty("group", "table");
-		ui.macro_table->setProperty("group", "table");
-		ui.macro_table->horizontalHeader()->setProperty("group", "table_header");
-		ui.macro_table->verticalHeader()->setProperty("group", "table_header");
-		for (size_t i = 0; i < ui.macro_table->children().size(); i++)
-		{
-			if (QString(ui.macro_table->children().at(i)->metaObject()->className()) == QString("QTableCornerButton"))
-			{
-				QWidget* corner = (QWidget*)ui.macro_table->children().at(i);
-				QHBoxLayout* box = new QHBoxLayout(corner);
-				box->setMargin(0);
-				QWidget* widget = new QWidget(corner);
-				box->addWidget(widget);
-				widget->setProperty("group", "table_header");
-				break;
-			}
-		}
 	}
 	void Init()
 	{
@@ -73,12 +59,17 @@ private:
 		}
 		if ("table")
 		{
-			ui.macro_table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-			ui.macro_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-			ui.macro_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
-			ui.macro_table->setColumnWidth(1, 120);
-			ui.macro_table->setColumnWidth(2, 80);
-			ui.macro_table->setColumnWidth(3, 60);
+			ui.macroGroup_table->setColumnCount(4);
+			ui.macroGroup_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
+			ui.macroGroup_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
+			ui.macroGroup_table->setColumnWidth(1, 120);
+			ui.macroGroup_table->setColumnWidth(2, 80);
+			ui.macroGroup_table->setColumnWidth(3, 60);
+			ui.macroGroup_table->setHorizontalHeaderItem(0, new QTableWidgetItem("名称"));
+			ui.macroGroup_table->setHorizontalHeaderItem(1, new QTableWidgetItem("按键"));
+			ui.macroGroup_table->setHorizontalHeaderItem(2, new QTableWidgetItem("模式"));
+			ui.macroGroup_table->setHorizontalHeaderItem(3, new QTableWidgetItem("状态"));
+			ui.macroGroup_table->setAutoScroll(false);
 		}
 		if ("clear shortcut")
 		{
@@ -89,100 +80,156 @@ private:
 	}
 	void Event()
 	{
-		connect(ui.macro_table, &QTableWidget::cellClicked, this, [this](int row, int column) {
-			if (row < 0 || column != 3) return;
-			macros->at(row).state = !macros->at(row).state;
-			TableUpdate();
-			QiJson::SaveMacro(macros->at(row));
-			});
-		connect(ui.macro_table, &QTableWidget::itemSelectionChanged, this, [this]() {
+		std::function currentChanged = [this](int table_index) {
+			currentGroup = &groups->front();
+			currentMacro = nullptr;
+			ui.param_widget->setDisabled(true);
+
+			QTableWidget* table = ui.macroGroup_table->currentTable();
+			if (!table) return;
+			int row = table->currentRow();
+			if (row < 0) return;
+
+			currentGroup = &groups->at(table_index);
+			currentMacro = &currentGroup->macros[row];
 			ResetWidget();
-			QList<QTableWidgetItem*> items = ui.macro_table->selectedItems();
-			if (items.size() == ui.macro_table->columnCount())
+			Macro& macro = groups->at(table_index).macros[row];
+			// state
+			ui.block_check->setChecked(macro.keyBlock);
+			ui.block_cur_check->setChecked(macro.curBlock);
+			ui.mode_combo->setCurrentIndex(macro.mode);
+			// key
 			{
-				int row = items.first()->row();
-				Macro& macro = macros->at(row);
-				// state
-				ui.block_check->setChecked(macro.keyBlock);
-				ui.block_cur_check->setChecked(macro.curBlock);
-				ui.mode_combo->setCurrentIndex(macro.mode);
-				// key
-				{
-					QList<QKeyEdit::Key> keys;
-					QKeyEdit::Key key;
-					key.keyCode = macro.key & 0xFFFF;
-					keys.push_back(key);
-					key.keyCode = macro.key >> 16;
-					keys.push_back(key);
-					ui.key_keyedit->setKeys(keys);
-				}
-				// count
-				if (macro.mode >= Macro::down)
-				{
-					ui.count_edit->setText(QString::number(macro.count));
-					ui.count_edit->setEnabled(true);
-				}
-				ui.param_widget->setEnabled(true);
+				QList<QKeyEdit::Key> keys;
+				QKeyEdit::Key key;
+				key.keyCode = macro.key & 0xFFFF;
+				keys.push_back(key);
+				key.keyCode = macro.key >> 16;
+				keys.push_back(key);
+				ui.key_keyedit->setKeys(keys);
 			}
-			else ui.param_widget->setDisabled(true);
+			// count
+			if (macro.mode >= Macro::down)
+			{
+				ui.count_edit->setText(QString::number(macro.count));
+				ui.count_edit->setEnabled(true);
+			}
+			ui.param_widget->setEnabled(true);
+			};
+		connect(ui.macroGroup_table, &QMacroTable::itemClicked, this, [this, currentChanged](int table_index, int row, int column) {
+			currentChanged(table_index);
+			if (!currentMacro || table_index < 0 || row < 0 || column != 3) return;
+			QTableWidget* table = ui.macroGroup_table->table(table_index);
+			if (!table) return;
+
+			currentMacro->state = !currentMacro->state;
+			QiJson::SaveMacro(*currentMacro);
+			SetTableItem(table, row, *currentMacro);
+			});
+		connect(ui.macroGroup_table, &QMacroTable::currentChanged, this, currentChanged);
+		connect(ui.macroGroup_table, &QMacroTable::headerClicked, this, [this, currentChanged](int table_index, int column) {
+			currentChanged(table_index);
+			if (!currentGroup || column != 3) return;
+			QTableWidget* table = ui.macroGroup_table->table(table_index);
+			if (!table) return;
+			bool state = false;
+			for (auto& i : currentGroup->macros)
+			{
+				if (i.state)
+				{
+					state = true;
+					break;
+				}
+			}
+			for (size_t i = 0; i < currentGroup->macros.size(); i++)
+			{
+				auto& macro = currentGroup->macros[i];
+				macro.state = !state;
+				QiJson::SaveMacro(macro);
+				SetTableItem(table, i, macro);
+			}
 			});
 		connect(ui.block_check, &QCheckBox::clicked, this, [this](bool state) {
-			int p = ui.macro_table->currentRow(); if (p < 0) return;
-			macros->at(p).keyBlock = state;
-			TableUpdate();
-			QiJson::SaveMacro(macros->at(p));
+			if (!currentMacro) return;
+			QTableWidget* table = ui.macroGroup_table->currentTable();
+			if (!table) return;
+			int row = table->currentRow();
+			if (row < 0) return;
+
+			currentMacro->keyBlock = state;
+			QiJson::SaveMacro(*currentMacro);
+			SetTableItem(table, row, *currentMacro);
 			});
 		connect(ui.block_cur_check, &QCheckBox::clicked, this, [this](bool state) {
-			int p = ui.macro_table->currentRow(); if (p < 0) return;
-			macros->at(p).curBlock = state;
-			TableUpdate();
-			QiJson::SaveMacro(macros->at(p));
+			if (!currentMacro) return;
+			QTableWidget* table = ui.macroGroup_table->currentTable();
+			if (!table) return;
+			int row = table->currentRow();
+			if (row < 0) return;
+
+			currentMacro->curBlock = state;
+			QiJson::SaveMacro(*currentMacro);
+			SetTableItem(table, row, *currentMacro);
 			});
 
 		connect(ui.mode_combo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) {
-			int p = ui.macro_table->currentRow(); if (p < 0) return;
+			if (!currentMacro) return;
+			QTableWidget* table = ui.macroGroup_table->currentTable();
+			if (!table) return;
+			int row = table->currentRow();
+			if (row < 0) return;
+
 			switch (index)
 			{
 			case Macro::sw:
 				ui.count_edit->setText("无限");
 				ui.count_edit->setDisabled(1);
-				macros->at(p).count = 0;
-				macros->at(p).mode = Macro::sw;
+				currentMacro->count = 0;
+				currentMacro->mode = Macro::sw;
 				break;
 			case Macro::down:
 				ui.count_edit->setText("");
 				ui.count_edit->setDisabled(0);
-				macros->at(p).count = 1;
-				macros->at(p).mode = Macro::down;
+				currentMacro->count = 1;
+				currentMacro->mode = Macro::down;
 				break;
 			case Macro::up:
 				ui.count_edit->setText("");
 				ui.count_edit->setDisabled(0);
-				macros->at(p).count = 1;
-				macros->at(p).mode = Macro::up;
+				currentMacro->count = 1;
+				currentMacro->mode = Macro::up;
 				break;
 			}
-			TableUpdate();
-			QiJson::SaveMacro(macros->at(p));
+			QiJson::SaveMacro(*currentMacro);
+			SetTableItem(table, row, *currentMacro);
 			});
 		connect(ui.key_keyedit, &QKeyEdit::changed, this, [this] {
-			int p = ui.macro_table->currentRow();
-			if (p < 0) return;
+			if (!currentMacro) return;
+			QTableWidget* table = ui.macroGroup_table->currentTable();
+			if (!table) return;
+			int row = table->currentRow();
+			if (row < 0) return;
+
 			QList<QKeyEdit::Key> keys = ui.key_keyedit->keys();
 			DWORD vk = VK_SPACE;
 			if (keys.size() == 1) vk = keys[0].keyCode;
 			else if (keys.size() == 2) vk = keys[0].keyCode | (keys[1].keyCode << 16);
-			macros->at(p).key = vk;
-			QiJson::SaveMacro(macros->at(p));
-			TableUpdate();
+			currentMacro->key = vk;
+			QiJson::SaveMacro(*currentMacro);
+			SetTableItem(table, row, *currentMacro);
 			});
 		connect(ui.count_edit, &QLineEdit::textEdited, this, [this](const QString& text) {
-			int p = ui.macro_table->currentRow(); if (p < 0) return;
+			if (!currentMacro) return;
+			QTableWidget* table = ui.macroGroup_table->currentTable();
+			if (!table) return;
+			int row = table->currentRow();
+			if (row < 0) return;
+
 			int n = text.toInt();
 			if (n > countMax) n = countMax;
-			macros->at(p).count = n;
-			TableUpdate();
-			QiJson::SaveMacro(macros->at(p));
+			currentMacro->count = n;
+			QiJson::SaveMacro(*currentMacro);
+			SetTableItem(table, row, *currentMacro);
 			});
 	}
 	void ResetWidget()
@@ -192,57 +239,85 @@ private:
 		ui.key_keyedit->clear();
 		ui.count_edit->setText("");
 	}
+	void SetTableItem(QTableWidget* table, int index, const Macro& macro)
+	{
+		// name
+		table->setItem(index, 0, new QTableWidgetItem(macro.name));
+		table->item(index, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		// key
+		QString qs = "----";
+		if ((macro.key & 0xFFFF) != 0)
+		{
+			qs = QKeyEdit::keyName(macro.key & 0xFFFF);
+			if ((macro.key >> 16) != 0)
+			{
+				qs += " + ";
+				qs += QKeyEdit::keyName(macro.key >> 16);
+			}
+		}
+		table->setItem(index, 1, new QTableWidgetItem(qs));
+		table->item(index, 1)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		// mode and count
+		qs = "";
+		switch (macro.mode)
+		{
+		case Macro::sw:
+			qs = "切换";
+			break;
+		case Macro::down:
+			qs = "按下(";
+			if (macro.count) qs += QString::number(macro.count);
+			else qs += "无限";
+			qs += ")";
+			break;
+		case Macro::up:
+			qs = "松开(";
+			if (macro.count) qs += QString::number(macro.count);
+			else qs += "无限";
+			qs += ")";
+			break;
+		}
+		table->setItem(index, 2, new QTableWidgetItem(qs));
+		table->item(index, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		// state
+		if (macro.state) qs = Qi::ui.text.trOn;
+		else qs = Qi::ui.text.trOff;
+		table->setItem(index, 3, new QTableWidgetItem(qs));
+		table->item(index, 3)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+	}
+
 	void TableUpdate()
 	{
-		ui.macro_table->clearMask();
-		ui.macro_table->setRowCount(macros->size());
-		ui.macro_table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-		ui.macro_table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
-		ui.macro_table->verticalHeader()->setDefaultSectionSize(0);
-		for (size_t i = 0; i < macros->size(); i++) {
-			// name
-			ui.macro_table->setItem(i, 0, new QTableWidgetItem(macros->at(i).name));
-			ui.macro_table->item(i, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			// key
-			QString qs = "----";
-			if ((macros->at(i).key & 0xFFFF) != 0)
+		currentGroup = &groups->front();
+		currentMacro = nullptr;
+		ui.macroGroup_table->setTableCount(groups->size());
+		for (size_t mgPos = 0; mgPos < groups->size(); mgPos++)
+		{
+			MacroGroup& mg = groups->at(mgPos);
+			QTableWidget* table = ui.macroGroup_table->table(mgPos);
+
+			table->setColumnCount(4);
+			table->setRowCount(mg.macros.size());
+
+			table->setEditTriggers(QAbstractItemView::EditTrigger::NoEditTriggers);
+			table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
+			table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
+			table->setColumnWidth(1, 120);
+			table->setColumnWidth(2, 80);
+			table->setColumnWidth(3, 60);
+			table->setSelectionBehavior(QAbstractItemView::SelectRows);
+			table->setSelectionMode(QAbstractItemView::SingleSelection);
+			bool state = false;
+			for (size_t mPos = 0; mPos < mg.macros.size(); mPos++)
 			{
-				qs = QKeyEdit::keyName(macros->at(i).key & 0xFFFF);
-				if ((macros->at(i).key >> 16) != 0)
-				{
-					qs += " + ";
-					qs += QKeyEdit::keyName(macros->at(i).key >> 16);
-				}
+				Macro& m = mg.macros[mPos];
+				SetTableItem(table, mPos, m);
+				if (m.state) m.state = true;
 			}
-			ui.macro_table->setItem(i, 1, new QTableWidgetItem(qs));
-			ui.macro_table->item(i, 1)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			// mode and count
-			qs = "";
-			switch (macros->at(i).mode)
-			{
-			case Macro::sw:
-				qs = "切换";
-				break;
-			case Macro::down:
-				qs = "按下(";
-				if (macros->at(i).count) qs += QString::number(macros->at(i).count);
-				else qs += "无限";
-				qs += ")";
-				break;
-			case Macro::up:
-				qs = "松开(";
-				if (macros->at(i).count) qs += QString::number(macros->at(i).count);
-				else qs += "无限";
-				qs += ")";
-				break;
-			}
-			ui.macro_table->setItem(i, 2, new QTableWidgetItem(qs));
-			ui.macro_table->item(i, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			// state
-			if (macros->at(i).state) qs = Qi::ui.text.trOn;
-			else qs = Qi::ui.text.trOff;
-			ui.macro_table->setItem(i, 3, new QTableWidgetItem(qs));
-			ui.macro_table->item(i, 3)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			table->setHorizontalHeaderItem(0, new QTableWidgetItem(mg.name));
+			table->setHorizontalHeaderItem(1, new QTableWidgetItem(""));
+			table->setHorizontalHeaderItem(2, new QTableWidgetItem(""));
+			table->setHorizontalHeaderItem(3, new QTableWidgetItem("全部" + Qi::ui.text.syAny));
 		}
 	}
 	bool event(QEvent* e)
@@ -261,7 +336,7 @@ private:
 	}
 	void showEvent(QShowEvent*)
 	{
-		ui.macro_table->setCurrentItem(0);
+		ui.macroGroup_table->clearSelection();
 		TableUpdate();
 		ResetWidget();
 		ui.param_widget->setDisabled(true);

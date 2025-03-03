@@ -29,8 +29,6 @@ namespace QiFn
 	bool SelfActive();
 	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, std::function<void(int x, int y, int stepx, int stepy)> CallBack);
 	WndInfo WindowSelection();
-	QString Unique(const QString& name, const QStringList& names, const QString& left = " (", const QString& right = ")", int begin = 1);
-	QString AllocName(const QString& name);
 	QiBlock* FindBlock(Actions& actions, int id);
 	const QiBlock* FindBlock(const Actions& actions, int id);
 };

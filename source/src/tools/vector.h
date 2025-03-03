@@ -13,6 +13,7 @@ namespace QiTools
 		QiVector() {}
 		QiVector(const QiVector&) = delete;
 		QiVector(QiVector&& right) noexcept : base_vector(std::move(right)) {}
+		QiVector(const Ty&& element, size_t count) : base_vector(count, element) {}
 		void operator=(const QiVector&) = delete;
 		void operator=(QiVector&& right) noexcept
 		{
@@ -141,6 +142,10 @@ namespace QiTools
 				}
 			}
 			return result;
+		}
+		void sort(std::function<bool(const Ty&, const Ty&)> compareCallback)
+		{
+			std::sort(base_vector::begin(), base_vector::end(), compareCallback);
 		}
 	};
 }

@@ -3,6 +3,15 @@
 constexpr int key_info = 214;
 constexpr int msg_exit = (WM_USER + 0xFF);
 constexpr int keySize = XBoxPad::key_end;
+namespace Qi
+{
+	// path
+	extern const QString dir;
+	extern const QString folder;
+	extern const QString macroDir;
+	extern const QString macroType;
+	extern const QString configFile;
+}
 namespace QiUi
 {
 	constexpr int event_restyle = QEvent::User;
@@ -15,6 +24,7 @@ namespace QiUi
 	struct Text
 	{
 		// symbols
+		QString syAny;
 		QString syOn;
 		QString syOff;
 		QString syOk;
@@ -61,10 +71,10 @@ namespace QiUi
 		QString acEnd;
 		QString acEndLoop;
 		QString acKeyState;
-		QString acRecoverPos;
+		QString acResetPos;
 		QString acImage;
 		QString acPopText;
-		QString acRememberPos;
+		QString acSavePos;
 		QString acTimer;
 		QString acJump;
 		QString acJumpPoint;
@@ -229,10 +239,10 @@ struct QiType
 		loop,
 		loopEnd,
 		keyState,
-		recoverPos,
+		resetPos,
 		image,
 		popText,
-		rememberPos,
+		savePos,
 		timer,
 		jump,
 		jumpPoint,
@@ -347,14 +357,14 @@ public:
 	void operator=(const QiKeyState& r) { QiBase::operator=(r); vk = r.vk; }
 	void operator=(QiKeyState&& r) noexcept { QiBase::operator=(std::move(r)); vk = r.vk; }
 };
-class QiRecoverPos : public QiBase
+class QiResetPos : public QiBase
 {
 public:
-	QiRecoverPos() : QiBase(QiType::recoverPos) {}
-	QiRecoverPos(const QiRecoverPos& r) { operator=(r); }
-	QiRecoverPos(QiRecoverPos&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiRecoverPos& r) { QiBase::operator=(r); }
-	void operator=(QiRecoverPos&& r) noexcept { QiBase::operator=(std::move(r)); }
+	QiResetPos() : QiBase(QiType::resetPos) {}
+	QiResetPos(const QiResetPos& r) { operator=(r); }
+	QiResetPos(QiResetPos&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiResetPos& r) { QiBase::operator=(r); }
+	void operator=(QiResetPos&& r) noexcept { QiBase::operator=(std::move(r)); }
 };
 class QiImage : public QiBase
 {
@@ -376,14 +386,14 @@ public:
 	void operator=(const QiPopText& r) { QiBase::operator=(r); time = r.time; text = r.text; sync = r.sync; }
 	void operator=(QiPopText&& r) noexcept { QiBase::operator=(std::move(r)); time = r.time; text = std::move(r.text); sync = r.sync; }
 };
-class QiRememberPos : public QiBase
+class QiSavePos : public QiBase
 {
 public:
-	QiRememberPos() : QiBase(QiType::rememberPos) {}
-	QiRememberPos(const QiRememberPos& r) { operator=(r); }
-	QiRememberPos(QiRememberPos&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiRememberPos& r) { QiBase::operator=(r); }
-	void operator=(QiRememberPos&& r) noexcept { QiBase::operator=(std::move(r)); }
+	QiSavePos() : QiBase(QiType::savePos) {}
+	QiSavePos(const QiSavePos& r) { operator=(r); }
+	QiSavePos(QiSavePos&& r) noexcept { operator=(std::move(r)); }
+	void operator=(const QiSavePos& r) { QiBase::operator=(r); }
+	void operator=(QiSavePos&& r) noexcept { QiBase::operator=(std::move(r)); }
 };
 class QiTimer : public QiBase
 {
@@ -486,10 +496,10 @@ using ActionVariant = std::variant
 	QiLoop,
 	QiLoopEnd,
 	QiKeyState,
-	QiRecoverPos,
+	QiResetPos,
 	QiImage,
 	QiPopText,
-	QiRememberPos,
+	QiSavePos,
 	QiTimer,
 	QiJump,
 	QiJumpPoint,
@@ -534,8 +544,10 @@ public:
 	}
 };
 ////////////////// Macro
-struct Macro
+class MacroGroup;
+class Macro
 {
+public:
 	Macro() {}
 	Macro(const Macro& v)
 	{
@@ -563,6 +575,8 @@ struct Macro
 		wp = v.wp;
 		thRun = v.thRun;
 		thEnd = v.thEnd;
+		groupName = v.groupName;
+		groupBase = v.groupBase;
 	}
 	void operator=(Macro&& r) noexcept
 	{
@@ -574,7 +588,7 @@ struct Macro
 		key = r.key;
 		mode = r.mode;
 		count = r.count;
-		name = r.name;
+		name = std::move(r.name);
 		acRun = std::move(r.acRun);
 		acEnd = std::move(r.acEnd);
 		cursor = r.cursor;
@@ -582,6 +596,8 @@ struct Macro
 		wp = r.wp;
 		thRun = r.thRun;
 		thEnd = r.thEnd;
+		groupName = std::move(r.groupName);
+		groupBase = r.groupBase;
 	}
 	enum { sw, down, up };
 	bool state = false; // enable | disable
@@ -593,6 +609,8 @@ struct Macro
 	int mode = 0;
 	int count = 0;
 	QString name;
+	QString groupName;
+	bool groupBase = false;
 	Actions acRun;
 	Actions acEnd;
 	POINT cursor = {};
@@ -600,8 +618,92 @@ struct Macro
 	WndInput wp;
 	HANDLE thRun = nullptr;
 	HANDLE thEnd = nullptr;
+	QString makePath() const
+	{
+		if (groupBase) return Qi::macroDir + name + Qi::macroType;
+		return Qi::macroDir + groupName + QString('/') + name + Qi::macroType;
+	}
 };
 using Macros = QiVector<Macro>;
+class MacroGroup
+{
+public:
+	bool base;
+	QString name;
+	Macros macros;
+	MacroGroup(bool base, const QString name)
+	{
+		this->base = base;
+		this->name = name;
+	}
+	MacroGroup(const MacroGroup&) = delete;
+	void operator=(const MacroGroup&) = delete;
+	MacroGroup(MacroGroup&& right) noexcept { operator=(std::move(right)); }
+	void operator=(MacroGroup&& right) noexcept { base = right.base; macros = std::move(right.macros); name = std::move(right.name); }
+	void reName(const QString& newName)
+	{
+		name = newName;
+		for (auto& i : macros) i.groupName = name;
+	}
+	QString makeName(const QString& macroName) const
+	{
+		int i = 0;
+		QString alloc = macroName;
+		bool not_unique = true;
+		while (true)
+		{
+			for (const auto& macro : macros)
+			{
+				if (macro.name == alloc)
+				{
+					not_unique = false;
+					i++;
+					alloc = macroName + QString::number(i);
+				}
+			}
+			if (not_unique) break;
+			not_unique = true;
+		}
+		return alloc;
+	}
+	QString makePath(const QString& macroName) const
+	{
+		if (base) return Qi::macroDir + makeName(macroName) + Qi::macroType;
+		return Qi::macroDir + name + QString("/") + makeName(macroName) + Qi::macroType;
+	}
+	QString makePath() const
+	{
+		return Qi::macroDir + name;
+	}
+};
+class MacroGroups : public QiVector<MacroGroup>
+{
+	using Base = QiVector<MacroGroup>;
+public: 
+	using Base::Base;
+	QString makeName(const QString& name = "组")
+	{
+		int i = 0;
+		QString alloc = name;
+		bool not_unique = true;
+		while (true)
+		{
+			for (size_t i = 0; i < Base::size(); i++)
+			{
+				MacroGroup& group = Base::at(i);
+				if (group.name == alloc)
+				{
+					not_unique = false;
+					i++;
+					alloc = name + QString::number(i);
+				}
+			}
+			if (not_unique) break;
+			not_unique = true;
+		}
+		return alloc;
+	}
+};
 ////////////////// Datas
 struct QuickClick
 {
@@ -663,7 +765,8 @@ namespace Qi
 	// macro
 	extern Actions record;
 	extern Actions clipboard;
-	extern Macros macros;
+	extern MacroGroups macroGroups;
+	extern QList<Macro*> macroActive;
 	// data
 	extern FuncData fun;
 	extern SettingsData set;
@@ -675,12 +778,6 @@ namespace Qi
 	extern bool keyBlock[keySize];
 	extern int curBlock;
 	extern XBoxPad xboxpad;
-	// path
-	extern const QString dir;
-	extern const QString folder;
-	extern const QString macroDir;
-	extern const QString macroType;
-	extern const QString configFile;
 	// other
 	extern SIZE screen;
 	extern MSG msg;

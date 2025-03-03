@@ -142,7 +142,7 @@ namespace QiJson
 				jAction.insert("next", SaveAction(ref.next));
 				jAction.insert("next2", SaveAction(ref.next2));
 			} break;
-			case QiType::recoverPos:
+			case QiType::resetPos:
 			{
 			} break;
 			case QiType::image:
@@ -158,7 +158,7 @@ namespace QiJson
 				jAction.insert("height", (int)ref.map.height());
 
 				QByteArray data((const char*)ref.map.data(), ref.map.bytes());
-				
+
 				jAction.insert("data", data.toBase64().data());
 
 				jAction.insert("next", SaveAction(ref.next));
@@ -171,7 +171,7 @@ namespace QiJson
 				jAction.insert("time", (int)ref.time);
 				jAction.insert("sync", (bool)ref.sync);
 			} break;
-			case QiType::rememberPos:
+			case QiType::savePos:
 			{
 			} break;
 			case QiType::timer:
@@ -216,7 +216,7 @@ namespace QiJson
 			{
 				const QiQuickInput& ref = std::get<QiQuickInput>(var);
 				QJsonArray chars;
-				for (auto &i : ref.chars) chars.append((int)i);
+				for (auto& i : ref.chars) chars.append((int)i);
 				jAction.insert("c", chars);
 			} break;
 			case QiType::keyBlock:
@@ -251,8 +251,17 @@ namespace QiJson
 		jMacro.insert("actionsEnding", SaveAction(macro.acEnd));
 
 		QJsonDocument json(jMacro);
-		if (!QDir(Qi::macroDir).exists() && !QDir(Qi::macroDir).mkdir(Qi::macroDir)) MsgBox::Error(L"创建宏目录失败");
-		if (!File::SaveText(Qi::macroDir + macro.name + Qi::macroType, json.toJson())) MsgBox::Error((const wchar_t*)macro.name.utf16(), L"保存宏失败");
+
+		QString path = Qi::macroDir;
+		if (!QDir(path).exists() && !QDir(path).mkdir(path)) MsgBox::Error(L"创建宏目录失败");
+		if (!macro.groupBase)
+		{
+			path += macro.groupName + QString("/");
+			if (!QDir(path).exists() && !QDir(path).mkdir(path)) MsgBox::Error(L"创建分组目录失败");
+		}
+		path += macro.name + Qi::macroType;
+
+		if (!File::SaveText(path, json.toJson())) MsgBox::Error((const wchar_t*)macro.name.utf16(), L"保存宏失败");
 	}
 	void SaveJson()
 	{
@@ -407,9 +416,9 @@ namespace QiJson
 
 					actions.append(std::move(var));
 				} break;
-				case QiType::recoverPos:
+				case QiType::resetPos:
 				{
-					QiRecoverPos var; var.disable = dis, var.mark = mark;
+					QiResetPos var; var.disable = dis, var.mark = mark;
 
 					actions.append(std::move(var));
 				} break;
@@ -450,9 +459,9 @@ namespace QiJson
 
 					actions.append(std::move(var));
 				} break;
-				case QiType::rememberPos:
+				case QiType::savePos:
 				{
-					QiRememberPos var; var.disable = dis, var.mark = mark;
+					QiSavePos var; var.disable = dis, var.mark = mark;
 
 					actions.append(std::move(var));
 				} break;
@@ -529,39 +538,71 @@ namespace QiJson
 		}
 		return actions;
 	}
+	bool LoadMacro(Macro& macro, const QString path, const QString name)
+	{
+		QByteArray text;
+		if (File::LoadText(path, text))
+		{
+			QJsonDocument json(QJsonDocument::fromJson(text));
+			if (json.isObject())
+			{
+				macro.name = name;
+				QJsonObject jMacro(json.object());
+				macro.wndState = jMacro.value("wndState").toBool();
+				macro.wi.child = jMacro.value("wndChild").toBool();
+				macro.wi.wndName = jMacro.value("wndName").toString();
+				macro.wi.wndClass = jMacro.value("wndClass").toString();
+				macro.state = jMacro.value("state").toBool();
+				macro.keyBlock = jMacro.value("keyBlock").toBool();
+				macro.curBlock = jMacro.value("curBlock").toBool();
+				macro.mode = jMacro.value("mode").toInt();
+				macro.key = jMacro.value("key").toInt();
+				macro.count = jMacro.value("count").toInt();
+				macro.acRun = LoadAction(jMacro.value("actions").toArray());
+				macro.acEnd = LoadAction(jMacro.value("actionsEnding").toArray());
+				return true;
+			}
+		}
+		MsgBox::Error((const wchar_t*)name.utf16(), L"加载宏失败");
+		return false;
+	}
 	void LoadMacro()
 	{
-		Qi::macros.clear();
-		QFileInfoList files = File::Find(Qi::macroDir, QString("*") + Qi::macroType);
-		for (const QFileInfo& file : files)
+		Qi::macroGroups.clear();
+		Qi::macroGroups.append(MacroGroup(true, "默认分组"));
+
+		QDir dir(Qi::macroDir);
+		dir.setFilter(QDir::Filter::Dirs);
+		QFileInfoList dirInfos = dir.entryInfoList();
+		if (dirInfos.isEmpty()) return;
+
+		QList<QString> dirs;
+		dirs.append(Qi::macroDir);
+		for (auto& i : dirInfos) if (i.fileName() != "." && i.fileName() != "..") dirs.append(i.fileName());
+
+		bool base = true;
+		for (auto& i : dirs)
 		{
-			QByteArray text;
-			if (File::LoadText(file.filePath(), text))
+			QString path = Qi::macroDir;
+			MacroGroup* group;
+
+			if (base)
 			{
-				QJsonDocument json(QJsonDocument::fromJson(text));
-				if (json.isObject())
-				{
-					Macro macro;
-					macro.name = file.baseName();
-					QJsonObject jMacro(json.object());
-					macro.wndState = jMacro.value("wndState").toBool();
-					macro.wi.child = jMacro.value("wndChild").toBool();
-					macro.wi.wndName = jMacro.value("wndName").toString();
-					macro.wi.wndClass = jMacro.value("wndClass").toString();
-					macro.state = jMacro.value("state").toBool();
-					macro.keyBlock = jMacro.value("keyBlock").toBool();
-					macro.curBlock = jMacro.value("curBlock").toBool();
-					macro.mode = jMacro.value("mode").toInt();
-					macro.key = jMacro.value("key").toInt();
-					macro.count = jMacro.value("count").toInt();
-					macro.acRun = LoadAction(jMacro.value("actions").toArray());
-					macro.acEnd = LoadAction(jMacro.value("actionsEnding").toArray());
-					Qi::macros.append(std::move(macro));
-				}
+				group = &Qi::macroGroups.front();
+				base = false;
 			}
 			else
 			{
-				MsgBox::Error((const wchar_t*)file.baseName().utf16(), L"加载宏失败");
+				group = &Qi::macroGroups.append(MacroGroup(false, i));
+				group->name = i;
+				path += i;
+			}
+			for (const QFileInfo& file : File::Find(path, QString("*") + Qi::macroType))
+			{
+				Macro macro;
+				macro.groupName = group->name;
+				macro.groupBase = group->base;
+				if (LoadMacro(macro, file.filePath(), file.baseName())) group->macros.append(std::move(macro));
 			}
 		}
 	}

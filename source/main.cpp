@@ -32,6 +32,7 @@ void Init()
 	{
 		if (System::Version().dwMajorVersion >= 10)
 		{
+			Qi::ui.text.syAny = "🟡";
 			Qi::ui.text.syOn = "✅";
 			Qi::ui.text.syOff = "⛔";
 			Qi::ui.text.syOk = "⭕";
@@ -62,6 +63,7 @@ void Init()
 		}
 		else
 		{
+			Qi::ui.text.syAny = "●";
 			Qi::ui.text.syOn = "✔";
 			Qi::ui.text.syOff = "✘";
 			Qi::ui.text.syOk = "✔";
@@ -112,10 +114,10 @@ void Init()
 		Qi::ui.text.acEnd = (QString::fromUtf8("结束") + Qi::ui.text.syStop);
 		Qi::ui.text.acEndLoop = (QString::fromUtf8("结束循环") + Qi::ui.text.syStop);
 		Qi::ui.text.acKeyState = (QString::fromUtf8("按键状态") + Qi::ui.text.syStop);
-		Qi::ui.text.acRecoverPos = (QString::fromUtf8("恢复位置") + Qi::ui.text.syTurn);
+		Qi::ui.text.acResetPos = (QString::fromUtf8("恢复位置") + Qi::ui.text.syTurn);
 		Qi::ui.text.acImage = (QString::fromUtf8("找图") + Qi::ui.text.syImage);
 		Qi::ui.text.acPopText = (QString::fromUtf8("弹出") + Qi::ui.text.syText);
-		Qi::ui.text.acRememberPos = (QString::fromUtf8("记录位置") + Qi::ui.text.syTurn);
+		Qi::ui.text.acSavePos = (QString::fromUtf8("记录位置") + Qi::ui.text.syTurn);
 		Qi::ui.text.acTimer = (QString::fromUtf8("定时") + Qi::ui.text.syLoop);
 		Qi::ui.text.acJump = (QString::fromUtf8("跳转") + Qi::ui.text.syJump);
 		Qi::ui.text.acJumpPoint = (QString::fromUtf8("锚点") + Qi::ui.text.syPoint);

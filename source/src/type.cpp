@@ -17,7 +17,8 @@ namespace Qi
 	// macro
 	Actions record;
 	Actions clipboard;
-	Macros macros;
+	MacroGroups macroGroups;
+	QList<Macro*> macroActive;
 	// data
 	FuncData fun;
 	SettingsData set;

@@ -113,8 +113,9 @@ namespace QiFn
 			}
 		}
 		// macros
-		for (Macro& macro : Qi::macros)
+		for (auto& m : Qi::macroActive)
 		{
+			Macro& macro = *m;
 			if (vk == (macro.key & 0xFFFF) || vk == (macro.key >> 16))
 			{
 				if (macro.state)
@@ -222,18 +223,24 @@ namespace QiFn
 	{
 		if (state)
 		{
-			// Update block keys
+			Qi::curBlock = 0;
+			Qi::macroActive.clear();
+			for (auto& g : Qi::macroGroups)
 			{
-				Qi::curBlock = 0;
-				for (const Macro& macro : Qi::macros)
+				for (auto& m : g.macros)
 				{
-					if (macro.state && macro.keyBlock)
+					if (m.state && m.key)
 					{
-						if (macro.key & 0xFFFF) Qi::keyBlock[macro.key & 0xFFFF] = true;
-						if (macro.key >> 16) Qi::keyBlock[macro.key >> 16] = true;
+						if (m.keyBlock)
+						{
+							if (m.key & 0xFFFF) Qi::keyBlock[m.key & 0xFFFF] = true;
+							if (m.key >> 16) Qi::keyBlock[m.key >> 16] = true;
+						}
+						Qi::macroActive.append(&m);
 					}
 				}
 			}
+
 			Qi::state = true;
 			StatePop(true);
 			if (Qi::set.audFx) Sound::WavePlay(sound_on);
@@ -289,32 +296,6 @@ namespace QiFn
 			wi.wndName = Window::text(wi.wnd);
 		}
 		return wi;
-	}
-	QString Unique(const QString& name, const QStringList& names, const QString& left, const QString& right, int begin)
-	{
-		for (int i = begin;; i++)
-		{
-			bool exists = false;
-			for (const QString& current : names)
-			{
-				if (current == (name + left + QString::number(i) + right))
-				{
-					exists = true;
-					break;
-				}
-			}
-			if (!exists)
-			{
-				return name + left + QString::number(i) + right;
-			}
-		}
-		return name;
-	}
-	QString AllocName(const QString& name)
-	{
-		QStringList names;
-		for (const Macro& macro : Qi::macros) names.append(macro.name);
-		return Unique(name, names);
 	}
 	QiBlock* FindBlock(Actions& actions, int id)
 	{
