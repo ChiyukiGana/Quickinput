@@ -567,6 +567,7 @@ public:
 		key = v.key;
 		mode = v.mode;
 		count = v.count;
+		speed = v.speed;
 		name = v.name;
 		acRun.copy(v.acRun);
 		acEnd.copy(v.acEnd);
@@ -588,6 +589,7 @@ public:
 		key = r.key;
 		mode = r.mode;
 		count = r.count;
+		speed = r.speed;
 		name = std::move(r.name);
 		acRun = std::move(r.acRun);
 		acEnd = std::move(r.acEnd);
@@ -608,6 +610,7 @@ public:
 	int key = 0;
 	int mode = 0;
 	int count = 0;
+	float speed = 1.0f;
 	QString name;
 	QString groupName;
 	bool groupBase = false;

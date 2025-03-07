@@ -247,6 +247,8 @@ namespace QiJson
 		jMacro.insert("mode", (int)macro.mode);
 		jMacro.insert("key", (int)macro.key);
 		jMacro.insert("count", (int)macro.count);
+		jMacro.insert("count", (int)macro.count);
+		jMacro.insert("speed", (double)macro.speed);
 		jMacro.insert("actions", SaveAction(macro.acRun));
 		jMacro.insert("actionsEnding", SaveAction(macro.acEnd));
 
@@ -558,6 +560,7 @@ namespace QiJson
 				macro.mode = jMacro.value("mode").toInt();
 				macro.key = jMacro.value("key").toInt();
 				macro.count = jMacro.value("count").toInt();
+				macro.speed = jMacro.value("speed").toDouble();
 				macro.acRun = LoadAction(jMacro.value("actions").toArray());
 				macro.acEnd = LoadAction(jMacro.value("actionsEnding").toArray());
 				return true;

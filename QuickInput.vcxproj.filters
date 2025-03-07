@@ -46,9 +46,6 @@
     <ClCompile Include="source\src\input.cpp">
       <Filter>Source Files\1</Filter>
     </ClCompile>
-    <ClCompile Include="source\src\interpreter.cpp">
-      <Filter>Source Files\1</Filter>
-    </ClCompile>
     <ClCompile Include="source\src\json.cpp">
       <Filter>Source Files\1</Filter>
     </ClCompile>
@@ -56,6 +53,9 @@
       <Filter>Source Files\1</Filter>
     </ClCompile>
     <ClCompile Include="source\src\type.cpp">
+      <Filter>Source Files\1</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\interpreter.cpp">
       <Filter>Source Files\1</Filter>
     </ClCompile>
   </ItemGroup>

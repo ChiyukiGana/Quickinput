@@ -6,10 +6,14 @@ class TriggerUi : public QWidget
 	Q_OBJECT;
 	using This = TriggerUi;
 	const int countMax = 9999;
+	const double speedMin = 0.1;
+	const double speedMax = 10.0;
 	Ui::TriggerUiClass ui;
 	MacroGroups* groups = &Qi::macroGroups;
 	MacroGroup* currentGroup = &groups->front();
-	Macro* currentMacro;
+	Macro* currentMacro = nullptr;
+	QTableWidget* currentTable = nullptr;
+	int currentRow = -1;
 public:
 	TriggerUi(QWidget* parent) : QWidget(parent)
 	{
@@ -28,6 +32,7 @@ private:
 		ui.block_cur_check->setProperty("group", "check");
 		ui.mode_combo->setProperty("group", "combo");
 		ui.count_edit->setProperty("group", "line_edit");
+		ui.speed_edit->setProperty("group", "line_edit");
 		ui.key_keyedit->setProperty("group", "line_edit");
 		ui.mode_combo->view()->setProperty("group", "table");
 	}
@@ -53,10 +58,6 @@ private:
 			QStandardItemModel* model = (QStandardItemModel*)ui.mode_combo->view()->model();
 			for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
 		}
-		if ("count")
-		{
-			ui.count_edit->setValidator(new QIntValidator(0, countMax, this));
-		}
 		if ("table")
 		{
 			ui.macroGroup_table->setColumnCount(4);
@@ -80,24 +81,32 @@ private:
 	}
 	void Event()
 	{
-		std::function currentChanged = [this](int table_index) {
+		std::function currentChanged = [this]() {
 			currentGroup = &groups->front();
 			currentMacro = nullptr;
+			currentTable = nullptr;
+			currentRow = -1;
 			ui.param_widget->setDisabled(true);
 
-			QTableWidget* table = ui.macroGroup_table->currentTable();
-			if (!table) return;
-			int row = table->currentRow();
-			if (row < 0) return;
+			int table_row = ui.macroGroup_table->currentRow();
+			if (table_row < 0) return;
 
-			currentGroup = &groups->at(table_index);
-			currentMacro = &currentGroup->macros[row];
-			ResetWidget();
-			Macro& macro = groups->at(table_index).macros[row];
+			currentTable = ui.macroGroup_table->table(table_row);
+			if (!currentTable) return;
+
+			currentRow = currentTable->currentRow();
+			if (currentRow < 0) return;
+
+			currentGroup = &groups->at(table_row);
+			currentMacro = &currentGroup->macros[currentRow];
+
+			Macro& macro = groups->at(table_row).macros[currentRow];
 			// state
-			ui.block_check->setChecked(macro.keyBlock);
-			ui.block_cur_check->setChecked(macro.curBlock);
-			ui.mode_combo->setCurrentIndex(macro.mode);
+			{
+				ui.block_check->setChecked(macro.keyBlock);
+				ui.block_cur_check->setChecked(macro.curBlock);
+				ui.mode_combo->setCurrentIndex(macro.mode);
+			}
 			// key
 			{
 				QList<QKeyEdit::Key> keys;
@@ -108,30 +117,24 @@ private:
 				keys.push_back(key);
 				ui.key_keyedit->setKeys(keys);
 			}
-			// count
-			if (macro.mode >= Macro::down)
+			// edit
 			{
-				ui.count_edit->setText(QString::number(macro.count));
-				ui.count_edit->setEnabled(true);
+				ui.count_edit->setValue(macro.count);
+				ui.speed_edit->setValue(macro.speed);
 			}
 			ui.param_widget->setEnabled(true);
 			};
 		connect(ui.macroGroup_table, &QMacroTable::itemClicked, this, [this, currentChanged](int table_index, int row, int column) {
-			currentChanged(table_index);
-			if (!currentMacro || table_index < 0 || row < 0 || column != 3) return;
-			QTableWidget* table = ui.macroGroup_table->table(table_index);
-			if (!table) return;
-
+			currentChanged();
+			if (!ItemCurrented() || column != 3) return;
 			currentMacro->state = !currentMacro->state;
 			QiJson::SaveMacro(*currentMacro);
-			SetTableItem(table, row, *currentMacro);
+			SetTableItem(currentTable, row, *currentMacro);
 			});
 		connect(ui.macroGroup_table, &QMacroTable::currentChanged, this, currentChanged);
 		connect(ui.macroGroup_table, &QMacroTable::headerClicked, this, [this, currentChanged](int table_index, int column) {
-			currentChanged(table_index);
-			if (!currentGroup || column != 3) return;
-			QTableWidget* table = ui.macroGroup_table->table(table_index);
-			if (!table) return;
+			currentChanged();
+			if (!TableCurrented() || column != 3) return;
 			bool state = false;
 			for (auto& i : currentGroup->macros)
 			{
@@ -146,98 +149,54 @@ private:
 				auto& macro = currentGroup->macros[i];
 				macro.state = !state;
 				QiJson::SaveMacro(macro);
-				SetTableItem(table, i, macro);
+				SetTableItem(currentTable, i, macro);
 			}
 			});
 		connect(ui.block_check, &QCheckBox::clicked, this, [this](bool state) {
-			if (!currentMacro) return;
-			QTableWidget* table = ui.macroGroup_table->currentTable();
-			if (!table) return;
-			int row = table->currentRow();
-			if (row < 0) return;
-
+			if (!ItemCurrented()) return;
 			currentMacro->keyBlock = state;
 			QiJson::SaveMacro(*currentMacro);
-			SetTableItem(table, row, *currentMacro);
+			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
 		connect(ui.block_cur_check, &QCheckBox::clicked, this, [this](bool state) {
-			if (!currentMacro) return;
-			QTableWidget* table = ui.macroGroup_table->currentTable();
-			if (!table) return;
-			int row = table->currentRow();
-			if (row < 0) return;
-
+			if (!ItemCurrented()) return;
 			currentMacro->curBlock = state;
 			QiJson::SaveMacro(*currentMacro);
-			SetTableItem(table, row, *currentMacro);
+			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
-
 		connect(ui.mode_combo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) {
-			if (!currentMacro) return;
-			QTableWidget* table = ui.macroGroup_table->currentTable();
-			if (!table) return;
-			int row = table->currentRow();
-			if (row < 0) return;
-
-			switch (index)
-			{
-			case Macro::sw:
-				ui.count_edit->setText("无限");
-				ui.count_edit->setDisabled(1);
-				currentMacro->count = 0;
-				currentMacro->mode = Macro::sw;
-				break;
-			case Macro::down:
-				ui.count_edit->setText("");
-				ui.count_edit->setDisabled(0);
-				currentMacro->count = 1;
-				currentMacro->mode = Macro::down;
-				break;
-			case Macro::up:
-				ui.count_edit->setText("");
-				ui.count_edit->setDisabled(0);
-				currentMacro->count = 1;
-				currentMacro->mode = Macro::up;
-				break;
-			}
+			if (!ItemCurrented()) return;
+			if (currentMacro->mode == index) return;
+			currentMacro->mode = index;
 			QiJson::SaveMacro(*currentMacro);
-			SetTableItem(table, row, *currentMacro);
+			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
 		connect(ui.key_keyedit, &QKeyEdit::changed, this, [this] {
-			if (!currentMacro) return;
-			QTableWidget* table = ui.macroGroup_table->currentTable();
-			if (!table) return;
-			int row = table->currentRow();
-			if (row < 0) return;
-
+			if (!ItemCurrented()) return;
 			QList<QKeyEdit::Key> keys = ui.key_keyedit->keys();
 			DWORD vk = VK_SPACE;
 			if (keys.size() == 1) vk = keys[0].keyCode;
 			else if (keys.size() == 2) vk = keys[0].keyCode | (keys[1].keyCode << 16);
 			currentMacro->key = vk;
 			QiJson::SaveMacro(*currentMacro);
-			SetTableItem(table, row, *currentMacro);
+			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
-		connect(ui.count_edit, &QLineEdit::textEdited, this, [this](const QString& text) {
-			if (!currentMacro) return;
-			QTableWidget* table = ui.macroGroup_table->currentTable();
-			if (!table) return;
-			int row = table->currentRow();
-			if (row < 0) return;
-
-			int n = text.toInt();
-			if (n > countMax) n = countMax;
-			currentMacro->count = n;
+		connect(ui.count_edit, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) {
+			if (!ItemCurrented()) return;
+			if (value > countMax) value = countMax;
+			else if (value < 0) value = 0;
+			currentMacro->count = value;
 			QiJson::SaveMacro(*currentMacro);
-			SetTableItem(table, row, *currentMacro);
+			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
-	}
-	void ResetWidget()
-	{
-		ui.block_check->setChecked(false);
-		ui.block_cur_check->setChecked(false);
-		ui.key_keyedit->clear();
-		ui.count_edit->setText("");
+		connect(ui.speed_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
+			if (!ItemCurrented()) return;
+			if (value > speedMax) value = speedMax;
+			else if (value < speedMin) value = speedMin;
+			currentMacro->speed = value;
+			QiJson::SaveMacro(*currentMacro);
+			SetTableItem(currentTable, currentRow, *currentMacro);
+			});
 	}
 	void SetTableItem(QTableWidget* table, int index, const Macro& macro)
 	{
@@ -285,6 +244,10 @@ private:
 		table->setItem(index, 3, new QTableWidgetItem(qs));
 		table->item(index, 3)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 	}
+	bool GroupCurrented() { return currentGroup; }
+	bool TableCurrented() { return currentGroup && currentTable; }
+	bool MacroCurrented() { return currentGroup && currentTable && currentMacro; }
+	bool ItemCurrented() { return currentGroup && currentTable && currentMacro && (currentRow > -1); }
 
 	void TableUpdate()
 	{
@@ -338,7 +301,6 @@ private:
 	{
 		ui.macroGroup_table->clearSelection();
 		TableUpdate();
-		ResetWidget();
 		ui.param_widget->setDisabled(true);
 	}
 };
