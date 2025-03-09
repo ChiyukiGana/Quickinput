@@ -225,6 +225,13 @@ namespace QiJson
 				jAction.insert("k", (int)ref.vk);
 				jAction.insert("b", ref.block);
 			} break;
+			case QiType::clock:
+			{
+				const QiClock& ref = std::get<QiClock>(var);
+				jAction.insert("t", ref.time);
+				jAction.insert("next", SaveAction(ref.next));
+				jAction.insert("next2", SaveAction(ref.next2));
+			} break;
 			default: success = false;
 			}
 
@@ -523,6 +530,7 @@ namespace QiJson
 				case QiType::quickInput:
 				{
 					QiQuickInput var; var.disable = dis, var.mark = mark;
+
 					QJsonArray chars = jAction.value("c").toArray();
 					for (auto c : chars) var.chars.append_copy(c.toInt());
 					actions.append(std::move(var));
@@ -530,8 +538,19 @@ namespace QiJson
 				case QiType::keyBlock:
 				{
 					QiKeyBlock var; var.disable = dis, var.mark = mark;
+
 					var.vk = jAction.value("k").toInt();
 					var.block = jAction.value("b").toBool();
+					actions.append(std::move(var));
+				} break;
+				case QiType::clock:
+				{
+					QiClock var; var.disable = dis, var.mark = mark;
+					
+					var.time = jAction.value("t").toInt();
+					var.next = LoadAction(jAction.value("next").toArray());
+					var.next2 = LoadAction(jAction.value("next2").toArray());
+
 					actions.append(std::move(var));
 				} break;
 				default: actions.append(QiBase(type)); break;
@@ -557,10 +576,19 @@ namespace QiJson
 				macro.state = jMacro.value("state").toBool();
 				macro.keyBlock = jMacro.value("keyBlock").toBool();
 				macro.curBlock = jMacro.value("curBlock").toBool();
+
 				macro.mode = jMacro.value("mode").toInt();
+				QiRange::Restricted(macro.mode, QiRange::macro_mode_max);
+
 				macro.key = jMacro.value("key").toInt();
+
 				macro.count = jMacro.value("count").toInt();
+				QiRange::Restricted(macro.count, QiRange::macro_count_max);
+
 				macro.speed = jMacro.value("speed").toDouble();
+				if (macro.speed == 0) macro.speed = 1.0f;
+				else QiRange::Restricted(macro.speed, QiRange::macro_speed_max, QiRange::macro_speed_min);
+
 				macro.acRun = LoadAction(jMacro.value("actions").toArray());
 				macro.acEnd = LoadAction(jMacro.value("actionsEnding").toArray());
 				return true;

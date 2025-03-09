@@ -88,7 +88,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-3-8</string>
+         <string>2025-3-9</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -104,7 +104,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加运行速度调节</string>
+         <string>增加时钟功能</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

@@ -126,6 +126,7 @@ void Init()
 		Qi::ui.text.acBlockExec = (QString::fromUtf8("执行") + Qi::ui.text.syBlockExec);
 		Qi::ui.text.acQuickInput= (QString::fromUtf8("输入字符") + Qi::ui.text.syText);
 		Qi::ui.text.acKeyBlock= (QString::fromUtf8("屏蔽按键") + Qi::ui.text.syStop);
+		Qi::ui.text.acClock= (QString::fromUtf8("时钟") + Qi::ui.text.syTime);
 		// state
 		Qi::ui.text.trOn = (QString::fromUtf8("启用") + Qi::ui.text.syOn);
 		Qi::ui.text.trOff = (QString::fromUtf8("禁用") + Qi::ui.text.syOff);

@@ -1,6 +1,7 @@
 #pragma once
 #include <xmemory>
 #include <vector>
+#include <algorithm>
 #include <functional>
 namespace QiTools
 {
@@ -10,24 +11,7 @@ namespace QiTools
 		using base_vector = std::vector<Ty>;
 	public:
 		static constexpr size_t end_pos = (size_t)(~0);
-		QiVector() {}
-		QiVector(const QiVector&) = delete;
-		QiVector(QiVector&& right) noexcept : base_vector(std::move(right)) {}
-		QiVector(const Ty&& element, size_t count) : base_vector(count, element) {}
-		void operator=(const QiVector&) = delete;
-		void operator=(QiVector&& right) noexcept
-		{
-			base_vector::operator=(std::move(right));
-		}
-		// copy
-		void copy(const QiVector& other)
-		{
-			base_vector::operator=(other);
-		}
-		void move(QiVector&& other)
-		{
-			base_vector::operator=(std::move(other));
-		}
+		using base_vector::base_vector;
 		// size
 		using base_vector::empty;
 		bool not_empty() const
@@ -35,6 +19,7 @@ namespace QiTools
 			return !base_vector::empty();
 		}
 		using base_vector::size;
+		using base_vector::resize;
 		// access
 		using base_vector::operator[];
 		using base_vector::at;

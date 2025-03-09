@@ -127,6 +127,8 @@ private:
 			ui.dialog_edit_button->setProperty("group", "edit-edit_button");
 			ui.dialog_edit2_button->setProperty("group", "edit-edit_button");
 			ui.block_edit_button->setProperty("group", "edit-edit_button");
+			ui.clock_edit_button->setProperty("group", "edit-edit_button");
+			ui.clock_edit2_button->setProperty("group", "edit-edit_button");
 		}
 		if ("check box")
 		{
@@ -184,6 +186,7 @@ private:
 			ui.popText_time_edit->setProperty("group", "line_edit");
 			ui.dialog_title_edit->setProperty("group", "line_edit");
 			ui.dialog_text_edit->setProperty("group", "line_edit");
+			ui.clock_time_edit->setProperty("group", "line_edit");
 			ui.window_name_edit->setProperty("group", "line_edit");
 		}
 		if ("text edit")
@@ -388,6 +391,12 @@ private:
 				ui.keyBlock_change_button->setProperty("qit", type);
 				addButtons.append(ui.keyBlock_add_button);
 				changeButtons.append(ui.keyBlock_change_button);
+
+				type = QiType::clock;
+				ui.clock_add_button->setProperty("qit", type);
+				ui.clock_change_button->setProperty("qit", type);
+				addButtons.append(ui.clock_add_button);
+				changeButtons.append(ui.clock_change_button);
 			}
 			if ("clear shortcut")
 			{
@@ -613,7 +622,7 @@ private:
 			// selection
 			// >>>> new action set here
 			connect(ui.action_table, &QTableWidget::itemSelectionChanged, this, [this] {
-				tableCurrentPrev.copy(tableCurrent);
+				tableCurrentPrev = tableCurrent;
 				tableCurrent.clear();
 				QList<QTableWidgetItem*> items = ui.action_table->selectedItems();
 				for (auto& i : items) if (i->column() == 0) tableCurrent.append(i->row());
@@ -636,7 +645,7 @@ private:
 					const Action& var = actions->at(tableCurrent.front());
 					switch (var.index())
 					{
-					case QiType::end: tab = tab_state; break;
+					case QiType::end: tab = tab_loop; break;
 					case QiType::delay: tab = tab_base; break;
 					case QiType::key: tab = tab_base; break;
 					case QiType::mouse: tab = tab_base;
@@ -677,7 +686,7 @@ private:
 					{
 						ui.loop_edit_button->setEnabled(true);
 					} break;
-					case QiType::loopEnd: tab = tab_state; break;
+					case QiType::loopEnd: tab = tab_loop; break;
 					case QiType::keyState: tab = tab_state;
 					{
 						ui.keyState_edit_button->setEnabled(true);
@@ -721,6 +730,11 @@ private:
 					case QiType::blockExec: tab = tab_block; break;
 					case QiType::quickInput: tab = tab_base; break;
 					case QiType::keyBlock: tab = tab_state; break;
+					case QiType::clock: tab = tab_state;
+					{
+						ui.clock_edit_button->setEnabled(true);
+						ui.clock_edit2_button->setEnabled(true);
+					} break;
 					}
 					if (!tabLock) ui.tabWidget->setCurrentIndex(tab);
 				}
@@ -847,6 +861,8 @@ private:
 				// edit
 				connect(ui.keyState_edit_button, &QPushButton::clicked, this, [this] { NextEdit(false); });
 				connect(ui.keyState_edit2_button, &QPushButton::clicked, this, [this] { NextEdit(true); });
+				connect(ui.clock_edit_button, &QPushButton::clicked, this, [this] { NextEdit(false); });
+				connect(ui.clock_edit2_button, &QPushButton::clicked, this, [this] { NextEdit(true); });
 			}
 			if ("loop tab")
 			{
@@ -994,6 +1010,8 @@ private:
 		ui.dialog_edit2_button->setDisabled(true);
 		ui.block_edit_button->setDisabled(true);
 		ui.blockExec_add_button->setDisabled(true);
+		ui.clock_edit_button->setDisabled(true);
+		ui.clock_edit2_button->setDisabled(true);
 	}
 	void DisableMenus()
 	{
@@ -1111,6 +1129,20 @@ private:
 			QiBlock& block = std::get<QiBlock>(var);
 			next = &block.next;
 			title = "编辑 - 块";
+		} break;
+		case QiType::clock:
+		{
+			QiClock& clock = std::get<QiClock>(var);
+			if (edit2)
+			{
+				next = &clock.next2;
+				title = "编辑 - 时钟（未经过）";
+			}
+			else
+			{
+				next = &clock.next;
+				title = "编辑 - 时钟（已经过）";
+			}
 		} break;
 		}
 		if (next)
@@ -1560,6 +1592,13 @@ private:
 				else param += "鼠标移动";
 
 			} break;
+			case QiType::clock:
+			{
+				const QiClock& ref = std::get<QiClock>(var);
+				type = Qi::ui.text.acClock;
+
+				param = QString::fromStdString(QiTime::toString(ref.time));
+			} break;
 			default: type = "加载失败", failed = true; break;
 			}
 
@@ -1857,6 +1896,11 @@ private:
 			const QiKeyBlock& ref = std::get<QiKeyBlock>(var);
 			WidgetSet(ref);
 		} break;
+		case QiType::clock:
+		{
+			const QiClock& ref = std::get<QiClock>(var);
+			WidgetSet(ref);
+		} break;
 		}
 	}
 	// >>>> new action set here
@@ -1886,6 +1930,7 @@ private:
 		case QiType::blockExec: action = WidgetGetBlockExec(); break;
 		case QiType::quickInput: action = WidgetGetQuickInput(); break;
 		case QiType::keyBlock: action = WidgetGetKeyBlock(); break;
+		case QiType::clock: action = WidgetGetClock(); break;
 		}
 		return action;
 	}
@@ -2169,6 +2214,13 @@ private:
 		keyBlock.block = ui.keyBlock_on_radio->isChecked();
 		return keyBlock;
 	}
+	QiClock WidgetGetClock()
+	{
+		QiClock clock;
+		QTime time = ui.clock_time_edit->time();
+		clock.time = QiTime::toTimeStamp(time.hour(), time.minute(), time.second());
+		return clock;
+	}
 	// load params to widget
 	void WidgetSet(const QiKey& key)
 	{
@@ -2259,5 +2311,9 @@ private:
 		if (keyBlock.vk) ui.keyBlock_keyedit->setKey(keyBlock.vk);
 		ui.keyBlock_move_check->setChecked(!keyBlock.vk);
 		keyBlock.block ? ui.keyBlock_on_radio->setChecked(true) : ui.keyBlock_off_radio->setChecked(true);
+	}
+	void WidgetSet(const QiClock& clock)
+	{
+		ui.clock_time_edit->setTime(QTime(QiTime::h(clock.time), QiTime::m(clock.time), QiTime::s(clock.time)));
 	}
 };

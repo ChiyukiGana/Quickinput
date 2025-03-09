@@ -157,7 +157,6 @@
     <ClCompile Include="source\src\interpreter.cpp" />
     <ClCompile Include="source\src\json.cpp" />
     <ClCompile Include="source\src\thread.cpp" />
-    <ClCompile Include="source\src\type.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\src\func.h" />
@@ -183,6 +182,7 @@
     <ClInclude Include="source\src\tools\thread.h" />
     <ClInclude Include="source\src\tools\threadpool.h" />
     <ClInclude Include="source\src\tools\threadqueue.h" />
+    <ClInclude Include="source\src\tools\time.h" />
     <ClInclude Include="source\src\tools\vector.h" />
     <ClInclude Include="source\src\tools\windows.h" />
     <ClInclude Include="source\src\tools\xboxpad.h" />

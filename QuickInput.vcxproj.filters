@@ -52,9 +52,6 @@
     <ClCompile Include="source\src\thread.cpp">
       <Filter>Source Files\1</Filter>
     </ClCompile>
-    <ClCompile Include="source\src\type.cpp">
-      <Filter>Source Files\1</Filter>
-    </ClCompile>
     <ClCompile Include="source\src\interpreter.cpp">
       <Filter>Source Files\1</Filter>
     </ClCompile>
@@ -143,6 +140,9 @@
     </ClInclude>
     <ClInclude Include="source\src\inc_header.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\tools\time.h">
+      <Filter>Header Files\QiTools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

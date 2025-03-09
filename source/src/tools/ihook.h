@@ -2,27 +2,18 @@
 #include <windows.h>
 #define VK_WHEELUP 0x0A
 #define VK_WHEELDOWN 0x0B
-#define DEFINE_INPUTHOOK()\
-HANDLE InputHook::thread = 0;\
-HHOOK InputHook::mouseHook = 0;\
-HHOOK InputHook::keybdHook = 0;\
-bool InputHook::createFlag = false;\
-bool InputHook::mouseState = false;\
-bool InputHook::keybdState = false;\
-bool InputHook::blockRep = false;\
-bool InputHook::keys[255] = {};
 namespace QiTools
 {
 class InputHook
 {
-	static HANDLE thread;
-	static HHOOK mouseHook;
-	static HHOOK keybdHook;
-	static bool createFlag;
-	static bool mouseState;
-	static bool keybdState;
-	static bool blockRep;
-	static bool keys[0xFF];
+	inline static HANDLE thread;
+	inline static HHOOK mouseHook;
+	inline static HHOOK keybdHook;
+	inline static bool createFlag;
+	inline static bool mouseState;
+	inline static bool keybdState;
+	inline static bool blockRep;
+	inline static bool keys[0xFF];
 	// return true: block
 	static bool _stdcall InputProc(BYTE key, bool press, POINT corsor, PULONG_PTR param);
 	static LRESULT _stdcall MouseHook(int code, WPARAM msg, LPARAM param)

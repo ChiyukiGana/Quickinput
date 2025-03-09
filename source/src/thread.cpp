@@ -64,7 +64,7 @@ namespace QiThread
 		Qi::curBlock += pMacro->curBlock;
 		while (Qi::run && !PeekExitMsg())
 		{
-			if (pMacro->count) { count++; if (count > pMacro->count) break; } // if count = 0 then while is infinite
+			if (pMacro->count && pMacro->mode != Macro::sw) { count++; if (count > pMacro->count) break; } // if count = 0 then while is infinite
 			if (interpreter.ActionInterpreter(pMacro->acRun, jumpId) != r_continue) break;
 		}
 		Qi::curBlock -= pMacro->curBlock;

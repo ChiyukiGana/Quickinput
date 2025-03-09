@@ -367,6 +367,12 @@ go_top:
 				const QiKeyBlock& ref = std::get<QiKeyBlock>(action);
 				Qi::keyBlock[ref.vk] = ref.block;
 			} break;
+			case QiType::clock:
+			{
+				const QiClock& ref = std::get<QiClock>(action);
+				if (QiTime::compare(ref.time) < 0) result = ActionInterpreter(ref.next, jumpId);
+				else result = ActionInterpreter(ref.next2, jumpId);
+			} break;
 			}
 		}
 		if (result != r_continue) break;

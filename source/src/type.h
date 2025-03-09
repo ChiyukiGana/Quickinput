@@ -83,6 +83,7 @@ namespace QiUi
 		QString acBlockExec;
 		QString acQuickInput;
 		QString acKeyBlock;
+		QString acClock;
 		// state
 		QString trOn;
 		QString trOff;
@@ -198,7 +199,7 @@ struct WndInfo
 };
 struct WndLock
 {
-	static HANDLE thread;
+	inline static HANDLE thread;
 	static DWORD _stdcall LockThread(PVOID wnd)
 	{
 		while (IsWindowVisible((HWND)wnd)) {
@@ -250,7 +251,8 @@ struct QiType
 		block,
 		blockExec,
 		quickInput,
-		keyBlock
+		keyBlock,
+		clock
 	};
 };
 using Actions = QiVector<class Action>;
@@ -263,29 +265,17 @@ public:
 	Actions next;
 	Actions next2;
 	QiBase(int qiType = QiType::none) noexcept : disable(false), type(qiType), mark(QString()), next(Actions()), next2(Actions()) {}
-	QiBase(const QiBase& r) { operator=(r); }
-	QiBase(QiBase&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiBase& r) noexcept { disable = r.disable; type = r.type; mark = r.mark; next.copy(r.next); next2.copy(r.next2); }
-	void operator=(QiBase&& r) noexcept { disable = r.disable; type = r.type; mark = std::move(r.mark); next = std::move(r.next); next2 = std::move(r.next2); }
 };
 class QiEnd : public QiBase
 {
 public:
 	QiEnd() : QiBase(QiType::end) {}
-	QiEnd(const QiEnd& r) { operator=(r); }
-	QiEnd(QiEnd&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiEnd& r) { QiBase::operator=(r); }
-	void operator=(QiEnd&& r) noexcept { QiBase::operator=(std::move(r)); }
 };
 class QiDelay : public QiBase
 {
 public:
 	int min; int max;
 	QiDelay() : QiBase(QiType::delay) {}
-	QiDelay(const QiDelay& r) { operator=(r); }
-	QiDelay(QiDelay&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiDelay& r) { QiBase::operator=(r); min = r.min; max = r.max; }
-	void operator=(QiDelay&& r) noexcept { QiBase::operator=(std::move(r)); min = r.min; max = r.max; }
 };
 class QiKey : public QiBase
 {
@@ -293,137 +283,81 @@ public:
 	enum { up, down, click };
 	int vk = 0; int state = down;
 	QiKey() : QiBase(QiType::key) {}
-	QiKey(const QiKey& r) { operator=(r); }
-	QiKey(QiKey&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiKey& r) { QiBase::operator=(r); vk = r.vk; state = r.state; }
-	void operator=(QiKey&& r) noexcept { QiBase::operator=(std::move(r)); vk = r.vk; state = r.state; }
 };
 class QiMouse : public QiBase
 {
 public:
 	int x = 0; int y = 0; int ex = 0; int speed = 0; bool move = false; bool track = false;
 	QiMouse() : QiBase(QiType::mouse) {}
-	QiMouse(const QiMouse& r) { operator=(r); }
-	QiMouse(QiMouse&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiMouse& r) { QiBase::operator=(r); x = r.x; y = r.y; ex = r.ex; speed = r.speed; move = r.move; track = r.track; }
-	void operator=(QiMouse&& r) noexcept { QiBase::operator=(std::move(r)); x = r.x; y = r.y; ex = r.ex; speed = r.speed; move = r.move; track = r.track; }
 };
 class QiCopyText : public QiBase
 {
 public:
 	QString text;
 	QiCopyText() : QiBase(QiType::copyText) {}
-	QiCopyText(const QiCopyText& r) { operator=(r); }
-	QiCopyText(QiCopyText&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiCopyText& r) { QiBase::operator=(r); text = r.text; }
-	void operator=(QiCopyText&& r) noexcept { QiBase::operator=(std::move(r)); text = std::move(r.text); }
 };
 class QiColor : public QiBase
 {
 public:
 	Rgba rgbe = 0; RECT rect = {}; bool move = false;
 	QiColor() : QiBase(QiType::color) {}
-	QiColor(const QiColor& r) { operator=(r); }
-	QiColor(QiColor&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiColor& r) { QiBase::operator=(r); rgbe = r.rgbe; rect = r.rect; move = r.move; }
-	void operator=(QiColor&& r) noexcept { QiBase::operator=(std::move(r)); rgbe = std::move(r.rgbe); rect = r.rect; move = r.move; }
 };
 class QiLoop : public QiBase
 {
 public:
 	int min = 0; int max = 0;
 	QiLoop() : QiBase(QiType::loop) {}
-	QiLoop(const QiLoop& r) { operator=(r); }
-	QiLoop(QiLoop&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiLoop& r) { QiBase::operator=(r); min = r.min; max = r.max; }
-	void operator=(QiLoop&& r) noexcept { QiBase::operator=(std::move(r)); min = r.min; max = r.max; }
 };
 class QiLoopEnd : public QiBase
 {
 public:
 	QiLoopEnd() : QiBase(QiType::loopEnd) {}
-	QiLoopEnd(const QiLoopEnd& r) { operator=(r); }
-	QiLoopEnd(QiLoopEnd&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiLoopEnd& r) { QiBase::operator=(r); }
-	void operator=(QiLoopEnd&& r) noexcept { QiBase::operator=(std::move(r)); }
 };
 class QiKeyState : public QiBase
 {
 public:
 	int vk = 0;
 	QiKeyState() : QiBase(QiType::keyState) {}
-	QiKeyState(const QiKeyState& r) { operator=(r); }
-	QiKeyState(QiKeyState&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiKeyState& r) { QiBase::operator=(r); vk = r.vk; }
-	void operator=(QiKeyState&& r) noexcept { QiBase::operator=(std::move(r)); vk = r.vk; }
 };
 class QiResetPos : public QiBase
 {
 public:
 	QiResetPos() : QiBase(QiType::resetPos) {}
-	QiResetPos(const QiResetPos& r) { operator=(r); }
-	QiResetPos(QiResetPos&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiResetPos& r) { QiBase::operator=(r); }
-	void operator=(QiResetPos&& r) noexcept { QiBase::operator=(std::move(r)); }
 };
 class QiImage : public QiBase
 {
 public:
 	RgbMap map; int sim; RECT rect = {}; bool move = false;
 	QiImage() : QiBase(QiType::image) {}
-	QiImage(const QiImage& r) { operator=(r); }
-	QiImage(QiImage&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiImage& r) { QiBase::operator=(r); map = r.map; sim = r.sim; rect = r.rect; move = r.move; }
-	void operator=(QiImage&& r) noexcept { QiBase::operator=(std::move(r)); map = std::move(r.map); sim = r.sim; rect = r.rect; move = r.move; }
 };
 class QiPopText : public QiBase
 {
 public:
 	QString text; int time = 0; bool sync = false;
 	QiPopText() : QiBase(QiType::popText) {}
-	QiPopText(const QiPopText& r) { operator=(r); }
-	QiPopText(QiPopText&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiPopText& r) { QiBase::operator=(r); time = r.time; text = r.text; sync = r.sync; }
-	void operator=(QiPopText&& r) noexcept { QiBase::operator=(std::move(r)); time = r.time; text = std::move(r.text); sync = r.sync; }
 };
 class QiSavePos : public QiBase
 {
 public:
 	QiSavePos() : QiBase(QiType::savePos) {}
-	QiSavePos(const QiSavePos& r) { operator=(r); }
-	QiSavePos(QiSavePos&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiSavePos& r) { QiBase::operator=(r); }
-	void operator=(QiSavePos&& r) noexcept { QiBase::operator=(std::move(r)); }
 };
 class QiTimer : public QiBase
 {
 public:
 	int min = 0; int max = 0;
 	QiTimer() : QiBase(QiType::timer) {}
-	QiTimer(const QiTimer& r) { operator=(r); }
-	QiTimer(QiTimer&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiTimer& r) { QiBase::operator=(r); min = r.min; max = r.max; }
-	void operator=(QiTimer&& r) noexcept { QiBase::operator=(std::move(r)); min = r.min; max = r.max; }
 };
 class QiJump : public QiBase
 {
 public:
 	int id = 0;
 	QiJump() : QiBase(QiType::jump) {}
-	QiJump(const QiJump& r) { operator=(r); }
-	QiJump(QiJump&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiJump& r) { QiBase::operator=(r); id = r.id; }
-	void operator=(QiJump&& r) noexcept { QiBase::operator=(std::move(r)); id = r.id; }
 };
 class QiJumpPoint : public QiBase
 {
 public:
 	int id = 0;
 	QiJumpPoint() : QiBase(QiType::jumpPoint) {}
-	QiJumpPoint(const QiJumpPoint& r) { operator=(r); }
-	QiJumpPoint(QiJumpPoint&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiJumpPoint& r) { QiBase::operator=(r); id = r.id; }
-	void operator=(QiJumpPoint&& r) noexcept { QiBase::operator=(std::move(r)); id = r.id; }
 };
 class QiDialog : public QiBase
 {
@@ -438,40 +372,24 @@ public:
 	QString title;
 	QString text;
 	QiDialog() : QiBase(QiType::dialog) {}
-	QiDialog(const QiDialog& r) { operator=(r); }
-	QiDialog(QiDialog&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiDialog& r) { QiBase::operator=(r); style = r.style; title = r.title; text = r.text; }
-	void operator=(QiDialog&& r) noexcept { QiBase::operator=(std::move(r)); style = r.style; title = std::move(r.title); text = std::move(r.text); }
 };
 class QiBlock : public QiBase
 {
 public:
 	int id;
 	QiBlock() : QiBase(QiType::block) {}
-	QiBlock(const QiBlock& r) { operator=(r); }
-	QiBlock(QiBlock&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiBlock& r) { QiBase::operator=(r); id = r.id; }
-	void operator=(QiBlock&& r) noexcept { QiBase::operator=(std::move(r)); id = r.id; }
 };
 class QiBlockExec : public QiBase
 {
 public:
 	int id;
 	QiBlockExec() : QiBase(QiType::blockExec) {}
-	QiBlockExec(const QiBlockExec& r) { operator=(r); }
-	QiBlockExec(QiBlockExec&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiBlockExec& r) { QiBase::operator=(r); id = r.id; }
-	void operator=(QiBlockExec&& r) noexcept { QiBase::operator=(std::move(r)); id = r.id; }
 };
 class QiQuickInput : public QiBase
 {
 public:
 	QiVector<unsigned char> chars;
 	QiQuickInput() : QiBase(QiType::quickInput) {}
-	QiQuickInput(const QiQuickInput& r) { operator=(r); }
-	QiQuickInput(QiQuickInput&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiQuickInput& r) { QiBase::operator=(r); chars.copy(r.chars); }
-	void operator=(QiQuickInput&& r) noexcept { QiBase::operator=(std::move(r)); chars.move(std::move(r.chars)); }
 };
 class QiKeyBlock : public QiBase
 {
@@ -479,10 +397,12 @@ public:
 	int vk = 0;
 	bool block = false;
 	QiKeyBlock() : QiBase(QiType::keyBlock) {}
-	QiKeyBlock(const QiKeyBlock& r) { operator=(r); }
-	QiKeyBlock(QiKeyBlock&& r) noexcept { operator=(std::move(r)); }
-	void operator=(const QiKeyBlock& r) { QiBase::operator=(r); vk = r.vk; block = r.block; }
-	void operator=(QiKeyBlock&& r) noexcept { QiBase::operator=(std::move(r)); vk = r.vk; block = r.block; }
+};
+class QiClock : public QiBase
+{
+public:
+	int time = 0;
+	QiClock() : QiBase(QiType::clock) {}
 };
 using ActionVariant = std::variant
 <
@@ -507,29 +427,14 @@ using ActionVariant = std::variant
 	QiBlock,
 	QiBlockExec,
 	QiQuickInput,
-	QiKeyBlock
+	QiKeyBlock,
+	QiClock
 > ;
 class Action : public ActionVariant
 {
 public:
 	using ActionVariant::ActionVariant;
 	Action() : ActionVariant(QiBase()) {}
-	Action(const Action& v)
-	{
-		operator=(v);
-	}
-	Action(Action&& r) noexcept
-	{
-		operator=(std::move(r));
-	}
-	void operator=(const Action& v)
-	{
-		ActionVariant::operator=(v);
-	}
-	void operator=(Action&& r) noexcept
-	{
-		ActionVariant::operator=(std::move(r));
-	}
 	QiBase& base()
 	{
 		QiBase* base;
@@ -548,59 +453,6 @@ class MacroGroup;
 class Macro
 {
 public:
-	Macro() {}
-	Macro(const Macro& v)
-	{
-		operator=(v);
-	}
-	Macro(Macro&& r) noexcept
-	{
-		operator=(std::move(r));
-	}
-	void operator=(const Macro& v)
-	{
-		state = v.state;
-		keyBlock = v.keyBlock;
-		curBlock = v.curBlock;
-		wndState = v.wndState;
-		active = v.active;
-		key = v.key;
-		mode = v.mode;
-		count = v.count;
-		speed = v.speed;
-		name = v.name;
-		acRun.copy(v.acRun);
-		acEnd.copy(v.acEnd);
-		cursor = v.cursor;
-		wi = v.wi;
-		wp = v.wp;
-		thRun = v.thRun;
-		thEnd = v.thEnd;
-		groupName = v.groupName;
-		groupBase = v.groupBase;
-	}
-	void operator=(Macro&& r) noexcept
-	{
-		state = r.state;
-		keyBlock = r.keyBlock;
-		curBlock = r.curBlock;
-		wndState = r.wndState;
-		active = r.active;
-		key = r.key;
-		mode = r.mode;
-		count = r.count;
-		speed = r.speed;
-		name = std::move(r.name);
-		acRun = std::move(r.acRun);
-		acEnd = std::move(r.acEnd);
-		cursor = r.cursor;
-		wi = r.wi;
-		wp = r.wp;
-		thRun = r.thRun;
-		thEnd = r.thEnd;
-		groupName = std::move(r.groupName);
-		groupBase = r.groupBase;
-	}
 	enum { sw, down, up };
 	bool state = false; // enable | disable
 	bool keyBlock = false; // block this trigger key
@@ -752,36 +604,61 @@ struct Widget
 	QWidget* main = nullptr;
 	QWidget* record = nullptr;
 };
+
 namespace Qi
 {
 	// for setStyle
-	extern QApplication* application;
-	extern QiUi::QuickInputUi ui;
+	inline QApplication* application = nullptr;
+	inline QiUi::QuickInputUi ui;
 	// state
-	extern bool state;
-	extern bool run;
+	inline bool state = false;
+	inline bool run = false;
 	// record
-	extern bool recordState;
-	extern bool recording;
-	extern clock_t recordClock;
-	extern HWND recordWindow;
+	inline bool recordState = false;
+	inline bool recording = false;
+	inline clock_t recordClock = 0;
+	inline HWND recordWindow = 0;
 	// macro
-	extern Actions record;
-	extern Actions clipboard;
-	extern MacroGroups macroGroups;
-	extern QList<Macro*> macroActive;
+	inline Actions record;
+	inline Actions clipboard;
+	inline MacroGroups macroGroups;
+	inline QList<Macro*> macroActive;
 	// data
-	extern FuncData fun;
-	extern SettingsData set;
-	extern Widget widget;
-	extern QPopText* popText;
-	extern QWindowSelection* windowSelection;
+	inline FuncData fun;
+	inline SettingsData set;
+	inline Widget widget;
+	inline QPopText* popText = nullptr;
+	inline QWindowSelection* windowSelection = nullptr;
 	// input
-	extern bool keyState[keySize];
-	extern bool keyBlock[keySize];
-	extern int curBlock;
-	extern XBoxPad xboxpad;
+	inline bool keyState[keySize];
+	inline bool keyBlock[keySize];
+	inline int curBlock = 0;
+	inline XBoxPad xboxpad;
+	// dir
+	inline const QString dir = QDir::fromNativeSeparators(QString::fromWCharArray(Process::runPath().c_str()));
+	inline const QString folder = dir.mid(dir.lastIndexOf('/') + 1);
+	inline const QString macroDir = dir + "/macro/";
+	inline const QString macroType = ".json";
+	inline const QString configFile = "QuickInput.json";
 	// other
-	extern SIZE screen;
-	extern MSG msg;
+	inline SIZE screen = {};
+	inline MSG msg;
+}
+
+namespace QiRange
+{
+	constexpr int macro_count_max = 9999;
+	constexpr int macro_mode_max = Macro::up;
+	constexpr float macro_speed_min = 0.1f;
+	constexpr float macro_speed_max = 10.0f;
+	inline void Restricted(int& param, int max, int min = 0)
+	{
+		if (param > max) param = max;
+		else if (param < min) param = min;
+	}
+	inline void Restricted(float& param, float max, float min = 0.0f)
+	{
+		if (param > max) param = max;
+		else if (param < min) param = min;
+	}
 }
