@@ -9,29 +9,30 @@ bool QiInterpreter::PeekSleep(clock_t ms)
 
 int QiInterpreter::ActionInterpreter(const Actions& current, int& jumpId)
 {
-go_top:
 	int result = r_continue;
-	for (const Action& action : current)
+	while (true)
 	{
-		if (!Qi::run || QiThread::PeekExitMsg()) return r_exit;
-		if (wndInput && !IsWindow(wndInput->wnd)) { 2000, Qi::popText->Popup("窗口失效"); return r_exit; }
-		result = r_continue;
-		if (jumpId)
+		for (const Action& action : current)
 		{
-			if (action.index() == QiType::jumpPoint)
+			if (!Qi::run || QiThread::PeekExitMsg()) return r_exit;
+			if (wndInput && !IsWindow(wndInput->wnd)) { 2000, Qi::popText->Popup("窗口失效"); return r_exit; }
+			result = r_continue;
+			if (jumpId)
 			{
-				const QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(action);
-				if (jumpPoint.id == jumpId) jumpId = 0;
+				if (action.index() == QiType::jumpPoint)
+				{
+					const QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(action);
+					if (jumpPoint.id == jumpId) jumpId = 0;
+				}
+				else
+				{
+					const QiBase& base = action.base();
+					if (!base.next.empty()) ActionInterpreter(base.next, jumpId);
+					if (!base.next2.empty() && jumpId) ActionInterpreter(base.next2, jumpId);
+				}
 			}
-			else
+			else if (!action.base().disable)
 			{
-				const QiBase& base = action.base();
-				if (!base.next.empty()) ActionInterpreter(base.next, jumpId);
-				if (!base.next2.empty() && jumpId) ActionInterpreter(base.next2, jumpId);
-			}
-		}
-		else if (!action.base().disable)
-		{
 			switch (action.index())
 			{
 			case QiType::end:
@@ -150,7 +151,8 @@ go_top:
 			case QiType::copyText:
 			{
 				const QiCopyText& ref = std::get<QiCopyText>(action);
-				System::ClipBoardText((LPCWSTR)(ref.text.utf16()));
+				std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
+				System::ClipBoardText(String::toWString(text).c_str());
 			} break;
 			case QiType::color:
 			{
@@ -275,7 +277,8 @@ go_top:
 			case QiType::popText:
 			{
 				const QiPopText& ref = std::get<QiPopText>(action);
-				Qi::popText->Popup(ref.time, ref.text, RGB(223, 223, 223));
+				std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
+				Qi::popText->Popup(ref.time, text.c_str(), RGB(223, 223, 223));
 				if (ref.sync)
 				{
 					if (ref.sync && PeekSleep(ref.time)) result = r_exit;
@@ -319,9 +322,11 @@ go_top:
 			{
 				const QiDialog& ref = std::get<QiDialog>(action);
 				int bn = IDYES;
-				if (ref.style == QiDialog::warning) bn = MessageBoxW(GetForegroundWindow(), (LPCWSTR)(ref.text.utf16()), (LPCWSTR)(ref.title.utf16()), MB_YESNO | MB_TOPMOST | MB_ICONWARNING);
-				else if (ref.style == QiDialog::error) bn = MessageBoxW(GetForegroundWindow(), (LPCWSTR)(ref.text.utf16()), (LPCWSTR)(ref.title.utf16()), MB_YESNO | MB_TOPMOST | MB_ICONERROR);
-				else bn = MessageBoxW(GetForegroundWindow(), (LPCWSTR)(ref.text.utf16()), (LPCWSTR)(ref.title.utf16()), MB_YESNO | MB_TOPMOST);
+				std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
+				std::string text2 = Qi::interpreter.execute(Qi::interpreter.makeString(ref.title.toStdString()), varMap).toString();
+				if (ref.style == QiDialog::warning) bn = MessageBoxW(GetForegroundWindow(), String::toWString(text).c_str(), String::toWString(text2).c_str(), MB_YESNO | MB_TOPMOST | MB_ICONWARNING);
+				else if (ref.style == QiDialog::error) bn = MessageBoxW(GetForegroundWindow(), String::toWString(text).c_str(), String::toWString(text2).c_str(), MB_YESNO | MB_TOPMOST | MB_ICONERROR);
+				else bn = MessageBoxW(GetForegroundWindow(), String::toWString(text).c_str(), String::toWString(text2).c_str(), MB_YESNO | MB_TOPMOST);
 				if (bn == IDYES)
 				{
 					result = ActionInterpreter(ref.next, jumpId);
@@ -373,10 +378,71 @@ go_top:
 				if (QiTime::compare(ref.time) < 0) result = ActionInterpreter(ref.next, jumpId);
 				else result = ActionInterpreter(ref.next2, jumpId);
 			} break;
+			case QiType::ocr:
+			{
+				const QiOcr& ref = std::get<QiOcr>(action);
+				if (Qi::ocr && !Qi::ocr->isFailed())
+				{
+					HBITMAP hBitmap;
+					RECT rect = QiFn::ATRR(ref.rect);
+					HDC hdc;
+					if (wndInput)
+					{
+						hdc = GetDC(wndInput->wnd);
+						rect = QiFn::WATRR(ref.rect, wndInput->wnd);
+						hBitmap = Image::toBmp32(hdc, rect);
+						ReleaseDC(wndInput->wnd, hdc);
+					}
+					else
+					{
+						hdc = GetDC(nullptr);
+						rect = QiFn::ATRR(ref.rect);
+						hBitmap = Image::toBmp32(hdc, rect);
+						ReleaseDC(nullptr, hdc);
+					}
+					if (hBitmap)
+					{
+						std::string result;
+						Qi::ocr->scan(hBitmap, result);
+						result = Qi::interpreter.removeWrap(result);
+						DeleteObject(hBitmap);
+						if (!result.empty())
+						{
+							Qi::interpreter.makeValue(ref.var.toStdString(), result, varMap);
+							if (ref.text == result.c_str())
+							{
+								result = ActionInterpreter(ref.next, jumpId);
+								break;
+							}
+						}
+					}
+					result = ActionInterpreter(ref.next2, jumpId);
+				}
+			} break;
+			case QiType::varOperator:
+			{
+				const QiVarOperator& ref = std::get<QiVarOperator>(action);
+				try { Qi::interpreter.interpretAll(ref.script.toStdString(), varMap); }
+				catch (std::runtime_error e) { Qi::interpreter.parseError(e.what()); }
+			} break;
+			case QiType::varCondition:
+			{
+				const QiVarCondition& ref = std::get<QiVarCondition>(action);
+				try {
+					QiVar var = Qi::interpreter.execute(ref.script.toStdString(), varMap);
+					bool scriptResult = false;
+					if (var.isNumber()) scriptResult = var.num;
+					else if (var.isString()) scriptResult == !var.str.empty();
+					if (scriptResult) result = ActionInterpreter(ref.next, jumpId);
+					else result = ActionInterpreter(ref.next2, jumpId);
+				}
+				catch (std::runtime_error e) { Qi::interpreter.parseError(e.what()); }
+			} break;
 			}
 		}
 		if (result != r_continue) break;
+		}
+		if (result != r_top) break;
 	}
-	if ((&actions == &current) && result == r_top) goto go_top;
 	return result;
 }

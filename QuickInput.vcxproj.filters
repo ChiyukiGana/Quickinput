@@ -144,6 +144,12 @@
     <ClInclude Include="source\src\tools\time.h">
       <Filter>Header Files\QiTools</Filter>
     </ClInclude>
+    <ClInclude Include="source\src\scriptinterpreter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\OcrLiteOnnxInterface\OcrLiteOnnxInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="source\ui\AboutUi.ui">

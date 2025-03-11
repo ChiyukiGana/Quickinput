@@ -69,6 +69,7 @@ public:
             sd >> ic;
         }
         latest_date = id, latest_count = ic;
+        return true;
     }
     bool getlatest()
     {
@@ -82,6 +83,7 @@ public:
                 response_state = (result && !response.empty());
             }
         );
+        return true;
     }
     bool parselatest()
     {

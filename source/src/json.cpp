@@ -69,17 +69,14 @@ namespace QiJson
 		QJsonArray jActions;
 		for (int i = 0; i < actions.size(); i++)
 		{
-			const Action& action = actions[i];
 			QJsonObject jAction;
-
-			bool success = true;
-
 			const Action& var = actions[i];
 
 			jAction.insert("dis", var.base().disable);
 			jAction.insert("type", (int)var.base().type);
 			jAction.insert("mark", var.base().mark);
 
+			bool success = true;
 			switch (var.index())
 			{
 			case QiType::end:
@@ -232,6 +229,30 @@ namespace QiJson
 				jAction.insert("next", SaveAction(ref.next));
 				jAction.insert("next2", SaveAction(ref.next2));
 			} break;
+			case QiType::ocr:
+			{
+				const QiOcr& ref = std::get<QiOcr>(var);
+				jAction.insert("left", (int)(ref.rect.left));
+				jAction.insert("top", (int)(ref.rect.top));
+				jAction.insert("right", (int)(ref.rect.right));
+				jAction.insert("bottom", (int)(ref.rect.bottom));
+				jAction.insert("text", ref.text);
+				jAction.insert("var", ref.var);
+				jAction.insert("next", SaveAction(ref.next));
+				jAction.insert("next2", SaveAction(ref.next2));
+			} break;
+			case QiType::varOperator:
+			{
+				const QiVarOperator& ref = std::get<QiVarOperator>(var);
+				jAction.insert("t", ref.script);
+			} break;
+			case QiType::varCondition:
+			{
+				const QiVarCondition& ref = std::get<QiVarCondition>(var);
+				jAction.insert("t", ref.script);
+				jAction.insert("next", SaveAction(ref.next));
+				jAction.insert("next2", SaveAction(ref.next2));
+			} break;
 			default: success = false;
 			}
 
@@ -262,11 +283,19 @@ namespace QiJson
 		QJsonDocument json(jMacro);
 
 		QString path = Qi::macroDir;
-		if (!QDir(path).exists() && !QDir(path).mkdir(path)) MsgBox::Error(L"创建宏目录失败");
+		if (!QDir(path).exists() && !QDir(path).mkdir(path))
+		{
+			MsgBox::Error(L"创建宏目录失败");
+			return;
+		}
 		if (!macro.groupBase)
 		{
 			path += macro.groupName + QString("/");
-			if (!QDir(path).exists() && !QDir(path).mkdir(path)) MsgBox::Error(L"创建分组目录失败");
+			if (!QDir(path).exists() && !QDir(path).mkdir(path))
+			{
+				MsgBox::Error(L"创建分组目录失败");
+				return;
+			}
 		}
 		path += macro.name + Qi::macroType;
 
@@ -325,9 +354,7 @@ namespace QiJson
 		{
 			QJsonObject jAction;
 			jAction = jActions.at(i).toObject();
-
 			int type = jAction.value("type").toInt();
-
 			if (type)
 			{
 				bool dis = jAction.value("dis").toBool();
@@ -337,32 +364,26 @@ namespace QiJson
 				case QiType::end:
 				{
 					QiEnd var; var.disable = dis, var.mark = mark;
-
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::delay:
 				{
 					QiDelay var; var.disable = dis, var.mark = mark;
-
 					var.min = jAction.value("ms").toInt();
 					var.max = jAction.value("ex").toInt();
 					if (var.max < var.min) var.max = var.min;
-
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::key:
 				{
 					QiKey var; var.disable = dis, var.mark = mark;
-
 					var.state = jAction.value("state").toInt();
 					var.vk = jAction.value("vk").toInt();
-
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::mouse:
 				{
 					QiMouse var; var.disable = dis, var.mark = mark;
-
 					var.move = jAction.value("move").toBool();
 					var.x = jAction.value("x").toInt();
 					var.y = jAction.value("y").toInt();
@@ -371,21 +392,17 @@ namespace QiJson
 					var.speed = jAction.value("spd").toInt();
 					if (!var.speed) var.speed = 1;
 					if (var.speed > 99) var.speed = 99;
-
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::copyText:
 				{
 					QiCopyText var; var.disable = dis, var.mark = mark;
-
 					var.text = jAction.value("text").toString();
-
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::color:
 				{
 					QiColor var; var.disable = dis, var.mark = mark;
-
 					var.move = jAction.value("move").toBool();
 					var.rect.left = jAction.value("left").toInt();
 					var.rect.top = jAction.value("top").toInt();
@@ -394,20 +411,16 @@ namespace QiJson
 					var.rgbe.set(jAction.value("rgbe").toInt());
 					var.next = LoadAction(jAction.value("next").toArray());
 					var.next2 = LoadAction(jAction.value("next2").toArray());
-
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::loop:
 				{
 					QiLoop var; var.disable = dis, var.mark = mark;
-
 					var.min = jAction.value("count").toInt();
 					var.max = jAction.value("rand").toInt();
 					if (var.max < var.min) var.max = var.min;
-
 					var.next = LoadAction(jAction.value("next").toArray());
-
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::loopEnd:
 				{
@@ -418,140 +431,143 @@ namespace QiJson
 				case QiType::keyState:
 				{
 					QiKeyState var; var.disable = dis, var.mark = mark;
-
 					var.vk = jAction.value("vk").toInt();
 					var.next = LoadAction(jAction.value("next").toArray());
 					var.next2 = LoadAction(jAction.value("next2").toArray());
-
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::resetPos:
 				{
 					QiResetPos var; var.disable = dis, var.mark = mark;
-
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::image:
 				{
 					QiImage var; var.disable = dis, var.mark = mark;
-
 					var.move = jAction.value("move").toBool();
 					var.rect.left = jAction.value("left").toInt();
 					var.rect.top = jAction.value("top").toInt();
 					var.rect.right = jAction.value("right").toInt();
 					var.rect.bottom = jAction.value("bottom").toInt();
 					var.sim = jAction.value("sim").toInt();
-
 					int width = jAction.value("width").toInt();
 					int height = jAction.value("height").toInt();
-
 					QByteArray data = QByteArray::fromBase64(jAction.value("data").toString().toUtf8());
-
 					if (width && height && data.size())
 					{
 						var.map.create(width, height);
 						memcpy_s(var.map.data(), var.map.bytes(), data.data(), data.size());
 					}
-
 					var.next = LoadAction(jAction.value("next").toArray());
 					var.next2 = LoadAction(jAction.value("next2").toArray());
 
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::popText:
 				{
 					QiPopText var; var.disable = dis, var.mark = mark;
-
 					var.text = jAction.value("text").toString();
 					var.time = jAction.value("time").toInt();
 					var.sync = jAction.value("sync").toBool();
-
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::savePos:
 				{
 					QiSavePos var; var.disable = dis, var.mark = mark;
-
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::timer:
 				{
 					QiTimer var; var.disable = dis, var.mark = mark;
-
 					var.min = jAction.value("min").toInt();
 					var.max = jAction.value("max").toInt();
 					if (var.max < var.min) var.max = var.min;
 					var.next = LoadAction(jAction.value("next").toArray());
-
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::jump:
 				{
 					QiJump var; var.disable = dis, var.mark = mark;
-
 					var.id = jAction.value("id").toInt();
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::jumpPoint:
 				{
 					QiJumpPoint var; var.disable = dis, var.mark = mark;
-
 					var.id = jAction.value("id").toInt();
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::dialog:
 				{
 					QiDialog var; var.disable = dis, var.mark = mark;
-
 					var.style = jAction.value("style").toInt();
 					var.title = jAction.value("title").toString();
 					var.text = jAction.value("text").toString();
 					var.next = LoadAction(jAction.value("next").toArray());
 					var.next2 = LoadAction(jAction.value("next2").toArray());
-
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::block:
 				{
 					QiBlock var; var.disable = dis, var.mark = mark;
-
 					var.id = jAction.value("id").toInt();
 					var.next = LoadAction(jAction.value("next").toArray());
-
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::blockExec:
 				{
 					QiBlockExec var; var.disable = dis, var.mark = mark;
-
 					var.id = jAction.value("id").toInt();
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::quickInput:
 				{
 					QiQuickInput var; var.disable = dis, var.mark = mark;
-
 					QJsonArray chars = jAction.value("c").toArray();
 					for (auto c : chars) var.chars.append_copy(c.toInt());
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::keyBlock:
 				{
 					QiKeyBlock var; var.disable = dis, var.mark = mark;
-
 					var.vk = jAction.value("k").toInt();
 					var.block = jAction.value("b").toBool();
-					actions.append(std::move(var));
+					actions.append(var);
 				} break;
 				case QiType::clock:
 				{
 					QiClock var; var.disable = dis, var.mark = mark;
-					
 					var.time = jAction.value("t").toInt();
 					var.next = LoadAction(jAction.value("next").toArray());
 					var.next2 = LoadAction(jAction.value("next2").toArray());
-
-					actions.append(std::move(var));
+					actions.append(var);
+				} break;
+				case QiType::ocr:
+				{
+					QiOcr var; var.disable = dis, var.mark = mark;
+					var.rect.left = jAction.value("left").toInt();
+					var.rect.top = jAction.value("top").toInt();
+					var.rect.right = jAction.value("right").toInt();
+					var.rect.bottom = jAction.value("bottom").toInt();
+					var.text = jAction.value("text").toString();
+					var.var = jAction.value("var").toString();
+					var.next = LoadAction(jAction.value("next").toArray());
+					var.next2 = LoadAction(jAction.value("next2").toArray());
+					actions.append(var);
+				} break;
+				case QiType::varOperator:
+				{
+					QiVarOperator var; var.disable = dis, var.mark = mark;
+					var.script = jAction.value("t").toString();
+					actions.append(var);
+				} break;
+				case QiType::varCondition:
+				{
+					QiVarCondition var; var.disable = dis, var.mark = mark;
+					var.script = jAction.value("t").toString();
+					var.next = LoadAction(jAction.value("next").toArray());
+					var.next2 = LoadAction(jAction.value("next2").toArray());
+					actions.append(var);
 				} break;
 				default: actions.append(QiBase(type)); break;
 				}

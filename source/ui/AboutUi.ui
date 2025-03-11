@@ -88,7 +88,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-3-9</string>
+         <string>2025-3-12</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -104,7 +104,9 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加时钟功能</string>
+         <string>编译为64程序
+增加文字识别功能
+增加变量相关功能</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

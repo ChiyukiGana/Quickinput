@@ -60,7 +60,8 @@ namespace QiThread
 		GetCursorPos(&pMacro->cursor);
 		int count = 0;
 		int jumpId = 0;
-		QiInterpreter interpreter(pMacro->acRun, pMacro->speed, pWi, pMacro->cursor);
+		pMacro->varMap.clear();
+		QiInterpreter interpreter(pMacro->varMap, pMacro->acRun, pMacro->speed, pWi, pMacro->cursor);
 		Qi::curBlock += pMacro->curBlock;
 		while (Qi::run && !PeekExitMsg())
 		{
@@ -93,7 +94,7 @@ namespace QiThread
 			pWi = &pMacro->wp;
 		}
 		int jumpId = 0;
-		QiInterpreter interpreter(pMacro->acEnd, pMacro->speed, pWi, pMacro->cursor);
+		QiInterpreter interpreter(pMacro->varMap, pMacro->acEnd, pMacro->speed, pWi, pMacro->cursor);
 		Qi::curBlock += pMacro->curBlock;
 		interpreter.ActionInterpreter(pMacro->acEnd, jumpId);
 		Qi::curBlock -= pMacro->curBlock;

@@ -11,7 +11,8 @@ namespace QiTools
 	public:
 		static bool UsableName(const QString file)
 		{
-			for (QChar c : file) if (c == L'\\' || c == L'/' || c == L':' || c == L'*' || c == L'?' || c == L'\"' || c == L'<' || c == L'>' || c == L'|') return false;
+			for (QChar c : file) if (c == L'\\' || c == L'/' || c == L':' || c == L'*' || c == L'?' || c == L'\"' || c == L'<' || c == L'>' || c == L'|' || c == L'.') return false;
+			return true;
 		}
 		static QString RemoveExtension(QString file)
 		{

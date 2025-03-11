@@ -52,6 +52,8 @@ namespace QiUi
 		QString syPoint;
 		QString syBlock;
 		QString syBlockExec;
+		QString syEqual;
+		QString syVar;
 		// menu
 		QString muOn;
 		QString muOff;
@@ -84,6 +86,9 @@ namespace QiUi
 		QString acQuickInput;
 		QString acKeyBlock;
 		QString acClock;
+		QString acOcr;
+		QString acVarOperator;
+		QString acVarCondition;
 		// state
 		QString trOn;
 		QString trOff;
@@ -252,7 +257,10 @@ struct QiType
 		blockExec,
 		quickInput,
 		keyBlock,
-		clock
+		clock,
+		ocr,
+		varOperator,
+		varCondition
 	};
 };
 using Actions = QiVector<class Action>;
@@ -404,6 +412,26 @@ public:
 	int time = 0;
 	QiClock() : QiBase(QiType::clock) {}
 };
+class QiOcr: public QiBase
+{
+public:
+	RECT rect;
+	QString text;
+	QString var;
+	QiOcr() : QiBase(QiType::ocr) {}
+};
+class QiVarOperator : public QiBase
+{
+public:
+	QString script;
+	QiVarOperator() : QiBase(QiType::varOperator) {}
+};
+class QiVarCondition : public QiBase
+{
+public:
+	QString script;
+	QiVarCondition() : QiBase(QiType::varCondition) {}
+};
 using ActionVariant = std::variant
 <
 	QiBase,
@@ -428,7 +456,10 @@ using ActionVariant = std::variant
 	QiBlockExec,
 	QiQuickInput,
 	QiKeyBlock,
-	QiClock
+	QiClock,
+	QiOcr,
+	QiVarOperator,
+	QiVarCondition
 > ;
 class Action : public ActionVariant
 {
@@ -473,6 +504,7 @@ public:
 	WndInput wp;
 	HANDLE thRun = nullptr;
 	HANDLE thEnd = nullptr;
+	QiVarMap varMap;
 	QString makePath() const
 	{
 		if (groupBase) return Qi::macroDir + name + Qi::macroType;
@@ -607,6 +639,8 @@ struct Widget
 
 namespace Qi
 {
+	inline OcrLiteOnnxInterface* ocr = nullptr;
+	inline QiScriptInterpreter interpreter;
 	// for setStyle
 	inline QApplication* application = nullptr;
 	inline QiUi::QuickInputUi ui;

@@ -23,8 +23,8 @@ public:
 		HWND wnd = GetDesktopWindow();
 		HMONITOR mt = MonitorFromWindow(wnd, MONITOR_DEFAULTTONEAREST);
 
-		MONITORINFOEX mti;
-		mti.cbSize = sizeof(MONITORINFOEX);
+		MONITORINFOEXW mti;
+		mti.cbSize = sizeof(MONITORINFOEXW);
 		GetMonitorInfoW(mt, &mti);
 
 		DEVMODEW dm;

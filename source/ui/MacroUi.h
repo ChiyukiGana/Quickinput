@@ -208,6 +208,13 @@ private:
 		connect(ui.reload_button, &QPushButton::clicked, this, [this] { Qi::popText->Show("正在加载宏"); QApplication::postEvent(this, new QEvent((QEvent::Type)e_load)); });
 		connect(ui.add_group_button, &QPushButton::clicked, this, [this] {
 			QString path = Qi::macroDir + Qi::macroGroups.append(MacroGroup(false, Qi::macroGroups.makeName())).name;
+
+			if (!QDir(Qi::macroDir).exists() && !QDir(Qi::macroDir).mkdir(Qi::macroDir))
+			{
+				MsgBox::Error(L"创建宏目录失败");
+				return;
+			}
+
 			if (!QDir(path).exists() && !QDir(path).mkdir(path)) MsgBox::Error(L"创建分组目录失败");
 			currentGroup = &groups->front();
 			TableUpdate();

@@ -13,6 +13,17 @@ int main(int argc, char* argv[])
 	}
 	CreateMutexW(0, 0, mutex.c_str()); // create mutex
 	Init(); // json, font, style
+
+	// ocr
+	if (QueryOcrLiteOnnInterface(&Qi::ocr))
+	{
+		Qi::ocr->setModelsDetPath("OcrLiteOnnx/models/det.onnx");
+		Qi::ocr->setModelsClsPath("OcrLiteOnnx/models/cls.onnx");
+		Qi::ocr->setModelsRecPath("OcrLiteOnnx/models/rec.onnx");
+		Qi::ocr->setModelsKeysPath("OcrLiteOnnx/models/keys.list");
+		Qi::ocr->init();
+	}
+
 	QApplication application(argc, argv); // qt event loop
 	Qi::application = &application; // save to global
 	Qi::popText = new QPopText; // popup text on screen of global widget
@@ -30,73 +41,41 @@ void Init()
 	qputenv("QT_SCALE_FACTOR", QByteArray::number(System::screenScaleRote(), 10, 1)); // enlarge high resolution screen
 	if ("symbol")
 	{
-		if (System::Version().dwMajorVersion >= 10)
-		{
-			Qi::ui.text.syAny = "🟡";
-			Qi::ui.text.syOn = "✅";
-			Qi::ui.text.syOff = "⛔";
-			Qi::ui.text.syOk = "⭕";
-			Qi::ui.text.syYes = "✔️";
-			Qi::ui.text.syNot = "❌";
-			Qi::ui.text.syStop = "🛑";
-			Qi::ui.text.syShow = "🔼";
-			Qi::ui.text.syHide = "🔽";
-			Qi::ui.text.syOption = "⚙";
-			Qi::ui.text.syLink = "🔗";
-			Qi::ui.text.syEdit = "🔧";
-			Qi::ui.text.syUp = "⬆️";
-			Qi::ui.text.syDown = "⬇️";
-			Qi::ui.text.syTurn = "🔃";
-			Qi::ui.text.syLeft = "🔙";
-			Qi::ui.text.syTop = "🔝";
-			Qi::ui.text.syRight = "🔜";
-			Qi::ui.text.syMove = "🔛";
-			Qi::ui.text.syTime = "⏳";
-			Qi::ui.text.syText = "🅰️";
-			Qi::ui.text.syLoop = "♾️";
-			Qi::ui.text.syColor = "🌈";
-			Qi::ui.text.syImage = "🖼";
-			Qi::ui.text.syPoint = "🪂";
-			Qi::ui.text.syJump = "🛩";
-			Qi::ui.text.syBlock = "🪂";
-			Qi::ui.text.syBlockExec = "🛩";
-		}
-		else
-		{
-			Qi::ui.text.syAny = "●";
-			Qi::ui.text.syOn = "✔";
-			Qi::ui.text.syOff = "✘";
-			Qi::ui.text.syOk = "✔";
-			Qi::ui.text.syYes = "✔";
-			Qi::ui.text.syNot = "✘";
-			Qi::ui.text.syStop = "Ⓢ";
-			Qi::ui.text.syShow = "▲";
-			Qi::ui.text.syHide = "▼";
-			Qi::ui.text.syOption = "✱";
-			Qi::ui.text.syLink = "※";
-			Qi::ui.text.syEdit = "▲";
-			Qi::ui.text.syUp = "↑";
-			Qi::ui.text.syDown = "↓";
-			Qi::ui.text.syTurn = "◈";
-			Qi::ui.text.syLeft = "←";
-			Qi::ui.text.syTop = "↑";
-			Qi::ui.text.syRight = "→";
-			Qi::ui.text.syMove = "↘";
-			Qi::ui.text.syTime = "☽";
-			Qi::ui.text.syText = "A";
-			Qi::ui.text.syLoop = "↩";
-			Qi::ui.text.syColor = "☀";
-			Qi::ui.text.syImage = "☀";
-			Qi::ui.text.syPoint = "☟";
-			Qi::ui.text.syJump = "✈";
-			Qi::ui.text.syBlock = "☟";
-			Qi::ui.text.syBlockExec = "✈";
-		}
+		Qi::ui.text.syAny = "🟡";
+		Qi::ui.text.syOn = "✅";
+		Qi::ui.text.syOff = "⛔";
+		Qi::ui.text.syOk = "⭕";
+		Qi::ui.text.syYes = "✔️";
+		Qi::ui.text.syNot = "❌";
+		Qi::ui.text.syStop = "🛑";
+		Qi::ui.text.syShow = "🔼";
+		Qi::ui.text.syHide = "🔽";
+		Qi::ui.text.syOption = "⚙";
+		Qi::ui.text.syLink = "🔗";
+		Qi::ui.text.syEdit = "🔧";
+		Qi::ui.text.syUp = "⬆️";
+		Qi::ui.text.syDown = "⬇️";
+		Qi::ui.text.syTurn = "🔃";
+		Qi::ui.text.syLeft = "🔙";
+		Qi::ui.text.syTop = "🔝";
+		Qi::ui.text.syRight = "🔜";
+		Qi::ui.text.syMove = "🔛";
+		Qi::ui.text.syTime = "⏳";
+		Qi::ui.text.syText = "🅰️";
+		Qi::ui.text.syLoop = "♾️";
+		Qi::ui.text.syColor = "🌈";
+		Qi::ui.text.syImage = "🖼";
+		Qi::ui.text.syPoint = "🪂";
+		Qi::ui.text.syJump = "🛩";
+		Qi::ui.text.syBlock = "🪂";
+		Qi::ui.text.syBlockExec = "🛩";
+		Qi::ui.text.syEqual = "🟰";
+		Qi::ui.text.syVar = "💠";
 	}
 	if ("text")
 	{
 		// menu
-		Qi::ui.text.muOn = (QString::fromUtf8("启用") + Qi::ui.text.syOn); 
+		Qi::ui.text.muOn = (QString::fromUtf8("启用") + Qi::ui.text.syOn);
 		Qi::ui.text.muOff = (QString::fromUtf8("禁用") + Qi::ui.text.syOff);
 		Qi::ui.text.muShow = (QString::fromUtf8("显示") + Qi::ui.text.syShow);
 		Qi::ui.text.muHide = (QString::fromUtf8("隐藏") + Qi::ui.text.syHide);
@@ -121,12 +100,15 @@ void Init()
 		Qi::ui.text.acTimer = (QString::fromUtf8("定时") + Qi::ui.text.syLoop);
 		Qi::ui.text.acJump = (QString::fromUtf8("跳转") + Qi::ui.text.syJump);
 		Qi::ui.text.acJumpPoint = (QString::fromUtf8("锚点") + Qi::ui.text.syPoint);
-		Qi::ui.text.acDialog= (QString::fromUtf8("对话框") + Qi::ui.text.syText);
+		Qi::ui.text.acDialog = (QString::fromUtf8("对话框") + Qi::ui.text.syText);
 		Qi::ui.text.acBlock = (QString::fromUtf8("块") + Qi::ui.text.syBlock);
 		Qi::ui.text.acBlockExec = (QString::fromUtf8("执行") + Qi::ui.text.syBlockExec);
-		Qi::ui.text.acQuickInput= (QString::fromUtf8("输入字符") + Qi::ui.text.syText);
-		Qi::ui.text.acKeyBlock= (QString::fromUtf8("屏蔽按键") + Qi::ui.text.syStop);
-		Qi::ui.text.acClock= (QString::fromUtf8("时钟") + Qi::ui.text.syTime);
+		Qi::ui.text.acQuickInput = (QString::fromUtf8("输入字符") + Qi::ui.text.syText);
+		Qi::ui.text.acKeyBlock = (QString::fromUtf8("屏蔽按键") + Qi::ui.text.syStop);
+		Qi::ui.text.acClock = (QString::fromUtf8("时钟") + Qi::ui.text.syTime);
+		Qi::ui.text.acOcr = (QString::fromUtf8("文字识别") + Qi::ui.text.syText);
+		Qi::ui.text.acVarOperator = (QString::fromUtf8("变量运算") + Qi::ui.text.syEqual);
+		Qi::ui.text.acVarCondition = (QString::fromUtf8("变量判断") + Qi::ui.text.syVar);
 		// state
 		Qi::ui.text.trOn = (QString::fromUtf8("启用") + Qi::ui.text.syOn);
 		Qi::ui.text.trOff = (QString::fromUtf8("禁用") + Qi::ui.text.syOff);
