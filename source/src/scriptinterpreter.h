@@ -25,37 +25,48 @@ public:
     QiVar(const char* str) : type(t_str), str(str) {}
     QiVar(const std::string& str) : type(t_str), str(str) {}
 
+    static std::string removeCommas(const std::string& str) {
+        std::string result = str;
+        result.erase(std::remove(result.begin(), result.end(), ','), result.end());
+        return result;
+    }
+
     static bool isNumber(const std::string& str) {
         try {
+            std::string cleanedStr = removeCommas(str);
             std::size_t pos;
-            std::stod(str, &pos);
-            return pos == str.size();
+            std::stod(cleanedStr, &pos);
+            return pos == cleanedStr.size();
         }
         catch (...) { return false; }
     }
 
     static bool isInteger(const std::string& str) {
         try {
+            std::string cleanedStr = removeCommas(str);
             std::size_t pos;
-            std::stoi(str, &pos);
-            return pos == str.size();
+            std::stoi(cleanedStr, &pos);
+            return pos == cleanedStr.size();
         }
         catch (...) { return false; }
     }
 
     static double toNumber(const std::string& str) {
         try {
+            std::string cleanedStr = removeCommas(str);
             size_t pos;
-            double result = std::stod(str, &pos);
-            return pos == str.length() ? result : 0.0;
+            double result = std::stod(cleanedStr, &pos);
+            return pos == cleanedStr.length() ? result : 0.0;
         }
         catch (...) { return 0.0; }
     }
 
     static std::string toString(double num) {
-        return std::fmod(num, 1.0) == 0.0
-            ? std::to_string((long long)num)
-            : std::to_string(num);
+        std::string str = std::to_string(num);
+        if (std::fmod(num, 1.0) == 0.0) return std::to_string((long long)(num));
+        str.erase(str.find_last_not_of('0') + 1, std::string::npos);
+        if (!str.empty() && str.back() == '.') str.pop_back();
+        return str;
     }
 
     bool isNumber() const { return type == t_num; }

@@ -665,6 +665,7 @@ private:
 			connect(ui.color_rect_button, &QPushButton::clicked, this, [this] {
 				QRectSelection rs;
 				RECT rect;
+				Rgba rgba;
 				if (macro->wndState)
 				{
 					if (!macro->wi.update())
@@ -673,15 +674,35 @@ private:
 					}
 					RECT wrect = Window::rect(macro->wi.wnd);
 					rect = rs.Start(wrect);
+					if ((rect.right - rect.left == 0) && (rect.bottom - rect.top == 0))
+					{
+						HDC hdc = GetDC(nullptr);
+						rgba = Rgba(GetPixel(hdc, rect.left, rect.top));
+						rgba.a = 1;
+						ReleaseDC(nullptr, hdc);
+					}
 					rect = QiFn::WRTAR(rect, macro->wi.wnd);
 				}
 				else
 				{
 					rect = rs.Start();
+					if ((rect.right - rect.left == 0) && (rect.bottom - rect.top == 0))
+					{
+						HDC hdc = GetDC(nullptr);
+						rgba = Rgba(GetPixel(hdc, rect.left, rect.top));
+						rgba.a = 1;
+						ReleaseDC(nullptr, hdc);
+					}
 					rect = QiFn::RTAR(rect);
 				}
 				QiColor color(WidgetGetColor());
 				color.rect = rect;
+				if (rgba.a)
+				{
+					color.rgbe.r = rgba.r;
+					color.rgbe.g = rgba.g;
+					color.rgbe.b = rgba.b;
+				}
 				WidgetSet(color);
 				});
 			connect(ui.color_rgb_button, &QPushButton::clicked, this, [this] {

@@ -88,7 +88,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-3-12</string>
+         <string>2025-3-14</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -104,9 +104,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>编译为64程序
-增加文字识别功能
-增加变量相关功能</string>
+         <string>修复进位标记的字符数字无法转换数字
+增加颜色识别单击获取坐标和颜色</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

@@ -4,13 +4,65 @@ namespace QiFn
 {
 	// Pos convert
 	POINT RTA(POINT rel) { return { (long)(((float)rel.x / (float)(Qi::screen.cx - 1)) * 10000.0f), (long)(((float)rel.y / (float)(Qi::screen.cy - 1)) * 10000.0f) }; }
-	RECT RTAR(RECT rel) { return { (long)(((float)rel.left / (float)(Qi::screen.cx - 1)) * 10000.0f), (long)(((float)rel.top / (float)(Qi::screen.cy - 1)) * 10000.0f), (long)(((float)rel.right / (float)(Qi::screen.cx - 1)) * 10000.0f), (long)(((float)rel.bottom / (float)(Qi::screen.cy - 1)) * 10000.0f) }; }
+	RECT RTAR(RECT rel) {
+		if (rel.right - rel.left == 0)
+		{
+			if (rel.right + 1 < Qi::screen.cx) rel.right += 1;
+			else rel.left -= 1;
+		}
+		if (rel.bottom - rel.top == 0)
+		{
+			if (rel.bottom + 1 < Qi::screen.cy) rel.bottom += 1;
+			else rel.top -= 1;
+		}
+		return { (long)(((float)rel.left / (float)(Qi::screen.cx - 1)) * 10000.0f), (long)(((float)rel.top / (float)(Qi::screen.cy - 1)) * 10000.0f), (long)(((float)rel.right / (float)(Qi::screen.cx - 1)) * 10000.0f), (long)(((float)rel.bottom / (float)(Qi::screen.cy - 1)) * 10000.0f) };
+	}
 	POINT ATR(POINT abs) { return { (long)((float)Qi::screen.cx / 10000.0f * (float)abs.x), (long)((float)Qi::screen.cy / 10000.0f * (float)abs.y) }; }
-	RECT ATRR(RECT abs) { return { (long)((float)Qi::screen.cx / 10000.0f * (float)abs.left), (long)((float)Qi::screen.cy / 10000.0f * (float)abs.top), (long)((float)Qi::screen.cx / 10000.0f * (float)abs.right), (long)((float)Qi::screen.cy / 10000.0f * (float)abs.bottom) }; }
+	RECT ATRR(RECT abs) {
+		RECT rect = { (long)((float)Qi::screen.cx / 10000.0f * (float)abs.left), (long)((float)Qi::screen.cy / 10000.0f * (float)abs.top), (long)((float)Qi::screen.cx / 10000.0f * (float)abs.right), (long)((float)Qi::screen.cy / 10000.0f * (float)abs.bottom) };
+		if (rect.right - rect.left == 0)
+		{
+			if (rect.right + 1 < Qi::screen.cx) rect.right += 1;
+			else rect.left -= 1;
+		}
+		if (rect.bottom - rect.top == 0)
+		{
+			if (rect.bottom + 1 < Qi::screen.cy) rect.bottom += 1;
+			else rect.top -= 1;
+		}
+		return rect;
+	}
 	POINT WRTA(POINT rel, HWND wnd) { SIZE size = Window::size(wnd); return { (long)(((float)rel.x / ((float)size.cx)) * 10000.0f), (long)(((float)rel.y / ((float)size.cy)) * 10000.0f) }; }
-	RECT WRTAR(RECT rel, HWND wnd) { SIZE size = Window::size(wnd); return { (long)(((float)rel.left / ((float)size.cx)) * 10000.0f), (long)(((float)rel.top / ((float)size.cy)) * 10000.0f), (long)(((float)rel.right / ((float)size.cx)) * 10000.0f), (long)(((float)rel.bottom / ((float)size.cy)) * 10000.0f) }; }
+	RECT WRTAR(RECT rel, HWND wnd) {
+		SIZE size = Window::size(wnd);
+		if (rel.right - rel.left == 0)
+		{
+			if (rel.right + 1 < size.cx) rel.right += 1;
+			else rel.left -= 1;
+		}
+		if (rel.bottom - rel.top == 0)
+		{
+			if (rel.bottom + 1 < size.cy) rel.bottom += 1;
+			else rel.top -= 1;
+		}
+		return { (long)(((float)rel.left / ((float)size.cx)) * 10000.0f), (long)(((float)rel.top / ((float)size.cy)) * 10000.0f), (long)(((float)rel.right / ((float)size.cx)) * 10000.0f), (long)(((float)rel.bottom / ((float)size.cy)) * 10000.0f) };
+	}
 	POINT WATR(POINT abs, HWND wnd) { SIZE size = Window::size(wnd); return { (long)((float)(size.cx + 1) / 10000.0f * (float)abs.x), (long)((float)(size.cy + 1) / 10000.0f * (float)abs.y) }; }
-	RECT WATRR(RECT abs, HWND wnd) { SIZE size = Window::size(wnd); return { (long)((float)(size.cx + 1) / 10000.0f * (float)abs.left), (long)((float)(size.cy + 1) / 10000.0f * (float)abs.top), (long)((float)(size.cx + 1) / 10000.0f * (float)abs.right), (long)((float)(size.cy + 1) / 10000.0f * (float)abs.bottom) }; }
+	RECT WATRR(RECT abs, HWND wnd) {
+		SIZE size = Window::size(wnd);
+		RECT rect = { (long)((float)(size.cx + 1) / 10000.0f * (float)abs.left), (long)((float)(size.cy + 1) / 10000.0f * (float)abs.top), (long)((float)(size.cx + 1) / 10000.0f * (float)abs.right), (long)((float)(size.cy + 1) / 10000.0f * (float)abs.bottom) };
+		if (rect.right - rect.left == 0)
+		{
+			if (rect.right + 1 < size.cx) rect.right += 1;
+			else rect.left -= 1;
+		}
+		if (rect.bottom - rect.top == 0)
+		{
+			if (rect.bottom + 1 < size.cy) rect.bottom += 1;
+			else rect.top -= 1;
+		}
+		return rect;
+	}
 	// Pop text
 	QString ParseCustom(QString text, QString name, QString number) { text.replace("@", name); return text.replace("$", number); }
 	QString ParseState(QString text) { return text.replace("@", Qi::folder); }

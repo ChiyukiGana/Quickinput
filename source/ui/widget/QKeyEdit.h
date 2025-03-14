@@ -134,18 +134,9 @@ Q_SIGNALS:
 	void changed() const;
 
 public:
-	static bool isMouse(int keyCode)
-	{
-		return ((keyCode >= VK_LBUTTON && keyCode <= VK_XBUTTON2) || keyCode == VK_WHEELUP || keyCode == VK_WHEELDOWN);
-	}
-	static bool isKeyboard(int keyCode)
-	{
-		return ((keyCode >= VK_CLEAR && keyCode <= VK_OEM_CLEAR) || keyCode == VK_BACK || keyCode == VK_TAB);
-	}
-	static bool isPad(int keyCode)
-	{
-		return ((keyCode >= XBoxPadButton::start) && (keyCode <= XBoxPadButton::r_bottom));
-	}
+	static bool isMouse(int keyCode) { return ((keyCode >= VK_LBUTTON && keyCode <= VK_XBUTTON2) || keyCode == VK_WHEELUP || keyCode == VK_WHEELDOWN); }
+	static bool isKeyboard(int keyCode) { return ((keyCode >= VK_CLEAR && keyCode <= VK_OEM_CLEAR) || keyCode == VK_BACK || keyCode == VK_TAB); }
+	static bool isPad(int keyCode) { return ((keyCode >= XBoxPadButton::start) && (keyCode <= XBoxPadButton::r_bottom)); }
 
 	static QString keyName(int keyCode)
 	{
@@ -156,208 +147,208 @@ public:
 		else
 		{
 			switch (keyCode) {
-			case VK_LBUTTON: return "左键";
-			case VK_RBUTTON: return "右键";
-			case VK_CANCEL: return "Cancel";
-			case VK_MBUTTON: return "中键";
-			case VK_XBUTTON1: return "侧键1";
-			case VK_XBUTTON2: return "侧键2";
-			case VK_WHEELUP: return "滚轮↑";
-			case VK_WHEELDOWN: return "滚轮↓";
-			case VK_BACK: return "Back";
-			case VK_TAB: return "Tab";
-			case VK_CLEAR: return "Clear";
-			case VK_RETURN: return "Return";
-			case VK_SHIFT: return "Shift";
-			case VK_CONTROL: return "Ctrl";
-			case VK_MENU: return "Alt";
-			case VK_PAUSE: return "Pause";
-			case VK_CAPITAL: return "CapsLock";
-			case VK_KANA: return "Kana";
-			case VK_JUNJA: return "Junja";
-			case VK_FINAL: return "Final";
-			case VK_HANJA: return "Hanja";
-			case VK_ESCAPE: return "Esc";
-			case VK_CONVERT: return "Convert";
-			case VK_NONCONVERT: return "NonConvert";
-			case VK_ACCEPT: return "Accept";
-			case VK_MODECHANGE: return "ModeChange";
-			case VK_SPACE: return "空格";
-			case VK_PRIOR: return "PageUp";
-			case VK_NEXT: return "PageDown";
-			case VK_END: return "End";
-			case VK_HOME: return "Home";
-			case VK_LEFT: return "←";
-			case VK_UP: return "↑";
-			case VK_RIGHT: return "→";
-			case VK_DOWN: return "↓";
-			case VK_SELECT: return "Select";
-			case VK_PRINT: return "Print";
-			case VK_EXECUTE: return "Execute";
-			case VK_SNAPSHOT: return "ScreenShot";
-			case VK_INSERT: return "Insert";
-			case VK_DELETE: return "Delete";
-			case VK_HELP: return "Help";
-			case 0x30: return "0";
-			case 0x31: return "1";
-			case 0x32: return "2";
-			case 0x33: return "3";
-			case 0x34: return "4";
-			case 0x35: return "5";
-			case 0x36: return "6";
-			case 0x37: return "7";
-			case 0x38: return "8";
-			case 0x39: return "9";
-			case 0x41: return "A";
-			case 0x42: return "B";
-			case 0x43: return "C";
-			case 0x44: return "D";
-			case 0x45: return "E";
-			case 0x46: return "F";
-			case 0x47: return "G";
-			case 0x48: return "H";
-			case 0x49: return "I";
-			case 0x4A: return "J";
-			case 0x4B: return "K";
-			case 0x4C: return "L";
-			case 0x4D: return "M";
-			case 0x4E: return "N";
-			case 0x4F: return "O";
-			case 0x50: return "P";
-			case 0x51: return "Q";
-			case 0x52: return "R";
-			case 0x53: return "S";
-			case 0x54: return "T";
-			case 0x55: return "U";
-			case 0x56: return "V";
-			case 0x57: return "W";
-			case 0x58: return "X";
-			case 0x59: return "Y";
-			case 0x5A: return "Z";
-			case VK_LWIN: return "LWin";
-			case VK_RWIN: return "RWin";
-			case VK_APPS: return "Apps";
-			case VK_SLEEP: return "Sleep";
-			case VK_NUMPAD0: return "Num0";
-			case VK_NUMPAD1: return "Num1";
-			case VK_NUMPAD2: return "Num2";
-			case VK_NUMPAD3: return "Num3";
-			case VK_NUMPAD4: return "Num4";
-			case VK_NUMPAD5: return "Num5";
-			case VK_NUMPAD6: return "Num6";
-			case VK_NUMPAD7: return "Num7";
-			case VK_NUMPAD8: return "Num8";
-			case VK_NUMPAD9: return "Num9";
-			case VK_MULTIPLY: return "Num*";
-			case VK_ADD: return "Num+";
-			case VK_SEPARATOR: return "NumEnter";
-			case VK_SUBTRACT: return "Num-";
-			case VK_DECIMAL: return "Num.";
-			case VK_DIVIDE: return "Num/";
-			case VK_F1: return "F1";
-			case VK_F2: return "F2";
-			case VK_F3: return "F3";
-			case VK_F4: return "F4";
-			case VK_F5: return "F5";
-			case VK_F6: return "F6";
-			case VK_F7: return "F7";
-			case VK_F8: return "F8";
-			case VK_F9: return "F9";
-			case VK_F10: return "F10";
-			case VK_F11: return "F11";
-			case VK_F12: return "F12";
-			case VK_F13: return "F13";
-			case VK_F14: return "F14";
-			case VK_F15: return "F15";
-			case VK_F16: return "F16";
-			case VK_F17: return "F17";
-			case VK_F18: return "F18";
-			case VK_F19: return "F19";
-			case VK_F20: return "F20";
-			case VK_F21: return "F21";
-			case VK_F22: return "F22";
-			case VK_F23: return "F23";
-			case VK_F24: return "F24";
-			case VK_NUMLOCK: return "NumLock";
-			case VK_SCROLL: return "ScrollLock";
-			case VK_LSHIFT: return "LShift";
-			case VK_RSHIFT: return "RShift";
-			case VK_LCONTROL: return "LCtrl";
-			case VK_RCONTROL: return "RCtrl";
-			case VK_LMENU: return "LAlt";
-			case VK_RMENU: return "RAlt";
-			case VK_BROWSER_BACK: return "BrowserBack";
-			case VK_BROWSER_FORWARD: return "BrowserForward";
-			case VK_BROWSER_REFRESH: return "BrowserRefresh";
-			case VK_BROWSER_STOP: return "BrowserStop";
-			case VK_BROWSER_SEARCH: return "BrowserSearch";
-			case VK_BROWSER_FAVORITES: return "BrowserFavorites";
-			case VK_BROWSER_HOME: return "BrowserHome";
-			case VK_VOLUME_MUTE: return "VolumeMute";
-			case VK_VOLUME_DOWN: return "VolumeDown";
-			case VK_VOLUME_UP: return "VolumeUp";
-			case VK_MEDIA_NEXT_TRACK: return "MediaNext";
-			case VK_MEDIA_PREV_TRACK: return "MediaPrev";
-			case VK_MEDIA_STOP: return "MediaStop";
-			case VK_MEDIA_PLAY_PAUSE: return "MediaPlay";
-			case VK_LAUNCH_MAIL: return "Mail";
-			case VK_LAUNCH_MEDIA_SELECT: return "MediaSelect";
-			case VK_LAUNCH_APP1: return "RunApp1";
-			case VK_LAUNCH_APP2: return "RunApp2";
-			case VK_OEM_1: return ";:";
-			case VK_OEM_PLUS: return "=+";
-			case VK_OEM_COMMA: return ",<";
-			case VK_OEM_MINUS: return "-_";
-			case VK_OEM_PERIOD: return ".>";
-			case VK_OEM_2: return "/?";
-			case VK_OEM_3: return "`~";
-			case VK_OEM_4: return "[{";
-			case VK_OEM_5: return "\\|";
-			case VK_OEM_6: return "]}";
-			case VK_OEM_7: return "\'\"";
-			case VK_OEM_8: return "Oem8";
-			case VK_OEM_102: return "Oem102";
-			case VK_PROCESSKEY: return "Process";
-			case VK_PACKET: return "Packet";
-			case VK_ATTN: return "Attn";
-			case VK_CRSEL: return "CrSel";
-			case VK_EXSEL: return "ExSel";
-			case VK_EREOF: return "ErEof";
-			case VK_PLAY: return "Play";
-			case VK_ZOOM: return "Zoom";
-			case VK_NONAME: return "NoName";
-			case VK_PA1: return "Pa1";
-			case VK_OEM_CLEAR: return "OemClear";
+			case VK_LBUTTON: return u8"左键";
+			case VK_RBUTTON: return u8"右键";
+			case VK_CANCEL: return u8"Cancel";
+			case VK_MBUTTON: return u8"中键";
+			case VK_XBUTTON1: return u8"侧键1";
+			case VK_XBUTTON2: return u8"侧键2";
+			case VK_WHEELUP: return u8"滚轮↑";
+			case VK_WHEELDOWN: return u8"滚轮↓";
+			case VK_BACK: return u8"Back";
+			case VK_TAB: return u8"Tab";
+			case VK_CLEAR: return u8"Clear";
+			case VK_RETURN: return u8"Return";
+			case VK_SHIFT: return u8"Shift";
+			case VK_CONTROL: return u8"Ctrl";
+			case VK_MENU: return u8"Alt";
+			case VK_PAUSE: return u8"Pause";
+			case VK_CAPITAL: return u8"CapsLock";
+			case VK_KANA: return u8"Kana";
+			case VK_JUNJA: return u8"Junja";
+			case VK_FINAL: return u8"Final";
+			case VK_HANJA: return u8"Hanja";
+			case VK_ESCAPE: return u8"Esc";
+			case VK_CONVERT: return u8"Convert";
+			case VK_NONCONVERT: return u8"NonConvert";
+			case VK_ACCEPT: return u8"Accept";
+			case VK_MODECHANGE: return u8"ModeChange";
+			case VK_SPACE: return u8"空格";
+			case VK_PRIOR: return u8"PageUp";
+			case VK_NEXT: return u8"PageDown";
+			case VK_END: return u8"End";
+			case VK_HOME: return u8"Home";
+			case VK_LEFT: return u8"←";
+			case VK_UP: return u8"↑";
+			case VK_RIGHT: return u8"→";
+			case VK_DOWN: return u8"↓";
+			case VK_SELECT: return u8"Select";
+			case VK_PRINT: return u8"Print";
+			case VK_EXECUTE: return u8"Execute";
+			case VK_SNAPSHOT: return u8"ScreenShot";
+			case VK_INSERT: return u8"Insert";
+			case VK_DELETE: return u8"Delete";
+			case VK_HELP: return u8"Help";
+			case 0x30: return u8"0";
+			case 0x31: return u8"1";
+			case 0x32: return u8"2";
+			case 0x33: return u8"3";
+			case 0x34: return u8"4";
+			case 0x35: return u8"5";
+			case 0x36: return u8"6";
+			case 0x37: return u8"7";
+			case 0x38: return u8"8";
+			case 0x39: return u8"9";
+			case 0x41: return u8"A";
+			case 0x42: return u8"B";
+			case 0x43: return u8"C";
+			case 0x44: return u8"D";
+			case 0x45: return u8"E";
+			case 0x46: return u8"F";
+			case 0x47: return u8"G";
+			case 0x48: return u8"H";
+			case 0x49: return u8"I";
+			case 0x4A: return u8"J";
+			case 0x4B: return u8"K";
+			case 0x4C: return u8"L";
+			case 0x4D: return u8"M";
+			case 0x4E: return u8"N";
+			case 0x4F: return u8"O";
+			case 0x50: return u8"P";
+			case 0x51: return u8"Q";
+			case 0x52: return u8"R";
+			case 0x53: return u8"S";
+			case 0x54: return u8"T";
+			case 0x55: return u8"U";
+			case 0x56: return u8"V";
+			case 0x57: return u8"W";
+			case 0x58: return u8"X";
+			case 0x59: return u8"Y";
+			case 0x5A: return u8"Z";
+			case VK_LWIN: return u8"LWin";
+			case VK_RWIN: return u8"RWin";
+			case VK_APPS: return u8"Apps";
+			case VK_SLEEP: return u8"Sleep";
+			case VK_NUMPAD0: return u8"Num0";
+			case VK_NUMPAD1: return u8"Num1";
+			case VK_NUMPAD2: return u8"Num2";
+			case VK_NUMPAD3: return u8"Num3";
+			case VK_NUMPAD4: return u8"Num4";
+			case VK_NUMPAD5: return u8"Num5";
+			case VK_NUMPAD6: return u8"Num6";
+			case VK_NUMPAD7: return u8"Num7";
+			case VK_NUMPAD8: return u8"Num8";
+			case VK_NUMPAD9: return u8"Num9";
+			case VK_MULTIPLY: return u8"Num*";
+			case VK_ADD: return u8"Num+";
+			case VK_SEPARATOR: return u8"NumEnter";
+			case VK_SUBTRACT: return u8"Num-";
+			case VK_DECIMAL: return u8"Num.";
+			case VK_DIVIDE: return u8"Num/";
+			case VK_F1: return u8"F1";
+			case VK_F2: return u8"F2";
+			case VK_F3: return u8"F3";
+			case VK_F4: return u8"F4";
+			case VK_F5: return u8"F5";
+			case VK_F6: return u8"F6";
+			case VK_F7: return u8"F7";
+			case VK_F8: return u8"F8";
+			case VK_F9: return u8"F9";
+			case VK_F10: return u8"F10";
+			case VK_F11: return u8"F11";
+			case VK_F12: return u8"F12";
+			case VK_F13: return u8"F13";
+			case VK_F14: return u8"F14";
+			case VK_F15: return u8"F15";
+			case VK_F16: return u8"F16";
+			case VK_F17: return u8"F17";
+			case VK_F18: return u8"F18";
+			case VK_F19: return u8"F19";
+			case VK_F20: return u8"F20";
+			case VK_F21: return u8"F21";
+			case VK_F22: return u8"F22";
+			case VK_F23: return u8"F23";
+			case VK_F24: return u8"F24";
+			case VK_NUMLOCK: return u8"NumLock";
+			case VK_SCROLL: return u8"ScrollLock";
+			case VK_LSHIFT: return u8"LShift";
+			case VK_RSHIFT: return u8"RShift";
+			case VK_LCONTROL: return u8"LCtrl";
+			case VK_RCONTROL: return u8"RCtrl";
+			case VK_LMENU: return u8"LAlt";
+			case VK_RMENU: return u8"RAlt";
+			case VK_BROWSER_BACK: return u8"BrowserBack";
+			case VK_BROWSER_FORWARD: return u8"BrowserForward";
+			case VK_BROWSER_REFRESH: return u8"BrowserRefresh";
+			case VK_BROWSER_STOP: return u8"BrowserStop";
+			case VK_BROWSER_SEARCH: return u8"BrowserSearch";
+			case VK_BROWSER_FAVORITES: return u8"BrowserFavorites";
+			case VK_BROWSER_HOME: return u8"BrowserHome";
+			case VK_VOLUME_MUTE: return u8"VolumeMute";
+			case VK_VOLUME_DOWN: return u8"VolumeDown";
+			case VK_VOLUME_UP: return u8"VolumeUp";
+			case VK_MEDIA_NEXT_TRACK: return u8"MediaNext";
+			case VK_MEDIA_PREV_TRACK: return u8"MediaPrev";
+			case VK_MEDIA_STOP: return u8"MediaStop";
+			case VK_MEDIA_PLAY_PAUSE: return u8"MediaPlay";
+			case VK_LAUNCH_MAIL: return u8"Mail";
+			case VK_LAUNCH_MEDIA_SELECT: return u8"MediaSelect";
+			case VK_LAUNCH_APP1: return u8"RunApp1";
+			case VK_LAUNCH_APP2: return u8"RunApp2";
+			case VK_OEM_1: return u8";:";
+			case VK_OEM_PLUS: return u8"=+";
+			case VK_OEM_COMMA: return u8",<";
+			case VK_OEM_MINUS: return u8"-_";
+			case VK_OEM_PERIOD: return u8".>";
+			case VK_OEM_2: return u8"/?";
+			case VK_OEM_3: return u8"`~";
+			case VK_OEM_4: return u8"[{";
+			case VK_OEM_5: return u8"\\|";
+			case VK_OEM_6: return u8"]}";
+			case VK_OEM_7: return u8"\'\"";
+			case VK_OEM_8: return u8"Oem8";
+			case VK_OEM_102: return u8"Oem102";
+			case VK_PROCESSKEY: return u8"Process";
+			case VK_PACKET: return u8"Packet";
+			case VK_ATTN: return u8"Attn";
+			case VK_CRSEL: return u8"CrSel";
+			case VK_EXSEL: return u8"ExSel";
+			case VK_EREOF: return u8"ErEof";
+			case VK_PLAY: return u8"Play";
+			case VK_ZOOM: return u8"Zoom";
+			case VK_NONAME: return u8"NoName";
+			case VK_PA1: return u8"Pa1";
+			case VK_OEM_CLEAR: return u8"OemClear";
 			}
 		}
-		return "";
+		return u8"";
 	}
 	static QString padName(short keyCode)
 	{
 		switch (keyCode)
 		{
-		case XBoxPadButton::a: return "PadA";
-		case XBoxPadButton::b: return "PadB";
-		case XBoxPadButton::x: return "PadX";
-		case XBoxPadButton::y: return "PadY";
-		case XBoxPadButton::up: return "Pad↑";
-		case XBoxPadButton::down: return "Pad↓";
-		case XBoxPadButton::left: return "Pad←";
-		case XBoxPadButton::right: return "Pad→";
-		case XBoxPadButton::l_joy_up: return "LJoy↑";
-		case XBoxPadButton::l_joy_down: return "LJoy↓";
-		case XBoxPadButton::l_joy_left: return "LJoy←";
-		case XBoxPadButton::l_joy_right: return "LJoy→";
-		case XBoxPadButton::r_joy_up: return "RJoy↑";
-		case XBoxPadButton::r_joy_down: return "RJoy↓";
-		case XBoxPadButton::r_joy_left: return "RJoy←";
-		case XBoxPadButton::r_joy_right: return "RJoy→";
-		case XBoxPadButton::l_top: return "PadLT";
-		case XBoxPadButton::l_bottom: return "PadLB";
-		case XBoxPadButton::r_top: return "PadRT";
-		case XBoxPadButton::r_bottom: return "PadRB";
+		case XBoxPadButton::a: return u8"PadA";
+		case XBoxPadButton::b: return u8"PadB";
+		case XBoxPadButton::x: return u8"PadX";
+		case XBoxPadButton::y: return u8"PadY";
+		case XBoxPadButton::up: return u8"Pad↑";
+		case XBoxPadButton::down: return u8"Pad↓";
+		case XBoxPadButton::left: return u8"Pad←";
+		case XBoxPadButton::right: return u8"Pad→";
+		case XBoxPadButton::l_joy_up: return u8"LJoy↑";
+		case XBoxPadButton::l_joy_down: return u8"LJoy↓";
+		case XBoxPadButton::l_joy_left: return u8"LJoy←";
+		case XBoxPadButton::l_joy_right: return u8"LJoy→";
+		case XBoxPadButton::r_joy_up: return u8"RJoy↑";
+		case XBoxPadButton::r_joy_down: return u8"RJoy↓";
+		case XBoxPadButton::r_joy_left: return u8"RJoy←";
+		case XBoxPadButton::r_joy_right: return u8"RJoy→";
+		case XBoxPadButton::l_top: return u8"PadLT";
+		case XBoxPadButton::l_bottom: return u8"PadLB";
+		case XBoxPadButton::r_top: return u8"PadRT";
+		case XBoxPadButton::r_bottom: return u8"PadRB";
 		}
-		return "None";
+		return u8"None";
 	}
 
 public:
@@ -373,36 +364,13 @@ public:
 		connect(padTimer, &QTimer::timeout, this, &This::XBoxPadStateTimer);
 	}
 
-	void setKeyboardEnable(bool enable)
-	{
-		this->keyboard = enable;
-	}
-	void setMouseEnable(bool enable)
-	{
-		this->mouse = enable;
-	}
-	void setWheelEnable(bool enable)
-	{
-		this->wheel = enable;
-	}
-	void setPadEnable(bool enable)
-	{
-		this->pad = enable;
-	}
-	void setMaxKeys(int maxKeys)
-	{
-		this->key_max = maxKeys;
-	}
-
-	int mode() const
-	{
-		return this->edit_mode;
-	}
-	void setMode(int mode = Mode::combination)
-	{
-		this->edit_mode = mode;
-	}
-
+	void setKeyboardEnable(bool enable) { this->keyboard = enable; }
+	void setMouseEnable(bool enable) { this->mouse = enable; }
+	void setWheelEnable(bool enable) { this->wheel = enable; }
+	void setPadEnable(bool enable) { this->pad = enable; }
+	void setMaxKeys(int maxKeys) { this->key_max = maxKeys; }
+	void setMode(int mode = Mode::combination) { this->edit_mode = mode; }
+	int mode() const { return this->edit_mode; }
 	Key key() const
 	{
 		Key key;
@@ -527,138 +495,6 @@ private:
 		case Qt::MiddleButton: return VK_MBUTTON;
 		case Qt::XButton1: return VK_XBUTTON1;
 		case Qt::XButton2: return VK_XBUTTON2;
-		}
-		return 0;
-	}
-	int KeyboardToKeyCode(int key, Qt::KeyboardModifiers mod) const
-	{
-		switch (key)
-		{
-		case Qt::Key_Escape: return VK_ESCAPE;
-		case Qt::Key_F1: return VK_F1;
-		case Qt::Key_F2: return VK_F2;
-		case Qt::Key_F3: return VK_F3;
-		case Qt::Key_F4: return VK_F4;
-		case Qt::Key_F5: return VK_F5;
-		case Qt::Key_F6: return VK_F6;
-		case Qt::Key_F7: return VK_F7;
-		case Qt::Key_F8: return VK_F8;
-		case Qt::Key_F9: return VK_F9;
-		case Qt::Key_F10: return VK_F10;
-		case Qt::Key_F11: return VK_F11;
-		case Qt::Key_F12: return VK_F12;
-		case Qt::Key_F13: return VK_F13;
-		case Qt::Key_F14: return VK_F14;
-		case Qt::Key_F15: return VK_F15;
-		case Qt::Key_F16: return VK_F16;
-		case Qt::Key_F17: return VK_F17;
-		case Qt::Key_F18: return VK_F18;
-		case Qt::Key_F19: return VK_F19;
-		case Qt::Key_F20: return VK_F20;
-		case Qt::Key_F21: return VK_F21;
-		case Qt::Key_F22: return VK_F22;
-		case Qt::Key_F23: return VK_F23;
-		case Qt::Key_F24: return VK_F24;
-
-		case Qt::Key_QuoteLeft: return VK_OEM_3;
-		case Qt::Key_AsciiTilde: return VK_OEM_3;
-		case Qt::Key_1: if (mod & Qt::KeypadModifier) return VK_NUMPAD1; return '1';
-		case Qt::Key_Exclam: return '1';
-		case Qt::Key_2: if (mod & Qt::KeypadModifier) return VK_NUMPAD2; return '2';
-		case Qt::Key_At: return '2';
-		case Qt::Key_3: if (mod & Qt::KeypadModifier) return VK_NUMPAD3; return '3';
-		case Qt::Key_NumberSign: return '3';
-		case Qt::Key_4: if (mod & Qt::KeypadModifier) return VK_NUMPAD4; return '4';
-		case Qt::Key_Dollar: return '4';
-		case Qt::Key_5: if (mod & Qt::KeypadModifier) return VK_NUMPAD5; return '5';
-		case Qt::Key_Percent: return '5';
-		case Qt::Key_6: if (mod & Qt::KeypadModifier) return VK_NUMPAD6; return '6';
-		case Qt::Key_AsciiCircum: return '6';
-		case Qt::Key_7: if (mod & Qt::KeypadModifier) return VK_NUMPAD7; return '7';
-		case Qt::Key_Ampersand: return '7';
-		case Qt::Key_8: if (mod & Qt::KeypadModifier) return VK_NUMPAD8; return '8';
-		case Qt::Key_Asterisk: if (mod & Qt::KeypadModifier) return VK_MULTIPLY; return '8';
-		case Qt::Key_9: if (mod & Qt::KeypadModifier) return VK_NUMPAD9; return '9';
-		case Qt::Key_ParenLeft: return '9';
-		case Qt::Key_0: if (mod & Qt::KeypadModifier) return VK_NUMPAD0; return '0';
-		case Qt::Key_ParenRight: return '0';
-		case Qt::Key_Minus: if (mod & Qt::KeypadModifier) return VK_SUBTRACT; return VK_OEM_MINUS;
-		case Qt::Key_Underscore: if (mod & Qt::KeypadModifier) return VK_SUBTRACT; return VK_OEM_MINUS;
-		case Qt::Key_Plus: if (mod & Qt::KeypadModifier) return VK_ADD; return VK_OEM_PLUS;
-		case Qt::Key_Equal: if (mod & Qt::KeypadModifier) return VK_ADD; return VK_OEM_PLUS;
-		case Qt::Key_Backspace: return VK_BACK;
-
-
-		case Qt::Key_Tab: return VK_TAB;
-		case Qt::Key_Q: return 'Q';
-		case Qt::Key_W: return 'W';
-		case Qt::Key_E: return 'E';
-		case Qt::Key_R: return 'R';
-		case Qt::Key_T: return 'T';
-		case Qt::Key_Y: return 'Y';
-		case Qt::Key_U: return 'U';
-		case Qt::Key_I: return 'I';
-		case Qt::Key_O: return 'O';
-		case Qt::Key_P: return 'P';
-		case Qt::Key_BracketLeft: return VK_OEM_4;
-		case Qt::Key_BraceLeft: return VK_OEM_4;
-		case Qt::Key_BracketRight: return VK_OEM_6;
-		case Qt::Key_BraceRight: return VK_OEM_6;
-		case Qt::Key_Backslash: return VK_OEM_5;
-		case Qt::Key_Bar: return VK_OEM_5;
-
-		case Qt::Key_CapsLock: return VK_CAPITAL;
-		case Qt::Key_A: return 'A';
-		case Qt::Key_S: return 'S';
-		case Qt::Key_D: return 'D';
-		case Qt::Key_F: return 'F';
-		case Qt::Key_G: return 'G';
-		case Qt::Key_H: return 'H';
-		case Qt::Key_J: return 'J';
-		case Qt::Key_K: return 'K';
-		case Qt::Key_L: return 'L';
-		case Qt::Key_Colon: return VK_OEM_1;
-		case Qt::Key_Semicolon: return VK_OEM_1;
-		case Qt::Key_QuoteDbl: return VK_OEM_7;
-		case Qt::Key_Apostrophe: return VK_OEM_7;
-		case Qt::Key_Return: return VK_RETURN;
-
-		case Qt::Key_Shift: return VK_SHIFT;
-		case Qt::Key_Z: return 'Z';
-		case Qt::Key_X: return 'X';
-		case Qt::Key_C: return 'C';
-		case Qt::Key_V: return 'V';
-		case Qt::Key_B: return 'B';
-		case Qt::Key_N: return 'N';
-		case Qt::Key_M: return 'M';
-		case Qt::Key_Comma: return VK_OEM_COMMA;
-		case Qt::Key_Less: return VK_OEM_COMMA;
-		case Qt::Key_Period: if (mod & Qt::KeypadModifier) return VK_DECIMAL; return VK_OEM_PERIOD;
-		case Qt::Key_Greater: if (mod & Qt::KeypadModifier) return VK_DECIMAL; return VK_OEM_PERIOD;
-		case Qt::Key_Slash: if (mod & Qt::KeypadModifier) return VK_DIVIDE; return VK_OEM_2;
-		case Qt::Key_Question: if (mod & Qt::KeypadModifier) return VK_DIVIDE; return VK_OEM_2;
-
-		case Qt::Key_Control: return VK_CONTROL;
-		case Qt::Key_Alt: return VK_MENU;
-		case Qt::Key_Space: return VK_SPACE;
-		case Qt::Key_Menu: return VK_APPS;
-
-		case Qt::Key_ScrollLock: return VK_SCROLL;
-		case Qt::Key_Pause: return VK_PAUSE;
-		case Qt::Key_Insert: return VK_INSERT;
-		case Qt::Key_Home: return VK_HOME;
-		case Qt::Key_PageUp: return VK_PRIOR;
-		case Qt::Key_Delete: return VK_DELETE;
-		case Qt::Key_End: return VK_END;
-		case Qt::Key_PageDown: return VK_NEXT;
-
-		case Qt::Key_Up: return VK_UP;
-		case Qt::Key_Left: return VK_LEFT;
-		case Qt::Key_Down: return VK_DOWN;
-		case Qt::Key_Right: return VK_RIGHT;
-
-		case Qt::Key_NumLock: return VK_NUMLOCK;
-		case Qt::Key_Enter: return VK_SEPARATOR;
 		}
 		return 0;
 	}
@@ -845,13 +681,13 @@ private:
 			QKeyEvent* key = (QKeyEvent*)e;
 			if (editing && keyboard && !key->isAutoRepeat())
 			{
-				int keyCode = KeyboardToKeyCode(key->key(), key->modifiers());
+				int keyCode = MapVirtualKeyW(key->nativeScanCode(), MAPVK_VSC_TO_VK_EX);
 				if (edit_mode == Mode::combination)
 				{
 					bool isMod = false;
-					if (keyCode == VK_CONTROL) s_mod_control = mod_control = true, isMod = true;
-					if (keyCode == VK_SHIFT) s_mod_shift = mod_shift = true, isMod = true;
-					if (keyCode == VK_MENU) s_mod_alt = mod_alt = true, isMod = true;
+					if (keyCode == VK_CONTROL || keyCode == VK_LCONTROL || keyCode == VK_RCONTROL) s_mod_control = mod_control = true, isMod = true;
+					if (keyCode == VK_SHIFT || keyCode == VK_LSHIFT || keyCode == VK_RSHIFT) s_mod_shift = mod_shift = true, isMod = true;
+					if (keyCode == VK_MENU || keyCode == VK_LMENU || keyCode == VK_RMENU) s_mod_alt = mod_alt = true, isMod = true;
 					if (isMod) update();
 					else press(keyCode);
 				}
@@ -864,13 +700,13 @@ private:
 			QKeyEvent* key = (QKeyEvent*)e;
 			if (editing && keyboard && !key->isAutoRepeat())
 			{
-				int keyCode = KeyboardToKeyCode(key->key(), key->modifiers());
+				int keyCode = MapVirtualKeyW(key->nativeScanCode(), MAPVK_VSC_TO_VK_EX);
 				if (edit_mode == Mode::combination)
 				{
 					bool isMod = false;
-					if (keyCode == VK_CONTROL) s_mod_control = false, isMod = true;
-					if (keyCode == VK_SHIFT) s_mod_shift = false, isMod = true;
-					if (keyCode == VK_MENU) s_mod_alt = false, isMod = true;
+					if (keyCode == VK_CONTROL || keyCode == VK_LCONTROL || keyCode == VK_RCONTROL) s_mod_control = mod_control = false, isMod = true;
+					if (keyCode == VK_SHIFT || keyCode == VK_LSHIFT || keyCode == VK_RSHIFT) s_mod_shift = mod_shift = false, isMod = true;
+					if (keyCode == VK_MENU || keyCode == VK_LMENU || keyCode == VK_RMENU) s_mod_alt = mod_alt = false, isMod = true;
 					if (!isMod) release(keyCode);
 				}
 				else release(keyCode);
@@ -929,7 +765,6 @@ private Q_SLOTS:
 					if (padNext.r_bottom != padPrev.r_bottom) padEvent(XBoxPadButton::r_bottom, padNext.r_bottom);
 					padPrev = padNext;
 				}
-				Sleep(32);
 			}
 		}
 	}
