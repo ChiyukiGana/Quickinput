@@ -41,11 +41,9 @@ private:
 		ui.param_widget->setDisabled(true);
 		if ("key")
 		{
-			ui.key_keyedit->setMode(QKeyEdit::Mode::solid);
-			ui.key_keyedit->setMaxKeys(2);
-			ui.key_keyedit->setMouseEnable(true);
-			ui.key_keyedit->setWheelEnable(true);
-			ui.key_keyedit->setPadEnable(true);
+			ui.key_keyedit->setCombinationMode(false);
+			ui.key_keyedit->setDeviceEnabled(true, true, true, true);
+			ui.key_keyedit->setMaximumKeys(2);
 		}
 		if ("mode")
 		{
@@ -109,12 +107,9 @@ private:
 			}
 			// key
 			{
-				QList<QKeyEdit::Key> keys;
-				QKeyEdit::Key key;
-				key.keyCode = macro.key & 0xFFFF;
-				keys.push_back(key);
-				key.keyCode = macro.key >> 16;
-				keys.push_back(key);
+				QKeyEditKeys keys;
+				if (macro.key & 0xFFFF) keys.append(macro.key & 0xFFFF);
+				if (macro.key >> 16) keys.append(macro.key >> 16);
 				ui.key_keyedit->setKeys(keys);
 			}
 			// edit
@@ -173,10 +168,10 @@ private:
 			});
 		connect(ui.key_keyedit, &QKeyEdit::changed, this, [this] {
 			if (!ItemCurrented()) return;
-			QList<QKeyEdit::Key> keys = ui.key_keyedit->keys();
+			QKeyEditKeys keys = ui.key_keyedit->keys();
 			DWORD vk = VK_SPACE;
-			if (keys.size() == 1) vk = keys[0].keyCode;
-			else if (keys.size() == 2) vk = keys[0].keyCode | (keys[1].keyCode << 16);
+			if (keys.size() == 1) vk = keys.first();
+			else if (keys.size() > 1) vk = keys.first() | (keys.last() << 16);
 			currentMacro->key = vk;
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);

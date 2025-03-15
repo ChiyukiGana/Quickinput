@@ -42,17 +42,13 @@ private:
 	void Init()
 	{
 		// state key
-		ui.stateKey_keyedit->setMode(QKeyEdit::Mode::solid);
-		ui.stateKey_keyedit->setMaxKeys(2);
-		ui.stateKey_keyedit->setMouseEnable(true);
-		ui.stateKey_keyedit->setWheelEnable(true);
-		ui.stateKey_keyedit->setPadEnable(true);
+		ui.stateKey_keyedit->setCombinationMode(false);
+		ui.stateKey_keyedit->setDeviceEnabled(true, true, true, true);
+		ui.stateKey_keyedit->setMaximumKeys(2);
 		// record key
-		ui.recordKey_keyedit->setMode(QKeyEdit::Mode::solid);
-		ui.recordKey_keyedit->setMaxKeys(2);
-		ui.recordKey_keyedit->setMouseEnable(true);
-		ui.recordKey_keyedit->setWheelEnable(true);
-		ui.recordKey_keyedit->setPadEnable(true);
+		ui.recordKey_keyedit->setCombinationMode(false);
+		ui.recordKey_keyedit->setDeviceEnabled(true, true, true, true);
+		ui.recordKey_keyedit->setMaximumKeys(2);
 		// theme
 		ui.theme_combo->setEditable(true);
 		ui.theme_combo->lineEdit()->setReadOnly(true); 
@@ -64,14 +60,15 @@ private:
 		ui.theme_combo->setCurrentIndex(Qi::set.theme);
 		if ("key edit")
 		{
-			QList<QKeyEdit::Key> keys;
-			keys.push_back(QKeyEdit::Key(sets->key & 0xFFFF));
-			keys.push_back(QKeyEdit::Key(sets->key >> 16));
+			QKeyEditKeys keys;
+			if (sets->key & 0xFFFF) keys.append(sets->key & 0xFFFF);
+			if (sets->key >> 16) keys.append(sets->key >> 16);
 			ui.stateKey_keyedit->setKeys(keys);
+
 			keys.clear();
 
-			keys.push_back(QKeyEdit::Key(sets->recKey & 0xFFFF));
-			keys.push_back(QKeyEdit::Key(sets->recKey >> 16));
+			if (sets->recKey & 0xFFFF) keys.append(sets->recKey & 0xFFFF);
+			if (sets->recKey >> 16) keys.append(sets->recKey >> 16);
 			ui.recordKey_keyedit->setKeys(keys);
 		}
 		ui.recordTrack_check->setChecked(sets->recTrack);
@@ -111,30 +108,32 @@ private:
 				QiJson::SaveJson();
 			}});
 		connect(ui.stateKey_keyedit, &QKeyEdit::changed, this, [this] {
-			QList<QKeyEdit::Key> keys = ui.stateKey_keyedit->keys();
+			QKeyEditKeys keys = ui.stateKey_keyedit->keys();
 			DWORD vk = VK_F8;
 			if (keys.size() == 1)
 			{
-				if (keys[0].keyCode == VK_LBUTTON) ui.stateKey_keyedit->setKey(QKeyEdit::Key(VK_F8));
-				else vk = keys[0].keyCode;
+				vk = keys.first();
+				if (vk = keys.first() == VK_LBUTTON) ui.stateKey_keyedit->setKey(VK_F8);
+				else vk = keys.first();
 			}
-			else if (keys.size() == 2)
+			else if (keys.size() > 1)
 			{
-				vk = keys[0].keyCode | (keys[1].keyCode << 16);
+				vk = keys.first() | (keys.last() << 16);
 			}
 			Qi::set.key = vk;
 			QiJson::SaveJson(); });
 		connect(ui.recordKey_keyedit, &QKeyEdit::changed, this, [this] {
-			QList<QKeyEdit::Key> keys = ui.recordKey_keyedit->keys();
+			QKeyEditKeys keys = ui.recordKey_keyedit->keys();
 			DWORD vk = VK_F8;
 			if (keys.size() == 1)
 			{
-				if (keys[0].keyCode == VK_LBUTTON) ui.recordKey_keyedit->setKey(QKeyEdit::Key(VK_F8));
-				else vk = keys[0].keyCode;
+				vk = keys.first();
+				if (vk = keys.first() == VK_LBUTTON) ui.recordKey_keyedit->setKey(VK_F8);
+				else vk = keys.first();
 			}
-			else if (keys.size() == 2)
+			else if (keys.size() > 1)
 			{
-				vk = keys[0].keyCode | (keys[1].keyCode << 16);
+				vk = keys.first() | (keys.last() << 16);
 			}
 			Qi::set.recKey = vk;
 			QiJson::SaveJson(); });

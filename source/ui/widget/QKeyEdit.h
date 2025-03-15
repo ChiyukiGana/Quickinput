@@ -1,150 +1,536 @@
 ﻿#pragma once
-#include <string>
 #include <windows.h>
-#include <Xinput.h>
-#include <qwidget.h>
-#include <qlayout.h>
-#include <qlineedit.h>
+#include <thread>
+#include <mutex>
 #include <qapplication.h>
+#include <qlineedit.h>
 #include <qtimer.h>
 #include <qevent.h>
+#ifdef Q_KEYEDIT_PAD_ENABLED
+#include <xinput.h>
 #pragma comment(lib,"xinput.lib")
-
+#endif
 #define VK_WHEELUP 0x0A
 #define VK_WHEELDOWN 0x0B
+class QKeyEdit;
+using QKeyEditKey = short;
+using QKeyEditKeys = QList<QKeyEditKey>;
+struct QKeyEditCombinationKey { short key; short mod; };
+struct XBoxPadButton
+{
+	enum
+	{
+		start = 0x0100,
+		back,
+		a,
+		b,
+		x,
+		y,
+		up,
+		down,
+		left,
+		right,
+		l_joy_press,
+		l_joy_up,
+		l_joy_down,
+		l_joy_left,
+		l_joy_right,
+		r_joy_press,
+		r_joy_up,
+		r_joy_down,
+		r_joy_left,
+		r_joy_right,
+		l_top,
+		r_top,
+		l_bottom,
+		r_bottom,
+	};
+};
+class QKeyEditEvent : public QEvent
+{
+	bool m_press;
+	short m_key;
+public:
+	QKeyEditEvent(bool press, short key) : QEvent((QEvent::Type)(QEvent::User + 1)), m_press(press), m_key(key) {}
+	bool press() const { return m_press; }
+	short key() const { return m_key; }
+};
+class QKeyEditHookManager : public QObject
+{
+	Q_OBJECT
+private:
+	HHOOK m_hook = nullptr;
+	DWORD m_threadId = 0;
+	std::recursive_mutex m_mutex;
+	QMap<QKeyEdit*, bool> m_instances;
+	static QKeyEditHookManager* s_instance;
+	QKeyEditHookManager(QObject* parent = nullptr) : QObject(parent) {}
+	~QKeyEditHookManager() { uninstallHook(); }
+public:
+	static QKeyEditHookManager* instance()
+	{
+		static QKeyEditHookManager inst;
+		return &inst;
+	}
+	void registerClient(QKeyEdit* client)
+	{
+		std::unique_lock lock(m_mutex);
+		m_instances[client] = true;
+		installHook();
+	}
+	void unregisterClient(QKeyEdit* client)
+	{
+		std::unique_lock lock(m_mutex);
+		m_instances.remove(client);
+		if (m_instances.isEmpty()) uninstallHook();
+	}
+private:
+	void installHook()
+	{
+		if (m_hook) return;
+		std::thread([this] {
+			m_hook = SetWindowsHookExW(WH_KEYBOARD_LL, [](int code, WPARAM wParam, LPARAM lParam) {
+				auto key = ((PKBDLLHOOKSTRUCT)lParam)->vkCode;
+				auto mgr = QKeyEditHookManager::instance();
 
-QT_BEGIN_NAMESPACE
-
+				if (code == HC_ACTION) {
+					bool press = (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN);
+					mgr->dispatchKeyEvent(key, press);
+				}
+				return CallNextHookEx(nullptr, code, wParam, lParam);
+			}, nullptr, 0);
+			MSG msg;
+			while (GetMessageW(&msg, nullptr, 0, 0)) {}
+		}).detach();
+	}
+	void uninstallHook()
+	{
+		if (m_hook)
+		{
+			UnhookWindowsHookEx(m_hook);
+			m_hook = nullptr;
+		}
+	}
+	void dispatchKeyEvent(short key, bool press)
+	{
+		std::unique_lock lock(m_mutex);
+		for (auto it = m_instances.keyBegin(); it != m_instances.keyEnd(); ++it)
+		{
+			QApplication::postEvent((QObject*)*it, new QKeyEditEvent(press, key));
+		}
+	}
+};
 class QKeyEdit : public QLineEdit
 {
-	Q_OBJECT;
+	Q_OBJECT
+		Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
+		Q_PROPERTY(bool combinationMode READ isCombinationMode WRITE setCombinationMode)
+		Q_PROPERTY(bool keybdEnabled READ isKeybdEnabled WRITE setKeybdEnabled)
+		Q_PROPERTY(bool mouseEnabled READ isMouseEnabled WRITE setMouseEnabled)
+		Q_PROPERTY(bool wheelEnabled READ isWheelEnabled WRITE setWheelEnabled)
+#ifdef Q_KEYEDIT_PAD_ENABLED
+		Q_PROPERTY(bool padEnabled READ isPadEnabled WRITE setPadEnabled)
+#endif
+		Q_PROPERTY(int maximumKeys READ maximumKeys WRITE setMaximumKeys)
+		Q_PROPERTY(QKeyEditCombinationKey combinationKey READ combinationKey WRITE setCombinationKey)
+		Q_PROPERTY(QKeyEditKey key READ key WRITE setKey)
+		Q_PROPERTY(QKeyEditKeys keys READ keys WRITE setKeys)
+private: /* propertys */
 	using This = QKeyEdit;
+#ifdef Q_KEYEDIT_PAD_ENABLED
+	QTimer m_timer = QTimer(this);
+	bool m_pad = false;
+#endif
+	bool m_readonly = false;
+	bool m_keybd = true;
+	bool m_mouse = false;
+	bool m_wheel = false;
+	bool m_combination = true;
+	int m_maximumKeys = 1;
+private:
+	bool m_editable = false;
+	QKeyEditKeys m_keys;
+	QKeyEditKey m_mod = 0;
+#ifdef Q_KEYEDIT_PAD_ENABLED
+	static constexpr int s_state_size = XBoxPadButton::r_bottom + 1;
+#else
+	static constexpr int s_state_size = 256;
+#endif
+	bool m_state[s_state_size] = {};
 
 public:
-	struct XBoxPadButton
+	QKeyEdit(QWidget* parent = nullptr) : QLineEdit(parent)
 	{
-		enum
-		{
-			start = 0x0100,
-			back,
-			a,
-			b,
-			x,
-			y,
-			up,
-			down,
-			left,
-			right,
-			l_joy_press,
-			l_joy_up,
-			l_joy_down,
-			l_joy_left,
-			l_joy_right,
-			r_joy_press,
-			r_joy_up,
-			r_joy_down,
-			r_joy_left,
-			r_joy_right,
-			l_top,
-			r_top,
-			l_bottom,
-			r_bottom,
-		};
-	};
-	struct Mode
+		QKeyEditHookManager::instance()->registerClient(this);
+		QLineEdit::setReadOnly(true);
+		QLineEdit::setAttribute(Qt::WA_InputMethodEnabled, false);
+		QLineEdit::setAlignment(Qt::AlignCenter);
+		QLineEdit::setContextMenuPolicy(Qt::ContextMenuPolicy::NoContextMenu);
+		QLineEdit::setText("none");
+#ifdef Q_KEYEDIT_PAD_ENABLED
+		m_timer.setInterval(100);
+		connect(&m_timer, &QTimer::timeout, this, &This::XBoxPadStateTimer);
+#endif
+	}
+	~QKeyEdit()
 	{
-		enum
-		{
-			solid,
-			combination
-		};
-	};
-	struct Key
-	{
-		enum Type
-		{
-			keyboard,
-			mouse,
-			pad
-		};
-		int keyCode = 0;
-		int modifiers = 0;
-		Key() {}
-		Key(int _keyCode, int _modifiers = 0) : keyCode(_keyCode), modifiers(_modifiers) {}
-	};
-
-private:
-	struct XBoxPadState
-	{
-		bool start;
-		bool back;
-		bool a;
-		bool b;
-		bool x;
-		bool y;
-		bool up;
-		bool down;
-		bool left;
-		bool right;
-		bool l_joy_press;
-		bool l_joy_up;
-		bool l_joy_down;
-		bool l_joy_left;
-		bool l_joy_right;
-		bool r_joy_press;
-		bool r_joy_up;
-		bool r_joy_down;
-		bool r_joy_left;
-		bool r_joy_right;
-		bool l_top;
-		bool r_top;
-		bool l_bottom;
-		bool r_bottom;
-	};
-	struct KeyState
-	{
-		int keyCode = 0;
-		bool press = false;
-	};
-
-private:
-	QTimer* padTimer = new QTimer(this);;
-
-	int edit_mode = Mode::combination;
-	int key_max = 0;
-	bool editing = false;
-	bool keyboard = false;
-	bool mouse = false;
-	bool wheel = false;
-	bool pad = false;
-
-	bool mod_control = false;
-	bool mod_shift = false;
-	bool mod_alt = false;
-	bool s_mod_control = false;
-	bool s_mod_shift = false;
-	bool s_mod_alt = false;
-
-	QList<KeyState> keystates;
-
-	XBoxPadState padPrev = {};
-	XBoxPadState padNext = {};
-
+		QKeyEditHookManager::instance()->unregisterClient(this);
+	}
+public: /* propertys */
+	bool isReadOnly() const { return m_readonly; }
+	void setReadOnly(bool readonly) { m_readonly = readonly; }
+	bool isKeybdEnabled() const { return m_keybd; }
+	void setKeybdEnabled(bool enabled) { m_keybd = enabled; }
+	bool isMouseEnabled() const { return m_mouse; }
+	void setMouseEnabled(bool enabled) { m_mouse = enabled; }
+	bool isWheelEnabled() const { return m_wheel; }
+	void setWheelEnabled(bool enabled) { m_wheel = enabled; }
+#ifdef Q_KEYEDIT_PAD_ENABLED
+	bool isPadEnabled() const { return m_pad; }
+	void setPadEnabled(bool enabled) { m_pad = enabled; }
+	void setDeviceEnabled(bool keybd, bool mouse = false, bool wheel = false, bool pad = false) { m_keybd = keybd, m_mouse = mouse, m_wheel = wheel, m_pad = pad; };
+#else
+	void setDeviceEnabled(bool keybd, bool mouse = false, bool wheel = false) { m_keybd = keybd, m_mouse = mouse, m_wheel = wheel; };
+#endif
+	bool isCombinationMode() const { return m_combination; }
+	void setCombinationMode(bool combinationMode) { m_combination = combinationMode; }
+	int maximumKeys() const { return m_maximumKeys; }
+	void setMaximumKeys(int maximumKeys) { m_maximumKeys = maximumKeys; }
+	QKeyEditCombinationKey combinationKey() const { if (m_keys.isEmpty()) return QKeyEditCombinationKey(); return { m_keys.first(), m_mod }; }
+	void setCombinationKey(const QKeyEditCombinationKey& combinationKey) { m_keys.clear(); m_keys.append(combinationKey.key); m_mod = combinationKey.mod; draw(); }
+	QKeyEditKey key() const { if (m_keys.isEmpty()) return QKeyEditKey(); return m_keys.first(); }
+	void setKey(const QKeyEditKey& key) { m_keys.clear(); m_keys.append(key); draw(); }
+	QKeyEditKeys keys() const { return m_keys; }
+	void setKeys(const QKeyEditKeys& keys) { m_keys = keys; draw(); }
 Q_SIGNALS:
-	void changed() const;
-
-public:
-	static bool isMouse(int keyCode) { return ((keyCode >= VK_LBUTTON && keyCode <= VK_XBUTTON2) || keyCode == VK_WHEELUP || keyCode == VK_WHEELDOWN); }
-	static bool isKeyboard(int keyCode) { return ((keyCode >= VK_CLEAR && keyCode <= VK_OEM_CLEAR) || keyCode == VK_BACK || keyCode == VK_TAB); }
-	static bool isPad(int keyCode) { return ((keyCode >= XBoxPadButton::start) && (keyCode <= XBoxPadButton::r_bottom)); }
-
-	static QString keyName(int keyCode)
+	void changed();
+private:
+	bool isPressed(short key)
 	{
-		if (isPad(keyCode))
+		for (auto i : m_keys) if (i == key) return true;
+		return false;
+	}
+	bool isAllReleased()
+	{
+		for (size_t i = 0; i < s_state_size; i++) if (m_state[i]) return false;
+		return true;
+	}
+	void draw()
+	{
+		QString text;
+		if (m_combination)
 		{
-			return padName(keyCode);
+			if (!m_keys.isEmpty() || m_mod)
+			{
+				if (m_mod & MOD_CONTROL) text = "Ctrl + ";
+				if (m_mod & MOD_SHIFT) text += "Shift + ";
+				if (m_mod & MOD_ALT) text += "Alt + ";
+				if (!m_keys.isEmpty()) text += keyName(m_keys.first());
+				if (m_editable) text += "...";
+			}
+			else text = "none";
 		}
 		else
+		{
+			if (!m_keys.isEmpty())
+			{
+				for (size_t i = 0; i < m_keys.size() - 1; i++) text += keyName(m_keys[i]) + QString(" + ");
+				text += keyName(m_keys.last());
+				if (m_editable)
+				{
+					if (m_keys.size() < m_maximumKeys) text += " + ...";
+					else text += " ...";
+				}
+			}
+			else text = "none";
+		}
+		QLineEdit::setText(text);
+	}
+	void press(short key)
+	{
+		if (m_editable)
+		{
+			m_state[key] = true;
+			if (!isPressed(key))
+			{
+				if (m_combination)
+				{
+					if (key == VK_LCONTROL || key == VK_RCONTROL) key = VK_CONTROL;
+					if (key == VK_LSHIFT || key == VK_RSHIFT) key = VK_SHIFT;
+					if (key == VK_LMENU || key == VK_RMENU) key = VK_MENU;
+
+					if (key == VK_CONTROL) m_mod |= MOD_CONTROL;
+					else if (key == VK_SHIFT) m_mod |= MOD_SHIFT;
+					else if (key == VK_MENU) m_mod |= MOD_ALT;
+					else
+					{
+						m_keys.clear();
+						m_keys.append(key);
+					}
+				}
+				else if (m_keys.size() < m_maximumKeys) m_keys.append(key);
+				draw();
+			}
+		}
+	}
+	void release(short key)
+	{
+		if (m_editable)
+		{
+			m_state[key] = false;
+			if (isAllReleased()) end();
+		}
+	}
+	void begin()
+	{
+		if (m_editable) return;
+		grabMouse(), grabKeyboard();
+		QLineEdit::setText("...");
+		memset(m_state, 0, s_state_size);
+		m_keys.clear();
+		m_mod = 0;
+		m_editable = true;
+#ifdef Q_KEYEDIT_PAD_ENABLED
+		if (m_pad) m_timer.start();
+#endif
+	}
+	void end()
+	{
+#ifdef Q_KEYEDIT_PAD_ENABLED
+		m_timer.stop();
+#endif
+		m_editable = false;
+		releaseMouse(), releaseKeyboard();
+		if (m_combination && m_keys.isEmpty()) m_mod = 0;
+		draw();
+		changed();
+	}
+protected:
+	bool event(QEvent* e)
+	{
+		if (e->type() == QEvent::MouseButtonPress)
+		{
+			if (m_editable && m_mouse && !m_combination)
+			{
+				QMouseEvent* mouse = (QMouseEvent*)e;
+				press(toKeyCode(mouse->button()));
+			}
+			return true;
+		}
+		else if (e->type() == QEvent::MouseButtonDblClick)
+		{
+			if (m_editable && m_mouse && !m_combination)
+			{
+				QMouseEvent* mouse = (QMouseEvent*)e;
+				press(toKeyCode(mouse->button()));
+			}
+			return true;
+		}
+		else if (e->type() == QEvent::MouseButtonRelease)
+		{
+			QMouseEvent* mouse = (QMouseEvent*)e;
+			if (m_editable)
+			{
+				if (m_mouse && !m_combination) release(toKeyCode(mouse->button()));
+			}
+			else if (mouse->button() == Qt::LeftButton && !m_readonly)
+			{
+				begin();
+			}
+			return true;
+		}
+		else if (e->type() == QEvent::Wheel)
+		{
+			QWheelEvent* mouseWheel = (QWheelEvent*)e;
+			if (m_editable && m_wheel && !m_combination)
+			{
+				if (mouseWheel->angleDelta().y() > 0) press(VK_WHEELUP), release(VK_WHEELUP);
+				else press(VK_WHEELDOWN), release(VK_WHEELDOWN);
+			}
+			return true;
+		}
+		return QLineEdit::event(e);
+	}
+	void customEvent(QEvent* e)
+	{
+		QKeyEditEvent* key = (QKeyEditEvent*)e;
+		if (key->press()) press(key->key());
+		else release(key->key());
+	}
+private:
+#ifdef Q_KEYEDIT_PAD_ENABLED
+private Q_SLOTS:
+	void XBoxPadStateTimer()
+	{
+		if (m_editable && m_pad && !m_combination)
+		{
+			XINPUT_STATE state = {};
+			if (XInputGetState(0, &state) == NO_ERROR)
+			{
+				if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_START) > m_state[XBoxPadButton::start])
+					press(XBoxPadButton::start);
+				else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_START) < m_state[XBoxPadButton::start])
+					release(XBoxPadButton::start);
+				if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_BACK) > m_state[XBoxPadButton::back])
+					press(XBoxPadButton::back);
+				else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_BACK) < m_state[XBoxPadButton::back])
+					release(XBoxPadButton::back);
+				if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_A) > m_state[XBoxPadButton::a])
+					press(XBoxPadButton::a);
+				else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_A) < m_state[XBoxPadButton::a])
+					release(XBoxPadButton::a);
+				if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_B) > m_state[XBoxPadButton::b])
+					press(XBoxPadButton::b);
+				else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_B) < m_state[XBoxPadButton::b])
+					release(XBoxPadButton::b);
+				if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_X) > m_state[XBoxPadButton::x])
+					press(XBoxPadButton::x);
+				else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_X) < m_state[XBoxPadButton::x])
+					release(XBoxPadButton::x);
+				if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_Y) > m_state[XBoxPadButton::y])
+					press(XBoxPadButton::y);
+				else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_Y) < m_state[XBoxPadButton::y])
+					release(XBoxPadButton::y);
+				if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) > m_state[XBoxPadButton::up])
+					press(XBoxPadButton::up);
+				else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) < m_state[XBoxPadButton::up])
+					release(XBoxPadButton::up);
+				if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) > m_state[XBoxPadButton::down])
+					press(XBoxPadButton::down);
+				else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) < m_state[XBoxPadButton::down])
+					release(XBoxPadButton::down);
+				if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) > m_state[XBoxPadButton::left])
+					press(XBoxPadButton::left);
+				else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) < m_state[XBoxPadButton::left])
+					release(XBoxPadButton::left);
+				if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) > m_state[XBoxPadButton::right])
+					press(XBoxPadButton::right);
+				else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) < m_state[XBoxPadButton::right])
+					release(XBoxPadButton::right);
+				if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) > m_state[XBoxPadButton::l_joy_press])
+					press(XBoxPadButton::l_joy_press);
+				else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) < m_state[XBoxPadButton::l_joy_press])
+					release(XBoxPadButton::l_joy_press);
+				if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) > m_state[XBoxPadButton::r_joy_press])
+					press(XBoxPadButton::r_joy_press);
+				else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) < m_state[XBoxPadButton::r_joy_press])
+					release(XBoxPadButton::r_joy_press);
+				if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) > m_state[XBoxPadButton::l_top])
+					press(XBoxPadButton::l_top);
+				else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) < m_state[XBoxPadButton::l_top])
+					release(XBoxPadButton::l_top);
+				if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) > m_state[XBoxPadButton::r_top])
+					press(XBoxPadButton::r_top);
+				else if ((state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) < m_state[XBoxPadButton::r_top])
+					release(XBoxPadButton::r_top);
+				if (state.Gamepad.sThumbLY > 0 && !m_state[XBoxPadButton::l_joy_up])
+					press(XBoxPadButton::l_joy_up);
+				else if (state.Gamepad.sThumbLY <= 0 && m_state[XBoxPadButton::l_joy_up])
+					release(XBoxPadButton::l_joy_up);
+				if (state.Gamepad.sThumbLY < 0 && !m_state[XBoxPadButton::l_joy_down])
+					press(XBoxPadButton::l_joy_down);
+				else if (state.Gamepad.sThumbLY >= 0 && m_state[XBoxPadButton::l_joy_down])
+					release(XBoxPadButton::l_joy_down);
+				if (state.Gamepad.sThumbLX < 0 && !m_state[XBoxPadButton::l_joy_left])
+					press(XBoxPadButton::l_joy_left);
+				else if (state.Gamepad.sThumbLX >= 0 && m_state[XBoxPadButton::l_joy_left])
+					release(XBoxPadButton::l_joy_left);
+				if (state.Gamepad.sThumbLX > 0 && !m_state[XBoxPadButton::l_joy_right])
+					press(XBoxPadButton::l_joy_right);
+				else if (state.Gamepad.sThumbLX <= 0 && m_state[XBoxPadButton::l_joy_right])
+					release(XBoxPadButton::l_joy_right);
+				if (state.Gamepad.sThumbRY > 0 && !m_state[XBoxPadButton::r_joy_up])
+					press(XBoxPadButton::r_joy_up);
+				else if (state.Gamepad.sThumbRY <= 0 && m_state[XBoxPadButton::r_joy_up])
+					release(XBoxPadButton::r_joy_up);
+				if (state.Gamepad.sThumbRY < 0 && !m_state[XBoxPadButton::r_joy_down])
+					press(XBoxPadButton::r_joy_down);
+				else if (state.Gamepad.sThumbRY >= 0 && m_state[XBoxPadButton::r_joy_down])
+					release(XBoxPadButton::r_joy_down);
+				if (state.Gamepad.sThumbRX < 0 && !m_state[XBoxPadButton::r_joy_left])
+					press(XBoxPadButton::r_joy_left);
+				else if (state.Gamepad.sThumbRX >= 0 && m_state[XBoxPadButton::r_joy_left])
+					release(XBoxPadButton::r_joy_left);
+				if (state.Gamepad.sThumbRX > 0 && !m_state[XBoxPadButton::r_joy_right])
+					press(XBoxPadButton::r_joy_right);
+				else if (state.Gamepad.sThumbRX <= 0 && m_state[XBoxPadButton::r_joy_right])
+					release(XBoxPadButton::r_joy_right);
+				if (state.Gamepad.bLeftTrigger > 0 && !m_state[XBoxPadButton::l_bottom])
+					press(XBoxPadButton::l_bottom);
+				else if (state.Gamepad.bLeftTrigger <= 0 && m_state[XBoxPadButton::l_bottom])
+					release(XBoxPadButton::l_bottom);
+				if (state.Gamepad.bRightTrigger > 0 && !m_state[XBoxPadButton::r_bottom])
+					press(XBoxPadButton::r_bottom);
+				else if (state.Gamepad.bRightTrigger <= 0 && m_state[XBoxPadButton::r_bottom])
+					release(XBoxPadButton::r_bottom);
+			}
+		}
+	}
+#endif
+public:
+	static bool isMouse(short keyCode)
+	{
+		return ((keyCode >= VK_LBUTTON && keyCode <= VK_XBUTTON2) || keyCode == VK_WHEELUP || keyCode == VK_WHEELDOWN);
+	}
+	static bool isKeyboard(short keyCode)
+	{
+		return ((keyCode >= VK_CLEAR && keyCode <= VK_OEM_CLEAR) || keyCode == VK_BACK || keyCode == VK_TAB);
+	}
+#ifdef Q_KEYEDIT_PAD_ENABLED
+	static bool isPad(short keyCode)
+	{
+		return ((keyCode >= XBoxPadButton::start) && (keyCode <= XBoxPadButton::r_bottom));
+	}
+#endif
+	static short toKeyCode(Qt::MouseButton key)
+	{
+		switch (key)
+		{
+		case Qt::LeftButton: return VK_LBUTTON;
+		case Qt::RightButton: return VK_RBUTTON;
+		case Qt::MiddleButton: return VK_MBUTTON;
+		case Qt::XButton1: return VK_XBUTTON1;
+		case Qt::XButton2: return VK_XBUTTON2;
+		}
+		return 0;
+	}
+#ifdef Q_KEYEDIT_PAD_ENABLED
+	static QString padName(short keyCode)
+	{
+		switch (keyCode)
+		{
+		case XBoxPadButton::a: return u8"PadA";
+		case XBoxPadButton::b: return u8"PadB";
+		case XBoxPadButton::x: return u8"PadX";
+		case XBoxPadButton::y: return u8"PadY";
+		case XBoxPadButton::up: return u8"Pad↑";
+		case XBoxPadButton::down: return u8"Pad↓";
+		case XBoxPadButton::left: return u8"Pad←";
+		case XBoxPadButton::right: return u8"Pad→";
+		case XBoxPadButton::l_joy_press: return u8"LJoy";
+		case XBoxPadButton::l_joy_up: return u8"LJoy↑";
+		case XBoxPadButton::l_joy_down: return u8"LJoy↓";
+		case XBoxPadButton::l_joy_left: return u8"LJoy←";
+		case XBoxPadButton::l_joy_right: return u8"LJoy→";
+		case XBoxPadButton::r_joy_press: return u8"RJoy";
+		case XBoxPadButton::r_joy_up: return u8"RJoy↑";
+		case XBoxPadButton::r_joy_down: return u8"RJoy↓";
+		case XBoxPadButton::r_joy_left: return u8"RJoy←";
+		case XBoxPadButton::r_joy_right: return u8"RJoy→";
+		case XBoxPadButton::l_top: return u8"PadLT";
+		case XBoxPadButton::l_bottom: return u8"PadLB";
+		case XBoxPadButton::r_top: return u8"PadRT";
+		case XBoxPadButton::r_bottom: return u8"PadRB";
+		}
+		return u8"none";
+	}
+#endif
+	static QString keyName(short keyCode)
+	{
+#ifdef Q_KEYEDIT_PAD_ENABLED
+		if (isPad(keyCode)) return padName(keyCode);
+		else
+#endif
 		{
 			switch (keyCode) {
 			case VK_LBUTTON: return u8"左键";
@@ -321,453 +707,6 @@ public:
 			case VK_OEM_CLEAR: return u8"OemClear";
 			}
 		}
-		return u8"";
-	}
-	static QString padName(short keyCode)
-	{
-		switch (keyCode)
-		{
-		case XBoxPadButton::a: return u8"PadA";
-		case XBoxPadButton::b: return u8"PadB";
-		case XBoxPadButton::x: return u8"PadX";
-		case XBoxPadButton::y: return u8"PadY";
-		case XBoxPadButton::up: return u8"Pad↑";
-		case XBoxPadButton::down: return u8"Pad↓";
-		case XBoxPadButton::left: return u8"Pad←";
-		case XBoxPadButton::right: return u8"Pad→";
-		case XBoxPadButton::l_joy_up: return u8"LJoy↑";
-		case XBoxPadButton::l_joy_down: return u8"LJoy↓";
-		case XBoxPadButton::l_joy_left: return u8"LJoy←";
-		case XBoxPadButton::l_joy_right: return u8"LJoy→";
-		case XBoxPadButton::r_joy_up: return u8"RJoy↑";
-		case XBoxPadButton::r_joy_down: return u8"RJoy↓";
-		case XBoxPadButton::r_joy_left: return u8"RJoy←";
-		case XBoxPadButton::r_joy_right: return u8"RJoy→";
-		case XBoxPadButton::l_top: return u8"PadLT";
-		case XBoxPadButton::l_bottom: return u8"PadLB";
-		case XBoxPadButton::r_top: return u8"PadRT";
-		case XBoxPadButton::r_bottom: return u8"PadRB";
-		}
-		return u8"None";
-	}
-
-public:
-	QKeyEdit(QWidget* parent = nullptr) : QLineEdit(parent)
-	{
-		setReadOnly(true);
-		setAttribute(Qt::WA_InputMethodEnabled, false);
-		setAlignment(Qt::AlignCenter);
-		setContextMenuPolicy(Qt::ContextMenuPolicy::NoContextMenu);
-		setKeyboardEnable(true);
-		setMode(Mode::combination);
-		setMaxKeys(1);
-		connect(padTimer, &QTimer::timeout, this, &This::XBoxPadStateTimer);
-	}
-
-	void setKeyboardEnable(bool enable) { this->keyboard = enable; }
-	void setMouseEnable(bool enable) { this->mouse = enable; }
-	void setWheelEnable(bool enable) { this->wheel = enable; }
-	void setPadEnable(bool enable) { this->pad = enable; }
-	void setMaxKeys(int maxKeys) { this->key_max = maxKeys; }
-	void setMode(int mode = Mode::combination) { this->edit_mode = mode; }
-	int mode() const { return this->edit_mode; }
-	Key key() const
-	{
-		Key key;
-		if (keystates.size())
-		{
-			key.keyCode = keystates[0].keyCode;
-			key.modifiers = ModifiersToMod();
-		}
-		return key;
-	}
-	QList<Key> keys() const
-	{
-		QList<Key> keys;
-		for (size_t i = 0; i < keystates.size(); i++)
-		{
-			Key key;
-			key.keyCode = keystates[i].keyCode;
-			key.modifiers = ModifiersToMod();
-			keys.push_back(key);
-		}
-		return keys;
-	}
-	void setKey(const Key& key)
-	{
-		clear();
-		if (key.keyCode)
-		{
-			QList<Key> keys;
-			keys.push_back(key);
-			setKeys(keys);
-		}
-	}
-	void setKeys(const QList<Key>& keys)
-	{
-		clear();
-		if (keys.size())
-		{
-			for (size_t i = 0; i < keys.size(); i++)
-			{
-				if (keys[i].keyCode)
-				{
-					KeyState keyState;
-					keyState.keyCode = keys[i].keyCode;
-					mod_control = keys[i].modifiers & MOD_CONTROL;
-					mod_shift = keys[i].modifiers & MOD_SHIFT;
-					mod_alt = keys[i].modifiers & MOD_ALT;
-					this->keystates.push_back(keyState);
-				}
-			}
-			update();
-		}
-	}
-
-	void clear()
-	{
-		keystates.clear();
-		mod_control = mod_shift = mod_alt = false;
-		s_mod_control = s_mod_shift = s_mod_alt = false;
-		update();
-	}
-
-private:
-	bool padState(XBoxPadState* pPadState) const
-	{
-		memset(pPadState, 0, sizeof(XBoxPadState));
-		XINPUT_STATE state = {};
-		if (XInputGetState(0, &state) == NO_ERROR)
-		{
-			if (state.Gamepad.wButtons & XINPUT_GAMEPAD_START) pPadState->start = true;
-			if (state.Gamepad.wButtons & XINPUT_GAMEPAD_BACK) pPadState->back = true;
-			if (state.Gamepad.wButtons & XINPUT_GAMEPAD_A) pPadState->a = true;
-			if (state.Gamepad.wButtons & XINPUT_GAMEPAD_B) pPadState->b = true;
-			if (state.Gamepad.wButtons & XINPUT_GAMEPAD_X) pPadState->x = true;
-			if (state.Gamepad.wButtons & XINPUT_GAMEPAD_Y) pPadState->y = true;
-			if (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) pPadState->up = true;
-			if (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) pPadState->down = true;
-			if (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) pPadState->left = true;
-			if (state.Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) pPadState->right = true;
-			if (state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_THUMB) pPadState->l_joy_press = true;
-			if (state.Gamepad.sThumbLY > 0) pPadState->l_joy_up = true;
-			if (state.Gamepad.sThumbLY < 0) pPadState->l_joy_down = true;
-			if (state.Gamepad.sThumbLX < 0) pPadState->l_joy_left = true;
-			if (state.Gamepad.sThumbLX > 0) pPadState->l_joy_right = true;
-			if (state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_THUMB) pPadState->r_joy_press = true;
-			if (state.Gamepad.sThumbRY > 0) pPadState->r_joy_up = true;
-			if (state.Gamepad.sThumbRY < 0) pPadState->r_joy_down = true;
-			if (state.Gamepad.sThumbRX < 0) pPadState->r_joy_left = true;
-			if (state.Gamepad.sThumbRX > 0) pPadState->r_joy_right = true;
-			if (state.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) pPadState->l_top = true;
-			if (state.Gamepad.wButtons & XINPUT_GAMEPAD_RIGHT_SHOULDER) pPadState->r_top = true;
-			pPadState->l_bottom = state.Gamepad.bLeftTrigger;
-			pPadState->r_bottom = state.Gamepad.bRightTrigger;
-			return true;
-		}
-		return false;
-	}
-
-	QString modName() const
-	{
-		QString text;
-		if (mod_control) text += L"Ctrl + ";
-		if (mod_shift) text += L"Shift + ";
-		if (mod_alt) text += L"Alt + ";
-		return text;
-	}
-
-	KeyState* find(int keyCode)
-	{
-		for (size_t i = 0; i < keystates.size(); i++)
-		{
-			if (keystates[i].keyCode == keyCode) return &keystates[i];
-		}
-		return nullptr;
-	}
-
-	int MouseToKeyCode(Qt::MouseButton key) const
-	{
-		switch (key)
-		{
-		case Qt::LeftButton: return VK_LBUTTON;
-		case Qt::RightButton: return VK_RBUTTON;
-		case Qt::MiddleButton: return VK_MBUTTON;
-		case Qt::XButton1: return VK_XBUTTON1;
-		case Qt::XButton2: return VK_XBUTTON2;
-		}
-		return 0;
-	}
-	int ModifiersToMod() const
-	{
-		int mod = 0;
-		if (mod_control) mod |= MOD_CONTROL;
-		if (mod_shift) mod |= MOD_SHIFT;
-		if (mod_alt) mod |= MOD_ALT;
-		return mod;
-	}
-
-	void update()
-	{
-		QString text;
-		int size = keystates.size();
-		if (size)
-		{
-			if (edit_mode == Mode::combination)
-			{
-				if (mod_control || mod_shift || mod_alt) text = modName();
-				text += keyName(keystates[0].keyCode);
-			}
-			else
-			{
-				for (size_t i = 0; i < size - 1; i++) text += keyName(keystates[i].keyCode) + " + ";
-				text += keyName(keystates[size - 1].keyCode);
-			}
-		}
-		else if (edit_mode == Mode::combination && (mod_control || mod_shift || mod_alt))
-		{
-			text = modName();
-		}
-		else if (editing) text = "...";
-		else text = "None";
-		setText(text);
-	}
-
-	void beginEdit()
-	{
-		clear();
-		grabMouse();
-		grabKeyboard();
-		padState(&padNext);
-		padPrev = padNext;
-		padTimer->start(32);
-		editing = true;
-		update();
-	}
-	void endEdit()
-	{
-		editing = false;
-		padTimer->stop();
-		releaseMouse();
-		releaseKeyboard();
-		if (edit_mode == Mode::combination)
-		{
-			int count = mod_control + mod_shift + mod_alt;
-			if (!keystates.size())
-			{
-				if (count == 1)
-				{
-					if (mod_control)
-					{
-						mod_control = mod_shift = mod_alt = false;
-						press(VK_CONTROL), release(VK_CONTROL);
-					}
-					if (mod_shift)
-					{
-						mod_control = mod_shift = mod_alt = false;
-						press(VK_SHIFT), release(VK_SHIFT);
-					}
-					if (mod_alt)
-					{
-						mod_control = mod_shift = mod_alt = false;
-						press(VK_MENU), release(VK_MENU);
-					}
-					return;
-				}
-				else mod_control = mod_shift = mod_alt = false;
-			}
-		}
-		update();
-		changed();
-	}
-
-	bool isReleased() const
-	{
-		for (size_t i = 0; i < keystates.size(); i++) if (keystates[i].press) return false;
-		if (s_mod_control || s_mod_shift || s_mod_alt) return false;
-		return true;
-	}
-	void release(int keyCode)
-	{
-		for (size_t i = 0; i < keystates.size(); i++) if (keystates[i].keyCode == keyCode) { keystates[i].press = false; return; }
-	}
-	void press(int keyCode)
-	{
-		if (edit_mode == Mode::combination)
-		{
-			if (keystates.size() == 1)
-			{
-				keystates[0].keyCode = keyCode;
-				keystates[0].press = true;
-				update();
-				return;
-			}
-		}
-		else if (edit_mode == Mode::solid)
-		{
-			if (keystates.size() >= key_max) return;
-			if ("reset state")
-			{
-				KeyState* pKeyState = find(keyCode);
-				if (pKeyState)
-				{
-					pKeyState->press = true;
-					update();
-					return;
-				}
-			}
-		}
-		if ("add new")
-		{
-			KeyState keyState;
-			keyState.keyCode = keyCode;
-			keyState.press = true;
-			keystates.push_back(keyState);
-			update();
-		}
-	}
-
-private:
-	bool event(QEvent* e)
-	{
-		if (e->type() == QEvent::MouseButtonPress)
-		{
-			QMouseEvent* mouse = (QMouseEvent*)e;
-			if (editing && mouse)
-			{
-				if (edit_mode != Mode::combination) press(MouseToKeyCode(mouse->button()));
-			}
-			return true;
-		}
-		else if (e->type() == QEvent::MouseButtonDblClick)
-		{
-			QMouseEvent* mouse = (QMouseEvent*)e;
-			if (editing && mouse)
-			{
-				if (edit_mode != Mode::combination) press(MouseToKeyCode(mouse->button()));
-			}
-			return true;
-		}
-		else if (e->type() == QEvent::MouseButtonRelease)
-		{
-			QMouseEvent* mouse = (QMouseEvent*)e;
-			if (editing && mouse)
-			{
-				if (edit_mode != Mode::combination) release(MouseToKeyCode(mouse->button()));
-				if (isReleased()) endEdit();
-			}
-			else if (mouse->button() == Qt::LeftButton)
-			{
-				beginEdit();
-			}
-			return true;
-		}
-		else if (e->type() == QEvent::Wheel)
-		{
-			QWheelEvent* mouseWheel = (QWheelEvent*)e;
-			if (editing && wheel)
-			{
-				if (edit_mode != Mode::combination)
-				{
-					if (mouseWheel->angleDelta().y() > 0) press(VK_WHEELUP), release(VK_WHEELUP);
-					else press(VK_WHEELDOWN), release(VK_WHEELDOWN);
-				}
-				if (isReleased()) endEdit();
-			}
-			return true;
-		}
-		else if (e->type() == QEvent::KeyPress)
-		{
-			QKeyEvent* key = (QKeyEvent*)e;
-			if (editing && keyboard && !key->isAutoRepeat())
-			{
-				int keyCode = MapVirtualKeyW(key->nativeScanCode(), MAPVK_VSC_TO_VK_EX);
-				if (edit_mode == Mode::combination)
-				{
-					bool isMod = false;
-					if (keyCode == VK_CONTROL || keyCode == VK_LCONTROL || keyCode == VK_RCONTROL) s_mod_control = mod_control = true, isMod = true;
-					if (keyCode == VK_SHIFT || keyCode == VK_LSHIFT || keyCode == VK_RSHIFT) s_mod_shift = mod_shift = true, isMod = true;
-					if (keyCode == VK_MENU || keyCode == VK_LMENU || keyCode == VK_RMENU) s_mod_alt = mod_alt = true, isMod = true;
-					if (isMod) update();
-					else press(keyCode);
-				}
-				else press(keyCode);
-			}
-			return true;
-		}
-		else if (e->type() == QEvent::KeyRelease)
-		{
-			QKeyEvent* key = (QKeyEvent*)e;
-			if (editing && keyboard && !key->isAutoRepeat())
-			{
-				int keyCode = MapVirtualKeyW(key->nativeScanCode(), MAPVK_VSC_TO_VK_EX);
-				if (edit_mode == Mode::combination)
-				{
-					bool isMod = false;
-					if (keyCode == VK_CONTROL || keyCode == VK_LCONTROL || keyCode == VK_RCONTROL) s_mod_control = mod_control = false, isMod = true;
-					if (keyCode == VK_SHIFT || keyCode == VK_LSHIFT || keyCode == VK_RSHIFT) s_mod_shift = mod_shift = false, isMod = true;
-					if (keyCode == VK_MENU || keyCode == VK_LMENU || keyCode == VK_RMENU) s_mod_alt = mod_alt = false, isMod = true;
-					if (!isMod) release(keyCode);
-				}
-				else release(keyCode);
-				if (isReleased()) endEdit();
-			}
-			return true;
-		}
-		return QLineEdit::event(e);
-	}
-
-	void padEvent(short keyCode, bool state)
-	{
-		if (editing && pad)
-		{
-			if (edit_mode != Mode::combination)
-			{
-				if (state) press(keyCode);
-				else release(keyCode);
-			}
-			if (isReleased()) endEdit();
-		}
-	}
-
-private Q_SLOTS:
-	void XBoxPadStateTimer()
-	{
-		if (editing && pad)
-		{
-			if (edit_mode != Mode::combination)
-			{
-				if (padState(&padNext))
-				{
-					if (padNext.start != padPrev.start) padEvent(XBoxPadButton::start, padNext.start);
-					if (padNext.back != padPrev.back) padEvent(XBoxPadButton::back, padNext.back);
-					if (padNext.a != padPrev.a) padEvent(XBoxPadButton::a, padNext.a);
-					if (padNext.b != padPrev.b) padEvent(XBoxPadButton::b, padNext.b);
-					if (padNext.x != padPrev.x) padEvent(XBoxPadButton::x, padNext.x);
-					if (padNext.y != padPrev.y) padEvent(XBoxPadButton::y, padNext.y);
-					if (padNext.up != padPrev.up) padEvent(XBoxPadButton::up, padNext.up);
-					if (padNext.down != padPrev.down) padEvent(XBoxPadButton::down, padNext.down);
-					if (padNext.left != padPrev.left) padEvent(XBoxPadButton::left, padNext.left);
-					if (padNext.right != padPrev.right) padEvent(XBoxPadButton::right, padNext.right);
-					if (padNext.l_joy_press != padPrev.l_joy_press) padEvent(XBoxPadButton::l_joy_press, padNext.l_joy_press);
-					if (padNext.l_joy_up != padPrev.l_joy_up) padEvent(XBoxPadButton::l_joy_up, padNext.l_joy_up);
-					if (padNext.l_joy_down != padPrev.l_joy_down) padEvent(XBoxPadButton::l_joy_down, padNext.l_joy_down);
-					if (padNext.l_joy_left != padPrev.l_joy_left) padEvent(XBoxPadButton::l_joy_left, padNext.l_joy_left);
-					if (padNext.l_joy_right != padPrev.l_joy_right) padEvent(XBoxPadButton::l_joy_right, padNext.l_joy_right);
-					if (padNext.r_joy_press != padPrev.r_joy_press) padEvent(XBoxPadButton::r_joy_press, padNext.r_joy_press);
-					if (padNext.r_joy_up != padPrev.r_joy_up) padEvent(XBoxPadButton::r_joy_up, padNext.r_joy_up);
-					if (padNext.r_joy_down != padPrev.r_joy_down) padEvent(XBoxPadButton::r_joy_down, padNext.r_joy_down);
-					if (padNext.r_joy_left != padPrev.r_joy_left) padEvent(XBoxPadButton::r_joy_left, padNext.r_joy_left);
-					if (padNext.r_joy_right != padPrev.r_joy_right) padEvent(XBoxPadButton::r_joy_right, padNext.r_joy_right);
-					if (padNext.l_top != padPrev.l_top) padEvent(XBoxPadButton::l_top, padNext.l_top);
-					if (padNext.r_top != padPrev.r_top) padEvent(XBoxPadButton::r_top, padNext.r_top);
-					if (padNext.l_bottom != padPrev.l_bottom) padEvent(XBoxPadButton::l_bottom, padNext.l_bottom);
-					if (padNext.r_bottom != padPrev.r_bottom) padEvent(XBoxPadButton::r_bottom, padNext.r_bottom);
-					padPrev = padNext;
-				}
-			}
-		}
+		return u8"none";
 	}
 };
-
-QT_END_NAMESPACE

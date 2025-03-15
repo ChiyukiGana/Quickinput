@@ -528,21 +528,17 @@ private:
 		}
 		if ("key edit")
 		{
-			ui.key_keyedit->setMode(QKeyEdit::Mode::solid);
-			ui.key_keyedit->setMouseEnable(true);
-			ui.key_keyedit->setWheelEnable(true);
-			ui.key_keyedit->setKey(QKeyEdit::Key(VK_LBUTTON));
+			ui.key_keyedit->setCombinationMode(false);
+			ui.key_keyedit->setDeviceEnabled(true, true, true, false);
+			ui.key_keyedit->setKey(VK_LBUTTON);
 
-			ui.keyState_keyedit->setMode(QKeyEdit::Mode::solid);
-			ui.keyState_keyedit->setMouseEnable(true);
-			ui.keyState_keyedit->setWheelEnable(true);
-			ui.keyState_keyedit->setPadEnable(true);
-			ui.keyState_keyedit->setKey(QKeyEdit::Key(VK_LBUTTON));
+			ui.keyState_keyedit->setCombinationMode(false);
+			ui.keyState_keyedit->setDeviceEnabled(true, true, true, true);
+			ui.keyState_keyedit->setKey(VK_LBUTTON);
 
-			ui.keyBlock_keyedit->setMode(QKeyEdit::Mode::solid);
-			ui.keyBlock_keyedit->setMouseEnable(true);
-			ui.keyBlock_keyedit->setWheelEnable(true);
-			ui.keyBlock_keyedit->setKey(QKeyEdit::Key(VK_LBUTTON));
+			ui.keyBlock_keyedit->setCombinationMode(false);
+			ui.keyBlock_keyedit->setDeviceEnabled(true, true, true, false);
+			ui.keyBlock_keyedit->setKey(VK_LBUTTON);
 		}
 		if ("timer")
 		{
@@ -2111,12 +2107,12 @@ private:
 		if (ui.key_down_radio->isChecked()) key.state = QiKey::down;
 		else if (ui.key_up_radio->isChecked()) key.state = QiKey::up;
 		else if (ui.key_click_radio->isChecked()) key.state = QiKey::click;
-		key.vk = ui.key_keyedit->key().keyCode;
+		key.vk = ui.key_keyedit->key();
 		return key;
 	}
 	QiKeyState WidgetGetKeyState() {
 		QiKeyState keyState;
-		keyState.vk = ui.keyState_keyedit->key().keyCode;
+		keyState.vk = ui.keyState_keyedit->key();
 		return keyState;
 	}
 	QiMouse WidgetGetMouse() {
@@ -2294,7 +2290,7 @@ private:
 	{
 		QiKeyBlock keyBlock;
 		if (ui.keyBlock_move_check->isChecked()) keyBlock.vk = 0;
-		else keyBlock.vk = ui.keyBlock_keyedit->key().keyCode;
+		else keyBlock.vk = ui.keyBlock_keyedit->key();
 		keyBlock.block = ui.keyBlock_on_radio->isChecked();
 		return keyBlock;
 	}
@@ -2340,11 +2336,11 @@ private:
 		if (key.state == QiKey::down) ui.key_down_radio->setChecked(true);
 		else if (key.state == QiKey::up) ui.key_up_radio->setChecked(true);
 		else if (key.state == QiKey::click) ui.key_click_radio->setChecked(true);
-		ui.key_keyedit->setKey(QKeyEdit::Key(key.vk));
+		ui.key_keyedit->setKey(key.vk);
 	}
 	void WidgetSet(const QiKeyState& keyState)
 	{
-		ui.keyState_keyedit->setKey(QKeyEdit::Key(keyState.vk));
+		ui.keyState_keyedit->setKey(keyState.vk);
 	}
 	void WidgetSet(const QiMouse& mouse)
 	{

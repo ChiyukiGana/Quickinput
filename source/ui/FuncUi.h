@@ -36,10 +36,9 @@ private:
 		if ("click")
 		{
 			ui.click_check->setChecked(func->quickClick.state);
-			ui.click_keyedit->setMode(QKeyEdit::Mode::solid);
-			ui.click_keyedit->setMouseEnable(true);
-			ui.click_keyedit->setWheelEnable(true);
-			ui.click_keyedit->setKey(QKeyEdit::Key(func->quickClick.key));
+			ui.click_keyedit->setCombinationMode(false);
+			ui.click_keyedit->setDeviceEnabled(true, true, true, false);
+			ui.click_keyedit->setKey(func->quickClick.key);
 			ui.click_delay_edit->setValidator(new QIntValidator(0, 99999, this));
 			ui.click_delay_edit->setText(QString::number(func->quickClick.delay));
 			ui.click_mode_combo->setEditable(true);
@@ -54,11 +53,9 @@ private:
 		if ("clock")
 		{
 			ui.clock_check->setChecked(func->showClock.state);
-			ui.clock_keyedit->setMode(QKeyEdit::Mode::solid);
-			ui.clock_keyedit->setMouseEnable(true);
-			ui.clock_keyedit->setWheelEnable(true);
-			ui.clock_keyedit->setPadEnable(true);
-			ui.clock_keyedit->setKey(QKeyEdit::Key(func->showClock.key));
+			ui.clock_keyedit->setCombinationMode(false);
+			ui.clock_keyedit->setDeviceEnabled(true, true, true, true);
+			ui.clock_keyedit->setKey(func->showClock.key);
 		}
 		if ("window")
 		{
@@ -77,7 +74,7 @@ private:
 	void Event()
 	{
 		connect(ui.click_check, &QCheckBox::clicked, this, [this](bool state) { func->quickClick.state = state; QiJson::SaveJson(); });
-		connect(ui.click_keyedit, &QKeyEdit::changed, this, [this] { func->quickClick.key = ui.click_keyedit->key().keyCode; QiJson::SaveJson(); });
+		connect(ui.click_keyedit, &QKeyEdit::changed, this, [this] { func->quickClick.key = ui.click_keyedit->key(); QiJson::SaveJson(); });
 		connect(ui.click_delay_edit, &QLineEdit::textEdited, this, [this](const QString& text) { func->quickClick.delay = text.toInt(); QiJson::SaveJson(); });
 		connect(ui.click_mode_combo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) { func->quickClick.mode = index; QiJson::SaveJson(); });
 		connect(ui.window_check, &QCheckBox::clicked, this, [this](bool state){ func->wndActive.state = state; QiJson::SaveJson(); });
@@ -91,7 +88,7 @@ private:
 			QiJson::SaveJson();
 			});
 		connect(ui.clock_check, &QCheckBox::clicked, this, [this](bool state) { func->showClock.state = state; QiJson::SaveJson(); });
-		connect(ui.clock_keyedit, &QKeyEdit::changed, this, [this] { func->showClock.key = ui.clock_keyedit->key().keyCode; QiJson::SaveJson(); });
+		connect(ui.clock_keyedit, &QKeyEdit::changed, this, [this] { func->showClock.key = ui.clock_keyedit->key(); QiJson::SaveJson(); });
 	}
 	bool event(QEvent* e)
 	{

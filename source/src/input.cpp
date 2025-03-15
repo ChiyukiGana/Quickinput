@@ -89,8 +89,6 @@ void InputTask(BYTE key, bool press, POINT cursor, KeyState keyState)
 ThreadQueue inputQueue;
 bool _stdcall InputHook::InputProc(BYTE key, bool press, POINT cursor, PULONG_PTR param)
 {
-	// VK_LSHIFT to VK_SHIFT
-	key = Input::Convert(key);
 	// is self
 	if (*param == key_info)
 	{
