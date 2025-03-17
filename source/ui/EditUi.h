@@ -37,8 +37,8 @@ class EditUi : public QDialog
 	const int popTextTimeMax = 9999;
 	// table column
 	const int tableColumn_type = 0;
-	const int tableColumn_disable = 1;
-	const int tableColumn_param = 2;
+	const int tableColumn_param = 1;
+	const int tableColumn_disable = 2;
 	const int tableColumn_mark = 3;
 	Ui::EditUiClass ui;
 	// edit
@@ -89,7 +89,7 @@ public:
 		Init();
 		Event();
 		StyleGroup();
-		WidgetUpdate();
+		Reload();
 	}
 private:
 	// >>>> new action set here
@@ -203,17 +203,17 @@ private:
 			ui.tabWidget->setProperty("group", "tab_widget");
 			ui.tabWidget->tabBar()->setProperty("group", "tab_widget_bar");
 		}
-		if ("action table")
-		{
-			ui.action_table->setProperty("group", "table");
-			ui.action_table->horizontalHeader()->setProperty("group", "table_header");
-			ui.action_table->verticalHeader()->setProperty("group", "table_header");
-			menu->setProperty("group", "context_menu");
-		}
 		if ("action list")
 		{
-			ui.jumpPoint_list->setProperty("group", "table");
-			ui.block_list->setProperty("group", "table");
+			ui.jumpPoint_list->setProperty("group", "action_table_header");
+			ui.block_list->setProperty("group", "action_table_header");
+		}
+		if ("action table")
+		{
+			ui.action_table->setProperty("group", "action_table");
+			ui.action_table->horizontalHeader()->setProperty("group", "action_table_header");
+			ui.action_table->verticalHeader()->setProperty("group", "action_table_header");
+			menu->setProperty("group", "context_menu");
 		}
 		if ("table corner button")
 		{
@@ -229,13 +229,14 @@ private:
 					box->setMargin(0);
 					QWidget* widget = new QWidget(corner);
 					box->addWidget(widget);
-					widget->setProperty("group", "table_header");
+					corner->setProperty("group", "action_table_header");
+					widget->setProperty("group", "action_table_header");
 					break;
 				}
 				else if (name == "QLineEdit")
 				{
 					QLineEdit* lineEdit = (QLineEdit*)obj;
-					lineEdit->setProperty("group", "table_header");
+					lineEdit->setProperty("group", "action_table_header");
 				}
 			}
 		}
@@ -515,6 +516,8 @@ private:
 		if ("table")
 		{
 			ui.action_table->setContextMenuPolicy(Qt::CustomContextMenu);
+			ui.action_table->setVerticalScrollMode(QAbstractItemView::ScrollMode::ScrollPerPixel);
+			ui.action_table->setHorizontalScrollMode(QAbstractItemView::ScrollMode::ScrollPerPixel);
 			ui.action_table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
 			ui.action_table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
 			ui.action_table->verticalHeader()->setDefaultSectionSize(0);
@@ -525,6 +528,7 @@ private:
 			ui.action_table->setColumnWidth(tableColumn_type, 100);
 			ui.action_table->setColumnWidth(tableColumn_disable, 50);
 			ui.action_table->setColumnWidth(tableColumn_param, 300);
+			ui.action_table->setStyleSheet("QTableCornerButton::section,QHeaderView::section{background-color:rgba(0,0,0,0)}QScrollBar{background:transparent}");
 		}
 		if ("key edit")
 		{
@@ -569,7 +573,7 @@ private:
 				{
 					actions = layers.last().actions;
 					setWindowTitle(layers.last().title);
-					WidgetUpdate();
+					Reload();
 				}
 				});
 			connect(ui.title_run_button, &QPushButton::clicked, this, [this] {
@@ -797,43 +801,70 @@ private:
 				if (state && (layers.size() == 1))
 				{
 					layers.first().actions = actionsRoot = actions = &macro->acRun;
-					TableUpdate();
+					TableReload();
 				}
 				});
 			connect(ui.action_ending_radio, &QRadioButton::toggled, this, [this](bool state) {
 				if (state && (layers.size() == 1))
 				{
 					layers.first().actions = actionsRoot = actions = &macro->acEnd;
-					TableUpdate();
+					TableReload();
 				}
 				});
+			// mark
 			connect(ui.action_table, &QTableWidget::cellChanged, this, [this](int row, int column) {
 				if (updating) return;
 				if (row < 0) return;
 				if (column != tableColumn_mark) return;
 				QiBase& base = actions->at(row).base();
 				base.mark = ui.action_table->item(row, tableColumn_mark)->text();
-				if ((base.type == QiType::jumpPoint) || (base.type == QiType::block)) TableUpdate();
+				if ((base.type == QiType::jumpPoint) || (base.type == QiType::block)) TableUpdate(row);
 				});
-			// mark edit
+			// mark, diable
 			connect(ui.action_table, &QTableWidget::cellClicked, this, [this](int row, int column) {
-				if (column == tableColumn_mark) ui.action_table->editItem(ui.action_table->item(row, tableColumn_mark));
+				if (column == tableColumn_mark)
+				{
+					ui.action_table->editItem(ui.action_table->item(row, tableColumn_mark));
+					TableUpdate(row);
+				}
 				else if (column == tableColumn_disable)
 				{
 					if (tableCurrentPrev.empty())
 					{
 						QiBase& base = actions->at(row).base();
 						base.disable = !base.disable;
+						TableUpdate(row);
 					}
 					else
 					{
+						bool exist = false;
 						for (auto& i : tableCurrentPrev)
 						{
-							QiBase& base = actions->at(i).base();
-							base.disable = !base.disable;
+							if (row == i)
+							{
+								exist = true;
+								break;
+							}
 						}
+						if (exist)
+						{
+							QiVector<int> selection = tableCurrentPrev;
+							for (auto& i : selection)
+							{
+								QiBase& base = actions->at(i).base();
+								base.disable = !base.disable;
+								TableUpdate(i);
+								TableSelection(selection);
+							}
+						}
+						else
+						{
+							QiBase& base = actions->at(row).base();
+							base.disable = !base.disable;
+							TableUpdate(row);
+						}
+						
 					}
-					TableUpdate();
 				}
 				});
 			// selection
@@ -1080,7 +1111,7 @@ private:
 		ui.jump_add_button->setDisabled(this);
 		ui.blockExec_add_button->setDisabled(this);
 	}
-	void WidgetUpdate()
+	void Reload()
 	{
 		setWindowTitle(layers.last().title);
 		if (layers.size() > 1)
@@ -1096,7 +1127,7 @@ private:
 			ui.block_add_button->setEnabled(true);
 			ui.block_edit_button->setEnabled(true);
 		}
-		TableUpdate();
+		TableReload();
 	}
 	// >>>> new action set here (include edit)
 	void NextEdit(bool edit2)
@@ -1240,7 +1271,7 @@ private:
 			layers.append(layer);
 			actions = next;
 			setWindowTitle(title);
-			WidgetUpdate();
+			Reload();
 		}
 	}
 	void SetWindowMode()
@@ -1401,7 +1432,7 @@ private:
 				}, type);
 		}
 	}
-	void ListJumpPointUpdate()
+	void ListJumpPointReload()
 	{
 		InvalidId(*actionsRoot, QiType::jump);
 		ui.jumpPoint_list->clear();
@@ -1414,7 +1445,7 @@ private:
 			ui.jumpPoint_list->addItem(item);
 		}
 	}
-	void ListBlockUpdate()
+	void ListBlockReload()
 	{
 		InvalidId(*actionsRoot, QiType::blockExec);
 		ui.block_list->clear();
@@ -1429,330 +1460,349 @@ private:
 	}
 	// table
 	// >>>> new action set here
-	void TableUpdate()
+	void TableUpdate(int index)
+	{
+		updating = true;
+		const Action& var = actions->at(index);
+		QString type;
+		QString param;
+		switch (var.index())
+		{
+		case QiType::end:
+		{
+			type = Qi::ui.text.acEnd;
+		} break;
+		case QiType::delay:
+		{
+			const QiDelay& ref = std::get<QiDelay>(var);
+			type = Qi::ui.text.acWait;
+
+			if (ref.min != ref.max)
+			{
+				param = QString::number(ref.min);
+				param += " ~ ";
+				param += QString::number(ref.max);
+			}
+			else param = QString::number(ref.min);
+		} break;
+		case QiType::key:
+		{
+			const QiKey& ref = std::get<QiKey>(var);
+			if (ref.state == QiKey::up) type = Qi::ui.text.acUp;
+			else if (ref.state == QiKey::down) type = Qi::ui.text.acDown;
+			else if (ref.state == QiKey::click) type = Qi::ui.text.acClick;
+
+			param = QKeyEdit::keyName(ref.vk);
+		} break;
+		case QiType::mouse:
+		{
+			const QiMouse& ref = std::get<QiMouse>(var);
+			if (ref.move) type = Qi::ui.text.acMove;
+			else type = Qi::ui.text.acPos;
+
+			param = QString::number(ref.x);
+			param += " - ";
+			param += QString::number(ref.y);
+			if (ref.ex)
+			{
+				param += "ㅤㅤ随机：";
+				param += QString::number(ref.ex);
+			}
+			if (ref.track)
+			{
+				param += "ㅤㅤ轨迹：";
+				param += QString::number(ref.speed);
+			}
+		} break;
+		case QiType::copyText:
+		{
+			const QiCopyText& ref = std::get<QiCopyText>(var);
+			type = Qi::ui.text.acText;
+
+			param = ref.text.mid(0, 32);
+			if (ref.text.size() > 31) param += "...";
+		} break;
+		case QiType::color:
+		{
+			const QiColor& ref = std::get<QiColor>(var);
+			type = Qi::ui.text.acColor;
+
+			param = "(";
+			param += QString::number(ref.rect.left);
+			param += ",";
+			param += QString::number(ref.rect.top);
+			param += ",";
+			param += QString::number(ref.rect.right);
+			param += ",";
+			param += QString::number(ref.rect.bottom);
+			param += ")　(";
+			param += QString::number(ref.rgbe.r);
+			param += ",";
+			param += QString::number(ref.rgbe.g);
+			param += ",";
+			param += QString::number(ref.rgbe.b);
+			param += ",";
+			param += QString::number(ref.rgbe.a);
+			param += ")";
+			if (ref.move) param += " 移动";
+		} break;
+		case QiType::loop:
+		{
+			const QiLoop& ref = std::get<QiLoop>(var);
+			type = Qi::ui.text.acLoop;
+
+			if ((ref.min == 0 && ref.max == 0))
+				param = "无限";
+			else if (ref.min == ref.max)
+				param = QString::number(ref.min);
+			else
+			{
+				param = QString::number(ref.min);
+				param += " ~ ";
+				param += QString::number(ref.max);
+			}
+		} break;
+		case QiType::loopEnd:
+		{
+			type = Qi::ui.text.acEndLoop;
+		} break;
+		case QiType::keyState:
+		{
+			const QiKeyState& ref = std::get<QiKeyState>(var);
+			type = Qi::ui.text.acKeyState;
+
+			param += QKeyEdit::keyName(ref.vk);
+		} break;
+		case QiType::resetPos:
+		{
+			type = Qi::ui.text.acResetPos;
+		} break;
+		case QiType::image:
+		{
+			const QiImage& ref = std::get<QiImage>(var);
+			type = Qi::ui.text.acImage;
+
+			param = "(";
+			param += QString::number(ref.rect.left);
+			param += ",";
+			param += QString::number(ref.rect.top);
+			param += ",";
+			param += QString::number(ref.rect.right);
+			param += ",";
+			param += QString::number(ref.rect.bottom);
+			param += ")　(";
+			param += QString::number(ref.map.width());
+			param += "x";
+			param += QString::number(ref.map.height());
+			param += ")　";
+			param += QString::number(ref.sim);
+			if (ref.move) param += "移动";
+		} break;
+		case QiType::popText:
+		{
+			const QiPopText& ref = std::get<QiPopText>(var);
+			type = Qi::ui.text.acPopText;
+
+			std::wstring w;
+			param = ref.text;
+			param += "　时长：";
+			param += QString::number(ref.time);
+			if (ref.sync) param += "等待";
+		} break;
+		case QiType::savePos:
+		{
+			type = Qi::ui.text.acSavePos;
+		} break;
+		case QiType::timer:
+		{
+			const QiTimer& ref = std::get<QiTimer>(var);
+			type = Qi::ui.text.acTimer;
+
+			if (ref.min == ref.max) param = QString::number(ref.min);
+			else
+			{
+				param = QString::number(ref.min);
+				param += " ~ ";
+				param += QString::number(ref.max);
+			}
+		} break;
+		case QiType::jump:
+		{
+			const QiJump& ref = std::get<QiJump>(var);
+			type = Qi::ui.text.acJump;
+
+			if (ref.id < 1)
+			{
+				param = "指定无效的锚点";
+			}
+			else
+			{
+				param = "id：";
+				param += QString::number(ref.id);
+			}
+		} break;
+		case QiType::jumpPoint:
+		{
+			const QiJumpPoint& ref = std::get<QiJumpPoint>(var);
+			type = Qi::ui.text.acJumpPoint;
+
+			param = "id：";
+			param += QString::number(ref.id);
+		} break;
+		case QiType::dialog:
+		{
+			const QiDialog& ref = std::get<QiDialog>(var);
+			type = Qi::ui.text.acDialog;
+
+			param = ref.title.mid(0, 8);
+			if (ref.title.size() > 7) param += "...";
+			param += " | ";
+			param += ref.text.mid(0, 16);
+			if (ref.text.size() > 15) param += "...";
+		} break;
+		case QiType::block:
+		{
+			const QiBlock& ref = std::get<QiBlock>(var);
+			type = Qi::ui.text.acBlock;
+
+			param = "id：";
+			param += QString::number(ref.id);
+		} break;
+		case QiType::blockExec:
+		{
+			const QiBlockExec& ref = std::get<QiBlockExec>(var);
+			type = Qi::ui.text.acBlockExec;
+
+			if (ref.id < 1)
+			{
+				param = "指定无效的块";
+			}
+			else
+			{
+				param = "id：";
+				param += QString::number(ref.id);
+			}
+		} break;
+		case QiType::quickInput:
+		{
+			const QiQuickInput& ref = std::get<QiQuickInput>(var);
+			type = Qi::ui.text.acQuickInput;
+
+			param = KeyToString(ref.chars);
+		} break;
+		case QiType::keyBlock:
+		{
+			const QiKeyBlock& ref = std::get<QiKeyBlock>(var);
+			type = Qi::ui.text.acKeyBlock;
+
+			if (ref.block) param = "屏蔽：";
+			else param = "解除：";
+			if (ref.vk) param += QKeyEdit::keyName(ref.vk);
+			else param += "鼠标移动";
+
+		} break;
+		case QiType::clock:
+		{
+			const QiClock& ref = std::get<QiClock>(var);
+			type = Qi::ui.text.acClock;
+
+			param = QString::fromStdString(QiTime::toString(ref.time));
+		} break;
+		case QiType::ocr:
+		{
+			const QiOcr& ref = std::get<QiOcr>(var);
+			type = Qi::ui.text.acOcr;
+
+			param = "(";
+			param += QString::number(ref.rect.left);
+			param += ",";
+			param += QString::number(ref.rect.top);
+			param += ",";
+			param += QString::number(ref.rect.right);
+			param += ",";
+			param += QString::number(ref.rect.bottom);
+			param += ")　";
+			param += ref.text.mid(0, 16);
+			if (ref.text.size() > 15) param += "...";
+		} break;
+		case QiType::varOperator:
+		{
+			const QiVarOperator& ref = std::get<QiVarOperator>(var);
+			type = Qi::ui.text.acVarOperator;
+
+			param = ref.script.mid(0, 32);
+			if (ref.script.size() > 31) param += "...";
+		} break;
+		case QiType::varCondition:
+		{
+			const QiVarCondition& ref = std::get<QiVarCondition>(var);
+			type = Qi::ui.text.acVarCondition;
+
+			param = ref.script.mid(0, 32);
+			if (ref.script.size() > 31) param += "...";
+		} break;
+		}
+
+		if (type.isEmpty())
+		{
+			ui.action_table->item(index, tableColumn_type)->setText("无效类型");
+		}
+		else
+		{
+			ui.action_table->item(index, tableColumn_type)->setText(type);
+
+			ui.action_table->item(index, tableColumn_param)->setText(param);
+
+			if (var.base().disable) ui.action_table->item(index, tableColumn_disable)->setText(Qi::ui.text.syOff);
+			else ui.action_table->item(index, tableColumn_disable)->setText(Qi::ui.text.syOn);
+
+			ui.action_table->item(index, tableColumn_mark)->setText(var.base().mark);
+		}
+		updating = false;
+	}
+	void TableUpdate(int begin, int end)
+	{
+		for (size_t i = begin; i <= end; i++) TableUpdate(i);
+	}
+	void TableReload()
 	{
 		tableCurrent.clear();
 		tableCurrentPrev.clear();
 		DisableMenus();
 		DisableButtons();
-		ListJumpPointUpdate();
-		ListBlockUpdate();
-
-		updating = true;
-		ui.action_table->clearMask();
+		ListJumpPointReload();
+		ListBlockReload();
 		ui.action_table->setRowCount(actions->size());
-		ui.action_table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-		ui.action_table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
-		ui.action_table->verticalHeader()->setDefaultSectionSize(0);
-
-		for (size_t i = 0; i < actions->size(); i++)
+		if (ui.action_table->rowCount() > 0)
 		{
-			const Action& var = actions->at(i);
-
-			QString type;
-			QString param;
-			QString mark = var.base().mark;
-			bool failed = false;
-
-			switch (var.index())
+			for (size_t i = 0; i < ui.action_table->rowCount(); i++)
 			{
-			case QiType::end:
-			{
-				type = Qi::ui.text.acEnd;
-			} break;
-			case QiType::delay:
-			{
-				const QiDelay& ref = std::get<QiDelay>(var);
-				type = Qi::ui.text.acWait;
-
-				if (ref.min != ref.max)
-				{
-					param = QString::number(ref.min);
-					param += " ~ ";
-					param += QString::number(ref.max);
-				}
-				else param = QString::number(ref.min);
-			} break;
-			case QiType::key:
-			{
-				const QiKey& ref = std::get<QiKey>(var);
-				if (ref.state == QiKey::up) type = Qi::ui.text.acUp;
-				else if (ref.state == QiKey::down) type = Qi::ui.text.acDown;
-				else if (ref.state == QiKey::click) type = Qi::ui.text.acClick;
-
-				param = QKeyEdit::keyName(ref.vk);
-			} break;
-			case QiType::mouse:
-			{
-				const QiMouse& ref = std::get<QiMouse>(var);
-				if (ref.move) type = Qi::ui.text.acMove;
-				else type = Qi::ui.text.acPos;
-
-				param = QString::number(ref.x);
-				param += " - ";
-				param += QString::number(ref.y);
-				if (ref.ex)
-				{
-					param += "ㅤㅤ随机：";
-					param += QString::number(ref.ex);
-				}
-				if (ref.track)
-				{
-					param += "ㅤㅤ轨迹：";
-					param += QString::number(ref.speed);
-				}
-			} break;
-			case QiType::copyText:
-			{
-				const QiCopyText& ref = std::get<QiCopyText>(var);
-				type = Qi::ui.text.acText;
-
-				param = ref.text.mid(0, 32);
-				if (ref.text.size() > 31) param += "...";
-			} break;
-			case QiType::color:
-			{
-				const QiColor& ref = std::get<QiColor>(var);
-				type = Qi::ui.text.acColor;
-
-				param = "(";
-				param += QString::number(ref.rect.left);
-				param += ",";
-				param += QString::number(ref.rect.top);
-				param += ",";
-				param += QString::number(ref.rect.right);
-				param += ",";
-				param += QString::number(ref.rect.bottom);
-				param += ")　(";
-				param += QString::number(ref.rgbe.r);
-				param += ",";
-				param += QString::number(ref.rgbe.g);
-				param += ",";
-				param += QString::number(ref.rgbe.b);
-				param += ",";
-				param += QString::number(ref.rgbe.a);
-				param += ")";
-				if (ref.move) param += " 移动";
-			} break;
-			case QiType::loop:
-			{
-				const QiLoop& ref = std::get<QiLoop>(var);
-				type = Qi::ui.text.acLoop;
-
-				if ((ref.min == 0 && ref.max == 0))
-					param = "无限";
-				else if (ref.min == ref.max)
-					param = QString::number(ref.min);
-				else
-				{
-					param = QString::number(ref.min);
-					param += " ~ ";
-					param += QString::number(ref.max);
-				}
-			} break;
-			case QiType::loopEnd:
-			{
-				type = Qi::ui.text.acEndLoop;
-			} break;
-			case QiType::keyState:
-			{
-				const QiKeyState& ref = std::get<QiKeyState>(var);
-				type = Qi::ui.text.acKeyState;
-
-				param += QKeyEdit::keyName(ref.vk);
-			} break;
-			case QiType::resetPos:
-			{
-				type = Qi::ui.text.acResetPos;
-			} break;
-			case QiType::image:
-			{
-				const QiImage& ref = std::get<QiImage>(var);
-				type = Qi::ui.text.acImage;
-
-				param = "(";
-				param += QString::number(ref.rect.left);
-				param += ",";
-				param += QString::number(ref.rect.top);
-				param += ",";
-				param += QString::number(ref.rect.right);
-				param += ",";
-				param += QString::number(ref.rect.bottom);
-				param += ")　(";
-				param += QString::number(ref.map.width());
-				param += "x";
-				param += QString::number(ref.map.height());
-				param += ")　";
-				param += QString::number(ref.sim);
-				if (ref.move) param += "移动";
-			} break;
-			case QiType::popText:
-			{
-				const QiPopText& ref = std::get<QiPopText>(var);
-				type = Qi::ui.text.acPopText;
-
-				std::wstring w;
-				param = ref.text;
-				param += "　时长：";
-				param += QString::number(ref.time);
-				if (ref.sync) param += "等待";
-			} break;
-			case QiType::savePos:
-			{
-				type = Qi::ui.text.acSavePos;
-			} break;
-			case QiType::timer:
-			{
-				const QiTimer& ref = std::get<QiTimer>(var);
-				type = Qi::ui.text.acTimer;
-
-				if (ref.min == ref.max) param = QString::number(ref.min);
-				else
-				{
-					param = QString::number(ref.min);
-					param += " ~ ";
-					param += QString::number(ref.max);
-				}
-			} break;
-			case QiType::jump:
-			{
-				const QiJump& ref = std::get<QiJump>(var);
-				type = Qi::ui.text.acJump;
-
-				if (ref.id < 1)
-				{
-					param = "指定无效的锚点";
-				}
-				else
-				{
-					param = "id：";
-					param += QString::number(ref.id);
-				}
-			} break;
-			case QiType::jumpPoint:
-			{
-				const QiJumpPoint& ref = std::get<QiJumpPoint>(var);
-				type = Qi::ui.text.acJumpPoint;
-
-				param = "id：";
-				param += QString::number(ref.id);
-			} break;
-			case QiType::dialog:
-			{
-				const QiDialog& ref = std::get<QiDialog>(var);
-				type = Qi::ui.text.acDialog;
-
-				param = ref.title.mid(0, 8);
-				if (ref.title.size() > 7) param += "...";
-				param += " | ";
-				param += ref.text.mid(0, 16);
-				if (ref.text.size() > 15) param += "...";
-			} break;
-			case QiType::block:
-			{
-				const QiBlock& ref = std::get<QiBlock>(var);
-				type = Qi::ui.text.acBlock;
-
-				param = "id：";
-				param += QString::number(ref.id);
-			} break;
-			case QiType::blockExec:
-			{
-				const QiBlockExec& ref = std::get<QiBlockExec>(var);
-				type = Qi::ui.text.acBlockExec;
-
-				if (ref.id < 1)
-				{
-					param = "指定无效的块";
-				}
-				else
-				{
-					param = "id：";
-					param += QString::number(ref.id);
-				}
-			} break;
-			case QiType::quickInput:
-			{
-				const QiQuickInput& ref = std::get<QiQuickInput>(var);
-				type = Qi::ui.text.acQuickInput;
-
-				param = KeyToString(ref.chars);
-			} break;
-			case QiType::keyBlock:
-			{
-				const QiKeyBlock& ref = std::get<QiKeyBlock>(var);
-				type = Qi::ui.text.acKeyBlock;
-
-				if (ref.block) param = "屏蔽：";
-				else param = "解除：";
-				if (ref.vk) param += QKeyEdit::keyName(ref.vk);
-				else param += "鼠标移动";
-
-			} break;
-			case QiType::clock:
-			{
-				const QiClock& ref = std::get<QiClock>(var);
-				type = Qi::ui.text.acClock;
-
-				param = QString::fromStdString(QiTime::toString(ref.time));
-			} break;
-			case QiType::ocr:
-			{
-				const QiOcr& ref = std::get<QiOcr>(var);
-				type = Qi::ui.text.acOcr;
-
-				param = "(";
-				param += QString::number(ref.rect.left);
-				param += ",";
-				param += QString::number(ref.rect.top);
-				param += ",";
-				param += QString::number(ref.rect.right);
-				param += ",";
-				param += QString::number(ref.rect.bottom);
-				param += ")　";
-				param += ref.text.mid(0, 16);
-				if (ref.text.size() > 15) param += "...";
-			} break;
-			case QiType::varOperator:
-			{
-				const QiVarOperator& ref = std::get<QiVarOperator>(var);
-				type = Qi::ui.text.acVarOperator;
-
-				param = ref.script.mid(0, 32);
-				if (ref.script.size() > 31) param += "...";
-			} break;
-			case QiType::varCondition:
-			{
-				const QiVarCondition& ref = std::get<QiVarCondition>(var);
-				type = Qi::ui.text.acVarCondition;
-
-				param = ref.script.mid(0, 32);
-				if (ref.script.size() > 31) param += "...";
-			} break;
-			default: type = "加载失败", failed = true; break;
-			}
-
-			QTableWidgetItem* item = new QTableWidgetItem(type);
-			item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			ui.action_table->setItem(i, tableColumn_type, item);
-
-			if (!failed)
-			{
-				if (var.base().disable) item = new QTableWidgetItem(Qi::ui.text.syOff);
-				else item = new QTableWidgetItem(Qi::ui.text.syOn);
-				item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-				ui.action_table->setItem(i, tableColumn_disable, item);
-
-				item = new QTableWidgetItem(param);
-				item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-				ui.action_table->setItem(i, tableColumn_param, item);
-
-				item = new QTableWidgetItem(mark);
-				item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-				ui.action_table->setItem(i, tableColumn_mark, item);
+				updating = true;
+				ui.action_table->setItem(i, tableColumn_type, new QTableWidgetItem());
+				ui.action_table->item(i, tableColumn_type)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+				ui.action_table->setItem(i, tableColumn_param, new QTableWidgetItem());
+				ui.action_table->item(i, tableColumn_param)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+				ui.action_table->setItem(i, tableColumn_disable, new QTableWidgetItem());
+				ui.action_table->item(i, tableColumn_disable)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+				ui.action_table->setItem(i, tableColumn_mark, new QTableWidgetItem());
+				ui.action_table->item(i, tableColumn_mark)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+				TableUpdate(i);
+				updating = false;
 			}
 		}
-		updating = false;
+	}
+	void TableInsert(int index)
+	{
+		ui.action_table->insertRow(index);
+		TableUpdate(index);
+	}
+	void TableRemove(int index)
+	{
+		ui.action_table->removeRow(index);
+	}
+	void TableSelection(const QiVector<int> selection)
+	{
+		for (auto& i : selection) for (size_t c = 0; c < ui.action_table->columnCount(); c++) ui.action_table->setItemSelected(ui.action_table->item(i, c), true);
 	}
 
 	// quickinput
@@ -2018,31 +2068,34 @@ private:
 	{
 		int count = ui.action_table->rowCount();
 		if (count < 1) return;
-		QList<int> after;
-		for (int i = 0, p = 0, t = 0, over = 0; i < tableCurrent.size(); i++)
+		if (tableCurrent.not_empty())
 		{
-			if (up)
+			QiVector<int> after;
+			for (int i = 0, p = 0, t = 0, over = 0; i < tableCurrent.size(); i++)
 			{
-				over = 0 - (tableCurrent.front() - len);
-				if (over < 0) over = 0;
-				p = tableCurrent[i];
-				t = p - len + over;
-				after.append(t);
-				actions->move(p, t);
+				if (up)
+				{
+					over = 0 - (tableCurrent.front() - len);
+					if (over < 0) over = 0;
+					p = tableCurrent[i];
+					t = p - len + over;
+					after.append_copy(t);
+					actions->move(p, t);
+				}
+				else
+				{
+					over = count - (tableCurrent.back() + len + 1);
+					if (over > 0) over = 0;
+					p = tableCurrent[tableCurrent.size() - i - 1];
+					t = p + len + over;
+					after.append_copy(t);
+					actions->move(p, t);
+				}
 			}
-			else
-			{
-				over = count - (tableCurrent.back() + len + 1);
-				if (over > 0) over = 0;
-				p = tableCurrent[tableCurrent.size() - i - 1];
-				t = p + len + over;
-				after.append(t);
-				actions->move(p, t);
-			}
+			TableReload();
+			ui.action_table->clearSelection();
+			TableSelection(after);
 		}
-		TableUpdate();
-		ui.action_table->clearSelection();
-		for (auto& i : after) for (size_t c = 0; c < ui.action_table->columnCount(); c++) ui.action_table->setItemSelected(ui.action_table->item(i, c), true);
 	}
 	void ItemAdd(int type)
 	{
@@ -2050,7 +2103,7 @@ private:
 		if (p < 0) p = actions->size();
 		else p++;
 		actions->insert(p, ItemGet(type));
-		TableUpdate();
+		TableReload();
 		ui.action_table->setCurrentItem(ui.action_table->item(p, tableColumn_type));
 	}
 	void ItemChange(int type)
@@ -2065,8 +2118,8 @@ private:
 			base_new.mark = std::move(base_old.mark);
 			base_new.next = std::move(base_old.next);
 			base_new.next2 = std::move(base_old.next2);
+			TableReload();
 		}
-		TableUpdate();
 		ui.action_table->clearSelection();
 	}
 	void ItemDel()
@@ -2075,7 +2128,7 @@ private:
 		std::vector<size_t> positions;
 		for (auto& i : tableCurrent) positions.push_back(i);
 		actions->remove(positions);
-		TableUpdate();
+		TableReload();
 		ui.action_table->setCurrentItem(0);
 	}
 	void ItemCut()
@@ -2099,7 +2152,7 @@ private:
 		// reset block id
 		UniqueActionsId(LoadIds(*actionsRoot, QiType::block), Qi::clipboard, QiType::block);
 		actions->insert_copy(p, Qi::clipboard);
-		TableUpdate();
+		TableReload();
 	}
 	// get params from widget
 	QiKey WidgetGetKey() {

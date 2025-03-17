@@ -540,12 +540,12 @@
         </column>
         <column>
          <property name="text">
-          <string>状态</string>
+          <string>参数</string>
          </property>
         </column>
         <column>
          <property name="text">
-          <string>参数</string>
+          <string>状态</string>
          </property>
         </column>
         <column>

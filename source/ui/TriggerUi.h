@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <src/inc_header.h>
+#include <qlistview.h>
 #include "ui_TriggerUi.h"
 class TriggerUi : public QWidget
 {
@@ -27,14 +28,14 @@ public:
 private:
 	void StyleGroup()
 	{
-		ui.content_widget->setProperty("group", "client");
 		ui.block_check->setProperty("group", "check");
 		ui.block_cur_check->setProperty("group", "check");
+		ui.mode_combo->setView(new QListView());
 		ui.mode_combo->setProperty("group", "combo");
+		ui.mode_combo->view()->setProperty("group", "combo_body");
 		ui.count_edit->setProperty("group", "line_edit");
 		ui.speed_edit->setProperty("group", "line_edit");
 		ui.key_keyedit->setProperty("group", "line_edit");
-		ui.mode_combo->view()->setProperty("group", "table");
 	}
 	void Init()
 	{
@@ -79,26 +80,23 @@ private:
 	}
 	void Event()
 	{
-		std::function currentChanged = [this]() {
+		std::function currentChanged = [this](int table_index, int row = -1, int column = -1) {
 			currentGroup = &groups->front();
-			currentMacro = nullptr;
 			currentTable = nullptr;
 			currentRow = -1;
+			currentMacro = nullptr;
 			ui.param_widget->setDisabled(true);
 
-			int table_row = ui.macroGroup_table->currentRow();
-			if (table_row < 0) return;
+			currentGroup = &groups->at(table_index);
 
-			currentTable = ui.macroGroup_table->table(table_row);
+			currentTable = ui.macroGroup_table->table(table_index);
 			if (!currentTable) return;
 
 			currentRow = currentTable->currentRow();
 			if (currentRow < 0) return;
-
-			currentGroup = &groups->at(table_row);
 			currentMacro = &currentGroup->macros[currentRow];
 
-			Macro& macro = groups->at(table_row).macros[currentRow];
+			Macro& macro = groups->at(table_index).macros[currentRow];
 			// state
 			{
 				ui.block_check->setChecked(macro.keyBlock);
@@ -120,7 +118,7 @@ private:
 			ui.param_widget->setEnabled(true);
 			};
 		connect(ui.macroGroup_table, &QMacroTable::itemClicked, this, [this, currentChanged](int table_index, int row, int column) {
-			currentChanged();
+			currentChanged(table_index, row, column);
 			if (!ItemCurrented() || column != 3) return;
 			currentMacro->state = !currentMacro->state;
 			QiJson::SaveMacro(*currentMacro);
@@ -128,7 +126,7 @@ private:
 			});
 		connect(ui.macroGroup_table, &QMacroTable::currentChanged, this, currentChanged);
 		connect(ui.macroGroup_table, &QMacroTable::headerClicked, this, [this, currentChanged](int table_index, int column) {
-			currentChanged();
+			currentChanged(table_index, -1, column);
 			if (!TableCurrented() || column != 3) return;
 			bool state = false;
 			for (auto& i : currentGroup->macros)

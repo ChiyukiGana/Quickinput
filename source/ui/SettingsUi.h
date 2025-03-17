@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <qstandarditemmodel.h>
 #include <qabstractitemview.h>
+#include <qlistview.h>
 #include "MoreUi.h"
 #include "PopsUi.h"
 #include <src/inc_header.h>
@@ -24,7 +25,6 @@ public:
 	}
 	void StyleGroup()
 	{
-		ui.content_widget->setProperty("group", "client");
 		ui.readme_button->setProperty("group", "settings-button");
 		ui.popText_button->setProperty("group", "settings-button");
 		ui.recordTrack_check->setProperty("group", "check");
@@ -34,9 +34,10 @@ public:
 		ui.hideDefault_check->setProperty("group", "check");
 		ui.start_check->setProperty("group", "check");
 		ui.theme_combo->setProperty("group", "combo");
+		ui.theme_combo->setView(new QListView());
+		ui.theme_combo->view()->setProperty("group", "combo_body");
 		ui.stateKey_keyedit->setProperty("group", "line_edit");
 		ui.recordKey_keyedit->setProperty("group", "line_edit");
-		ui.theme_combo->view()->setProperty("group", "table");
 	}
 private:
 	void Init()

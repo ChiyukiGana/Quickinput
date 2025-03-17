@@ -32,7 +32,7 @@
    <string>About</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:18px</string>
+   <string notr="true">#AboutUiClass{background:transparent}*{font-family:&quot;Microsoft YaHei&quot;;font-size:18px}</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
@@ -52,6 +52,9 @@
    </property>
    <item>
     <widget class="QWidget" name="content_widget" native="true">
+     <property name="styleSheet">
+      <string notr="true">#content_widget{background:transparent}</string>
+     </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <property name="spacing">
        <number>20</number>
@@ -88,7 +91,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-3-15</string>
+         <string>2025-3-17</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -104,7 +107,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加按键编辑区分左右Shift等按键</string>
+         <string>增加变量类型转换函数
+增加变量随机函数</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

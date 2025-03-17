@@ -10,19 +10,14 @@ class AboutUi : public QWidget
 	QiUpdate update;
 	std::string version, content;
 public:
-	AboutUi(QWidget* parent) : QWidget(parent), update(this, 20250315, 0)
+	AboutUi(QWidget* parent) : QWidget(parent), update(this, 20250317, 0)
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		ui.url_label->installEventFilter(this);
 		ui.license_label->installEventFilter(this);
-		StyleGroup();
 		if (!update.good()) return;
 		update.getlatest();
-	}
-	void StyleGroup()
-	{
-		ui.content_widget->setProperty("group", "client");
 	}
 private:
 	bool eventFilter(QObject* obj, QEvent* e)

@@ -31,7 +31,6 @@ public:
 	}
 	void StyleGroup()
 	{
-		ui.content_widget->setProperty("group", "client");
 		ui.record_button->setProperty("group", "macro-button");
 		ui.record_window_button->setProperty("group", "macro-button");
 		ui.add_button->setProperty("group", "macro-button");

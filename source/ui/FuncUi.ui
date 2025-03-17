@@ -34,6 +34,9 @@
   <property name="autoFillBackground">
    <bool>false</bool>
   </property>
+  <property name="styleSheet">
+   <string notr="true">#FuncUiClass{background:transparent}</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <property name="spacing">
     <number>0</number>
@@ -53,7 +56,7 @@
    <item>
     <widget class="QWidget" name="content_widget" native="true">
      <property name="styleSheet">
-      <string notr="true"/>
+      <string notr="true">#content_widget{background:transparent}</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <property name="spacing">

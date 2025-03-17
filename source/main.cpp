@@ -127,21 +127,809 @@ void Init()
 	if ("style")
 	{
 		QiUi::Theme theme;
-		theme.name = "浅蓝";
-		theme.style = R"(*{border:none;font-size:12px;font-family:"Microsoft YaHei"}*[group="frame"],*[group="context_menu"]{border:1px solid gray}*[group="title"]{background-color:white;font-size:14px}*[group="client"]{background-color:#CEF}*[group="get_button"],*[group="check"]::indicator,*[group="radio"]::indicator,*[group="combo"],*[group="context_menu"],*[group="context_tip"],*[group="line_edit"],*[group="text_edit"],*[group="key_edit"],*[group="table"],*[group="table_header"],QToolTip{background-color:white}*[group="macro-button"],*[group="settings-button"],*[group="edit-add_button"],*[group="edit-edit_button"],*[group="record-button"],*[group="tab_widget_bar"]::tab:first,*[group="tab_widget_bar"]::tab,*[group="tab_widget_bar"]::tab:last,*[group="ltab_widget"]::tab{background-color:#ADE}*[group="get_button"]:hover,*[group="macro-button"]:hover,*[group="settings-button"]:hover,*[group="edit-add_button"]:hover,*[group="edit-edit_button"]:hover,*[group="record-button"]:hover,*[group="check"]::indicator:hover,*[group="context_menu"]:selected,*[group="radio"]::indicator:hover,*[group="radio"]::item:selected,*[group="tab_widget_bar"]::tab:first:hover,*[group="tab_widget_bar"]::tab:hover,*[group="tab_widget_bar"]::tab:last:hover,*[group="table"]::item:hover{background-color:#ACF;color:black}*[group="tab_widget_bar"]::tab:first:selected,*[group="tab_widget_bar"]::tab:selected,*[group="tab_widget_bar"]::tab:last:selected{background-color:#CEF;color:black}*[group="table"]::item:selected{background-color:#ADF;color:black}*[group="check"]::indicator:checked,*[group="radio"]::indicator:checked{image:url(:/checked.png)}*[group="get_button"]:disabled,*[group="macro-button"]:disabled,*[group="settings-button"]:disabled,*[group="edit-add_button"]:disabled,*[group="edit-edit_button"]:disabled,*[group="record-button"]:disabled,*[group="check"]:disabled,*[group="radio"]:disabled,*[group="combo"]:disabled,*[group="context_menu"]::item:disabled,*[group="line_edit"]:disabled,*[group="text_edit"]:disabled,*[group="key_edit"]:disabled{color:gray}*[group="check"]::indicator,*[group="radio"]::indicator{width:20px;height:20px})";
-		Qi::ui.themes.append(theme);
-		theme.name = "糖果";
-		theme.style = R"(*{border:none;font-size:12px;font-family:"Microsoft YaHei"}*[group="frame"],*[group="context_menu"]{border:1px solid gray}*[group="title"]{background-color:white;font-size:14px}*[group="client"]{background-color:#FDF;background-image:url(:/candy.png)}*[group="get_button"],*[group="check"]::indicator,*[group="radio"]::indicator,*[group="combo"],*[group="context_menu"],*[group="context_tip"],*[group="line_edit"],*[group="text_edit"],*[group="key_edit"],*[group="table"],*[group="table_header"],QToolTip{background-color:#FFF5FF}*[group="macro-button"],*[group="settings-button"],*[group="edit-add_button"],*[group="edit-edit_button"],*[group="record-button"],*[group="tab_widget_bar"]::tab:first,*[group="tab_widget_bar"]::tab,*[group="tab_widget_bar"]::tab:last,*[group="ltab_widget"]::tab{background-color:#FCE}*[group="get_button"]:hover,*[group="macro-button"]:hover,*[group="settings-button"]:hover,*[group="edit-add_button"]:hover,*[group="edit-edit_button"]:hover,*[group="record-button"]:hover,*[group="check"]::indicator:hover,*[group="context_menu"]:selected,*[group="radio"]::indicator:hover,*[group="radio"]::item:selected,*[group="tab_widget_bar"]::tab:first:hover,*[group="tab_widget_bar"]::tab:hover,*[group="tab_widget_bar"]::tab:last:hover,*[group="table"]::item:hover{background-color:#FBE;color:black}*[group="tab_widget_bar"]::tab:first:selected,*[group="tab_widget_bar"]::tab:selected,*[group="tab_widget_bar"]::tab:last:selected{background-color:#FDF;color:black}*[group="table"]::item:selected{background-color:#FCE;color:black}*[group="check"]::indicator:checked,*[group="radio"]::indicator:checked{image:url(:/checked.png)}*[group="get_button"]:disabled,*[group="macro-button"]:disabled,*[group="settings-button"]:disabled,*[group="edit-add_button"]:disabled,*[group="edit-edit_button"]:disabled,*[group="record-button"]:disabled,*[group="check"]:disabled,*[group="radio"]:disabled,*[group="combo"]:disabled,*[group="context_menu"]::item:disabled,*[group="line_edit"]:disabled,*[group="text_edit"]:disabled,*[group="key_edit"]:disabled{color:gray}*[group="check"]::indicator,*[group="radio"]::indicator{width:20px;height:20px})";
-		Qi::ui.themes.append(theme);
-		theme.name = "橘子";
-		theme.style = R"(*{border:none;font-size:12px;font-family:"Microsoft YaHei"}*[group="frame"],*[group="context_menu"]{border:1px solid gray}*[group="title"]{background-color:white;font-size:14px}*[group="client"]{background-color:#FEC;background-image:url(:/neko.png)}*[group="get_button"],*[group="check"]::indicator,*[group="radio"]::indicator,*[group="combo"],*[group="context_menu"],*[group="context_tip"],*[group="line_edit"],*[group="text_edit"],*[group="key_edit"],*[group="table"],*[group="table_header"],QToolTip{background-color:#FFFFF5}*[group="macro-button"],*[group="settings-button"],*[group="edit-add_button"],*[group="edit-edit_button"],*[group="record-button"],*[group="tab_widget_bar"]::tab:first,*[group="tab_widget_bar"]::tab,*[group="tab_widget_bar"]::tab:last,*[group="ltab_widget"]::tab{background-color:#FDA}*[group="get_button"]:hover,*[group="macro-button"]:hover,*[group="settings-button"]:hover,*[group="edit-add_button"]:hover,*[group="edit-edit_button"]:hover,*[group="record-button"]:hover,*[group="check"]::indicator:hover,*[group="context_menu"]:selected,*[group="radio"]::indicator:hover,*[group="radio"]::item:selected,*[group="tab_widget_bar"]::tab:first:hover,*[group="tab_widget_bar"]::tab:hover,*[group="tab_widget_bar"]::tab:last:hover,*[group="table"]::item:hover{background-color:#FFD0B0;color:black}*[group="tab_widget_bar"]::tab:first:selected,*[group="tab_widget_bar"]::tab:selected,*[group="tab_widget_bar"]::tab:last:selected{background-color:#FEC;color:black}*[group="table"]::item:selected{background-color:#FFD0B0;color:black}*[group="check"]::indicator:checked,*[group="radio"]::indicator:checked{image:url(:/checked.png)}*[group="get_button"]:disabled,*[group="macro-button"]:disabled,*[group="settings-button"]:disabled,*[group="edit-add_button"]:disabled,*[group="edit-edit_button"]:disabled,*[group="record-button"]:disabled,*[group="check"]:disabled,*[group="radio"]:disabled,*[group="combo"]:disabled,*[group="context_menu"]::item:disabled,*[group="line_edit"]:disabled,*[group="text_edit"]:disabled,*[group="key_edit"]:disabled{color:gray}*[group="check"]::indicator,*[group="radio"]::indicator{width:20px;height:20px})";
-		Qi::ui.themes.append(theme);
-		theme.name = "四叶草";
-		theme.style = R"(*{border:none;font-size:12px;font-family:"Microsoft YaHei"}*[group="frame"],*[group="context_menu"]{border:1px solid gray}*[group="title"]{background-color:white;font-size:14px}*[group="client"]{background-color:#AED;background-image:url(:/blade.png);image-position:bottom right}*[group="get_button"],*[group="check"]::indicator,*[group="radio"]::indicator,*[group="combo"],*[group="context_menu"],*[group="context_tip"],*[group="line_edit"],*[group="text_edit"],*[group="key_edit"],*[group="table"],*[group="table_header"],QToolTip{background-color:#F5FFFF}*[group="macro-button"],*[group="settings-button"],*[group="edit-add_button"],*[group="edit-edit_button"],*[group="record-button"],*[group="tab_widget_bar"]::tab:first,*[group="tab_widget_bar"]::tab,*[group="tab_widget_bar"]::tab:last,*[group="ltab_widget"]::tab{background-color:#9DC}*[group="get_button"]:hover,*[group="macro-button"]:hover,*[group="settings-button"]:hover,*[group="edit-add_button"]:hover,*[group="edit-edit_button"]:hover,*[group="record-button"]:hover,*[group="check"]::indicator:hover,*[group="context_menu"]:selected,*[group="radio"]::indicator:hover,*[group="radio"]::item:selected,*[group="tab_widget_bar"]::tab:first:hover,*[group="tab_widget_bar"]::tab:hover,*[group="tab_widget_bar"]::tab:last:hover,*[group="table"]::item:hover{background-color:#8EB;color:black}*[group="tab_widget_bar"]::tab:first:selected,*[group="tab_widget_bar"]::tab:selected,*[group="tab_widget_bar"]::tab:last:selected{background-color:#AED;color:black}*[group="table"]::item:selected{background-color:#A5E5D5;color:black}*[group="check"]::indicator:checked,*[group="radio"]::indicator:checked{image:url(:/checked.png)}*[group="get_button"]:disabled,*[group="macro-button"]:disabled,*[group="settings-button"]:disabled,*[group="edit-add_button"]:disabled,*[group="edit-edit_button"]:disabled,*[group="record-button"]:disabled,*[group="check"]:disabled,*[group="radio"]:disabled,*[group="combo"]:disabled,*[group="context_menu"]::item:disabled,*[group="line_edit"]:disabled,*[group="text_edit"]:disabled,*[group="key_edit"]:disabled{color:gray}*[group="check"]::indicator,*[group="radio"]::indicator{width:20px;height:20px})";
-		Qi::ui.themes.append(theme);
-		theme.name = "黑暗";
-		theme.style = R"(*{color:white;border:none;font-size:12px;font-family:"Microsoft YaHei"}*[group="frame"],*[group="context_menu"]{border:1px solid gray}*[group="title"]{background-color:black;font-size:14px}*[group="client"]{background-color:#333}*[group="get_button"],*[group="check"]::indicator,*[group="radio"]::indicator,*[group="combo"],*[group="context_menu"],*[group="context_tip"],*[group="line_edit"],*[group="text_edit"],*[group="key_edit"],*[group="table"],*[group="table_header"],QTableWidget QLineEdit,QToolTip{background-color:#555}*[group="macro-button"],*[group="settings-button"],*[group="edit-add_button"],*[group="edit-edit_button"],*[group="record-button"],*[group="tab_widget_bar"]::tab:first,*[group="tab_widget_bar"]::tab,*[group="tab_widget_bar"]::tab:last,*[group="ltab_widget"]::tab{background-color:#666}*[group="get_button"]:hover,*[group="macro-button"]:hover,*[group="settings-button"]:hover,*[group="edit-add_button"]:hover,*[group="edit-edit_button"]:hover,*[group="record-button"]:hover,*[group="check"]::indicator:hover,*[group="context_menu"]:selected,*[group="radio"]::indicator:hover,*[group="radio"]::item:selected,*[group="tab_widget_bar"]::tab:first:hover,*[group="tab_widget_bar"]::tab:hover,*[group="tab_widget_bar"]::tab:last:hover,*[group="table"]::item:hover{background-color:#777;color:white}*[group="tab_widget_bar"]::tab:first:selected,*[group="tab_widget_bar"]::tab:selected,*[group="tab_widget_bar"]::tab:last:selected{background-color:#333;color:white}*[group="table"]::item:selected{background-color:#888;color:white}*[group="check"]::indicator:checked,*[group="radio"]::indicator:checked{image:url(:/checked.png)}*[group="get_button"]:disabled,*[group="macro-button"]:disabled,*[group="settings-button"]:disabled,*[group="edit-add_button"]:disabled,*[group="edit-edit_button"]:disabled,*[group="record-button"]:disabled,*[group="check"]:disabled,*[group="radio"]:disabled,*[group="combo"]:disabled,*[group="context_menu"]::item:disabled,*[group="line_edit"]:disabled,*[group="text_edit"]:disabled,*[group="key_edit"]:disabled{color:gray}*[group="check"]::indicator,*[group="radio"]::indicator{width:20px;height:20px})";
-		Qi::ui.themes.append(theme);
+		if (true)
+		{
+			theme.name = "浅蓝";
+			theme.style = R"(
+* {
+	color: black;
+    font-size: 12px;
+    font-family: "Microsoft YaHei";
+    border: none
+}
+
+*[group="frame"],
+*[group="context_menu"] {
+    border: 1px solid gray
+}
+
+*[group="title"] {
+    background-color: white;
+    font-size: 14px
+}
+
+*[group="client"] {
+    background-color: #CEF
+}
+
+*[group="line_edit"],
+*[group="text_edit"],
+*[group="key_edit"] {
+    background-color: white
+}
+
+*[group="get_button"],
+*[group="check"]::indicator,
+*[group="radio"]::indicator {
+    background-color: white
+}
+
+*[group="get_button"]:hover,
+*[group="check"]::indicator:hover,
+*[group="radio"]::indicator:hover {
+    background-color: #ACF
+}
+
+*[group="check"]::indicator:checked,
+*[group="radio"]::indicator:checked {
+    image: url(:/checked.png)
+}
+
+*[group="check"]::indicator,
+*[group="radio"]::indicator {
+    width: 20px;
+    height: 20px
+}
+
+QToolTip,
+*[group="combo"],
+*[group="combo_body"],
+*[group="context_menu"] {
+    background-color: white
+}
+
+*[group="combo"]::item:hover,
+*[group="combo_body"]::item:hover,
+*[group="context_menu"]:selected {
+    background-color: white;
+    color: black
+}
+
+*[group="macro-button"],
+*[group="settings-button"],
+*[group="edit-add_button"],
+*[group="edit-edit_button"],
+*[group="record-button"] {
+    background-color: #ADE
+}
+
+*[group="macro-button"]:hover,
+*[group="settings-button"]:hover,
+*[group="edit-add_button"]:hover,
+*[group="edit-edit_button"]:hover,
+*[group="record-button"]:hover {
+    background-color: #ACF
+}
+
+*[group="tab_widget_bar"]::tab:first,
+*[group="tab_widget_bar"]::tab,
+*[group="tab_widget_bar"]::tab:last,
+*[group="ltab_widget"]::tab {
+    background-color: #ADE
+}
+
+*[group="tab_widget_bar"]::tab:first:hover,
+*[group="tab_widget_bar"]::tab:hover,
+*[group="tab_widget_bar"]::tab:last:hover,
+*[group="ltab_widget"]::tab:hover {
+    background-color: #ADE
+}
+
+*[group="tab_widget_bar"]::tab:first:selected,
+*[group="tab_widget_bar"]::tab:selected,
+*[group="tab_widget_bar"]::tab:last:selected,
+*[group="ltab_widget"]::tab:selected {
+    background-color: #CEF;
+    color: black
+}
+
+*[group="group_table"],
+*[group="macro_table"],
+*[group="action_table"],
+*[group="group_table_header"],
+*[group="macro_table_header"],
+*[group="action_table_header"] {
+    background-color: white
+}
+
+*[group="macro_table"]::item:hover,
+*[group="action_table"]::item:hover {
+    background-color: #ACF;
+    color: black
+}
+
+*[group="macro_table"]::item:selected,
+*[group="action_table"]::item:selected {
+    background-color: #ADF;
+    color: black
+}
+
+*[group="frame"]:disabled,
+*[group="context_menu"]:disabled,
+*[group="title"]:disabled,
+*[group="client"]:disabled,
+*[group="line_edit"]:disabled,
+*[group="text_edit"]:disabled,
+*[group="key_edit"]:disabled,
+*[group="get_button"]:disabled,
+*[group="check"]:disabled,
+*[group="radio"]:disabled,
+*[group="combo"]:disabled,
+*[group="combo_body"]:disabled,
+*[group="context_menu"]:disabled,
+*[group="macro-button"]:disabled,
+*[group="settings-button"]:disabled,
+*[group="edit-add_button"]:disabled,
+*[group="edit-edit_button"]:disabled,
+*[group="record-button"]:disabled,
+*[group="tab_widget_bar"]::tab:first:disabled,
+*[group="tab_widget_bar"]::tab:disabled,
+*[group="tab_widget_bar"]::tab:last:disabled,
+*[group="ltab_widget"]::tab:disabled,
+*[group="group_table"]:disabled,
+*[group="macro_table"]:disabled,
+*[group="action_table"]:disabled,
+*[group="group_table_header"]:disabled,
+*[group="macro_table_header"]:disabled,
+*[group="action_table_header"]:disabled {
+    color: gray
+}
+)";
+			Qi::ui.themes.append(theme);
+		}
+		if (true)
+		{
+			theme.name = "糖果";
+			theme.style = R"(
+* {
+	color: black;
+    font-size: 12px;
+    font-family: "Microsoft YaHei";
+    border: none
+}
+
+*[group="frame"],
+*[group="context_menu"] {
+    border: 1px solid gray
+}
+
+*[group="title"] {
+    background-color: white;
+    font-size: 14px
+}
+
+*[group="client"] {
+    background-color: #FDF;
+    background-image: url(:/candy.png)
+}
+
+*[group="line_edit"],
+*[group="text_edit"],
+*[group="key_edit"] {
+    background-color: #FFF5FF
+}
+
+*[group="get_button"],
+*[group="check"]::indicator,
+*[group="radio"]::indicator {
+    background-color: #FFF5FF
+}
+
+*[group="get_button"]:hover,
+*[group="check"]::indicator:hover,
+*[group="radio"]::indicator:hover {
+    background-color: #FBE
+}
+
+*[group="check"]::indicator:checked,
+*[group="radio"]::indicator:checked {
+    image: url(:/checked.png)
+}
+
+*[group="check"]::indicator,
+*[group="radio"]::indicator {
+    width: 20px;
+    height: 20px
+}
+
+QToolTip,
+*[group="combo"],
+*[group="combo_body"],
+*[group="context_menu"] {
+    background-color: #FFF5FF
+}
+
+*[group="combo"]::item:hover,
+*[group="combo_body"]::item:hover,
+*[group="context_menu"]:selected {
+    background-color: #FBE;
+    color: black
+}
+
+*[group="macro-button"],
+*[group="settings-button"],
+*[group="edit-add_button"],
+*[group="edit-edit_button"],
+*[group="record-button"] {
+    background-color: #FCE
+}
+
+*[group="macro-button"]:hover,
+*[group="settings-button"]:hover,
+*[group="edit-add_button"]:hover,
+*[group="edit-edit_button"]:hover,
+*[group="record-button"]:hover {
+    background-color: #FBE
+}
+
+*[group="tab_widget_bar"]::tab:first,
+*[group="tab_widget_bar"]::tab,
+*[group="tab_widget_bar"]::tab:last,
+*[group="ltab_widget"]::tab {
+    background-color: #FCE
+}
+
+*[group="tab_widget_bar"]::tab:first:hover,
+*[group="tab_widget_bar"]::tab:hover,
+*[group="tab_widget_bar"]::tab:last:hover,
+*[group="ltab_widget"]::tab:hover {
+    background-color: #FBE
+}
+
+*[group="tab_widget_bar"]::tab:first:selected,
+*[group="tab_widget_bar"]::tab:selected,
+*[group="tab_widget_bar"]::tab:last:selected,
+*[group="ltab_widget"]::tab:selected {
+    background-color: #FDF;
+    color: black
+}
+
+*[group="group_table"],
+*[group="macro_table"],
+*[group="action_table"],
+*[group="group_table_header"],
+*[group="macro_table_header"],
+*[group="action_table_header"] {
+    background-color: #FFF5FF
+}
+
+*[group="macro_table"]::item:hover,
+*[group="action_table"]::item:hover {
+    background-color: #FBE;
+    color: black
+}
+
+*[group="macro_table"]::item:selected,
+*[group="action_table"]::item:selected {
+    background-color: #FCE;
+    color: black
+}
+
+*[group="frame"]:disabled,
+*[group="context_menu"]:disabled,
+*[group="title"]:disabled,
+*[group="client"]:disabled,
+*[group="line_edit"]:disabled,
+*[group="text_edit"]:disabled,
+*[group="key_edit"]:disabled,
+*[group="get_button"]:disabled,
+*[group="check"]:disabled,
+*[group="radio"]:disabled,
+*[group="combo"]:disabled,
+*[group="combo_body"]:disabled,
+*[group="context_menu"]:disabled,
+*[group="macro-button"]:disabled,
+*[group="settings-button"]:disabled,
+*[group="edit-add_button"]:disabled,
+*[group="edit-edit_button"]:disabled,
+*[group="record-button"]:disabled,
+*[group="tab_widget_bar"]::tab:first:disabled,
+*[group="tab_widget_bar"]::tab:disabled,
+*[group="tab_widget_bar"]::tab:last:disabled,
+*[group="ltab_widget"]::tab:disabled,
+*[group="group_table"]:disabled,
+*[group="macro_table"]:disabled,
+*[group="action_table"]:disabled,
+*[group="group_table_header"]:disabled,
+*[group="macro_table_header"]:disabled,
+*[group="action_table_header"]:disabled {
+    color: gray
+}
+)";
+			Qi::ui.themes.append(theme);
+		}
+		if (true)
+		{
+			theme.name = "橘子";
+			theme.style = R"(
+* {
+	color: black;
+    font-size: 12px;
+    font-family: "Microsoft YaHei";
+    border: none
+}
+
+*[group="frame"],
+*[group="context_menu"] {
+    border: 1px solid gray
+}
+
+*[group="title"] {
+    background-color: white;
+    font-size: 14px
+}
+
+*[group="client"] {
+    background-color: #FEC;
+    background-image: url(:/neko.png)
+}
+
+*[group="line_edit"],
+*[group="text_edit"],
+*[group="key_edit"] {
+    background-color: #FFFFF5
+}
+
+*[group="get_button"],
+*[group="check"]::indicator,
+*[group="radio"]::indicator {
+    background-color: #FFFFF5
+}
+
+*[group="get_button"]:hover,
+*[group="check"]::indicator:hover,
+*[group="radio"]::indicator:hover {
+    background-color: #FFD0B0
+}
+
+*[group="check"]::indicator:checked,
+*[group="radio"]::indicator:checked {
+    image: url(:/checked.png)
+}
+
+*[group="check"]::indicator,
+*[group="radio"]::indicator {
+    width: 20px;
+    height: 20px
+}
+
+QToolTip,
+*[group="combo"],
+*[group="combo_body"],
+*[group="context_menu"] {
+    background-color: #FFFFF5
+}
+
+*[group="combo"]::item:hover,
+*[group="combo_body"]::item:hover,
+*[group="context_menu"]:selected {
+    background-color: #FFD0B0;
+    color: black
+}
+
+*[group="macro-button"],
+*[group="settings-button"],
+*[group="edit-add_button"],
+*[group="edit-edit_button"],
+*[group="record-button"] {
+    background-color: #FDA
+}
+
+*[group="macro-button"]:hover,
+*[group="settings-button"]:hover,
+*[group="edit-add_button"]:hover,
+*[group="edit-edit_button"]:hover,
+*[group="record-button"]:hover {
+    background-color: #FFD0B0
+}
+
+*[group="tab_widget_bar"]::tab:first,
+*[group="tab_widget_bar"]::tab,
+*[group="tab_widget_bar"]::tab:last,
+*[group="ltab_widget"]::tab {
+    background-color: #FDA
+}
+
+*[group="tab_widget_bar"]::tab:first:hover,
+*[group="tab_widget_bar"]::tab:hover,
+*[group="tab_widget_bar"]::tab:last:hover,
+*[group="ltab_widget"]::tab:hover {
+    background-color: #FFD0B0
+}
+
+*[group="tab_widget_bar"]::tab:first:selected,
+*[group="tab_widget_bar"]::tab:selected,
+*[group="tab_widget_bar"]::tab:last:selected,
+*[group="ltab_widget"]::tab:selected {
+    background-color: #FEC;
+    color: black
+}
+
+*[group="group_table"],
+*[group="macro_table"],
+*[group="action_table"],
+*[group="group_table_header"],
+*[group="macro_table_header"],
+*[group="action_table_header"] {
+    background-color: #FFFFF5
+}
+
+*[group="macro_table"]::item:hover,
+*[group="action_table"]::item:hover {
+    background-color: #FFD0B0;
+    color: black
+}
+
+*[group="macro_table"]::item:selected,
+*[group="action_table"]::item:selected {
+    background-color: #FDA;
+    color: black
+}
+
+*[group="frame"]:disabled,
+*[group="context_menu"]:disabled,
+*[group="title"]:disabled,
+*[group="client"]:disabled,
+*[group="line_edit"]:disabled,
+*[group="text_edit"]:disabled,
+*[group="key_edit"]:disabled,
+*[group="get_button"]:disabled,
+*[group="check"]:disabled,
+*[group="radio"]:disabled,
+*[group="combo"]:disabled,
+*[group="combo_body"]:disabled,
+*[group="context_menu"]:disabled,
+*[group="macro-button"]:disabled,
+*[group="settings-button"]:disabled,
+*[group="edit-add_button"]:disabled,
+*[group="edit-edit_button"]:disabled,
+*[group="record-button"]:disabled,
+*[group="tab_widget_bar"]::tab:first:disabled,
+*[group="tab_widget_bar"]::tab:disabled,
+*[group="tab_widget_bar"]::tab:last:disabled,
+*[group="ltab_widget"]::tab:disabled,
+*[group="group_table"]:disabled,
+*[group="macro_table"]:disabled,
+*[group="action_table"]:disabled,
+*[group="group_table_header"]:disabled,
+*[group="macro_table_header"]:disabled,
+*[group="action_table_header"]:disabled {
+    color: gray
+}
+)";
+			Qi::ui.themes.append(theme);
+		}
+		if (true)
+		{
+			theme.name = "四叶草";
+			theme.style = R"(
+* {
+	color: black;
+    font-size: 12px;
+    font-family: "Microsoft YaHei";
+    border: none
+}
+
+*[group="frame"],
+*[group="context_menu"] {
+    border: 1px solid gray
+}
+
+*[group="title"] {
+    background-color: white;
+    font-size: 14px
+}
+
+*[group="client"] {
+    background-color: #AED;
+    background-image: url(:/blade.png)
+}
+
+*[group="line_edit"],
+*[group="text_edit"],
+*[group="key_edit"] {
+    background-color: #F5FFFF
+}
+
+*[group="get_button"],
+*[group="check"]::indicator,
+*[group="radio"]::indicator {
+    background-color: #F5FFFF
+}
+
+*[group="get_button"]:hover,
+*[group="check"]::indicator:hover,
+*[group="radio"]::indicator:hover {
+    background-color: #8EB
+}
+
+*[group="check"]::indicator:checked,
+*[group="radio"]::indicator:checked {
+    image: url(:/checked.png)
+}
+
+*[group="check"]::indicator,
+*[group="radio"]::indicator {
+    width: 20px;
+    height: 20px
+}
+
+QToolTip,
+*[group="combo"],
+*[group="combo_body"],
+*[group="context_menu"] {
+    background-color: #F5FFFF
+}
+
+*[group="combo"]::item:hover,
+*[group="combo_body"]::item:hover,
+*[group="context_menu"]:selected {
+    background-color: #8EB;
+    color: black
+}
+
+*[group="macro-button"],
+*[group="settings-button"],
+*[group="edit-add_button"],
+*[group="edit-edit_button"],
+*[group="record-button"] {
+    background-color: #9DC
+}
+
+*[group="macro-button"]:hover,
+*[group="settings-button"]:hover,
+*[group="edit-add_button"]:hover,
+*[group="edit-edit_button"]:hover,
+*[group="record-button"]:hover {
+    background-color: #8EB
+}
+
+*[group="tab_widget_bar"]::tab:first,
+*[group="tab_widget_bar"]::tab,
+*[group="tab_widget_bar"]::tab:last,
+*[group="ltab_widget"]::tab {
+    background-color: #9DC
+}
+
+*[group="tab_widget_bar"]::tab:first:hover,
+*[group="tab_widget_bar"]::tab:hover,
+*[group="tab_widget_bar"]::tab:last:hover,
+*[group="ltab_widget"]::tab:hover {
+    background-color: #8EB
+}
+
+*[group="tab_widget_bar"]::tab:first:selected,
+*[group="tab_widget_bar"]::tab:selected,
+*[group="tab_widget_bar"]::tab:last:selected,
+*[group="ltab_widget"]::tab:selected {
+    background-color: #AED;
+    color: black
+}
+
+*[group="group_table"],
+*[group="macro_table"],
+*[group="action_table"],
+*[group="group_table_header"],
+*[group="macro_table_header"],
+*[group="action_table_header"] {
+    background-color: #F5FFFF
+}
+
+*[group="macro_table"]::item:hover,
+*[group="action_table"]::item:hover {
+    background-color: #8EB;
+    color: black
+}
+
+*[group="macro_table"]::item:selected,
+*[group="action_table"]::item:selected {
+    background-color: #9DC;
+    color: black
+}
+
+*[group="frame"]:disabled,
+*[group="context_menu"]:disabled,
+*[group="title"]:disabled,
+*[group="client"]:disabled,
+*[group="line_edit"]:disabled,
+*[group="text_edit"]:disabled,
+*[group="key_edit"]:disabled,
+*[group="get_button"]:disabled,
+*[group="check"]:disabled,
+*[group="radio"]:disabled,
+*[group="combo"]:disabled,
+*[group="combo_body"]:disabled,
+*[group="context_menu"]:disabled,
+*[group="macro-button"]:disabled,
+*[group="settings-button"]:disabled,
+*[group="edit-add_button"]:disabled,
+*[group="edit-edit_button"]:disabled,
+*[group="record-button"]:disabled,
+*[group="tab_widget_bar"]::tab:first:disabled,
+*[group="tab_widget_bar"]::tab:disabled,
+*[group="tab_widget_bar"]::tab:last:disabled,
+*[group="ltab_widget"]::tab:disabled,
+*[group="group_table"]:disabled,
+*[group="macro_table"]:disabled,
+*[group="action_table"]:disabled,
+*[group="group_table_header"]:disabled,
+*[group="macro_table_header"]:disabled,
+*[group="action_table_header"]:disabled {
+    color: gray
+}
+)";
+			Qi::ui.themes.append(theme);
+		}
+		if (true)
+		{
+			theme.name = "黑暗";
+			theme.style = R"(
+* {
+    color: white;
+    font-size: 12px;
+    font-family: "Microsoft YaHei";
+    border: none
+}
+
+*[group="frame"],
+*[group="context_menu"] {
+    border: 1px solid gray
+}
+
+*[group="title"] {
+    background-color: black;
+    font-size: 14px
+}
+
+*[group="client"] {
+    background-color: #333
+}
+
+*[group="line_edit"],
+*[group="text_edit"],
+*[group="key_edit"] {
+    background-color: #555
+}
+
+*[group="get_button"],
+*[group="check"]::indicator,
+*[group="radio"]::indicator {
+    background-color: #555
+}
+
+*[group="get_button"]:hover,
+*[group="check"]::indicator:hover,
+*[group="radio"]::indicator:hover {
+    background-color: #777
+}
+
+*[group="check"]::indicator:checked,
+*[group="radio"]::indicator:checked {
+    image: url(:/checked.png)
+}
+
+*[group="check"]::indicator,
+*[group="radio"]::indicator {
+    width: 20px;
+    height: 20px
+}
+
+QToolTip,
+*[group="combo"],
+*[group="combo_body"],
+*[group="context_menu"] {
+    background-color: #555
+}
+
+*[group="combo"]::item:hover,
+*[group="combo_body"]::item:hover,
+*[group="context_menu"]:selected {
+    background-color: #777;
+    color: white
+}
+
+*[group="macro-button"],
+*[group="settings-button"],
+*[group="edit-add_button"],
+*[group="edit-edit_button"],
+*[group="record-button"] {
+    background-color: #666
+}
+
+*[group="macro-button"]:hover,
+*[group="settings-button"]:hover,
+*[group="edit-add_button"]:hover,
+*[group="edit-edit_button"]:hover,
+*[group="record-button"]:hover {
+    background-color: #777
+}
+
+*[group="tab_widget_bar"]::tab:first,
+*[group="tab_widget_bar"]::tab,
+*[group="tab_widget_bar"]::tab:last,
+*[group="ltab_widget"]::tab {
+    background-color: #666
+}
+
+*[group="tab_widget_bar"]::tab:first:hover,
+*[group="tab_widget_bar"]::tab:hover,
+*[group="tab_widget_bar"]::tab:last:hover,
+*[group="ltab_widget"]::tab:hover {
+    background-color: #777
+}
+
+*[group="tab_widget_bar"]::tab:first:selected,
+*[group="tab_widget_bar"]::tab:selected,
+*[group="tab_widget_bar"]::tab:last:selected,
+*[group="ltab_widget"]::tab:selected {
+    background-color: #333;
+    color: white
+}
+
+*[group="group_table"],
+*[group="macro_table"],
+*[group="action_table"],
+*[group="group_table_header"],
+*[group="macro_table_header"],
+*[group="action_table_header"] {
+    background-color: #555
+}
+
+*[group="macro_table"]::item:hover,
+*[group="action_table"]::item:hover {
+    background-color: #777;
+    color: white
+}
+
+*[group="macro_table"]::item:selected,
+*[group="action_table"]::item:selected {
+    background-color: #888;
+    color: white
+}
+
+*[group="frame"]:disabled,
+*[group="context_menu"]:disabled,
+*[group="title"]:disabled,
+*[group="client"]:disabled,
+*[group="line_edit"]:disabled,
+*[group="text_edit"]:disabled,
+*[group="key_edit"]:disabled,
+*[group="get_button"]:disabled,
+*[group="check"]:disabled,
+*[group="radio"]:disabled,
+*[group="combo"]:disabled,
+*[group="combo_body"]:disabled,
+*[group="context_menu"]:disabled,
+*[group="macro-button"]:disabled,
+*[group="settings-button"]:disabled,
+*[group="edit-add_button"]:disabled,
+*[group="edit-edit_button"]:disabled,
+*[group="record-button"]:disabled,
+*[group="tab_widget_bar"]::tab:first:disabled,
+*[group="tab_widget_bar"]::tab:disabled,
+*[group="tab_widget_bar"]::tab:last:disabled,
+*[group="ltab_widget"]::tab:disabled,
+*[group="group_table"]:disabled,
+*[group="macro_table"]:disabled,
+*[group="action_table"]:disabled,
+*[group="group_table_header"]:disabled,
+*[group="macro_table_header"]:disabled,
+*[group="action_table_header"]:disabled {
+    color: gray
+}
+)";
+			Qi::ui.themes.append(theme);
+		}
 	}
 	if ("custom style")
 	{

@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <qlistview.h>
 #include <src/inc_header.h>
 #include "ui_FuncUi.h"
 class FuncUi : public QWidget
@@ -19,17 +20,17 @@ public:
 private:
 	void StyleGroup()
 	{
-		ui.content_widget->setProperty("group", "client");
 		ui.window_select_button->setProperty("group", "get_button");
 		ui.click_check->setProperty("group", "check");
 		ui.clock_check->setProperty("group", "check");
 		ui.window_check->setProperty("group", "check");
+		ui.click_mode_combo->setView(new QListView());
 		ui.click_mode_combo->setProperty("group", "combo");
+		ui.click_mode_combo->view()->setProperty("group", "combo_body");
 		ui.click_delay_edit->setProperty("group", "line_edit");
 		ui.window_name_edit->setProperty("group", "line_edit");
 		ui.click_keyedit->setProperty("group", "line_edit");
 		ui.clock_keyedit->setProperty("group", "line_edit");
-		ui.click_mode_combo->view()->setProperty("group", "table");
 	}
 	void Init()
 	{

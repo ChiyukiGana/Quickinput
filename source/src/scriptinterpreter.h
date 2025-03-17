@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <string>
 #include <map>
 #include <vector>
@@ -11,7 +11,6 @@
 #include <regex>
 #include <mutex>
 #include <windows.h>
-
 class QiVar {
 public:
     const char* exception_type_invalid = "QiVar: type is invalid";
@@ -25,9 +24,30 @@ public:
     QiVar(const char* str) : type(t_str), str(str) {}
     QiVar(const std::string& str) : type(t_str), str(str) {}
 
+    static int random(int max, int min = 0)
+    {
+        srand(clock());
+        if (min > max) std::swap(min, max);
+        return min + (rand() % (max - min + 1));
+    }
+
     static std::string removeCommas(const std::string& str) {
         std::string result = str;
         result.erase(std::remove(result.begin(), result.end(), ','), result.end());
+        return result;
+    }
+
+    static std::string removePoints(const std::string& str) {
+        std::string result = str;
+        result.erase(std::remove(result.begin(), result.end(), '.'), result.end());
+        return result;
+    }
+
+    static std::string removeChars(const std::string& str) {
+        std::string result;
+        for (char ch : str) {
+            if (ch >= '0' && ch <= '9') result += ch;
+        }
         return result;
     }
 
@@ -128,7 +148,7 @@ using QiVarMap = std::map<std::string, QiVar>;
 
 class QiScriptInterpreter
 {
-    enum TokenType { VARIABLE, NUMBER, STRING, OPERATOR, PAREN };
+    enum TokenType { VARIABLE, NUMBER, STRING, OPERATOR, PAREN, FUNCTION, ARG_SEPARATOR };
     struct Token {
         TokenType type;
         std::string value;
@@ -144,6 +164,7 @@ public:
     static inline const std::string error_invalid_character = "error_invalid_character";
     static inline const std::string error_not_enough_operands = "error_not_enough_operands";
     static inline const std::string error_invalid_expression = "error_invalid_expression";
+    static inline const std::string error_unknown_functions = "error_unknown_functions";
     std::string trim(const std::string& s) {
         auto start = s.find_first_not_of(" \t");
         auto end = s.find_last_not_of(" \t");
@@ -156,13 +177,24 @@ public:
             char c = expr[pos];
             if (isspace(c)) { pos++; continue; }
 
-            // Variables
+            // Functions and Variables
             if (c == '$' || isalpha(c)) {
                 size_t start = pos++;
-                while (pos < expr.length() && (isalnum(expr[pos]) || expr[pos] == '_')) pos++;
-                tokens.emplace_back(VARIABLE, expr.substr(start, pos - start));
-
-                // Numbers
+                while (pos < expr.length() && (isalnum(expr[pos]) || expr[pos] == '_')) {
+                    pos++;
+                }
+                std::string identifier = expr.substr(start, pos - start);
+                // Functions
+                if (pos < expr.length() && expr[pos] == '(') {
+                    tokens.emplace_back(FUNCTION, identifier, 4);
+                    tokens.emplace_back(PAREN, "(");
+                    pos++;
+                }
+                // Variables
+                else {
+                    tokens.emplace_back(VARIABLE, identifier);
+                }
+                continue;
             }
             else if (isdigit(c) || c == '.') {
                 size_t start = pos++;
@@ -172,17 +204,15 @@ public:
                     pos++;
                 }
                 tokens.emplace_back(NUMBER, expr.substr(start, pos - start));
-
-                // Strings
             }
+            // Strings
             else if (c == '\'') {
                 size_t start = ++pos;
                 while (pos < expr.length() && expr[pos] != '\'') pos++;
                 tokens.emplace_back(STRING, expr.substr(start, pos - start));
                 pos++;
-
-                // Operators
             }
+            // Operators
             else if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '>' || c == '<' || c == '=') {
                 if (c == '=' && pos + 1 < expr.length() && expr[pos + 1] == '=') {
                     tokens.emplace_back(OPERATOR, "==", 1);
@@ -198,13 +228,15 @@ public:
                     tokens.emplace_back(OPERATOR, op, prec);
                     pos++;
                 }
-
-                // Parentheses
             }
+            // Parentheses
             else if (c == '(' || c == ')') {
                 tokens.emplace_back(PAREN, std::string(1, c));
                 pos++;
-
+            }
+            else if (c == ',') {
+                tokens.emplace_back(ARG_SEPARATOR, ",");
+                pos++;
             }
             else {
                 throw std::runtime_error(error_invalid_character + std::string(1, c));
@@ -229,7 +261,13 @@ public:
                         output.push_back(opStack.back());
                         opStack.pop_back();
                     }
-                    if (!opStack.empty()) opStack.pop_back();
+                    if (!opStack.empty()) {
+                        opStack.pop_back();
+                        if (!opStack.empty() && opStack.back().type == FUNCTION) {
+                            output.push_back(opStack.back());
+                            opStack.pop_back();
+                        }
+                    }
                 }
             }
             else if (token.type == OPERATOR) {
@@ -239,6 +277,15 @@ public:
                     opStack.pop_back();
                 }
                 opStack.push_back(token);
+            }
+            else if (token.type == FUNCTION) {
+                opStack.push_back(token);
+            }
+            else if (token.type == ARG_SEPARATOR) {
+                while (!opStack.empty() && opStack.back().value != "(") {
+                    output.push_back(opStack.back());
+                    opStack.pop_back();
+                }
             }
         }
 
@@ -327,6 +374,51 @@ public:
                 else if (token.value == "^") result = left.merge(right);
                 else if (token.value == "==") result = QiVar(left == right ? 1.0 : 0.0);
 
+                stack.push_back(result);
+            }
+            else if (token.type == FUNCTION) {
+                std::string funcName = token.value;
+                int argCount = 0;
+                if (funcName == "rand") {
+                    argCount = 2;
+                }
+                else if (funcName == "str" || funcName == "num" || funcName == "rmc") {
+                    argCount = 1;
+                }
+                else {
+                    throw std::runtime_error(error_unknown_functions + std::string(": ") + funcName);
+                }
+
+                if (stack.size() < argCount) {
+                    throw std::runtime_error(error_not_enough_operands);
+                }
+
+                std::vector<QiVar> args;
+                for (int i = 0; i < argCount; ++i) {
+                    args.insert(args.begin(), stack.back());
+                    stack.pop_back();
+                }
+
+                QiVar result;
+                if (funcName == "str") {
+                    result = QiVar(args[0].toString());
+                }
+                else if (funcName == "num") {
+                    result = QiVar(args[0].toNumber());
+                }
+                else if (funcName == "rmc") {
+                    std::string cleaned = QiVar::removeChars(args[0].toString());
+                    result = QiVar(cleaned);
+                }
+                else if (funcName == "rand") {
+                    double maxVal = args[0].toNumber();
+                    double minVal = args[1].toNumber();
+                    int randVal = QiVar::random(static_cast<int>(maxVal), static_cast<int>(minVal));
+                    result = QiVar(static_cast<double>(randVal));
+                }
+                else {
+                    throw std::runtime_error(error_unknown_functions + std::string(": ") + funcName);
+                }
                 stack.push_back(result);
             }
         }
@@ -442,16 +534,19 @@ public:
     }
     static bool parseError(std::string msg) {
         if (msg.find(QiScriptInterpreter::error_invalid_character) != std::string::npos) {
-            MessageBoxW(nullptr, L"±äÁ¿²Ù×÷Óï¾ä³öÏÖÎŞĞ§µÄ×Ö·û", String::toWString(msg).c_str(), MB_ICONERROR);
+            MessageBoxW(nullptr, L"å˜é‡æ“ä½œè¯­å¥å‡ºç°æ— æ•ˆçš„å­—ç¬¦", String::toWString(msg).c_str(), MB_ICONERROR);
         }
         else if (msg.find(QiScriptInterpreter::error_invalid_expression) != std::string::npos) {
-            MessageBoxW(nullptr, L"±äÁ¿²Ù×÷Óï¾äÎŞĞ§", String::toWString(msg).c_str(), MB_ICONERROR);
+            MessageBoxW(nullptr, L"å˜é‡æ“ä½œè¯­å¥æ— æ•ˆ", String::toWString(msg).c_str(), MB_ICONERROR);
         }
         else if (msg.find(QiScriptInterpreter::error_not_enough_operands) != std::string::npos) {
-            MessageBoxW(nullptr, L"È±ÉÙ±äÁ¿²Ù×÷·û²ÎÊı", String::toWString(msg).c_str(), MB_ICONERROR);
+            MessageBoxW(nullptr, L"ç¼ºå°‘å˜é‡æ“ä½œç¬¦å‚æ•°", String::toWString(msg).c_str(), MB_ICONERROR);
         }
         else if (msg.find("==") != std::string::npos) {
-            MessageBoxW(nullptr, L"== ²Ù×÷·ûÊ¹ÓÃ´íÎó", String::toWString(msg).c_str(), MB_ICONERROR);
+            MessageBoxW(nullptr, L"== æ“ä½œç¬¦ä½¿ç”¨é”™è¯¯", String::toWString(msg).c_str(), MB_ICONERROR);
+        }
+        else if (msg.find(QiScriptInterpreter::error_unknown_functions) != std::string::npos) {
+            MessageBoxW(nullptr, L"æœªçŸ¥å‡½æ•°", String::toWString(msg).c_str(), MB_ICONERROR);
         }
         return false;
     }

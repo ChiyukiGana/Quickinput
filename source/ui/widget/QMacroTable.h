@@ -14,6 +14,7 @@ class QMacroTable : public QTableWidget
 public:
 	QMacroTable(QWidget* parent = nullptr) : QTableWidget(parent)
 	{
+		setFocusPolicy(Qt::NoFocus);
 		setProperty("setFoldEnabled", true);
 		horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Stretch);
 		horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
@@ -24,43 +25,39 @@ public:
 		setShowGrid(false);
 		setDropIndicatorShown(false);
 		setVerticalScrollMode(QAbstractItemView::ScrollMode::ScrollPerPixel);
-		setStyleSheet("QHeaderView::section,QScrollBar{background:transparent}");
-		if ("style group")
+		setStyleSheet("QTableCornerButton::section,QHeaderView::section{background-color:rgba(0,0,0,0)}QScrollBar{background:transparent}");
+		if ("StyleGroup")
 		{
-			setProperty("group", "table");
-			horizontalHeader()->setProperty("group", "table_header");
-			verticalHeader()->setProperty("group", "table_header");
-			if ("StyleGroup")
+			setProperty("group", "group_table");
+			horizontalHeader()->setProperty("group", "group_table_header");
+			verticalHeader()->setProperty("group", "group_table_header");
+			if ("table corner button")
 			{
-				setProperty("group", "table");
-				horizontalHeader()->setProperty("group", "table_header");
-				verticalHeader()->setProperty("group", "table_header");
-				if ("table corner button")
+				const QObjectList& objs = children();
+				for (size_t i = 0; i < objs.size(); i++)
 				{
-					const QObjectList& objs = children();
-					for (size_t i = 0; i < objs.size(); i++)
+					const QObject* obj = objs[i];
+					QString name = obj->metaObject()->className();
+					if (name == "QTableCornerButton")
 					{
-						const QObject* obj = objs[i];
-						QString name = obj->metaObject()->className();
-						if (name == "QTableCornerButton")
-						{
-							QWidget* corner = (QWidget*)obj;
-							QHBoxLayout* box = new QHBoxLayout(corner);
-							box->setMargin(0);
-							QWidget* widget = new QWidget(corner);
-							box->addWidget(widget);
-							widget->setProperty("group", "table_header");
-							break;
-						}
-						else if (name == "QLineEdit")
-						{
-							QLineEdit* lineEdit = (QLineEdit*)obj;
-							lineEdit->setProperty("group", "table_header");
-						}
+						QWidget* corner = (QWidget*)obj;
+						QHBoxLayout* box = new QHBoxLayout(corner);
+						box->setMargin(0);
+						QWidget* widget = new QWidget(corner);
+						box->addWidget(widget);
+						corner->setProperty("group", "group_table_header");
+						widget->setProperty("group", "group_table_header");
+						break;
+					}
+					else if (name == "QLineEdit")
+					{
+						QLineEdit* lineEdit = (QLineEdit*)obj;
+						lineEdit->setProperty("group", "group_table_header");
 					}
 				}
 			}
 		}
+
 	}
 
 	void setTableCount(int count)
@@ -72,6 +69,7 @@ public:
 		for (size_t i = 0; i < count; i++)
 		{
 			QTableWidget* table = new QTableWidget(this);
+			table->setFocusPolicy(Qt::NoFocus);
 			table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Stretch);
 			table->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
 			table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
@@ -81,14 +79,17 @@ public:
 			table->setShowGrid(false);
 			table->setDropIndicatorShown(false);
 			table->setCornerButtonEnabled(false);
-			table->setStyleSheet("QHeaderView::section,QScrollBar{background:transparent;font-weight:bold}");
+			table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+			table->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 			table->setEditTriggers(QAbstractItemView::EditTrigger::DoubleClicked);
 			table->setColumnCount(1);
+			table->setStyleSheet("QTableCornerButton::section,QHeaderView::section{background-color:rgba(0,0,0,0)}");
+			table->viewport()->setStyleSheet("background-color:rgba(0,0,0,0)");
 			if ("StyleGroup")
 			{
-				table->setProperty("group", "table");
-				table->horizontalHeader()->setProperty("group", "table_header");
-				table->verticalHeader()->setProperty("group", "table_header");
+				table->setProperty("group", "macro_table");
+				table->horizontalHeader()->setProperty("group", "macro_table_header");
+				table->verticalHeader()->setProperty("group", "macro_table_header");
 				if ("table corner button")
 				{
 					const QObjectList& objs = table->children();
@@ -102,7 +103,6 @@ public:
 							corner->installEventFilter(this);
 							corner->setProperty("parent_table", QVariant::fromValue((QTableWidget*)table));
 							QHBoxLayout* box = new QHBoxLayout(corner);
-							box->setMargin(0);
 							QLabel* label = new QLabel(corner);
 							QFont font;
 							font.setPixelSize(16);
@@ -110,14 +110,16 @@ public:
 							label->setAlignment(Qt::AlignCenter);
 							label->setText(u8"▾");
 							box->addWidget(label);
+							box->setMargin(0);
 							table->setProperty("table_corner_label", QVariant::fromValue((QLabel*)label));
-							label->setProperty("group", "table_header");
+							corner->setProperty("group", "macro_table_header");
+							label->setProperty("group", "macro_table_header");
 							break;
 						}
 						else if (name == "QLineEdit")
 						{
 							QLineEdit* lineEdit = (QLineEdit*)obj;
-							lineEdit->setProperty("group", "table_header");
+							lineEdit->setProperty("group", "macro_table_header");
 						}
 					}
 				}
@@ -141,19 +143,20 @@ public:
 				});
 			connect(table->verticalHeader(), &QHeaderView::sectionClicked, this, [this, i, table](int index) {
 				if (selfAction) return;
-				int row = currentRow();
 				setReSelection(i);
+				int row = currentRow();
 				if (i != row) currentChanged(i, table->currentRow(), table->currentColumn());
 				});
 			connect(table->horizontalHeader(), &QHeaderView::sectionClicked, this, [this, i, table](int index) {
 				if (selfAction) return;
-				int row = currentRow();
 				setReSelection(i);
+				int row = currentRow();
 				headerClicked(i, index);
 				if (i != row) currentChanged(i, table->currentRow(), table->currentColumn());
 				});
 			connect(table->horizontalHeader(), &QHeaderView::sectionDoubleClicked, this, [this, i](int index) {
 				if (selfAction) return;
+				setReSelection(i);
 				headerDoubleClicked(i, index);
 				});
 		}
