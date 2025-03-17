@@ -34,16 +34,16 @@ namespace QiTools
 			base_vector::push_back(std::move(right));
 			return base_vector::back();
 		}
-		Ty& append_copy(const Ty& element)
+		Ty& append(const Ty& element)
 		{
 			base_vector::push_back(element);
 			return base_vector::back();
 		}
-		void append_copy(const QiVector& other)
+		void appen(const QiVector& other)
 		{
 			base_vector::insert(base_vector::end(), other.begin(), other.end());
 		}
-		void append_copy(const QiVector& other, size_t begin, size_t end)
+		void append(const QiVector& other, size_t begin, size_t end)
 		{
 			base_vector::insert(base_vector::begin(), other.begin() + begin, other.begin() + end);
 		}
@@ -53,16 +53,16 @@ namespace QiTools
 			base_vector::insert(base_vector::begin() + where, std::move(right));
 			return base_vector::operator[](where);
 		}
-		Ty& insert_copy(size_t where, const Ty& element)
+		Ty& insert(size_t where, const Ty& element)
 		{
 			base_vector::insert(base_vector::begin() + where, element);
 			return base_vector::operator[](where);
 		}
-		void insert_copy(size_t where, const QiVector& other)
+		void insert(size_t where, const QiVector& other)
 		{
 			base_vector::insert(base_vector::begin() + where, other.begin(), other.end());
 		}
-		void insert_copy(size_t where, const QiVector& other, size_t begin, size_t end)
+		void insert(size_t where, const QiVector& other, size_t begin, size_t end)
 		{
 			base_vector::insert(base_vector::begin() + where, other.begin() + begin, other.begin() + end);
 		}

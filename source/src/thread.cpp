@@ -35,68 +35,40 @@ namespace QiThread
 	}
 	DWORD _stdcall MacroRun(PVOID pParam)
 	{
-		Macro* pMacro = (Macro*)pParam;
-		srand(clock());
-		WndInput* pWi = nullptr;
-		if (pMacro->wndState)
-		{
-			pMacro->wp.wnd = pMacro->wi.wnd;
-			pMacro->wp.child = pMacro->wi.child;
-			// window not found
-			if (!pMacro->wp.active())
-			{
-				pMacro->wp.wnd = pMacro->wi.wnd = FindWindowW((LPCWSTR)(pMacro->wi.wndClass.utf16()), (LPCWSTR)(pMacro->wi.wndName.utf16()));
-				if (!pMacro->wp.wnd) pMacro->wp.wnd = (pMacro->wi = QiFn::WindowSelection()).wnd;
-				if (!pMacro->wp.wnd)
-				{
-					2000, Qi::popText->Popup("窗口失效");
-					return -1;
-				}
-			}
-
-			pWi = &pMacro->wp;
-		}
-
+		auto param = (ThreadParam*)pParam;
+		Macro* pMacro = param->macro;
 		GetCursorPos(&pMacro->cursor);
-		int count = 0;
-		int jumpId = 0;
+		WndInput* wndInput = nullptr; if (pMacro->wndState) wndInput = &pMacro->wndInput;
+		QiInterpreter interpreter(pMacro->varMap, pMacro->acRun, pMacro->speed, wndInput, pMacro->cursor);
+		pMacro->interpreter = &interpreter;
+		param->load.notify_all();
 		pMacro->varMap.clear();
-		QiInterpreter interpreter(pMacro->varMap, pMacro->acRun, pMacro->speed, pWi, pMacro->cursor);
 		Qi::curBlock += pMacro->curBlock;
-		while (Qi::run && !PeekExitMsg())
+		if (Qi::debug)
 		{
-			if (pMacro->count && pMacro->mode != Macro::sw) { count++; if (count > pMacro->count) break; } // if count = 0 then while is infinite
-			if (interpreter.ActionInterpreter(pMacro->acRun, jumpId) != r_continue) break;
+			interpreter.ActionInterpreter(pMacro->acRun);
+		}
+		else if (pMacro->count && pMacro->mode != Macro::sw)
+		{
+			for (size_t i = 0; i < pMacro->count && Qi::run && !PeekExitMsg(); i++) if (interpreter.ActionInterpreter(pMacro->acRun) != r_continue) break;
+		}
+		else if (!pMacro->count || pMacro->mode == Macro::sw)
+		{
+			while (Qi::run && !PeekExitMsg()) if (interpreter.ActionInterpreter(pMacro->acRun) != r_continue) break;
 		}
 		Qi::curBlock -= pMacro->curBlock;
 		return 0;
 	}
 	DWORD _stdcall MacroEnd(PVOID pParam)
 	{
-		Macro* pMacro = (Macro*)pParam;
-		srand(clock());
-		WndInput* pWi = nullptr;
-		if (pMacro->wndState)
-		{
-			pMacro->wp.wnd = pMacro->wi.wnd;
-			// window not found
-			if (!pMacro->wp.active())
-			{
-				pMacro->wp.wnd = pMacro->wi.wnd = FindWindowW((LPCWSTR)(pMacro->wi.wndClass.utf16()), (LPCWSTR)(pMacro->wi.wndName.utf16()));
-				if (!pMacro->wp.wnd) pMacro->wp.wnd = (pMacro->wi = QiFn::WindowSelection()).wnd;
-				if (!pMacro->wp.wnd)
-				{
-					2000, Qi::popText->Popup("窗口失效");
-					return -1;
-				}
-			}
-
-			pWi = &pMacro->wp;
-		}
-		int jumpId = 0;
-		QiInterpreter interpreter(pMacro->varMap, pMacro->acEnd, pMacro->speed, pWi, pMacro->cursor);
+		auto param = (ThreadParam*)pParam;
+		Macro* pMacro = param->macro;
+		WndInput* wndInput = nullptr; if (pMacro->wndState) wndInput = &pMacro->wndInput;
+		QiInterpreter interpreter(pMacro->varMap, pMacro->acEnd, pMacro->speed, wndInput, pMacro->cursor);
+		pMacro->interpreter = &interpreter;
+		param->load.notify_all();
 		Qi::curBlock += pMacro->curBlock;
-		interpreter.ActionInterpreter(pMacro->acEnd, jumpId);
+		interpreter.ActionInterpreter(pMacro->acEnd);
 		Qi::curBlock -= pMacro->curBlock;
 		return 0;
 	}
@@ -120,25 +92,25 @@ namespace QiThread
 	{
 		while (Qi::state)
 		{
-			Qi::fun.wndActive.wi.update();
-			if (Qi::fun.wndActive.wi.wnd)
+			Qi::fun.wndActive.wndInfo.update();
+			if (Qi::fun.wndActive.wndInfo.wnd)
 			{
-				bool active = (GetForegroundWindow() == Qi::fun.wndActive.wi.wnd);
+				bool active = (GetForegroundWindow() == Qi::fun.wndActive.wndInfo.wnd);
 				if (!Qi::run && active)
 				{
 					Qi::run = true;
-					if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wi.wndName, true);
+					if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wndInfo.wndName, true);
 				}
 				else if (Qi::run && !active)
 				{
 					Qi::run = false;
-					if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wi.wndName, false);
+					if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wndInfo.wndName, false);
 				}
 			}
 			else if (Qi::run)
 			{
 				Qi::run = false;
-				if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wi.wndName, false);
+				if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wndInfo.wndName, false);
 			}
 			Sleep(100);
 		}
@@ -147,11 +119,49 @@ namespace QiThread
 	}
 	void StartMacroRun(Macro* pMacro)
 	{
-		pMacro->thRun = Thread::Start(MacroRun, pMacro);
+		if (pMacro->wndState)
+		{
+			pMacro->wndInput.wnd = pMacro->wndInfo.wnd;
+			pMacro->wndInput.child = pMacro->wndInfo.child;
+			if (!pMacro->wndInput.active())
+			{
+				pMacro->wndInput.wnd = pMacro->wndInfo.wnd = FindWindowW((LPCWSTR)(pMacro->wndInfo.wndClass.utf16()), (LPCWSTR)(pMacro->wndInfo.wndName.utf16()));
+				if (!pMacro->wndInput.wnd) pMacro->wndInput.wnd = (pMacro->wndInfo = QiFn::WindowSelection()).wnd;
+				if (!pMacro->wndInput.wnd)
+				{
+					Qi::popText->Popup("窗口失效");
+					return;
+				}
+			}
+		}
+		ThreadParam tp;
+		tp.macro = pMacro;
+		pMacro->thRun = Thread::Start(MacroRun, &tp);
+		std::unique_lock<std::mutex> lock(tp.mutex);
+		tp.load.wait(lock);
 	}
 	void StartMacroEnd(Macro* pMacro)
 	{
-		pMacro->thEnd = Thread::Start(MacroEnd, pMacro);
+		if (pMacro->wndState)
+		{
+			pMacro->wndInput.wnd = pMacro->wndInfo.wnd;
+			pMacro->wndInput.child = pMacro->wndInfo.child;
+			if (!pMacro->wndInput.active())
+			{
+				pMacro->wndInput.wnd = pMacro->wndInfo.wnd = FindWindowW((LPCWSTR)(pMacro->wndInfo.wndClass.utf16()), (LPCWSTR)(pMacro->wndInfo.wndName.utf16()));
+				if (!pMacro->wndInput.wnd) pMacro->wndInput.wnd = (pMacro->wndInfo = QiFn::WindowSelection()).wnd;
+				if (!pMacro->wndInput.wnd)
+				{
+					Qi::popText->Popup("窗口失效");
+					return;
+				}
+			}
+		}
+		ThreadParam tp;
+		tp.macro = pMacro;
+		pMacro->thEnd = Thread::Start(MacroEnd, &tp);
+		std::unique_lock<std::mutex> lock(tp.mutex);
+		tp.load.wait(lock);
 	}
 	void StartQuickClick()
 	{

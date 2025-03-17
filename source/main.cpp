@@ -41,6 +41,9 @@ void Init()
 	qputenv("QT_SCALE_FACTOR", QByteArray::number(System::screenScaleRote(), 10, 1)); // enlarge high resolution screen
 	if ("symbol")
 	{
+		Qi::ui.text.syEntry = "🔜";
+		Qi::ui.text.syPause = "⏸️";
+		Qi::ui.text.syExit = "🔙";
 		Qi::ui.text.syAny = "🟡";
 		Qi::ui.text.syOn = "✅";
 		Qi::ui.text.syOff = "⛔";

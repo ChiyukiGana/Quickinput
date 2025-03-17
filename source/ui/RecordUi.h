@@ -16,7 +16,7 @@ public:
 		_close,
 	};
 public:
-	RecordUi(MacroGroup* group, WndInfo* wi) : QDialog()
+	RecordUi(MacroGroup* group, WndInfo* wndInfo) : QDialog()
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
@@ -48,10 +48,10 @@ public:
 		}
 		macro.mode = Macro::down;
 		macro.count = 1;
-		if (wi)
+		if (wndInfo)
 		{
-			Qi::recordWindow = wi->wnd;
-			macro.wi = *wi;
+			Qi::recordWindow = wndInfo->wnd;
+			macro.wndInfo = *wndInfo;
 			macro.wndState = true;
 			macro.name = group->makeName("窗口录制");
 			POINT wpt = Window::pos(Qi::recordWindow);

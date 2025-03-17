@@ -24,6 +24,12 @@ class EditUi : public QDialog
 		tab_var,
 		tab_window
 	};
+	enum DebugState
+	{
+		debug_idel,
+		debug_run,
+		debug_pause
+	};
 	// line edit range
 	const int posMin = -10000;
 	const int posMax = 10000;
@@ -36,10 +42,11 @@ class EditUi : public QDialog
 	const int imageSimMax = 99;
 	const int popTextTimeMax = 9999;
 	// table column
-	const int tableColumn_type = 0;
-	const int tableColumn_param = 1;
-	const int tableColumn_disable = 2;
-	const int tableColumn_mark = 3;
+	const int tableColumn_debug = 0;
+	const int tableColumn_disable = 1;
+	const int tableColumn_type = 2;
+	const int tableColumn_param = 3;
+	const int tableColumn_mark = 4;
 	Ui::EditUiClass ui;
 	// edit
 	QList<Layer> layers;
@@ -62,7 +69,6 @@ class EditUi : public QDialog
 	QList<QPushButton*> edit2Buttons;
 	// test run
 	QTimer* testTimer;
-	int testCount = 0;
 	// custom widget
 	QPointView pv;
 	QRectView rv;
@@ -521,13 +527,16 @@ private:
 			ui.action_table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
 			ui.action_table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
 			ui.action_table->verticalHeader()->setDefaultSectionSize(0);
-			ui.action_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Fixed);
-			ui.action_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::Fixed);
-			ui.action_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Interactive);
-			ui.action_table->horizontalHeader()->setSectionResizeMode(3, QHeaderView::ResizeMode::Interactive);
-			ui.action_table->setColumnWidth(tableColumn_type, 100);
+			ui.action_table->horizontalHeader()->setSectionResizeMode(tableColumn_debug, QHeaderView::ResizeMode::Fixed);
+			ui.action_table->horizontalHeader()->setSectionResizeMode(tableColumn_disable, QHeaderView::ResizeMode::Fixed);
+			ui.action_table->horizontalHeader()->setSectionResizeMode(tableColumn_type, QHeaderView::ResizeMode::Fixed);
+			ui.action_table->horizontalHeader()->setSectionResizeMode(tableColumn_param, QHeaderView::ResizeMode::Interactive);
+			ui.action_table->horizontalHeader()->setSectionResizeMode(tableColumn_mark, QHeaderView::ResizeMode::Interactive);
+			ui.action_table->setColumnWidth(tableColumn_debug, 35);
 			ui.action_table->setColumnWidth(tableColumn_disable, 50);
+			ui.action_table->setColumnWidth(tableColumn_type, 100);
 			ui.action_table->setColumnWidth(tableColumn_param, 300);
+			ui.action_table->setColumnWidth(tableColumn_mark, 100);
 			ui.action_table->setStyleSheet("QTableCornerButton::section,QHeaderView::section{background-color:rgba(0,0,0,0)}QScrollBar{background:transparent}");
 		}
 		if ("key edit")
@@ -551,7 +560,7 @@ private:
 		// enable qlable scale
 		ui.image_view_label->setScaledContents(true);
 		// load Window mode
-		if (macro->wndState) macro->wi.update(), SetWindowMode();
+		if (macro->wndState) macro->wndInfo.update(), SetWindowMode();
 	}
 	// >>>> new action set here
 	void Event()
@@ -560,14 +569,14 @@ private:
 		{
 			connect(ui.title_close_button, &QPushButton::clicked, this, [this] {
 				Qi::popText->Show("正在保存宏");
-				QApplication::postEvent(this, new QEvent(QEvent::User));
+				QApplication::postEvent(this, new QEvent((QEvent::Type)EditEvent::close));
 				});
 			connect(ui.title_back_button, &QPushButton::clicked, this, [this] {
 				layers.removeLast();
 				if (layers.empty())
 				{
 					Qi::popText->Show("正在保存宏");
-					QApplication::postEvent(this, new QEvent(QEvent::User));
+					QApplication::postEvent(this, new QEvent((QEvent::Type)EditEvent::close));
 				}
 				else
 				{
@@ -577,13 +586,19 @@ private:
 				}
 				});
 			connect(ui.title_run_button, &QPushButton::clicked, this, [this] {
-				setDisabled(true);
-				testCount = macro->count;
-				macro->count = 1;
-				Qi::run = true;
-				timeBeginPeriod(1);
-				QiThread::StartMacroRun(macro);
-				testTimer->start(16);
+				if (QiThread::MacroRunActive(macro) || QiThread::MacroEndActive(macro))
+				{
+					macro->interpreter->DebugContinue();
+				}
+				else
+				{
+					Qi::run = true;
+					timeBeginPeriod(1);
+					if (ui.action_running_radio->isChecked()) QiThread::StartMacroRun(macro);
+					else QiThread::StartMacroEnd(macro);
+					testTimer->start(16);
+				}
+				SetDebugState(debug_run);
 				});
 			connect(ui.window_select_button, &QPushButton::clicked, this, [this] { SelectWindow(); });
 			connect(ui.window_state_check, &QCheckBox::clicked, this, [this](bool state) {
@@ -602,7 +617,7 @@ private:
 					ui.window_name_edit->setDisabled(true);
 				}
 				});
-			connect(ui.window_child_check, &QCheckBox::clicked, this, [this](bool state) { macro->wi.child = state; });
+			connect(ui.window_child_check, &QCheckBox::clicked, this, [this](bool state) { macro->wndInfo.child = state; });
 		}
 		// >>>> new action set here
 		if ("action widget")
@@ -617,13 +632,13 @@ private:
 				POINT pt;
 				if (macro->wndState)
 				{
-					if (!macro->wi.update())
+					if (!macro->wndInfo.update())
 					{
 						SelectWindow();
 					}
-					RECT wrect = Window::rect(macro->wi.wnd);
+					RECT wrect = Window::rect(macro->wndInfo.wnd);
 					pt = ps.Start(wrect);
-					pt = QiFn::WRTA({ pt.x, pt.y }, macro->wi.wnd);
+					pt = QiFn::WRTA({ pt.x, pt.y }, macro->wndInfo.wnd);
 				}
 				else
 				{
@@ -668,11 +683,11 @@ private:
 				Rgba rgba;
 				if (macro->wndState)
 				{
-					if (!macro->wi.update())
+					if (!macro->wndInfo.update())
 					{
 						SelectWindow();
 					}
-					RECT wrect = Window::rect(macro->wi.wnd);
+					RECT wrect = Window::rect(macro->wndInfo.wnd);
 					rect = rs.Start(wrect);
 					if ((rect.right - rect.left == 0) && (rect.bottom - rect.top == 0))
 					{
@@ -681,7 +696,7 @@ private:
 						rgba.a = 1;
 						ReleaseDC(nullptr, hdc);
 					}
-					rect = QiFn::WRTAR(rect, macro->wi.wnd);
+					rect = QiFn::WRTAR(rect, macro->wndInfo.wnd);
 				}
 				else
 				{
@@ -722,13 +737,13 @@ private:
 				RECT rect;
 				if (macro->wndState)
 				{
-					if (!macro->wi.update())
+					if (!macro->wndInfo.update())
 					{
 						SelectWindow();
 					}
-					RECT wrect = Window::rect(macro->wi.wnd);
+					RECT wrect = Window::rect(macro->wndInfo.wnd);
 					rect = rs.Start(wrect);
-					rect = QiFn::WRTAR(rect, macro->wi.wnd);
+					rect = QiFn::WRTAR(rect, macro->wndInfo.wnd);
 				}
 				else
 				{
@@ -754,13 +769,13 @@ private:
 				RECT rect;
 				if (macro->wndState)
 				{
-					if (!macro->wi.update())
+					if (!macro->wndInfo.update())
 					{
 						SelectWindow();
 					}
-					RECT wrect = Window::rect(macro->wi.wnd);
+					RECT wrect = Window::rect(macro->wndInfo.wnd);
 					rect = rs.Start(wrect);
-					rect = QiFn::WRTAR(rect, macro->wi.wnd);
+					rect = QiFn::WRTAR(rect, macro->wndInfo.wnd);
 				}
 				else
 				{
@@ -820,7 +835,7 @@ private:
 				base.mark = ui.action_table->item(row, tableColumn_mark)->text();
 				if ((base.type == QiType::jumpPoint) || (base.type == QiType::block)) TableUpdate(row);
 				});
-			// mark, diable
+			// mark, disable, debug
 			connect(ui.action_table, &QTableWidget::cellClicked, this, [this](int row, int column) {
 				if (column == tableColumn_mark)
 				{
@@ -863,8 +878,37 @@ private:
 							base.disable = !base.disable;
 							TableUpdate(row);
 						}
-						
+
 					}
+				}
+				else if (column == tableColumn_debug)
+				{
+					QiBase& base = actions->at(row).base();
+					if (Input::state(VK_CONTROL))
+					{
+						IterActions(*actionsRoot, [](Action& action) { if (action.base().debug_entry) action.base().debug_entry = false; return false; });
+						base.debug_entry = true;
+						base.debug_break = base.debug_exit = false;
+					}
+					else if (Input::state(VK_SHIFT))
+					{
+						IterActions(*actionsRoot, [](Action& action) { if (action.base().debug_exit) action.base().debug_exit = false; return false; });
+						base.debug_exit = true;
+						base.debug_break = base.debug_entry = false;
+					}
+					else
+					{
+						if (base.debug_break || base.debug_entry || base.debug_exit)
+						{
+							base.debug_break = base.debug_entry = base.debug_exit = false;
+						}
+						else
+						{
+							base.debug_break = true;
+							base.debug_entry = base.debug_exit = false;
+						}
+					}
+					TableReload();
 				}
 				});
 			// selection
@@ -904,9 +948,9 @@ private:
 							POINT pt;
 							if (macro->wndState)
 							{
-								if (!macro->wi.update()) SelectWindow();
-								POINT rpt = QiFn::WATR({ mouse.x, mouse.y }, macro->wi.wnd);
-								pt = Window::pos(macro->wi.wnd);
+								if (!macro->wndInfo.update()) SelectWindow();
+								POINT rpt = QiFn::WATR({ mouse.x, mouse.y }, macro->wndInfo.wnd);
+								pt = Window::pos(macro->wndInfo.wnd);
 								pt.x += rpt.x, pt.y += rpt.y;
 							}
 							else pt = QiFn::ATR({ mouse.x, mouse.y });
@@ -922,9 +966,9 @@ private:
 						RECT rect;
 						if (macro->wndState)
 						{
-							if (!macro->wi.update()) SelectWindow();
-							rect = QiFn::WATRR(color.rect, macro->wi.wnd);
-							POINT pt = Window::pos(macro->wi.wnd);
+							if (!macro->wndInfo.update()) SelectWindow();
+							rect = QiFn::WATRR(color.rect, macro->wndInfo.wnd);
+							POINT pt = Window::pos(macro->wndInfo.wnd);
 							rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 						}
 						else rect = QiFn::ATRR(color.rect);
@@ -949,9 +993,9 @@ private:
 						RECT rect;
 						if (macro->wndState)
 						{
-							if (!macro->wi.update()) SelectWindow();
-							rect = QiFn::WATRR(image.rect, macro->wi.wnd);
-							POINT pt = Window::pos(macro->wi.wnd);
+							if (!macro->wndInfo.update()) SelectWindow();
+							rect = QiFn::WATRR(image.rect, macro->wndInfo.wnd);
+							POINT pt = Window::pos(macro->wndInfo.wnd);
 							rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 						}
 						else rect = QiFn::ATRR(image.rect);
@@ -991,9 +1035,9 @@ private:
 						RECT rect;
 						if (macro->wndState)
 						{
-							if (!macro->wi.update()) SelectWindow();
-							rect = QiFn::WATRR(ocr.rect, macro->wi.wnd);
-							POINT pt = Window::pos(macro->wi.wnd);
+							if (!macro->wndInfo.update()) SelectWindow();
+							rect = QiFn::WATRR(ocr.rect, macro->wndInfo.wnd);
+							POINT pt = Window::pos(macro->wndInfo.wnd);
 							rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 						}
 						else rect = QiFn::ATRR(ocr.rect);
@@ -1043,6 +1087,8 @@ private:
 							case QiType::timer: edit = true; break;
 							case QiType::dialog: edit = edit2 = true; break;
 							case QiType::block: edit = true; break;
+							case QiType::ocr: edit = edit2 = true; break;
+							case QiType::varCondition: edit = edit2 = true; break;
 							}
 							muEdit->setEnabled(edit);
 							muEdit2->setEnabled(edit2);
@@ -1076,11 +1122,13 @@ private:
 		{
 			connect(testTimer, &QTimer::timeout, this, [this]
 				{
-					if (QiThread::MacroRunActive(macro))
+					if (QiThread::MacroRunActive(macro) || QiThread::MacroEndActive(macro))
 					{
 						if (GetAsyncKeyState(VK_SHIFT) && GetAsyncKeyState(VK_F10))
 						{
-							QiThread::ExitMacroRun(macro);
+							macro->interpreter->DebugContinue();
+							if (ui.action_running_radio->isChecked()) QiThread::ExitMacroRun(macro);
+							else QiThread::ExitMacroEnd(macro);
 						}
 					}
 					else
@@ -1088,9 +1136,8 @@ private:
 						testTimer->stop();
 						timeEndPeriod(1);
 						Qi::run = false;
-						macro->count = testCount;
 						Sleep(300);
-						setEnabled(true);
+						SetDebugState(debug_idel);
 					}
 				}
 			);
@@ -1130,6 +1177,34 @@ private:
 		TableReload();
 	}
 	// >>>> new action set here (include edit)
+	void SetDebugState(int debugState)
+	{
+		if (debugState == debug_idel)
+		{
+			ui.title_run_label->setText("运行");
+			ui.title_run_button->setStyleSheet("QPushButton{background-color:#0E0;border-radius:10px}QPushButton:hover{background-color:#0C0}");
+			ui.action_running_radio->setDisabled(false);
+			ui.action_ending_radio->setDisabled(false);
+			ui.title_close_button->setDisabled(false);
+			ui.title_back_button->setDisabled(false);
+			ui.content_widget->setDisabled(false);
+		}
+		else if (debugState == debug_run)
+		{
+			ui.title_run_label->setText("运行中（Shift F10停止）");
+			ui.title_run_button->setStyleSheet("QPushButton{background-color:#0E0;border-radius:10px}QPushButton:hover{background-color:#0C0}");
+			ui.action_running_radio->setDisabled(true);
+			ui.action_ending_radio->setDisabled(true);
+			ui.title_close_button->setDisabled(true);
+			ui.title_back_button->setDisabled(true);
+			ui.content_widget->setDisabled(true);
+		}
+		else if (debugState == debug_pause)
+		{
+			ui.title_run_label->setText("已暂停，点击继续（Shift F10停止）");
+			ui.title_run_button->setStyleSheet("QPushButton{background-color:#FC0;border-radius:10px}QPushButton:hover{background-color:#DA0}");
+		}
+	}
 	void NextEdit(bool edit2)
 	{
 		int p = ui.action_table->currentRow(); if (p < 0) return;
@@ -1277,8 +1352,8 @@ private:
 	void SetWindowMode()
 	{
 		ui.window_state_check->setChecked(macro->wndState);
-		ui.window_child_check->setChecked(macro->wi.child);
-		ui.window_name_edit->setText(macro->wi.wndName);
+		ui.window_child_check->setChecked(macro->wndInfo.child);
+		ui.window_name_edit->setText(macro->wndInfo.wndName);
 	}
 	void setWindowTitle(const QString& title)
 	{
@@ -1289,7 +1364,7 @@ private:
 	{
 		QPoint pt = pos();
 		move(-1000, -1000);
-		macro->wi = QiFn::WindowSelection();
+		macro->wndInfo = QiFn::WindowSelection();
 		move(pt);
 		SetWindowMode();
 	}
@@ -1328,22 +1403,22 @@ private:
 				case QiType::jumpPoint:
 				{
 					const QiJumpPoint& ref = std::get<QiJumpPoint>(action);
-					ids.append_copy(ref.id);
+					ids.append(ref.id);
 				} break;
 				case QiType::jump:
 				{
 					const QiJump& ref = std::get<QiJump>(action);
-					ids.append_copy(ref.id);
+					ids.append(ref.id);
 				} break;
 				case QiType::block:
 				{
 					const QiBlock& ref = std::get<QiBlock>(action);
-					ids.append_copy(ref.id);
+					ids.append(ref.id);
 				} break;
 				case QiType::blockExec:
 				{
 					const QiBlockExec& ref = std::get<QiBlockExec>(action);
-					ids.append_copy(ref.id);
+					ids.append(ref.id);
 				} break;
 				}
 			}
@@ -1355,7 +1430,7 @@ private:
 	{
 		Actions result;
 		IterActions(actions, [&result, type](const Action& action) {
-			if (action.index() == type) result.append_copy(action);
+			if (action.index() == type) result.append(action);
 			return false;
 			}, type);
 		return result;
@@ -1403,7 +1478,7 @@ private:
 				{
 					int id_res = jumpPoint.id;
 					jumpPoint.id = UniqueId(ids);
-					ids.append_copy(jumpPoint.id);
+					ids.append(jumpPoint.id);
 					IterActions(actions, [id_res, jumpPoint](Action& action) {
 						QiJump& jump = std::get<QiJump>(action);
 						if (id_res == jump.id) jump.id = jumpPoint.id;
@@ -1421,7 +1496,7 @@ private:
 				{
 					int id_res = block.id;
 					block.id = UniqueId(ids);
-					ids.append_copy(block.id);
+					ids.append(block.id);
 					IterActions(actions, [id_res, block](Action& action) {
 						QiBlockExec& blockExec = std::get<QiBlockExec>(action);
 						if (id_res == blockExec.id) blockExec.id = block.id;
@@ -1749,12 +1824,23 @@ private:
 		}
 		else
 		{
-			ui.action_table->item(index, tableColumn_type)->setText(type);
-
-			ui.action_table->item(index, tableColumn_param)->setText(param);
+			if (var.base().debug_entry) ui.action_table->item(index, tableColumn_debug)->setText(Qi::ui.text.syEntry);
+			else
+			{
+				if (var.base().debug_break) ui.action_table->item(index, tableColumn_debug)->setText(Qi::ui.text.syPause);
+				else
+				{
+					if (var.base().debug_exit) ui.action_table->item(index, tableColumn_debug)->setText(Qi::ui.text.syExit);
+					else ui.action_table->item(index, tableColumn_debug)->setText("");
+				}
+			}
 
 			if (var.base().disable) ui.action_table->item(index, tableColumn_disable)->setText(Qi::ui.text.syOff);
 			else ui.action_table->item(index, tableColumn_disable)->setText(Qi::ui.text.syOn);
+
+			ui.action_table->item(index, tableColumn_type)->setText(type);
+
+			ui.action_table->item(index, tableColumn_param)->setText(param);
 
 			ui.action_table->item(index, tableColumn_mark)->setText(var.base().mark);
 		}
@@ -1778,12 +1864,14 @@ private:
 			for (size_t i = 0; i < ui.action_table->rowCount(); i++)
 			{
 				updating = true;
+				ui.action_table->setItem(i, tableColumn_debug, new QTableWidgetItem());
+				ui.action_table->item(i, tableColumn_debug)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+				ui.action_table->setItem(i, tableColumn_disable, new QTableWidgetItem());
+				ui.action_table->item(i, tableColumn_disable)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 				ui.action_table->setItem(i, tableColumn_type, new QTableWidgetItem());
 				ui.action_table->item(i, tableColumn_type)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 				ui.action_table->setItem(i, tableColumn_param, new QTableWidgetItem());
 				ui.action_table->item(i, tableColumn_param)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-				ui.action_table->setItem(i, tableColumn_disable, new QTableWidgetItem());
-				ui.action_table->item(i, tableColumn_disable)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 				ui.action_table->setItem(i, tableColumn_mark, new QTableWidgetItem());
 				ui.action_table->item(i, tableColumn_mark)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 				TableUpdate(i);
@@ -1843,7 +1931,7 @@ private:
 				case '|': converted = VK_OEM_5; break;
 				}
 			}
-			if (converted) keys.append_copy(converted);
+			if (converted) keys.append(converted);
 		}
 		return keys;
 	}
@@ -1881,7 +1969,7 @@ private:
 		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
 		{
 			QKeyEvent* keyEvent = (QKeyEvent*)e;
-			if ((keyEvent->key() == Qt::Key_Return) || (keyEvent->key() == Qt::Key_Space)) return true;
+			if ((keyEvent->key() == Qt::Key_Escape) || (keyEvent->key() == Qt::Key_Return) || (keyEvent->key() == Qt::Key_Space)) return true;
 		}
 		return QDialog::event(e);
 	}
@@ -1971,7 +2059,8 @@ private:
 	}
 	void customEvent(QEvent* e)
 	{
-		close();
+		if (e->type() == EditEvent::close) close();
+		if (e->type() == EditEvent::debug_pause) SetDebugState(debug_pause);
 	}
 	// window move
 	QPoint mouse_positon;
@@ -2079,7 +2168,7 @@ private:
 					if (over < 0) over = 0;
 					p = tableCurrent[i];
 					t = p - len + over;
-					after.append_copy(t);
+					after.append(t);
 					actions->move(p, t);
 				}
 				else
@@ -2088,7 +2177,7 @@ private:
 					if (over > 0) over = 0;
 					p = tableCurrent[tableCurrent.size() - i - 1];
 					t = p + len + over;
-					after.append_copy(t);
+					after.append(t);
 					actions->move(p, t);
 				}
 			}
@@ -2140,7 +2229,7 @@ private:
 	{
 		if (tableCurrent.empty()) return;
 		Qi::clipboard.clear();
-		for (auto& i : tableCurrent) Qi::clipboard.append_copy(actions->at(i));
+		for (auto& i : tableCurrent) Qi::clipboard.append(actions->at(i));
 	}
 	void ItemPaste()
 	{
@@ -2151,7 +2240,7 @@ private:
 		UniqueActionsId(LoadIds(*actionsRoot, QiType::jumpPoint), Qi::clipboard, QiType::jumpPoint);
 		// reset block id
 		UniqueActionsId(LoadIds(*actionsRoot, QiType::block), Qi::clipboard, QiType::block);
-		actions->insert_copy(p, Qi::clipboard);
+		actions->insert(p, Qi::clipboard);
 		TableReload();
 	}
 	// get params from widget

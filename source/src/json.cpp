@@ -17,7 +17,7 @@ namespace QiJson
 		Qi::fun.showClock.state = false;
 		Qi::fun.showClock.key = VK_MENU;
 		Qi::fun.wndActive.state = false;
-		Qi::fun.wndActive.wi.wndName = "";
+		Qi::fun.wndActive.wndInfo.wndName = "";
 	}
 	void LoadDefaultPopBox()
 	{
@@ -266,9 +266,9 @@ namespace QiJson
 		jMacro.insert("document_charset", "UTF8");
 		jMacro.insert("type", "QuickInputMacro");
 		jMacro.insert("wndState", (bool)macro.wndState);
-		jMacro.insert("wndChild", (bool)macro.wi.child);
-		jMacro.insert("wndName", macro.wi.wndName);
-		jMacro.insert("wndClass", macro.wi.wndClass);
+		jMacro.insert("wndChild", (bool)macro.wndInput.child);
+		jMacro.insert("wndName", macro.wndInfo.wndName);
+		jMacro.insert("wndClass", macro.wndInfo.wndClass);
 		jMacro.insert("state", (bool)macro.state);
 		jMacro.insert("keyBlock", (bool)macro.keyBlock);
 		jMacro.insert("curBlock", (bool)macro.curBlock);
@@ -321,8 +321,8 @@ namespace QiJson
 		cfg.insert("showClockKey", (int)Qi::fun.showClock.key);
 		cfg.insert("showClockState", (bool)Qi::fun.showClock.state);
 		cfg.insert("wndActiveState", (bool)Qi::fun.wndActive.state);
-		cfg.insert("wndActiveName", Qi::fun.wndActive.wi.wndName);
-		cfg.insert("wndActiveClass", Qi::fun.wndActive.wi.wndClass);
+		cfg.insert("wndActiveName", Qi::fun.wndActive.wndInfo.wndName);
+		cfg.insert("wndActiveClass", Qi::fun.wndActive.wndInfo.wndClass);
 		if ("pop config")
 		{
 			QJsonObject pop;
@@ -524,7 +524,7 @@ namespace QiJson
 				{
 					QiQuickInput var; var.disable = dis, var.mark = mark;
 					QJsonArray chars = jAction.value("c").toArray();
-					for (auto c : chars) var.chars.append_copy(c.toInt());
+					for (auto c : chars) var.chars.append(c.toInt());
 					actions.append(var);
 				} break;
 				case QiType::keyBlock:
@@ -586,9 +586,9 @@ namespace QiJson
 				macro.name = name;
 				QJsonObject jMacro(json.object());
 				macro.wndState = jMacro.value("wndState").toBool();
-				macro.wi.child = jMacro.value("wndChild").toBool();
-				macro.wi.wndName = jMacro.value("wndName").toString();
-				macro.wi.wndClass = jMacro.value("wndClass").toString();
+				macro.wndInfo.child = jMacro.value("wndChild").toBool();
+				macro.wndInfo.wndName = jMacro.value("wndName").toString();
+				macro.wndInfo.wndClass = jMacro.value("wndClass").toString();
 				macro.state = jMacro.value("state").toBool();
 				macro.keyBlock = jMacro.value("keyBlock").toBool();
 				macro.curBlock = jMacro.value("curBlock").toBool();
@@ -680,8 +680,8 @@ namespace QiJson
 				Qi::fun.showClock.state = cfg.value("showClockState").toBool();
 				Qi::fun.showClock.key = cfg.value("showClockKey").toInt();
 				Qi::fun.wndActive.state = cfg.value("wndActiveState").toBool();
-				Qi::fun.wndActive.wi.wndName = cfg.value("wndActiveName").toString();
-				Qi::fun.wndActive.wi.wndClass = cfg.value("wndActiveClass").toString();
+				Qi::fun.wndActive.wndInfo.wndName = cfg.value("wndActiveName").toString();
+				Qi::fun.wndActive.wndInfo.wndClass = cfg.value("wndActiveClass").toString();
 				{
 					QJsonObject pop;
 					pop = cfg.value("popbox").toObject();

@@ -55,10 +55,10 @@ void RecordInput(BYTE vk, bool state, POINT pt)
 }
 struct KeyState
 {
-	bool state[keySize];
+	bool state[key_size];
 	KeyState(bool* keyState)
 	{
-		memcpy(state, Qi::keyState, keySize);
+		memcpy(state, Qi::keyState, key_size);
 	}
 };
 void InputTask(BYTE key, bool press, POINT cursor, KeyState keyState)

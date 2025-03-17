@@ -2,6 +2,13 @@
 #include "inc_header.h"
 namespace QiThread
 {
+	struct ThreadParam
+	{
+		Macro* macro;
+		std::mutex mutex;
+		std::condition_variable load;
+	};
+
 	void PrecSleep(clock_t ms);
 	bool PeekExitMsg();
 	bool PeekSleep(clock_t ms);

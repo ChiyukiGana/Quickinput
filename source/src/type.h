@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include "inc_project.h"
 constexpr int key_info = 214;
+constexpr int key_size = XBoxPad::key_end;
 constexpr int msg_exit = (WM_USER + 0xFF);
-constexpr int keySize = XBoxPad::key_end;
 namespace Qi
 {
 	// path
@@ -24,6 +24,9 @@ namespace QiUi
 	struct Text
 	{
 		// symbols
+		QString syEntry;
+		QString syPause;
+		QString syExit;
 		QString syAny;
 		QString syOn;
 		QString syOff;
@@ -149,6 +152,14 @@ struct DataRole
 		id = Qt::UserRole
 	};
 };
+struct EditEvent
+{
+	enum
+	{
+		close = QEvent::User + 1,
+		debug_pause
+	};
+};
 ////////////////// Window
 struct WndInput
 {
@@ -268,11 +279,14 @@ class QiBase
 {
 public:
 	bool disable;
+	bool debug_entry;
+	bool debug_break;
+	bool debug_exit;
 	int type;
 	QString mark;
 	Actions next;
 	Actions next2;
-	QiBase(int qiType = QiType::none) noexcept : disable(false), type(qiType), mark(QString()), next(Actions()), next2(Actions()) {}
+	QiBase(int qiType = QiType::none) noexcept : disable(false), debug_entry(false), debug_break(false), debug_exit(false), type(qiType), mark(QString()), next(Actions()), next2(Actions()) {}
 };
 class QiEnd : public QiBase
 {
@@ -480,6 +494,7 @@ public:
 	}
 };
 ////////////////// Macro
+class QiInterpreter;
 class MacroGroup;
 class Macro
 {
@@ -500,10 +515,11 @@ public:
 	Actions acRun;
 	Actions acEnd;
 	POINT cursor = {};
-	WndInfo wi;
-	WndInput wp;
+	WndInfo wndInfo;
+	WndInput wndInput;
 	HANDLE thRun = nullptr;
 	HANDLE thEnd = nullptr;
+	QiInterpreter* interpreter;
 	QiVarMap varMap;
 	QString makePath() const
 	{
@@ -608,7 +624,7 @@ struct ShowClock
 struct WndActive
 {
 	bool state = false;
-	WndInfo wi;
+	WndInfo wndInfo;
 	HANDLE thread = 0;
 };
 struct SettingsData
@@ -635,6 +651,7 @@ struct Widget
 	bool moreActive = false;
 	QWidget* main = nullptr;
 	QWidget* record = nullptr;
+	QWidget* edit = nullptr;
 };
 
 namespace Qi
@@ -664,8 +681,8 @@ namespace Qi
 	inline QPopText* popText = nullptr;
 	inline QWindowSelection* windowSelection = nullptr;
 	// input
-	inline bool keyState[keySize];
-	inline bool keyBlock[keySize];
+	inline bool keyState[key_size];
+	inline bool keyBlock[key_size];
 	inline int curBlock = 0;
 	inline XBoxPad xboxpad;
 	// dir
@@ -677,6 +694,7 @@ namespace Qi
 	// other
 	inline SIZE screen = {};
 	inline MSG msg;
+	inline bool debug = false;
 }
 
 namespace QiRange

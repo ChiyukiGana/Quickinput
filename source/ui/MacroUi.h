@@ -279,17 +279,17 @@ private:
 		if (!currentGroup) return;
 		Qi::widget.dialogActive = true;
 		Qi::widget.main->hide();
-		WndInfo wi;
+		WndInfo wndInfo;
 		if (wnd)
 		{
-			wi = QiFn::WindowSelection();
-			if (!wi.wnd)
+			wndInfo = QiFn::WindowSelection();
+			if (!wndInfo.wnd)
 			{
 				Qi::popText->Popup(2000, "窗口已失效");
 				return;
 			}
 		}
-		if (wi.wnd) RecordUi rw(currentGroup, &wi);
+		if (wndInfo.wnd) RecordUi rw(currentGroup, &wndInfo);
 		else RecordUi rw(currentGroup, nullptr);
 		Qi::widget.dialogActive = false;
 		Qi::widget.main->show();
@@ -310,11 +310,13 @@ private:
 			if (!isSold()) return;
 			Macro* macro = currentMacros.first();
 			EditUi edit(macro, &macro->acRun);
-			Qi::widget.dialogActive = true;
+			Qi::widget.edit = &edit;
+			Qi::widget.dialogActive = Qi::debug = true;
 			Qi::widget.main->hide();
 			edit.exec();
 			Qi::widget.main->show();
-			Qi::widget.dialogActive = false;
+			Qi::widget.dialogActive = Qi::debug = false;
+			Qi::widget.edit = nullptr;
 			QiJson::SaveMacro(*macro);
 			Qi::popText->Hide();
 			ResetWidget();

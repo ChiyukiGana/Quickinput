@@ -273,6 +273,7 @@ namespace QiFn
 	}
 	void QiState(bool state)
 	{
+		srand(clock());
 		if (state)
 		{
 			Qi::curBlock = 0;
@@ -340,14 +341,14 @@ namespace QiFn
 	}
 	WndInfo WindowSelection()
 	{
-		WndInfo wi;
-		wi.wnd = Qi::windowSelection->Start();
-		if (wi.wnd)
+		WndInfo wndInfo;
+		wndInfo.wnd = Qi::windowSelection->Start();
+		if (wndInfo.wnd)
 		{
-			wi.wndClass = Window::className(wi.wnd);
-			wi.wndName = Window::text(wi.wnd);
+			wndInfo.wndClass = Window::className(wndInfo.wnd);
+			wndInfo.wndName = Window::text(wndInfo.wnd);
 		}
-		return wi;
+		return wndInfo;
 	}
 	QiBlock* FindBlock(Actions& actions, int id)
 	{

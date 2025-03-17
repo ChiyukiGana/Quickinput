@@ -228,7 +228,7 @@
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>运行（Shift F10停止）</string>
+         <string>运行</string>
         </property>
        </widget>
       </item>
@@ -481,38 +481,14 @@
          <number>20</number>
         </property>
         <property name="columnCount">
-         <number>4</number>
+         <number>5</number>
         </property>
-        <attribute name="horizontalHeaderVisible">
-         <bool>true</bool>
-        </attribute>
-        <attribute name="horizontalHeaderCascadingSectionResizes">
-         <bool>false</bool>
-        </attribute>
         <attribute name="horizontalHeaderDefaultSectionSize">
-         <number>140</number>
+         <number>50</number>
         </attribute>
         <attribute name="horizontalHeaderHighlightSections">
          <bool>false</bool>
         </attribute>
-        <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-         <bool>false</bool>
-        </attribute>
-        <attribute name="horizontalHeaderStretchLastSection">
-         <bool>false</bool>
-        </attribute>
-        <attribute name="verticalHeaderVisible">
-         <bool>true</bool>
-        </attribute>
-        <attribute name="verticalHeaderCascadingSectionResizes">
-         <bool>false</bool>
-        </attribute>
-        <attribute name="verticalHeaderHighlightSections">
-         <bool>false</bool>
-        </attribute>
-        <attribute name="verticalHeaderStretchLastSection">
-         <bool>false</bool>
-        </attribute>
         <row/>
         <row/>
         <row/>
@@ -533,6 +509,16 @@
         <row/>
         <row/>
         <row/>
+        <column>
+         <property name="text">
+          <string>调试</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>状态</string>
+         </property>
+        </column>
         <column>
          <property name="text">
           <string>动作</string>
@@ -545,15 +531,10 @@
         </column>
         <column>
          <property name="text">
-          <string>状态</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
           <string>备注</string>
          </property>
         </column>
-        <item row="0" column="0">
+        <item row="0" column="2">
          <property name="text">
           <string/>
          </property>

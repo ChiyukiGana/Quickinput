@@ -61,7 +61,7 @@ private:
 		if ("window")
 		{
 			ui.window_check->setChecked(func->wndActive.state);
-			ui.window_name_edit->setText(func->wndActive.wi.wndName);
+			ui.window_name_edit->setText(func->wndActive.wndInfo.wndName);
 		}
 		if ("clear shortcut")
 		{
@@ -82,8 +82,8 @@ private:
 		connect(ui.window_select_button, &QPushButton::clicked, this, [this] {
 			Qi::widget.dialogActive = true;
 			Qi::widget.main->hide();
-			func->wndActive.wi = QiFn::WindowSelection();
-			ui.window_name_edit->setText(func->wndActive.wi.wndName);
+			func->wndActive.wndInfo = QiFn::WindowSelection();
+			ui.window_name_edit->setText(func->wndActive.wndInfo.wndName);
 			Qi::widget.dialogActive = false;
 			Qi::widget.main->show();
 			QiJson::SaveJson();
