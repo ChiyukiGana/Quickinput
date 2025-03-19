@@ -27,6 +27,4 @@ namespace QiThread
 	bool MacroEndActive(Macro* pMacro);
 	bool QuickClickActive();
 	bool WindowStateActive();
-	// release click
-	void AddReleaseKey(byte key);
 };

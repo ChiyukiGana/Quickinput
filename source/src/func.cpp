@@ -133,7 +133,6 @@ namespace QiFn
 					if (QiThread::QuickClickActive())
 					{
 						QiThread::ExitQuickClick();
-						QiThread::AddReleaseKey(Qi::fun.quickClick.key);
 						if (Qi::set.showTips) QuickClickPop(false);
 					}
 					else
@@ -158,7 +157,6 @@ namespace QiFn
 					if (QiThread::QuickClickActive())
 					{
 						QiThread::ExitQuickClick();
-						QiThread::AddReleaseKey(Qi::fun.quickClick.key);
 						if (Qi::set.showTips) QuickClickPop(false);
 					}
 				}

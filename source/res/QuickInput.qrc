@@ -6,5 +6,8 @@
         <file>icon.png</file>
         <file>blade.png</file>
         <file>candy.png</file>
+        <file>close.png</file>
+        <file>hide.png</file>
+        <file>min.png</file>
     </qresource>
 </RCC>

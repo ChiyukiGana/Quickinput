@@ -80,19 +80,19 @@
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <property name="spacing">
-        <number>10</number>
+        <number>0</number>
        </property>
        <property name="leftMargin">
         <number>5</number>
        </property>
        <property name="topMargin">
-        <number>5</number>
+        <number>0</number>
        </property>
        <property name="rightMargin">
-        <number>5</number>
+        <number>0</number>
        </property>
        <property name="bottomMargin">
-        <number>5</number>
+        <number>0</number>
        </property>
        <item>
         <widget class="QLabel" name="title_icon_label">
@@ -137,7 +137,7 @@
           <bool>true</bool>
          </property>
          <property name="styleSheet">
-          <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:14px;font-weight:500;</string>
+          <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:14px;font-weight:500;margin-left:5px</string>
          </property>
          <property name="text">
           <string>Quickinput</string>
@@ -167,14 +167,14 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>20</width>
-           <height>20</height>
+           <width>50</width>
+           <height>30</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>20</width>
-           <height>20</height>
+           <width>50</width>
+           <height>30</height>
           </size>
          </property>
          <property name="focusPolicy">
@@ -184,7 +184,7 @@
           <string>关闭</string>
          </property>
          <property name="styleSheet">
-          <string notr="true">QPushButton{background-color:#E00;border-radius:10px}QPushButton:hover{background-color:#C00}</string>
+          <string notr="true">QPushButton{background-color:rgba(128,128,128,0.1);image:url(:/close.png);font-size:12px}QPushButton:hover{background-color:rgba(255,0,0,0.3)}</string>
          </property>
          <property name="text">
           <string/>
@@ -201,14 +201,14 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>20</width>
-           <height>20</height>
+           <width>50</width>
+           <height>30</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>20</width>
-           <height>20</height>
+           <width>50</width>
+           <height>30</height>
           </size>
          </property>
          <property name="focusPolicy">
@@ -218,7 +218,7 @@
           <string>隐藏</string>
          </property>
          <property name="styleSheet">
-          <string notr="true">QPushButton{background-color:#FC0;border-radius:10px}QPushButton:hover{background-color:#DA0}</string>
+          <string notr="true">QPushButton{background-color:rgba(128,128,128,0.1);image:url(:/hide.png);font-size:12px}QPushButton:hover{background-color:rgba(255,223,0,0.3)}</string>
          </property>
          <property name="text">
           <string/>
@@ -235,14 +235,14 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>20</width>
-           <height>20</height>
+           <width>50</width>
+           <height>30</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>20</width>
-           <height>20</height>
+           <width>50</width>
+           <height>30</height>
           </size>
          </property>
          <property name="focusPolicy">
@@ -252,7 +252,7 @@
           <string>最小化</string>
          </property>
          <property name="styleSheet">
-          <string notr="true">QPushButton{background-color:#0D0;border-radius:10px}QPushButton:hover{background-color:#0B0}</string>
+          <string notr="true">QPushButton{background-color:rgba(128,128,128,0.1);image:url(:/min.png);font-size:12px}QPushButton:hover{background-color:rgba(32,255,0,0.3)}</string>
          </property>
          <property name="text">
           <string/>

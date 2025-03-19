@@ -6,7 +6,7 @@
 #include <src/tools/string.h>
 #include <src/tools/path.h>
 #include <src/tools/file.h>
-#include <src/tools/windows.h>
+#include <src/tools/window.h>
 #include <src/tools/msgbox.h>
 #include <src/tools/system.h>
 #include <src/tools/xboxpad.h>

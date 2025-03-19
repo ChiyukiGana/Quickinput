@@ -91,7 +91,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-3-17_1</string>
+         <string>2025-3-19</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -107,7 +107,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加编辑调试</string>
+         <string>修复调试退出在循环内执行两次
+修复跳转进入循环只执行一次</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

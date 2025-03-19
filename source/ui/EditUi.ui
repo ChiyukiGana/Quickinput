@@ -64,19 +64,19 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <property name="spacing">
-       <number>10</number>
+       <number>0</number>
       </property>
       <property name="leftMargin">
        <number>5</number>
       </property>
       <property name="topMargin">
-       <number>5</number>
+       <number>0</number>
       </property>
       <property name="rightMargin">
-       <number>5</number>
+       <number>0</number>
       </property>
       <property name="bottomMargin">
-       <number>5</number>
+       <number>0</number>
       </property>
       <item>
        <widget class="QLabel" name="title_icon">
@@ -92,11 +92,17 @@
           <height>20</height>
          </size>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
         <property name="mouseTracking">
          <bool>true</bool>
         </property>
         <property name="styleSheet">
-         <string notr="true">background:none;border-image:url(:/icon.png)</string>
+         <string notr="true">background:none;border-image:url(:/icon.png);</string>
         </property>
         <property name="text">
          <string/>
@@ -129,7 +135,7 @@
          <bool>true</bool>
         </property>
         <property name="styleSheet">
-         <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:14px;font-weight:500;</string>
+         <string notr="true">font-family:&quot;Microsoft YaHei&quot;;font-size:14px;font-weight:500;margin-left:5px</string>
         </property>
         <property name="text">
          <string>编辑</string>
@@ -168,6 +174,9 @@
         </property>
         <property name="layoutDirection">
          <enum>Qt::RightToLeft</enum>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">margin-right:10px</string>
         </property>
         <property name="text">
          <string>运行时</string>
@@ -225,7 +234,7 @@
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true"/>
+         <string notr="true">margin-right:5px</string>
         </property>
         <property name="text">
          <string>运行</string>
@@ -298,14 +307,14 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>20</width>
-          <height>20</height>
+          <width>50</width>
+          <height>30</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>20</width>
-          <height>20</height>
+          <width>50</width>
+          <height>30</height>
          </size>
         </property>
         <property name="focusPolicy">
@@ -315,31 +324,12 @@
          <string>关闭</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">QPushButton{background-color:#E00;border-radius:10px}QPushButton:hover{background-color:#C00}</string>
-        </property>
-        <property name="text">
-         <string/>
+         <string notr="true">QPushButton{background-color:rgba(128,128,128,0.1);image:url(:/close.png);font-size:12px}QPushButton:hover{background-color:rgba(255,0,0,0.3)}</string>
         </property>
         <property name="autoDefault">
          <bool>false</bool>
         </property>
        </widget>
-      </item>
-      <item>
-       <spacer name="title_close_spacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
       </item>
       <item>
        <widget class="QPushButton" name="title_back_button">
@@ -351,14 +341,14 @@
         </property>
         <property name="minimumSize">
          <size>
-          <width>20</width>
-          <height>20</height>
+          <width>50</width>
+          <height>30</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>20</width>
-          <height>20</height>
+          <width>50</width>
+          <height>30</height>
          </size>
         </property>
         <property name="focusPolicy">
@@ -368,10 +358,7 @@
          <string>返回</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">QPushButton{background-color:#FC0;border-radius:10px}QPushButton:hover{background-color:#DA0}</string>
-        </property>
-        <property name="text">
-         <string/>
+         <string notr="true">QPushButton{background-color:rgba(128,128,128,0.1);image:url(:/hide.png);font-size:12px}QPushButton:hover{background-color:rgba(255,223,0,0.3)}</string>
         </property>
        </widget>
       </item>
@@ -7775,7 +7762,7 @@
                  </property>
                  <property name="text">
                   <string>菜单：列表右键
-修改：双击
+读取：双击
 删除：Delete    Backspace
 移动：Shift ↑    Shift ↓
 多选：Ctrl A    按住Ctrl点击    按住Shift点击

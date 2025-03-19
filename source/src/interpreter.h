@@ -12,7 +12,7 @@ class QiInterpreter
 	std::mutex debug_mutex;
 	std::condition_variable debug;
 	int jumpId = 0;
-	bool debug_entry = 0;
+	bool debug_entry = false;
 public:
 	QiInterpreter(QiVarMap& varMap, const Actions& actions, float speed, WndInput* wndInput, POINT& cursor);
 	void DebugContinue();

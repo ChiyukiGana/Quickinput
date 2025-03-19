@@ -1,7 +1,6 @@
 ﻿#include "thread.h"
 namespace QiThread
 {
-	ThreadQueue releaseKeyQueue;
 	void PrecSleep(clock_t ms)
 	{
 		clock_t begin = clock();
@@ -12,7 +11,6 @@ namespace QiThread
 		}
 		else while ((begin + ms) > clock()) Sleep(0);
 	}
-
 	bool PeekExitMsg()
 	{
 		return PeekMessageW(&Qi::msg, 0, msg_exit, msg_exit, PM_NOREMOVE);
@@ -226,9 +224,5 @@ namespace QiThread
 			if (ecode == STILL_ACTIVE) return true;
 		}
 		return false;
-	}
-	void AddReleaseKey(byte key)
-	{
-		releaseKeyQueue.enqueue([](byte key) { Input::State(key, false, key_info); }, key);
 	}
 }
