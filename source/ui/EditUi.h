@@ -760,7 +760,7 @@ private:
 				QiImage image(WidgetGetImage());
 				Image::ScreenRgbMap(imageMap, rect);
 				image.map = imageMap;
-				image.rect = QiFn::RTAR(rect);
+				if (!image.rect.left && !image.rect.top && !image.rect.right && !image.rect.bottom) image.rect = QiFn::RTAR(rect);
 				WidgetSet(image);
 				});
 			// ocr
@@ -787,21 +787,21 @@ private:
 				WidgetSet(ocr);
 				});
 			connect(ui.ocr_test_button, &QPushButton::clicked, this, [this] {
-				if (!Qi::ocr || Qi::ocr->isFailed())
+				if (!Qi::ocr)
 				{
 					MsgBox::Warning(L"没有安装OCR组件，无法使用文字识别功能");
 					return;
 				}
-				std::string text;
-				if (Qi::ocr->scanScreen(QiFn::ATRR(WidgetGetOcr().rect), text))
+				std::string text = Qi::ocr->scan(QiFn::ATRR(WidgetGetOcr().rect));
+				if (text.empty())
+				{
+					Qi::popText->Popup("没有识别到内容");
+				}
+				else
 				{
 					QString str = QString::fromStdString(text);
 					str.replace(QChar('\n'), "");
 					Qi::popText->Popup(str);
-				}
-				else
-				{
-					Qi::popText->Popup("没有识别到内容");
 				}
 				});
 		}

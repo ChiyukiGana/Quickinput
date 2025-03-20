@@ -111,7 +111,7 @@
     <ClInclude Include="source\src\inc_project.h" />
     <ClInclude Include="source\src\interpreter.h" />
     <ClInclude Include="source\src\json.h" />
-    <ClInclude Include="source\src\OcrLiteOnnxInterface\OcrLiteOnnxInterface.h" />
+    <ClInclude Include="source\src\OnnxOcrInterface\OnnxOcr.h" />
     <ClInclude Include="source\src\scriptinterpreter.h" />
     <ClInclude Include="source\src\thread.h" />
     <ClInclude Include="source\src\tools\base.h" />

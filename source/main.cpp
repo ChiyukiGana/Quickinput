@@ -15,13 +15,14 @@ int main(int argc, char* argv[])
 	Init(); // json, font, style
 
 	// ocr
-	if (QueryOcrLiteOnnInterface(&Qi::ocr))
+	if (QDir("OCR").exists())
 	{
-		Qi::ocr->setModelsDetPath("OcrLiteOnnx/models/det.onnx");
-		Qi::ocr->setModelsClsPath("OcrLiteOnnx/models/cls.onnx");
-		Qi::ocr->setModelsRecPath("OcrLiteOnnx/models/rec.onnx");
-		Qi::ocr->setModelsKeysPath("OcrLiteOnnx/models/keys.list");
-		Qi::ocr->init();
+		OnnxOcrInterface* ocr = LoadOcrLiteOnnInterface();
+		if (ocr)
+		{
+			if (ocr->isInit()) Qi::ocr = ocr;
+			else delete ocr;
+		}
 	}
 
 	QApplication application(argc, argv); // qt event loop
@@ -245,6 +246,11 @@ QToolTip,
     background-color: white
 }
 
+*[group="macro_table_header"]
+{
+	background-color: #F5F5F5
+}
+
 *[group="macro_table"]::item:hover,
 *[group="action_table"]::item:hover {
     background-color: #ACF;
@@ -404,6 +410,11 @@ QToolTip,
 *[group="macro_table_header"],
 *[group="action_table_header"] {
     background-color: #FFF5FF
+}
+
+*[group="macro_table_header"]
+{
+	background-color: #F5F5F5
 }
 
 *[group="macro_table"]::item:hover,
@@ -567,6 +578,11 @@ QToolTip,
     background-color: #FFFFF5
 }
 
+*[group="macro_table_header"]
+{
+	background-color: #F5F5F5
+}
+
 *[group="macro_table"]::item:hover,
 *[group="action_table"]::item:hover {
     background-color: #FFD0B0;
@@ -728,6 +744,11 @@ QToolTip,
     background-color: #F5FFFF
 }
 
+*[group="macro_table_header"]
+{
+	background-color: #F5F5F5
+}
+
 *[group="macro_table"]::item:hover,
 *[group="action_table"]::item:hover {
     background-color: #8EB;
@@ -886,6 +907,11 @@ QToolTip,
 *[group="macro_table_header"],
 *[group="action_table_header"] {
     background-color: #555
+}
+
+*[group="macro_table_header"]
+{
+	background-color: #606060
 }
 
 *[group="macro_table"]::item:hover,

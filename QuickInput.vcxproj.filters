@@ -35,6 +35,9 @@
     <Filter Include="Header Files\QiTools">
       <UniqueIdentifier>{a44fdc4d-6f5c-4cee-a87b-4eae2d486c27}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\OnnxOcr">
+      <UniqueIdentifier>{c280eefc-feb4-4b16-b055-d816a2c8e44c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp">
@@ -147,8 +150,8 @@
     <ClInclude Include="source\src\scriptinterpreter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\src\OcrLiteOnnxInterface\OcrLiteOnnxInterface.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="source\src\OnnxOcrInterface\OnnxOcr.h">
+      <Filter>Header Files\OnnxOcr</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -210,6 +210,7 @@ public:
 private:
 	void setReSize()
 	{
+		selfAction = true;
 		for (int i = 0; i < rowCount(); i++)
 		{
 			QTableWidget* t = table(i);
@@ -221,16 +222,20 @@ private:
 			}
 			setRowHeight(i, rowHeight);
 		}
+		selfAction = false;
 	}
 
 	void setReSelection(int table_index)
 	{
+		selfAction = true;
 		setCurrentCell(table_index, 0);
 		for (size_t i = 0; i < rowCount(); i++) if (i != table_index) table(i)->clearSelection();
+		selfAction = false;
 	}
 
 	void tableVisable(QTableWidget* table)
 	{
+		selfAction = true;
 		if (table->viewport()->isHidden())
 		{
 			table->viewport()->setHidden(false);
@@ -241,6 +246,7 @@ private:
 			table->viewport()->setHidden(true);
 			table->property("table_corner_label").value<QLabel*>()->setText(u8"▸");
 		}
+		selfAction = false;
 	}
 
 	bool eventFilter(QObject* sender, QEvent* event)

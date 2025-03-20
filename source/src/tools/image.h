@@ -114,6 +114,29 @@ namespace QiTools {
 			return hbmp;
 		}
 		
+		static CImage toCImage24(HDC hdc, const RECT& rect)
+		{
+			int w = rect.right - rect.left;
+			int h = rect.bottom - rect.top;
+			if (w < 1 || h < 1) return CImage();
+
+			CImage image;
+			image.Create(w, h, 24);
+			if (BitBlt(image.GetDC(), 0, 0, w, h, hdc, rect.left, rect.top, SRCCOPY)) return image;
+			return CImage();
+		}
+		static CImage toCImage32(HDC hdc, const RECT& rect)
+		{
+			int w = rect.right - rect.left;
+			int h = rect.bottom - rect.top;
+			if (w < 1 || h < 1) return CImage();
+
+			CImage image;
+			image.Create(w, h, 32);
+			if (BitBlt(image.GetDC(), 0, 0, w, h, hdc, rect.left, rect.top, SRCCOPY)) return image;
+			return CImage();
+		}
+
 		static bool toRgbMap(const HBITMAP& hBitmap, RgbMap& rgbMap)
 		{
 			BITMAP bmp; GetObjectW(hBitmap, sizeof(BITMAP), &bmp);
@@ -268,6 +291,26 @@ namespace QiTools {
 				DeleteObject(hbmp);
 			}
 			return false;
+		}
+		static CImage ScreenCImage24(RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
+		{
+			HDC hdc = GetDC(0);
+			SIZE size = System::screenSize();
+			if (rect.right > size.cx) rect.right = size.cx;
+			if (rect.bottom > size.cy) rect.bottom = size.cy;
+			CImage image = toCImage24(hdc, rect);
+			ReleaseDC(0, hdc);
+			return image;
+		}
+		static CImage ScreenCImage32(RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
+		{
+			HDC hdc = GetDC(0);
+			SIZE size = System::screenSize();
+			if (rect.right > size.cx) rect.right = size.cx;
+			if (rect.bottom > size.cy) rect.bottom = size.cy;
+			CImage image = toCImage32(hdc, rect);
+			ReleaseDC(0, hdc);
+			return image;
 		}
 
 		static POINT Find(const RgbMap& rgbMap, const RgbMap& srcMap, byte similar = 80, byte sampleRote = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })

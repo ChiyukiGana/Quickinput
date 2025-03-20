@@ -41,14 +41,14 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 		if (&current == &actions) return r_exit;
 		return r_continue;
 	}
-	int result = r_continue;
+	int r_result = r_continue;
 	while (true)
 	{
 		for (const Action& action : current)
 		{
 			if (!Qi::run || QiThread::PeekExitMsg()) return r_exit;
 			if (wndInput && !IsWindow(wndInput->wnd)) { Qi::popText->Popup("´°¿ÚÊ§Ð§"); return r_exit; }
-			result = r_continue;
+			r_result = r_continue;
 			if (debug_entry)
 			{
 				if (action.base().debug_entry) debug_entry = false;
@@ -197,8 +197,8 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 				case QiType::color:
 				{
 					const QiColor& ref = std::get<QiColor>(action);
-					if (debug_entry) { if (ref.next.not_empty()) result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) result = ActionInterpreter(ref.next2); continue; }
-					else if (jumpId) { if (ref.next.not_empty()) result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) result = ActionInterpreter(ref.next2); continue; }
+					if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
+					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 					RgbMap rgbMap;
 					RECT rect;
 					HDC hdc;
@@ -229,11 +229,11 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 							}
 							else Input::MoveTo(findResult.pt.x, findResult.pt.y, key_info);
 						}
-						result = ActionInterpreter(ref.next);
+						r_result = ActionInterpreter(ref.next);
 					}
 					else
 					{
-						result = ActionInterpreter(ref.next2);
+						r_result = ActionInterpreter(ref.next2);
 					}
 				} break;
 				case QiType::loop:
@@ -246,11 +246,11 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					while (Qi::run && !QiThread::PeekExitMsg())
 					{
 						if (uloop) { n++; if (n > e) break; }
-						result = ActionInterpreter(ref.next);
+						r_result = ActionInterpreter(ref.next);
 						if (debug_entry || jumpId) break;
-						if (result != r_continue)
+						if (r_result != r_continue)
 						{
-							if (result == r_break) return r_continue;
+							if (r_result == r_break) return r_continue;
 							break;
 						}
 					}
@@ -263,10 +263,10 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 				case QiType::keyState:
 				{
 					const QiKeyState& ref = std::get<QiKeyState>(action);
-					if (debug_entry) { if (ref.next.not_empty()) result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) result = ActionInterpreter(ref.next2); continue; }
-					else if (jumpId) { if (ref.next.not_empty()) result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) result = ActionInterpreter(ref.next2); continue; }
-					if (Input::stateEx(ref.vk)) result = ActionInterpreter(ref.next);
-					else result = ActionInterpreter(ref.next2);
+					if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
+					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
+					if (Input::stateEx(ref.vk)) r_result = ActionInterpreter(ref.next);
+					else r_result = ActionInterpreter(ref.next2);
 				} break;
 				case QiType::resetPos:
 				{
@@ -276,8 +276,8 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 				case QiType::image:
 				{
 					const QiImage& ref = std::get<QiImage>(action);
-					if (debug_entry) { if (ref.next.not_empty()) result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) result = ActionInterpreter(ref.next2); continue; }
-					else if (jumpId) { if (ref.next.not_empty()) result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) result = ActionInterpreter(ref.next2); continue; }RgbMap rgbMap;
+					if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
+					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }RgbMap rgbMap;
 					RECT rect;
 					HDC hdc;
 					if (wndInput)
@@ -307,11 +307,11 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 							}
 							else Input::MoveTo(pt.x, pt.y, key_info);
 						}
-						result = ActionInterpreter(ref.next);
+						r_result = ActionInterpreter(ref.next);
 					}
 					else
 					{
-						result = ActionInterpreter(ref.next2);
+						r_result = ActionInterpreter(ref.next2);
 					}
 				} break;
 				case QiType::popText:
@@ -322,7 +322,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					Qi::popText->Popup(ref.time, text.c_str(), RGB(223, 223, 223));
 					if (ref.sync)
 					{
-						if (ref.sync && PeekSleep(ref.time)) result = r_exit;
+						if (ref.sync && PeekSleep(ref.time)) r_result = r_exit;
 					}
 					else Sleep(10);
 				} break;
@@ -339,11 +339,11 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					while (Qi::run && !QiThread::PeekExitMsg())
 					{
 						if (!((begin + time) > clock())) { break; }
-						result = ActionInterpreter(ref.next);
+						r_result = ActionInterpreter(ref.next);
 						if (debug_entry || jumpId) break;
-						if (result != r_continue)
+						if (r_result != r_continue)
 						{
-							if (result == r_break) break;
+							if (r_result == r_break) break;
 							break;
 						}
 					}
@@ -355,7 +355,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					if (ref.id > 0)
 					{
 						jumpId = ref.id;
-						result = r_top;
+						r_result = r_top;
 					}
 				} break;
 				case QiType::jumpPoint:
@@ -367,28 +367,28 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 				case QiType::dialog:
 				{
 					const QiDialog& ref = std::get<QiDialog>(action);
-					if (debug_entry) { if (ref.next.not_empty()) result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) result = ActionInterpreter(ref.next2); continue; }
-					else if (jumpId) { if (ref.next.not_empty()) result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) result = ActionInterpreter(ref.next2); continue; }int bn = IDYES;
+					if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
+					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }int bn = IDYES;
 					std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
 					std::string text2 = Qi::interpreter.execute(Qi::interpreter.makeString(ref.title.toStdString()), varMap).toString();
 					if (ref.style == QiDialog::warning) bn = MessageBoxW(GetForegroundWindow(), String::toWString(text).c_str(), String::toWString(text2).c_str(), MB_YESNO | MB_TOPMOST | MB_ICONWARNING);
 					else if (ref.style == QiDialog::error) bn = MessageBoxW(GetForegroundWindow(), String::toWString(text).c_str(), String::toWString(text2).c_str(), MB_YESNO | MB_TOPMOST | MB_ICONERROR);
 					else bn = MessageBoxW(GetForegroundWindow(), String::toWString(text).c_str(), String::toWString(text2).c_str(), MB_YESNO | MB_TOPMOST);
-					if (bn == IDYES) result = ActionInterpreter(ref.next);
-					else result = ActionInterpreter(ref.next2);
+					if (bn == IDYES) r_result = ActionInterpreter(ref.next);
+					else r_result = ActionInterpreter(ref.next2);
 				} break;
 				case QiType::block:
 				{
 					const QiBlock& ref = std::get<QiBlock>(action);
-					if (debug_entry) { if (ref.next.not_empty()) result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) result = ActionInterpreter(ref.next2); continue; }
-					else if (jumpId) { if (ref.next.not_empty()) result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) result = ActionInterpreter(ref.next2); continue; }
+					if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
+					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 				} break;
 				case QiType::blockExec:
 				{
 					if (jumpId || debug_entry) continue;
 					const QiBlockExec& ref = std::get<QiBlockExec>(action);
 					const QiBlock* pBlock = QiFn::FindBlock(actions, ref.id);
-					if (pBlock) result = ActionInterpreter(pBlock->next);
+					if (pBlock) r_result = ActionInterpreter(pBlock->next);
 				} break;
 				case QiType::quickInput:
 				{
@@ -422,52 +422,51 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 				case QiType::clock:
 				{
 					const QiClock& ref = std::get<QiClock>(action);
-					if (debug_entry) { if (ref.next.not_empty()) result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) result = ActionInterpreter(ref.next2); continue; }
-					else if (jumpId) { if (ref.next.not_empty()) result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) result = ActionInterpreter(ref.next2); continue; }
-					if (QiTime::compare(ref.time) < 0) result = ActionInterpreter(ref.next);
-					else result = ActionInterpreter(ref.next2);
+					if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
+					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
+					if (QiTime::compare(ref.time) < 0) r_result = ActionInterpreter(ref.next);
+					else r_result = ActionInterpreter(ref.next2);
 				} break;
 				case QiType::ocr:
 				{
 					const QiOcr& ref = std::get<QiOcr>(action);
-					if (debug_entry) { if (ref.next.not_empty()) result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) result = ActionInterpreter(ref.next2); continue; }
-					else if (jumpId) { if (ref.next.not_empty()) result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) result = ActionInterpreter(ref.next2); continue; }
-					if (Qi::ocr && !Qi::ocr->isFailed())
+					if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
+					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
+					if (Qi::ocr)
 					{
-						HBITMAP hBitmap;
 						RECT rect = QiFn::ATRR(ref.rect);
+						CImage image;
 						HDC hdc;
 						if (wndInput)
 						{
 							hdc = GetDC(wndInput->wnd);
 							rect = QiFn::WATRR(ref.rect, wndInput->wnd);
-							hBitmap = Image::toBmp32(hdc, rect);
+							image = Image::toCImage32(hdc, rect);
 							ReleaseDC(wndInput->wnd, hdc);
 						}
 						else
 						{
 							hdc = GetDC(nullptr);
 							rect = QiFn::ATRR(ref.rect);
-							hBitmap = Image::toBmp32(hdc, rect);
+							image = Image::toCImage32(hdc, rect);
 							ReleaseDC(nullptr, hdc);
 						}
-						if (hBitmap)
+						if (!image.IsNull())
 						{
-							std::string result;
-							Qi::ocr->scan(hBitmap, result);
-							result = Qi::interpreter.removeWrap(result);
-							DeleteObject(hBitmap);
-							if (!result.empty())
+							std::string text = Qi::ocr->scan(image);
+							image.ReleaseDC();
+							text = Qi::interpreter.removeWrap(text);
+							if (!text.empty())
 							{
-								Qi::interpreter.makeValue(ref.var.toStdString(), result, varMap);
-								if (ref.text == result.c_str())
+								Qi::interpreter.makeValue(ref.var.toStdString(), text, varMap);
+								if (ref.text == text.c_str())
 								{
-									result = ActionInterpreter(ref.next);
+									r_result = ActionInterpreter(ref.next);
 									break;
 								}
 							}
 						}
-						result = ActionInterpreter(ref.next2);
+						r_result = ActionInterpreter(ref.next2);
 					}
 				} break;
 				case QiType::varOperator:
@@ -480,24 +479,24 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 				case QiType::varCondition:
 				{
 					const QiVarCondition& ref = std::get<QiVarCondition>(action);
-					if (debug_entry) { if (ref.next.not_empty()) result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) result = ActionInterpreter(ref.next2); continue; }
-					else if (jumpId) { if (ref.next.not_empty()) result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) result = ActionInterpreter(ref.next2); continue; }
+					if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
+					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 					try {
 						QiVar var = Qi::interpreter.execute(ref.script.toStdString(), varMap);
 						bool scriptResult = false;
 						if (var.isNumber()) scriptResult = var.num;
 						else if (var.isString()) scriptResult == !var.str.empty();
-						if (scriptResult) result = ActionInterpreter(ref.next);
-						else result = ActionInterpreter(ref.next2);
+						if (scriptResult) r_result = ActionInterpreter(ref.next);
+						else r_result = ActionInterpreter(ref.next2);
 					}
 					catch (std::runtime_error e) { Qi::interpreter.parseError(e.what()); }
 				} break;
 				}
 			}
-			if (result != r_continue) break;
+			if (r_result != r_continue) break;
 		}
-		if ((result == r_top) && (&current == &actions)) continue;
-		return result;
+		if ((r_result == r_top) && (&current == &actions)) continue;
+		return r_result;
 	}
 	return r_exit;
 }

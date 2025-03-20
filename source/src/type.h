@@ -656,7 +656,7 @@ struct Widget
 
 namespace Qi
 {
-	inline OcrLiteOnnxInterface* ocr = nullptr;
+	inline OnnxOcrInterface* ocr = nullptr;
 	inline QiScriptInterpreter interpreter;
 	// for setStyle
 	inline QApplication* application = nullptr;
