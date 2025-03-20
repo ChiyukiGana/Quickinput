@@ -238,6 +238,7 @@ namespace QiJson
 				jAction.insert("bottom", (int)(ref.rect.bottom));
 				jAction.insert("text", ref.text);
 				jAction.insert("var", ref.var);
+				jAction.insert("match", ref.match);
 				jAction.insert("next", SaveAction(ref.next));
 				jAction.insert("next2", SaveAction(ref.next2));
 			} break;
@@ -551,6 +552,7 @@ namespace QiJson
 					var.rect.bottom = jAction.value("bottom").toInt();
 					var.text = jAction.value("text").toString();
 					var.var = jAction.value("var").toString();
+					var.match = jAction.value("match").toBool();
 					var.next = LoadAction(jAction.value("next").toArray());
 					var.next2 = LoadAction(jAction.value("next2").toArray());
 					actions.append(var);

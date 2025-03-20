@@ -81,11 +81,20 @@ public:
         catch (...) { return 0.0; }
     }
 
+    static int toInteget(const std::string& str) {
+        return toNumber(str);
+    }
+
     static std::string toString(double num) {
         std::string str = std::to_string(num);
         if (std::fmod(num, 1.0) == 0.0) return std::to_string((long long)(num));
         str.erase(str.find_last_not_of('0') + 1, std::string::npos);
         if (!str.empty() && str.back() == '.') str.pop_back();
+        return str;
+    }
+
+    static std::string toString(int num) {
+        std::string str = std::to_string(num);
         return str;
     }
 
@@ -96,8 +105,33 @@ public:
         return type == t_num ? num : toNumber(str);
     }
 
+    double toInteger() const {
+        return type == t_num ? (int)num : toInteget(str);
+    }
+
     std::string toString() const {
         return type == t_num ? toString(num) : str;
+    }
+
+    std::string sub(size_t where, size_t length) const {
+        std::string str = toString();
+        if (str.empty()) return std::string();
+        if (where > str.size()) where = str.size() - 1;
+        return str.substr(where, length);
+    }
+
+    std::string subx(size_t where, size_t length) const {
+        std::string str = toString();
+        if (str.empty() || (!where && !length)) return std::string();
+        size_t end = str.size() - where - 1;
+        if (end >= str.size()) return std::string();
+        size_t begin = end - length + 1;
+        if (begin >= str.size()) begin = 0;
+        return str.substr(begin, end - begin + 1);
+    }
+
+    double len() const {
+        return type == t_num ? toString(num).size() : str.size();
     }
 
     QiVar operator+(const QiVar& other) {
@@ -122,6 +156,12 @@ public:
         double a = this->toNumber();
         double b = other.toNumber();
         return b != 0 ? QiVar(a / b) : QiVar(0.0);
+    }
+
+    QiVar operator%(const QiVar& other) {
+        int a = this->toInteger();
+        int b = other.toInteger();
+        return QiVar(a % b);
     }
 
     bool operator>(const QiVar& other) {
@@ -213,7 +253,7 @@ public:
                 pos++;
             }
             // Operators
-            else if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '>' || c == '<' || c == '=') {
+            else if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '>' || c == '<' || c == '=' || c == '%') {
                 if (c == '=' && pos + 1 < expr.length() && expr[pos + 1] == '=') {
                     tokens.emplace_back(OPERATOR, "==", 1);
                     pos += 2;
@@ -221,7 +261,7 @@ public:
                 else {
                     std::string op(1, c);
                     int prec = 0;
-                    if (c == '*' || c == '/') prec = 3;
+                    if (c == '*' || c == '/' || c == '%') prec = 3;
                     else if (c == '+' || c == '-') prec = 2;
                     else if (c == '>' || c == '<' || c == '=') prec = 1;
                     else if (c == '^') prec = 0;
@@ -372,6 +412,7 @@ public:
                 else if (token.value == ">") result = QiVar(left > right ? 1.0 : 0.0);
                 else if (token.value == "<") result = QiVar(left < right ? 1.0 : 0.0);
                 else if (token.value == "^") result = left.merge(right);
+                else if (token.value == "%") result = left % right;
                 else if (token.value == "==") result = QiVar(left == right ? 1.0 : 0.0);
 
                 stack.push_back(result);
@@ -379,11 +420,21 @@ public:
             else if (token.type == FUNCTION) {
                 std::string funcName = token.value;
                 int argCount = 0;
-                if (funcName == "rand") {
+                if (funcName == "sub" || funcName == "subx")
+                {
+                    argCount = 3;
+                }
+                else if (funcName == "rand") {
                     argCount = 2;
                 }
-                else if (funcName == "str" || funcName == "num" || funcName == "rmc") {
+                else if (funcName == "str" || funcName == "num" || funcName == "int" || funcName == "rmc" || funcName == "len") {
                     argCount = 1;
+                }
+                else if (funcName == "date" || funcName == "time" ||
+                    funcName == "time_y" || funcName == "time_yd" || funcName == "time_ys" ||
+                    funcName == "time_m" || funcName == "time_w" || funcName == "time_d" ||
+                    funcName == "time_dh" || funcName == "time_dm" || funcName == "time_ds") {
+                    argCount = 0;
                 }
                 else {
                     throw std::runtime_error(error_unknown_functions + std::string(": ") + funcName);
@@ -406,15 +457,78 @@ public:
                 else if (funcName == "num") {
                     result = QiVar(args[0].toNumber());
                 }
+                else if (funcName == "int")
+                {
+                    result = QiVar(args[0].toInteger());
+                }
                 else if (funcName == "rmc") {
                     std::string cleaned = QiVar::removeChars(args[0].toString());
                     result = QiVar(cleaned);
                 }
                 else if (funcName == "rand") {
-                    double maxVal = args[0].toNumber();
-                    double minVal = args[1].toNumber();
-                    int randVal = QiVar::random(static_cast<int>(maxVal), static_cast<int>(minVal));
-                    result = QiVar(static_cast<double>(randVal));
+                    result = QiVar((double)QiVar::random((int)(args[0].toNumber()), (int)(args[1].toNumber())));
+                }
+                else if (funcName == "sub") {
+                    result = QiVar(args[0].sub(args[1].toInteger(), args[2].toInteger()));
+                }
+                else if (funcName == "subx") {
+                    result = QiVar(args[0].subx(args[1].toInteger(), args[2].toInteger()));
+                }
+                else if (funcName == "len") {
+                    result = QiVar(args[0].len());
+                }
+                else if (funcName == "date") {
+                    time_t s = time(nullptr);
+                    tm m; localtime_s(&m, &s);
+                    result = QiVar(QiVar::toString(m.tm_year + 1900) + std::string("-") + QiVar::toString(m.tm_mon + 1) + std::string("-") + QiVar::toString(m.tm_mday));
+                }
+                else if (funcName == "time") {
+                    time_t s = time(nullptr);
+                    tm m; localtime_s(&m, &s);
+                    result = QiVar(QiVar::toString(m.tm_hour) + std::string(":") + QiVar::toString(m.tm_min) + std::string(":") + QiVar::toString(m.tm_sec));
+                }
+                else if (funcName == "time_y") {
+                    time_t s = time(nullptr);
+                    tm m; localtime_s(&m, &s);
+                    result = QiVar(QiVar::toString(m.tm_year + 1900));
+                }
+                else if (funcName == "time_yd") {
+                    time_t s = time(nullptr);
+                    tm m; localtime_s(&m, &s);
+                    result = QiVar(QiVar::toString(m.tm_yday));
+                }
+                else if (funcName == "time_ys") {
+                    result = QiVar((double)time(nullptr));
+                }
+                else if (funcName == "time_m") {
+                    time_t s = time(nullptr);
+                    tm m; localtime_s(&m, &s);
+                    result = QiVar(QiVar::toString(m.tm_mon + 1));
+                }
+                else if (funcName == "time_w") {
+                    time_t s = time(nullptr);
+                    tm m; localtime_s(&m, &s);
+                    result = QiVar(QiVar::toString(m.tm_wday));
+                }
+                else if (funcName == "time_d") {
+                    time_t s = time(nullptr);
+                    tm m; localtime_s(&m, &s);
+                    result = QiVar(QiVar::toString(m.tm_mday));
+                }
+                else if (funcName == "time_dh") {
+                    time_t s = time(nullptr);
+                    tm m; localtime_s(&m, &s);
+                    result = QiVar(QiVar::toString(m.tm_hour));
+                }
+                else if (funcName == "time_dm") {
+                    time_t s = time(nullptr);
+                    tm m; localtime_s(&m, &s);
+                    result = QiVar(QiVar::toString(m.tm_min));
+                }
+                else if (funcName == "time_ds") {
+                    time_t s = time(nullptr);
+                    tm m; localtime_s(&m, &s);
+                    result = QiVar(QiVar::toString(m.tm_sec));
                 }
                 else {
                     throw std::runtime_error(error_unknown_functions + std::string(": ") + funcName);

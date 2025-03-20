@@ -137,6 +137,7 @@ private:
 			ui.window_state_check->setProperty("group", "check");
 			ui.window_child_check->setProperty("group", "check");
 			ui.keyBlock_move_check->setProperty("group", "check");
+			ui.ocr_match_check->setProperty("group", "check");
 		}
 		if ("radio button")
 		{
@@ -1315,12 +1316,12 @@ private:
 			if (edit2)
 			{
 				next = &clock.next2;
-				title = "编辑 - 文字识别（不匹配）";
+				title = "编辑 - 文字识别（失败）";
 			}
 			else
 			{
 				next = &clock.next;
-				title = "编辑 - 文字识别（匹配）";
+				title = "编辑 - 文字识别（成功）";
 			}
 		} break;
 		case QiType::varCondition:
@@ -1797,6 +1798,8 @@ private:
 			param += ",";
 			param += QString::number(ref.rect.bottom);
 			param += ")　";
+			if (ref.match) param += "匹配：";
+			else param += "搜索：";
 			param += ref.text.mid(0, 16);
 			if (ref.text.size() > 15) param += "...";
 		} break;
@@ -2458,6 +2461,7 @@ private:
 
 		ocr.text = ui.ocr_text_edit->text();
 		ocr.var = ui.ocr_var_edit->text();
+		ocr.match = ui.ocr_match_check->isChecked();
 		return ocr;
 	}
 	QiVarOperator WidgetGetVarOperator()
@@ -2575,6 +2579,7 @@ private:
 		ui.ocr_bottom_edit->setText(QString::number(ocr.rect.bottom));
 		ui.ocr_text_edit->setText(ocr.text);
 		ui.ocr_var_edit->setText(ocr.var);
+		ui.ocr_match_check->setChecked(ocr.match);
 	}
 	void WidgetSet(const QiVarOperator& varOperator)
 	{

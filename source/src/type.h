@@ -429,7 +429,8 @@ public:
 class QiOcr: public QiBase
 {
 public:
-	RECT rect;
+	bool match = false;
+	RECT rect = {};
 	QString text;
 	QString var;
 	QiOcr() : QiBase(QiType::ocr) {}

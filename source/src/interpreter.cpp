@@ -459,7 +459,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 							if (!text.empty())
 							{
 								Qi::interpreter.makeValue(ref.var.toStdString(), text, varMap);
-								if (ref.text == text.c_str())
+								if ((ref.match && ref.text == text.c_str()) || (!ref.match && text.find_first_of(ref.text.toStdString()) != std::string::npos))
 								{
 									r_result = ActionInterpreter(ref.next);
 									break;
