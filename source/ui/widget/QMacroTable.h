@@ -5,6 +5,7 @@
 #include <qlineedit.h>
 #include <qtablewidget.h>
 #include <qheaderview.h>
+#include <qscrollbar.h>
 #include <qlayout.h>
 
 class QMacroTable : public QTableWidget
@@ -18,8 +19,10 @@ public:
 		setProperty("setFoldEnabled", true);
 		horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Stretch);
 		horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
+		horizontalHeader()->setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
 		verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
 		verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
+		verticalHeader()->setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAsNeeded);
 		verticalHeader()->setHidden(true);
 		setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
 		setShowGrid(false);

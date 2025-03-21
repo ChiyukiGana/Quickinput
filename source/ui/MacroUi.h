@@ -170,7 +170,7 @@ private:
 			if (!isSold()) return;
 			Qi::widget.dialogActive = true;
 			Macro& macro = *currentMacros.first();
-			QString des = QFileDialog::getSaveFileName(this, "导出", macro.name + Qi::macroType, "Quickinput macro (*.json)");
+			QString des = QFileDialog::getSaveFileName(this, "导出", macro.name + Qi::macroType, QString("Quickinput macro (*") + Qi::macroType + QString(")"));
 			if (des.size())
 			{
 				if (QFile::remove(des));
@@ -187,7 +187,7 @@ private:
 		connect(ui.import_button, &QPushButton::clicked, this, [this] {
 			if (!currentGroup) return;
 			Qi::widget.dialogActive = true;
-			QString src = QFileDialog::getOpenFileName(this, "导入", QString(), "Quickinput macro (*.json)");
+			QString src = QFileDialog::getOpenFileName(this, "导入", QString(), QString("Quickinput macro (*") + Qi::macroType + QString(")"));
 			if (src.size())
 			{
 				QFileInfo info(src);

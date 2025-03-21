@@ -15,14 +15,11 @@ int main(int argc, char* argv[])
 	Init(); // json, font, style
 
 	// ocr
-	if (QDir("OCR").exists())
+	if (File::FolderState(Process::runPath() + L"\\OCR"))
 	{
-		OnnxOcrInterface* ocr = LoadOcrLiteOnnInterface();
-		if (ocr)
-		{
-			if (ocr->isInit()) Qi::ocr = ocr;
-			else delete ocr;
-		}
+		QiOnnxOcr* ocr = new QiOnnxOcr();
+		if (ocr->isInit()) Qi::ocr = ocr;
+		else delete ocr;
 	}
 
 	QApplication application(argc, argv); // qt event loop

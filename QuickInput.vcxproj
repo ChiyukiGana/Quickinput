@@ -41,13 +41,13 @@
     <OutDir>$(ProjectDir).app_d\</OutDir>
     <IntDir>$(ProjectDir).build_d\</IntDir>
     <IncludePath>$(ProjectDir);$(ProjectDir)source;$(ProjectDir)source\src\libcurl\include;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget</IncludePath>
-    <LibraryPath>$(ProjectDir)source\src\libcurl\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)source\src\libcurl\lib;$(ProjectDir)source\src\onnxruntime\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir).app\</OutDir>
     <IntDir>$(ProjectDir).build\</IntDir>
     <IncludePath>$(ProjectDir);$(ProjectDir)source;$(ProjectDir)source\src\libcurl\include;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget</IncludePath>
-    <LibraryPath>$(ProjectDir)source\src\libcurl\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)source\src\libcurl\lib;$(ProjectDir)source\src\onnxruntime\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtModules>core;widgets;winextras</QtModules>
@@ -111,7 +111,7 @@
     <ClInclude Include="source\src\inc_project.h" />
     <ClInclude Include="source\src\interpreter.h" />
     <ClInclude Include="source\src\json.h" />
-    <ClInclude Include="source\src\OnnxOcrInterface\OnnxOcr.h" />
+    <ClInclude Include="source\src\onnxocr\OnnxOcr.h" />
     <ClInclude Include="source\src\scriptinterpreter.h" />
     <ClInclude Include="source\src\thread.h" />
     <ClInclude Include="source\src\tools\base.h" />

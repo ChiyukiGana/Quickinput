@@ -150,7 +150,7 @@
     <ClInclude Include="source\src\scriptinterpreter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="source\src\OnnxOcrInterface\OnnxOcr.h">
+    <ClInclude Include="source\src\onnxocr\OnnxOcr.h">
       <Filter>Header Files\OnnxOcr</Filter>
     </ClInclude>
   </ItemGroup>

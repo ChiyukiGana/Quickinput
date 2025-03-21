@@ -1,8 +1,11 @@
-﻿#include "OnnxOcr.h"
+﻿#pragma once
+#include <string>
+#include <windows.h>
+#include <atlimage.h>
 #include <memory>
 #include <numeric>
 #include <fstream>
-#include <onnxruntime_cxx_api.h>
+#include <src/onnxruntime/include/onnxruntime_cxx_api.h>
 #pragma comment(lib,"onnxruntime.lib")
 
 class OnnxOcr
@@ -50,7 +53,7 @@ public:
 
 	bool isInit() const { return m_init; }
 
-	Result init(const std::string& model, const std::string& keys, size_t keys_size, size_t threads = 2, size_t scaleSize = 48)
+	Result init(const std::string& model, const std::string& keys, size_t threads = 2, size_t scaleSize = 48)
 	{
 		release();
 		if (!threads) threads = 1;
@@ -65,7 +68,7 @@ public:
 		std::string line;
 		while (std::getline(keysFile, line)) m_keys.push_back(line);
 
-		if (m_keys.size() != keys_size) return r_keys_invalid;
+		if (m_keys.empty()) return r_keys_invalid;
 
 		if (!Ort::Global<void>::api_) return r_sdk_different;
 		try
@@ -216,16 +219,15 @@ public:
 	}
 };
 
-class OnnxOcrModule : public OnnxOcrInterface
+class QiOnnxOcr : private OnnxOcr
 {
-	std::unique_ptr<OnnxOcr> onnxOcr;
 public:
-	OnnxOcrModule() : onnxOcr(std::make_unique<OnnxOcr>())
+	QiOnnxOcr()
 	{
 		SYSTEM_INFO info; GetSystemInfo(&info);
 		size_t threads = info.dwNumberOfProcessors >> 1;
 		if (threads < 2) threads = 2;
-		OnnxOcr::Result result = onnxOcr->init("OCR\\en_ppocr4.onnx", "OCR\\en_ppocr4.keys", 95, threads, 48);
+		OnnxOcr::Result result = OnnxOcr::init("OCR\\ppocr.onnx", "OCR\\ppocr.keys", threads, 48);
 		switch (result)
 		{
 		case OnnxOcr::r_ok:
@@ -250,31 +252,24 @@ public:
 			break;
 		}
 	}
-	bool isInit() const
-	{
-		return onnxOcr->isInit();
-	}
+	bool isInit() const { return OnnxOcr::isInit(); }
 	std::string scan(const CImage& image)
 	{
-		return onnxOcr->scan(image);
+		return OnnxOcr::scan(image);
 	}
 	std::string scan(const RECT& rect)
 	{
 		int w = rect.right - rect.left;
 		int h = rect.bottom - rect.top;
+		std::string result;
 		if (w > 0 && h > 0)
 		{
-			CImage image;
-			image.Create(w, h, 32);
-			std::string result = scan(image);
+			CImage image; image.Create(w, h, 32);
+			HDC hdc = GetDC(nullptr);
+			if (BitBlt(image.GetDC(), 0, 0, w, h, hdc, rect.left, rect.top, SRCCOPY)) result = OnnxOcr::scan(image);
 			image.ReleaseDC();
-			return result;
+			ReleaseDC(nullptr, hdc);
 		}
-		return std::string();
+		return result;
 	}
 };
-
-extern "C" __declspec(dllexport) OnnxOcrInterface* _stdcall CreateOcrLiteOnnInterface()
-{
-	return new OnnxOcrModule();
-}

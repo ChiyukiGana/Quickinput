@@ -91,7 +91,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-3-21</string>
+         <string>2025-3-21_1</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -107,8 +107,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加变量函数
-增加文字识别模式</string>
+         <string>优化触发列表状态显示
+修复部分系统无法加载文字识别</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

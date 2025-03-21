@@ -761,7 +761,8 @@ private:
 				QiImage image(WidgetGetImage());
 				Image::ScreenRgbMap(imageMap, rect);
 				image.map = imageMap;
-				if (!image.rect.left && !image.rect.top && !image.rect.right && !image.rect.bottom) image.rect = QiFn::RTAR(rect);
+				RECT before = QiFn::ATRR(image.rect);
+				if ((!image.rect.left && !image.rect.top && !image.rect.right && !image.rect.bottom) || rect.left < before.left || rect.top < before.top || rect.right > before.right || rect.bottom > before.bottom) image.rect = QiFn::RTAR(rect);
 				WidgetSet(image);
 				});
 			// ocr

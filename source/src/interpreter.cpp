@@ -53,7 +53,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 			{
 				if (action.base().debug_entry) debug_entry = false;
 			}
-			else
+			else if (Qi::debug)
 			{
 				if (action.base().debug_break)
 				{

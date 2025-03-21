@@ -32,6 +32,6 @@ using namespace QiTools;
 #include <QPointView.h>
 #include <QRectView.h>
 // quickinput
-#include "OnnxOcrInterface/OnnxOcr.h"
+#include "onnxocr/OnnxOcr.h"
 #include "scriptinterpreter.h"
 #include "type.h"

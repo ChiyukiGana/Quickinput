@@ -9,6 +9,12 @@ namespace QiTools
 	class File
 	{
 	public:
+		static bool FolderState(std::wstring path)
+		{
+			DWORD file = GetFileAttributesW(path.c_str());
+			if ((file != INVALID_FILE_ATTRIBUTES) && (file == FILE_ATTRIBUTE_DIRECTORY)) return true;
+			return false;
+		}
 		static bool UsableName(const QString file)
 		{
 			for (QChar c : file) if (c == L'\\' || c == L'/' || c == L':' || c == L'*' || c == L'?' || c == L'\"' || c == L'<' || c == L'>' || c == L'|' || c == L'.') return false;

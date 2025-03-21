@@ -9,6 +9,11 @@ class TriggerUi : public QWidget
 	const int countMax = 9999;
 	const double speedMin = 0.1;
 	const double speedMax = 10.0;
+	// table column
+	const int tableColumn_name = 0;
+	const int tableColumn_key = 1;
+	const int tableColumn_mode = 2;
+	const int tableColumn_state = 3;
 	Ui::TriggerUiClass ui;
 	MacroGroups* groups = &Qi::macroGroups;
 	MacroGroup* currentGroup = &groups->front();
@@ -121,6 +126,7 @@ private:
 			currentChanged(table_index, row, column);
 			if (!ItemCurrented() || column != 3) return;
 			currentMacro->state = !currentMacro->state;
+			TableState();
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, row, *currentMacro);
 			});
@@ -128,15 +134,7 @@ private:
 		connect(ui.macroGroup_table, &QMacroTable::headerClicked, this, [this, currentChanged](int table_index, int column) {
 			currentChanged(table_index, -1, column);
 			if (!TableCurrented() || column != 3) return;
-			bool state = false;
-			for (auto& i : currentGroup->macros)
-			{
-				if (i.state)
-				{
-					state = true;
-					break;
-				}
-			}
+			bool state = false; for (auto& i : currentGroup->macros) { if (i.state) { state = true; break; } }
 			for (size_t i = 0; i < currentGroup->macros.size(); i++)
 			{
 				auto& macro = currentGroup->macros[i];
@@ -144,6 +142,7 @@ private:
 				QiJson::SaveMacro(macro);
 				SetTableItem(currentTable, i, macro);
 			}
+			TableState();
 			});
 		connect(ui.block_check, &QCheckBox::clicked, this, [this](bool state) {
 			if (!ItemCurrented()) return;
@@ -242,6 +241,28 @@ private:
 	bool MacroCurrented() { return currentGroup && currentTable && currentMacro; }
 	bool ItemCurrented() { return currentGroup && currentTable && currentMacro && (currentRow > -1); }
 
+	void TableState(int macroGroup = -1)
+	{
+		MacroGroup* mg;
+		QTableWidget* table;
+		if (macroGroup < 0)
+		{
+			mg = currentGroup;
+			table = ui.macroGroup_table->currentTable();
+		}
+		else
+		{
+			mg = &groups->at(macroGroup);
+			table = ui.macroGroup_table->table(macroGroup);
+		}
+		if (!mg || !table) return;
+		bool state_on = true; for (auto& i : mg->macros) { if (!i.state) { state_on = false; break; } }
+		bool state_off = true; for (auto& i : mg->macros) { if (i.state) { state_off = false; break; } }
+		if (!table) return;
+		if (state_on) table->horizontalHeaderItem(tableColumn_state)->setText(QString("全部") + Qi::ui.text.syOn);
+		else if (state_off) table->horizontalHeaderItem(tableColumn_state)->setText(QString("全部") + Qi::ui.text.syOff);
+		else table->horizontalHeaderItem(tableColumn_state)->setText(QString("全部") + Qi::ui.text.syAny);
+	}
 	void TableUpdate()
 	{
 		currentGroup = &groups->front();
@@ -274,6 +295,7 @@ private:
 			table->setHorizontalHeaderItem(1, new QTableWidgetItem(""));
 			table->setHorizontalHeaderItem(2, new QTableWidgetItem(""));
 			table->setHorizontalHeaderItem(3, new QTableWidgetItem("全部" + Qi::ui.text.syAny));
+			TableState(mgPos);
 		}
 	}
 	bool event(QEvent* e)
