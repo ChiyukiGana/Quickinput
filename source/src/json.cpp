@@ -10,6 +10,8 @@ namespace QiJson
 		Qi::set.showTips = true;
 		Qi::set.audFx = false;
 		Qi::set.minMode = false;
+		Qi::set.tabLock = false;
+		Qi::set.tabHideTip = false;
 		Qi::fun.quickClick.state = false;
 		Qi::fun.quickClick.key = VK_LBUTTON;
 		Qi::fun.quickClick.delay = 200;
@@ -315,6 +317,8 @@ namespace QiJson
 		cfg.insert("showTips", (bool)Qi::set.showTips);
 		cfg.insert("audFx", (bool)Qi::set.audFx);
 		cfg.insert("minMode", (bool)Qi::set.minMode);
+		cfg.insert("tabLock", (bool)Qi::set.tabLock);
+		cfg.insert("tabHideTip", (bool)Qi::set.tabHideTip);
 		cfg.insert("quickClickKey", (int)Qi::fun.quickClick.key);
 		cfg.insert("quickClickState", (bool)Qi::fun.quickClick.state);
 		cfg.insert("quickClickDelay", (int)Qi::fun.quickClick.delay);
@@ -675,6 +679,8 @@ namespace QiJson
 				Qi::set.showTips = cfg.value("showTips").toBool();
 				Qi::set.audFx = cfg.value("audFx").toBool();
 				Qi::set.minMode = cfg.value("minMode").toBool();
+				Qi::set.tabLock = cfg.value("tabLock").toBool();
+				Qi::set.tabHideTip = cfg.value("tabHideTip").toBool();
 				Qi::fun.quickClick.state = cfg.value("quickClickState").toBool();
 				Qi::fun.quickClick.key = cfg.value("quickClickKey").toInt();
 				Qi::fun.quickClick.delay = cfg.value("quickClickDelay").toInt();

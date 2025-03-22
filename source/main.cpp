@@ -159,27 +159,23 @@ void Init()
     background-color: white
 }
 
-*[group="get_button"],
 *[group="check"]::indicator,
-*[group="radio"]::indicator {
-    background-color: white
+*[group="radio"]::indicator,
+*[group="get_button"] {
+    background-color: white;
+    width: 20px;
+    height: 20px
 }
 
-*[group="get_button"]:hover,
 *[group="check"]::indicator:hover,
-*[group="radio"]::indicator:hover {
+*[group="radio"]::indicator:hover,
+*[group="get_button"]:hover {
     background-color: #ACF
 }
 
 *[group="check"]::indicator:checked,
 *[group="radio"]::indicator:checked {
     image: url(:/checked.png)
-}
-
-*[group="check"]::indicator,
-*[group="radio"]::indicator {
-    width: 20px;
-    height: 20px
 }
 
 QToolTip,
@@ -325,27 +321,23 @@ QToolTip,
     background-color: #FFF5FF
 }
 
-*[group="get_button"],
 *[group="check"]::indicator,
-*[group="radio"]::indicator {
-    background-color: #FFF5FF
+*[group="radio"]::indicator,
+*[group="get_button"] {
+    background-color: #FFF5FF;
+    width: 20px;
+    height: 20px
 }
 
-*[group="get_button"]:hover,
 *[group="check"]::indicator:hover,
-*[group="radio"]::indicator:hover {
+*[group="radio"]::indicator:hover,
+*[group="get_button"]:hover {
     background-color: #FBE
 }
 
 *[group="check"]::indicator:checked,
 *[group="radio"]::indicator:checked {
     image: url(:/checked.png)
-}
-
-*[group="check"]::indicator,
-*[group="radio"]::indicator {
-    width: 20px;
-    height: 20px
 }
 
 QToolTip,
@@ -491,27 +483,23 @@ QToolTip,
     background-color: #FFFFF5
 }
 
-*[group="get_button"],
 *[group="check"]::indicator,
-*[group="radio"]::indicator {
-    background-color: #FFFFF5
+*[group="radio"]::indicator,
+*[group="get_button"] {
+    background-color: #FFFFF5;
+    width: 20px;
+    height: 20px
 }
 
-*[group="get_button"]:hover,
 *[group="check"]::indicator:hover,
-*[group="radio"]::indicator:hover {
+*[group="radio"]::indicator:hover,
+*[group="get_button"]:hover {
     background-color: #FFD0B0
 }
 
 *[group="check"]::indicator:checked,
 *[group="radio"]::indicator:checked {
     image: url(:/checked.png)
-}
-
-*[group="check"]::indicator,
-*[group="radio"]::indicator {
-    width: 20px;
-    height: 20px
 }
 
 QToolTip,
@@ -657,27 +645,23 @@ QToolTip,
     background-color: #F5FFFF
 }
 
-*[group="get_button"],
 *[group="check"]::indicator,
-*[group="radio"]::indicator {
-    background-color: #F5FFFF
+*[group="radio"]::indicator,
+*[group="get_button"] {
+    background-color: #F5FFFF;
+    width: 20px;
+    height: 20px
 }
 
-*[group="get_button"]:hover,
 *[group="check"]::indicator:hover,
-*[group="radio"]::indicator:hover {
+*[group="radio"]::indicator:hover,
+*[group="get_button"]:hover {
     background-color: #8EB
 }
 
 *[group="check"]::indicator:checked,
 *[group="radio"]::indicator:checked {
     image: url(:/checked.png)
-}
-
-*[group="check"]::indicator,
-*[group="radio"]::indicator {
-    width: 20px;
-    height: 20px
 }
 
 QToolTip,
@@ -822,27 +806,23 @@ QToolTip,
     background-color: #555
 }
 
-*[group="get_button"],
 *[group="check"]::indicator,
-*[group="radio"]::indicator {
-    background-color: #555
+*[group="radio"]::indicator,
+*[group="get_button"] {
+    background-color: #555;
+    width: 20px;
+    height: 20px
 }
 
-*[group="get_button"]:hover,
 *[group="check"]::indicator:hover,
-*[group="radio"]::indicator:hover {
+*[group="radio"]::indicator:hover,
+*[group="get_button"]:hover {
     background-color: #777
 }
 
 *[group="check"]::indicator:checked,
 *[group="radio"]::indicator:checked {
     image: url(:/checked.png)
-}
-
-*[group="check"]::indicator,
-*[group="radio"]::indicator {
-    width: 20px;
-    height: 20px
 }
 
 QToolTip,

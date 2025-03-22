@@ -20,8 +20,6 @@ public:
 		ui.title_widget->setProperty("group", "title");
 		ui.content_widget->setProperty("group", "client");
 		ui.title_close_button->setProperty("group", "title-close_button");
-		ui.tabWidget->setProperty("group", "tab_widget");
-		ui.tabWidget->tabBar()->setProperty("group", "tab_widget_bar");
 		ui.toolBox->setProperty("group", "ltab_widget");
 	}
 private:

@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>790</height>
+    <height>640</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>800</width>
-    <height>500</height>
+    <height>640</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>1200</width>
-    <height>790</height>
+    <width>800</width>
+    <height>640</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -218,7 +218,7 @@
            <x>0</x>
            <y>0</y>
            <width>778</width>
-           <height>603</height>
+           <height>453</height>
           </rect>
          </property>
          <attribute name="label">
@@ -317,8 +317,8 @@ Quickinput的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>472</width>
-           <height>330</height>
+           <width>778</width>
+           <height>453</height>
           </rect>
          </property>
          <attribute name="label">
@@ -352,432 +352,6 @@ Quickinput的使用流程：
            </widget>
           </item>
           <item>
-           <widget class="QTabWidget" name="tabWidget">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">QTabBar::tab,QTabBar::tab::first,QTabBar::tab::last{width:58px;height:24px;padding:0px}</string>
-            </property>
-            <property name="currentIndex">
-             <number>0</number>
-            </property>
-            <property name="usesScrollButtons">
-             <bool>true</bool>
-            </property>
-            <property name="documentMode">
-             <bool>true</bool>
-            </property>
-            <property name="tabsClosable">
-             <bool>false</bool>
-            </property>
-            <property name="movable">
-             <bool>false</bool>
-            </property>
-            <property name="tabBarAutoHide">
-             <bool>false</bool>
-            </property>
-            <widget class="QWidget" name="tab_macro_base">
-             <attribute name="title">
-              <string>基本</string>
-             </attribute>
-             <layout class="QVBoxLayout" name="verticalLayout_7">
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <property name="leftMargin">
-               <number>10</number>
-              </property>
-              <property name="topMargin">
-               <number>10</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QLabel" name="label_2">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="text">
-                 <string>鼠标/键盘（控制键盘或鼠标的按下状态）：
-　点击一次方框，按下所需按键，选择操作（点击，按下，松开）
-
-鼠标位置/移动（控制光标位置）：
-　位置：将光标设置到指定位置：
-　　１：勾选位置后面第一个框
-　　２：点击位置后面第二个框，屏幕变暗后点击对应位置
-　移动：将光标移动指定距离：
-　　1：勾选移动后面的框
-　　2：在左右和上下分别输入移动量（以屏幕像素为单位）
-　轨迹：勾选后会模拟鼠标的移动路径，右侧输入速度
-
-等待（暂停一段时候）：
-　固定时长：在左侧框输入需要的时长（1秒=1000）
-　随机时长：在左侧框输入最小时长，在右侧框输入最大时长</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="verticalSpacer_11">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QWidget" name="tab_macro_loop">
-             <attribute name="title">
-              <string>循环</string>
-             </attribute>
-             <layout class="QVBoxLayout" name="verticalLayout_3">
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <property name="leftMargin">
-               <number>10</number>
-              </property>
-              <property name="topMargin">
-               <number>10</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QLabel" name="label_3">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="text">
-                 <string>循环（多次执行里面的操作）：
-　固定次数：在左侧输入需要的次数（0=无限次数）
-　随机次数：在左侧框输入最小次数，在右侧框输入最大次数
-　添加后再点击编辑，编辑需要执行的宏
-
-定时（多次执行里面的操作）：
-　固定时间：在左侧输入需要的时间
-　随机时间：在左侧框输入最小时间，在右侧框输入最大时间
-　添加后再点击编辑，编辑需要执行的宏</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="verticalSpacer_12">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QWidget" name="tab_macro_state">
-             <attribute name="title">
-              <string>状态</string>
-             </attribute>
-             <layout class="QVBoxLayout" name="verticalLayout_8">
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <property name="leftMargin">
-               <number>10</number>
-              </property>
-              <property name="topMargin">
-               <number>10</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QLabel" name="label_5">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>鼠标/键盘 状态检测（检测键盘或鼠标的按下状态）：
-　1：点击一次方框，按下所需按键，选择检测的状态（按下，松开）
-　2：添加后再点击编辑，编辑需要执行的宏
-
-记录鼠标位置，恢复鼠标位置：
-　默认恢复到宏开始运行前的鼠标位置，如果添加了记录鼠标位置则为上一次记录的位置
-
-结束循环（结束当前循环）：
-　执行该操作后当前循环将结束，不会影响到外面的循环或整个宏
-
-结束宏（结束运行）
-　在任何位置执行该操作都会结束运行</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="verticalSpacer_2">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QWidget" name="tab_macro_color">
-             <attribute name="title">
-              <string>颜色</string>
-             </attribute>
-             <layout class="QVBoxLayout" name="verticalLayout_10">
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <property name="leftMargin">
-               <number>10</number>
-              </property>
-              <property name="topMargin">
-               <number>10</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QLabel" name="label_9">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>查找颜色（找到颜色后执行里面的操作）：
-　1：根据需要勾选找到或未找到时执行
-　2：找到并移动到：在找到颜色后将鼠标移动到对应位置
-　3：点击范围最后的框，屏幕变暗后拖动框选需要查找的范围
-　4：点击颜色最后的框，将鼠标移动到对应颜色的位置后点击，弹出颜色编辑框点击确定
-　5：根据情况调节误差，误差越大越容易查找到颜色
-　6：添加后再点击编辑，编辑需要执行的宏</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="verticalSpacer_3">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QWidget" name="tab_macro_image">
-             <attribute name="title">
-              <string>图像</string>
-             </attribute>
-             <layout class="QVBoxLayout" name="verticalLayout_11">
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <property name="leftMargin">
-               <number>10</number>
-              </property>
-              <property name="topMargin">
-               <number>10</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QLabel" name="label_10">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>查找图像（找到图像后执行里面的操作）：
-　1：根据需要勾选找到或未找到时执行
-　2：找到并移动到：在找到颜色后将鼠标移动到对应位置
-　3：点击范围最后的框，屏幕变暗后拖动框选需要查找的范围
-　4：点击截图后面的框，屏幕变暗后拖动框选截图
-　5：根据情况调节相似，相似越小越容易查找到颜色
-　6：添加后再点击编辑，编辑需要执行的宏</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="verticalSpacer_4">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>312</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QWidget" name="tab_macro_text">
-             <attribute name="title">
-              <string>文本</string>
-             </attribute>
-             <layout class="QVBoxLayout" name="verticalLayout_12">
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <property name="leftMargin">
-               <number>10</number>
-              </property>
-              <property name="topMargin">
-               <number>10</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QLabel" name="label_11">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>复制到剪贴板（可通过Ctrl V粘贴）：
-　在框内输入需要的文字
-
-弹出文字（在屏幕中弹出文字）：
-　1：在文字后面的框内输入需要的文字
-　2：输入文字显示时间（1秒=1000）</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="verticalSpacer_5">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>320</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-            <widget class="QWidget" name="tab_macro_window">
-             <attribute name="title">
-              <string>窗口/提示</string>
-             </attribute>
-             <layout class="QVBoxLayout" name="verticalLayout_13">
-              <property name="spacing">
-               <number>0</number>
-              </property>
-              <property name="leftMargin">
-               <number>10</number>
-              </property>
-              <property name="topMargin">
-               <number>10</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QLabel" name="label_14">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>窗口模式（后台控制窗口）：
-　1：启用窗口模式
-　2：自动选择控件：自动定位到一些文本框，按钮
-　3：点击窗口最右的框，切换到需要控制的窗口，按两次回车</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="verticalSpacer_6">
-                <property name="orientation">
-                 <enum>Qt::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>286</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </widget>
-           </widget>
-          </item>
-          <item>
            <spacer name="verticalSpacer">
             <property name="orientation">
              <enum>Qt::Vertical</enum>
@@ -797,8 +371,8 @@ Quickinput的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>460</width>
-           <height>267</height>
+           <width>778</width>
+           <height>453</height>
           </rect>
          </property>
          <attribute name="label">
@@ -865,8 +439,8 @@ Quickinput的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>335</width>
-           <height>228</height>
+           <width>778</width>
+           <height>453</height>
           </rect>
          </property>
          <attribute name="label">
@@ -930,8 +504,8 @@ Quickinput的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>274</width>
-           <height>267</height>
+           <width>778</width>
+           <height>453</height>
           </rect>
          </property>
          <attribute name="label">

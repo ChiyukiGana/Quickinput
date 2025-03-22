@@ -529,7 +529,10 @@
        </widget>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <layout class="QVBoxLayout" name="tabWidget_box">
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QTabWidget" name="tabWidget">
           <property name="sizePolicy">
@@ -578,6 +581,15 @@
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
+              </property>
+              <property name="toolTip">
+               <string>控制一个键盘/鼠标按键的状态
+
+点击左侧编辑框后按下需要的键盘/鼠标按键
+选择执行的操作
+　　点击：按下并松开这个按键
+　　按下：按下这个按键并保持
+　　松开：松开这个按键</string>
               </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
@@ -807,6 +819,13 @@
                 <bold>true</bold>
                </font>
               </property>
+              <property name="toolTip">
+               <string>根据字符自动点击键盘按键
+
+点击编辑框输入需要的键盘字符
+只能按下字母，数字，符号，并且不能识别大小写状态
+可用于输入数字密码等</string>
+              </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
               </property>
@@ -982,6 +1001,17 @@
                 <bold>true</bold>
                </font>
               </property>
+              <property name="toolTip">
+               <string>控制鼠标指针的位置
+
+选择位置或移动
+　　位置：鼠标指针的位置传送到指定位置
+　　　　点击位置勾选框旁边的+按钮获取鼠标位置
+　　移动：鼠标从当前位置开始移动指定距离
+　　　　左右输入水平移动量，上下输入垂直移动量，负数代表向左或上移动
+
+可选择轨迹来过渡移动</string>
+              </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
               </property>
@@ -1071,9 +1101,6 @@
                    </property>
                    <property name="toolTip">
                     <string/>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true"/>
                    </property>
                    <property name="text">
                     <string>+</string>
@@ -1463,6 +1490,12 @@
                 <bold>true</bold>
                </font>
               </property>
+              <property name="toolTip">
+               <string>暂停指定时间
+
+输入最小时长，输入最大时长
+如果最大时长和最小时长不同将会随机</string>
+              </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
               </property>
@@ -1732,6 +1765,14 @@
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
+              </property>
+              <property name="toolTip">
+               <string>循环指定次数
+
+输入最小次数，输入最大次数
+如果最大次数和最小次数不同将会随机
+
+点击编辑进入循环内容编辑，里面的动作将会被循环</string>
               </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
@@ -2009,6 +2050,14 @@
                 <bold>true</bold>
                </font>
               </property>
+              <property name="toolTip">
+               <string>循环指定时长
+
+输入最小时长，输入最大时长
+如果最大时长和最小时长不同将会随机
+
+点击编辑进入循环内容编辑，里面的动作将会被循环</string>
+              </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
               </property>
@@ -2284,6 +2333,14 @@
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
+              </property>
+              <property name="toolTip">
+               <string>结束循环或结束运行
+
+结束循环
+　　如果在循环内，循环停止，如果在循环外，宏停止
+结束运行
+　　任意位置让宏停止运行</string>
               </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
@@ -2578,6 +2635,14 @@
                 <bold>true</bold>
                </font>
               </property>
+              <property name="toolTip">
+               <string>检测键盘/鼠标/手柄按键的状态
+
+点击左侧编辑框后按下需要的键盘/鼠标/手柄按键
+
+按键被按下执行已按下
+否则执行未按下</string>
+              </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
               </property>
@@ -2823,6 +2888,14 @@
                 <bold>true</bold>
                </font>
               </property>
+              <property name="toolTip">
+               <string>检测当前时间是否经过
+
+点击左侧编辑框后输入目标时间
+
+已经过目标时间将会执行已经过
+否则执行未经过</string>
+              </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
               </property>
@@ -3049,6 +3122,16 @@
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
+              </property>
+              <property name="toolTip">
+               <string>屏蔽键盘/鼠标按键
+
+点击左侧编辑框后按下需要的键盘/鼠标按键
+点击移动指定鼠标指针
+
+选择按键的状态
+　　屏蔽：按键不能使用
+　　解除：按键恢复正常</string>
               </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
@@ -3283,6 +3366,12 @@
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
+              </property>
+              <property name="toolTip">
+               <string>保存鼠标的位置
+
+记录：保存鼠标的位置，默认保存宏运行前的位置
+恢复：恢复保存的位置</string>
               </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
@@ -3576,6 +3665,15 @@
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
+              </property>
+              <property name="toolTip">
+               <string>跳转到指定位置
+
+点击锚点添加一个位置
+
+在需要跳转的位置选择跳转列表中的锚点
+
+当运行到跳转时会跳转到对应的锚点</string>
               </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
@@ -3888,6 +3986,15 @@
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
+              </property>
+              <property name="toolTip">
+               <string>保存内容以便使用
+
+点击块添加后点击编辑，在里面添加需要的内容
+
+在需要的位置选择执行列表中的块
+
+当运行到执行时会执行到对应的块</string>
               </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
@@ -4239,6 +4346,20 @@
                 <bold>true</bold>
                </font>
               </property>
+              <property name="toolTip">
+               <string>查找范围里的颜色
+
+点击范围后面的+按钮选择需要查找的范围
+
+点击颜色后面的按钮选择需要查找的颜色
+
+选择找到并移动到会在找到颜色后将鼠标移动到对应位置
+
+找到颜色执行已找到
+否则执行未找到
+
+如果目标区域颜色难以查找可提高误差值</string>
+              </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
               </property>
@@ -4468,9 +4589,6 @@
                    </property>
                    <property name="toolTip">
                     <string/>
-                   </property>
-                   <property name="autoFillBackground">
-                    <bool>false</bool>
                    </property>
                    <property name="text">
                     <string>+</string>
@@ -4912,6 +5030,20 @@
                 <bold>true</bold>
                </font>
               </property>
+              <property name="toolTip">
+               <string>查找范围里的图像
+
+点击范围后面的+按钮选择需要查找的范围
+
+点击截图后面的按钮选择需要查找的图像
+
+选择找到并移动到会在找到图像后将鼠标移动到对应位置
+
+找到图像执行已找到
+否则执行未找到
+
+如果目标区域颜色难以查找可减少相似值</string>
+              </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
               </property>
@@ -5142,9 +5274,6 @@
                    <property name="toolTip">
                     <string/>
                    </property>
-                   <property name="autoFillBackground">
-                    <bool>false</bool>
-                   </property>
                    <property name="text">
                     <string>+</string>
                    </property>
@@ -5271,9 +5400,6 @@
                    </property>
                    <property name="toolTip">
                     <string/>
-                   </property>
-                   <property name="autoFillBackground">
-                    <bool>false</bool>
                    </property>
                    <property name="text">
                     <string>+</string>
@@ -5557,6 +5683,23 @@
                 <bold>true</bold>
                </font>
               </property>
+              <property name="toolTip">
+               <string>识别范围里的文字
+
+点击范围后面的+按钮选择需要查找的范围
+建议接近文字的大小
+
+在文字编辑框输入需要匹配的文字
+选择完全匹配时识别到的文字完全相等才会成功
+否则识别到的文字包含就会成功
+
+可在变量编辑框输入变量来保存识别内容
+
+匹配文字执行已找到
+否则执行未找到
+
+如果错误提示请检查是否有OCR文件夹并且解压了语言</string>
+              </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
               </property>
@@ -5783,9 +5926,6 @@
                    </property>
                    <property name="toolTip">
                     <string/>
-                   </property>
-                   <property name="autoFillBackground">
-                    <bool>false</bool>
                    </property>
                    <property name="text">
                     <string>+</string>
@@ -6183,6 +6323,13 @@
                 <bold>true</bold>
                </font>
               </property>
+              <property name="toolTip">
+               <string>将指定的文字复制到剪贴板
+
+在文本编辑框中输入需要复制的文字
+
+在需要粘贴文字的位置按快捷键粘贴</string>
+              </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
               </property>
@@ -6321,6 +6468,15 @@
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
+              </property>
+              <property name="toolTip">
+               <string>在屏幕上弹出文字
+
+在文字编辑框中输入需要弹出的内容
+
+在时长编辑框输入需要显示的时间
+
+选择等待完成会暂停运行直到文字消失</string>
               </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
@@ -6637,6 +6793,18 @@
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
+              </property>
+              <property name="toolTip">
+               <string>弹出对话框
+
+选择类型对应不同的对话框图标
+
+在标题输入对话框标题
+
+在内容输入显示的内容
+
+点击是按钮执行是
+否则执行否</string>
               </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
@@ -7061,6 +7229,11 @@
                 <bold>true</bold>
                </font>
               </property>
+              <property name="toolTip">
+               <string>对变量进行操作
+
+详细说明查看示例宏</string>
+              </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
               </property>
@@ -7199,6 +7372,14 @@
                 <weight>75</weight>
                 <bold>true</bold>
                </font>
+              </property>
+              <property name="toolTip">
+               <string>对变量进行判断
+
+条件符合执行是
+否则执行否
+
+详细说明查看示例宏</string>
               </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
@@ -7484,6 +7665,17 @@
                 <bold>true</bold>
                </font>
               </property>
+              <property name="toolTip">
+               <string>直接控制窗口
+
+如果目标窗口不支持窗口消息控制将无效
+
+自动选择控件用于带有基于窗口的按钮等窗口
+
+点击窗口后面的+按钮选择窗口
+
+目前旧软件或谷歌Edge浏览器兼容性较好</string>
+              </property>
               <property name="styleSheet">
                <string notr="true">QGroupBox{border:1px solid gray}</string>
               </property>
@@ -7720,6 +7912,12 @@
                      <height>24</height>
                     </size>
                    </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
                    <property name="focusPolicy">
                     <enum>Qt::ClickFocus</enum>
                    </property>
@@ -7832,11 +8030,38 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="tab_lock_check">
-          <property name="text">
-           <string>锁定标签</string>
+         <layout class="QHBoxLayout" name="bottom_check_box">
+          <property name="spacing">
+           <number>8</number>
           </property>
-         </widget>
+          <item>
+           <widget class="QCheckBox" name="tab_lock_check">
+            <property name="text">
+             <string>锁定标签</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="tab_hideTip_check">
+            <property name="text">
+             <string>隐藏提示</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="bottom_check_spacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>

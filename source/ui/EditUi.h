@@ -67,6 +67,7 @@ class EditUi : public QDialog
 	QList<QPushButton*> changeButtons;
 	QList<QPushButton*> editButtons;
 	QList<QPushButton*> edit2Buttons;
+	QList<QGroupBox*> actionGroups;
 	// test run
 	QTimer* testTimer;
 	// custom widget
@@ -130,6 +131,7 @@ private:
 		if ("check box")
 		{
 			ui.tab_lock_check->setProperty("group", "check");
+			ui.tab_hideTip_check->setProperty("group", "check");
 			ui.mouse_track_check->setProperty("group", "check");
 			ui.color_move_check->setProperty("group", "check");
 			ui.image_move_check->setProperty("group", "check");
@@ -468,6 +470,31 @@ private:
 			}
 			for (auto& i : changeButtons) i->setDisabled(true);
 		}
+		if ("tooltip")
+		{
+			actionGroups.append(ui.grp_key);
+			actionGroups.append(ui.grp_quickInput);
+			actionGroups.append(ui.grp_mouse);
+			actionGroups.append(ui.grp_delay);
+			actionGroups.append(ui.grp_loop);
+			actionGroups.append(ui.grp_timer);
+			actionGroups.append(ui.grp_end);
+			actionGroups.append(ui.grp_keyState);
+			actionGroups.append(ui.grp_clock);
+			actionGroups.append(ui.grp_keyBlock);
+			actionGroups.append(ui.grp_mousePos);
+			actionGroups.append(ui.grp_jump);
+			actionGroups.append(ui.grp_block);
+			actionGroups.append(ui.grp_color);
+			actionGroups.append(ui.grp_image);
+			actionGroups.append(ui.grp_ocr);
+			actionGroups.append(ui.grp_copyText);
+			actionGroups.append(ui.grp_popText);
+			actionGroups.append(ui.dialog_group);
+			actionGroups.append(ui.grp_varOperator);
+			actionGroups.append(ui.grp_varCondition);
+			actionGroups.append(ui.grp_window);
+		}
 		if ("radio group")
 		{
 			QButtonGroup* actionRbs = new QButtonGroup(this);
@@ -558,6 +585,13 @@ private:
 		{
 			testTimer = new QTimer(this);
 		}
+		if ("check")
+		{
+			ui.tab_lock_check->setChecked(Qi::set.tabLock);
+			ui.tab_hideTip_check->setChecked(Qi::set.tabHideTip);
+			if (Qi::set.tabHideTip) for (auto& i : actionGroups) i->setToolTipDuration(1);
+			else for (auto& i : actionGroups) i->setToolTipDuration(0);
+		}
 		// enable qlable scale
 		ui.image_view_label->setScaledContents(true);
 		// load Window mode
@@ -623,6 +657,16 @@ private:
 		// >>>> new action set here
 		if ("action widget")
 		{
+			connect(ui.tab_lock_check, &QCheckBox::toggled, this, [this](bool state) {
+				Qi::set.tabLock = state;
+				QiJson::SaveJson();
+				});
+			connect(ui.tab_hideTip_check, &QCheckBox::toggled, this, [this](bool state) {
+				if (state) for (auto& i : actionGroups) i->setToolTipDuration(1);
+				else for (auto& i : actionGroups) i->setToolTipDuration(0);
+				Qi::set.tabHideTip = state;
+				QiJson::SaveJson();
+				});
 			for (auto& i : addButtons) connect(i, &QPushButton::clicked, this, [this, i] { ItemAdd(i->property("qit").toInt()); });
 			for (auto& i : changeButtons) connect(i, &QPushButton::clicked, this, [this, i] { ItemChange(i->property("qit").toInt()); });
 			for (auto& i : editButtons) connect(i, &QPushButton::clicked, this, [this] { NextEdit(false); });

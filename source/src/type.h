@@ -638,6 +638,9 @@ struct SettingsData
 	bool showTips = false;
 	bool audFx = false;
 	bool minMode = false;
+	// eidt
+	bool tabLock = false;
+	bool tabHideTip = false;
 };
 struct FuncData
 {
