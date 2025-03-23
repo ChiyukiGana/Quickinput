@@ -636,7 +636,7 @@ private:
 				SetDebugState(debug_run);
 				});
 			connect(ui.window_select_button, &QPushButton::clicked, this, [this] { SelectWindow(); });
-			connect(ui.window_state_check, &QCheckBox::clicked, this, [this](bool state) {
+			connect(ui.window_state_check, &QCheckBox::toggled, this, [this](bool state) {
 				if (state)
 				{
 					macro->wndState = true;
@@ -652,7 +652,7 @@ private:
 					ui.window_name_edit->setDisabled(true);
 				}
 				});
-			connect(ui.window_child_check, &QCheckBox::clicked, this, [this](bool state) { macro->wndInfo.child = state; });
+			connect(ui.window_child_check, &QCheckBox::toggled, this, [this](bool state) { macro->wndInfo.child = state; });
 		}
 		// >>>> new action set here
 		if ("action widget")

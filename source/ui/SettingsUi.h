@@ -138,12 +138,12 @@ private:
 			}
 			Qi::set.recKey = vk;
 			QiJson::SaveJson(); });
-		connect(ui.recordTrack_check, &QCheckBox::clicked, this, [this](bool state) { sets->recTrack = state; QiJson::SaveJson(); });
-		connect(ui.enableDefault_check, &QCheckBox::clicked, this, [this](bool state) { sets->defOn = state; QiJson::SaveJson(); });
-		connect(ui.showState_check, &QCheckBox::clicked, this, [this](bool state) { sets->showTips = state; QiJson::SaveJson(); });
-		connect(ui.sound_check, &QCheckBox::clicked, this, [this](bool state) { sets->audFx = state; QiJson::SaveJson(); });
-		connect(ui.hideDefault_check, &QCheckBox::clicked, this, [this](bool state) { sets->minMode = state; QiJson::SaveJson(); });
-		connect(ui.start_check, &QCheckBox::clicked, this, [this] {
+		connect(ui.recordTrack_check, &QCheckBox::toggled, this, [this](bool state) { sets->recTrack = state; QiJson::SaveJson(); });
+		connect(ui.enableDefault_check, &QCheckBox::toggled, this, [this](bool state) { sets->defOn = state; QiJson::SaveJson(); });
+		connect(ui.showState_check, &QCheckBox::toggled, this, [this](bool state) { sets->showTips = state; QiJson::SaveJson(); });
+		connect(ui.sound_check, &QCheckBox::toggled, this, [this](bool state) { sets->audFx = state; QiJson::SaveJson(); });
+		connect(ui.hideDefault_check, &QCheckBox::toggled, this, [this](bool state) { sets->minMode = state; QiJson::SaveJson(); });
+		connect(ui.start_check, &QCheckBox::toggled, this, [this] {
 			if (Task::Find(L"QuickInput"))
 			{
 				if (Task::Delete(L"QuickInput")) ui.start_check->setChecked(false);

@@ -144,13 +144,13 @@ private:
 			}
 			TableState();
 			});
-		connect(ui.block_check, &QCheckBox::clicked, this, [this](bool state) {
+		connect(ui.block_check, &QCheckBox::toggled, this, [this](bool state) {
 			if (!ItemCurrented()) return;
 			currentMacro->keyBlock = state;
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
-		connect(ui.block_cur_check, &QCheckBox::clicked, this, [this](bool state) {
+		connect(ui.block_cur_check, &QCheckBox::toggled, this, [this](bool state) {
 			if (!ItemCurrented()) return;
 			currentMacro->curBlock = state;
 			QiJson::SaveMacro(*currentMacro);

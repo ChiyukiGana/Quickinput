@@ -275,6 +275,7 @@ namespace QiFn
 		if (state)
 		{
 			Qi::curBlock = 0;
+			memset(Qi::keyBlock, 0, sizeof(Qi::keyBlock));
 			Qi::macroActive.clear();
 			for (auto& g : Qi::macroGroups)
 			{

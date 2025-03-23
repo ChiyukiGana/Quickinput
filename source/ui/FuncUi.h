@@ -74,11 +74,11 @@ private:
 	}
 	void Event()
 	{
-		connect(ui.click_check, &QCheckBox::clicked, this, [this](bool state) { func->quickClick.state = state; QiJson::SaveJson(); });
+		connect(ui.click_check, &QCheckBox::toggled, this, [this](bool state) { func->quickClick.state = state; QiJson::SaveJson(); });
 		connect(ui.click_keyedit, &QKeyEdit::changed, this, [this] { func->quickClick.key = ui.click_keyedit->key(); QiJson::SaveJson(); });
 		connect(ui.click_delay_edit, &QLineEdit::textEdited, this, [this](const QString& text) { func->quickClick.delay = text.toInt(); QiJson::SaveJson(); });
 		connect(ui.click_mode_combo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) { func->quickClick.mode = index; QiJson::SaveJson(); });
-		connect(ui.window_check, &QCheckBox::clicked, this, [this](bool state){ func->wndActive.state = state; QiJson::SaveJson(); });
+		connect(ui.window_check, &QCheckBox::toggled, this, [this](bool state){ func->wndActive.state = state; QiJson::SaveJson(); });
 		connect(ui.window_select_button, &QPushButton::clicked, this, [this] {
 			Qi::widget.dialogActive = true;
 			Qi::widget.main->hide();
@@ -88,7 +88,7 @@ private:
 			Qi::widget.main->show();
 			QiJson::SaveJson();
 			});
-		connect(ui.clock_check, &QCheckBox::clicked, this, [this](bool state) { func->showClock.state = state; QiJson::SaveJson(); });
+		connect(ui.clock_check, &QCheckBox::toggled, this, [this](bool state) { func->showClock.state = state; QiJson::SaveJson(); });
 		connect(ui.clock_keyedit, &QKeyEdit::changed, this, [this] { func->showClock.key = ui.clock_keyedit->key(); QiJson::SaveJson(); });
 	}
 	bool event(QEvent* e)
