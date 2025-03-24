@@ -6,9 +6,6 @@ class TriggerUi : public QWidget
 {
 	Q_OBJECT;
 	using This = TriggerUi;
-	const int countMax = 9999;
-	const double speedMin = 0.1;
-	const double speedMax = 10.0;
 	// table column
 	const int tableColumn_name = 0;
 	const int tableColumn_key = 1;
@@ -40,6 +37,8 @@ private:
 		ui.mode_combo->view()->setProperty("group", "combo_body");
 		ui.count_edit->setProperty("group", "line_edit");
 		ui.speed_edit->setProperty("group", "line_edit");
+		ui.moveScale_x_edit->setProperty("group", "line_edit");
+		ui.moveScale_y_edit->setProperty("group", "line_edit");
 		ui.key_keyedit->setProperty("group", "line_edit");
 	}
 	void Init()
@@ -119,6 +118,8 @@ private:
 			{
 				ui.count_edit->setValue(macro.count);
 				ui.speed_edit->setValue(macro.speed);
+				ui.moveScale_x_edit->setValue(macro.moveScaleX);
+				ui.moveScale_y_edit->setValue(macro.moveScaleY);
 			}
 			ui.param_widget->setEnabled(true);
 			};
@@ -175,7 +176,7 @@ private:
 			});
 		connect(ui.count_edit, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) {
 			if (!ItemCurrented()) return;
-			if (value > countMax) value = countMax;
+			if (value > QiRange::macro_count_max) value = QiRange::macro_count_max;
 			else if (value < 0) value = 0;
 			currentMacro->count = value;
 			QiJson::SaveMacro(*currentMacro);
@@ -183,9 +184,25 @@ private:
 			});
 		connect(ui.speed_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 			if (!ItemCurrented()) return;
-			if (value > speedMax) value = speedMax;
-			else if (value < speedMin) value = speedMin;
+			if (value > QiRange::macro_speed_max) value = QiRange::macro_speed_max;
+			else if (value < QiRange::macro_speed_min) value = QiRange::macro_speed_min;
 			currentMacro->speed = value;
+			QiJson::SaveMacro(*currentMacro);
+			SetTableItem(currentTable, currentRow, *currentMacro);
+			});
+		connect(ui.moveScale_x_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
+			if (!ItemCurrented()) return;
+			if (value > QiRange::macro_moveScale_max) value = QiRange::macro_moveScale_max;
+			else if (value < QiRange::macro_moveScale_min) value = QiRange::macro_moveScale_min;
+			currentMacro->moveScaleX = value;
+			QiJson::SaveMacro(*currentMacro);
+			SetTableItem(currentTable, currentRow, *currentMacro);
+			});
+		connect(ui.moveScale_y_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
+			if (!ItemCurrented()) return;
+			if (value > QiRange::macro_moveScale_max) value = QiRange::macro_moveScale_max;
+			else if (value < QiRange::macro_moveScale_min) value = QiRange::macro_moveScale_min;
+			currentMacro->moveScaleY = value;
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});

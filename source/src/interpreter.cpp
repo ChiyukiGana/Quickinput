@@ -18,7 +18,14 @@ bool HaveEntry(const Actions& actions)
 	return false;
 }
 
-QiInterpreter::QiInterpreter(QiVarMap& varMap, const Actions& actions, float speed, WndInput* wndInput, POINT& cursor) : varMap(varMap), actions(actions), speed(speed), wndInput(wndInput), cursor(cursor)
+QiInterpreter::QiInterpreter(QiVarMap& varMap, const Actions& actions, float speed, float moveScaleX, float moveScaleY, WndInput* wndInput, POINT& cursor):
+	varMap(varMap),
+	actions(actions),
+	speed(speed),
+	moveScaleX(moveScaleX),
+	moveScaleY(moveScaleY),
+	wndInput(wndInput),
+	cursor(cursor)
 {
 	if (Qi::debug) debug_entry = HaveEntry(actions);
 }
@@ -138,7 +145,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 						pt.x = ref.x + (Rand(ref.ex, (~ref.ex + 1)));
 						pt.y = ref.y + (Rand(ref.ex, (~ref.ex + 1)));
 
-						if (ref.move) pt.x += wndInput->pt.x, pt.y += wndInput->pt.y;
+						if (ref.move) pt.x += wndInput->pt.x * moveScaleX, pt.y += wndInput->pt.y * moveScaleY;
 						else pt = QiFn::WATR({ pt.x, pt.y }, wndInput->wnd);
 
 						wndInput->current = wndInput->find(pt, pt, wndInput->child);
@@ -164,12 +171,12 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 						{
 							if (ref.track)
 							{
-								QiFn::SmoothMove(0, 0, x, y, ref.speed, [](int x, int y, int stepx, int stepy) {
+								QiFn::SmoothMove(0, 0, x * moveScaleX, y * moveScaleY, ref.speed, [](int x, int y, int stepx, int stepy) {
 									Input::Move(stepx, stepy, key_info);
 									Sleep(5);
 									});
 							}
-							else Input::Move(x, y, key_info);
+							else Input::Move(x * moveScaleX, y * moveScaleY, key_info);
 						}
 						else
 						{

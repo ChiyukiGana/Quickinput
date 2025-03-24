@@ -37,7 +37,7 @@ namespace QiThread
 		Macro* pMacro = param->macro;
 		GetCursorPos(&pMacro->cursor);
 		WndInput* wndInput = nullptr; if (pMacro->wndState) wndInput = &pMacro->wndInput;
-		QiInterpreter interpreter(pMacro->varMap, pMacro->acRun, pMacro->speed, wndInput, pMacro->cursor);
+		QiInterpreter interpreter(pMacro->varMap, pMacro->acRun, pMacro->speed, pMacro->moveScaleX, pMacro->moveScaleY, wndInput, pMacro->cursor);
 		pMacro->interpreter = &interpreter;
 		param->load.notify_all();
 		pMacro->varMap.clear();
@@ -62,7 +62,7 @@ namespace QiThread
 		auto param = (ThreadParam*)pParam;
 		Macro* pMacro = param->macro;
 		WndInput* wndInput = nullptr; if (pMacro->wndState) wndInput = &pMacro->wndInput;
-		QiInterpreter interpreter(pMacro->varMap, pMacro->acEnd, pMacro->speed, wndInput, pMacro->cursor);
+		QiInterpreter interpreter(pMacro->varMap, pMacro->acRun, pMacro->speed, pMacro->moveScaleX, pMacro->moveScaleY, wndInput, pMacro->cursor);
 		pMacro->interpreter = &interpreter;
 		param->load.notify_all();
 		Qi::curBlock += pMacro->curBlock;

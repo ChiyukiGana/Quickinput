@@ -510,6 +510,8 @@ public:
 	int mode = 0;
 	int count = 0;
 	float speed = 1.0f;
+	float moveScaleX = 1.0f;
+	float moveScaleY = 1.0f;
 	QString name;
 	QString groupName;
 	bool groupBase = false;
@@ -707,6 +709,8 @@ namespace QiRange
 	constexpr int macro_mode_max = Macro::up;
 	constexpr float macro_speed_min = 0.1f;
 	constexpr float macro_speed_max = 10.0f;
+	constexpr float macro_moveScale_min = 0.1f;
+	constexpr float macro_moveScale_max = 10.0f;
 	inline void Restricted(int& param, int max, int min = 0)
 	{
 		if (param > max) param = max;
