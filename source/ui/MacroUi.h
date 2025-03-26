@@ -264,12 +264,19 @@ private:
 			QTableWidget* table = ui.macroGroup_table->table(mgPos);
 			table->setColumnCount(1);
 			table->setRowCount(mg.macros.size());
+			table->setDragEnabled(true);
+			table->setDragDropMode(QAbstractItemView::DragDrop);
+			table->setDefaultDropAction(Qt::DropAction::IgnoreAction);
 			table->setHorizontalHeaderItem(0, new QTableWidgetItem(mg.name));
+			table->viewport()->installEventFilter(this);
+			table->viewport()->setProperty("groupIndex", mgPos);
 			for (size_t mPos = 0; mPos < mg.macros.size(); mPos++)
 			{
 				Macro& m = mg.macros[mPos];
 				table->setItem(mPos, 0, new QTableWidgetItem(m.name));
 				table->item(mPos, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+				table->item(mPos, 0)->setData(DataRole::group, mgPos);
+				table->item(mPos, 0)->setData(DataRole::macro, mPos);
 			}
 		}
 		updating = false;
@@ -330,5 +337,45 @@ private:
 			DisableWidget();
 			Qi::popText->Hide();
 		}
+	}
+	bool eventFilter(QObject* sender, QEvent* event)
+	{
+		const QString mime = "application/x-qabstractitemmodeldatalist";
+		if (event->type() == QEvent::DragEnter)
+		{
+			QDropEvent* dropEvent = (QDropEvent*)event;
+			if (dropEvent->mimeData()->hasFormat(mime)) dropEvent->acceptProposedAction();
+			else return true;
+		}
+		else if (event->type() == QEvent::Drop)
+		{
+			QDropEvent* dropEvent = (QDropEvent*)event;
+			if (dropEvent->mimeData()->hasFormat(mime))
+			{
+				QStandardItemModel model;
+				model.dropMimeData(dropEvent->mimeData(), Qt::CopyAction, 0, 0, QModelIndex());
+				for (size_t i = 0; i < model.rowCount(); i++)
+				{
+					QStandardItem* item = model.item(i);
+					int currentGroupIndex = sender->property("groupIndex").toInt();
+					int groupIndex = item->data(DataRole::group).toInt();
+					int macroIndex = item->data(DataRole::macro).toInt();
+					if (currentGroupIndex >= groups->size() || groupIndex >= groups->size() || currentGroupIndex == groupIndex) break;
+
+					const MacroGroup& group = groups->at(currentGroupIndex);
+					const Macros& macros = groups->at(groupIndex).macros;
+					if (macroIndex >= macros.size()) break;
+					const Macro& macro = macros.at(macroIndex);
+
+					if (!QFile::rename(macro.makePath(), group.makePath() + group.makeName(macro.name) + Qi::macroType)) MsgBox::Error(std::wstring(L"移动失败：") + (const wchar_t*)macro.name.utf16());
+				}
+				QiJson::LoadMacro();
+				TableUpdate();
+				ResetWidget();
+				DisableWidget();
+			}
+			return true;
+		}
+		return QWidget::eventFilter(sender, event);
 	}
 };

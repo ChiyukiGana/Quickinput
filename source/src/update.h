@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <src/tools/msgbox.h>
 #include <qapplication.h>
 #include <qwidget.h>
@@ -6,6 +6,7 @@
 #include <curl/ccurl.h>
 #include <sstream>
 #include <regex>
+#include <thread>
 #include <qjsondocument.h>
 #include <qjsonobject.h>
 #include <qjsonarray.h>
@@ -13,28 +14,32 @@
 class QiUpdate
 {
     // format: YYYY-MM-DD_N  2024-1-11_1
-    const int current_date, current_count;
-    int latest_date, latest_count;
+    int current_date = 0;
+    int current_count = 0;
+    int latest_date = 0;
+    int latest_count = 0;
     ccurl curl;
-    bool response_state;
-    std::string header;
-    std::string url;
+    bool response_state = false;
+    const std::string header = R"(user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0)";
+    const std::string url = R"(https://api.github.com/repos/ChiyukiGana/Quickinput/releases/latest)";
     std::string response;
     std::string version;
     std::string content;
     std::thread thread;
     QWidget* parent;
 public:
-    QiUpdate(QWidget* parent, int current_date, int current_count) : parent(parent), current_date(current_date), current_count(current_count), latest_date(0), latest_count(0),
-        url(R"(https://api.github.com/repos/ChiyukiGana/Quickinput/releases/latest)"),
-        header(R"(user-agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0)")
+    QiUpdate(QWidget* parent, int current_date, int current_count)
     {
-        response_state = false;
-        if (!good()) return;
+        this->parent = parent;
+        this->current_date = current_date;
+        this->current_count = current_count;
     }
-    bool good() const { return curl.good(); }
-    bool response_good() const { return curl.good() && response_state; }
-    bool parse(std::string version)
+    QiUpdate(QWidget* parent, const QString version)
+    {
+        this->parent = parent;
+        parse(version.toStdString(), current_date, current_count);
+    }
+    static bool parse(const std::string& version, int& r_date, int& r_count)
     {
         if (version.empty()) return false;
         std::string t;
@@ -56,21 +61,21 @@ public:
         }
         else return false;
         int id = 0, ic = 0;
-        std::stringstream sd;
         if (!date.empty())
         {
-            sd << date;
-            sd >> id;
+            try { id = std::stoi(date); }
+            catch (...) { id = 0; }
         }
-        sd.clear();
         if (!count.empty())
         {
-            sd << count;
-            sd >> ic;
+            try { ic = std::stoi(count); }
+            catch (...) { ic = 0; }
         }
-        latest_date = id, latest_count = ic;
+        r_date = id, r_count = ic;
         return true;
     }
+    bool good() const { return curl.good() && current_date; }
+    bool response_good() const { return curl.good() && response_state; }
     bool getlatest()
     {
         if (!good()) return false;
@@ -92,7 +97,7 @@ public:
         QJsonObject obj(json.object());
         version = obj.value("tag_name").toString().toUtf8();
         content = obj.value("body").toString().toUtf8();
-        return parse(version);
+        return parse(version, latest_date, latest_count);
     }
     bool compare()
     {

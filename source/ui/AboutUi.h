@@ -7,17 +7,17 @@ class AboutUi : public QWidget
 {
 	Q_OBJECT;
 	Ui::AboutUiClass ui;
-	QiUpdate update;
+	QiUpdate* update;
 	std::string version, content;
 public:
-	AboutUi(QWidget* parent) : QWidget(parent), update(this, 20250324, 0)
+	AboutUi(QWidget* parent) : QWidget(parent)
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
+		update = new QiUpdate(this, ui.version_label->text());
 		ui.url_label->installEventFilter(this);
 		ui.license_label->installEventFilter(this);
-		if (!update.good()) return;
-		update.getlatest();
+		if (update->good()) update->getlatest();
 	}
 private:
 	bool eventFilter(QObject* obj, QEvent* e)
@@ -78,7 +78,7 @@ private:
 	}
 	void customEvent(QEvent* e)
 	{
-		if (update.check(version, content))
+		if (update->check(version, content))
 		{
 			ui.version_label->setText(ui.version_label->text() + "（有新版本）");
 			ui.version_label->setCursor(QCursor(Qt::CursorShape::WhatsThisCursor));

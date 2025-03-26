@@ -149,7 +149,9 @@ struct DataRole
 {
 	enum
 	{
-		id = Qt::UserRole
+		id = Qt::UserRole,
+		group,
+		macro
 	};
 };
 struct EditEvent
@@ -579,7 +581,8 @@ public:
 	}
 	QString makePath() const
 	{
-		return Qi::macroDir + name;
+		if (base) return Qi::macroDir;
+		return Qi::macroDir + name + QString("/");
 	}
 };
 class MacroGroups : public QiVector<MacroGroup>

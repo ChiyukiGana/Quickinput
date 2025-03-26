@@ -216,12 +216,19 @@ private:
 		selfAction = true;
 		for (int i = 0; i < rowCount(); i++)
 		{
-			QTableWidget* t = table(i);
+			const QTableWidget* t = table(i);
 			int rowHeight = t->horizontalHeader()->height();
 			if (!t->viewport()->isHidden())
 			{
 				int rowCount = t->rowCount();
-				for (int row = 0; row < rowCount; row++) rowHeight += t->rowHeight(row);
+				if (rowCount)
+				{
+					for (int row = 0; row < rowCount; row++) rowHeight += t->rowHeight(row);
+				}
+				else
+				{
+					rowHeight *= 2;
+				}
 			}
 			setRowHeight(i, rowHeight);
 		}

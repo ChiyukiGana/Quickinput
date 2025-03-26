@@ -2017,7 +2017,7 @@ private:
 		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
 		{
 			QKeyEvent* keyEvent = (QKeyEvent*)e;
-			if ((keyEvent->key() == Qt::Key_Escape) || (keyEvent->key() == Qt::Key_Return) || (keyEvent->key() == Qt::Key_Space)) return true;
+			if ((keyEvent->key() == Qt::Key_Escape) || (keyEvent->key() == Qt::Key_Return) || keyEvent->key() == Qt::Key_Enter || (keyEvent->key() == Qt::Key_Space)) return true;
 		}
 		return QDialog::event(e);
 	}

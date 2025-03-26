@@ -20,6 +20,7 @@
 #include <qfont.h>
 #include <qevent.h>
 #include <qtimer.h>
+#include <qmimedata.h>
 #include <qdatetime.h>
 #include <qdir.h>
 #include <qurl.h>
