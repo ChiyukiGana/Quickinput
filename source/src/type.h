@@ -57,6 +57,7 @@ namespace QiUi
 		QString syBlockExec;
 		QString syEqual;
 		QString syVar;
+		QString syTrack;
 		// menu
 		QString muOn;
 		QString muOff;
@@ -92,6 +93,7 @@ namespace QiUi
 		QString acOcr;
 		QString acVarOperator;
 		QString acVarCondition;
+		QString acMouseTrack;
 		// state
 		QString trOn;
 		QString trOff;
@@ -273,7 +275,8 @@ struct QiType
 		clock,
 		ocr,
 		varOperator,
-		varCondition
+		varCondition,
+		mouseTrack
 	};
 };
 using Actions = QiVector<class Action>;
@@ -353,6 +356,20 @@ class QiImage : public QiBase
 public:
 	RgbMap map; int sim; RECT rect = {}; bool move = false;
 	QiImage() : QiBase(QiType::image) {}
+	void fromBase64(const QString& base64, size_t width, size_t height)
+	{
+		if (width && height && base64.size())
+		{
+			QByteArray data = QByteArray::fromBase64(base64.toUtf8());
+			map.create(width, height);
+			memcpy_s(map.data(), map.bytes(), data.data(), data.size());
+		}
+	}
+	QString toBase64() const
+	{
+		QByteArray data((const char*)map.data(), map.bytes());
+		return data.toBase64();
+	}
 };
 class QiPopText : public QiBase
 {
@@ -449,6 +466,49 @@ public:
 	QString script;
 	QiVarCondition() : QiBase(QiType::varCondition) {}
 };
+class QiMouseTrack : public QiBase
+{
+public:
+	struct MovePart
+	{
+		int x;
+		int y;
+		clock_t t;
+	};
+	clock_t t;
+	std::vector<MovePart> s;
+	QiMouseTrack() : QiBase(QiType::mouseTrack), t(clock()) {}
+	void append(int x, int y)
+	{
+		MovePart t;
+		t.x = x;
+		t.y = y;
+		t.t = clock() - this->t;
+		s.push_back(t);
+	}
+	void append(const POINT& pt)
+	{
+		append(pt.x, pt.y);
+	}
+	void reset()
+	{
+		t = clock();
+		s.clear();
+	}
+	void fromBase64(const QString& base64, size_t size)
+	{
+		if (size && base64.size())
+		{
+			QByteArray data = QByteArray::fromBase64(base64.toUtf8());
+			s = std::vector<MovePart>((MovePart*)data.data(), (MovePart*)(data.data()) + size);
+		}
+	}
+	QString toBase64() const
+	{
+		QByteArray data((const char*)s.data(), s.size() * sizeof(MovePart));
+		return data.toBase64();
+	}
+};
 using ActionVariant = std::variant
 <
 	QiBase,
@@ -476,7 +536,8 @@ using ActionVariant = std::variant
 	QiClock,
 	QiOcr,
 	QiVarOperator,
-	QiVarCondition
+	QiVarCondition,
+	QiMouseTrack
 > ;
 class Action : public ActionVariant
 {

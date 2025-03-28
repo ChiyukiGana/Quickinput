@@ -638,7 +638,7 @@
            <string/>
           </property>
           <property name="text">
-           <string>录制使用鼠标轨迹（会导致时间不准确）</string>
+           <string>录制鼠标准确位置</string>
           </property>
          </widget>
         </item>

@@ -111,11 +111,7 @@ namespace QiFn
 			bool k1 = state[Qi::set.key & 0xFFFF];
 			bool k2 = true;
 			if (Qi::set.key >> 16) k2 = state[Qi::set.key >> 16];
-			if (k1 && k2)
-			{
-				if (Qi::state) QiState(false);
-				else QiState(true);
-			}
+			if (k1 && k2) QiState(!Qi::state);
 		}
 		// show clock
 		if (Qi::fun.showClock.state && Qi::fun.showClock.key == vk && state[Qi::fun.showClock.key])

@@ -1864,6 +1864,13 @@ private:
 			param = ref.script.mid(0, 32);
 			if (ref.script.size() > 31) param += "...";
 		} break;
+		case QiType::mouseTrack:
+		{
+			const QiMouseTrack& ref = std::get<QiMouseTrack>(var);
+			type = Qi::ui.text.acMouseTrack;
+
+			param = QString::number(ref.s.size());
+		} break;
 		}
 
 		if (type.isEmpty())

@@ -72,6 +72,7 @@ void Init()
 		Qi::ui.text.syBlockExec = "🛩";
 		Qi::ui.text.syEqual = "🟰";
 		Qi::ui.text.syVar = "💠";
+		Qi::ui.text.syTrack = "➰";
 	}
 	if ("text")
 	{
@@ -110,6 +111,7 @@ void Init()
 		Qi::ui.text.acOcr = (QString::fromUtf8("文字识别") + Qi::ui.text.syText);
 		Qi::ui.text.acVarOperator = (QString::fromUtf8("变量运算") + Qi::ui.text.syEqual);
 		Qi::ui.text.acVarCondition = (QString::fromUtf8("变量判断") + Qi::ui.text.syVar);
+		Qi::ui.text.acMouseTrack = (QString::fromUtf8("鼠标轨迹") + Qi::ui.text.syTrack);
 		// state
 		Qi::ui.text.trOn = (QString::fromUtf8("启用") + Qi::ui.text.syOn);
 		Qi::ui.text.trOff = (QString::fromUtf8("禁用") + Qi::ui.text.syOff);

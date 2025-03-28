@@ -155,11 +155,7 @@ namespace QiJson
 				jAction.insert("sim", (int)ref.sim);
 				jAction.insert("width", (int)ref.map.width());
 				jAction.insert("height", (int)ref.map.height());
-
-				QByteArray data((const char*)ref.map.data(), ref.map.bytes());
-
-				jAction.insert("data", data.toBase64().data());
-
+				jAction.insert("data", ref.toBase64());
 				jAction.insert("next", SaveAction(ref.next));
 				jAction.insert("next2", SaveAction(ref.next2));
 			} break;
@@ -255,6 +251,12 @@ namespace QiJson
 				jAction.insert("t", ref.script);
 				jAction.insert("next", SaveAction(ref.next));
 				jAction.insert("next2", SaveAction(ref.next2));
+			} break;
+			case QiType::mouseTrack:
+			{
+				const QiMouseTrack& ref = std::get<QiMouseTrack>(var);
+				jAction.insert("size", (int)ref.s.size());
+				jAction.insert("data", ref.toBase64());
 			} break;
 			default: success = false;
 			}
@@ -456,17 +458,9 @@ namespace QiJson
 					var.rect.right = jAction.value("right").toInt();
 					var.rect.bottom = jAction.value("bottom").toInt();
 					var.sim = jAction.value("sim").toInt();
-					int width = jAction.value("width").toInt();
-					int height = jAction.value("height").toInt();
-					QByteArray data = QByteArray::fromBase64(jAction.value("data").toString().toUtf8());
-					if (width && height && data.size())
-					{
-						var.map.create(width, height);
-						memcpy_s(var.map.data(), var.map.bytes(), data.data(), data.size());
-					}
+					var.fromBase64(jAction.value("data").toString(), jAction.value("width").toInt(), jAction.value("height").toInt());
 					var.next = LoadAction(jAction.value("next").toArray());
 					var.next2 = LoadAction(jAction.value("next2").toArray());
-
 					actions.append(var);
 				} break;
 				case QiType::popText:
@@ -574,6 +568,12 @@ namespace QiJson
 					var.script = jAction.value("t").toString();
 					var.next = LoadAction(jAction.value("next").toArray());
 					var.next2 = LoadAction(jAction.value("next2").toArray());
+					actions.append(var);
+				} break;
+				case QiType::mouseTrack:
+				{
+					QiMouseTrack var; var.disable = dis, var.mark = mark;
+					var.fromBase64(jAction.value("data").toString(), jAction.value("size").toInt());
 					actions.append(var);
 				} break;
 				default: actions.append(QiBase(type)); break;

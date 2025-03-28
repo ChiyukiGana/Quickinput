@@ -37,8 +37,7 @@ void QiInterpreter::DebugContinue()
 
 bool QiInterpreter::PeekSleep(clock_t ms)
 {
-	if (ms > 0) return QiThread::PeekSleep(ms / speed);
-	return QiThread::PeekSleep(0);
+	return QiThread::PeekSleep(ms / speed);
 }
 
 int QiInterpreter::ActionInterpreter(const Actions& current)
@@ -156,7 +155,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 							{
 								QiFn::SmoothMove(wndInput->pt.x, wndInput->pt.y, pt.x, pt.y, ref.speed, [this](int x, int y, int stepx, int stepy) {
 									Input::MoveTo(wndInput->current, stepx, stepy, wndInput->mk);
-									Sleep(5);
+									PeekSleep(10);
 									});
 							}
 							else Input::MoveTo(wndInput->current, pt.x, pt.y, wndInput->mk);
@@ -171,9 +170,9 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 						{
 							if (ref.track)
 							{
-								QiFn::SmoothMove(0, 0, x * moveScaleX, y * moveScaleY, ref.speed, [](int x, int y, int stepx, int stepy) {
+								QiFn::SmoothMove(0, 0, x * moveScaleX, y * moveScaleY, ref.speed, [this](int x, int y, int stepx, int stepy) {
 									Input::Move(stepx, stepy, key_info);
-									Sleep(5);
+									PeekSleep(10);
 									});
 							}
 							else Input::Move(x * moveScaleX, y * moveScaleY, key_info);
@@ -185,9 +184,9 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 								POINT spt = {};
 								GetCursorPos(&spt);
 								spt = QiFn::RTA(spt);
-								QiFn::SmoothMove(spt.x, spt.y, x, y, ref.speed, [](int x, int y, int stepx, int stepy)->void {
+								QiFn::SmoothMove(spt.x, spt.y, x, y, ref.speed, [this](int x, int y, int stepx, int stepy)->void {
 									Input::MoveToA(x * 6.5535f, y * 6.5535f, key_info);
-									Sleep(5);
+									PeekSleep(10);
 									});
 							}
 							else Input::MoveToA(x * 6.5535f, y * 6.5535f, key_info);
@@ -257,7 +256,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 						if (debug_entry || jumpId) break;
 						if (r_result != r_continue)
 						{
-							if (r_result == r_break) return r_continue;
+							if (r_result == r_break) r_result = r_continue;
 							break;
 						}
 					}
@@ -350,7 +349,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 						if (debug_entry || jumpId) break;
 						if (r_result != r_continue)
 						{
-							if (r_result == r_break) break;
+							if (r_result == r_break) r_result = r_continue;
 							break;
 						}
 					}
@@ -497,6 +496,44 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 						else r_result = ActionInterpreter(ref.next2);
 					}
 					catch (std::runtime_error e) { Qi::interpreter.parseError(e.what()); }
+				} break;
+				case QiType::mouseTrack:
+				{
+					if (jumpId || debug_entry) continue;
+					const QiMouseTrack& ref = std::get<QiMouseTrack>(action);
+					clock_t begin = clock();
+					if (wndInput)
+					{
+						for (const auto& i : ref.s)
+						{
+							while (Qi::run && !QiThread::PeekExitMsg())
+							{
+								if ((i.t / speed) <= (clock() - begin))
+								{
+									POINT pt = QiFn::WATR({ i.x, i.y }, wndInput->wnd);
+									Input::MoveTo(wndInput->current, pt.x, pt.y, wndInput->mk);
+									break;
+								}
+								Sleep(0);
+							}
+						}
+					}
+					else
+					{
+						for (const auto& i : ref.s)
+						{
+							while (Qi::run && !QiThread::PeekExitMsg())
+							{
+								if ((i.t / speed) <= (clock() - begin))
+								{
+									Input::MoveToA(i.x * 6.5535f, i.y * 6.5535f, key_info);
+									break;
+								}
+								Sleep(0);
+							}
+						}
+					}
+
 				} break;
 				}
 			}
