@@ -39,11 +39,13 @@ private:
 		ui.speed_edit->setProperty("group", "line_edit");
 		ui.moveScale_x_edit->setProperty("group", "line_edit");
 		ui.moveScale_y_edit->setProperty("group", "line_edit");
+		ui.posScale_x_edit->setProperty("group", "line_edit");
+		ui.posScale_y_edit->setProperty("group", "line_edit");
 		ui.key_keyedit->setProperty("group", "line_edit");
 	}
 	void Init()
 	{
-		ui.param_widget->setDisabled(true);
+		ui.scrollArea->setDisabled(true);
 		if ("key")
 		{
 			ui.key_keyedit->setCombinationMode(false);
@@ -89,7 +91,7 @@ private:
 			currentTable = nullptr;
 			currentRow = -1;
 			currentMacro = nullptr;
-			ui.param_widget->setDisabled(true);
+			ui.scrollArea->setDisabled(true);
 
 			currentGroup = &groups->at(table_index);
 
@@ -120,8 +122,10 @@ private:
 				ui.speed_edit->setValue(macro.speed);
 				ui.moveScale_x_edit->setValue(macro.moveScaleX);
 				ui.moveScale_y_edit->setValue(macro.moveScaleY);
+				ui.posScale_x_edit->setValue(macro.posScaleX);
+				ui.posScale_y_edit->setValue(macro.posScaleY);
 			}
-			ui.param_widget->setEnabled(true);
+			ui.scrollArea->setEnabled(true);
 			};
 		connect(ui.macroGroup_table, &QMacroTable::itemClicked, this, [this, currentChanged](int table_index, int row, int column) {
 			currentChanged(table_index, row, column);
@@ -203,6 +207,22 @@ private:
 			if (value > QiRange::macro_moveScale_max) value = QiRange::macro_moveScale_max;
 			else if (value < QiRange::macro_moveScale_min) value = QiRange::macro_moveScale_min;
 			currentMacro->moveScaleY = value;
+			QiJson::SaveMacro(*currentMacro);
+			SetTableItem(currentTable, currentRow, *currentMacro);
+			});
+		connect(ui.posScale_x_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
+			if (!ItemCurrented()) return;
+			if (value > QiRange::macro_posScale_max) value = QiRange::macro_posScale_max;
+			else if (value < QiRange::macro_posScale_min) value = QiRange::macro_posScale_min;
+			currentMacro->posScaleX = value;
+			QiJson::SaveMacro(*currentMacro);
+			SetTableItem(currentTable, currentRow, *currentMacro);
+			});
+		connect(ui.posScale_y_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
+			if (!ItemCurrented()) return;
+			if (value > QiRange::macro_posScale_max) value = QiRange::macro_posScale_max;
+			else if (value < QiRange::macro_posScale_min) value = QiRange::macro_posScale_min;
+			currentMacro->posScaleY = value;
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
@@ -333,6 +353,6 @@ private:
 	{
 		ui.macroGroup_table->clearSelection();
 		TableUpdate();
-		ui.param_widget->setDisabled(true);
+		ui.scrollArea->setDisabled(true);
 	}
 };

@@ -43,11 +43,11 @@ void RecordInput(BYTE vk, bool state, POINT pt)
 			if (Qi::recordWindow)
 			{
 				POINT wpt = Window::pos(Qi::recordWindow);
-				position = QiFn::WRTA({ pt.x - wpt.x, pt.y - wpt.y }, Qi::recordWindow);
+				position = QiFn::P_WRTA({ pt.x - wpt.x, pt.y - wpt.y }, Qi::recordWindow);
 			}
 			else
 			{
-				position = QiFn::RTA(pt);
+				position = QiFn::P_SRTA(pt);
 			}
 			mouse.x = position.x;
 			mouse.y = position.y;
@@ -76,11 +76,11 @@ void RecordInput(BYTE vk, bool state, POINT pt)
 			if (Qi::recordWindow)
 			{
 				POINT wpt = Window::pos(Qi::recordWindow);
-				mouseTrack.append(QiFn::WRTA({ pt.x - wpt.x, pt.y - wpt.y }, Qi::recordWindow));
+				mouseTrack.append(QiFn::P_WRTA({ pt.x - wpt.x, pt.y - wpt.y }, Qi::recordWindow));
 			}
 			else
 			{
-				mouseTrack.append(QiFn::RTA(pt));
+				mouseTrack.append(QiFn::P_SRTA(pt));
 			}
 		}
 	}

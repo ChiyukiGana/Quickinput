@@ -18,15 +18,23 @@ bool HaveEntry(const Actions& actions)
 	return false;
 }
 
-QiInterpreter::QiInterpreter(QiVarMap& varMap, const Actions& actions, float speed, float moveScaleX, float moveScaleY, WndInput* wndInput, POINT& cursor):
-	varMap(varMap),
-	actions(actions),
-	speed(speed),
-	moveScaleX(moveScaleX),
-	moveScaleY(moveScaleY),
-	wndInput(wndInput),
-	cursor(cursor)
+QiInterpreter::QiInterpreter(Macro& macro, bool isRunning) :
+	actions(isRunning ? macro.acRun : macro.acEnd),
+	varMap(macro.varMap),
+	cursor(macro.cursor),
+	speed(macro.speed),
+	moveScaleX(macro.moveScaleX),
+	moveScaleY(macro.moveScaleY),
+	posScaleX(macro.posScaleX),
+	posScaleY(macro.posScaleY)
 {
+	macro.interpreter = this;
+	if (isRunning)
+	{
+		macro.varMap.clear();
+		GetCursorPos(&cursor);
+	}
+	if (macro.wndState) wndInput = &macro.wndInput;
 	if (Qi::debug) debug_entry = HaveEntry(actions);
 }
 
@@ -93,38 +101,43 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					const QiKey& ref = std::get<QiKey>(action);
 					if (wndInput)
 					{
-						if (ref.state == QiKey::up)
+						POINT pt;
+						HWND current = wndInput->find(wndInput->pt, pt, wndInput->child);
+						if (current)
 						{
-							Input::State(wndInput->current, ref.vk, wndInput->pt, false);
-							if (ref.vk == VK_LBUTTON) wndInput->mk &= ~MK_LBUTTON;
-							else if (ref.vk == VK_RBUTTON) wndInput->mk &= ~MK_RBUTTON;
-							else if (ref.vk == VK_MBUTTON) wndInput->mk &= ~MK_MBUTTON;
-							else if (ref.vk == VK_XBUTTON1) wndInput->mk &= ~MK_XBUTTON1;
-							else if (ref.vk == VK_XBUTTON2) wndInput->mk &= ~MK_XBUTTON2;
-							else if (ref.vk == VK_CONTROL) wndInput->mk &= ~MK_CONTROL;
-							else if (ref.vk == VK_SHIFT) wndInput->mk &= ~MK_SHIFT;
-						}
-						else if (ref.state == QiKey::down)
-						{
-							Input::State(wndInput->current, ref.vk, wndInput->pt, true);
-							if (ref.vk == VK_LBUTTON) wndInput->mk |= MK_LBUTTON;
-							else if (ref.vk == VK_RBUTTON) wndInput->mk |= MK_RBUTTON;
-							else if (ref.vk == VK_MBUTTON) wndInput->mk |= MK_MBUTTON;
-							else if (ref.vk == VK_XBUTTON1) wndInput->mk |= MK_XBUTTON1;
-							else if (ref.vk == VK_XBUTTON2) wndInput->mk |= MK_XBUTTON2;
-							else if (ref.vk == VK_CONTROL) wndInput->mk |= MK_CONTROL;
-							else if (ref.vk == VK_SHIFT) wndInput->mk |= MK_SHIFT;
-						}
-						else if (ref.state == QiKey::click)
-						{
-							Input::Click(wndInput->current, ref.vk, wndInput->pt, 10);
-							if (ref.vk == VK_LBUTTON) wndInput->mk |= MK_LBUTTON;
-							else if (ref.vk == VK_RBUTTON) wndInput->mk |= MK_RBUTTON;
-							else if (ref.vk == VK_MBUTTON) wndInput->mk |= MK_MBUTTON;
-							else if (ref.vk == VK_XBUTTON1) wndInput->mk |= MK_XBUTTON1;
-							else if (ref.vk == VK_XBUTTON2) wndInput->mk |= MK_XBUTTON2;
-							else if (ref.vk == VK_CONTROL) wndInput->mk |= MK_CONTROL;
-							else if (ref.vk == VK_SHIFT) wndInput->mk |= MK_SHIFT;
+							if (ref.state == QiKey::up)
+							{
+								Input::State(current, ref.vk, pt, false);
+								if (ref.vk == VK_LBUTTON) wndInput->mk &= ~MK_LBUTTON;
+								else if (ref.vk == VK_RBUTTON) wndInput->mk &= ~MK_RBUTTON;
+								else if (ref.vk == VK_MBUTTON) wndInput->mk &= ~MK_MBUTTON;
+								else if (ref.vk == VK_XBUTTON1) wndInput->mk &= ~MK_XBUTTON1;
+								else if (ref.vk == VK_XBUTTON2) wndInput->mk &= ~MK_XBUTTON2;
+								else if (ref.vk == VK_CONTROL) wndInput->mk &= ~MK_CONTROL;
+								else if (ref.vk == VK_SHIFT) wndInput->mk &= ~MK_SHIFT;
+							}
+							else if (ref.state == QiKey::down)
+							{
+								Input::State(current, ref.vk, pt, true);
+								if (ref.vk == VK_LBUTTON) wndInput->mk |= MK_LBUTTON;
+								else if (ref.vk == VK_RBUTTON) wndInput->mk |= MK_RBUTTON;
+								else if (ref.vk == VK_MBUTTON) wndInput->mk |= MK_MBUTTON;
+								else if (ref.vk == VK_XBUTTON1) wndInput->mk |= MK_XBUTTON1;
+								else if (ref.vk == VK_XBUTTON2) wndInput->mk |= MK_XBUTTON2;
+								else if (ref.vk == VK_CONTROL) wndInput->mk |= MK_CONTROL;
+								else if (ref.vk == VK_SHIFT) wndInput->mk |= MK_SHIFT;
+							}
+							else if (ref.state == QiKey::click)
+							{
+								Input::Click(current, ref.vk, pt, 10);
+								if (ref.vk == VK_LBUTTON) wndInput->mk |= MK_LBUTTON;
+								else if (ref.vk == VK_RBUTTON) wndInput->mk |= MK_RBUTTON;
+								else if (ref.vk == VK_MBUTTON) wndInput->mk |= MK_MBUTTON;
+								else if (ref.vk == VK_XBUTTON1) wndInput->mk |= MK_XBUTTON1;
+								else if (ref.vk == VK_XBUTTON2) wndInput->mk |= MK_XBUTTON2;
+								else if (ref.vk == VK_CONTROL) wndInput->mk |= MK_CONTROL;
+								else if (ref.vk == VK_SHIFT) wndInput->mk |= MK_SHIFT;
+							}
 						}
 					}
 					else
@@ -140,27 +153,19 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					const QiMouse& ref = std::get<QiMouse>(action);
 					if (wndInput)
 					{
-						POINT pt = {};
-						pt.x = ref.x + (Rand(ref.ex, (~ref.ex + 1)));
-						pt.y = ref.y + (Rand(ref.ex, (~ref.ex + 1)));
-
+						POINT pt = { ref.x + (Rand(ref.ex, (~ref.ex + 1))) ,ref.y + (Rand(ref.ex, (~ref.ex + 1))) };
 						if (ref.move) pt.x += wndInput->pt.x * moveScaleX, pt.y += wndInput->pt.y * moveScaleY;
-						else pt = QiFn::WATR({ pt.x, pt.y }, wndInput->wnd);
-
-						wndInput->current = wndInput->find(pt, pt, wndInput->child);
-
-						if (wndInput->current)
+						else pt = QiFn::P_WATR({ pt.x, pt.y }, wndInput->wnd);
+						POINT scale = QiFn::PF_WATR(QPointF(posScaleX, posScaleY), wndInput->wnd);
+						wndInput->pt = { pt.x + scale.x, pt.y + scale.y };
+						if (ref.track)
 						{
-							if (ref.track)
-							{
-								QiFn::SmoothMove(wndInput->pt.x, wndInput->pt.y, pt.x, pt.y, ref.speed, [this](int x, int y, int stepx, int stepy) {
-									Input::MoveTo(wndInput->current, stepx, stepy, wndInput->mk);
-									PeekSleep(10);
-									});
-							}
-							else Input::MoveTo(wndInput->current, pt.x, pt.y, wndInput->mk);
-							wndInput->pt = pt;
+							QiFn::SmoothMove(wndInput->pt.x, wndInput->pt.y, wndInput->pt.x, wndInput->pt.y, ref.speed, [this](int x, int y, int stepx, int stepy) {
+								Input::MoveTo(wndInput->wnd, stepx, stepy, wndInput->mk);
+								PeekSleep(10);
+								});
 						}
+						else Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
 					}
 					else
 					{
@@ -179,17 +184,16 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 						}
 						else
 						{
+							POINT scale = QiFn::P_ATA(QPointF(posScaleX, posScaleY));
 							if (ref.track)
 							{
-								POINT spt = {};
-								GetCursorPos(&spt);
-								spt = QiFn::RTA(spt);
-								QiFn::SmoothMove(spt.x, spt.y, x, y, ref.speed, [this](int x, int y, int stepx, int stepy)->void {
+								POINT spt = QiFn::P_SRTA(Input::pos());
+								QiFn::SmoothMove(spt.x, spt.y, x + scale.x, y + scale.y, ref.speed, [this, scale](int x, int y, int stepx, int stepy) {
 									Input::MoveToA(x * 6.5535f, y * 6.5535f, key_info);
 									PeekSleep(10);
 									});
 							}
-							else Input::MoveToA(x * 6.5535f, y * 6.5535f, key_info);
+							else Input::MoveToA((x + scale.x) * 6.5535f, (y + scale.y) * 6.5535f, key_info);
 						}
 					}
 				} break;
@@ -211,14 +215,14 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					if (wndInput)
 					{
 						hdc = GetDC(wndInput->wnd);
-						rect = QiFn::WATRR(ref.rect, wndInput->wnd);
+						rect = QiFn::R_WATR(ref.rect, wndInput->wnd);
 						Image::toRgbMap(hdc, rgbMap, rect);
 						ReleaseDC(wndInput->wnd, hdc);
 					}
 					else
 					{
 						hdc = GetDC(nullptr);
-						rect = QiFn::ATRR(ref.rect);
+						rect = QiFn::R_SATR(ref.rect);
 						Image::toRgbMap(hdc, rgbMap, rect);
 						ReleaseDC(nullptr, hdc);
 					}
@@ -289,14 +293,14 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					if (wndInput)
 					{
 						hdc = GetDC(wndInput->wnd);
-						rect = QiFn::WATRR(ref.rect, wndInput->wnd);
+						rect = QiFn::R_WATR(ref.rect, wndInput->wnd);
 						Image::toRgbMap(hdc, rgbMap, rect);
 						ReleaseDC(wndInput->wnd, hdc);
 					}
 					else
 					{
 						hdc = GetDC(nullptr);
-						rect = QiFn::ATRR(ref.rect);
+						rect = QiFn::R_SATR(ref.rect);
 						Image::toRgbMap(hdc, rgbMap, rect);
 						ReleaseDC(nullptr, hdc);
 					}
@@ -404,14 +408,19 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					{
 						if (wndInput)
 						{
-							Input::Click(wndInput->current, i, wndInput->pt, 10);
-							if (i == VK_LBUTTON) wndInput->mk |= MK_LBUTTON;
-							else if (i == VK_RBUTTON) wndInput->mk |= MK_RBUTTON;
-							else if (i == VK_MBUTTON) wndInput->mk |= MK_MBUTTON;
-							else if (i == VK_XBUTTON1) wndInput->mk |= MK_XBUTTON1;
-							else if (i == VK_XBUTTON2) wndInput->mk |= MK_XBUTTON2;
-							else if (i == VK_CONTROL) wndInput->mk |= MK_CONTROL;
-							else if (i == VK_SHIFT) wndInput->mk |= MK_SHIFT;
+							POINT pt;
+							HWND current = wndInput->find(wndInput->pt, pt, wndInput->child);
+							if (current)
+							{
+								Input::Click(current, i, pt, 10);
+								if (i == VK_LBUTTON) wndInput->mk |= MK_LBUTTON;
+								else if (i == VK_RBUTTON) wndInput->mk |= MK_RBUTTON;
+								else if (i == VK_MBUTTON) wndInput->mk |= MK_MBUTTON;
+								else if (i == VK_XBUTTON1) wndInput->mk |= MK_XBUTTON1;
+								else if (i == VK_XBUTTON2) wndInput->mk |= MK_XBUTTON2;
+								else if (i == VK_CONTROL) wndInput->mk |= MK_CONTROL;
+								else if (i == VK_SHIFT) wndInput->mk |= MK_SHIFT;
+							}
 						}
 						else
 						{
@@ -440,20 +449,20 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 					if (Qi::ocr)
 					{
-						RECT rect = QiFn::ATRR(ref.rect);
+						RECT rect = QiFn::R_SATR(ref.rect);
 						CImage image;
 						HDC hdc;
 						if (wndInput)
 						{
 							hdc = GetDC(wndInput->wnd);
-							rect = QiFn::WATRR(ref.rect, wndInput->wnd);
+							rect = QiFn::R_WATR(ref.rect, wndInput->wnd);
 							image = Image::toCImage32(hdc, rect);
 							ReleaseDC(wndInput->wnd, hdc);
 						}
 						else
 						{
 							hdc = GetDC(nullptr);
-							rect = QiFn::ATRR(ref.rect);
+							rect = QiFn::R_SATR(ref.rect);
 							image = Image::toCImage32(hdc, rect);
 							ReleaseDC(nullptr, hdc);
 						}
@@ -504,14 +513,16 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					clock_t begin = clock();
 					if (wndInput)
 					{
+						POINT scale = QiFn::PF_WATR(QPointF(posScaleX, posScaleY), wndInput->wnd);
 						for (const auto& i : ref.s)
 						{
 							while (Qi::run && !QiThread::PeekExitMsg())
 							{
 								if ((i.t / speed) <= (clock() - begin))
 								{
-									POINT pt = QiFn::WATR({ i.x, i.y }, wndInput->wnd);
-									Input::MoveTo(wndInput->current, pt.x, pt.y, wndInput->mk);
+									POINT pt = QiFn::P_WATR({ i.x, i.y }, wndInput->wnd);
+									wndInput->pt = { pt.x + scale.x, pt.y + scale.y };
+									Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
 									break;
 								}
 								Sleep(0);
@@ -520,6 +531,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					}
 					else
 					{
+						POINT scale = QiFn::P_ATA(QPointF(posScaleX, posScaleY));
 						for (const auto& i : ref.s)
 						{
 							while (Qi::run && !QiThread::PeekExitMsg())
@@ -533,7 +545,6 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 							}
 						}
 					}
-
 				} break;
 				}
 			}

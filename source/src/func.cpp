@@ -3,54 +3,40 @@
 namespace QiFn
 {
 	// Pos convert
-	POINT RTA(POINT rel) { return { (long)(((float)rel.x / (float)(Qi::screen.cx - 1)) * 10000.0f), (long)(((float)rel.y / (float)(Qi::screen.cy - 1)) * 10000.0f) }; }
-	RECT RTAR(RECT rel) {
-		if (rel.right - rel.left == 0)
-		{
-			if (rel.right + 1 < Qi::screen.cx) rel.right += 1;
-			else rel.left -= 1;
-		}
-		if (rel.bottom - rel.top == 0)
-		{
-			if (rel.bottom + 1 < Qi::screen.cy) rel.bottom += 1;
-			else rel.top -= 1;
-		}
-		return { (long)(((float)rel.left / (float)(Qi::screen.cx - 1)) * 10000.0f), (long)(((float)rel.top / (float)(Qi::screen.cy - 1)) * 10000.0f), (long)(((float)rel.right / (float)(Qi::screen.cx - 1)) * 10000.0f), (long)(((float)rel.bottom / (float)(Qi::screen.cy - 1)) * 10000.0f) };
+	POINT P_RTA(const POINT& rel, const SIZE& size)
+	{
+		return { (long)(((float)rel.x / (float)size.cx) * 10000.0f), (long)(((float)rel.y / (float)size.cy) * 10000.0f) };
 	}
-	POINT ATR(POINT abs) { return { (long)((float)Qi::screen.cx / 10000.0f * (float)abs.x), (long)((float)Qi::screen.cy / 10000.0f * (float)abs.y) }; }
-	RECT ATRR(RECT abs) {
-		RECT rect = { (long)((float)Qi::screen.cx / 10000.0f * (float)abs.left), (long)((float)Qi::screen.cy / 10000.0f * (float)abs.top), (long)((float)Qi::screen.cx / 10000.0f * (float)abs.right), (long)((float)Qi::screen.cy / 10000.0f * (float)abs.bottom) };
-		if (rect.right - rect.left == 0)
-		{
-			if (rect.right + 1 < Qi::screen.cx) rect.right += 1;
-			else rect.left -= 1;
-		}
-		if (rect.bottom - rect.top == 0)
-		{
-			if (rect.bottom + 1 < Qi::screen.cy) rect.bottom += 1;
-			else rect.top -= 1;
-		}
-		return rect;
+	POINT P_ATR(const POINT& abs, const SIZE& size)
+	{
+		return { (long)((float)size.cx / 10000.0f * (float)abs.x), (long)((float)size.cy / 10000.0f * (float)abs.y) };
 	}
-	POINT WRTA(POINT rel, HWND wnd) { SIZE size = Window::size(wnd); return { (long)(((float)rel.x / ((float)size.cx)) * 10000.0f), (long)(((float)rel.y / ((float)size.cy)) * 10000.0f) }; }
-	RECT WRTAR(RECT rel, HWND wnd) {
-		SIZE size = Window::size(wnd);
-		if (rel.right - rel.left == 0)
-		{
-			if (rel.right + 1 < size.cx) rel.right += 1;
-			else rel.left -= 1;
-		}
-		if (rel.bottom - rel.top == 0)
-		{
-			if (rel.bottom + 1 < size.cy) rel.bottom += 1;
-			else rel.top -= 1;
-		}
-		return { (long)(((float)rel.left / ((float)size.cx)) * 10000.0f), (long)(((float)rel.top / ((float)size.cy)) * 10000.0f), (long)(((float)rel.right / ((float)size.cx)) * 10000.0f), (long)(((float)rel.bottom / ((float)size.cy)) * 10000.0f) };
+	QPointF PF_RTA(const POINT& rel, const SIZE& size)
+	{
+		return { (float)rel.x / (float)(size.cx), (float)rel.y / (float)(size.cy) };
 	}
-	POINT WATR(POINT abs, HWND wnd) { SIZE size = Window::size(wnd); return { (long)((float)(size.cx + 1) / 10000.0f * (float)abs.x), (long)((float)(size.cy + 1) / 10000.0f * (float)abs.y) }; }
-	RECT WATRR(RECT abs, HWND wnd) {
-		SIZE size = Window::size(wnd);
-		RECT rect = { (long)((float)(size.cx + 1) / 10000.0f * (float)abs.left), (long)((float)(size.cy + 1) / 10000.0f * (float)abs.top), (long)((float)(size.cx + 1) / 10000.0f * (float)abs.right), (long)((float)(size.cy + 1) / 10000.0f * (float)abs.bottom) };
+	POINT PF_ATR(const QPointF& abs, const SIZE& size)
+	{
+		return { (long)((float)size.cx * (float)abs.x()), (long)((float)size.cy * (float)abs.y()) };
+	}
+	RECT R_RTA(const RECT& rel, const SIZE& size)
+	{
+		RECT rel_s(rel);
+		if (rel_s.right - rel_s.left <= 0)
+		{
+			if (rel_s.right + 1 < size.cx) rel_s.right += 1;
+			else rel_s.left -= 1;
+		}
+		if (rel_s.bottom - rel_s.top <= 0)
+		{
+			if (rel_s.bottom + 1 < size.cy) rel_s.bottom += 1;
+			else rel_s.top -= 1;
+		}
+		return { (long)(((float)rel.left / (float)(size.cx - 1)) * 10000.0f), (long)(((float)rel.top / (float)(size.cy - 1)) * 10000.0f), (long)(((float)rel.right / (float)(Qi::screen.cx - 1)) * 10000.0f), (long)(((float)rel.bottom / (float)(Qi::screen.cy - 1)) * 10000.0f) };
+	}
+	RECT R_ATR(const RECT& abs, const SIZE& size)
+	{
+		RECT rect = { (long)((float)size.cx / 10000.0f * (float)abs.left), (long)((float)size.cy / 10000.0f * (float)abs.top), (long)((float)size.cx / 10000.0f * (float)abs.right), (long)((float)size.cy / 10000.0f * (float)abs.bottom) };
 		if (rect.right - rect.left == 0)
 		{
 			if (rect.right + 1 < size.cx) rect.right += 1;
@@ -63,6 +49,63 @@ namespace QiFn
 		}
 		return rect;
 	}
+	QRectF RF_RTA(const RECT& rel, const SIZE& size)
+	{
+		RECT rel_s(rel);
+		if (rel_s.right - rel_s.left <= 0)
+		{
+			if (rel_s.right + 1 < size.cx) rel_s.right += 1;
+			else rel_s.left -= 1;
+		}
+		if (rel_s.bottom - rel_s.top <= 0)
+		{
+			if (rel_s.bottom + 1 < size.cy) rel_s.bottom += 1;
+			else rel_s.top -= 1;
+		}
+		return { (float)rel.left / (float)size.cx, (float)rel.top / (float)size.cy, (float)rel.right / (float)Qi::screen.cx, (float)rel.bottom / (float)Qi::screen.cy };
+	}
+	RECT RF_ATR(const QRectF& abs, const SIZE& size)
+	{
+		RECT rect = { (long)((float)size.cx * (float)abs.left()), (long)((float)size.cy * (float)abs.top()), (long)((float)size.cx * (float)abs.right()), (long)((float)size.cy * (float)abs.bottom()) };
+		if (rect.right - rect.left <= 0)
+		{
+			if (rect.right + 1 < size.cx) rect.right += 1;
+			else rect.left -= 1;
+		}
+		if (rect.bottom - rect.top <= 0)
+		{
+			if (rect.bottom + 1 < size.cy) rect.bottom += 1;
+			else rect.top -= 1;
+		}
+		return rect;
+	}
+
+	POINT P_ATA(const QPointF& abs)
+	{
+		return { (long)(abs.x() * 10000.0f), (long)(abs.y() * 10000.0f) };
+	}
+	QPointF P_ATA(const POINT& abs)
+	{
+		return { abs.x / 10000.0f, abs.y / 10000.0f };
+	}
+
+	POINT P_SRTA(const POINT& rel) { return P_RTA(rel, Qi::screen); }
+	POINT P_SATR(const POINT& abs) { return P_ATR(abs, Qi::screen); }
+	QPointF PF_SRTA(const POINT& abs) { return PF_RTA(abs, Qi::screen); }
+	POINT PF_SATR(const QPointF& abs) { return PF_ATR(abs, Qi::screen); }
+	RECT R_SRTA(const RECT& rel) { return R_RTA(rel, Qi::screen); }
+	RECT R_SATR(const RECT& abs) { return R_ATR(abs, Qi::screen); }
+	QRectF RF_SRTA(const RECT& rel) { return RF_RTA(rel, Qi::screen); }
+	RECT RF_SATR(const QRectF& abs) { return RF_ATR(abs, Qi::screen); }
+	
+	POINT P_WRTA(const POINT& rel, const HWND& wnd) { return P_RTA(rel, Window::size(wnd)); }
+	POINT P_WATR(const POINT& abs, const HWND& wnd) { return P_ATR(abs, Window::size(wnd)); }
+	QPointF PF_WATR(const POINT& rel, const HWND& wnd) { return PF_RTA(rel, Window::size(wnd)); }
+	POINT PF_WATR(const QPointF& abs, const HWND& wnd) { return PF_ATR(abs, Window::size(wnd)); }
+	RECT R_WRTA(const RECT& rel, const HWND& wnd) { return R_RTA(rel, Window::size(wnd)); }
+	RECT R_WATR(const RECT& abs, const HWND& wnd) { return R_ATR(abs, Window::size(wnd)); }
+	QRectF RF_WRTA(const RECT& rel, const HWND& wnd) { return RF_RTA(rel, Window::size(wnd)); }
+	RECT RF_WATR(const QRectF& abs, const HWND& wnd) { return RF_ATR(abs, Window::size(wnd)); }
 	// Pop text
 	QString ParseCustom(QString text, QString name, QString number) { text.replace("@", name); return text.replace("$", number); }
 	QString ParseState(QString text) { return text.replace("@", Qi::folder); }
