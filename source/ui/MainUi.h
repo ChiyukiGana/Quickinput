@@ -82,7 +82,7 @@ private:
 	}
 	void Event()
 	{
-		connect(tray, &QSystemTrayIcon::activated, this, [this] { setWindowState(Qt::WindowNoState), show(); });
+		connect(tray, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason) { if (reason == QSystemTrayIcon::ActivationReason::Trigger) setWindowState(Qt::WindowNoState), show(); });
 		connect(ui.title_close_button, &QPushButton::clicked, this, [] { exit(0); });
 		connect(ui.title_min_button, &QPushButton::clicked, this, [this] { setWindowState(Qt::WindowMinimized); });
 		connect(ui.title_hide_button, &QPushButton::clicked, this, [this] { hide(); });

@@ -91,7 +91,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-3-28</string>
+         <string>2025-3-29</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -107,29 +107,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加录制鼠标准确位置</string>
-        </property>
-        <property name="textFormat">
-         <enum>Qt::PlainText</enum>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="urlt_label">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>更新请访问官方网页：</string>
+         <string>增加位置偏移</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -153,11 +131,24 @@
         <property name="cursor">
          <cursorShape>PointingHandCursor</cursorShape>
         </property>
-        <property name="styleSheet">
-         <string notr="true">text-decoration:underline</string>
+        <property name="text">
+         <string>更新或联系作者：http://qinput.cyk.moe</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::PlainText</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="copyright_dec_label">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
         </property>
         <property name="text">
-         <string>http://qinput.cyk.moe</string>
+         <string>此软件个人免费，商用需联系作者，欢迎反馈未经授权的商用行为</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

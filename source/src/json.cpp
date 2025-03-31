@@ -283,6 +283,8 @@ namespace QiJson
 		jMacro.insert("speed", (double)macro.speed);
 		jMacro.insert("moveScaleX", (double)macro.moveScaleX);
 		jMacro.insert("moveScaleY", (double)macro.moveScaleY);
+		jMacro.insert("posScaleX", (double)macro.posScaleX);
+		jMacro.insert("posScaleY", (double)macro.posScaleY);
 		jMacro.insert("actions", SaveAction(macro.acRun));
 		jMacro.insert("actionsEnding", SaveAction(macro.acEnd));
 
@@ -619,6 +621,12 @@ namespace QiJson
 				macro.moveScaleY = jMacro.value("moveScaleY").toDouble();
 				if (macro.moveScaleY == 0) macro.moveScaleY = 1.0f;
 				else QiRange::Restricted(macro.moveScaleY, QiRange::macro_moveScale_max, QiRange::macro_moveScale_min);
+
+				macro.posScaleX = jMacro.value("posScaleX").toDouble();
+				QiRange::Restricted(macro.posScaleX, QiRange::macro_posScale_max, QiRange::macro_posScale_min);
+
+				macro.posScaleY = jMacro.value("posScaleY").toDouble();
+				QiRange::Restricted(macro.posScaleY, QiRange::macro_posScale_max, QiRange::macro_posScale_min);
 
 				macro.acRun = LoadAction(jMacro.value("actions").toArray());
 				macro.acEnd = LoadAction(jMacro.value("actionsEnding").toArray());

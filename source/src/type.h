@@ -170,7 +170,6 @@ struct WndInput
 	HWND wnd = nullptr; // parent
 	QList<HWND> children;
 	bool child = false;
-	HWND current = nullptr;
 	POINT pt = {}; // prev point
 	WORD mk = 0; // prev key
 	bool active() { return IsWindow(wnd); }
@@ -575,6 +574,8 @@ public:
 	float speed = 1.0f;
 	float moveScaleX = 1.0f;
 	float moveScaleY = 1.0f;
+	float posScaleX = 0.0f;
+	float posScaleY = 0.0f;
 	QString name;
 	QString groupName;
 	bool groupBase = false;
@@ -775,6 +776,8 @@ namespace QiRange
 	constexpr float macro_speed_max = 10.0f;
 	constexpr float macro_moveScale_min = 0.1f;
 	constexpr float macro_moveScale_max = 10.0f;
+	constexpr float macro_posScale_min = -1.0f;
+	constexpr float macro_posScale_max = 1.0f;
 	inline void Restricted(int& param, int max, int min = 0)
 	{
 		if (param > max) param = max;

@@ -2931,6 +2931,9 @@
                      <height>24</height>
                     </size>
                    </property>
+                   <property name="buttonSymbols">
+                    <enum>QAbstractSpinBox::NoButtons</enum>
+                   </property>
                    <property name="displayFormat">
                     <string>H:mm:ss</string>
                    </property>

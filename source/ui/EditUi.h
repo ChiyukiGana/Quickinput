@@ -683,12 +683,12 @@ private:
 					}
 					RECT wrect = Window::rect(macro->wndInfo.wnd);
 					pt = ps.Start(wrect);
-					pt = QiFn::WRTA({ pt.x, pt.y }, macro->wndInfo.wnd);
+					pt = QiFn::P_WRTA({ pt.x, pt.y }, macro->wndInfo.wnd);
 				}
 				else
 				{
 					pt = ps.Start();
-					pt = QiFn::RTA({ pt.x, pt.y });
+					pt = QiFn::P_SRTA({ pt.x, pt.y });
 				}
 				QiMouse mouse(WidgetGetMouse());
 				mouse.x = pt.x;
@@ -741,7 +741,7 @@ private:
 						rgba.a = 1;
 						ReleaseDC(nullptr, hdc);
 					}
-					rect = QiFn::WRTAR(rect, macro->wndInfo.wnd);
+					rect = QiFn::R_WRTA(rect, macro->wndInfo.wnd);
 				}
 				else
 				{
@@ -753,7 +753,7 @@ private:
 						rgba.a = 1;
 						ReleaseDC(nullptr, hdc);
 					}
-					rect = QiFn::RTAR(rect);
+					rect = QiFn::R_SRTA(rect);
 				}
 				QiColor color(WidgetGetColor());
 				color.rect = rect;
@@ -788,12 +788,12 @@ private:
 					}
 					RECT wrect = Window::rect(macro->wndInfo.wnd);
 					rect = rs.Start(wrect);
-					rect = QiFn::WRTAR(rect, macro->wndInfo.wnd);
+					rect = QiFn::R_WRTA(rect, macro->wndInfo.wnd);
 				}
 				else
 				{
 					rect = rs.Start();
-					rect = QiFn::RTAR(rect);
+					rect = QiFn::R_SRTA(rect);
 				}
 				QiImage image(WidgetGetImage());
 				image.rect = rect;
@@ -805,8 +805,8 @@ private:
 				QiImage image(WidgetGetImage());
 				Image::ScreenRgbMap(imageMap, rect);
 				image.map = imageMap;
-				RECT before = QiFn::ATRR(image.rect);
-				if ((!image.rect.left && !image.rect.top && !image.rect.right && !image.rect.bottom) || rect.left < before.left || rect.top < before.top || rect.right > before.right || rect.bottom > before.bottom) image.rect = QiFn::RTAR(rect);
+				RECT before = QiFn::R_SATR(image.rect);
+				if ((!image.rect.left && !image.rect.top && !image.rect.right && !image.rect.bottom) || rect.left < before.left || rect.top < before.top || rect.right > before.right || rect.bottom > before.bottom) image.rect = QiFn::R_SRTA(rect);
 				WidgetSet(image);
 				});
 			// ocr
@@ -821,12 +821,12 @@ private:
 					}
 					RECT wrect = Window::rect(macro->wndInfo.wnd);
 					rect = rs.Start(wrect);
-					rect = QiFn::WRTAR(rect, macro->wndInfo.wnd);
+					rect = QiFn::R_WRTA(rect, macro->wndInfo.wnd);
 				}
 				else
 				{
 					rect = rs.Start();
-					rect = QiFn::RTAR(rect);
+					rect = QiFn::R_SRTA(rect);
 				}
 				QiOcr ocr(WidgetGetOcr());
 				ocr.rect = rect;
@@ -838,7 +838,7 @@ private:
 					MsgBox::Warning(L"没有安装OCR组件，无法使用文字识别功能");
 					return;
 				}
-				std::string text = Qi::ocr->scan(QiFn::ATRR(WidgetGetOcr().rect));
+				std::string text = Qi::ocr->scan(QiFn::R_SATR(WidgetGetOcr().rect));
 				if (text.empty())
 				{
 					Qi::popText->Popup("没有识别到内容");
@@ -995,11 +995,11 @@ private:
 							if (macro->wndState)
 							{
 								if (!macro->wndInfo.update()) SelectWindow();
-								POINT rpt = QiFn::WATR({ mouse.x, mouse.y }, macro->wndInfo.wnd);
+								POINT rpt = QiFn::P_WATR({ mouse.x, mouse.y }, macro->wndInfo.wnd);
 								pt = Window::pos(macro->wndInfo.wnd);
 								pt.x += rpt.x, pt.y += rpt.y;
 							}
-							else pt = QiFn::ATR({ mouse.x, mouse.y });
+							else pt = QiFn::P_SATR({ mouse.x, mouse.y });
 							pv.Show(pt);
 						}
 					} break;
@@ -1013,11 +1013,11 @@ private:
 						if (macro->wndState)
 						{
 							if (!macro->wndInfo.update()) SelectWindow();
-							rect = QiFn::WATRR(color.rect, macro->wndInfo.wnd);
+							rect = QiFn::R_WATR(color.rect, macro->wndInfo.wnd);
 							POINT pt = Window::pos(macro->wndInfo.wnd);
 							rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 						}
-						else rect = QiFn::ATRR(color.rect);
+						else rect = QiFn::R_SATR(color.rect);
 						rv.Show(rect);
 					} break;
 					case QiType::loop: tab = tab_loop;
@@ -1040,11 +1040,11 @@ private:
 						if (macro->wndState)
 						{
 							if (!macro->wndInfo.update()) SelectWindow();
-							rect = QiFn::WATRR(image.rect, macro->wndInfo.wnd);
+							rect = QiFn::R_WATR(image.rect, macro->wndInfo.wnd);
 							POINT pt = Window::pos(macro->wndInfo.wnd);
 							rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 						}
-						else rect = QiFn::ATRR(image.rect);
+						else rect = QiFn::R_SATR(image.rect);
 						rv.Show(rect);
 						WidgetSet(image);
 					} break;
@@ -1082,11 +1082,11 @@ private:
 						if (macro->wndState)
 						{
 							if (!macro->wndInfo.update()) SelectWindow();
-							rect = QiFn::WATRR(ocr.rect, macro->wndInfo.wnd);
+							rect = QiFn::R_WATR(ocr.rect, macro->wndInfo.wnd);
 							POINT pt = Window::pos(macro->wndInfo.wnd);
 							rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 						}
-						else rect = QiFn::ATRR(ocr.rect);
+						else rect = QiFn::R_SATR(ocr.rect);
 						rv.Show(rect);
 					} break;
 					case QiType::varOperator: tab = tab_var; break;
