@@ -9,13 +9,6 @@ class RecordUi : public QDialog
 	MacroGroup* group;
 	Macro macro;
 public:
-	enum
-	{
-		_start = QEvent::User + 1,
-		_stop,
-		_close,
-	};
-public:
 	RecordUi(MacroGroup* group, WndInfo* wndInfo) : QDialog()
 	{
 		ui.setupUi(this);
@@ -69,6 +62,7 @@ public:
 		Qi::recordState = false;
 		Qi::widget.record = nullptr;
 	}
+private:
 	void StyleGroup()
 	{
 		setProperty("group", "frame");
@@ -76,7 +70,6 @@ public:
 		ui.start_button->setProperty("group", "record-button");
 		ui.close_button->setProperty("group", "record-button");
 	}
-private:
 	void RecStart()
 	{
 		if (Qi::set.recKey)
@@ -145,7 +138,7 @@ private:
 		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
 		{
 			QKeyEvent* keyEvent = (QKeyEvent*)e;
-			if ((keyEvent->key() == Qt::Key_Return) || (keyEvent->key() == Qt::Key_Space)) return true;
+			if ((keyEvent->key() == Qt::Key_Escape) || (keyEvent->key() == Qt::Key_Return) || keyEvent->key() == Qt::Key_Enter || (keyEvent->key() == Qt::Key_Space)) return true;
 		}
 		return QWidget::event(e);
 	}
@@ -160,8 +153,8 @@ private:
 	}
 	void customEvent(QEvent* e)
 	{
-		if (e->type() == _start) RecStart();
-		else if (e->type() == _stop) RecStop();
-		else if (e->type() == _close) RecClose();
+		if (e->type() == RecordEvent::start) RecStart();
+		else if (e->type() == RecordEvent::stop) RecStop();
+		else if (e->type() == RecordEvent::close) RecClose();
 	}
 };

@@ -14,6 +14,7 @@ public:
 		connect(ui.title_close_button, &QPushButton::clicked, this, [this] { hide(); });
 		StyleGroup();
 	}
+private:
 	void StyleGroup()
 	{
 		setProperty("group", "frame");
@@ -34,16 +35,16 @@ private:
 		else if (e->type() == QEvent::WindowDeactivate)
 		{
 			Qi::widget.moreActive = false;
-			if (QiFn::SelfActive())
+			if (Qi::widget.active())
 			{
 				if (Qi::set.defOn) QiFn::QiState(true);
 				QiFn::QiHook(true);
 			}
 		}
-		else if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
+		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
 		{
 			QKeyEvent* keyEvent = (QKeyEvent*)e;
-			if ((keyEvent->key() == Qt::Key_Return) || (keyEvent->key() == Qt::Key_Space)) return true;
+			if ((keyEvent->key() == Qt::Key_Escape) || (keyEvent->key() == Qt::Key_Return) || keyEvent->key() == Qt::Key_Enter || (keyEvent->key() == Qt::Key_Space)) return true;
 		}
 		return QWidget::event(e);
 	}

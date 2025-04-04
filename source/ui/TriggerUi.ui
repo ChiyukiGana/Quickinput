@@ -100,9 +100,6 @@
           <property name="focusPolicy">
            <enum>Qt::ClickFocus</enum>
           </property>
-          <property name="styleSheet">
-           <string notr="true">QHeaderView::section,QScrollBar{background:transparent}</string>
-          </property>
           <property name="editTriggers">
            <set>QAbstractItemView::NoEditTriggers</set>
           </property>
@@ -141,7 +138,7 @@
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>-214</y>
+             <y>0</y>
              <width>129</width>
              <height>635</height>
             </rect>

@@ -7,7 +7,7 @@ void RecordInput(BYTE vk, bool state, POINT pt)
 	if (Input::isMouse(vk) && InRect(Window::rect((HWND)Qi::widget.record->winId()), Input::pos())) return;
 	if (Qi::recordWindow && !IsWindowVisible(Qi::recordWindow))
 	{
-		QApplication::postEvent(Qi::widget.record, new QEvent((QEvent::Type)RecordUi::_close));
+		Qi::widget.recordClose();
 		Qi::popText->Popup(2000, "窗口已失效", RGB(255, 64, 64));
 	}
 
@@ -101,7 +101,7 @@ void InputTask(BYTE key, bool press, POINT cursor, KeyState keyState)
 		{
 			if (key == Qi::set.recKey)
 			{
-				if (press) QApplication::postEvent(Qi::widget.record, new QEvent((QEvent::Type)RecordUi::_stop));
+				if (press) Qi::widget.recordStop();
 			}
 			else RecordInput(key, press, cursor);
 		}
@@ -109,7 +109,7 @@ void InputTask(BYTE key, bool press, POINT cursor, KeyState keyState)
 		{
 			if (key == Qi::set.recKey)
 			{
-				if (press) QApplication::postEvent(Qi::widget.record, new QEvent((QEvent::Type)RecordUi::_start));
+				if (press) Qi::widget.recordStart();
 			}
 		}
 	}

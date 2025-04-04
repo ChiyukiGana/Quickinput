@@ -31,6 +31,7 @@ private:
 		ui.window_name_edit->setProperty("group", "line_edit");
 		ui.click_keyedit->setProperty("group", "line_edit");
 		ui.clock_keyedit->setProperty("group", "line_edit");
+		ui.varView_button->setProperty("group", "get_button");
 	}
 	void Init()
 	{
@@ -90,6 +91,7 @@ private:
 			});
 		connect(ui.clock_check, &QCheckBox::toggled, this, [this](bool state) { func->showClock.state = state; QiJson::SaveJson(); });
 		connect(ui.clock_keyedit, &QKeyEdit::changed, this, [this] { func->showClock.key = ui.clock_keyedit->key(); QiJson::SaveJson(); });
+		connect(ui.varView_button, &QPushButton::clicked, this, [this] { Qi::widget.varView->show(); });
 	}
 	bool event(QEvent* e)
 	{

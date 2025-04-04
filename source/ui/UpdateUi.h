@@ -18,6 +18,7 @@ public:
 		move(Qi::widget.main->pos());
 		exec();
 	}
+private:
 	void StyleGroup()
 	{
 		setProperty("group", "frame");
@@ -25,6 +26,15 @@ public:
 		ui.content_widget->setProperty("group", "client");
 	}
 private:
+	bool event(QEvent* e)
+	{
+		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
+		{
+			QKeyEvent* keyEvent = (QKeyEvent*)e;
+			if ((keyEvent->key() == Qt::Key_Escape) || (keyEvent->key() == Qt::Key_Return) || keyEvent->key() == Qt::Key_Enter || (keyEvent->key() == Qt::Key_Space)) return true;
+		}
+		return QWidget::event(e);
+	}
 	// window move
 	QPoint mouse_positon;
 	bool mouse_down = false;

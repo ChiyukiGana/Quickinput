@@ -137,6 +137,7 @@
     <ClInclude Include="source\src\tools\xboxpad.h" />
     <ClInclude Include="source\src\type.h" />
     <ClInclude Include="source\src\update.h" />
+    <QtMoc Include="source\ui\VarViewUi.h" />
     <QtMoc Include="source\ui\widget\QEditDialog.h" />
     <QtMoc Include="source\ui\widget\QMacroTable.h" />
     <QtMoc Include="source\ui\UpdateUi.h" />
@@ -171,6 +172,7 @@
     <QtUic Include="source\ui\PopsUi.ui" />
     <QtUic Include="source\ui\TriggerUi.ui" />
     <QtUic Include="source\ui\UpdateUi.ui" />
+    <QtUic Include="source\ui\VarViewUi.ui" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="source\res\QuickInput.rc" />

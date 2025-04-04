@@ -35,6 +35,7 @@ QiInterpreter::QiInterpreter(Macro& macro, bool isRunning) :
 	if (isRunning)
 	{
 		macro.varMap.clear();
+		Qi::widget.varViewReload();
 		GetCursorPos(&cursor);
 	}
 	if (macro.wndState) wndInput = &macro.wndInput;
@@ -80,7 +81,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 			{
 				if (action.base().debug_break)
 				{
-					QApplication::postEvent(Qi::widget.edit, new QEvent((QEvent::Type)EditEvent::debug_pause));
+					Qi::widget.editDebugPause();
 					std::unique_lock<std::mutex> lock(debug_mutex);
 					debug_condition.wait(lock);
 				}
@@ -499,6 +500,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					const QiVarOperator& ref = std::get<QiVarOperator>(action);
 					try { Qi::interpreter.interpretAll(ref.script.toStdString(), varMap); }
 					catch (std::runtime_error e) { Qi::interpreter.parseError(e.what()); }
+					Qi::widget.varViewReload();
 				} break;
 				case QiType::varCondition:
 				{

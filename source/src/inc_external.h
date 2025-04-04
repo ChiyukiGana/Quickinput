@@ -29,6 +29,7 @@
 #include <qjsonobject.h>
 #include <qjsonarray.h>
 #include <qjsonvalue.h>
+#include <qthread.h>
 // std
 #include <variant>
 #include <functional>

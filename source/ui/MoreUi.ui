@@ -207,7 +207,7 @@
       <item>
        <widget class="QToolBox" name="toolBox">
         <property name="styleSheet">
-         <string notr="true">QToolBox QWidget,QScrollBar{background:transparent}</string>
+         <string notr="true">QToolBox&gt;QWidget,QScrollArea,QScrollBar,QScrollBar::sub-line,QScrollBar::add-line{background-color:rgba(0,0,0,0);border:none}QScrollBar::handle{background-color:rgba(128,128,128,0.3);border:none}</string>
         </property>
         <property name="currentIndex">
          <number>0</number>
@@ -371,8 +371,8 @@ Quickinput的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>778</width>
-           <height>453</height>
+           <width>460</width>
+           <height>267</height>
           </rect>
          </property>
          <attribute name="label">
@@ -439,8 +439,8 @@ Quickinput的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>778</width>
-           <height>453</height>
+           <width>335</width>
+           <height>228</height>
           </rect>
          </property>
          <attribute name="label">
@@ -504,8 +504,8 @@ Quickinput的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>778</width>
-           <height>453</height>
+           <width>274</width>
+           <height>267</height>
           </rect>
          </property>
          <attribute name="label">

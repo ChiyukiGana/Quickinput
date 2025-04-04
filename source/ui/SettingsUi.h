@@ -23,6 +23,7 @@ public:
 		Event();
 		StyleGroup();
 	}
+private:
 	void StyleGroup()
 	{
 		ui.readme_button->setProperty("group", "settings-button");
@@ -39,7 +40,6 @@ public:
 		ui.stateKey_keyedit->setProperty("group", "line_edit");
 		ui.recordKey_keyedit->setProperty("group", "line_edit");
 	}
-private:
 	void Init()
 	{
 		// state key

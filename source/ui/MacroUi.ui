@@ -106,9 +106,6 @@
           <property name="focusPolicy">
            <enum>Qt::ClickFocus</enum>
           </property>
-          <property name="styleSheet">
-           <string notr="true">QHeaderView::section,QScrollBar{background:transparent}</string>
-          </property>
           <property name="editTriggers">
            <set>QAbstractItemView::DoubleClicked</set>
           </property>
@@ -120,9 +117,6 @@
           </property>
           <property name="dragDropOverwriteMode">
            <bool>false</bool>
-          </property>
-          <property name="selectionMode">
-           <enum>QAbstractItemView::ExtendedSelection</enum>
           </property>
           <property name="selectionBehavior">
            <enum>QAbstractItemView::SelectRows</enum>

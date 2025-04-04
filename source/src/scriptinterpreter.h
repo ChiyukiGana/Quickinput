@@ -205,6 +205,10 @@ public:
     static inline const std::string error_not_enough_operands = "error_not_enough_operands";
     static inline const std::string error_invalid_expression = "error_invalid_expression";
     static inline const std::string error_unknown_functions = "error_unknown_functions";
+    QiVarMap* varMap()
+    {
+        return &globalVariables;
+    }
     std::string trim(const std::string& s) {
         auto start = s.find_first_not_of(" \t");
         auto end = s.find_last_not_of(" \t");

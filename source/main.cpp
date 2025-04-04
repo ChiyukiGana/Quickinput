@@ -368,12 +368,12 @@ QToolTip,
 *[group="group_table_header"],
 *[group="macro_table_header"],
 *[group="action_table_header"] {
-    background-color: #FFF5FF
+    background-color: white
 }
 
 *[group="macro_table_header"]
 {
-	background-color: #F5F5F5
+	background-color: #FFF0FF
 }
 
 *[group="macro_table"]::item:hover,
@@ -530,12 +530,12 @@ QToolTip,
 *[group="group_table_header"],
 *[group="macro_table_header"],
 *[group="action_table_header"] {
-    background-color: #FFFFF5
+    background-color: white
 }
 
 *[group="macro_table_header"]
 {
-	background-color: #F5F5F5
+	background-color: #FFFFE0
 }
 
 *[group="macro_table"]::item:hover,
@@ -692,12 +692,12 @@ QToolTip,
 *[group="group_table_header"],
 *[group="macro_table_header"],
 *[group="action_table_header"] {
-    background-color: #F5FFFF
+    background-color: white
 }
 
 *[group="macro_table_header"]
 {
-	background-color: #F5F5F5
+	background-color: #E5FFE5
 }
 
 *[group="macro_table"]::item:hover,

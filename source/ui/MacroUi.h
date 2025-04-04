@@ -8,11 +8,6 @@ class MacroUi : public QWidget
 {
 	Q_OBJECT;
 	using This = MacroUi;
-	enum Event
-	{
-		e_edit = QEvent::User,
-		e_load
-	};
 	Ui::MacroUiClass ui;
 	MacroGroups* groups = &Qi::macroGroups;
 	MacroGroup* currentGroup = &groups->front();
@@ -21,6 +16,7 @@ class MacroUi : public QWidget
 public:
 	MacroUi(QWidget* parent) : QWidget(parent)
 	{
+		Qi::widget.macro = this;
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		Init();
@@ -29,6 +25,7 @@ public:
 		DisableWidget();
 		TableUpdate();
 	}
+private:
 	void StyleGroup()
 	{
 		ui.record_button->setProperty("group", "macro-button");
@@ -42,7 +39,6 @@ public:
 		ui.delete_group_button->setProperty("group", "macro-button");
 		ui.delete_button->setProperty("group", "macro-button");
 	}
-private:
 	void Init()
 	{
 		if ("clear shortcut")
@@ -67,7 +63,6 @@ private:
 		ui.macroGroup_table->setDropIndicatorShown(false);
 		ui.macroGroup_table->setAutoScroll(false);
 		ui.macroGroup_table->setEditTriggers(QAbstractItemView::EditTrigger::DoubleClicked);
-		ui.macroGroup_table->setStyleSheet("QTableCornerButton::section,QHeaderView::section,QScrollBar,QScrollBar::sub-line,QScrollBar::add-line{background-color:rgba(0,0,0,0);border:none}QScrollBar::handle{background-color:rgba(128,128,128,0.3);border:none}");
 	}
 	void Event()
 	{
@@ -163,9 +158,7 @@ private:
 			ResetWidget();
 			DisableWidget();
 			});
-		connect(ui.edit_button, &QPushButton::clicked, this, [this] {
-			if (isSold()) Qi::popText->Show("正在加载宏"); QApplication::postEvent(this, new QEvent((QEvent::Type)e_edit));
-			});
+		connect(ui.edit_button, &QPushButton::clicked, this, [this] { if (isSold()) Qi::popText->Show("正在加载宏"); Qi::widget.macroEdit(); });
 		connect(ui.export_button, &QPushButton::clicked, this, [this] {
 			if (!isSold()) return;
 			Qi::widget.dialogActive = true;
@@ -204,7 +197,7 @@ private:
 			}
 			Qi::widget.dialogActive = false;
 			});
-		connect(ui.reload_button, &QPushButton::clicked, this, [this] { Qi::popText->Show("正在加载宏"); QApplication::postEvent(this, new QEvent((QEvent::Type)e_load)); });
+		connect(ui.reload_button, &QPushButton::clicked, this, [this] { Qi::popText->Show("正在加载宏"); Qi::widget.macroLoad(); });
 		connect(ui.add_group_button, &QPushButton::clicked, this, [this] {
 			QString path = Qi::macroDir + Qi::macroGroups.append(MacroGroup(false, Qi::macroGroups.makeName())).name;
 
@@ -256,7 +249,7 @@ private:
 	{
 		updating = true;
 		currentMacros.clear();
-		if (ui.macroGroup_table->rowCount() != groups->size()) ui.macroGroup_table->setTableCount(groups->size());
+		if (ui.macroGroup_table->rowCount() != groups->size()) ui.macroGroup_table->setRowCount(groups->size());
 
 		for (size_t mgPos = 0; mgPos < groups->size(); mgPos++)
 		{
@@ -279,6 +272,7 @@ private:
 				table->item(mPos, 0)->setData(DataRole::macro, mPos);
 			}
 		}
+		Qi::widget.varViewReload();
 		updating = false;
 	}
 	void RecStart(bool wnd)
@@ -312,15 +306,29 @@ private:
 	}
 	void customEvent(QEvent* e)
 	{
-		if (e->type() == e_edit)
+		static Macro* macro;
+		if (e->type() == MacroEvent::edit)
 		{
 			if (!isSold()) return;
-			Macro* macro = currentMacros.first();
-			EditUi edit(macro, &macro->acRun);
-			Qi::widget.edit = &edit;
+			macro = currentMacros.first();
+			EditUi* edit = new EditUi(macro, &macro->acRun);
+			Qi::widget.edit = edit;
 			Qi::widget.dialogActive = Qi::debug = true;
 			Qi::widget.main->hide();
-			edit.exec();
+			Qi::widget.main->setDisabled(true);
+			edit->show();
+		}
+		else if (e->type() == MacroEvent::load)
+		{
+			QiJson::LoadMacro();
+			TableUpdate();
+			ResetWidget();
+			DisableWidget();
+			Qi::popText->Hide();
+		}
+		else if (e->type() == MacroEvent::edited)
+		{
+			Qi::widget.main->setDisabled(false);
 			Qi::widget.main->show();
 			Qi::widget.dialogActive = Qi::debug = false;
 			Qi::widget.edit = nullptr;
@@ -328,14 +336,6 @@ private:
 			Qi::popText->Hide();
 			ResetWidget();
 			DisableWidget();
-		}
-		else if (e->type() == e_load)
-		{
-			QiJson::LoadMacro();
-			TableUpdate();
-			ResetWidget();
-			DisableWidget();
-			Qi::popText->Hide();
 		}
 	}
 	bool eventFilter(QObject* sender, QEvent* event)

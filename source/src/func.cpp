@@ -347,7 +347,6 @@ namespace QiFn
 		}
 	}
 
-	bool SelfActive() { return !(Qi::widget.mainActive || Qi::widget.dialogActive || Qi::widget.moreActive); }
 	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, std::function<void(int x, int y, int stepx, int stepy)> CallBack)
 	{
 		int cx = dx - sx;

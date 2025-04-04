@@ -16,6 +16,7 @@ public:
 		Event();
 		StyleGroup();
 	}
+private:
 	void StyleGroup()
 	{
 		setProperty("group", "frame");
@@ -35,7 +36,6 @@ public:
 		ui.up_on_edit->setProperty("group", "line_edit");
 		ui.up_off_edit->setProperty("group", "line_edit");
 	}
-private:
 	void Init()
 	{
 		ui.enable_edit->setAttribute(Qt::WA_Hover, true);
@@ -152,7 +152,7 @@ private:
 		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
 		{
 			QKeyEvent* keyEvent = (QKeyEvent*)e;
-			if ((keyEvent->key() == Qt::Key_Return) || (keyEvent->key() == Qt::Key_Space)) return true;
+			if ((keyEvent->key() == Qt::Key_Escape) || (keyEvent->key() == Qt::Key_Return) || keyEvent->key() == Qt::Key_Enter || (keyEvent->key() == Qt::Key_Space)) return true;
 		}
 		return QDialog::event(e);
 	}

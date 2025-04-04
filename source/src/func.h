@@ -38,7 +38,6 @@ namespace QiFn
 	void QiHook(bool state);
 	void QiState(bool state);
 
-	bool SelfActive();
 	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, std::function<void(int x, int y, int stepx, int stepy)> CallBack);
 	WndInfo WindowSelection();
 	QiBlock* FindBlock(Actions& actions, int id);

@@ -612,16 +612,13 @@ private:
 	{
 		if ("title")
 		{
-			connect(ui.title_close_button, &QPushButton::clicked, this, [this] {
-				Qi::popText->Show("正在保存宏");
-				QApplication::postEvent(this, new QEvent((QEvent::Type)EditEvent::close));
-				});
+			connect(ui.title_close_button, &QPushButton::clicked, this, [this] { Qi::popText->Show("正在保存宏"); Qi::widget.editClose(); });
 			connect(ui.title_back_button, &QPushButton::clicked, this, [this] {
 				layers.removeLast();
 				if (layers.empty())
 				{
 					Qi::popText->Show("正在保存宏");
-					QApplication::postEvent(this, new QEvent((QEvent::Type)EditEvent::close));
+					Qi::widget.editClose();
 				}
 				else
 				{
@@ -645,6 +642,7 @@ private:
 				}
 				SetDebugState(debug_run);
 				});
+			connect(ui.title_var_button, &QPushButton::clicked, this, [this] { Qi::widget.varView->show(); });
 			connect(ui.window_select_button, &QPushButton::clicked, this, [this] { SelectWindow(); });
 			connect(ui.window_state_check, &QCheckBox::toggled, this, [this](bool state) {
 				if (state)
@@ -2139,7 +2137,13 @@ private:
 	}
 	void customEvent(QEvent* e)
 	{
-		if (e->type() == EditEvent::close) close();
+		if (e->type() == EditEvent::close)
+		{
+			Qi::widget.macroEdited();
+			pv.hide();
+			rv.hide();
+			close();
+		}
 		if (e->type() == EditEvent::debug_pause) SetDebugState(debug_pause);
 	}
 	// window move
@@ -2291,8 +2295,8 @@ private:
 			base_new.mark = std::move(base_old.mark);
 			base_new.next = std::move(base_old.next);
 			base_new.next2 = std::move(base_old.next2);
-			TableReload();
 		}
+		TableReload();
 		ui.action_table->clearSelection();
 	}
 	void ItemDel()

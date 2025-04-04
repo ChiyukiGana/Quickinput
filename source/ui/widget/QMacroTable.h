@@ -28,7 +28,7 @@ public:
 		setShowGrid(false);
 		setDropIndicatorShown(false);
 		setVerticalScrollMode(QAbstractItemView::ScrollMode::ScrollPerPixel);
-		setStyleSheet("QTableCornerButton::section,QHeaderView::section{background-color:rgba(0,0,0,0)}QScrollBar{background:transparent}");
+		setStyleSheet("QTableCornerButton::section,QHeaderView::section,QScrollBar,QScrollBar::sub-line,QScrollBar::add-line{background-color:rgba(0,0,0,0);border:none}QScrollBar::handle{background-color:rgba(128,128,128,0.3);border:none}");
 		if ("StyleGroup")
 		{
 			setProperty("group", "group_table");
@@ -63,12 +63,12 @@ public:
 
 	}
 
-	void setTableCount(int count)
+	void setRowCount(int count)
 	{
 		selfAction = true;
-		clearContents();
-		setRowCount(count);
-		if (!columnCount()) setColumnCount(1);
+		QTableWidget::clearContents();
+		QTableWidget::setRowCount(count);
+		if (!QTableWidget::columnCount()) QTableWidget::setColumnCount(1);
 		for (size_t i = 0; i < count; i++)
 		{
 			QTableWidget* table = new QTableWidget(this);
@@ -174,8 +174,8 @@ public:
 
 	QTableWidget* currentTable()
 	{
-		if (currentRow() < 0) return nullptr;
-		return table(currentRow());
+		if (QTableWidget::currentRow() < 0) return nullptr;
+		return table(QTableWidget::currentRow());
 	}
 
 	QList<int> currentIndex(int table_index)

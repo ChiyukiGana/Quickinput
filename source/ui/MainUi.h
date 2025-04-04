@@ -1,10 +1,11 @@
 ﻿#pragma once
+#include <src/inc_header.h>
 #include "MacroUi.h"
 #include "TriggerUi.h"
 #include "FuncUi.h"
 #include "SettingsUi.h"
 #include "AboutUi.h"
-#include <src/inc_header.h>
+#include "VarViewUi.h"
 #include "ui_MainUi.h"
 class MainUi : public QMainWindow
 {
@@ -18,10 +19,12 @@ class MainUi : public QMainWindow
 	QAction* ac_show = nullptr;
 	QAction* ac_hide = nullptr;
 	QAction* ac_exit = nullptr;
+	VarViewUi varView;
 public:
 	MainUi(int tab = 0)
 	{
 		Qi::widget.main = this;
+		Qi::widget.varView = &varView;
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
 		Init();
@@ -36,6 +39,7 @@ public:
 			hide();
 		}
 	}
+private:
 	void StyleGroup()
 	{
 		setProperty("group", "frame");
@@ -48,7 +52,6 @@ public:
 		ui.tabWidget->tabBar()->setProperty("group", "tab_widget_bar");
 		menu->setProperty("group", "context_menu");
 	}
-private:
 	void Init()
 	{
 		if ("clear shortcut")
@@ -82,11 +85,16 @@ private:
 	}
 	void Event()
 	{
-		connect(tray, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason) { if (reason == QSystemTrayIcon::ActivationReason::Trigger) setWindowState(Qt::WindowNoState), show(); });
+		connect(tray, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason) {
+			if (Qi::widget.active())
+			{
+				if (reason == QSystemTrayIcon::ActivationReason::Trigger) setWindowState(Qt::WindowNoState), show();
+			}
+			});
 		connect(ui.title_close_button, &QPushButton::clicked, this, [] { exit(0); });
 		connect(ui.title_min_button, &QPushButton::clicked, this, [this] { setWindowState(Qt::WindowMinimized); });
 		connect(ui.title_hide_button, &QPushButton::clicked, this, [this] { hide(); });
-		connect(ac_on, &QAction::triggered, this, [] { if (QiFn::SelfActive()) QiFn::QiState(true), QiFn::QiHook(true); });
+		connect(ac_on, &QAction::triggered, this, [] { if (Qi::widget.active()) QiFn::QiState(true), QiFn::QiHook(true); });
 		connect(ac_off, &QAction::triggered, this, [] { QiFn::QiState(false); QiFn::QiHook(false); });
 		connect(ac_show, &QAction::triggered, this, [this] { setWindowState(Qt::WindowNoState), show(); });
 		connect(ac_hide, &QAction::triggered, this, [this] { hide(); });
@@ -103,7 +111,7 @@ private:
 		else if (e->type() == QEvent::WindowDeactivate)
 		{
 			Qi::widget.mainActive = false;
-			if (QiFn::SelfActive())
+			if (Qi::widget.active())
 			{
 				QiFn::QiHook(true);
 				if (Qi::set.defOn) QiFn::QiState(true);
@@ -124,6 +132,10 @@ private:
 	void showEvent(QShowEvent* e)
 	{
 		SetForegroundWindow((HWND)QWidget::winId());
+	}
+	void closeEvent(QCloseEvent* e)
+	{
+		varView.close();
 	}
 	bool nativeEvent(const QByteArray& type, void* pMsg, long* pResult)
 	{

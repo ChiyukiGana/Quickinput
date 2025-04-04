@@ -328,7 +328,7 @@ private:
 	{
 		currentGroup = &groups->front();
 		currentMacro = nullptr;
-		if (ui.macroGroup_table->rowCount() != groups->size()) ui.macroGroup_table->setTableCount(groups->size());
+		if (ui.macroGroup_table->rowCount() != groups->size()) ui.macroGroup_table->setRowCount(groups->size());
 		for (size_t mgPos = 0; mgPos < groups->size(); mgPos++)
 		{
 			MacroGroup& mg = groups->at(mgPos);

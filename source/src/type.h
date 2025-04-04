@@ -157,12 +157,38 @@ struct DataRole
 		macro
 	};
 };
+struct RecordEvent
+{
+	enum
+	{
+		start = QEvent::User + 1,
+		stop,
+		close,
+	};
+};
 struct EditEvent
 {
 	enum
 	{
 		close = QEvent::User + 1,
 		debug_pause
+	};
+};
+struct VarViewEvent
+{
+	enum
+	{
+		close = QEvent::User + 1,
+		reload
+	};
+};
+struct MacroEvent
+{
+	enum
+	{
+		edit = QEvent::User,
+		edited,
+		load
 	};
 };
 ////////////////// Window
@@ -733,8 +759,50 @@ struct Widget
 	bool mainActive = false;
 	bool moreActive = false;
 	QWidget* main = nullptr;
+	QWidget* macro = nullptr;
 	QWidget* record = nullptr;
 	QWidget* edit = nullptr;
+	QWidget* varView = nullptr;
+	bool active() const
+	{
+		return !(mainActive || dialogActive || moreActive);
+	}
+	void recordStart() const
+	{
+		QApplication::postEvent(record, new QEvent((QEvent::Type)RecordEvent::start));
+	}
+	void recordStop() const
+	{
+		QApplication::postEvent(record, new QEvent((QEvent::Type)RecordEvent::stop));
+	}
+	void recordClose() const
+	{
+		QApplication::postEvent(record, new QEvent((QEvent::Type)RecordEvent::close));
+	}
+	void macroLoad() const
+	{
+		QApplication::postEvent(macro, new QEvent((QEvent::Type)MacroEvent::load));
+	}
+	void macroEdit() const
+	{
+		QApplication::postEvent(macro, new QEvent((QEvent::Type)MacroEvent::edit));
+	}
+	void macroEdited() const
+	{
+		QApplication::postEvent(macro, new QEvent((QEvent::Type)MacroEvent::edited));
+	}
+	void editClose() const
+	{
+		QApplication::postEvent(edit, new QEvent((QEvent::Type)EditEvent::close));
+	}
+	void editDebugPause() const
+	{
+		QApplication::postEvent(edit, new QEvent((QEvent::Type)EditEvent::debug_pause));
+	}
+	void varViewReload() const
+	{
+		if (!varView->isHidden()) QApplication::postEvent(varView, new QEvent((QEvent::Type)VarViewEvent::reload));
+	}
 };
 
 namespace Qi

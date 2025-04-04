@@ -191,6 +191,9 @@
     <QtUic Include="source\ui\UpdateUi.ui">
       <Filter>Form Files\ui</Filter>
     </QtUic>
+    <QtUic Include="source\ui\VarViewUi.ui">
+      <Filter>Form Files\ui</Filter>
+    </QtUic>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="source\ui\AboutUi.h">
@@ -255,6 +258,9 @@
     </QtMoc>
     <QtMoc Include="source\ui\widget\QEditDialog.h">
       <Filter>Form Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\VarViewUi.h">
+      <Filter>Form Files\header</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
