@@ -39,7 +39,7 @@ namespace QiTools
 			base_vector::push_back(element);
 			return base_vector::back();
 		}
-		void appen(const QiVector& other)
+		void append(const QiVector& other)
 		{
 			base_vector::insert(base_vector::end(), other.begin(), other.end());
 		}

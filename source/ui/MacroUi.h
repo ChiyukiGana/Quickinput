@@ -67,7 +67,7 @@ private:
 		ui.macroGroup_table->setDropIndicatorShown(false);
 		ui.macroGroup_table->setAutoScroll(false);
 		ui.macroGroup_table->setEditTriggers(QAbstractItemView::EditTrigger::DoubleClicked);
-		ui.macroGroup_table->setStyleSheet("QHeaderView::section,QScrollBar{background:transparent}");
+		ui.macroGroup_table->setStyleSheet("QTableCornerButton::section,QHeaderView::section,QScrollBar,QScrollBar::sub-line,QScrollBar::add-line{background-color:rgba(0,0,0,0);border:none}QScrollBar::handle{background-color:rgba(128,128,128,0.3);border:none}");
 	}
 	void Event()
 	{

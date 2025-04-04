@@ -128,11 +128,8 @@
         </item>
         <item>
          <widget class="QScrollArea" name="scrollArea">
-          <property name="styleSheet">
-           <string notr="true">#scrollArea{background-color:rgba(0,0,0,0)}</string>
-          </property>
           <property name="verticalScrollBarPolicy">
-           <enum>Qt::ScrollBarAlwaysOff</enum>
+           <enum>Qt::ScrollBarAlwaysOn</enum>
           </property>
           <property name="horizontalScrollBarPolicy">
            <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -144,17 +141,14 @@
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>0</y>
-             <width>146</width>
-             <height>544</height>
+             <y>-214</y>
+             <width>129</width>
+             <height>635</height>
             </rect>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">#scrollAreaContents{background-color:rgba(0,0,0,0)}</string>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <property name="spacing">
-             <number>20</number>
+             <number>16</number>
             </property>
             <property name="leftMargin">
              <number>0</number>
@@ -197,23 +191,14 @@
                 <property name="focusPolicy">
                  <enum>Qt::ClickFocus</enum>
                 </property>
+                <property name="toolTip">
+                 <string>运行期间禁止触发键按下</string>
+                </property>
                 <property name="layoutDirection">
                  <enum>Qt::RightToLeft</enum>
                 </property>
                 <property name="text">
                  <string>屏蔽触发键</string>
-                </property>
-                <property name="checkable">
-                 <bool>true</bool>
-                </property>
-                <property name="autoRepeat">
-                 <bool>false</bool>
-                </property>
-                <property name="autoExclusive">
-                 <bool>false</bool>
-                </property>
-                <property name="tristate">
-                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -261,23 +246,14 @@
                 <property name="focusPolicy">
                  <enum>Qt::ClickFocus</enum>
                 </property>
+                <property name="toolTip">
+                 <string>运行期间禁止鼠标移动</string>
+                </property>
                 <property name="layoutDirection">
                  <enum>Qt::RightToLeft</enum>
                 </property>
                 <property name="text">
                  <string>屏蔽鼠标</string>
-                </property>
-                <property name="checkable">
-                 <bool>true</bool>
-                </property>
-                <property name="autoRepeat">
-                 <bool>false</bool>
-                </property>
-                <property name="autoExclusive">
-                 <bool>false</bool>
-                </property>
-                <property name="tristate">
-                 <bool>false</bool>
                 </property>
                </widget>
               </item>
@@ -414,8 +390,11 @@
                   <bold>true</bold>
                  </font>
                 </property>
+                <property name="toolTip">
+                 <string>设置运行次数，设置0为无限次数</string>
+                </property>
                 <property name="text">
-                 <string>触发次数</string>
+                 <string>运行次数</string>
                 </property>
                </widget>
               </item>
@@ -466,6 +445,9 @@
                   <bold>true</bold>
                  </font>
                 </property>
+                <property name="toolTip">
+                 <string>宏的运行速度，受影响的项目：等待，鼠标轨迹</string>
+                </property>
                 <property name="text">
                  <string>运行速度</string>
                 </property>
@@ -505,6 +487,243 @@
              </layout>
             </item>
             <item>
+             <layout class="QVBoxLayout" name="timer_box">
+              <property name="spacing">
+               <number>5</number>
+              </property>
+              <item>
+               <widget class="QLabel" name="timer_label">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="font">
+                 <font>
+                  <family>Microsoft YaHei</family>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="toolTip">
+                 <string>设置宏可运行时间，需要先通过触发键激活宏，无需值守请设置切换触发</string>
+                </property>
+                <property name="text">
+                 <string>定时运行 开始-结束</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="timer_check_box">
+                <item>
+                 <widget class="QCheckBox" name="timer_check">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Microsoft YaHei</family>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
+                  <property name="layoutDirection">
+                   <enum>Qt::RightToLeft</enum>
+                  </property>
+                  <property name="text">
+                   <string>开启</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="timer_check_spacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="timer_start_box">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QTimeEdit" name="timer_start_edit">
+                  <property name="minimumSize">
+                   <size>
+                    <width>96</width>
+                    <height>24</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>96</width>
+                    <height>24</height>
+                   </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
+                  <property name="buttonSymbols">
+                   <enum>QAbstractSpinBox::NoButtons</enum>
+                  </property>
+                  <property name="displayFormat">
+                   <string>H:mm:ss</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="timer_start_button">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>24</width>
+                    <height>24</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>24</width>
+                    <height>24</height>
+                   </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
+                  <property name="toolTip">
+                   <string/>
+                  </property>
+                  <property name="text">
+                   <string>+</string>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="timer_start_spacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <layout class="QHBoxLayout" name="timer_end_box">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QTimeEdit" name="timer_end_edit">
+                  <property name="minimumSize">
+                   <size>
+                    <width>96</width>
+                    <height>24</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>96</width>
+                    <height>24</height>
+                   </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
+                  <property name="buttonSymbols">
+                   <enum>QAbstractSpinBox::NoButtons</enum>
+                  </property>
+                  <property name="displayFormat">
+                   <string>H:mm:ss</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="timer_end_button">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>24</width>
+                    <height>24</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>24</width>
+                    <height>24</height>
+                   </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
+                  <property name="toolTip">
+                   <string/>
+                  </property>
+                  <property name="text">
+                   <string>+</string>
+                  </property>
+                  <property name="autoDefault">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <spacer name="timer_end_spacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+            <item>
              <layout class="QVBoxLayout" name="moveScale_box">
               <property name="spacing">
                <number>5</number>
@@ -523,6 +742,9 @@
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
+                </property>
+                <property name="toolTip">
+                 <string>调节鼠标移动的移动量</string>
                 </property>
                 <property name="text">
                  <string>移动缩放 X-Y</string>
@@ -612,6 +834,9 @@
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
+                </property>
+                <property name="toolTip">
+                 <string>调节鼠标位置的偏移量</string>
                 </property>
                 <property name="text">
                  <string>位置偏移 X-Y</string>

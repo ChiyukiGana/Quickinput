@@ -23,6 +23,9 @@ QiInterpreter::QiInterpreter(Macro& macro, bool isRunning) :
 	varMap(macro.varMap),
 	cursor(macro.cursor),
 	speed(macro.speed),
+	timer(macro.timer),
+	timerStart(macro.timerStart),
+	timerEnd(macro.timerEnd),
 	moveScaleX(macro.moveScaleX),
 	moveScaleY(macro.moveScaleY),
 	posScaleX(macro.posScaleX),
@@ -38,9 +41,15 @@ QiInterpreter::QiInterpreter(Macro& macro, bool isRunning) :
 	if (Qi::debug) debug_entry = HaveEntry(actions);
 }
 
+bool QiInterpreter::isInvalid()
+{
+	if (Qi::debug) return QiThread::PeekExitMsg();
+	return !Qi::run || QiThread::PeekExitMsg() || (timer && !QiTime::in(timerStart, timerEnd));
+}
+
 void QiInterpreter::DebugContinue()
 {
-	debug.notify_all();
+	debug_condition.notify_all();
 }
 
 bool QiInterpreter::PeekSleep(clock_t ms)
@@ -60,7 +69,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 	{
 		for (const Action& action : current)
 		{
-			if (!Qi::run || QiThread::PeekExitMsg()) return r_exit;
+			if (isInvalid()) return r_exit;
 			if (wndInput && !IsWindow(wndInput->wnd)) { Qi::popText->Popup("´°¿ÚÊ§Ð§"); return r_exit; }
 			r_result = r_continue;
 			if (debug_entry)
@@ -73,7 +82,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 				{
 					QApplication::postEvent(Qi::widget.edit, new QEvent((QEvent::Type)EditEvent::debug_pause));
 					std::unique_lock<std::mutex> lock(debug_mutex);
-					debug.wait(lock);
+					debug_condition.wait(lock);
 				}
 				else if (action.base().debug_exit)
 				{
@@ -253,7 +262,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					int e = 0;
 					bool uloop = false;
 					if (ref.max) uloop = true, e = Rand(ref.max, ref.min);
-					while (Qi::run && !QiThread::PeekExitMsg())
+					while (!isInvalid())
 					{
 						if (uloop) { n++; if (n > e) break; }
 						r_result = ActionInterpreter(ref.next);
@@ -346,7 +355,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					const QiTimer& ref = std::get<QiTimer>(action);
 					clock_t time = Rand(ref.max, ref.min);
 					clock_t begin = clock();
-					while (Qi::run && !QiThread::PeekExitMsg())
+					while (!isInvalid())
 					{
 						if (!((begin + time) > clock())) { break; }
 						r_result = ActionInterpreter(ref.next);
@@ -545,6 +554,12 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 							}
 						}
 					}
+				} break;
+				case QiType::open:
+				{
+					if (jumpId || debug_entry) continue;
+					const QiOpen& ref = std::get<QiOpen>(action);
+					ShellExecuteW(nullptr, L"open", (const wchar_t*)ref.url.utf16(), nullptr, nullptr, SW_SHOW);
 				} break;
 				}
 			}

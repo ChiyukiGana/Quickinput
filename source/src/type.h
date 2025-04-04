@@ -1,5 +1,12 @@
 ﻿#pragma once
 #include "inc_project.h"
+#pragma optimize("",off)
+static const char* GET_QUICKINPUT_MACKER_STRING()
+{
+	static const char QUICKINPUT_MACKER_STRING[] = "QUICKINPUT_(C)CHIYUKIGANA";
+	return QUICKINPUT_MACKER_STRING;
+}
+#pragma optimize("",on)
 constexpr int key_info = 214;
 constexpr int key_size = XBoxPad::key_end;
 constexpr int msg_exit = (WM_USER + 0xFF);
@@ -94,16 +101,10 @@ namespace QiUi
 		QString acVarOperator;
 		QString acVarCondition;
 		QString acMouseTrack;
+		QString acOpen;
 		// state
 		QString trOn;
 		QString trOff;
-		// edit
-		QString etChange;
-		QString etAdd;
-		QString etDel;
-		QString etEdit;
-		QString etFunc;
-		QString etParam;
 		// record
 		QString rcStart;
 		QString rcStop;
@@ -275,7 +276,8 @@ struct QiType
 		ocr,
 		varOperator,
 		varCondition,
-		mouseTrack
+		mouseTrack,
+		open
 	};
 };
 using Actions = QiVector<class Action>;
@@ -508,6 +510,12 @@ public:
 		return data.toBase64();
 	}
 };
+class QiOpen : public QiBase
+{
+public:
+	QString url;
+	QiOpen() : QiBase(QiType::open) {}
+};
 using ActionVariant = std::variant
 <
 	QiBase,
@@ -536,7 +544,8 @@ using ActionVariant = std::variant
 	QiOcr,
 	QiVarOperator,
 	QiVarCondition,
-	QiMouseTrack
+	QiMouseTrack,
+	QiOpen
 > ;
 class Action : public ActionVariant
 {
@@ -568,9 +577,12 @@ public:
 	bool curBlock = false; // block cursor move
 	bool wndState = false; // window mode enable | disable
 	bool active = false; // state of release trigger
+	bool timer = false;
 	int key = 0;
 	int mode = 0;
 	int count = 0;
+	time_t timerStart = 0;
+	time_t timerEnd = 0;
 	float speed = 1.0f;
 	float moveScaleX = 1.0f;
 	float moveScaleY = 1.0f;
@@ -772,20 +784,30 @@ namespace QiRange
 {
 	constexpr int macro_count_max = 9999;
 	constexpr int macro_mode_max = Macro::up;
+	constexpr time_t macro_timer_min = 0;
+	constexpr time_t macro_timer_max = 60 * 60 * 24;
 	constexpr float macro_speed_min = 0.1f;
 	constexpr float macro_speed_max = 10.0f;
 	constexpr float macro_moveScale_min = 0.1f;
 	constexpr float macro_moveScale_max = 10.0f;
 	constexpr float macro_posScale_min = -1.0f;
 	constexpr float macro_posScale_max = 1.0f;
-	inline void Restricted(int& param, int max, int min = 0)
+	inline int Restricted(int param, int max, int min = 0)
 	{
 		if (param > max) param = max;
 		else if (param < min) param = min;
+		return param;
 	}
-	inline void Restricted(float& param, float max, float min = 0.0f)
+	inline time_t Restricted(time_t param, time_t max, time_t min = 0)
 	{
 		if (param > max) param = max;
 		else if (param < min) param = min;
+		return param;
+	}
+	inline float Restricted(float param, float max, float min = 0.0f)
+	{
+		if (param > max) param = max;
+		else if (param < min) param = min;
+		return param;
 	}
 }

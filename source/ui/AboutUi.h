@@ -24,7 +24,7 @@ private:
 	{
 		if (e->type() == QEvent::MouseButtonRelease)
 		{
-			if (obj == ui.url_label) QDesktopServices::openUrl(QUrl("http://qinput.cyk.moe"));
+			if (obj == ui.url_label) ShellExecuteW(nullptr, L"open", L"http://qinput.cyk.moe", nullptr, nullptr, SW_HIDE);
 			else if (obj == ui.version_label)
 			{
 				Qi::widget.dialogActive = true;

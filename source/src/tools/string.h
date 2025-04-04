@@ -116,5 +116,10 @@ namespace QiTools {
 		static std::wstring toWString(const SIZE& val) { return std::to_wstring(val.cx) + std::wstring(L", ") + std::to_wstring(val.cy); }
 		static std::wstring toWString(const POINT& val) { return std::to_wstring(val.x) + std::wstring(L", ") + std::to_wstring(val.y); }
 		static std::wstring toWString(const RECT& val) { return std::to_wstring(val.left) + std::wstring(L", ") + std::to_wstring(val.top) + std::wstring(L", ") + std::to_wstring(val.right) + std::wstring(L", ") + std::to_wstring(val.bottom); }
+
+		static std::string toLower(std::string str) { std::string result; for (size_t s = 0; s < str.length(); s++) result += tolower(str[s]); return result; }
+		static std::wstring toLower(std::wstring str) { std::wstring result; for (size_t s = 0; s < str.length(); s++) result += towlower(str[s]); return result; }
+		static std::string toUpper(std::string str) { std::string result; for (size_t s = 0; s < str.length(); s++) result += toupper(str[s]); return result; }
+		static std::wstring toUpper(std::wstring str) { std::wstring result; for (size_t s = 0; s < str.length(); s++) result += towupper(str[s]); return result; }
 	};
 }

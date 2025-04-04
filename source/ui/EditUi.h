@@ -100,6 +100,7 @@ public:
 	}
 private:
 	// >>>> new action set here
+	// >>>> for each new widget
 	void StyleGroup()
 	{
 		if ("this window")
@@ -158,6 +159,7 @@ private:
 		}
 		if ("line edit")
 		{
+			ui.window_name_edit->setProperty("group", "line_edit");
 			ui.quickInput_text_edit->setProperty("group", "line_edit");
 			ui.mouse_x_edit->setProperty("group", "line_edit");
 			ui.mouse_y_edit->setProperty("group", "line_edit");
@@ -194,7 +196,7 @@ private:
 			ui.ocr_text_edit->setProperty("group", "line_edit");
 			ui.ocr_var_edit->setProperty("group", "line_edit");
 			ui.varCondition_edit->setProperty("group", "line_edit");
-			ui.window_name_edit->setProperty("group", "line_edit");
+			ui.open_edit->setProperty("group", "line_edit");
 		}
 		if ("text edit")
 		{
@@ -222,6 +224,7 @@ private:
 			ui.action_table->setProperty("group", "action_table");
 			ui.action_table->horizontalHeader()->setProperty("group", "action_table_header");
 			ui.action_table->verticalHeader()->setProperty("group", "action_table_header");
+			ui.action_table->setStyleSheet("QTableCornerButton::section,QHeaderView::section,QScrollBar,QScrollBar::sub-line,QScrollBar::add-line{background-color:rgba(0,0,0,0);border:none}QScrollBar::handle{background-color:rgba(128,128,128,0.3);border:none}");
 			menu->setProperty("group", "context_menu");
 		}
 		if ("table corner button")
@@ -251,6 +254,7 @@ private:
 		}
 	}
 	// >>>> new action set here
+	// >>>> for widget related to action
 	void Init()
 	{
 		if ("table context menu")
@@ -424,6 +428,12 @@ private:
 				ui.varCondition_change_button->setProperty("qit", type);
 				addButtons.append(ui.varCondition_add_button);
 				changeButtons.append(ui.varCondition_change_button);
+
+				type = QiType::open;
+				ui.open_add_button->setProperty("qit", type);
+				ui.open_change_button->setProperty("qit", type);
+				addButtons.append(ui.open_add_button);
+				changeButtons.append(ui.open_change_button);
 			}
 			if ("edit")
 			{
@@ -565,7 +575,6 @@ private:
 			ui.action_table->setColumnWidth(tableColumn_type, 100);
 			ui.action_table->setColumnWidth(tableColumn_param, 300);
 			ui.action_table->setColumnWidth(tableColumn_mark, 100);
-			ui.action_table->setStyleSheet("QTableCornerButton::section,QHeaderView::section{background-color:rgba(0,0,0,0)}QScrollBar{background:transparent}");
 		}
 		if ("key edit")
 		{
@@ -598,6 +607,7 @@ private:
 		if (macro->wndState) macro->wndInfo.update(), SetWindowMode();
 	}
 	// >>>> new action set here
+	// >>>> for widget related to action
 	void Event()
 	{
 		if ("title")
@@ -627,7 +637,7 @@ private:
 				}
 				else
 				{
-					Qi::run = true;
+					Qi::debug = true;
 					timeBeginPeriod(1);
 					if (ui.action_running_radio->isChecked()) QiThread::StartMacroRun(macro);
 					else QiThread::StartMacroEnd(macro);
@@ -655,6 +665,7 @@ private:
 			connect(ui.window_child_check, &QCheckBox::toggled, this, [this](bool state) { macro->wndInfo.child = state; });
 		}
 		// >>>> new action set here
+		// >>>> for widgets that need to generate events
 		if ("action widget")
 		{
 			connect(ui.tab_lock_check, &QCheckBox::toggled, this, [this](bool state) {
@@ -852,6 +863,7 @@ private:
 				});
 		}
 		// >>>> new action set here
+		// >>>> for widgets that require tables
 		if ("action table")
 		{
 			// hotkey
@@ -959,6 +971,7 @@ private:
 				});
 			// selection
 			// >>>> new action set here
+			// >>>> for switching tags, previewing content
 			connect(ui.action_table, &QTableWidget::itemSelectionChanged, this, [this] {
 				tableCurrentPrev = tableCurrent;
 				tableCurrent.clear();
@@ -1095,14 +1108,16 @@ private:
 						ui.varCondition_edit_button->setEnabled(true);
 						ui.varCondition_edit2_button->setEnabled(true);
 					} break;
+					case QiType::open: tab = tab_dialog; break;
 					}
 					if (!tabLock) ui.tabWidget->setCurrentIndex(tab);
 				}
 				});
 			// value
 			connect(ui.action_table, &QTableWidget::cellDoubleClicked, this, [this](int row, int column) { if (row < 0) return; ItemUse(row); });
-			// mouse rbutton menu
+			// rbutton menu
 			// >>>> new action set here (include edit)
+			// >>>> for action with next
 			connect(ui.action_table, &QTableWidget::customContextMenuRequested, this, [this] {
 				if ("set menu item state")
 				{
@@ -1181,7 +1196,7 @@ private:
 					{
 						testTimer->stop();
 						timeEndPeriod(1);
-						Qi::run = false;
+						Qi::debug = false;
 						Sleep(300);
 						SetDebugState(debug_idel);
 					}
@@ -1222,7 +1237,6 @@ private:
 		}
 		TableReload();
 	}
-	// >>>> new action set here (include edit)
 	void SetDebugState(int debugState)
 	{
 		if (debugState == debug_idel)
@@ -1251,6 +1265,8 @@ private:
 			ui.title_run_button->setStyleSheet("QPushButton{background-color:#FC0;border-radius:10px}QPushButton:hover{background-color:#DA0}");
 		}
 	}
+	// >>>> new action set here (include edit)
+	// >>>> for action type of next actions
 	void NextEdit(bool edit2)
 	{
 		int p = ui.action_table->currentRow(); if (p < 0) return;
@@ -1581,6 +1597,7 @@ private:
 	}
 	// table
 	// >>>> new action set here
+	// >>>> for each item that needs to be displayed in the table
 	void TableUpdate(int index)
 	{
 		updating = true;
@@ -1871,6 +1888,14 @@ private:
 
 			param = QString::number(ref.s.size());
 		} break;
+		case QiType::open:
+		{
+			const QiOpen& ref = std::get<QiOpen>(var);
+			type = Qi::ui.text.acOpen;
+
+			param = ref.url.mid(0, 32);
+			if (ref.url.size() > 31) param += "...";
+		} break;
 		}
 
 		if (type.isEmpty())
@@ -2150,6 +2175,7 @@ private:
 	}
 private:
 	// >>>> new action set here
+	// >>>> for action param load to widget
 	void ItemUse(int p)
 	{
 		const Action& var = actions->at(p);
@@ -2172,9 +2198,11 @@ private:
 		case QiType::ocr: { const QiOcr& ref = std::get<QiOcr>(var); WidgetSet(ref); } break;
 		case QiType::varOperator: { const QiVarOperator& ref = std::get<QiVarOperator>(var); WidgetSet(ref); } break;
 		case QiType::varCondition: { const QiVarCondition& ref = std::get<QiVarCondition>(var); WidgetSet(ref); } break;
+		case QiType::open: { const QiOpen& ref = std::get<QiOpen>(var); WidgetSet(ref); } break;
 		}
 	}
 	// >>>> new action set here
+	// >>>> for action param load from widget
 	Action ItemGet(int type)
 	{
 		Action action;
@@ -2205,6 +2233,7 @@ private:
 		case QiType::ocr: action = WidgetGetOcr(); break;
 		case QiType::varOperator: action = WidgetGetVarOperator(); break;
 		case QiType::varCondition: action = WidgetGetVarCondition(); break;
+		case QiType::open: action = WidgetGetOpen(); break;
 		}
 		return action;
 	}
@@ -2528,6 +2557,12 @@ private:
 		varCondition.script = ui.varCondition_edit->text();
 		return varCondition;
 	}
+	QiOpen WidgetGetOpen()
+	{
+		QiOpen open;
+		open.url = ui.open_edit->text();
+		return open;
+	}
 	// load params to widget
 	void WidgetSet(const QiKey& key)
 	{
@@ -2640,5 +2675,9 @@ private:
 	void WidgetSet(const QiVarCondition& varCondition)
 	{
 		ui.varCondition_edit->setText(varCondition.script);
+	}
+	void WidgetSet(const QiOpen& open)
+	{
+		ui.open_edit->setText(open.url);
 	}
 };

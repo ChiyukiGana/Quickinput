@@ -109,6 +109,7 @@
     <ClInclude Include="source\src\inc_external.h" />
     <ClInclude Include="source\src\inc_header.h" />
     <ClInclude Include="source\src\inc_project.h" />
+    <ClInclude Include="source\src\integrity_verify.h" />
     <ClInclude Include="source\src\interpreter.h" />
     <ClInclude Include="source\src\json.h" />
     <ClInclude Include="source\src\onnxocr\OnnxOcr.h" />

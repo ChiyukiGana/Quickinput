@@ -37,11 +37,17 @@ private:
 		ui.mode_combo->view()->setProperty("group", "combo_body");
 		ui.count_edit->setProperty("group", "line_edit");
 		ui.speed_edit->setProperty("group", "line_edit");
+		ui.timer_start_edit->setProperty("group", "line_edit");
+		ui.timer_end_edit->setProperty("group", "line_edit");
 		ui.moveScale_x_edit->setProperty("group", "line_edit");
 		ui.moveScale_y_edit->setProperty("group", "line_edit");
 		ui.posScale_x_edit->setProperty("group", "line_edit");
 		ui.posScale_y_edit->setProperty("group", "line_edit");
 		ui.key_keyedit->setProperty("group", "line_edit");
+		ui.timer_check->setProperty("group", "check");
+		ui.timer_start_button->setProperty("group", "get_button");
+		ui.timer_end_button->setProperty("group", "get_button");
+		ui.scrollArea->setStyleSheet("QScrollArea,QScrollBar,QScrollBar::sub-line,QScrollBar::add-line{background-color:rgba(0,0,0,0);border:none}QScrollBar::handle{background-color:rgba(128,128,128,0.3);border:none}");
 	}
 	void Init()
 	{
@@ -108,6 +114,7 @@ private:
 				ui.block_check->setChecked(macro.keyBlock);
 				ui.block_cur_check->setChecked(macro.curBlock);
 				ui.mode_combo->setCurrentIndex(macro.mode);
+				ui.timer_check->setChecked(macro.timer);
 			}
 			// key
 			{
@@ -120,6 +127,8 @@ private:
 			{
 				ui.count_edit->setValue(macro.count);
 				ui.speed_edit->setValue(macro.speed);
+				ui.timer_start_edit->setTime(QTime(QiTime::h(macro.timerStart), QiTime::m(macro.timerStart), QiTime::s(macro.timerStart)));
+				ui.timer_end_edit->setTime(QTime(QiTime::h(macro.timerEnd), QiTime::m(macro.timerEnd), QiTime::s(macro.timerEnd)));
 				ui.moveScale_x_edit->setValue(macro.moveScaleX);
 				ui.moveScale_y_edit->setValue(macro.moveScaleY);
 				ui.posScale_x_edit->setValue(macro.posScaleX);
@@ -180,51 +189,66 @@ private:
 			});
 		connect(ui.count_edit, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) {
 			if (!ItemCurrented()) return;
-			if (value > QiRange::macro_count_max) value = QiRange::macro_count_max;
-			else if (value < 0) value = 0;
-			currentMacro->count = value;
+			currentMacro->count = QiRange::Restricted(value, QiRange::macro_count_max);
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
 		connect(ui.speed_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 			if (!ItemCurrented()) return;
-			if (value > QiRange::macro_speed_max) value = QiRange::macro_speed_max;
-			else if (value < QiRange::macro_speed_min) value = QiRange::macro_speed_min;
-			currentMacro->speed = value;
+			currentMacro->speed = QiRange::Restricted(value, QiRange::macro_speed_max, QiRange::macro_speed_min);
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
 		connect(ui.moveScale_x_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 			if (!ItemCurrented()) return;
-			if (value > QiRange::macro_moveScale_max) value = QiRange::macro_moveScale_max;
-			else if (value < QiRange::macro_moveScale_min) value = QiRange::macro_moveScale_min;
-			currentMacro->moveScaleX = value;
+			currentMacro->moveScaleX = QiRange::Restricted(value, QiRange::macro_moveScale_max, QiRange::macro_moveScale_min);
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
 		connect(ui.moveScale_y_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 			if (!ItemCurrented()) return;
-			if (value > QiRange::macro_moveScale_max) value = QiRange::macro_moveScale_max;
-			else if (value < QiRange::macro_moveScale_min) value = QiRange::macro_moveScale_min;
-			currentMacro->moveScaleY = value;
+			currentMacro->moveScaleY = QiRange::Restricted(value, QiRange::macro_moveScale_max, QiRange::macro_moveScale_min);
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
 		connect(ui.posScale_x_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 			if (!ItemCurrented()) return;
-			if (value > QiRange::macro_posScale_max) value = QiRange::macro_posScale_max;
-			else if (value < QiRange::macro_posScale_min) value = QiRange::macro_posScale_min;
-			currentMacro->posScaleX = value;
+			currentMacro->posScaleX = QiRange::Restricted(value, QiRange::macro_posScale_max, QiRange::macro_posScale_min);
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
 		connect(ui.posScale_y_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 			if (!ItemCurrented()) return;
-			if (value > QiRange::macro_posScale_max) value = QiRange::macro_posScale_max;
-			else if (value < QiRange::macro_posScale_min) value = QiRange::macro_posScale_min;
-			currentMacro->posScaleY = value;
+			currentMacro->posScaleY = QiRange::Restricted(value, QiRange::macro_posScale_max, QiRange::macro_posScale_min);
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
+			});
+
+		connect(ui.timer_start_edit, &QTimeEdit::userTimeChanged, this, [this](const QTime& time) {
+			if (!ItemCurrented()) return;
+			currentMacro->timerStart = QiRange::Restricted(QiTime::toTimeStamp(time.hour(), time.minute(), time.second()), QiRange::macro_timer_max, QiRange::macro_timer_min);
+			QiJson::SaveMacro(*currentMacro);
+			SetTableItem(currentTable, currentRow, *currentMacro);
+			});
+		connect(ui.timer_end_edit, &QTimeEdit::userTimeChanged, this, [this](const QTime& time) {
+			if (!ItemCurrented()) return;
+			currentMacro->timerEnd = QiRange::Restricted(QiTime::toTimeStamp(time.hour(), time.minute(), time.second()), QiRange::macro_timer_max, QiRange::macro_timer_min);
+			QiJson::SaveMacro(*currentMacro);
+			SetTableItem(currentTable, currentRow, *currentMacro);
+			});
+		connect(ui.timer_check, &QCheckBox::toggled, this, [this](bool state) {
+			if (!ItemCurrented()) return;
+			currentMacro->timer = state;
+			QiJson::SaveMacro(*currentMacro);
+			SetTableItem(currentTable, currentRow, *currentMacro);
+			});
+		connect(ui.timer_start_button, &QPushButton::clicked, this, [this] {
+			time_t current = QiTime::current();
+			ui.timer_start_edit->setTime(QTime(QiTime::h(current), QiTime::m(current), QiTime::s(current)));
+			});
+		connect(ui.timer_end_button, &QPushButton::clicked, this, [this] {
+			time_t current = QiTime::current();
+			ui.timer_end_edit->setTime(QTime(QiTime::h(current), QiTime::m(current), QiTime::s(current)));
 			});
 	}
 	void SetTableItem(QTableWidget* table, int index, const Macro& macro)

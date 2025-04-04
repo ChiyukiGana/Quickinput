@@ -153,6 +153,9 @@
     <ClInclude Include="source\src\onnxocr\OnnxOcr.h">
       <Filter>Header Files\OnnxOcr</Filter>
     </ClInclude>
+    <ClInclude Include="source\src\integrity_verify.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="source\ui\AboutUi.ui">

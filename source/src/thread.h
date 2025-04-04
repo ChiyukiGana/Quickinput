@@ -4,6 +4,7 @@ namespace QiThread
 {
 	struct ThreadParam
 	{
+		bool run;
 		Macro* macro;
 		std::mutex mutex;
 		std::condition_variable load;
@@ -23,8 +24,8 @@ namespace QiThread
 	void ExitQuickClick();
 	void ExitWindowState();
 	// state
-	bool MacroRunActive(Macro* pMacro);
-	bool MacroEndActive(Macro* pMacro);
+	bool MacroRunActive(const Macro* pMacro);
+	bool MacroEndActive(const Macro* pMacro);
 	bool QuickClickActive();
 	bool WindowStateActive();
 };

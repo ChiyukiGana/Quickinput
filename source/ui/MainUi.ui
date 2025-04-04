@@ -39,9 +39,6 @@
     <normaloff>:/icon.png</normaloff>:/icon.png</iconset>
   </property>
   <widget class="QWidget" name="main_widget">
-   <property name="styleSheet">
-    <string notr="true"/>
-   </property>
    <layout class="QVBoxLayout" name="clientBox">
     <property name="spacing">
      <number>0</number>

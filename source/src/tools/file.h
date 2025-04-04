@@ -9,10 +9,58 @@ namespace QiTools
 	class File
 	{
 	public:
+		static bool FileIsHide(std::wstring path)
+		{
+			DWORD file = GetFileAttributesW(path.c_str());
+			if ((file != INVALID_FILE_ATTRIBUTES) && (file != FILE_ATTRIBUTE_DIRECTORY) && (file == FILE_ATTRIBUTE_HIDDEN)) return true;
+			return false;
+		}
+		static bool FolderIsHide(std::wstring path)
+		{
+			DWORD file = GetFileAttributesW(path.c_str());
+			if ((file != INVALID_FILE_ATTRIBUTES) && (file == FILE_ATTRIBUTE_DIRECTORY) && (file == FILE_ATTRIBUTE_HIDDEN)) return true;
+			return false;
+		}
+		static bool PathIsHide(std::wstring path)
+		{
+			DWORD file = GetFileAttributesW(path.c_str());
+			if ((file != INVALID_FILE_ATTRIBUTES) && (file == FILE_ATTRIBUTE_HIDDEN)) return true;
+			return false;
+		}
+		static bool FileIsSystem(std::wstring path)
+		{
+			DWORD file = GetFileAttributesW(path.c_str());
+			if ((file != INVALID_FILE_ATTRIBUTES) && (file != FILE_ATTRIBUTE_DIRECTORY) && (file == FILE_ATTRIBUTE_SYSTEM)) return true;
+			return false;
+		}
+		static bool FolderIsSystem(std::wstring path)
+		{
+			DWORD file = GetFileAttributesW(path.c_str());
+			if ((file != INVALID_FILE_ATTRIBUTES) && (file == FILE_ATTRIBUTE_DIRECTORY) && (file == FILE_ATTRIBUTE_SYSTEM)) return true;
+			return false;
+		}
+		static bool PathIsSystem(std::wstring path)
+		{
+			DWORD file = GetFileAttributesW(path.c_str());
+			if ((file != INVALID_FILE_ATTRIBUTES) && (file == FILE_ATTRIBUTE_SYSTEM)) return true;
+			return false;
+		}
+		static bool FileState(std::wstring path)
+		{
+			DWORD file = GetFileAttributesW(path.c_str());
+			if ((file != INVALID_FILE_ATTRIBUTES) && (file != FILE_ATTRIBUTE_DIRECTORY)) return true;
+			return false;
+		}
 		static bool FolderState(std::wstring path)
 		{
 			DWORD file = GetFileAttributesW(path.c_str());
 			if ((file != INVALID_FILE_ATTRIBUTES) && (file == FILE_ATTRIBUTE_DIRECTORY)) return true;
+			return false;
+		}
+		static bool PathState(std::wstring path)
+		{
+			DWORD file = GetFileAttributesW(path.c_str());
+			if (file != INVALID_FILE_ATTRIBUTES) return true;
 			return false;
 		}
 		static bool UsableName(const QString file)
@@ -46,6 +94,31 @@ namespace QiTools
 				if (!QFile::exists(path)) return path;
 			}
 			return QString();
+		}
+		static bool FileSave(std::wstring path, const void* data, size_t bytes)
+		{
+			DeleteFileW(path.c_str());
+			HANDLE hFile = CreateFileW(path.c_str(), GENERIC_WRITE, 0, 0, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+			if (hFile)
+			{
+				DWORD bytesWrited;
+				BOOL b = WriteFile(hFile, data, bytes, &bytesWrited, 0);
+				CloseHandle(hFile);
+				return b;
+			}
+			return false;
+		}
+		static bool FileRead(std::wstring path, void* data, size_t bytes)
+		{
+			HANDLE hFile = CreateFileW(path.c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+			if (hFile)
+			{
+				DWORD bytesReaded;
+				BOOL b = ReadFile(hFile, data, bytes, &bytesReaded, 0);
+				CloseHandle(hFile);
+				return b;
+			}
+			return false;
 		}
 		static bool LoadText(QString path, QByteArray& text)
 		{

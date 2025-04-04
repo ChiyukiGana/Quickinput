@@ -115,21 +115,6 @@
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
           </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoRepeat">
-           <bool>false</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>false</bool>
-          </property>
-          <property name="tristate">
-           <bool>false</bool>
-          </property>
          </widget>
         </item>
         <item row="9" column="0">
@@ -254,21 +239,6 @@
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
           </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoRepeat">
-           <bool>false</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>false</bool>
-          </property>
-          <property name="tristate">
-           <bool>false</bool>
-          </property>
          </widget>
         </item>
         <item row="10" column="2">
@@ -291,21 +261,6 @@
           </property>
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoRepeat">
-           <bool>false</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>false</bool>
-          </property>
-          <property name="tristate">
-           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -425,21 +380,6 @@
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
           </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoRepeat">
-           <bool>false</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>false</bool>
-          </property>
-          <property name="tristate">
-           <bool>false</bool>
-          </property>
          </widget>
         </item>
         <item row="3" column="2">
@@ -496,21 +436,6 @@
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
           </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoRepeat">
-           <bool>false</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>false</bool>
-          </property>
-          <property name="tristate">
-           <bool>false</bool>
-          </property>
          </widget>
         </item>
         <item row="4" column="2">
@@ -543,21 +468,6 @@
           </property>
           <property name="layoutDirection">
            <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="autoRepeat">
-           <bool>false</bool>
-          </property>
-          <property name="autoExclusive">
-           <bool>false</bool>
-          </property>
-          <property name="tristate">
-           <bool>false</bool>
           </property>
          </widget>
         </item>

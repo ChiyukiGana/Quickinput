@@ -91,7 +91,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-3-29</string>
+         <string>2025-4-4</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -107,7 +107,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加位置偏移</string>
+         <string>增加定时触发
+增加打开功能</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

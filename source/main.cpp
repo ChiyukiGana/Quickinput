@@ -1,37 +1,11 @@
 ﻿#include <ui/MainUi.h>
 #include <src/inc_header.h>
-void Init();
-int main(int argc, char* argv[])
-{
-	std::locale::global(std::locale(".UTF8")); // set utf8 for all std streams
-	Process::RunPath(); // reset work path to exe path
-	std::wstring mutex = Path::toSlash(Process::runPath()); // mutex name, the current directory is only running one
-	if (Process::isRunning(mutex.c_str())) // if running
-	{
-		MsgBox::Warning(L"当前文件夹的程序已经运行，若运行更多程序请复制此文件夹", L"提示");
-		return -1;
-	}
-	CreateMutexW(0, 0, mutex.c_str()); // create mutex
-	Init(); // json, font, style
 
-	// ocr
-	if (File::FolderState(Process::runPath() + L"\\OCR"))
-	{
-		QiOnnxOcr* ocr = new QiOnnxOcr();
-		if (ocr->isInit()) Qi::ocr = ocr;
-		else delete ocr;
-	}
+#define INTEGRITY_VERIFY
+#ifdef INTEGRITY_VERIFY
+#include <src/integrity_verify.h>
+#endif
 
-	QApplication application(argc, argv); // qt event loop
-	Qi::application = &application; // save to global
-	Qi::popText = new QPopText; // popup text on screen of global widget
-	Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y);
-	Qi::popText->setSize(Qi::ui.pop.size);
-	Qi::windowSelection = new QWindowSelection; // select a window of global widget
-	MainUi mainWindow;
-	application.exec();
-	return 0;
-}
 void Init()
 {
 	QiJson::LoadJson(); // config, macro
@@ -112,16 +86,10 @@ void Init()
 		Qi::ui.text.acVarOperator = (QString::fromUtf8("变量运算") + Qi::ui.text.syEqual);
 		Qi::ui.text.acVarCondition = (QString::fromUtf8("变量判断") + Qi::ui.text.syVar);
 		Qi::ui.text.acMouseTrack = (QString::fromUtf8("鼠标轨迹") + Qi::ui.text.syTrack);
+		Qi::ui.text.acOpen = (QString::fromUtf8("打开") + Qi::ui.text.syLink);
 		// state
 		Qi::ui.text.trOn = (QString::fromUtf8("启用") + Qi::ui.text.syOn);
 		Qi::ui.text.trOff = (QString::fromUtf8("禁用") + Qi::ui.text.syOff);
-		// edit
-		Qi::ui.text.etFunc = (QString::fromUtf8("动作") + Qi::ui.text.syOption);
-		Qi::ui.text.etParam = (QString::fromUtf8("参数") + Qi::ui.text.syLink);
-		Qi::ui.text.etAdd = (QString::fromUtf8("添加") + Qi::ui.text.syYes);
-		Qi::ui.text.etDel = (QString::fromUtf8("删除") + Qi::ui.text.syNot);
-		Qi::ui.text.etChange = (QString::fromUtf8("修改") + Qi::ui.text.syOk);
-		Qi::ui.text.etEdit = (QString::fromUtf8("编辑") + Qi::ui.text.syEdit);
 		// record
 		Qi::ui.text.rcStart = (QString::fromUtf8("开始") + Qi::ui.text.syOk);
 		Qi::ui.text.rcStop = (QString::fromUtf8("停止") + Qi::ui.text.syOk);
@@ -956,4 +924,41 @@ QToolTip,
 		}
 	}
 	if (Qi::set.theme >= Qi::ui.themes.size()) Qi::set.theme = 0;
+}
+int main(int argc, char* argv[])
+{
+	std::locale::global(std::locale(".UTF8")); // set utf8 for all std streams
+	Process::RunPath(); // reset work path to exe path
+
+	// 防修改或从虚拟环境启动（虽然我觉得开源这么干很蠢）
+#ifdef INTEGRITY_VERIFY
+	integrity_verify();
+#endif
+
+	std::wstring mutex = Path::toSlash(Process::runPath()); // mutex name, the current directory is only running one
+	if (Process::isRunning(mutex.c_str())) // if running
+	{
+		MsgBox::Warning(L"当前文件夹的程序已经运行，若运行更多程序请复制此文件夹", L"提示");
+		return -1;
+	}
+	CreateMutexW(0, 0, mutex.c_str()); // create mutex
+	Init(); // json, font, style
+
+	// ocr
+	if (File::FolderState(Process::runPath() + L"\\OCR"))
+	{
+		QiOnnxOcr* ocr = new QiOnnxOcr();
+		if (ocr->isInit()) Qi::ocr = ocr;
+		else delete ocr;
+	}
+
+	QApplication application(argc, argv);
+	Qi::application = &application; // save to global
+	Qi::popText = new QPopText; // popup text on screen of global widget
+	Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y);
+	Qi::popText->setSize(Qi::ui.pop.size);
+	Qi::windowSelection = new QWindowSelection; // select a window of global widget
+	MainUi mainWindow;
+	application.exec();
+	return 0;
 }
