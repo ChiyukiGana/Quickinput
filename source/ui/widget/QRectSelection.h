@@ -20,7 +20,7 @@ class QRectSelection : public QDialog
 	RECT mrect = { 0 };
 
 public:
-	QRectSelection(QWidget* parent = 0) : QDialog(parent)
+	QRectSelection()
 	{
 		setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
 		setAttribute(Qt::WA_TranslucentBackground);

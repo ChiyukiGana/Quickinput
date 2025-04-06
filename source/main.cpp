@@ -63,7 +63,7 @@ void Init()
 		Qi::ui.text.acPos = (QString::fromUtf8("位置") + Qi::ui.text.syLeft);
 		Qi::ui.text.acMove = (QString::fromUtf8("移动") + Qi::ui.text.syMove);
 		Qi::ui.text.acWait = (QString::fromUtf8("等待") + Qi::ui.text.syTime);
-		Qi::ui.text.acText = (QString::fromUtf8("复制") + Qi::ui.text.syText);
+		Qi::ui.text.acCopyText = (QString::fromUtf8("复制") + Qi::ui.text.syText);
 		Qi::ui.text.acLoop = (QString::fromUtf8("循环") + Qi::ui.text.syLoop);
 		Qi::ui.text.acColor = (QString::fromUtf8("找色") + Qi::ui.text.syColor);
 		Qi::ui.text.acEnd = (QString::fromUtf8("结束") + Qi::ui.text.syStop);
@@ -87,6 +87,7 @@ void Init()
 		Qi::ui.text.acVarCondition = (QString::fromUtf8("变量判断") + Qi::ui.text.syVar);
 		Qi::ui.text.acMouseTrack = (QString::fromUtf8("鼠标轨迹") + Qi::ui.text.syTrack);
 		Qi::ui.text.acOpen = (QString::fromUtf8("打开") + Qi::ui.text.syLink);
+		Qi::ui.text.acTextPad = (QString::fromUtf8("文本") + Qi::ui.text.syText);
 		// state
 		Qi::ui.text.trOn = (QString::fromUtf8("启用") + Qi::ui.text.syOn);
 		Qi::ui.text.trOff = (QString::fromUtf8("禁用") + Qi::ui.text.syOff);
@@ -930,7 +931,6 @@ int main(int argc, char* argv[])
 	std::locale::global(std::locale(".UTF8")); // set utf8 for all std streams
 	Process::RunPath(); // reset work path to exe path
 
-	// 防修改或从虚拟环境启动（虽然我觉得开源这么干很蠢）
 #ifdef INTEGRITY_VERIFY
 	integrity_verify();
 #endif
@@ -945,7 +945,7 @@ int main(int argc, char* argv[])
 	Init(); // json, font, style
 
 	// ocr
-	if (File::FolderState(Process::runPath() + L"\\OCR"))
+	if (File::PathState(L"OCR"))
 	{
 		QiOnnxOcr* ocr = new QiOnnxOcr();
 		if (ocr->isInit()) Qi::ocr = ocr;
@@ -958,6 +958,7 @@ int main(int argc, char* argv[])
 	Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y);
 	Qi::popText->setSize(Qi::ui.pop.size);
 	Qi::windowSelection = new QWindowSelection; // select a window of global widget
+	Qi::interpreter_pop = [](std::string text, int time) { Qi::popText->Popup(time, text.c_str(), RGB(223, 223, 223)); };
 	MainUi mainWindow;
 	application.exec();
 	return 0;

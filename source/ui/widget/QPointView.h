@@ -36,7 +36,7 @@ public:
 	}
 	static RECT screenRect() { SIZE size = screenSize(); return { 0, 0, size.cx - 1, size.cy - 1 }; }
 
-	QPointView() : QWidget()
+	QPointView()
 	{
 		setAttribute(Qt::WA_TransparentForMouseEvents);
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);

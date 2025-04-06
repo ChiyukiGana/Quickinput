@@ -263,6 +263,11 @@ namespace QiJson
 				const QiOpen& ref = std::get<QiOpen>(var);
 				jAction.insert("url", ref.url);
 			} break;
+			case QiType::textPad:
+			{
+				const QiTextPad& ref = std::get<QiTextPad>(var);
+				jAction.insert("text", ref.text);
+			} break;
 			default: success = false;
 			}
 
@@ -274,6 +279,7 @@ namespace QiJson
 	{
 		QJsonObject jMacro;
 		jMacro.insert("document_charset", "UTF8");
+		jMacro.insert("app", "QuickInput");
 		jMacro.insert("type", "QuickInputMacro");
 		jMacro.insert("wndState", (bool)macro.wndState);
 		jMacro.insert("wndChild", (bool)macro.wndInput.child);
@@ -321,6 +327,7 @@ namespace QiJson
 	{
 		QJsonObject cfg;
 		cfg.insert("document_charset", "UTF8");
+		cfg.insert("app", "QuickInput");
 		cfg.insert("type", "QuickInputConfig");
 		cfg.insert("theme", (int)Qi::set.theme);
 		cfg.insert("key", (int)Qi::set.key);
@@ -591,7 +598,13 @@ namespace QiJson
 					QiOpen var; var.disable = dis, var.mark = mark;
 					var.url = jAction.value("url").toString();
 					actions.append(var);
-				}
+				} break;
+				case QiType::textPad:
+				{
+					QiTextPad var; var.disable = dis, var.mark = mark;
+					var.text = jAction.value("text").toString();
+					actions.append(var);
+				} break;
 				default: actions.append(QiBase(type)); break;
 				}
 			}

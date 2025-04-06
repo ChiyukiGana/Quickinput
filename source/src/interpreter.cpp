@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "interpreter.h"
 
 bool HaveEntry(const Actions& actions)
@@ -58,8 +58,10 @@ bool QiInterpreter::PeekSleep(clock_t ms)
 	return QiThread::PeekSleep(ms / speed);
 }
 
+#define interpreter_return(code) {layer--;return code;}
 int QiInterpreter::ActionInterpreter(const Actions& current)
 {
+	layer++;
 	if (current.empty())
 	{
 		if (&current == &actions) return r_exit;
@@ -68,10 +70,11 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 	int r_result = r_continue;
 	while (true)
 	{
-		for (const Action& action : current)
+		for (size_t i = 0; i < current.size(); i++)
 		{
-			if (isInvalid()) return r_exit;
-			if (wndInput && !IsWindow(wndInput->wnd)) { Qi::popText->Popup("����ʧЧ"); return r_exit; }
+			const Action& action = current[i];
+			if (isInvalid()) interpreter_return(r_exit);
+			if (wndInput && !IsWindow(wndInput->wnd)) { Qi::popText->Popup("窗口失效"); interpreter_return(r_exit); }
 			r_result = r_continue;
 			if (debug_entry)
 			{
@@ -87,7 +90,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 				}
 				else if (action.base().debug_exit)
 				{
-					return r_exit;
+					interpreter_return(r_exit);
 				}
 			}
 			if (!action.base().disable)
@@ -97,13 +100,13 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 				case QiType::end:
 				{
 					if (jumpId || debug_entry) continue;
-					return r_exit;
+					interpreter_return(r_exit);
 				} break;
 				case QiType::delay:
 				{
 					if (jumpId || debug_entry) continue;
 					const QiDelay& ref = std::get<QiDelay>(action);
-					if (PeekSleep(Rand(ref.max, ref.min))) return r_exit;
+					if (PeekSleep(Rand(ref.max, ref.min))) interpreter_return(r_exit);
 				} break;
 				case QiType::key:
 				{
@@ -278,7 +281,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 				case QiType::loopEnd:
 				{
 					if (jumpId || debug_entry) continue;
-					return r_break;
+					interpreter_return(r_break);
 				} break;
 				case QiType::keyState:
 				{
@@ -499,7 +502,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					if (jumpId || debug_entry) continue;
 					const QiVarOperator& ref = std::get<QiVarOperator>(action);
 					try { Qi::interpreter.interpretAll(ref.script.toStdString(), varMap); }
-					catch (std::runtime_error e) { Qi::interpreter.parseError(e.what()); }
+					catch (std::runtime_error e) { Qi::interpreter.showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); }
 					Qi::widget.varViewReload();
 				} break;
 				case QiType::varCondition:
@@ -515,7 +518,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 						if (scriptResult) r_result = ActionInterpreter(ref.next);
 						else r_result = ActionInterpreter(ref.next2);
 					}
-					catch (std::runtime_error e) { Qi::interpreter.parseError(e.what()); }
+					catch (std::runtime_error e) { Qi::interpreter.showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); }
 				} break;
 				case QiType::mouseTrack:
 				{
@@ -568,7 +571,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 			if (r_result != r_continue) break;
 		}
 		if ((r_result == r_top) && (&current == &actions)) continue;
-		return r_result;
+		interpreter_return(r_result);
 	}
-	return r_exit;
+	interpreter_return(r_exit);
 }

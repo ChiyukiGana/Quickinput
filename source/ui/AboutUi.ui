@@ -91,7 +91,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-4-4_1</string>
+         <string>2025-4-6</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -107,7 +107,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加变量管理</string>
+         <string>增加变量函数
+增加文本功能</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

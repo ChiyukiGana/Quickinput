@@ -71,8 +71,9 @@ class EditUi : public QDialog
 	// test run
 	QTimer* testTimer;
 	// custom widget
-	QPointView pv;
-	QRectView rv;
+	QPointView widget_pv;
+	QRectView widget_rv;
+	QTextDialog widget_td;
 	// for image viewer
 	RgbMap imageMap;
 	// macro
@@ -114,12 +115,13 @@ private:
 		}
 		if ("action widget button")
 		{
+			ui.window_select_button->setProperty("group", "get_button");
 			ui.mouse_position_button->setProperty("group", "get_button");
 			ui.color_rect_button->setProperty("group", "get_button");
 			ui.image_rect_button->setProperty("group", "get_button");
 			ui.image_shot_button->setProperty("group", "get_button");
 			ui.ocr_rect_button->setProperty("group", "get_button");
-			ui.window_select_button->setProperty("group", "get_button");
+			ui.textPad_button->setProperty("group", "get_button");
 		}
 		if ("action button")
 		{
@@ -197,6 +199,7 @@ private:
 			ui.ocr_var_edit->setProperty("group", "line_edit");
 			ui.varCondition_edit->setProperty("group", "line_edit");
 			ui.open_edit->setProperty("group", "line_edit");
+			ui.textPad_edit->setProperty("group", "line_edit");
 		}
 		if ("text edit")
 		{
@@ -434,6 +437,12 @@ private:
 				ui.open_change_button->setProperty("qit", type);
 				addButtons.append(ui.open_add_button);
 				changeButtons.append(ui.open_change_button);
+
+				type = QiType::textPad;
+				ui.textPad_add_button->setProperty("qit", type);
+				ui.textPad_change_button->setProperty("qit", type);
+				addButtons.append(ui.textPad_add_button);
+				changeButtons.append(ui.textPad_change_button);
 			}
 			if ("edit")
 			{
@@ -859,6 +868,11 @@ private:
 					Qi::popText->Popup(str);
 				}
 				});
+			// textPad
+			connect(ui.textPad_button, &QPushButton::clicked, this, [this] {
+				QTextDialog td(true);
+				ui.textPad_edit->setText(td.Start(ui.textPad_edit->text()));
+				});
 		}
 		// >>>> new action set here
 		// >>>> for widgets that require tables
@@ -978,8 +992,9 @@ private:
 				tableCurrent.sort([](const int& v1, const int& v2) { return v1 < v2; });
 				DisableMenus();
 				DisableButtons();
-				pv.hide();
-				rv.hide();
+				widget_pv.hide();
+				widget_rv.hide();
+				widget_td.hide();
 				// selction is solid
 				if (tableCurrent.empty())
 				{
@@ -999,37 +1014,37 @@ private:
 					case QiType::key: tab = tab_base; break;
 					case QiType::mouse: tab = tab_base;
 					{
-						const QiMouse& mouse = std::get<QiMouse>(var);
-						if (!mouse.move)
+						const QiMouse& ref = std::get<QiMouse>(var);
+						if (!ref.move)
 						{
 							POINT pt;
 							if (macro->wndState)
 							{
 								if (!macro->wndInfo.update()) SelectWindow();
-								POINT rpt = QiFn::P_WATR({ mouse.x, mouse.y }, macro->wndInfo.wnd);
+								POINT rpt = QiFn::P_WATR({ ref.x, ref.y }, macro->wndInfo.wnd);
 								pt = Window::pos(macro->wndInfo.wnd);
 								pt.x += rpt.x, pt.y += rpt.y;
 							}
-							else pt = QiFn::P_SATR({ mouse.x, mouse.y });
-							pv.Show(pt);
+							else pt = QiFn::P_SATR({ ref.x, ref.y });
+							widget_pv.Show(pt);
 						}
 					} break;
 					case QiType::copyText: tab = tab_text; break;
 					case QiType::color: tab = tab_color;
 					{
-						const QiColor& color = std::get<QiColor>(var);
+						const QiColor& ref = std::get<QiColor>(var);
 						ui.color_edit_button->setEnabled(true);
 						ui.color_edit2_button->setEnabled(true);
 						RECT rect;
 						if (macro->wndState)
 						{
 							if (!macro->wndInfo.update()) SelectWindow();
-							rect = QiFn::R_WATR(color.rect, macro->wndInfo.wnd);
+							rect = QiFn::R_WATR(ref.rect, macro->wndInfo.wnd);
 							POINT pt = Window::pos(macro->wndInfo.wnd);
 							rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 						}
-						else rect = QiFn::R_SATR(color.rect);
-						rv.Show(rect);
+						else rect = QiFn::R_SATR(ref.rect);
+						widget_rv.Show(rect);
 					} break;
 					case QiType::loop: tab = tab_loop;
 					{
@@ -1044,20 +1059,20 @@ private:
 					case QiType::resetPos: tab = tab_state; break;
 					case QiType::image: tab = tab_color;
 					{
-						const QiImage& image = std::get<QiImage>(var);
+						const QiImage& ref = std::get<QiImage>(var);
 						ui.image_edit_button->setEnabled(true);
 						ui.image_edit2_button->setEnabled(true);
 						RECT rect;
 						if (macro->wndState)
 						{
 							if (!macro->wndInfo.update()) SelectWindow();
-							rect = QiFn::R_WATR(image.rect, macro->wndInfo.wnd);
+							rect = QiFn::R_WATR(ref.rect, macro->wndInfo.wnd);
 							POINT pt = Window::pos(macro->wndInfo.wnd);
 							rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 						}
-						else rect = QiFn::R_SATR(image.rect);
-						rv.Show(rect);
-						WidgetSet(image);
+						else rect = QiFn::R_SATR(ref.rect);
+						widget_rv.Show(rect);
+						WidgetSet(ref);
 					} break;
 					case QiType::popText: tab = tab_text; break;
 					case QiType::savePos: tab = tab_state; break;
@@ -1086,19 +1101,19 @@ private:
 					} break;
 					case QiType::ocr: tab = tab_ocr;
 					{
-						const QiOcr& ocr = std::get<QiOcr>(var);
+						const QiOcr& ref = std::get<QiOcr>(var);
 						ui.ocr_edit_button->setEnabled(true);
 						ui.ocr_edit2_button->setEnabled(true);
 						RECT rect;
 						if (macro->wndState)
 						{
 							if (!macro->wndInfo.update()) SelectWindow();
-							rect = QiFn::R_WATR(ocr.rect, macro->wndInfo.wnd);
+							rect = QiFn::R_WATR(ref.rect, macro->wndInfo.wnd);
 							POINT pt = Window::pos(macro->wndInfo.wnd);
 							rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 						}
-						else rect = QiFn::R_SATR(ocr.rect);
-						rv.Show(rect);
+						else rect = QiFn::R_SATR(ref.rect);
+						widget_rv.Show(rect);
 					} break;
 					case QiType::varOperator: tab = tab_var; break;
 					case QiType::varCondition: tab = tab_var;
@@ -1107,6 +1122,12 @@ private:
 						ui.varCondition_edit2_button->setEnabled(true);
 					} break;
 					case QiType::open: tab = tab_dialog; break;
+					case QiType::textPad: tab = tab_text;
+					{
+						const QiTextPad& ref = std::get<QiTextPad>(var);
+						widget_td.edit()->setPlainText(ref.text);
+						widget_td.show();
+					} break;
 					}
 					if (!tabLock) ui.tabWidget->setCurrentIndex(tab);
 				}
@@ -1653,7 +1674,7 @@ private:
 		case QiType::copyText:
 		{
 			const QiCopyText& ref = std::get<QiCopyText>(var);
-			type = Qi::ui.text.acText;
+			type = Qi::ui.text.acCopyText;
 
 			param = ref.text.mid(0, 32);
 			if (ref.text.size() > 31) param += "...";
@@ -1893,6 +1914,14 @@ private:
 
 			param = ref.url.mid(0, 32);
 			if (ref.url.size() > 31) param += "...";
+		} break;
+		case QiType::textPad:
+		{
+			const QiTextPad& ref = std::get<QiTextPad>(var);
+			type = Qi::ui.text.acTextPad;
+
+			param = ref.text.mid(0, 32);
+			if (ref.text.size() > 31) param += "...";
 		} break;
 		}
 
@@ -2140,8 +2169,9 @@ private:
 		if (e->type() == EditEvent::close)
 		{
 			Qi::widget.macroEdited();
-			pv.hide();
-			rv.hide();
+			widget_pv.hide();
+			widget_rv.hide();
+			widget_td.hide();
 			close();
 		}
 		if (e->type() == EditEvent::debug_pause) SetDebugState(debug_pause);
@@ -2203,6 +2233,7 @@ private:
 		case QiType::varOperator: { const QiVarOperator& ref = std::get<QiVarOperator>(var); WidgetSet(ref); } break;
 		case QiType::varCondition: { const QiVarCondition& ref = std::get<QiVarCondition>(var); WidgetSet(ref); } break;
 		case QiType::open: { const QiOpen& ref = std::get<QiOpen>(var); WidgetSet(ref); } break;
+		case QiType::textPad: { const QiTextPad& ref = std::get<QiTextPad>(var); WidgetSet(ref); } break;
 		}
 	}
 	// >>>> new action set here
@@ -2238,6 +2269,7 @@ private:
 		case QiType::varOperator: action = WidgetGetVarOperator(); break;
 		case QiType::varCondition: action = WidgetGetVarCondition(); break;
 		case QiType::open: action = WidgetGetOpen(); break;
+		case QiType::textPad: action = WidgetGetTextPad(); break;
 		}
 		return action;
 	}
@@ -2567,6 +2599,12 @@ private:
 		open.url = ui.open_edit->text();
 		return open;
 	}
+	QiTextPad WidgetGetTextPad()
+	{
+		QiTextPad textPad;
+		textPad.text = ui.textPad_edit->text();
+		return textPad;
+	}
 	// load params to widget
 	void WidgetSet(const QiKey& key)
 	{
@@ -2683,5 +2721,9 @@ private:
 	void WidgetSet(const QiOpen& open)
 	{
 		ui.open_edit->setText(open.url);
+	}
+	void WidgetSet(const QiTextPad& textPad)
+	{
+		ui.textPad_edit->setText(textPad.text);
 	}
 };

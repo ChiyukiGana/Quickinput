@@ -34,3 +34,14 @@
 #include <variant>
 #include <functional>
 #include <fstream>
+
+// quickinput
+constexpr int key_info = 214;
+
+#pragma optimize("",off)
+static const char* GET_QUICKINPUT_MACKER_STRING()
+{
+	static const char QUICKINPUT_MACKER_STRING[] = "QUICKINPUT_(C)CHIYUKIGANA";
+	return QUICKINPUT_MACKER_STRING;
+}
+#pragma optimize("",on)

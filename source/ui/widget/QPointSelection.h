@@ -38,7 +38,7 @@ public:
 	}
 	static RECT screenRect() { SIZE size = screenSize(); return { 0, 0, size.cx - 1, size.cy - 1 }; }
 
-	QPointSelection() : QDialog()
+	QPointSelection()
 	{
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setAttribute(Qt::WA_TranslucentBackground);

@@ -31,6 +31,8 @@ using namespace QiTools;
 #include <QRectSelection.h>
 #include <QPointView.h>
 #include <QRectView.h>
+#include <QTextDialog.h>
+
 // quickinput
 #include "onnxocr/OnnxOcr.h"
 #include "scriptinterpreter.h"

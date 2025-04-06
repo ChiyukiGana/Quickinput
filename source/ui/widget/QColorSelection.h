@@ -12,7 +12,7 @@ class QColorBox : public QWidget
 {
 	Q_OBJECT
 public:
-	QColorBox(QWidget* parent = 0) : QWidget(parent) {}
+	QColorBox() {}
 	void setColor(QColor color) { this->color = color; repaint(); }
 private:
 	QColor color;
@@ -31,7 +31,7 @@ class QColorSelection : public QDialog
 
 public:
 
-	QColorSelection() : QDialog()
+	QColorSelection()
 	{
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setAttribute(Qt::WA_TranslucentBackground);

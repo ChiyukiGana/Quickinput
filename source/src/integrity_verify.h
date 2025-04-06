@@ -20,7 +20,7 @@ typedef struct _PROCESS_BASIC_INFORMATION_EX {
 #pragma optimize("",off)
 static const char* integrity_verify_GetTextSha256()
 {
-	static const char textSha256[] = "14e5b66f154b9cf1db5d7c5adf6067074661811bb197df7b6221ba89ab24802c";
+	static const char textSha256[] = "be94a182f4a93c650813c12532e524ba952fcf0047ea96f36bfdeab68654cb67";
 	return textSha256;
 }
 #pragma optimize("",on)
@@ -94,7 +94,6 @@ static void integrity_verify()
 		std::wstring exeName = QiTools::Process::exeName();
 		std::wstring exePath = QiTools::Process::exePath();
 		std::wstring runPath = QiTools::Process::runPath();
-
 		// 从内存创建
 		if (true)
 		{
@@ -115,7 +114,7 @@ static void integrity_verify()
 				break;
 			}
 		}
-		// 非资源管理器/开机启动
+		// 父进程
 		if (true)
 		{
 			PROCESS_BASIC_INFORMATION_EX pbi;
@@ -154,6 +153,21 @@ static void integrity_verify()
 				}
 				ExpandEnvironmentStringsW(L"%windir%\\System32\\svchost.exe", envPath, MAX_PATH);
 				if (_wcsicmp(path, envPath) == 0)
+				{
+					exist = true;
+					break;
+				}
+				if (std::wstring(path).find(L"devenv.exe") != std::wstring::npos ||
+					std::wstring(path).find(L"7zFM.exe") != std::wstring::npos ||
+					std::wstring(path).find(L"zip") != std::wstring::npos ||
+					std::wstring(path).find(L"Zip") != std::wstring::npos ||
+					std::wstring(path).find(L"ZIP") != std::wstring::npos ||
+					std::wstring(path).find(L"rar") != std::wstring::npos ||
+					std::wstring(path).find(L"Rar") != std::wstring::npos ||
+					std::wstring(path).find(L"RAR") != std::wstring::npos ||
+					std::wstring(path).find(L"压缩") != std::wstring::npos ||
+					std::wstring(path).find(L"压.exe") != std::wstring::npos
+					)
 				{
 					exist = true;
 					break;

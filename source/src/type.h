@@ -1,15 +1,9 @@
 ﻿#pragma once
 #include "inc_project.h"
-#pragma optimize("",off)
-static const char* GET_QUICKINPUT_MACKER_STRING()
-{
-	static const char QUICKINPUT_MACKER_STRING[] = "QUICKINPUT_(C)CHIYUKIGANA";
-	return QUICKINPUT_MACKER_STRING;
-}
-#pragma optimize("",on)
-constexpr int key_info = 214;
+
 constexpr int key_size = XBoxPad::key_end;
 constexpr int msg_exit = (WM_USER + 0xFF);
+
 namespace Qi
 {
 	// path
@@ -79,7 +73,7 @@ namespace QiUi
 		QString acPos;
 		QString acMove;
 		QString acLoop;
-		QString acText;
+		QString acCopyText;
 		QString acColor;
 		QString acEnd;
 		QString acEndLoop;
@@ -102,6 +96,7 @@ namespace QiUi
 		QString acVarCondition;
 		QString acMouseTrack;
 		QString acOpen;
+		QString acTextPad;
 		// state
 		QString trOn;
 		QString trOff;
@@ -141,6 +136,11 @@ namespace QiUi
 		PopText pop;
 	};
 }
+
+class QiInterpreter;
+class MacroGroup;
+class Action;
+
 enum InterpreterResult
 {
 	r_exit,
@@ -303,10 +303,11 @@ struct QiType
 		varOperator,
 		varCondition,
 		mouseTrack,
-		open
+		open,
+		textPad
 	};
 };
-using Actions = QiVector<class Action>;
+using Actions = QiVector<Action>;
 class QiBase
 {
 public:
@@ -542,6 +543,12 @@ public:
 	QString url;
 	QiOpen() : QiBase(QiType::open) {}
 };
+class QiTextPad : public QiBase
+{
+public:
+	QString text;
+	QiTextPad() : QiBase(QiType::textPad) {}
+};
 using ActionVariant = std::variant
 <
 	QiBase,
@@ -571,7 +578,8 @@ using ActionVariant = std::variant
 	QiVarOperator,
 	QiVarCondition,
 	QiMouseTrack,
-	QiOpen
+	QiOpen,
+	QiTextPad
 > ;
 class Action : public ActionVariant
 {
@@ -592,8 +600,6 @@ public:
 	}
 };
 ////////////////// Macro
-class QiInterpreter;
-class MacroGroup;
 class Macro
 {
 public:

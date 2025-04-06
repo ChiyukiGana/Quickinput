@@ -30,7 +30,7 @@ namespace QiFn
 	QString ParseQuickClick(QString text, short key);
 	QString ParseMacro(QString text, QString macro, int count);
 	void StatePop(bool state);
-	void WindowPop(QString window, bool state);
+	void WindowPop(const QString& window, bool state);
 	void QuickClickPop(bool state);
 	void MacroPop(Macro* macro, bool state);
 	// State

@@ -137,6 +137,7 @@
     <ClInclude Include="source\src\tools\xboxpad.h" />
     <ClInclude Include="source\src\type.h" />
     <ClInclude Include="source\src\update.h" />
+    <QtMoc Include="source\ui\widget\QTextDialog.h" />
     <QtMoc Include="source\ui\VarViewUi.h" />
     <QtMoc Include="source\ui\widget\QEditDialog.h" />
     <QtMoc Include="source\ui\widget\QMacroTable.h" />
