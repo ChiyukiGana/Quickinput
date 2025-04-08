@@ -112,7 +112,7 @@
     <ClInclude Include="source\src\integrity_verify.h" />
     <ClInclude Include="source\src\interpreter.h" />
     <ClInclude Include="source\src\json.h" />
-    <ClInclude Include="source\src\onnxocr\OnnxOcr.h" />
+    <ClInclude Include="source\src\ocr\QiOcrInterface.h" />
     <ClInclude Include="source\src\scriptinterpreter.h" />
     <ClInclude Include="source\src\thread.h" />
     <ClInclude Include="source\src\tools\base.h" />
@@ -124,6 +124,7 @@
     <ClInclude Include="source\src\tools\msgbox.h" />
     <ClInclude Include="source\src\tools\path.h" />
     <ClInclude Include="source\src\tools\process.h" />
+    <ClInclude Include="source\src\tools\restool.h" />
     <ClInclude Include="source\src\tools\sound.h" />
     <ClInclude Include="source\src\tools\string.h" />
     <ClInclude Include="source\src\tools\system.h" />

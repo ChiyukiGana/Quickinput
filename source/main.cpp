@@ -945,12 +945,7 @@ int main(int argc, char* argv[])
 	Init(); // json, font, style
 
 	// ocr
-	if (File::PathState(L"OCR"))
-	{
-		QiOnnxOcr* ocr = new QiOnnxOcr();
-		if (ocr->isInit()) Qi::ocr = ocr;
-		else delete ocr;
-	}
+	if (File::PathState(L"OCR")) Qi::ocr = QiOcrInterfaceInit();
 
 	QApplication application(argc, argv);
 	Qi::application = &application; // save to global

@@ -281,6 +281,7 @@ namespace QiJson
 		jMacro.insert("document_charset", "UTF8");
 		jMacro.insert("app", "QuickInput");
 		jMacro.insert("type", "QuickInputMacro");
+		jMacro.insert("name", macro.name);
 		jMacro.insert("wndState", (bool)macro.wndState);
 		jMacro.insert("wndChild", (bool)macro.wndInput.child);
 		jMacro.insert("wndName", macro.wndInfo.wndName);

@@ -813,7 +813,7 @@ struct Widget
 
 namespace Qi
 {
-	inline QiOnnxOcr* ocr = nullptr;
+	inline QiOcrInterface* ocr = nullptr;
 	inline QiScriptInterpreter interpreter;
 	// for setStyle
 	inline QApplication* application = nullptr;

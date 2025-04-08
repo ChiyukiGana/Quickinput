@@ -34,6 +34,6 @@ using namespace QiTools;
 #include <QTextDialog.h>
 
 // quickinput
-#include "onnxocr/OnnxOcr.h"
+#include "ocr/QiOcrInterface.h"
 #include "scriptinterpreter.h"
 #include "type.h"

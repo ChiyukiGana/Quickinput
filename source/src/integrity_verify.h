@@ -20,7 +20,7 @@ typedef struct _PROCESS_BASIC_INFORMATION_EX {
 #pragma optimize("",off)
 static const char* integrity_verify_GetTextSha256()
 {
-	static const char textSha256[] = "be94a182f4a93c650813c12532e524ba952fcf0047ea96f36bfdeab68654cb67";
+	static const char textSha256[] = "8a69c696fd1c0a638e975a7a657100996e59a94423b0d6ed3de9b6f5741bddf1";
 	return textSha256;
 }
 #pragma optimize("",on)
