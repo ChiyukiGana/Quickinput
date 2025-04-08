@@ -117,6 +117,7 @@ private:
 		{
 			ui.window_select_button->setProperty("group", "get_button");
 			ui.mouse_position_button->setProperty("group", "get_button");
+			ui.mouse_move_button->setProperty("group", "get_button");
 			ui.color_rect_button->setProperty("group", "get_button");
 			ui.image_rect_button->setProperty("group", "get_button");
 			ui.image_shot_button->setProperty("group", "get_button");
@@ -488,6 +489,12 @@ private:
 				ui.image_shot_button->installEventFilter(this);
 			}
 			for (auto& i : changeButtons) i->setDisabled(true);
+
+			if ("move")
+			{
+				ui.mouse_move_button->setText("×");
+				ui.mouse_move_button->setDisabled(true);
+			}
 		}
 		if ("tooltip")
 		{
@@ -713,6 +720,27 @@ private:
 				mouse.y = pt.y;
 				WidgetSet(mouse);
 				});
+			connect(ui.mouse_move_button, &QPushButton::clicked, this, [this] {
+				QDistanceSelector ds;
+				RECT rect;
+				if (macro->wndState)
+				{
+					if (!macro->wndInfo.update())
+					{
+						SelectWindow();
+					}
+					RECT wrect = Window::rect(macro->wndInfo.wnd);
+					rect = ds.Start();
+				}
+				else
+				{
+					rect = ds.Start();
+				}
+				QiMouse mouse(WidgetGetMouse());
+				mouse.x = rect.right - rect.left;
+				mouse.y = rect.bottom - rect.top;
+				WidgetSet(mouse);
+				});
 			connect(ui.mouse_position_radio, &QRadioButton::toggled, this, [this](bool state) {
 				if (state)
 				{
@@ -721,7 +749,9 @@ private:
 					if (ui.mouse_x_edit->text().toInt() < 0) ui.mouse_x_edit->setText("0");
 					if (ui.mouse_y_edit->text().toInt() < 0) ui.mouse_y_edit->setText("0");
 					ui.mouse_position_button->setText("+");
-					ui.mouse_position_button->setDisabled(0);
+					ui.mouse_position_button->setEnabled(true);
+					ui.mouse_move_button->setText("×");
+					ui.mouse_move_button->setDisabled(true);
 				}
 				});
 			connect(ui.mouse_move_radio, &QRadioButton::toggled, this, [this](bool state) {
@@ -731,6 +761,8 @@ private:
 					ui.mouse_y_edit->setValidator(new QIntValidator(posMin, posMax, this));
 					ui.mouse_position_button->setText("×");
 					ui.mouse_position_button->setDisabled(true);
+					ui.mouse_move_button->setText("+");
+					ui.mouse_move_button->setEnabled(true);
 				}
 				});
 			// delay

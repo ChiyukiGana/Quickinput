@@ -1212,6 +1212,40 @@
                   </widget>
                  </item>
                  <item>
+                  <widget class="QPushButton" name="mouse_move_button">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>20</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>20</width>
+                     <height>20</height>
+                    </size>
+                   </property>
+                   <property name="focusPolicy">
+                    <enum>Qt::ClickFocus</enum>
+                   </property>
+                   <property name="toolTip">
+                    <string/>
+                   </property>
+                   <property name="text">
+                    <string>+</string>
+                   </property>
+                   <property name="autoDefault">
+                    <bool>false</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
                   <spacer name="mouse_spacer">
                    <property name="orientation">
                     <enum>Qt::Horizontal</enum>
@@ -6930,13 +6964,13 @@
                    <property name="minimumSize">
                     <size>
                      <width>50</width>
-                     <height>20</height>
+                     <height>24</height>
                     </size>
                    </property>
                    <property name="maximumSize">
                     <size>
                      <width>50</width>
-                     <height>20</height>
+                     <height>24</height>
                     </size>
                    </property>
                    <property name="focusPolicy">
@@ -8509,6 +8543,9 @@
           </property>
           <item>
            <widget class="QCheckBox" name="tab_lock_check">
+            <property name="focusPolicy">
+             <enum>Qt::ClickFocus</enum>
+            </property>
             <property name="text">
              <string>锁定标签</string>
             </property>
@@ -8516,6 +8553,9 @@
           </item>
           <item>
            <widget class="QCheckBox" name="tab_hideTip_check">
+            <property name="focusPolicy">
+             <enum>Qt::ClickFocus</enum>
+            </property>
             <property name="text">
              <string>隐藏提示</string>
             </property>

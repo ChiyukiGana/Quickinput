@@ -46,16 +46,27 @@ public:
         return min + (rand() % (max - min + 1));
     }
 
-    static std::string removeCommas(const std::string& str)
+    static std::string removeStrs(const std::string& str, const std::vector<std::string>& strs_rm)
     {
         std::string result = str;
-        result.erase(std::remove(result.begin(), result.end(), ','), result.end());
+        for (const std::string& i : strs_rm)
+        {
+            size_t pos = 0;
+            while ((pos = result.find(i, pos)) != std::string::npos) result.erase(pos, i.length());
+        }
         return result;
     }
-    static std::string removePoints(const std::string& str)
+    static std::string removeStr(const std::string& str, const std::string& str_rm)
     {
         std::string result = str;
-        result.erase(std::remove(result.begin(), result.end(), '.'), result.end());
+        size_t pos = 0;
+        while ((pos = result.find(str_rm, pos)) != std::string::npos) result.erase(pos, str_rm.length());
+        return result;
+    }
+    static std::string removeChars(const std::string& str, const std::string& chs_rm)
+    {
+        std::string result = str;
+        result.erase(std::remove_if(result.begin(), result.end(), [&chs_rm](char c) { return chs_rm.find(c) != std::string::npos; }), result.end());
         return result;
     }
     static std::string removeChars(const std::string& str)
@@ -63,10 +74,23 @@ public:
         std::string result;
         for (char ch : str)
         {
-            if (ch >= '0' && ch <= '9')
-                result += ch;
+            if (ch >= '0' && ch <= '9') result += ch;
         }
         return result;
+    }
+    static std::string removeChar(const std::string& str, char ch_rm)
+    {
+        std::string result = str;
+        result.erase(std::remove(result.begin(), result.end(), ch_rm), result.end());
+        return result;
+    }
+    static std::string removeCommas(const std::string& str)
+    {
+        return removeChar(str, ',');
+    }
+    static std::string removePoints(const std::string& str)
+    {
+        return removeChar(str, '.');
     }
 
     static bool isNumber(const std::string& str)
@@ -409,10 +433,23 @@ public:
     class QiFunc_rmc : public QiFunc
     {
     public:
-        QiFunc_rmc() : QiFunc(1) {}
+        QiFunc_rmc() : QiFunc(1, 2) {}
         QiVar exec(const std::vector<QiVar>& args) const
         {
+            if (args.size() == 2) return QiVar::removeChars(args[0].toString(), args[1].toString());
             return QiVar::removeChars(args[0].toString());
+        }
+    };
+    class QiFunc_rms : public QiFunc
+    {
+    public:
+        QiFunc_rms() : QiFunc(1, ~size_t(0)) {}
+        QiVar exec(const std::vector<QiVar>& args) const
+        {
+            if (args.size() == 1) return QiVar::removeChars(args[0].toString());
+            std::string result = args[0].toString();
+            for (size_t i = 1; i < args.size(); i++) result = QiVar::removeStr(result, args[i].toString());
+            return result;
         }
     };
     class QiFunc_len : public QiFunc
@@ -535,6 +572,7 @@ public:
         insert({ "num", std::make_unique<QiFunc_num>() });
         insert({ "int", std::make_unique<QiFunc_int>() });
         insert({ "rmc", std::make_unique<QiFunc_rmc>() });
+        insert({ "rms", std::make_unique<QiFunc_rms>() });
         insert({ "len", std::make_unique<QiFunc_len>() });
         insert({ "pop", std::make_unique<QiFunc_pop>() });
         insert({ "sleep", std::make_unique<QiFunc_sleep>() });

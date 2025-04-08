@@ -29,6 +29,7 @@ using namespace QiTools;
 #include <QColorSelection.h>
 #include <QPointSelection.h>
 #include <QRectSelection.h>
+#include <QDistanceSelection.h>
 #include <QPointView.h>
 #include <QRectView.h>
 #include <QTextDialog.h>
