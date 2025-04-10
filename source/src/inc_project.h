@@ -21,6 +21,7 @@
 #include <src/tools/threadpool.h>
 #include <src/tools/task.h>
 #include <src/tools/time.h>
+#include <src/tools/texteditbox.h>
 using namespace QiTools;
 // custom widget
 #include <QKeyEdit.h>

@@ -9,21 +9,17 @@
 #include <src/tools/process.h>
 #pragma comment(lib,"ntdll.lib")
 
-typedef struct _PROCESS_BASIC_INFORMATION_EX {
+#pragma optimize("",off)
+static const char integrity_verify_textSha256[] = "f3add484abc07b8854f638f15a5da4bf3cf8f5ae39eae4fe58b668f7c02d7b87";
+#pragma optimize("",on)
+
+struct PROCESS_BASIC_INFORMATION_EX {
 	PVOID Reserved1;
 	PPEB PebBaseAddress;
 	PVOID Reserved2[2];
 	ULONG_PTR UniqueProcessId;
 	DWORD ParentProcessId;
-} PROCESS_BASIC_INFORMATION_EX;
-
-#pragma optimize("",off)
-static const char* integrity_verify_GetTextSha256()
-{
-	static const char textSha256[] = "3a52168b64dd05ac32489a5b96ff7cf885352ce6239d19d4ff0736b8ef23690d";
-	return textSha256;
-}
-#pragma optimize("",on)
+};
 
 static std::string integrity_verify_Sha256TextSection(std::wstring filePath = std::wstring()) {
 	if (filePath.empty())
@@ -188,7 +184,7 @@ static void integrity_verify()
 				MessageBoxW(nullptr, L"程序完整性验证错误", L"Error", MB_ICONERROR);
 				exit(0);
 			}
-			if (sha256 != integrity_verify_GetTextSha256())
+			if (sha256 != integrity_verify_textSha256)
 			{
 				failed = true;
 				break;

@@ -8,16 +8,22 @@ class AboutUi : public QWidget
 	Q_OBJECT;
 	Ui::AboutUiClass ui;
 	QiUpdate* update;
+	QString version_res;
 	std::string version, content;
 public:
 	AboutUi(QWidget* parent) : QWidget(parent)
 	{
 		ui.setupUi(this);
 		setWindowFlags(Qt::FramelessWindowHint);
-		update = new QiUpdate(this, ui.version_label->text());
+		version_res = ui.version_label->text();
+		update = new QiUpdate(this, version_res);
 		ui.url_label->installEventFilter(this);
 		ui.license_label->installEventFilter(this);
 		if (update->good()) update->getlatest();
+	}
+	QString Version() const
+	{
+		return version_res;
 	}
 private:
 	bool eventFilter(QObject* obj, QEvent* e)

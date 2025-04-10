@@ -38,12 +38,15 @@ public:
 	}
 	static RECT screenRect() { SIZE size = screenSize(); return { 0, 0, size.cx - 1, size.cy - 1 }; }
 
-	QPointSelection()
+	QPointSelection() : lb(QLabel(this))
 	{
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setAttribute(Qt::WA_TranslucentBackground);
 		setCursor(Qt::CrossCursor);
-		QFont font("Microsoft YaHei"); font.setPixelSize(16); lb.setParent(this), lb.setFont(font), lb.setAlignment(Qt::AlignCenter), lb.setStyleSheet("color:white;background-color:black");
+		QFont font("Microsoft YaHei"); font.setPixelSize(16);
+		lb.setFont(font);
+		lb.setAlignment(Qt::AlignCenter);
+		lb.setStyleSheet("color:white;background-color:black");
 	}
 
 	POINT Start(RECT rect = screenRect())

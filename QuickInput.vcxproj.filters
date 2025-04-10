@@ -132,9 +132,6 @@
     <ClInclude Include="source\src\tools\vector.h">
       <Filter>Header Files\QiTools</Filter>
     </ClInclude>
-    <ClInclude Include="source\src\tools\windows.h">
-      <Filter>Header Files\QiTools</Filter>
-    </ClInclude>
     <ClInclude Include="source\src\tools\xboxpad.h">
       <Filter>Header Files\QiTools</Filter>
     </ClInclude>
@@ -158,6 +155,12 @@
     </ClInclude>
     <ClInclude Include="source\src\ocr\QiOcrInterface.h">
       <Filter>Header Files\OCR</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\tools\window.h">
+      <Filter>Header Files\QiTools</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\tools\texteditbox.h">
+      <Filter>Header Files\QiTools</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

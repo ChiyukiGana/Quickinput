@@ -1,4 +1,7 @@
-﻿#include <ui/MainUi.h>
+﻿#pragma optimize("",off)
+static const char QUICKINPUT_COPYRIGHT_STRING[] = "QUICKINPUT_(C)CHIYUKIGANA";
+#pragma optimize("",on)
+#include <ui/MainUi.h>
 #include <src/inc_header.h>
 
 #define INTEGRITY_VERIFY
@@ -88,6 +91,7 @@ void Init()
 		Qi::ui.text.acMouseTrack = (QString::fromUtf8("鼠标轨迹") + Qi::ui.text.syTrack);
 		Qi::ui.text.acOpen = (QString::fromUtf8("打开") + Qi::ui.text.syLink);
 		Qi::ui.text.acTextPad = (QString::fromUtf8("文本") + Qi::ui.text.syText);
+		Qi::ui.text.acEditDialog = (QString::fromUtf8("编辑框") + Qi::ui.text.syText);
 		// state
 		Qi::ui.text.trOn = (QString::fromUtf8("启用") + Qi::ui.text.syOn);
 		Qi::ui.text.trOff = (QString::fromUtf8("禁用") + Qi::ui.text.syOff);
@@ -928,6 +932,7 @@ QToolTip,
 }
 int main(int argc, char* argv[])
 {
+	std::cout << QUICKINPUT_COPYRIGHT_STRING << std::endl;
 	std::locale::global(std::locale(".UTF8")); // set utf8 for all std streams
 	Process::RunPath(); // reset work path to exe path
 
@@ -955,6 +960,7 @@ int main(int argc, char* argv[])
 	Qi::windowSelection = new QWindowSelection; // select a window of global widget
 	Qi::interpreter_pop = [](std::string text, int time) { Qi::popText->Popup(time, text.c_str(), RGB(223, 223, 223)); };
 	MainUi mainWindow;
+	Qi::version = mainWindow.Version();
 	application.exec();
 	return 0;
 }

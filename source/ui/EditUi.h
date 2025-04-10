@@ -144,6 +144,7 @@ private:
 			ui.window_child_check->setProperty("group", "check");
 			ui.keyBlock_move_check->setProperty("group", "check");
 			ui.ocr_match_check->setProperty("group", "check");
+			ui.editDialog_mult_check->setProperty("group", "check");
 		}
 		if ("radio button")
 		{
@@ -201,6 +202,9 @@ private:
 			ui.varCondition_edit->setProperty("group", "line_edit");
 			ui.open_edit->setProperty("group", "line_edit");
 			ui.textPad_edit->setProperty("group", "line_edit");
+			ui.editDialog_title_edit->setProperty("group", "line_edit");
+			ui.editDialog_text_edit->setProperty("group", "line_edit");
+			ui.editDialog_var_edit->setProperty("group", "line_edit");
 		}
 		if ("text edit")
 		{
@@ -444,6 +448,12 @@ private:
 				ui.textPad_change_button->setProperty("qit", type);
 				addButtons.append(ui.textPad_add_button);
 				changeButtons.append(ui.textPad_change_button);
+
+				type = QiType::editDialog;
+				ui.editDialog_add_button->setProperty("qit", type);
+				ui.editDialog_change_button->setProperty("qit", type);
+				addButtons.append(ui.editDialog_add_button);
+				changeButtons.append(ui.editDialog_change_button);
 			}
 			if ("edit")
 			{
@@ -1015,7 +1025,7 @@ private:
 				});
 			// selection
 			// >>>> new action set here
-			// >>>> for switching tags, previewing content
+			// >>>> for switching tabs, previewing content
 			connect(ui.action_table, &QTableWidget::itemSelectionChanged, this, [this] {
 				tableCurrentPrev = tableCurrent;
 				tableCurrent.clear();
@@ -1160,6 +1170,7 @@ private:
 						widget_td.edit()->setPlainText(ref.text);
 						widget_td.show();
 					} break;
+					case QiType::editDialog: tab = tab_dialog; break;
 					}
 					if (!tabLock) ui.tabWidget->setCurrentIndex(tab);
 				}
@@ -1493,16 +1504,9 @@ private:
 		}
 		return false;
 	}
-	// ids
 	bool IterActions(const Actions& actions, std::function<bool(const Action&)> callBack, int type = QiType::none)
 	{
-		for (auto& i : actions)
-		{
-			if ((type == QiType::none || i.index() == type) && callBack(i)) return true;
-			if (i.base().next.not_empty() && IterActions(i.base().next, callBack, type)) return true;
-			if (i.base().next2.not_empty() && IterActions(i.base().next2, callBack, type)) return true;
-		}
-		return false;
+		return IterActions((Actions&) actions, (std::function<bool(Action&)>)callBack, type);
 	}
 	// type: jumpPoint, jump, block, blockExec
 	QiVector<int> LoadIds(const Actions& actions, int type)
@@ -1690,7 +1694,7 @@ private:
 			else type = Qi::ui.text.acPos;
 
 			param = QString::number(ref.x);
-			param += " - ";
+			param += " , ";
 			param += QString::number(ref.y);
 			if (ref.ex)
 			{
@@ -1954,6 +1958,20 @@ private:
 
 			param = ref.text.mid(0, 32);
 			if (ref.text.size() > 31) param += "...";
+		} break;
+		case QiType::editDialog:
+		{
+			const QiEditDialog& ref = std::get<QiEditDialog>(var);
+			type = Qi::ui.text.acEditDialog;
+
+			param = ref.title.mid(0, 8);
+			if (ref.title.size() > 7) param += "...";
+			param += " | ";
+			param += ref.text.mid(0, 16);
+			if (ref.text.size() > 15) param += "...";
+			param += " | ";
+			param += ref.var.mid(0, 8);
+			if (ref.var.size() > 7) param += "...";
 		} break;
 		}
 
@@ -2247,63 +2265,64 @@ private:
 		const Action& var = actions->at(p);
 		switch (var.index())
 		{
-		case QiType::delay: { const QiDelay& ref = std::get<QiDelay>(var); WidgetSet(ref); } break;
-		case QiType::key: { const QiKey& ref = std::get<QiKey>(var); WidgetSet(ref); } break;
-		case QiType::mouse: { const QiMouse& ref = std::get<QiMouse>(var); WidgetSet(ref); } break;
-		case QiType::copyText: { const QiCopyText& ref = std::get<QiCopyText>(var); WidgetSet(ref); } break;
-		case QiType::color: { const QiColor& ref = std::get<QiColor>(var); WidgetSet(ref); } break;
-		case QiType::loop: { const QiLoop& ref = std::get<QiLoop>(var); WidgetSet(ref); } break;
-		case QiType::keyState: { const QiKeyState& ref = std::get<QiKeyState>(var); WidgetSet(ref); } break;
-		case QiType::image: { const QiImage& ref = std::get<QiImage>(var); WidgetSet(ref); } break;
-		case QiType::popText: { const QiPopText& ref = std::get<QiPopText>(var); WidgetSet(ref); } break;
-		case QiType::timer: { const QiTimer& ref = std::get<QiTimer>(var); WidgetSet(ref); } break;
-		case QiType::dialog: { const QiDialog& ref = std::get<QiDialog>(var); WidgetSet(ref); } break;
-		case QiType::quickInput: { const QiQuickInput& ref = std::get<QiQuickInput>(var); WidgetSet(ref); } break;
-		case QiType::keyBlock: { const QiKeyBlock& ref = std::get<QiKeyBlock>(var); WidgetSet(ref); } break;
-		case QiType::clock: { const QiClock& ref = std::get<QiClock>(var); WidgetSet(ref); } break;
-		case QiType::ocr: { const QiOcr& ref = std::get<QiOcr>(var); WidgetSet(ref); } break;
-		case QiType::varOperator: { const QiVarOperator& ref = std::get<QiVarOperator>(var); WidgetSet(ref); } break;
-		case QiType::varCondition: { const QiVarCondition& ref = std::get<QiVarCondition>(var); WidgetSet(ref); } break;
-		case QiType::open: { const QiOpen& ref = std::get<QiOpen>(var); WidgetSet(ref); } break;
-		case QiType::textPad: { const QiTextPad& ref = std::get<QiTextPad>(var); WidgetSet(ref); } break;
+		case QiType::delay: WidgetSet(std::get<QiDelay>(var)); break;
+		case QiType::key: WidgetSet(std::get<QiKey>(var)); break;
+		case QiType::mouse: WidgetSet(std::get<QiMouse>(var)); break;
+		case QiType::copyText: WidgetSet(std::get<QiCopyText>(var)); break;
+		case QiType::color: WidgetSet(std::get<QiColor>(var)); break;
+		case QiType::loop: WidgetSet(std::get<QiLoop>(var)); break;
+		case QiType::keyState: WidgetSet(std::get<QiKeyState>(var)); break;
+		case QiType::image: WidgetSet(std::get<QiImage>(var)); break;
+		case QiType::popText: WidgetSet(std::get<QiPopText>(var)); break;
+		case QiType::timer: WidgetSet(std::get<QiTimer>(var)); break;
+		case QiType::dialog: WidgetSet(std::get<QiDialog>(var)); break;
+		case QiType::quickInput: WidgetSet(std::get<QiQuickInput>(var)); break;
+		case QiType::keyBlock: WidgetSet(std::get<QiKeyBlock>(var)); break;
+		case QiType::clock: WidgetSet(std::get<QiClock>(var)); break;
+		case QiType::ocr: WidgetSet(std::get<QiOcr>(var)); break;
+		case QiType::varOperator: WidgetSet(std::get<QiVarOperator>(var)); break;
+		case QiType::varCondition: WidgetSet(std::get<QiVarCondition>(var)); break;
+		case QiType::open: WidgetSet(std::get<QiOpen>(var)); break;
+		case QiType::textPad: WidgetSet(std::get<QiTextPad>(var)); break;
+		case QiType::editDialog: WidgetSet(std::get<QiEditDialog>(var)); break;
 		}
 	}
 	// >>>> new action set here
 	// >>>> for action param load from widget
 	Action ItemGet(int type)
 	{
-		Action action;
 		switch (type)
 		{
-		case QiType::end: action = QiEnd(); break;
-		case QiType::delay: action = WidgetGetDelay(); break;
-		case QiType::key: action = WidgetGetKey(); break;
-		case QiType::mouse: action = WidgetGetMouse(); break;
-		case QiType::copyText: action = WidgetGetText(); break;
-		case QiType::color: action = WidgetGetColor(); break;
-		case QiType::loop: action = WidgetGetLoop(); break;
-		case QiType::loopEnd: action = QiLoopEnd(); break;
-		case QiType::keyState: action = WidgetGetKeyState(); break;
-		case QiType::resetPos: action = QiResetPos(); break;
-		case QiType::image: action = WidgetGetImage(); break;
-		case QiType::popText: action = WidgetGetPopText(); break;
-		case QiType::savePos: action = QiSavePos(); break;
-		case QiType::timer: action = WidgetGetTimer(); break;
-		case QiType::jump: action = WidgetGetJump(); break;
-		case QiType::jumpPoint: action = WidgetGetJumpPoint(); break;
-		case QiType::dialog: action = WidgetGetDialog(); break;
-		case QiType::block: action = WidgetGetBlock(); break;
-		case QiType::blockExec: action = WidgetGetBlockExec(); break;
-		case QiType::quickInput: action = WidgetGetQuickInput(); break;
-		case QiType::keyBlock: action = WidgetGetKeyBlock(); break;
-		case QiType::clock: action = WidgetGetClock(); break;
-		case QiType::ocr: action = WidgetGetOcr(); break;
-		case QiType::varOperator: action = WidgetGetVarOperator(); break;
-		case QiType::varCondition: action = WidgetGetVarCondition(); break;
-		case QiType::open: action = WidgetGetOpen(); break;
-		case QiType::textPad: action = WidgetGetTextPad(); break;
+		case QiType::end: return QiEnd();
+		case QiType::delay: return WidgetGetDelay();
+		case QiType::key: return WidgetGetKey();
+		case QiType::mouse: return WidgetGetMouse();
+		case QiType::copyText: return WidgetGetText();
+		case QiType::color: return WidgetGetColor();
+		case QiType::loop: return WidgetGetLoop();
+		case QiType::loopEnd: return QiLoopEnd();
+		case QiType::keyState: return WidgetGetKeyState();
+		case QiType::resetPos: return QiResetPos();
+		case QiType::image: return WidgetGetImage();
+		case QiType::popText: return WidgetGetPopText();
+		case QiType::savePos: return QiSavePos();
+		case QiType::timer: return WidgetGetTimer();
+		case QiType::jump: return WidgetGetJump();
+		case QiType::jumpPoint: return WidgetGetJumpPoint();
+		case QiType::dialog: return WidgetGetDialog();
+		case QiType::block: return WidgetGetBlock();
+		case QiType::blockExec: return WidgetGetBlockExec();
+		case QiType::quickInput: return WidgetGetQuickInput();
+		case QiType::keyBlock: return WidgetGetKeyBlock();
+		case QiType::clock: return WidgetGetClock();
+		case QiType::ocr: return WidgetGetOcr();
+		case QiType::varOperator: return WidgetGetVarOperator();
+		case QiType::varCondition: return WidgetGetVarCondition();
+		case QiType::open: return WidgetGetOpen();
+		case QiType::textPad: return WidgetGetTextPad();
+		case QiType::editDialog: return WidgetGetEditDialog();
 		}
-		return action;
+		return Action();
 	}
 	void ItemMove(bool up, int len)
 	{
@@ -2637,6 +2656,16 @@ private:
 		textPad.text = ui.textPad_edit->text();
 		return textPad;
 	}
+	QiEditDialog WidgetGetEditDialog()
+	{
+		QiEditDialog editDialog;
+		editDialog.mult = ui.editDialog_mult_check->isChecked();
+		editDialog.title = ui.editDialog_title_edit->text();
+		editDialog.text = ui.editDialog_text_edit->text();
+		editDialog.var = ui.editDialog_var_edit->text();
+		return editDialog;
+	}
+
 	// load params to widget
 	void WidgetSet(const QiKey& key)
 	{
@@ -2757,5 +2786,12 @@ private:
 	void WidgetSet(const QiTextPad& textPad)
 	{
 		ui.textPad_edit->setText(textPad.text);
+	}
+	void WidgetSet(const QiEditDialog& editDialog)
+	{
+		ui.editDialog_mult_check->setChecked(editDialog.mult);
+		ui.editDialog_title_edit->setText(editDialog.title);
+		ui.editDialog_text_edit->setText(editDialog.text);
+		ui.editDialog_var_edit->setText(editDialog.var);
 	}
 };

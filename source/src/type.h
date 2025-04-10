@@ -97,6 +97,7 @@ namespace QiUi
 		QString acMouseTrack;
 		QString acOpen;
 		QString acTextPad;
+		QString acEditDialog;
 		// state
 		QString trOn;
 		QString trOff;
@@ -212,7 +213,7 @@ struct WndInput
 			{
 				// select minimum window
 				HWND min = nullptr;
-				int minArea = (int)((~(0x8000000))-1);
+				int minArea = (int)((~(0x8000000)) - 1);
 				for (int i = 0; i < inrect.size(); i++)
 				{
 					int area = RectArea(Window::rect(inrect[i]));
@@ -304,7 +305,8 @@ struct QiType
 		varCondition,
 		mouseTrack,
 		open,
-		textPad
+		textPad,
+		editDialog
 	};
 };
 using Actions = QiVector<Action>;
@@ -473,7 +475,7 @@ public:
 	int time = 0;
 	QiClock() : QiBase(QiType::clock) {}
 };
-class QiOcr: public QiBase
+class QiOcr : public QiBase
 {
 public:
 	bool match = false;
@@ -549,6 +551,15 @@ public:
 	QString text;
 	QiTextPad() : QiBase(QiType::textPad) {}
 };
+class QiEditDialog : public QiBase
+{
+public:
+	bool mult = false;
+	QString title;
+	QString text;
+	QString var;
+	QiEditDialog() : QiBase(QiType::editDialog) {}
+};
 using ActionVariant = std::variant
 <
 	QiBase,
@@ -579,7 +590,8 @@ using ActionVariant = std::variant
 	QiVarCondition,
 	QiMouseTrack,
 	QiOpen,
-	QiTextPad
+	QiTextPad,
+	QiEditDialog
 > ;
 class Action : public ActionVariant
 {
@@ -694,7 +706,7 @@ public:
 class MacroGroups : public QiVector<MacroGroup>
 {
 	using Base = QiVector<MacroGroup>;
-public: 
+public:
 	using Base::Base;
 	QString makeName(const QString& groupName = "组")
 	{
@@ -720,24 +732,27 @@ public:
 	}
 };
 ////////////////// Datas
-struct QuickClick
+struct FuncData
 {
-	bool state = 0;
-	int mode = 0;
-	int key = 0;
-	int delay = 10;
-	HANDLE thread = 0;
-};
-struct ShowClock
-{
-	bool state = false;
-	int key = 0;
-};
-struct WndActive
-{
-	bool state = false;
-	WndInfo wndInfo;
-	HANDLE thread = 0;
+	struct QuickClick
+	{
+		bool state = 0;
+		int mode = 0;
+		int key = 0;
+		int delay = 10;
+		HANDLE thread = 0;
+	} quickClick;
+	struct ShowClock
+	{
+		bool state = false;
+		int key = 0;
+	} showClock;
+	struct WndActive
+	{
+		bool state = false;
+		WndInfo wndInfo;
+		HANDLE thread = 0;
+	} wndActive;
 };
 struct SettingsData
 {
@@ -753,11 +768,9 @@ struct SettingsData
 	bool tabLock = false;
 	bool tabHideTip = false;
 };
-struct FuncData
+struct FoldData
 {
-	QuickClick quickClick;
-	ShowClock showClock;
-	WndActive wndActive;
+	std::map<QString, bool> group;
 };
 struct Widget
 {
@@ -813,6 +826,7 @@ struct Widget
 
 namespace Qi
 {
+	inline QString version;
 	inline QiOcrInterface* ocr = nullptr;
 	inline QiScriptInterpreter interpreter;
 	// for setStyle
@@ -834,6 +848,7 @@ namespace Qi
 	// data
 	inline FuncData fun;
 	inline SettingsData set;
+	inline FoldData fold;
 	inline Widget widget;
 	inline QPopText* popText = nullptr;
 	inline QWindowSelection* windowSelection = nullptr;

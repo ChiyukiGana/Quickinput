@@ -144,6 +144,10 @@ public:
     {
         return toNumber(str);
     }
+    static bool toBool(const std::string& str)
+    {
+        return str != "0" && stricmp(str.c_str(), "false") != 0;
+    }
     static std::string toString(double num)
     {
         std::string str = std::to_string(num);
@@ -171,12 +175,16 @@ public:
     {
         return type == t_num ? (int)num : toInteger(str);
     }
+    bool toBool() const
+    {
+        return type == t_num ? (bool)num : toBool(str);
+    }
     std::string toString() const
     {
         return type == t_num ? toString(num) : str;
     }
 
-    std::string sub(size_t where, size_t length) const
+    std::string sub(size_t where, size_t length = ~size_t(0)) const
     {
         std::string str = toString();
         if (str.empty())
@@ -185,7 +193,7 @@ public:
             where = str.size() - 1;
         return str.substr(where, length);
     }
-    std::string subx(size_t where, size_t length) const
+    std::string subx(size_t where, size_t length = ~size_t(0)) const
     {
         std::string str = toString();
         if (str.empty() || (!where && !length))
@@ -477,18 +485,17 @@ public:
         QiFunc_pop() : QiFunc(1, 2) {}
         QiVar exec(const std::vector<QiVar>& args) const
         {
-            if (args.size() == 2) Qi::interpreter_pop(args[0].toString(), args[1].toInteger());
-            else Qi::interpreter_pop(args[0].toString(), 1000);
+            Qi::interpreter_pop(args[0].toString(), args.size() > 1 ? args[1].toInteger() : 1000);
             return args[0];
         }
     };
     class QiFunc_rand : public QiFunc
     {
     public:
-        QiFunc_rand() : QiFunc(2) {}
+        QiFunc_rand() : QiFunc(1, 2) {}
         QiVar exec(const std::vector<QiVar>& args) const
         {
-            return (double)QiVar::random((int)(args[0].toNumber()), (int)(args[1].toNumber()));
+            return (double)QiVar::random((int)(args[0].toInteger()), args.size() > 1 ? (int)(args[1].toInteger()) : 0);
         }
     };
     class QiFunc_cur_to : public QiFunc
@@ -502,14 +509,10 @@ public:
             double y = args[1].toNumber();
             int ix;
             int iy;
-            if (QiVar::isInteger(x))
-                ix = (float)x / (float)screen.cx * 65535.0f;
-            else
-                ix = x * 65535;
-            if (QiVar::isInteger(y))
-                iy = (float)y / (float)screen.cx * 65535.0f;
-            else
-                iy = y * 65535;
+            if (QiVar::isInteger(x)) ix = (float)x / (float)screen.cx * 65535.0f;
+            else ix = x * 65535;
+            if (QiVar::isInteger(y)) iy = (float)y / (float)screen.cx * 65535.0f;
+            else iy = y * 65535;
             Input::MoveToA(ix, iy, key_info);
             return true;
         }
@@ -525,14 +528,10 @@ public:
             double y = args[1].toNumber();
             int ix;
             int iy;
-            if (QiVar::isInteger(x))
-                ix = x;
-            else
-                ix = x * (double)screen.cx;
-            if (QiVar::isInteger(y))
-                iy = y;
-            else
-                iy = y * (double)screen.cx;
+            if (QiVar::isInteger(x)) ix = x;
+            else ix = x * (double)screen.cx;
+            if (QiVar::isInteger(y)) iy = y;
+            else iy = y * (double)screen.cx;
             Input::Move(ix, iy, key_info);
             return true;
         }
@@ -540,19 +539,53 @@ public:
     class QiFunc_sub : public QiFunc
     {
     public:
-        QiFunc_sub() : QiFunc(3) {}
+        QiFunc_sub() : QiFunc(2, 3) {}
         QiVar exec(const std::vector<QiVar>& args) const
         {
-            return args[0].sub(args[1].toInteger(), args[2].toInteger());
+            return args[0].sub(args[1].toInteger(),args.size() > 2 ? args[2].toInteger() : ~size_t(0));
         }
     };
     class QiFunc_subx : public QiFunc
     {
     public:
-        QiFunc_subx() : QiFunc(3) {}
+        QiFunc_subx() : QiFunc(2, 3) {}
         QiVar exec(const std::vector<QiVar>& args) const
         {
-            return args[0].subx(args[1].toInteger(), args[2].toInteger());
+            return args[0].subx(args[1].toInteger(), args.size() > 2 ? args[2].toInteger() : ~size_t(0));
+        }
+    };
+    class QiFunc_text_box : public QiFunc
+    {
+        enum
+        {
+            normal,
+            warning,
+            error
+        };
+    public:
+        QiFunc_text_box() : QiFunc(1, 3) {}
+        QiVar exec(const std::vector<QiVar>& args) const
+        {
+            std::string text(args[0].toString());
+            std::string title("MessageBox"); if (args.size() > 1) title = args[1].toString();
+            DWORD style = MB_YESNO | MB_TOPMOST;
+            if (args.size() > 2)
+            {
+                if (args[2].toInteger() == warning) style |= MB_ICONWARNING;
+                else if (args[2].toInteger() == error) style |= MB_ICONERROR;
+            }
+            return MessageBoxW(nullptr, String::toWString(text).c_str(), String::toWString(title).c_str(), style) == IDYES;
+        }
+    };
+    class QiFunc_edit_box : public QiFunc
+    {
+    public:
+        QiFunc_edit_box() : QiFunc(0, 3) {}
+        QiVar exec(const std::vector<QiVar>& args) const
+        {
+            std::string title("TextEditBox"); if (args.size() > 0) title = args[0].toString();
+            std::string text; if (args.size() > 1) text = args[1].toString();
+            return String::toString(TextEditBox(nullptr, String::toWString(title).c_str(), String::toWString(text).c_str(), args.size() > 2 ? args[2].toBool() : false, WS_EX_TOPMOST, L"ICOAPP"));
         }
     };
     QiFuncMap()
@@ -581,6 +614,8 @@ public:
         insert({ "cur_move", std::make_unique<QiFunc_cur_move>() });
         insert({ "sub", std::make_unique<QiFunc_sub>() });
         insert({ "subx", std::make_unique<QiFunc_subx>() });
+        insert({ "text_box", std::make_unique<QiFunc_text_box>() });
+        insert({ "edit_box", std::make_unique<QiFunc_edit_box>() });
     }
 };
 
@@ -864,7 +899,7 @@ public:
             }
             else if (token.type == OPERATOR)
             {
-                if (stack.size() != 2) throw std::runtime_error(error_not_enough_operands);
+                if (stack.size() < 2) throw std::runtime_error(error_not_enough_operands);
 
                 QiVar right = stack.back();
                 stack.pop_back();

@@ -129,12 +129,13 @@
     <ClInclude Include="source\src\tools\string.h" />
     <ClInclude Include="source\src\tools\system.h" />
     <ClInclude Include="source\src\tools\task.h" />
+    <ClInclude Include="source\src\tools\texteditbox.h" />
     <ClInclude Include="source\src\tools\thread.h" />
     <ClInclude Include="source\src\tools\threadpool.h" />
     <ClInclude Include="source\src\tools\threadqueue.h" />
     <ClInclude Include="source\src\tools\time.h" />
     <ClInclude Include="source\src\tools\vector.h" />
-    <ClInclude Include="source\src\tools\windows.h" />
+    <ClInclude Include="source\src\tools\window.h" />
     <ClInclude Include="source\src\tools\xboxpad.h" />
     <ClInclude Include="source\src\type.h" />
     <ClInclude Include="source\src\update.h" />

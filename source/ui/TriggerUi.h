@@ -158,6 +158,11 @@ private:
 			}
 			TableState();
 			});
+		connect(ui.macroGroup_table, &QMacroTable::foldChanged, this, [this](QTableWidget* table, bool fold) {
+			Qi::fold.group[table->horizontalHeaderItem(tableColumn_name)->text()] = fold; 
+			QiJson::SaveJson();
+			});
+
 		connect(ui.block_check, &QCheckBox::toggled, this, [this](bool state) {
 			if (!ItemCurrented()) return;
 			currentMacro->keyBlock = state;
@@ -199,6 +204,7 @@ private:
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
+
 		connect(ui.moveScale_x_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 			if (!ItemCurrented()) return;
 			currentMacro->moveScaleX = QiRange::Restricted(value, QiRange::macro_moveScale_max, QiRange::macro_moveScale_min);
@@ -211,6 +217,7 @@ private:
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
+
 		connect(ui.posScale_x_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 			if (!ItemCurrented()) return;
 			currentMacro->posScaleX = QiRange::Restricted(value, QiRange::macro_posScale_max, QiRange::macro_posScale_min);
@@ -352,11 +359,12 @@ private:
 				SetTableItem(table, mPos, m);
 				if (m.state) m.state = true;
 			}
-			table->setHorizontalHeaderItem(0, new QTableWidgetItem(mg.name));
-			table->setHorizontalHeaderItem(1, new QTableWidgetItem(""));
-			table->setHorizontalHeaderItem(2, new QTableWidgetItem(""));
-			table->setHorizontalHeaderItem(3, new QTableWidgetItem("全部" + Qi::ui.text.syAny));
+			table->setHorizontalHeaderItem(tableColumn_name, new QTableWidgetItem(mg.name));
+			table->setHorizontalHeaderItem(tableColumn_key, new QTableWidgetItem(""));
+			table->setHorizontalHeaderItem(tableColumn_mode, new QTableWidgetItem(""));
+			table->setHorizontalHeaderItem(tableColumn_state, new QTableWidgetItem("全部" + Qi::ui.text.syAny));
 			TableState(mgPos);
+			ui.macroGroup_table->setFold(table, Qi::fold.group[mg.name]);
 		}
 	}
 	bool event(QEvent* e)

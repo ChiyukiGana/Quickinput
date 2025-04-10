@@ -20,12 +20,11 @@ class QRectSelection : public QDialog
 	RECT mrect = { 0 };
 
 public:
-	QRectSelection()
+	QRectSelection() : wid(QWidget(this))
 	{
 		setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
 		setAttribute(Qt::WA_TranslucentBackground);
 		setCursor(Qt::CrossCursor);
-		wid.setParent(this);
 		wid.setStyleSheet("background-color:rgba(128,144,224,0.5);border:1px solid #08F;");
 		wid.hide();
 	}

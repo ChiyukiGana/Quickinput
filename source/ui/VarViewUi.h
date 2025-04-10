@@ -13,6 +13,7 @@ class VarViewUi : public QDialog
 	};
 	Ui::VarViewUiClass ui;
 	bool updating = false;
+	bool reload = false;
 public:
 	VarViewUi()
 	{
@@ -146,7 +147,14 @@ private:
 	{
 		if (e->type() == VarViewEvent::reload)
 		{
-			if (!isHidden()) TableUpdate();
+			if (!isHidden())
+			{
+				if (!reload)
+				{
+					reload = true;
+					QTimer::singleShot(32, [this]() { reload = false; TableUpdate(); });
+				}
+			}
 		}
 	}
 	// window move

@@ -167,6 +167,27 @@ public:
 		selfAction = false;
 	}
 
+	void setFold(QTableWidget* table, bool fold)
+	{
+		selfAction = true;
+		if (fold)
+		{
+			table->viewport()->setHidden(true);
+			table->property("table_corner_label").value<QLabel*>()->setText(u8"▸");
+		}
+		else
+		{
+			table->viewport()->setHidden(false);
+			table->property("table_corner_label").value<QLabel*>()->setText(u8"▾");
+		}
+		selfAction = false;
+	}
+
+	void setFold(int table_index, bool fold)
+	{
+		setFold(table(table_index), fold);
+	}
+
 	QTableWidget* table(int table_index)
 	{
 		return (QTableWidget*)cellWidget(table_index, 0);
@@ -248,13 +269,13 @@ private:
 		selfAction = true;
 		if (table->viewport()->isHidden())
 		{
-			table->viewport()->setHidden(false);
-			table->property("table_corner_label").value<QLabel*>()->setText(u8"▾");
+			setFold(table, false);
+			foldChanged(table, false);
 		}
 		else
 		{
-			table->viewport()->setHidden(true);
-			table->property("table_corner_label").value<QLabel*>()->setText(u8"▸");
+			setFold(table, true);
+			foldChanged(table, true);
 		}
 		selfAction = false;
 	}
@@ -279,4 +300,5 @@ Q_SIGNALS:
 	void itemChanged(int table, int row, int column) const;
 	void headerClicked(int table, int column) const;
 	void headerDoubleClicked(int table, int column) const;
+	void foldChanged(QTableWidget* table, bool fold) const;
 };

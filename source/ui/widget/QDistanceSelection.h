@@ -22,12 +22,16 @@ class QDistanceSelector : public QDialog
     bool m_shiftPressed = false;
 
 public:
-    QDistanceSelector()
+    QDistanceSelector() : lb(QLabel(this))
     {
         setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
         setAttribute(Qt::WA_TranslucentBackground);
         setCursor(Qt::CrossCursor);
-        QFont font("Microsoft YaHei"); font.setPixelSize(16); lb.setParent(this), lb.setFont(font), lb.setAlignment(Qt::AlignCenter), lb.setStyleSheet("color:white;background-color:black");
+        QFont font("Microsoft YaHei"); font.setPixelSize(16);
+        lb.setFont(font);
+        lb.setAlignment(Qt::AlignCenter);
+        lb.setStyleSheet("color:white;background-color:black");
+        lb.hide();
     }
     void setStyleSheet(const QString& styleSheet) { lb.setStyleSheet(styleSheet); }
 
@@ -53,7 +57,7 @@ public:
 protected:
     void updateLabel()
     {
-        lb.setText(QString::number(amsAfter.x - amsBefore.x) + QString::fromUtf8(" ~ ") + QString::number(amsAfter.y - amsBefore.y));
+        lb.setText(QString::number(amsAfter.x - amsBefore.x) + QString::fromUtf8(" , ") + QString::number(amsAfter.y - amsBefore.y));
         QFontMetrics fc(lb.font()); int cx = fc.width(lb.text()), cy = fc.height();
         QPoint pt(msAfter.x() + 25, msAfter.y() + 25);
         lb.setGeometry(QRect(pt, QSize(cx + 6, cy)));
@@ -62,6 +66,7 @@ protected:
     {
         QPainter pa(this);
         pa.fillRect(0, 0, width(), height(), QColor(0, 0, 0, 50));
+        if (lb.isHidden()) return;
 
         pa.setPen(QPen(m_lineColor, m_lineWidth));
 
@@ -71,20 +76,12 @@ protected:
             int dx = abs(msAfter.x() - msBefore.x());
             int dy = abs(msAfter.y() - msBefore.y());
 
-            if (dx > dy)
-            {
-                // Lock Y coordinate (horizontal line)
-                endPoint.setY(msBefore.y());
-            }
-            else
-            {
-                // Lock X coordinate (vertical line)
-                endPoint.setX(msBefore.x());
-            }
+            if (dx > dy) endPoint.setY(msBefore.y());
+            else endPoint.setX(msBefore.x());
         }
 
         pa.drawLine(QPoint(msBefore.x(), msBefore.y()), endPoint);
-
+        
         pa.setBrush(m_lineColor);
         pa.drawEllipse(QPoint(msBefore.x(), msBefore.y()), m_lineWidth, m_lineWidth);
         pa.drawEllipse(endPoint, m_lineWidth, m_lineWidth);
@@ -113,7 +110,8 @@ protected:
     {
         GetCursorPos(&amsAfter);
         amsBefore = amsAfter;
-        msBefore = e->pos();
+        msBefore = msAfter = e->pos();
+        lb.show();
         update();
     }
     void mouseReleaseEvent(QMouseEvent* e)

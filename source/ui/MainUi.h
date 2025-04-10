@@ -39,6 +39,10 @@ public:
 			hide();
 		}
 	}
+	QString Version() const
+	{
+		return ui.about->Version();
+	}
 private:
 	void StyleGroup()
 	{

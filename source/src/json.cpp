@@ -268,6 +268,14 @@ namespace QiJson
 				const QiTextPad& ref = std::get<QiTextPad>(var);
 				jAction.insert("text", ref.text);
 			} break;
+			case QiType::editDialog:
+			{
+				const QiEditDialog& ref = std::get<QiEditDialog>(var);
+				jAction.insert("mult", ref.mult);
+				jAction.insert("title", ref.title);
+				jAction.insert("text", ref.text);
+				jAction.insert("var", ref.var);
+			} break;
 			default: success = false;
 			}
 
@@ -281,6 +289,7 @@ namespace QiJson
 		jMacro.insert("document_charset", "UTF8");
 		jMacro.insert("app", "QuickInput");
 		jMacro.insert("type", "QuickInputMacro");
+		jMacro.insert("ver", Qi::version);
 		jMacro.insert("name", macro.name);
 		jMacro.insert("wndState", (bool)macro.wndState);
 		jMacro.insert("wndChild", (bool)macro.wndInput.child);
@@ -327,28 +336,32 @@ namespace QiJson
 	void SaveJson()
 	{
 		QJsonObject cfg;
-		cfg.insert("document_charset", "UTF8");
-		cfg.insert("app", "QuickInput");
-		cfg.insert("type", "QuickInputConfig");
-		cfg.insert("theme", (int)Qi::set.theme);
-		cfg.insert("key", (int)Qi::set.key);
-		cfg.insert("recKey", (int)Qi::set.recKey);
-		cfg.insert("recTrack", (bool)Qi::set.recTrack);
-		cfg.insert("defOn", (bool)Qi::set.defOn);
-		cfg.insert("showTips", (bool)Qi::set.showTips);
-		cfg.insert("audFx", (bool)Qi::set.audFx);
-		cfg.insert("minMode", (bool)Qi::set.minMode);
-		cfg.insert("tabLock", (bool)Qi::set.tabLock);
-		cfg.insert("tabHideTip", (bool)Qi::set.tabHideTip);
-		cfg.insert("quickClickKey", (int)Qi::fun.quickClick.key);
-		cfg.insert("quickClickState", (bool)Qi::fun.quickClick.state);
-		cfg.insert("quickClickDelay", (int)Qi::fun.quickClick.delay);
-		cfg.insert("quickClickMode", (int)Qi::fun.quickClick.mode);
-		cfg.insert("showClockKey", (int)Qi::fun.showClock.key);
-		cfg.insert("showClockState", (bool)Qi::fun.showClock.state);
-		cfg.insert("wndActiveState", (bool)Qi::fun.wndActive.state);
-		cfg.insert("wndActiveName", Qi::fun.wndActive.wndInfo.wndName);
-		cfg.insert("wndActiveClass", Qi::fun.wndActive.wndInfo.wndClass);
+		if ("")
+		{
+			cfg.insert("document_charset", "UTF8");
+			cfg.insert("app", "QuickInput");
+			cfg.insert("type", "QuickInputConfig");
+			cfg.insert("ver", Qi::version);
+			cfg.insert("theme", (int)Qi::set.theme);
+			cfg.insert("key", (int)Qi::set.key);
+			cfg.insert("recKey", (int)Qi::set.recKey);
+			cfg.insert("recTrack", (bool)Qi::set.recTrack);
+			cfg.insert("defOn", (bool)Qi::set.defOn);
+			cfg.insert("showTips", (bool)Qi::set.showTips);
+			cfg.insert("audFx", (bool)Qi::set.audFx);
+			cfg.insert("minMode", (bool)Qi::set.minMode);
+			cfg.insert("tabLock", (bool)Qi::set.tabLock);
+			cfg.insert("tabHideTip", (bool)Qi::set.tabHideTip);
+			cfg.insert("quickClickKey", (int)Qi::fun.quickClick.key);
+			cfg.insert("quickClickState", (bool)Qi::fun.quickClick.state);
+			cfg.insert("quickClickDelay", (int)Qi::fun.quickClick.delay);
+			cfg.insert("quickClickMode", (int)Qi::fun.quickClick.mode);
+			cfg.insert("showClockKey", (int)Qi::fun.showClock.key);
+			cfg.insert("showClockState", (bool)Qi::fun.showClock.state);
+			cfg.insert("wndActiveState", (bool)Qi::fun.wndActive.state);
+			cfg.insert("wndActiveName", Qi::fun.wndActive.wndInfo.wndName);
+			cfg.insert("wndActiveClass", Qi::fun.wndActive.wndInfo.wndClass);
+		}
 		if ("pop config")
 		{
 			QJsonObject pop;
@@ -369,6 +382,23 @@ namespace QiJson
 			pop.insert("upe", SavePopTextInfo(Qi::ui.pop.upe));
 			pop.insert("upd", SavePopTextInfo(Qi::ui.pop.upd));
 			cfg.insert("popbox", pop);
+		}
+		if ("group fold")
+		{
+			QJsonArray groupFolds;
+			size_t groupFoldIndex = 0;
+			for (const auto& i : Qi::fold.group)
+			{
+				if (Qi::macroGroups.find([&i](const MacroGroup& group) { if (group.name == i.first) return true; return false; }))
+				{
+					QJsonObject groupFold;
+					groupFold.insert("name", i.first);
+					groupFold.insert("fold", i.second);
+					groupFolds.insert(groupFoldIndex, groupFold);
+					groupFoldIndex++;
+				}
+			}
+			cfg.insert("groupFold", groupFolds);
 		}
 		QJsonDocument json(cfg);
 		if (!File::SaveText(Qi::configFile, json.toJson())) MsgBox::Error(L"保存配置失败");
@@ -606,6 +636,15 @@ namespace QiJson
 					var.text = jAction.value("text").toString();
 					actions.append(var);
 				} break;
+				case QiType::editDialog:
+				{
+					QiEditDialog var; var.disable = dis, var.mark = mark;
+					var.mult = jAction.value("mult").toBool();
+					var.title = jAction.value("title").toString();
+					var.text = jAction.value("text").toString();
+					var.var = jAction.value("var").toString();
+					actions.append(var);
+				} break;
 				default: actions.append(QiBase(type)); break;
 				}
 			}
@@ -712,29 +751,31 @@ namespace QiJson
 			if (json.isObject())
 			{
 				QJsonObject cfg(json.object());
-
-				Qi::set.theme = cfg.value("theme").toInt();
-				Qi::set.key = cfg.value("key").toInt();
-				Qi::set.recTrack = cfg.value("recTrack").toBool();
-				Qi::set.recKey = cfg.value("recKey").toInt();
-				Qi::set.defOn = cfg.value("defOn").toBool();
-				Qi::set.showTips = cfg.value("showTips").toBool();
-				Qi::set.audFx = cfg.value("audFx").toBool();
-				Qi::set.minMode = cfg.value("minMode").toBool();
-				Qi::set.tabLock = cfg.value("tabLock").toBool();
-				Qi::set.tabHideTip = cfg.value("tabHideTip").toBool();
-				Qi::fun.quickClick.state = cfg.value("quickClickState").toBool();
-				Qi::fun.quickClick.key = cfg.value("quickClickKey").toInt();
-				Qi::fun.quickClick.delay = cfg.value("quickClickDelay").toInt();
-				Qi::fun.quickClick.mode = cfg.value("quickClickMode").toInt();
-				Qi::fun.showClock.state = cfg.value("showClockState").toBool();
-				Qi::fun.showClock.key = cfg.value("showClockKey").toInt();
-				Qi::fun.wndActive.state = cfg.value("wndActiveState").toBool();
-				Qi::fun.wndActive.wndInfo.wndName = cfg.value("wndActiveName").toString();
-				Qi::fun.wndActive.wndInfo.wndClass = cfg.value("wndActiveClass").toString();
+				if ("")
 				{
-					QJsonObject pop;
-					pop = cfg.value("popbox").toObject();
+					Qi::set.theme = cfg.value("theme").toInt();
+					Qi::set.key = cfg.value("key").toInt();
+					Qi::set.recTrack = cfg.value("recTrack").toBool();
+					Qi::set.recKey = cfg.value("recKey").toInt();
+					Qi::set.defOn = cfg.value("defOn").toBool();
+					Qi::set.showTips = cfg.value("showTips").toBool();
+					Qi::set.audFx = cfg.value("audFx").toBool();
+					Qi::set.minMode = cfg.value("minMode").toBool();
+					Qi::set.tabLock = cfg.value("tabLock").toBool();
+					Qi::set.tabHideTip = cfg.value("tabHideTip").toBool();
+					Qi::fun.quickClick.state = cfg.value("quickClickState").toBool();
+					Qi::fun.quickClick.key = cfg.value("quickClickKey").toInt();
+					Qi::fun.quickClick.delay = cfg.value("quickClickDelay").toInt();
+					Qi::fun.quickClick.mode = cfg.value("quickClickMode").toInt();
+					Qi::fun.showClock.state = cfg.value("showClockState").toBool();
+					Qi::fun.showClock.key = cfg.value("showClockKey").toInt();
+					Qi::fun.wndActive.state = cfg.value("wndActiveState").toBool();
+					Qi::fun.wndActive.wndInfo.wndName = cfg.value("wndActiveName").toString();
+					Qi::fun.wndActive.wndInfo.wndClass = cfg.value("wndActiveClass").toString();
+				}
+				if ("pop config")
+				{
+					QJsonObject pop = cfg.value("popbox").toObject();
 					if (pop.isEmpty()) LoadDefaultPopBox();
 					else
 					{
@@ -754,6 +795,15 @@ namespace QiJson
 						Qi::ui.pop.size = pop.value("size").toInt();
 						Qi::ui.pop.p.x = pop.value("px").toInt();
 						Qi::ui.pop.p.y = pop.value("py").toInt();
+					}
+				}
+				if ("group fold")
+				{
+					QJsonArray groupFolds = cfg.value("groupFold").toArray();
+					for (size_t i = 0; i < groupFolds.size(); i++)
+					{
+						QJsonObject groupFold = groupFolds.at(i).toObject();
+						Qi::fold.group[groupFold.value("name").toString()] = groupFold.value("fold").toBool();
 					}
 				}
 				LoadMacro();

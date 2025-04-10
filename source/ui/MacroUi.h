@@ -133,6 +133,11 @@ private:
 			ResetWidget();
 			DisableWidget();
 			});
+		connect(ui.macroGroup_table, &QMacroTable::foldChanged, this, [this](QTableWidget* table, bool fold) {
+			Qi::fold.group[table->horizontalHeaderItem(0)->text()] = fold;
+			QiJson::SaveJson();
+			});
+
 		connect(ui.record_button, &QPushButton::clicked, this, [this] {
 			RecStart(false);
 			TableUpdate();
@@ -271,6 +276,7 @@ private:
 				table->item(mPos, 0)->setData(DataRole::group, mgPos);
 				table->item(mPos, 0)->setData(DataRole::macro, mPos);
 			}
+			ui.macroGroup_table->setFold(table, Qi::fold.group[mg.name]);
 		}
 		Qi::widget.varViewReload();
 		updating = false;

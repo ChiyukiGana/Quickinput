@@ -19,12 +19,11 @@ class QiInterpreter
 	std::mutex debug_mutex;
 	std::condition_variable debug_condition;
 	int jumpId = 0;
-	int layer = 0;
 	bool debug_entry = false;
 public:
 	QiInterpreter(Macro& macro, bool isRunning);
 	bool isInvalid();
 	void DebugContinue();
 	bool PeekSleep(clock_t ms);
-	int ActionInterpreter(const Actions& current);
+	int ActionInterpreter(const Actions& current, int layer);
 };
