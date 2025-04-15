@@ -25,86 +25,88 @@ namespace QiUi
 	struct Text
 	{
 		// symbols
-		QString syEntry;
-		QString syPause;
-		QString syExit;
-		QString syAny;
-		QString syOn;
-		QString syOff;
-		QString syOk;
-		QString syYes;
-		QString syNot;
-		QString syStop;
-		QString syShow;
-		QString syHide;
-		QString syOption;
-		QString syLink;
-		QString syEdit;
-		QString syUp;
-		QString syDown;
-		QString syTurn;
-		QString syLeft;
-		QString syTop;
-		QString syRight;
-		QString syMove;
-		QString syTime;
-		QString syText;
-		QString syLoop;
-		QString syColor;
-		QString syImage;
-		QString syJump;
-		QString syPoint;
-		QString syBlock;
-		QString syBlockExec;
-		QString syEqual;
-		QString syVar;
-		QString syTrack;
+		QString syEntry = "🔜";
+		QString syPause = "⏸️";
+		QString syExit = "🔙";
+		QString syAny = "🟡";
+		QString syOn = "✅";
+		QString syOff = "⛔";
+		QString syOk = "⭕";
+		QString syYes = "✔️";
+		QString syNot = "❌";
+		QString syStop = "🛑";
+		QString syShow = "🔼";
+		QString syHide = "🔽";
+		QString syOption = "⚙";
+		QString syLink = "🔗";
+		QString syEdit = "🔧";
+		QString syUp = "⬆️";
+		QString syDown = "⬇️";
+		QString syTurn = "🔃";
+		QString syLeft = "🔙";
+		QString syTop = "🔝";
+		QString syRight = "🔜";
+		QString syMove = "🔛";
+		QString syTime = "⏳";
+		QString syText = "🅰️";
+		QString syLoop = "♾️";
+		QString syColor = "🌈";
+		QString syImage = "🖼";
+		QString syPoint = "🪂";
+		QString syJump = "🛩";
+		QString syBlock = "🪂";
+		QString syBlockExec = "🛩";
+		QString syEqual = "🟰";
+		QString syVar = "💠";
+		QString syTrack = "➰";
+		QString sySpeaker = "🔈️";
 		// menu
-		QString muOn;
-		QString muOff;
-		QString muShow;
-		QString muHide;
-		QString muExit;
+		QString muOn = QString("启用") + syOn;
+		QString muOff = QString("禁用") + syOff;
+		QString muShow = QString("显示") + syShow;
+		QString muHide = QString("隐藏") + syHide;
+		QString muExit = QString("退出") + syStop;
 		// action
-		QString acWait;
-		QString acDown;
-		QString acUp;
-		QString acClick;
-		QString acPos;
-		QString acMove;
-		QString acLoop;
-		QString acCopyText;
-		QString acColor;
-		QString acEnd;
-		QString acEndLoop;
-		QString acKeyState;
-		QString acResetPos;
-		QString acImage;
-		QString acPopText;
-		QString acSavePos;
-		QString acTimer;
-		QString acJump;
-		QString acJumpPoint;
-		QString acDialog;
-		QString acBlock;
-		QString acBlockExec;
-		QString acQuickInput;
-		QString acKeyBlock;
-		QString acClock;
-		QString acOcr;
-		QString acVarOperator;
-		QString acVarCondition;
-		QString acMouseTrack;
-		QString acOpen;
-		QString acTextPad;
-		QString acEditDialog;
+		QString acDown = QString("按下") + syDown;
+		QString acUp = QString("松开") + syUp;
+		QString acClick = QString("点击") + syTurn;
+		QString acPos = QString("位置") + syLeft;
+		QString acMove = QString("移动") + syMove;
+		QString acWait = QString("等待") + syTime;
+		QString acCopyText = QString("复制") + syText;
+		QString acLoop = QString("循环") + syLoop;
+		QString acColor = QString("找色") + syColor;
+		QString acEnd = QString("结束") + syStop;
+		QString acEndLoop = QString("结束循环") + syStop;
+		QString acKeyState = QString("按键状态") + syStop;
+		QString acResetPos = QString("恢复位置") + syTurn;
+		QString acImage = QString("找图") + syImage;
+		QString acPopText = QString("弹出") + syText;
+		QString acSavePos = QString("记录位置") + syTurn;
+		QString acTimer = QString("定时") + syLoop;
+		QString acJump = QString("跳转") + syJump;
+		QString acJumpPoint = QString("锚点") + syPoint;
+		QString acDialog = QString("对话框") + syText;
+		QString acBlock = QString("块") + syBlock;
+		QString acBlockExec = QString("执行") + syBlockExec;
+		QString acQuickInput = QString("输入字符") + syText;
+		QString acKeyBlock = QString("屏蔽按键") + syStop;
+		QString acClock = QString("时钟") + syTime;
+		QString acOcr = QString("文字识别") + syText;
+		QString acVarOperator = QString("变量运算") + syEqual;
+		QString acVarCondition = QString("变量判断") + syVar;
+		QString acMouseTrack = QString("鼠标轨迹") + syTrack;
+		QString acOpen = QString("打开") + syLink;
+		QString acTextPad = QString("文本") + syText;
+		QString acEditDialog = QString("编辑框") + syText;
+		QString acVolume = QString("音量检测") + sySpeaker;
 		// state
-		QString trOn;
-		QString trOff;
+		QString trOn = QString("启用") + syOn;
+		QString trOff = QString("禁用") + syOff;
 		// record
-		QString rcStart;
-		QString rcStop;
-		QString rcClose;
+		QString rcStart = QString("开始") + syOk;
+		QString rcStop = QString("停止") + syOk;
+		QString rcClose = QString("取消") + syNot;
 	};
 	struct PopTextInfo
 	{
@@ -306,7 +308,8 @@ struct QiType
 		mouseTrack,
 		open,
 		textPad,
-		editDialog
+		editDialog,
+		volume
 	};
 };
 using Actions = QiVector<Action>;
@@ -479,6 +482,7 @@ class QiOcr : public QiBase
 {
 public:
 	bool match = false;
+	bool row = false;
 	RECT rect = {};
 	QString text;
 	QString var;
@@ -560,6 +564,14 @@ public:
 	QString var;
 	QiEditDialog() : QiBase(QiType::editDialog) {}
 };
+class QiVolume : public QiBase
+{
+public:
+	bool max = false;
+	int time = 10;
+	float volume = 0.0f;
+	QiVolume() : QiBase(QiType::volume) {}
+};
 using ActionVariant = std::variant
 <
 	QiBase,
@@ -591,7 +603,8 @@ using ActionVariant = std::variant
 	QiMouseTrack,
 	QiOpen,
 	QiTextPad,
-	QiEditDialog
+	QiEditDialog,
+	QiVolume
 > ;
 class Action : public ActionVariant
 {

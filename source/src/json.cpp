@@ -237,6 +237,7 @@ namespace QiJson
 				jAction.insert("text", ref.text);
 				jAction.insert("var", ref.var);
 				jAction.insert("match", ref.match);
+				jAction.insert("row", ref.row);
 				jAction.insert("next", SaveAction(ref.next));
 				jAction.insert("next2", SaveAction(ref.next2));
 			} break;
@@ -275,6 +276,15 @@ namespace QiJson
 				jAction.insert("title", ref.title);
 				jAction.insert("text", ref.text);
 				jAction.insert("var", ref.var);
+			} break;
+			case QiType::volume:
+			{
+				const QiVolume& ref = std::get<QiVolume>(var);
+				jAction.insert("volume", ref.volume);
+				jAction.insert("time", ref.time);
+				jAction.insert("max", ref.max);
+				jAction.insert("next", SaveAction(ref.next));
+				jAction.insert("next2", SaveAction(ref.next2));
 			} break;
 			default: success = false;
 			}
@@ -600,6 +610,7 @@ namespace QiJson
 					var.text = jAction.value("text").toString();
 					var.var = jAction.value("var").toString();
 					var.match = jAction.value("match").toBool();
+					var.row = jAction.value("row").toBool();
 					var.next = LoadAction(jAction.value("next").toArray());
 					var.next2 = LoadAction(jAction.value("next2").toArray());
 					actions.append(var);
@@ -643,6 +654,16 @@ namespace QiJson
 					var.title = jAction.value("title").toString();
 					var.text = jAction.value("text").toString();
 					var.var = jAction.value("var").toString();
+					actions.append(var);
+				} break;
+				case QiType::volume:
+				{
+					QiVolume var; var.disable = dis, var.mark = mark;
+					var.volume = jAction.value("volume").toDouble();
+					var.time = jAction.value("time").toInt();
+					var.max = jAction.value("max").toBool();
+					var.next = LoadAction(jAction.value("next").toArray());
+					var.next2 = LoadAction(jAction.value("next2").toArray());
 					actions.append(var);
 				} break;
 				default: actions.append(QiBase(type)); break;

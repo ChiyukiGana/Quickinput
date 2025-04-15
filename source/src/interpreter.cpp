@@ -479,7 +479,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 						}
 						if (!image.IsNull())
 						{
-							std::string text = Qi::ocr->scan(image);
+							std::string text = Qi::ocr->scan(image, ref.row);
 							image.ReleaseDC();
 							if (!text.empty())
 							{
@@ -572,6 +572,14 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 					std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
 					text = String::toString(TextEditBox(nullptr, String::toWString(title).c_str(), String::toWString(text).c_str(), ref.mult, WS_EX_TOPMOST, L"ICOAPP"));
 					if (!text.empty()) Qi::interpreter.makeValue(ref.var.toStdString(), text, varMap);
+				} break;
+				case QiType::volume:
+				{
+					const QiVolume& ref = std::get<QiVolume>(action);
+					if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next, layer + 1); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2, layer + 1); continue; }
+					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next, layer + 1); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2, layer + 1); continue; }
+					if (Sound::SpeakerVolume(ref.time > 5 ? ref.time : 5, ref.max) > ref.volume) r_result = ActionInterpreter(ref.next, layer + 1);
+					else r_result = ActionInterpreter(ref.next2, layer + 1);
 				} break;
 				}
 			}

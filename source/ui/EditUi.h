@@ -144,7 +144,9 @@ private:
 			ui.window_child_check->setProperty("group", "check");
 			ui.keyBlock_move_check->setProperty("group", "check");
 			ui.ocr_match_check->setProperty("group", "check");
+			ui.ocr_row_check->setProperty("group", "check");
 			ui.editDialog_mult_check->setProperty("group", "check");
+			ui.volume_max_check->setProperty("group", "check");
 		}
 		if ("radio button")
 		{
@@ -205,6 +207,8 @@ private:
 			ui.editDialog_title_edit->setProperty("group", "line_edit");
 			ui.editDialog_text_edit->setProperty("group", "line_edit");
 			ui.editDialog_var_edit->setProperty("group", "line_edit");
+			ui.volume_edit->setProperty("group", "line_edit");
+			ui.volume_time_edit->setProperty("group", "line_edit");
 		}
 		if ("text edit")
 		{
@@ -454,6 +458,12 @@ private:
 				ui.editDialog_change_button->setProperty("qit", type);
 				addButtons.append(ui.editDialog_add_button);
 				changeButtons.append(ui.editDialog_change_button);
+
+				type = QiType::volume;
+				ui.volume_add_button->setProperty("qit", type);
+				ui.volume_change_button->setProperty("qit", type);
+				addButtons.append(ui.volume_add_button);
+				changeButtons.append(ui.volume_change_button);
 			}
 			if ("edit")
 			{
@@ -467,6 +477,7 @@ private:
 				editButtons.append(ui.clock_edit_button);
 				editButtons.append(ui.ocr_edit_button);
 				editButtons.append(ui.varCondition_edit_button);
+				editButtons.append(ui.volume_edit_button);
 
 				edit2Buttons.append(ui.keyState_edit2_button);
 				edit2Buttons.append(ui.color_edit2_button);
@@ -475,6 +486,7 @@ private:
 				edit2Buttons.append(ui.clock_edit2_button);
 				edit2Buttons.append(ui.ocr_edit2_button);
 				edit2Buttons.append(ui.varCondition_edit2_button);
+				edit2Buttons.append(ui.volume_edit2_button);
 			}
 			if ("clear shortcut")
 			{
@@ -898,7 +910,8 @@ private:
 					MsgBox::Warning(L"没有安装OCR组件，无法使用文字识别功能");
 					return;
 				}
-				std::string text = Qi::ocr->scan(QiFn::R_SATR(WidgetGetOcr().rect));
+				const QiOcr& ocr = WidgetGetOcr();
+				std::string text = Qi::ocr->scan(QiFn::R_SATR(ocr.rect), ocr.row);
 				if (text.empty())
 				{
 					Qi::popText->Popup("没有识别到内容");
@@ -1171,6 +1184,11 @@ private:
 						widget_td.show();
 					} break;
 					case QiType::editDialog: tab = tab_dialog; break;
+					case QiType::volume: tab = tab_ocr;
+					{
+						ui.volume_edit_button->setEnabled(true);
+						ui.volume_edit2_button->setEnabled(true);
+					} break;
 					}
 					if (!tabLock) ui.tabWidget->setCurrentIndex(tab);
 				}
@@ -1212,6 +1230,7 @@ private:
 							case QiType::block: edit = true; break;
 							case QiType::ocr: edit = edit2 = true; break;
 							case QiType::varCondition: edit = edit2 = true; break;
+							case QiType::volume: edit = edit2 = true; break;
 							}
 							muEdit->setEnabled(edit);
 							muEdit2->setEnabled(edit2);
@@ -1435,30 +1454,44 @@ private:
 		} break;
 		case QiType::ocr:
 		{
-			QiOcr& clock = std::get<QiOcr>(var);
+			QiOcr& ocr = std::get<QiOcr>(var);
 			if (edit2)
 			{
-				next = &clock.next2;
+				next = &ocr.next2;
 				title = "编辑 - 文字识别（失败）";
 			}
 			else
 			{
-				next = &clock.next;
+				next = &ocr.next;
 				title = "编辑 - 文字识别（成功）";
 			}
 		} break;
 		case QiType::varCondition:
 		{
-			QiVarCondition& clock = std::get<QiVarCondition>(var);
+			QiVarCondition& varCondition = std::get<QiVarCondition>(var);
 			if (edit2)
 			{
-				next = &clock.next2;
+				next = &varCondition.next2;
 				title = "编辑 - 变量条件（否）";
 			}
 			else
 			{
-				next = &clock.next;
+				next = &varCondition.next;
 				title = "编辑 - 变量条件（是）";
+			}
+		} break;
+		case QiType::volume:
+		{
+			QiVolume& volume = std::get<QiVolume>(var);
+			if (edit2)
+			{
+				next = &volume.next2;
+				title = "编辑 - 音量检测（小于）";
+			}
+			else
+			{
+				next = &volume.next;
+				title = "编辑 - 音量检测（大于）";
 			}
 		} break;
 		}
@@ -1506,7 +1539,7 @@ private:
 	}
 	bool IterActions(const Actions& actions, std::function<bool(const Action&)> callBack, int type = QiType::none)
 	{
-		return IterActions((Actions&) actions, (std::function<bool(Action&)>)callBack, type);
+		return IterActions((Actions&)actions, (std::function<bool(Action&)>)callBack, type);
 	}
 	// type: jumpPoint, jump, block, blockExec
 	QiVector<int> LoadIds(const Actions& actions, int type)
@@ -1973,6 +2006,17 @@ private:
 			param += ref.var.mid(0, 8);
 			if (ref.var.size() > 7) param += "...";
 		} break;
+		case QiType::volume:
+		{
+			const QiVolume& ref = std::get<QiVolume>(var);
+			type = Qi::ui.text.acVolume;
+
+			param = QString::number(ref.volume);
+			param += ", ";
+			param += QString::number(ref.time);
+			param += ", ";
+			param += ref.max ? "最大" : "平均";
+		} break;
 		}
 
 		if (type.isEmpty())
@@ -2285,6 +2329,7 @@ private:
 		case QiType::open: WidgetSet(std::get<QiOpen>(var)); break;
 		case QiType::textPad: WidgetSet(std::get<QiTextPad>(var)); break;
 		case QiType::editDialog: WidgetSet(std::get<QiEditDialog>(var)); break;
+		case QiType::volume: WidgetSet(std::get<QiVolume>(var)); break;
 		}
 	}
 	// >>>> new action set here
@@ -2321,6 +2366,7 @@ private:
 		case QiType::open: return WidgetGetOpen();
 		case QiType::textPad: return WidgetGetTextPad();
 		case QiType::editDialog: return WidgetGetEditDialog();
+		case QiType::volume: return WidgetGetVolume();
 		}
 		return Action();
 	}
@@ -2630,6 +2676,7 @@ private:
 		ocr.text = ui.ocr_text_edit->text();
 		ocr.var = ui.ocr_var_edit->text();
 		ocr.match = ui.ocr_match_check->isChecked();
+		ocr.row = ui.ocr_row_check->isChecked();
 		return ocr;
 	}
 	QiVarOperator WidgetGetVarOperator()
@@ -2664,6 +2711,14 @@ private:
 		editDialog.text = ui.editDialog_text_edit->text();
 		editDialog.var = ui.editDialog_var_edit->text();
 		return editDialog;
+	}
+	QiVolume WidgetGetVolume()
+	{
+		QiVolume volume;
+		volume.volume = ui.volume_edit->value();
+		volume.time = ui.volume_time_edit->value();
+		volume.max = ui.volume_max_check->isChecked();
+		return volume;
 	}
 
 	// load params to widget
@@ -2770,6 +2825,7 @@ private:
 		ui.ocr_text_edit->setText(ocr.text);
 		ui.ocr_var_edit->setText(ocr.var);
 		ui.ocr_match_check->setChecked(ocr.match);
+		ui.ocr_row_check->setChecked(ocr.row);
 	}
 	void WidgetSet(const QiVarOperator& varOperator)
 	{
@@ -2793,5 +2849,11 @@ private:
 		ui.editDialog_title_edit->setText(editDialog.title);
 		ui.editDialog_text_edit->setText(editDialog.text);
 		ui.editDialog_var_edit->setText(editDialog.var);
+	}
+	void WidgetSet(const QiVolume& volume)
+	{
+		ui.volume_edit->setValue(volume.volume);
+		ui.volume_time_edit->setValue(volume.time);
+		ui.volume_max_check->setChecked(volume.max);
 	}
 };

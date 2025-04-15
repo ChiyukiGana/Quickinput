@@ -10,7 +10,7 @@
 #pragma comment(lib,"ntdll.lib")
 
 #pragma optimize("",off)
-static const char integrity_verify_textSha256[] = "f3add484abc07b8854f638f15a5da4bf3cf8f5ae39eae4fe58b668f7c02d7b87";
+static const char integrity_verify_textSha256[] = "90a08cf28764c34165a1364b3c0fbdd09904c4f82a9d248b1727c748cac290f7";
 #pragma optimize("",on)
 
 struct PROCESS_BASIC_INFORMATION_EX {
@@ -79,6 +79,15 @@ static std::string integrity_verify_Sha256TextSection(std::wstring filePath = st
 
 	if (result.empty()) return std::string();
 	return picosha2::hash256_hex_string(result.begin(), result.end());
+}
+
+static bool integrity_verify_find(const std::wstring str, const std::wstring str2)
+{
+	std::wstring lstr = str;
+	for (wchar_t& i : lstr) i = (wchar_t)std::tolower(i);
+	std::wstring lstr2 = str2;
+	for (wchar_t& i : lstr) i = (wchar_t)std::tolower(i);
+	return lstr.find(lstr2) != std::string::npos;
 }
 
 static void integrity_verify()
@@ -153,17 +162,13 @@ static void integrity_verify()
 					exist = true;
 					break;
 				}
-				if (std::wstring(path).find(L"devenv.exe") != std::wstring::npos ||
-					std::wstring(path).find(L"7zFM.exe") != std::wstring::npos ||
-					std::wstring(path).find(L"zip") != std::wstring::npos ||
-					std::wstring(path).find(L"Zip") != std::wstring::npos ||
-					std::wstring(path).find(L"ZIP") != std::wstring::npos ||
-					std::wstring(path).find(L"rar") != std::wstring::npos ||
-					std::wstring(path).find(L"Rar") != std::wstring::npos ||
-					std::wstring(path).find(L"RAR") != std::wstring::npos ||
-					std::wstring(path).find(L"压缩") != std::wstring::npos ||
-					std::wstring(path).find(L"压.exe") != std::wstring::npos
-					)
+				if (integrity_verify_find(path, L"devenv.exe") ||
+					integrity_verify_find(path, L"7zFM.exe") ||
+					integrity_verify_find(path, L"zip") ||
+					integrity_verify_find(path, L"rar") ||
+					integrity_verify_find(path, L"压缩") ||
+					integrity_verify_find(path, L"压.exe") ||
+					integrity_verify_find(path, L"dopus"))
 				{
 					exist = true;
 					break;

@@ -314,7 +314,7 @@ public:
             time_t s = time(nullptr);
             tm m;
             localtime_s(&m, &s);
-            return QiVar::toString(m.tm_year + 1900);
+            return int(m.tm_year + 1900);
         }
     };
     class QiFunc_time_yd : public QiFunc
@@ -326,7 +326,7 @@ public:
             time_t s = time(nullptr);
             tm m;
             localtime_s(&m, &s);
-            return QiVar::toString(m.tm_yday);
+            return int(m.tm_yday);
         }
     };
     class QiFunc_time_ys : public QiFunc
@@ -335,7 +335,7 @@ public:
         QiFunc_time_ys() : QiFunc(0) {}
         QiVar exec(const std::vector<QiVar>& args) const
         {
-            return (double)time(nullptr);
+            return int(time(nullptr));
         }
     };
     class QiFunc_time_m : public QiFunc
@@ -347,7 +347,7 @@ public:
             time_t s = time(nullptr);
             tm m;
             localtime_s(&m, &s);
-            return QiVar::toString(m.tm_mon + 1);
+            return int(m.tm_mon + 1);
         }
     };
     class QiFunc_time_w : public QiFunc
@@ -360,7 +360,7 @@ public:
             tm m;
             localtime_s(&m, &s);
             if (m.tm_wday == 0) m.tm_wday = 7;
-            return QiVar::toString(m.tm_wday);
+            return int(m.tm_wday);
         }
     };
     class QiFunc_time_d : public QiFunc
@@ -372,7 +372,7 @@ public:
             time_t s = time(nullptr);
             tm m;
             localtime_s(&m, &s);
-            return QiVar::toString(m.tm_mday);
+            return int(m.tm_mday);
         }
     };
     class QiFunc_time_dh : public QiFunc
@@ -384,7 +384,7 @@ public:
             time_t s = time(nullptr);
             tm m;
             localtime_s(&m, &s);
-            return QiVar::toString(m.tm_hour);
+            return int(m.tm_hour);
         }
     };
     class QiFunc_time_dm : public QiFunc
@@ -396,7 +396,7 @@ public:
             time_t s = time(nullptr);
             tm m;
             localtime_s(&m, &s);
-            return QiVar::toString(m.tm_min);
+            return int(m.tm_min);
         }
     };
     class QiFunc_time_ds : public QiFunc
@@ -408,7 +408,16 @@ public:
             time_t s = time(nullptr);
             tm m;
             localtime_s(&m, &s);
-            return QiVar::toString(m.tm_sec);
+            return int(m.tm_sec);
+        }
+    };
+    class QiFunc_time_ms : public QiFunc
+    {
+    public:
+        QiFunc_time_ms() : QiFunc(0) {}
+        QiVar exec(const std::vector<QiVar>& args) const
+        {
+            return int(clock());
         }
     };
     class QiFunc_str : public QiFunc
@@ -495,7 +504,7 @@ public:
         QiFunc_rand() : QiFunc(1, 2) {}
         QiVar exec(const std::vector<QiVar>& args) const
         {
-            return (double)QiVar::random((int)(args[0].toInteger()), args.size() > 1 ? (int)(args[1].toInteger()) : 0);
+            return int(QiVar::random((int)(args[0].toInteger()), args.size() > 1 ? (int)(args[1].toInteger()) : 0));
         }
     };
     class QiFunc_cur_to : public QiFunc
@@ -588,6 +597,15 @@ public:
             return String::toString(TextEditBox(nullptr, String::toWString(title).c_str(), String::toWString(text).c_str(), args.size() > 2 ? args[2].toBool() : false, WS_EX_TOPMOST, L"ICOAPP"));
         }
     };
+    class QiFunc_volume : public QiFunc
+    {
+    public:
+        QiFunc_volume() : QiFunc(0, 2) {}
+        QiVar exec(const std::vector<QiVar>& args) const
+        {
+            return (double)Sound::SpeakerVolume(args.size() > 0 ? args[0].toInteger() : 10, args.size() > 1 ? args[1].toBool() : false);
+        }
+    };
     QiFuncMap()
     {
         insert({ "date", std::make_unique<QiFunc_date>() });
@@ -601,6 +619,7 @@ public:
         insert({ "time_dh", std::make_unique<QiFunc_time_dh>() });
         insert({ "time_dm", std::make_unique<QiFunc_time_dm>() });
         insert({ "time_ds", std::make_unique<QiFunc_time_ds>() });
+        insert({ "time_ms", std::make_unique<QiFunc_time_ms>() });
         insert({ "str", std::make_unique<QiFunc_str>() });
         insert({ "num", std::make_unique<QiFunc_num>() });
         insert({ "int", std::make_unique<QiFunc_int>() });
@@ -616,6 +635,7 @@ public:
         insert({ "subx", std::make_unique<QiFunc_subx>() });
         insert({ "text_box", std::make_unique<QiFunc_text_box>() });
         insert({ "edit_box", std::make_unique<QiFunc_edit_box>() });
+        insert({ "volume", std::make_unique<QiFunc_volume>() });
     }
 };
 

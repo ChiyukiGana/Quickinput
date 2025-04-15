@@ -43,12 +43,11 @@ public:
 		thread.join();
 	}
 	template<class Fn, class... Args>
-	std::future<typename std::result_of<Fn(Args...)>::type> enqueue(Fn&& fn, Args&&... args)
+	std::future<std::invoke_result_t<Fn, Args...>> enqueue(Fn&& fn, Args&&... args)
 	{
 		if (stop) throw std::runtime_error("ThreadQueue::enqueue: this thread-queue is stopped");
-		using result_type = typename std::invoke_result<Fn, Args...>::type;
-		auto task = std::make_shared<std::packaged_task<result_type()>>(std::bind(std::forward<Fn>(fn), std::forward<Args>(args)...));
-		std::future<result_type> result = task->get_future();
+		auto task = std::make_shared<std::packaged_task<std::invoke_result_t<Fn, Args...>()>>(std::bind(std::forward<Fn>(fn), std::forward<Args>(args)...));
+		std::future<std::invoke_result_t<Fn, Args...>> result = task->get_future();
 		{
 			std::unique_lock<std::mutex> lock(mutex);
 			queue.emplace([task] { (*task)(); });

@@ -41,13 +41,13 @@
     <OutDir>$(ProjectDir).app_d\</OutDir>
     <IntDir>$(ProjectDir).build_d\</IntDir>
     <IncludePath>$(ProjectDir);$(ProjectDir)source;$(ProjectDir)source\src\libcurl\include;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget</IncludePath>
-    <LibraryPath>$(ProjectDir)source\src\libcurl\lib;$(ProjectDir)source\src\onnxruntime\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)source\src\libcurl\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir).app\</OutDir>
     <IntDir>$(ProjectDir).build\</IntDir>
     <IncludePath>$(ProjectDir);$(ProjectDir)source;$(ProjectDir)source\src\libcurl\include;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget</IncludePath>
-    <LibraryPath>$(ProjectDir)source\src\libcurl\lib;$(ProjectDir)source\src\onnxruntime\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)source\src\libcurl\x64;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtModules>core;widgets;winextras</QtModules>
@@ -62,7 +62,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>Q_KEYEDIT_PAD_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>Q_KEYEDIT_PAD_ENABLED;QIOCR_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link />
     <Manifest>
@@ -79,7 +79,7 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>Q_KEYEDIT_PAD_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>Q_KEYEDIT_PAD_ENABLED;QIOCR_SHARED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>false</GenerateDebugInformation>
