@@ -84,10 +84,25 @@
     <ClInclude Include="source\src\thread.h">
       <Filter>Header Files\1</Filter>
     </ClInclude>
+    <ClInclude Include="source\src\inc_header.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\scriptinterpreter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\integrity_verify.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\ocr\QiOcrInterface.h">
+      <Filter>Header Files\OCR</Filter>
+    </ClInclude>
     <ClInclude Include="source\src\tools\base.h">
       <Filter>Header Files\QiTools</Filter>
     </ClInclude>
     <ClInclude Include="source\src\tools\color.h">
+      <Filter>Header Files\QiTools</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\tools\csvtool.h">
       <Filter>Header Files\QiTools</Filter>
     </ClInclude>
     <ClInclude Include="source\src\tools\file.h">
@@ -111,6 +126,9 @@
     <ClInclude Include="source\src\tools\process.h">
       <Filter>Header Files\QiTools</Filter>
     </ClInclude>
+    <ClInclude Include="source\src\tools\restool.h">
+      <Filter>Header Files\QiTools</Filter>
+    </ClInclude>
     <ClInclude Include="source\src\tools\sound.h">
       <Filter>Header Files\QiTools</Filter>
     </ClInclude>
@@ -118,6 +136,12 @@
       <Filter>Header Files\QiTools</Filter>
     </ClInclude>
     <ClInclude Include="source\src\tools\system.h">
+      <Filter>Header Files\QiTools</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\tools\task.h">
+      <Filter>Header Files\QiTools</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\tools\texteditbox.h">
       <Filter>Header Files\QiTools</Filter>
     </ClInclude>
     <ClInclude Include="source\src\tools\thread.h">
@@ -129,37 +153,16 @@
     <ClInclude Include="source\src\tools\threadqueue.h">
       <Filter>Header Files\QiTools</Filter>
     </ClInclude>
-    <ClInclude Include="source\src\tools\vector.h">
-      <Filter>Header Files\QiTools</Filter>
-    </ClInclude>
-    <ClInclude Include="source\src\tools\xboxpad.h">
-      <Filter>Header Files\QiTools</Filter>
-    </ClInclude>
-    <ClInclude Include="source\src\tools\task.h">
-      <Filter>Header Files\QiTools</Filter>
-    </ClInclude>
-    <ClInclude Include="source\src\inc_header.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="source\src\tools\time.h">
       <Filter>Header Files\QiTools</Filter>
     </ClInclude>
-    <ClInclude Include="source\src\scriptinterpreter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\src\integrity_verify.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\src\tools\restool.h">
+    <ClInclude Include="source\src\tools\vector.h">
       <Filter>Header Files\QiTools</Filter>
-    </ClInclude>
-    <ClInclude Include="source\src\ocr\QiOcrInterface.h">
-      <Filter>Header Files\OCR</Filter>
     </ClInclude>
     <ClInclude Include="source\src\tools\window.h">
       <Filter>Header Files\QiTools</Filter>
     </ClInclude>
-    <ClInclude Include="source\src\tools\texteditbox.h">
+    <ClInclude Include="source\src\tools\xboxpad.h">
       <Filter>Header Files\QiTools</Filter>
     </ClInclude>
   </ItemGroup>

@@ -606,6 +606,44 @@ public:
             return (double)Sound::SpeakerVolume(args.size() > 0 ? args[0].toInteger() : 10, args.size() > 1 ? args[1].toBool() : false);
         }
     };
+    class QiFunc_file_read : public QiFunc
+    {
+    public:
+        QiFunc_file_read() : QiFunc(1) {}
+        QiVar exec(const std::vector<QiVar>& args) const
+        {
+            QByteArray data;
+            if (File::LoadText(args[0].toString().c_str(), data)) return QiVar(QString::fromUtf8(data).toStdString());
+            return QiVar();
+        }
+    };
+    class QiFunc_file_write : public QiFunc
+    {
+    public:
+        QiFunc_file_write() : QiFunc(2) {}
+        QiVar exec(const std::vector<QiVar>& args) const
+        {
+            return File::SaveText(args[0].toString().c_str(), args[1].toString().c_str());
+        }
+    };
+    class QiFunc_csv_read : public QiFunc
+    {
+    public:
+        QiFunc_csv_read() : QiFunc(3) {}
+        QiVar exec(const std::vector<QiVar>& args) const
+        {
+            return CsvTool::read(args[0].toString(), args[1].toInteger(), args[2].toInteger());
+        }
+    };
+    class QiFunc_csv_write : public QiFunc
+    {
+    public:
+        QiFunc_csv_write() : QiFunc(4) {}
+        QiVar exec(const std::vector<QiVar>& args) const
+        {
+            return CsvTool::write(args[0].toString(), args[1].toInteger(), args[2].toInteger(), args[3].toString());
+        }
+    };
     QiFuncMap()
     {
         insert({ "date", std::make_unique<QiFunc_date>() });
@@ -636,6 +674,10 @@ public:
         insert({ "text_box", std::make_unique<QiFunc_text_box>() });
         insert({ "edit_box", std::make_unique<QiFunc_edit_box>() });
         insert({ "volume", std::make_unique<QiFunc_volume>() });
+        insert({ "file_read", std::make_unique<QiFunc_file_read>() });
+        insert({ "file_write", std::make_unique<QiFunc_file_write>() });
+        insert({ "csv_read", std::make_unique<QiFunc_csv_read>() });
+        insert({ "csv_write", std::make_unique<QiFunc_csv_write>() });
     }
 };
 

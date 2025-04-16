@@ -117,6 +117,7 @@
     <ClInclude Include="source\src\thread.h" />
     <ClInclude Include="source\src\tools\base.h" />
     <ClInclude Include="source\src\tools\color.h" />
+    <ClInclude Include="source\src\tools\csvtool.h" />
     <ClInclude Include="source\src\tools\file.h" />
     <ClInclude Include="source\src\tools\ihook.h" />
     <ClInclude Include="source\src\tools\image.h" />
