@@ -1,144 +1,8 @@
 ﻿#pragma once
 #include "inc_project.h"
-
-constexpr int key_size = XBoxPad::key_end;
-constexpr int msg_exit = (WM_USER + 0xFF);
-
-namespace Qi
-{
-	// path
-	extern const QString dir;
-	extern const QString folder;
-	extern const QString macroDir;
-	extern const QString macroType;
-	extern const QString configFile;
-}
-namespace QiUi
-{
-	constexpr int event_restyle = QEvent::User;
-	struct Theme
-	{
-		QString name;
-		QString style;
-	};
-	using Themes = QList<Theme>;
-	struct Text
-	{
-		// symbols
-		QString syEntry = "🔜";
-		QString syPause = "⏸️";
-		QString syExit = "🔙";
-		QString syAny = "🟡";
-		QString syOn = "✅";
-		QString syOff = "⛔";
-		QString syOk = "⭕";
-		QString syYes = "✔️";
-		QString syNot = "❌";
-		QString syStop = "🛑";
-		QString syShow = "🔼";
-		QString syHide = "🔽";
-		QString syOption = "⚙";
-		QString syLink = "🔗";
-		QString syEdit = "🔧";
-		QString syUp = "⬆️";
-		QString syDown = "⬇️";
-		QString syTurn = "🔃";
-		QString syLeft = "🔙";
-		QString syTop = "🔝";
-		QString syRight = "🔜";
-		QString syMove = "🔛";
-		QString syTime = "⏳";
-		QString syText = "🅰️";
-		QString syLoop = "♾️";
-		QString syColor = "🌈";
-		QString syImage = "🖼";
-		QString syPoint = "🪂";
-		QString syJump = "🛩";
-		QString syBlock = "🪂";
-		QString syBlockExec = "🛩";
-		QString syEqual = "🟰";
-		QString syVar = "💠";
-		QString syTrack = "➰";
-		QString sySpeaker = "🔈️";
-		// menu
-		QString muOn = QString("启用") + syOn;
-		QString muOff = QString("禁用") + syOff;
-		QString muShow = QString("显示") + syShow;
-		QString muHide = QString("隐藏") + syHide;
-		QString muExit = QString("退出") + syStop;
-		// action
-		QString acDown = QString("按下") + syDown;
-		QString acUp = QString("松开") + syUp;
-		QString acClick = QString("点击") + syTurn;
-		QString acPos = QString("位置") + syLeft;
-		QString acMove = QString("移动") + syMove;
-		QString acWait = QString("等待") + syTime;
-		QString acCopyText = QString("复制") + syText;
-		QString acLoop = QString("循环") + syLoop;
-		QString acColor = QString("找色") + syColor;
-		QString acEnd = QString("结束") + syStop;
-		QString acEndLoop = QString("结束循环") + syStop;
-		QString acKeyState = QString("按键状态") + syStop;
-		QString acResetPos = QString("恢复位置") + syTurn;
-		QString acImage = QString("找图") + syImage;
-		QString acPopText = QString("弹出") + syText;
-		QString acSavePos = QString("记录位置") + syTurn;
-		QString acTimer = QString("定时") + syLoop;
-		QString acJump = QString("跳转") + syJump;
-		QString acJumpPoint = QString("锚点") + syPoint;
-		QString acDialog = QString("对话框") + syText;
-		QString acBlock = QString("块") + syBlock;
-		QString acBlockExec = QString("执行") + syBlockExec;
-		QString acQuickInput = QString("输入字符") + syText;
-		QString acKeyBlock = QString("屏蔽按键") + syStop;
-		QString acClock = QString("时钟") + syTime;
-		QString acOcr = QString("文字识别") + syText;
-		QString acVarOperator = QString("变量运算") + syEqual;
-		QString acVarCondition = QString("变量判断") + syVar;
-		QString acMouseTrack = QString("鼠标轨迹") + syTrack;
-		QString acOpen = QString("打开") + syLink;
-		QString acTextPad = QString("文本") + syText;
-		QString acEditDialog = QString("编辑框") + syText;
-		QString acVolume = QString("音量检测") + sySpeaker;
-		// state
-		QString trOn = QString("启用") + syOn;
-		QString trOff = QString("禁用") + syOff;
-		// record
-		QString rcStart = QString("开始") + syOk;
-		QString rcStop = QString("停止") + syOk;
-		QString rcClose = QString("取消") + syNot;
-	};
-	struct PopTextInfo
-	{
-		QString t;
-		QColor c;
-	};
-	struct PopText
-	{
-		PopTextInfo qe;
-		PopTextInfo qd;
-		PopTextInfo we;
-		PopTextInfo wd;
-		PopTextInfo qce;
-		PopTextInfo qcd;
-		PopTextInfo swe;
-		PopTextInfo swd;
-		PopTextInfo dwe;
-		PopTextInfo dwd;
-		PopTextInfo upe;
-		PopTextInfo upd;
-		POINT p = {};
-		int size = 100;
-		int time = 1000;
-	};
-	struct QuickInputUi
-	{
-		QString dialogStyle = R"(*{color:black}QPushButton{width:60px;border:2px solid blue})";
-		Themes themes;
-		Text text;
-		PopText pop;
-	};
-}
+#include "scriptinterpreter.h"
+#include "ui.h"
+#include "range.h"
 
 class QiInterpreter;
 class MacroGroup;
@@ -309,85 +173,97 @@ struct QiType
 		open,
 		textPad,
 		editDialog,
-		volume
+		volume,
+		soundPlay,
+		count
 	};
 };
 using Actions = QiVector<Action>;
-class QiBase
+struct QiBase
 {
-public:
-	bool disable;
-	bool debug_entry;
-	bool debug_break;
-	bool debug_exit;
 	int type;
-	QString mark;
-	Actions next;
-	Actions next2;
-	QiBase(int qiType = QiType::none) noexcept : disable(false), debug_entry(false), debug_break(false), debug_exit(false), type(qiType), mark(QString()), next(Actions()), next2(Actions()) {}
+	bool disable = false;
+	bool debug_entry = false;
+	bool debug_break = false;
+	bool debug_exit = false;
+	QString mark = QString();
+	Actions next = Actions();
+	Actions next2 = Actions();
+	QiBase(int type = QiType::none) noexcept : type(type) {}
 };
-class QiEnd : public QiBase
+struct QiEnd : QiBase
 {
-public:
 	QiEnd() : QiBase(QiType::end) {}
 };
-class QiDelay : public QiBase
+struct QiDelay : QiBase
 {
-public:
-	int min; int max;
+	static constexpr QiIntRange range_time = { 0, (~unsigned int(0)) >> 1 };
+
+	int min = 0, max = 0;
 	QiDelay() : QiBase(QiType::delay) {}
 };
-class QiKey : public QiBase
+struct QiKey : QiBase
 {
-public:
 	enum { up, down, click };
-	int vk = 0; int state = down;
+	int vk = 0, state = down;
 	QiKey() : QiBase(QiType::key) {}
 };
-class QiMouse : public QiBase
+struct QiMouse : QiBase
 {
-public:
-	int x = 0; int y = 0; int ex = 0; int speed = 0; bool move = false; bool track = false;
+	static constexpr QiIntRange range_move = { -10000, 10000 };
+	static constexpr QiIntRange range_pos = { 0, 10000 };
+	static constexpr QiIntRange range_rand = { 0, 10000 };
+	static constexpr QiIntRange range_speed = { 0, 99 };
+
+	float speed = 0;
+	int x = 0, y = 0, ex = 0;
+	bool move = false, track = false;
 	QiMouse() : QiBase(QiType::mouse) {}
 };
-class QiCopyText : public QiBase
+struct QiCopyText : QiBase
 {
-public:
 	QString text;
 	QiCopyText() : QiBase(QiType::copyText) {}
 };
-class QiColor : public QiBase
+struct QiColor : QiBase
 {
-public:
-	Rgba rgbe = 0; RECT rect = {}; bool move = false;
+	static constexpr QiIntRange range_rect = { 0, 10000 };
+	static constexpr QiIntRange range_rgb = { 0, 255 };
+
+	Rgba rgbe;
+	RECT rect = {};
+	bool move = false;
 	QiColor() : QiBase(QiType::color) {}
 };
-class QiLoop : public QiBase
+struct QiLoop : QiBase
 {
-public:
-	int min = 0; int max = 0;
+	static constexpr QiIntRange range_count = { 0, (~unsigned int(0)) >> 1 };
+
+	int min = 0, max = 0;
 	QiLoop() : QiBase(QiType::loop) {}
 };
-class QiLoopEnd : public QiBase
+struct QiLoopEnd : QiBase
 {
-public:
 	QiLoopEnd() : QiBase(QiType::loopEnd) {}
 };
-class QiKeyState : public QiBase
+struct QiKeyState : QiBase
 {
-public:
 	int vk = 0;
 	QiKeyState() : QiBase(QiType::keyState) {}
 };
-class QiResetPos : public QiBase
+struct QiResetPos : QiBase
 {
-public:
 	QiResetPos() : QiBase(QiType::resetPos) {}
 };
-class QiImage : public QiBase
+struct QiImage : QiBase
 {
-public:
-	RgbMap map; int sim; RECT rect = {}; bool move = false;
+	static constexpr QiIntRange range_rect = { 0, 10000 };
+	static constexpr QiIntRange range_sim = { 0, 99 };
+
+	RgbMap map;
+	int sim = 0;
+	RECT rect = {};
+	bool move = false;
 	QiImage() : QiBase(QiType::image) {}
 	void fromBase64(const QString& base64, size_t width, size_t height)
 	{
@@ -404,83 +280,83 @@ public:
 		return data.toBase64();
 	}
 };
-class QiPopText : public QiBase
+struct QiPopText : QiBase
 {
-public:
-	QString text; int time = 0; bool sync = false;
+	static constexpr QiIntRange range_time = { 0, (~unsigned int(0)) >> 1 };
+
+	QString text;
+	int time = 0;
+	bool sync = false;
 	QiPopText() : QiBase(QiType::popText) {}
 };
-class QiSavePos : public QiBase
+struct QiSavePos : QiBase
 {
-public:
 	QiSavePos() : QiBase(QiType::savePos) {}
 };
-class QiTimer : public QiBase
+struct QiTimer : QiBase
 {
-public:
-	int min = 0; int max = 0;
+	static constexpr QiIntRange range_count = { 0, (~unsigned int(0)) >> 1 };
+
+	int min = 0, max = 0;
 	QiTimer() : QiBase(QiType::timer) {}
 };
-class QiJump : public QiBase
+struct QiJump : QiBase
 {
-public:
 	int id = 0;
 	QiJump() : QiBase(QiType::jump) {}
 };
-class QiJumpPoint : public QiBase
+struct QiJumpPoint : QiBase
 {
-public:
 	int id = 0;
 	QiJumpPoint() : QiBase(QiType::jumpPoint) {}
 };
-class QiDialog : public QiBase
+struct QiDialog : QiBase
 {
-public:
 	enum Style
 	{
 		none,
 		warning,
 		error
 	};
-	int style;
+	static constexpr QiIntRange range_style = { Style::none, Style::error };
+
+	int style = Style::none;
 	QString title;
 	QString text;
 	QiDialog() : QiBase(QiType::dialog) {}
 };
-class QiBlock : public QiBase
+struct QiBlock : QiBase
 {
-public:
-	int id;
+	int id = 0;
 	QiBlock() : QiBase(QiType::block) {}
 };
-class QiBlockExec : public QiBase
+struct QiBlockExec : QiBase
 {
-public:
-	int id;
+	int id = 0;
 	QiBlockExec() : QiBase(QiType::blockExec) {}
 };
-class QiQuickInput : public QiBase
+struct QiQuickInput : QiBase
 {
-public:
 	QiVector<unsigned char> chars;
 	QiQuickInput() : QiBase(QiType::quickInput) {}
 };
-class QiKeyBlock : public QiBase
+struct QiKeyBlock : QiBase
 {
-public:
 	int vk = 0;
 	bool block = false;
 	QiKeyBlock() : QiBase(QiType::keyBlock) {}
 };
-class QiClock : public QiBase
+struct QiClock : QiBase
 {
-public:
+	static constexpr QiIntRange range_time = { 0, 60 * 60 * 24 };
+
 	int time = 0;
 	QiClock() : QiBase(QiType::clock) {}
 };
-class QiOcr : public QiBase
+struct QiOcr : QiBase
 {
-public:
+	static constexpr QiIntRange range_rect = { 0, 10000 };
+
 	bool match = false;
 	bool row = false;
 	RECT rect = {};
@@ -488,28 +364,25 @@ public:
 	QString var;
 	QiOcr() : QiBase(QiType::ocr) {}
 };
-class QiVarOperator : public QiBase
+struct QiVarOperator : QiBase
 {
-public:
 	QString script;
 	QiVarOperator() : QiBase(QiType::varOperator) {}
 };
-class QiVarCondition : public QiBase
+struct QiVarCondition : QiBase
 {
-public:
 	QString script;
 	QiVarCondition() : QiBase(QiType::varCondition) {}
 };
-class QiMouseTrack : public QiBase
+struct QiMouseTrack : QiBase
 {
-public:
 	struct MovePart
 	{
 		int x;
 		int y;
 		clock_t t;
 	};
-	clock_t t;
+	clock_t t = 0;
 	std::vector<MovePart> s;
 	QiMouseTrack() : QiBase(QiType::mouseTrack), t(clock()) {}
 	void append(int x, int y)
@@ -543,34 +416,39 @@ public:
 		return data.toBase64();
 	}
 };
-class QiOpen : public QiBase
+struct QiOpen : QiBase
 {
-public:
 	QString url;
 	QiOpen() : QiBase(QiType::open) {}
 };
-class QiTextPad : public QiBase
+struct QiTextPad : QiBase
 {
-public:
 	QString text;
 	QiTextPad() : QiBase(QiType::textPad) {}
 };
-class QiEditDialog : public QiBase
+struct QiEditDialog : QiBase
 {
-public:
 	bool mult = false;
 	QString title;
 	QString text;
 	QString var;
 	QiEditDialog() : QiBase(QiType::editDialog) {}
 };
-class QiVolume : public QiBase
+struct QiVolume : QiBase
 {
-public:
+	static constexpr QiIntRange range_time = { 10, 10000 };
+	static constexpr QiFloatRange range_volume = { 0.0f, 1.0f };
+
 	bool max = false;
 	int time = 10;
 	float volume = 0.0f;
 	QiVolume() : QiBase(QiType::volume) {}
+};
+struct QiSoundPlay : QiBase
+{
+	bool sync = false, stop = false;
+	QString file;
+	QiSoundPlay() : QiBase(QiType::soundPlay) {}
 };
 using ActionVariant = std::variant
 <
@@ -604,7 +482,8 @@ using ActionVariant = std::variant
 	QiOpen,
 	QiTextPad,
 	QiEditDialog,
-	QiVolume
+	QiVolume,
+	QiSoundPlay
 > ;
 class Action : public ActionVariant
 {
@@ -625,10 +504,17 @@ public:
 	}
 };
 ////////////////// Macro
-class Macro
+struct Macro
 {
-public:
 	enum { sw, down, up };
+
+	static constexpr QiIntRange range_count = { 0, 9999 };
+	static constexpr QiIntRange range_mode = { sw, up };
+	static constexpr QiIntRange range_timer = { 0, 60 * 60 * 24 };
+	static constexpr QiFloatRange range_speed = { 0.1f, 10.0f };
+	static constexpr QiFloatRange range_moveScale = { 0.1f, 10.0f };
+	static constexpr QiFloatRange range_posScale = { -1.0f, 1.0f };
+
 	bool state = false; // enable | disable
 	bool keyBlock = false; // block this trigger key
 	bool curBlock = false; // block cursor move
@@ -870,46 +756,8 @@ namespace Qi
 	inline bool keyBlock[key_size];
 	inline int curBlock = 0;
 	inline XBoxPad xboxpad;
-	// dir
-	inline const QString dir = QDir::fromNativeSeparators(QString::fromWCharArray(Process::runPath().c_str()));
-	inline const QString folder = dir.mid(dir.lastIndexOf('/') + 1);
-	inline const QString macroDir = dir + "/macro/";
-	inline const QString macroType = ".json";
-	inline const QString configFile = "QuickInput.json";
 	// other
 	inline SIZE screen = {};
 	inline MSG msg;
 	inline bool debug = false;
-}
-
-namespace QiRange
-{
-	constexpr int macro_count_max = 9999;
-	constexpr int macro_mode_max = Macro::up;
-	constexpr time_t macro_timer_min = 0;
-	constexpr time_t macro_timer_max = 60 * 60 * 24;
-	constexpr float macro_speed_min = 0.1f;
-	constexpr float macro_speed_max = 10.0f;
-	constexpr float macro_moveScale_min = 0.1f;
-	constexpr float macro_moveScale_max = 10.0f;
-	constexpr float macro_posScale_min = -1.0f;
-	constexpr float macro_posScale_max = 1.0f;
-	inline int Restricted(int param, int max, int min = 0)
-	{
-		if (param > max) param = max;
-		else if (param < min) param = min;
-		return param;
-	}
-	inline time_t Restricted(time_t param, time_t max, time_t min = 0)
-	{
-		if (param > max) param = max;
-		else if (param < min) param = min;
-		return param;
-	}
-	inline float Restricted(float param, float max, float min = 0.0f)
-	{
-		if (param > max) param = max;
-		else if (param < min) param = min;
-		return param;
-	}
 }

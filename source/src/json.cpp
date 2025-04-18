@@ -286,6 +286,13 @@ namespace QiJson
 				jAction.insert("next", SaveAction(ref.next));
 				jAction.insert("next2", SaveAction(ref.next2));
 			} break;
+			case QiType::soundPlay:
+			{
+				const QiSoundPlay &ref = std::get<QiSoundPlay>(var);
+				jAction.insert("file", ref.file);
+				jAction.insert("sync", ref.sync);
+				jAction.insert("stop", ref.stop);
+			} break;
 			default: success = false;
 			}
 
@@ -666,6 +673,14 @@ namespace QiJson
 					var.next2 = LoadAction(jAction.value("next2").toArray());
 					actions.append(var);
 				} break;
+				case QiType::soundPlay:
+				{
+					QiSoundPlay var; var.disable = dis, var.mark = mark;
+					var.file = jAction.value("file").toString();
+					var.sync = jAction.value("sync").toBool();
+					var.stop = jAction.value("stop").toBool();
+					actions.append(var);
+				} break;
 				default: actions.append(QiBase(type)); break;
 				}
 			}
@@ -692,26 +707,26 @@ namespace QiJson
 				macro.timer = jMacro.value("timer").toBool();
 
 				macro.key = jMacro.value("key").toInt();
-				macro.mode = QiRange::Restricted(jMacro.value("mode").toInt(), QiRange::macro_mode_max);
-				macro.count = QiRange::Restricted(jMacro.value("count").toInt(), QiRange::macro_count_max);
+				macro.mode = QiRange::Restricted(jMacro.value("mode").toInt(), Macro::range_mode);
+				macro.count = QiRange::Restricted(jMacro.value("count").toInt(), Macro::range_count);
 
-				macro.timerStart = QiRange::Restricted((time_t)jMacro.value("timerStart").toInt(), QiRange::macro_timer_max, QiRange::macro_timer_min);
-				macro.timerEnd = QiRange::Restricted((time_t)jMacro.value("timerEnd").toInt(), QiRange::macro_timer_max, QiRange::macro_timer_min);
+				macro.timerStart = QiRange::Restricted((int)jMacro.value("timerStart").toInt(), Macro::range_timer);
+				macro.timerEnd = QiRange::Restricted((int)jMacro.value("timerEnd").toInt(), Macro::range_timer);
 
 				macro.speed = jMacro.value("speed").toDouble();
 				if (macro.speed == 0) macro.speed = 1.0f;
-				else macro.speed = QiRange::Restricted(macro.speed, QiRange::macro_speed_max, QiRange::macro_speed_min);
+				else macro.speed = QiRange::Restricted(macro.speed, Macro::range_speed);
 
 				macro.moveScaleX = jMacro.value("moveScaleX").toDouble();
 				if (macro.moveScaleX == 0) macro.moveScaleX = 1.0f;
-				else macro.moveScaleX = QiRange::Restricted(macro.moveScaleX, QiRange::macro_moveScale_max, QiRange::macro_moveScale_min);
+				else macro.moveScaleX = QiRange::Restricted(macro.moveScaleX, Macro::range_moveScale);
 
 				macro.moveScaleY = jMacro.value("moveScaleY").toDouble();
 				if (macro.moveScaleY == 0) macro.moveScaleY = 1.0f;
-				else macro.moveScaleY = QiRange::Restricted(macro.moveScaleY, QiRange::macro_moveScale_max, QiRange::macro_moveScale_min);
+				else macro.moveScaleY = QiRange::Restricted(macro.moveScaleY, Macro::range_moveScale);
 
-				macro.posScaleX = QiRange::Restricted(jMacro.value("posScaleX").toDouble(), QiRange::macro_posScale_max, QiRange::macro_posScale_min);
-				macro.posScaleY = QiRange::Restricted(jMacro.value("posScaleY").toDouble(), QiRange::macro_posScale_max, QiRange::macro_posScale_min);
+				macro.posScaleX = QiRange::Restricted(jMacro.value("posScaleX").toDouble(), Macro::range_posScale);
+				macro.posScaleY = QiRange::Restricted(jMacro.value("posScaleY").toDouble(), Macro::range_posScale);
 
 				macro.acRun = LoadAction(jMacro.value("actions").toArray());
 				macro.acEnd = LoadAction(jMacro.value("actionsEnding").toArray());

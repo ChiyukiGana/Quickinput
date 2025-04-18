@@ -35,8 +35,18 @@ using namespace QiTools;
 #include <QPointView.h>
 #include <QRectView.h>
 #include <QTextDialog.h>
+// ocr
+#include <src/ocr/QiOcrInterface.h>
 
 // quickinput
-#include "ocr/QiOcrInterface.h"
-#include "scriptinterpreter.h"
-#include "type.h"
+namespace Qi
+{
+	constexpr int key_info = 214;
+	constexpr int key_size = XBoxPad::end;
+	constexpr int msg_exit = (WM_USER + 0xFF);
+	inline const QString dir = QDir::fromNativeSeparators(QString::fromWCharArray(Process::runPath().c_str()));
+	inline const QString folder = dir.mid(dir.lastIndexOf('/') + 1);
+	inline const QString macroDir = dir + "/macro/";
+	inline const QString macroType = ".json";
+	inline const QString configFile = "QuickInput.json";
+}

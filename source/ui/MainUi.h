@@ -73,11 +73,11 @@ private:
 		if ("task bar icon")
 		{
 			menu = new QMenu(this);
-			ac_on = new QAction(Qi::ui.text.muOn, this);
-			ac_off = new QAction(Qi::ui.text.muOff, this);
-			ac_show = new QAction(Qi::ui.text.muShow, this);
-			ac_hide = new QAction(Qi::ui.text.muHide, this);
-			ac_exit = new QAction(Qi::ui.text.muExit, this);
+			ac_on = new QAction(QiUi::Text::muOn, this);
+			ac_off = new QAction(QiUi::Text::muOff, this);
+			ac_show = new QAction(QiUi::Text::muShow, this);
+			ac_hide = new QAction(QiUi::Text::muHide, this);
+			ac_exit = new QAction(QiUi::Text::muExit, this);
 			menu->addAction(ac_on);
 			menu->addAction(ac_off);
 			menu->addAction(ac_show);

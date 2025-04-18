@@ -25,8 +25,8 @@ namespace QiTools {
 	public:
 		static void WavePlay(std::wstring path, bool sync = false)
 		{
-			if (sync) PlaySoundW(path.c_str(), NULL, SND_FILENAME | SND_SYNC);
-			else PlaySoundW(path.c_str(), NULL, SND_FILENAME | SND_ASYNC);
+			if (sync) PlaySoundW(path.empty() ? nullptr : path.c_str(), NULL, SND_FILENAME | SND_SYNC);
+			else PlaySoundW(path.empty() ? nullptr : path.c_str(), NULL, SND_FILENAME | SND_ASYNC);
 		}
 		static void SoundPlay(std::wstring file, bool sync = true)
 		{
@@ -43,71 +43,128 @@ namespace QiTools {
 
 		static float SpeakerVolume(DWORD time, bool avg_max = false) {
 			HRESULT hr;
-			IMMDeviceEnumerator* pEnumerator = nullptr;
-			IMMDevice* pDevice = nullptr;
-			IAudioClient* pAudioClient = nullptr;
-			IAudioCaptureClient* pCaptureClient = nullptr;
-			WAVEFORMATEX* pWaveFormat = nullptr;
 
 			hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
 			if (FAILED(hr)) return 0.0f;
 
-			hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr,
-				CLSCTX_ALL, __uuidof(IMMDeviceEnumerator),
-				reinterpret_cast<void**>(&pEnumerator));
-			if (FAILED(hr)) goto done;
+			IMMDeviceEnumerator* pEnumerator = nullptr;
+			hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), nullptr, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator), reinterpret_cast<void**>(&pEnumerator));
+			if (FAILED(hr))
+			{
+				CoUninitialize();
+				return 0.0f;
+			}
 
+			IMMDevice* pDevice = nullptr;
 			hr = pEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &pDevice);
-			if (FAILED(hr)) goto done;
+			pEnumerator->Release();
+			if (FAILED(hr))
+			{
+				CoUninitialize();
+				return 0.0f;
+			}
 
-			hr = pDevice->Activate(__uuidof(IAudioClient), CLSCTX_ALL,
-				nullptr, reinterpret_cast<void**>(&pAudioClient));
-			if (FAILED(hr)) goto done;
+			IAudioClient* pAudioClient = nullptr;
+			hr = pDevice->Activate(__uuidof(IAudioClient), CLSCTX_ALL, nullptr, reinterpret_cast<void**>(&pAudioClient));
+			pDevice->Release();
+			if (FAILED(hr))
+			{
+				CoUninitialize();
+				return 0.0f;
+			}
 
+			WAVEFORMATEX* pWaveFormat = nullptr;
 			hr = pAudioClient->GetMixFormat(&pWaveFormat);
-			if (FAILED(hr)) goto done;
+			if (FAILED(hr))
+			{
+				pAudioClient->Release();
+				CoUninitialize();
+				return 0.0f;
+			}
 
 			bool isFloatFormat = false;
-			if (pWaveFormat->wFormatTag == WAVE_FORMAT_EXTENSIBLE) {
+			if (pWaveFormat->wFormatTag == WAVE_FORMAT_EXTENSIBLE)
+			{
 				WAVEFORMATEXTENSIBLE* wfex = reinterpret_cast<WAVEFORMATEXTENSIBLE*>(pWaveFormat);
-				if (wfex->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT) {
+				if (wfex->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT)
+				{
 					isFloatFormat = true;
 				}
 			}
-			else if (pWaveFormat->wFormatTag == WAVE_FORMAT_IEEE_FLOAT) {
+			else if (pWaveFormat->wFormatTag == WAVE_FORMAT_IEEE_FLOAT)
+			{
 				isFloatFormat = true;
 			}
-			if (!isFloatFormat) goto done;
+			if (!isFloatFormat)
+			{
+				pAudioClient->Release();
+				CoTaskMemFree(pWaveFormat);
+				CoUninitialize();
+				return 0.0f;
+			}
 
-			hr = pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED,
-				AUDCLNT_STREAMFLAGS_LOOPBACK, 0, 0, pWaveFormat, nullptr);
-			if (FAILED(hr)) goto done;
+			hr = pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, 0, 0, pWaveFormat, nullptr);
+			if (FAILED(hr))
+			{
+				pAudioClient->Release();
+				CoTaskMemFree(pWaveFormat);
+				CoUninitialize();
+				return 0.0f;
+			}
 
-			hr = pAudioClient->GetService(__uuidof(IAudioCaptureClient),
-				reinterpret_cast<void**>(&pCaptureClient));
-			if (FAILED(hr)) goto done;
+			IAudioCaptureClient* pCaptureClient = nullptr;
+			hr = pAudioClient->GetService(__uuidof(IAudioCaptureClient), reinterpret_cast<void**>(&pCaptureClient));
+			if (FAILED(hr))
+			{
+				pAudioClient->Release();
+				CoTaskMemFree(pWaveFormat);
+				CoUninitialize();
+				return 0.0f;
+			}
 
 			hr = pAudioClient->Start();
-			if (FAILED(hr)) goto done;
-
-			LARGE_INTEGER freq, start;
-			QueryPerformanceFrequency(&freq);
-			QueryPerformanceCounter(&start);
+			if (FAILED(hr))
+			{
+				pAudioClient->Release();
+				CoTaskMemFree(pWaveFormat);
+				pCaptureClient->Release();
+				CoUninitialize();
+				return 0.0f;
+			}
 
 			float totalMax = 0.0f;
 			float totalSum = 0.0f;
 			UINT32 totalSamples = 0;
+			LARGE_INTEGER freq, start;
+			QueryPerformanceFrequency(&freq);
+			QueryPerformanceCounter(&start);
 
 			do {
 				UINT32 packetSize;
 				hr = pCaptureClient->GetNextPacketSize(&packetSize);
-				if (FAILED(hr)) break;
+				if (FAILED(hr))
+				{
+					pAudioClient->Stop();
+					pAudioClient->Release();
+					CoTaskMemFree(pWaveFormat);
+					pCaptureClient->Release();
+					CoUninitialize();
+					break;
+				}
 
 				if (packetSize == 0) {
 					LARGE_INTEGER now;
 					QueryPerformanceCounter(&now);
 					double elapsedMs = (now.QuadPart - start.QuadPart) * 1000.0 / freq.QuadPart;
-					if (elapsedMs >= double(time)) break;
+					if (elapsedMs >= double(time))
+					{
+						pAudioClient->Stop();
+						pAudioClient->Release();
+						CoTaskMemFree(pWaveFormat);
+						pCaptureClient->Release();
+						CoUninitialize();
+						break;
+					}
 					Sleep(1);
 					continue;
 				}
@@ -116,17 +173,28 @@ namespace QiTools {
 				UINT32 numFrames;
 				DWORD flags;
 				hr = pCaptureClient->GetBuffer(&pData, &numFrames, &flags, nullptr, nullptr);
-				if (FAILED(hr)) break;
+				if (FAILED(hr))
+				{
+					pAudioClient->Stop();
+					pAudioClient->Release();
+					CoTaskMemFree(pWaveFormat);
+					pCaptureClient->Release();
+					CoUninitialize();
+					break;
+				}
 
-				if (flags & AUDCLNT_BUFFERFLAGS_SILENT) {
+				if (flags & AUDCLNT_BUFFERFLAGS_SILENT)
+				{
 					pData = nullptr;
 				}
 
 				UINT32 numChannels = pWaveFormat->nChannels;
 				UINT32 numSamples = numFrames * numChannels;
-				if (pData != nullptr) {
+				if (pData != nullptr)
+				{
 					float* samples = reinterpret_cast<float*>(pData);
-					for (UINT32 i = 0; i < numSamples; ++i) {
+					for (UINT32 i = 0; i < numSamples; ++i)
+					{
 						float sample = fabsf(samples[i]);
 						totalSum += sample;
 						if (sample > totalMax) totalMax = sample;
@@ -138,20 +206,10 @@ namespace QiTools {
 			} while (true);
 
 			float volume = 0.0f;
-			if (totalSamples > 0) {
+			if (totalSamples > 0)
+			{
 				avg_max ? volume = totalMax : volume = totalSum / totalSamples;
 			}
-
-		done:
-			if (pCaptureClient) pCaptureClient->Release();
-			if (pAudioClient) {
-				pAudioClient->Stop();
-				pAudioClient->Release();
-			}
-			if (pWaveFormat) CoTaskMemFree(pWaveFormat);
-			if (pDevice) pDevice->Release();
-			if (pEnumerator) pEnumerator->Release();
-			CoUninitialize();
 
 			return volume;
 		}

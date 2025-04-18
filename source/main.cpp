@@ -38,7 +38,8 @@ void Init()
     font-size: 14px
 }
 
-*[group="client"] {
+*[group="client"],
+*[group="edit-client"] {
     background-color: #CEF
 }
 
@@ -100,21 +101,24 @@ QToolTip,
 *[group="tab_widget_bar"]::tab:first,
 *[group="tab_widget_bar"]::tab,
 *[group="tab_widget_bar"]::tab:last,
-*[group="ltab_widget"]::tab {
+*[group="ltab_widget"]::tab,
+*[group="edit-tab_button"] {
     background-color: #ADE
 }
 
 *[group="tab_widget_bar"]::tab:first:hover,
 *[group="tab_widget_bar"]::tab:hover,
 *[group="tab_widget_bar"]::tab:last:hover,
-*[group="ltab_widget"]::tab:hover {
+*[group="ltab_widget"]::tab:hover,
+*[group="edit-tab_button"]:hover {
     background-color: #ADE
 }
 
 *[group="tab_widget_bar"]::tab:first:selected,
 *[group="tab_widget_bar"]::tab:selected,
 *[group="tab_widget_bar"]::tab:last:selected,
-*[group="ltab_widget"]::tab:selected {
+*[group="ltab_widget"]::tab:selected,
+*[group="edit-tab_button"]:disabled {
     background-color: #CEF;
     color: black
 }
@@ -199,7 +203,8 @@ QToolTip,
     font-size: 14px
 }
 
-*[group="client"] {
+*[group="client"],
+*[group="edit-client"] {
     background-color: #FDF;
     background-image: url(:/candy.png)
 }
@@ -262,21 +267,24 @@ QToolTip,
 *[group="tab_widget_bar"]::tab:first,
 *[group="tab_widget_bar"]::tab,
 *[group="tab_widget_bar"]::tab:last,
-*[group="ltab_widget"]::tab {
+*[group="ltab_widget"]::tab,
+*[group="edit-tab_button"] {
     background-color: #FCE
 }
 
 *[group="tab_widget_bar"]::tab:first:hover,
 *[group="tab_widget_bar"]::tab:hover,
 *[group="tab_widget_bar"]::tab:last:hover,
-*[group="ltab_widget"]::tab:hover {
+*[group="ltab_widget"]::tab:hover,
+*[group="edit-tab_button"]:hover {
     background-color: #FBE
 }
 
 *[group="tab_widget_bar"]::tab:first:selected,
 *[group="tab_widget_bar"]::tab:selected,
 *[group="tab_widget_bar"]::tab:last:selected,
-*[group="ltab_widget"]::tab:selected {
+*[group="ltab_widget"]::tab:selected,
+*[group="edit-tab_button"]:disabled {
     background-color: #FDF;
     color: black
 }
@@ -361,7 +369,8 @@ QToolTip,
     font-size: 14px
 }
 
-*[group="client"] {
+*[group="client"],
+*[group="edit-client"] {
     background-color: #FEC;
     background-image: url(:/neko.png)
 }
@@ -424,21 +433,24 @@ QToolTip,
 *[group="tab_widget_bar"]::tab:first,
 *[group="tab_widget_bar"]::tab,
 *[group="tab_widget_bar"]::tab:last,
-*[group="ltab_widget"]::tab {
+*[group="ltab_widget"]::tab,
+*[group="edit-tab_button"] {
     background-color: #FDA
 }
 
 *[group="tab_widget_bar"]::tab:first:hover,
 *[group="tab_widget_bar"]::tab:hover,
 *[group="tab_widget_bar"]::tab:last:hover,
-*[group="ltab_widget"]::tab:hover {
+*[group="ltab_widget"]::tab:hover,
+*[group="edit-tab_button"]:hover {
     background-color: #FFD0B0
 }
 
 *[group="tab_widget_bar"]::tab:first:selected,
 *[group="tab_widget_bar"]::tab:selected,
 *[group="tab_widget_bar"]::tab:last:selected,
-*[group="ltab_widget"]::tab:selected {
+*[group="ltab_widget"]::tab:selected,
+*[group="edit-tab_button"]:disabled {
     background-color: #FEC;
     color: black
 }
@@ -523,7 +535,8 @@ QToolTip,
     font-size: 14px
 }
 
-*[group="client"] {
+*[group="client"],
+*[group="edit-client"] {
     background-color: #AED;
     background-image: url(:/blade.png)
 }
@@ -586,21 +599,24 @@ QToolTip,
 *[group="tab_widget_bar"]::tab:first,
 *[group="tab_widget_bar"]::tab,
 *[group="tab_widget_bar"]::tab:last,
-*[group="ltab_widget"]::tab {
+*[group="ltab_widget"]::tab,
+*[group="edit-tab_button"] {
     background-color: #9DC
 }
 
 *[group="tab_widget_bar"]::tab:first:hover,
 *[group="tab_widget_bar"]::tab:hover,
 *[group="tab_widget_bar"]::tab:last:hover,
-*[group="ltab_widget"]::tab:hover {
+*[group="ltab_widget"]::tab:hover,
+*[group="edit-tab_button"]:hover {
     background-color: #8EB
 }
 
 *[group="tab_widget_bar"]::tab:first:selected,
 *[group="tab_widget_bar"]::tab:selected,
 *[group="tab_widget_bar"]::tab:last:selected,
-*[group="ltab_widget"]::tab:selected {
+*[group="ltab_widget"]::tab:selected,
+*[group="edit-tab_button"]:disabled {
     background-color: #AED;
     color: black
 }
@@ -685,7 +701,8 @@ QToolTip,
     font-size: 14px
 }
 
-*[group="client"] {
+*[group="client"],
+*[group="edit-client"] {
     background-color: #333
 }
 
@@ -747,21 +764,24 @@ QToolTip,
 *[group="tab_widget_bar"]::tab:first,
 *[group="tab_widget_bar"]::tab,
 *[group="tab_widget_bar"]::tab:last,
-*[group="ltab_widget"]::tab {
+*[group="ltab_widget"]::tab,
+*[group="edit-tab_button"] {
     background-color: #666
 }
 
 *[group="tab_widget_bar"]::tab:first:hover,
 *[group="tab_widget_bar"]::tab:hover,
 *[group="tab_widget_bar"]::tab:last:hover,
-*[group="ltab_widget"]::tab:hover {
+*[group="ltab_widget"]::tab:hover,
+*[group="edit-tab_button"]:hover {
     background-color: #777
 }
 
 *[group="tab_widget_bar"]::tab:first:selected,
 *[group="tab_widget_bar"]::tab:selected,
 *[group="tab_widget_bar"]::tab:last:selected,
-*[group="ltab_widget"]::tab:selected {
+*[group="ltab_widget"]::tab:selected,
+*[group="edit-tab_button"]:disabled {
     background-color: #333;
     color: white
 }

@@ -35,6 +35,3 @@
 #include <variant>
 #include <functional>
 #include <fstream>
-
-// quickinput
-constexpr int key_info = 214;

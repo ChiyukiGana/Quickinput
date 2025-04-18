@@ -13,7 +13,7 @@ namespace QiThread
 	}
 	bool PeekExitMsg()
 	{
-		return PeekMessageW(&Qi::msg, 0, msg_exit, msg_exit, PM_NOREMOVE);
+		return PeekMessageW(&Qi::msg, 0, Qi::msg_exit, Qi::msg_exit, PM_NOREMOVE);
 	}
 	bool PeekSleep(clock_t ms)
 	{
@@ -96,9 +96,9 @@ namespace QiThread
 		else if (Qi::fun.quickClick.delay == 1) dmax = umax = 1, dmin = umin = 0;
 		while (Qi::run && !PeekExitMsg())
 		{
-			Input::State(Qi::fun.quickClick.key, true, key_info);
+			Input::State(Qi::fun.quickClick.key, true, Qi::key_info);
 			PrecSleep(Rand(dmax, dmin));
-			Input::State(Qi::fun.quickClick.key, false, key_info);
+			Input::State(Qi::fun.quickClick.key, false, Qi::key_info);
 			PrecSleep(Rand(umax, umin));
 		}
 		return 0;
@@ -177,7 +177,7 @@ namespace QiThread
 	{
 		if (pMacro->thRun)
 		{
-			PostThreadMessageW(GetThreadId(pMacro->thRun), msg_exit, 0, 0);
+			PostThreadMessageW(GetThreadId(pMacro->thRun), Qi::msg_exit, 0, 0);
 			pMacro->thRun = nullptr;
 		}
 	}
@@ -185,7 +185,7 @@ namespace QiThread
 	{
 		if (pMacro->thEnd)
 		{
-			PostThreadMessageW(GetThreadId(pMacro->thEnd), msg_exit, 0, 0);
+			PostThreadMessageW(GetThreadId(pMacro->thEnd), Qi::msg_exit, 0, 0);
 			pMacro->thEnd = nullptr;
 		}
 	}
@@ -193,7 +193,7 @@ namespace QiThread
 	{
 		if (Qi::fun.quickClick.thread)
 		{
-			PostThreadMessageW(GetThreadId(Qi::fun.quickClick.thread), msg_exit, 0, 0);
+			PostThreadMessageW(GetThreadId(Qi::fun.quickClick.thread), Qi::msg_exit, 0, 0);
 			Qi::fun.quickClick.thread = nullptr;
 		}
 	}
@@ -201,7 +201,7 @@ namespace QiThread
 	{
 		if (Qi::fun.wndActive.thread)
 		{
-			PostThreadMessageW(GetThreadId(Qi::fun.wndActive.thread), msg_exit, 0, 0);
+			PostThreadMessageW(GetThreadId(Qi::fun.wndActive.thread), Qi::msg_exit, 0, 0);
 			Qi::fun.wndActive.thread = nullptr;
 		}
 	}

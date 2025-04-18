@@ -294,7 +294,9 @@ namespace QiFn
 			if (!InputHook::State())
 			{
 				timeBeginPeriod(1); // set clock accuracy
+#ifndef DEBUG
 				if (!InputHook::Start()) MsgBox::Error(L"创建输入Hook失败，检查是否管理员身份运行 或 是否被安全软件拦截。");
+#endif
 				Qi::xboxpad.setStateEvent(XBoxPadProc, true);
 			}
 		}

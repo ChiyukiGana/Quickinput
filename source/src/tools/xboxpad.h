@@ -34,6 +34,7 @@ namespace QiTools {
 			r_top,
 			l_bottom,
 			r_bottom,
+			end
 		};
 	public:
 		typedef void(EventCallback)(short, short);

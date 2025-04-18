@@ -522,7 +522,7 @@ public:
             else ix = x * 65535;
             if (QiVar::isInteger(y)) iy = (float)y / (float)screen.cx * 65535.0f;
             else iy = y * 65535;
-            Input::MoveToA(ix, iy, key_info);
+            Input::MoveToA(ix, iy, Qi::key_info);
             return true;
         }
     };
@@ -541,7 +541,7 @@ public:
             else ix = x * (double)screen.cx;
             if (QiVar::isInteger(y)) iy = y;
             else iy = y * (double)screen.cx;
-            Input::Move(ix, iy, key_info);
+            Input::Move(ix, iy, Qi::key_info);
             return true;
         }
     };
@@ -626,6 +626,24 @@ public:
             return File::SaveText(args[0].toString().c_str(), args[1].toString().c_str());
         }
     };
+    class QiFunc_file_exist : public QiFunc
+    {
+    public:
+        QiFunc_file_exist() : QiFunc(1) {}
+        QiVar exec(const std::vector<QiVar>& args) const
+        {
+            return File::PathState(String::toWString(args[0].toString()));
+        }
+    };
+    class QiFunc_file_remove : public QiFunc
+    {
+    public:
+        QiFunc_file_remove() : QiFunc(1) {}
+        QiVar exec(const std::vector<QiVar>& args) const
+        {
+            return bool(DeleteFileW(String::toWString(args[0].toString()).c_str()));
+        }
+    };
     class QiFunc_csv_read : public QiFunc
     {
     public:
@@ -676,6 +694,8 @@ public:
         insert({ "volume", std::make_unique<QiFunc_volume>() });
         insert({ "file_read", std::make_unique<QiFunc_file_read>() });
         insert({ "file_write", std::make_unique<QiFunc_file_write>() });
+        insert({ "file_exist", std::make_unique<QiFunc_file_exist>() });
+        insert({ "file_remove", std::make_unique<QiFunc_file_remove>() });
         insert({ "csv_read", std::make_unique<QiFunc_csv_read>() });
         insert({ "csv_write", std::make_unique<QiFunc_csv_write>() });
     }

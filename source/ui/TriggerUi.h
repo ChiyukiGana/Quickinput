@@ -194,52 +194,52 @@ private:
 			});
 		connect(ui.count_edit, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) {
 			if (!ItemCurrented()) return;
-			currentMacro->count = QiRange::Restricted(value, QiRange::macro_count_max);
+			currentMacro->count = QiRange::Restricted(value, Macro::range_count);
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
 		connect(ui.speed_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 			if (!ItemCurrented()) return;
-			currentMacro->speed = QiRange::Restricted(value, QiRange::macro_speed_max, QiRange::macro_speed_min);
+			currentMacro->speed = QiRange::Restricted(value, Macro::range_speed);
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
 
 		connect(ui.moveScale_x_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 			if (!ItemCurrented()) return;
-			currentMacro->moveScaleX = QiRange::Restricted(value, QiRange::macro_moveScale_max, QiRange::macro_moveScale_min);
+			currentMacro->moveScaleX = QiRange::Restricted(value, Macro::range_moveScale);
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
 		connect(ui.moveScale_y_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 			if (!ItemCurrented()) return;
-			currentMacro->moveScaleY = QiRange::Restricted(value, QiRange::macro_moveScale_max, QiRange::macro_moveScale_min);
+			currentMacro->moveScaleY = QiRange::Restricted(value, Macro::range_moveScale);
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
 
 		connect(ui.posScale_x_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 			if (!ItemCurrented()) return;
-			currentMacro->posScaleX = QiRange::Restricted(value, QiRange::macro_posScale_max, QiRange::macro_posScale_min);
+			currentMacro->posScaleX = QiRange::Restricted(value, Macro::range_posScale);
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
 		connect(ui.posScale_y_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 			if (!ItemCurrented()) return;
-			currentMacro->posScaleY = QiRange::Restricted(value, QiRange::macro_posScale_max, QiRange::macro_posScale_min);
+			currentMacro->posScaleY = QiRange::Restricted(value, Macro::range_posScale);
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
 
 		connect(ui.timer_start_edit, &QTimeEdit::userTimeChanged, this, [this](const QTime& time) {
 			if (!ItemCurrented()) return;
-			currentMacro->timerStart = QiRange::Restricted(QiTime::toTimeStamp(time.hour(), time.minute(), time.second()), QiRange::macro_timer_max, QiRange::macro_timer_min);
+			currentMacro->timerStart = QiRange::Restricted((int)QiTime::toTimeStamp(time.hour(), time.minute(), time.second()), Macro::range_timer);
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
 		connect(ui.timer_end_edit, &QTimeEdit::userTimeChanged, this, [this](const QTime& time) {
 			if (!ItemCurrented()) return;
-			currentMacro->timerEnd = QiRange::Restricted(QiTime::toTimeStamp(time.hour(), time.minute(), time.second()), QiRange::macro_timer_max, QiRange::macro_timer_min);
+			currentMacro->timerEnd = QiRange::Restricted((int)QiTime::toTimeStamp(time.hour(), time.minute(), time.second()), Macro::range_timer);
 			QiJson::SaveMacro(*currentMacro);
 			SetTableItem(currentTable, currentRow, *currentMacro);
 			});
@@ -299,8 +299,8 @@ private:
 		table->setItem(index, 2, new QTableWidgetItem(qs));
 		table->item(index, 2)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		// state
-		if (macro.state) qs = Qi::ui.text.trOn;
-		else qs = Qi::ui.text.trOff;
+		if (macro.state) qs = QiUi::Text::trOn;
+		else qs = QiUi::Text::trOff;
 		table->setItem(index, 3, new QTableWidgetItem(qs));
 		table->item(index, 3)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 	}
@@ -327,9 +327,9 @@ private:
 		bool state_on = true; for (auto& i : mg->macros) { if (!i.state) { state_on = false; break; } }
 		bool state_off = true; for (auto& i : mg->macros) { if (i.state) { state_off = false; break; } }
 		if (!table) return;
-		if (state_on) table->horizontalHeaderItem(tableColumn_state)->setText(QString("全部") + Qi::ui.text.syOn);
-		else if (state_off) table->horizontalHeaderItem(tableColumn_state)->setText(QString("全部") + Qi::ui.text.syOff);
-		else table->horizontalHeaderItem(tableColumn_state)->setText(QString("全部") + Qi::ui.text.syAny);
+		if (state_on) table->horizontalHeaderItem(tableColumn_state)->setText(QString("全部") + QiUi::Symbol::On);
+		else if (state_off) table->horizontalHeaderItem(tableColumn_state)->setText(QString("全部") + QiUi::Symbol::Off);
+		else table->horizontalHeaderItem(tableColumn_state)->setText(QString("全部") + QiUi::Symbol::Any);
 	}
 	void TableUpdate()
 	{
@@ -362,7 +362,7 @@ private:
 			table->setHorizontalHeaderItem(tableColumn_name, new QTableWidgetItem(mg.name));
 			table->setHorizontalHeaderItem(tableColumn_key, new QTableWidgetItem(""));
 			table->setHorizontalHeaderItem(tableColumn_mode, new QTableWidgetItem(""));
-			table->setHorizontalHeaderItem(tableColumn_state, new QTableWidgetItem("全部" + Qi::ui.text.syAny));
+			table->setHorizontalHeaderItem(tableColumn_state, new QTableWidgetItem("全部" + QiUi::Symbol::Any));
 			TableState(mgPos);
 			ui.macroGroup_table->setFold(table, Qi::fold.group[mg.name]);
 		}

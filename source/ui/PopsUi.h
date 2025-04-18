@@ -112,7 +112,7 @@ private:
 	void SelectColor(QiUi::PopTextInfo& p)
 	{
 		QColorDialog cd(p.c, this);
-		cd.setStyleSheet(Qi::ui.dialogStyle);
+		cd.setStyleSheet(QiUi::color_dialog_style);
 		cd.exec();
 		p.c = cd.currentColor();
 	}

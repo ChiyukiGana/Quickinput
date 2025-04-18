@@ -153,9 +153,9 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 					}
 					else
 					{
-						if (ref.state == QiKey::up) Input::State(ref.vk, false, key_info);
-						else if (ref.state == QiKey::down) Input::State(ref.vk, true, key_info);
-						else if (ref.state == QiKey::click) Input::Click(ref.vk, 10, key_info);
+						if (ref.state == QiKey::up) Input::State(ref.vk, false, Qi::key_info);
+						else if (ref.state == QiKey::down) Input::State(ref.vk, true, Qi::key_info);
+						else if (ref.state == QiKey::click) Input::Click(ref.vk, 10, Qi::key_info);
 					}
 				} break;
 				case QiType::mouse:
@@ -187,11 +187,11 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 							if (ref.track)
 							{
 								QiFn::SmoothMove(0, 0, x * moveScaleX, y * moveScaleY, ref.speed, [this](int x, int y, int stepx, int stepy) {
-									Input::Move(stepx, stepy, key_info);
+									Input::Move(stepx, stepy, Qi::key_info);
 									PeekSleep(10);
 									});
 							}
-							else Input::Move(x * moveScaleX, y * moveScaleY, key_info);
+							else Input::Move(x * moveScaleX, y * moveScaleY, Qi::key_info);
 						}
 						else
 						{
@@ -200,11 +200,11 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 							{
 								POINT spt = QiFn::P_SRTA(Input::pos());
 								QiFn::SmoothMove(spt.x, spt.y, x + scale.x, y + scale.y, ref.speed, [this, scale](int x, int y, int stepx, int stepy) {
-									Input::MoveToA(x * 6.5535f, y * 6.5535f, key_info);
+									Input::MoveToA(x * 6.5535f, y * 6.5535f, Qi::key_info);
 									PeekSleep(10);
 									});
 							}
-							else Input::MoveToA((x + scale.x) * 6.5535f, (y + scale.y) * 6.5535f, key_info);
+							else Input::MoveToA((x + scale.x) * 6.5535f, (y + scale.y) * 6.5535f, Qi::key_info);
 						}
 					}
 				} break;
@@ -248,7 +248,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 								wndInput->pt = findResult.pt;
 								Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
 							}
-							else Input::MoveTo(findResult.pt.x, findResult.pt.y, key_info);
+							else Input::MoveTo(findResult.pt.x, findResult.pt.y, Qi::key_info);
 						}
 						r_result = ActionInterpreter(ref.next, layer + 1);
 					}
@@ -292,7 +292,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 				case QiType::resetPos:
 				{
 					if (jumpId || debug_entry) continue;
-					Input::MoveTo(cursor.x, cursor.y, key_info);
+					Input::MoveTo(cursor.x, cursor.y, Qi::key_info);
 				} break;
 				case QiType::image:
 				{
@@ -326,7 +326,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 								wndInput->pt = pt;
 								Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
 							}
-							else Input::MoveTo(pt.x, pt.y, key_info);
+							else Input::MoveTo(pt.x, pt.y, Qi::key_info);
 						}
 						r_result = ActionInterpreter(ref.next, layer + 1);
 					}
@@ -435,7 +435,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 						}
 						else
 						{
-							Input::Click(i, 10, key_info);
+							Input::Click(i, 10, Qi::key_info);
 						}
 					}
 				} break;
@@ -550,7 +550,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 							{
 								if ((i.t / speed) <= (clock() - begin))
 								{
-									Input::MoveToA(i.x * 6.5535f, i.y * 6.5535f, key_info);
+									Input::MoveToA(i.x * 6.5535f, i.y * 6.5535f, Qi::key_info);
 									break;
 								}
 								Sleep(0);
@@ -580,6 +580,30 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next, layer + 1); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2, layer + 1); continue; }
 					if (Sound::SpeakerVolume(ref.time > 5 ? ref.time : 5, ref.max) > ref.volume) r_result = ActionInterpreter(ref.next, layer + 1);
 					else r_result = ActionInterpreter(ref.next2, layer + 1);
+				} break;
+				case QiType::soundPlay:
+				{
+					if (jumpId || debug_entry) continue;
+					const QiSoundPlay& ref = std::get<QiSoundPlay>(action);
+					if (ref.stop)
+					{
+						Sound::SoundClose();
+						Sound::WavePlay(std::wstring());
+					}
+					else
+					{
+						if (ref.file.indexOf(".wav") == -1)
+						{
+							Sound::SoundClose();
+							Sound::SoundOpen((const wchar_t*)ref.file.utf16());
+							Sound::SoundPlay(ref.sync);
+						}
+						else if (!ref.file.isEmpty())
+						{
+							Sound::WavePlay((const wchar_t*)ref.file.utf16(), ref.sync);
+						}
+						if (!ref.sync) Sleep(10);
+					}
 				} break;
 				}
 			}

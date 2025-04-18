@@ -15,8 +15,8 @@ public:
 		setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		if ("init")
 		{
-			ui.start_button->setText(Qi::ui.text.rcStart);
-			ui.close_button->setText(Qi::ui.text.rcClose);
+			ui.start_button->setText(QiUi::Text::rcStart);
+			ui.close_button->setText(QiUi::Text::rcClose);
 			if ("clear shortcut")
 			{
 				ui.start_button->installEventFilter(this);
@@ -79,7 +79,7 @@ private:
 			text += "停止录制";
 			Qi::popText->Show(text);
 		}
-		ui.start_button->setText(Qi::ui.text.rcStop);
+		ui.start_button->setText(QiUi::Text::rcStop);
 		Qi::record.clear();
 		Qi::recordClock = 0;
 		Qi::recording = true;

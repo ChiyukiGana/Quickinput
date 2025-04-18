@@ -87,10 +87,10 @@ void RecordInput(BYTE vk, bool state, POINT pt)
 }
 struct KeyState
 {
-	bool state[key_size];
+	bool state[Qi::key_size];
 	KeyState(bool* keyState)
 	{
-		memcpy(state, Qi::keyState, key_size);
+		memcpy(state, Qi::keyState, Qi::key_size);
 	}
 };
 void InputTask(BYTE key, bool press, POINT cursor, KeyState keyState)
@@ -123,7 +123,7 @@ ThreadQueue inputQueue;
 bool _stdcall InputHook::InputProc(BYTE key, bool press, POINT cursor, PULONG_PTR param)
 {
 	// is self
-	if (*param == key_info)
+	if (*param == Qi::key_info)
 	{
 		*param = 0;
 		return false;
