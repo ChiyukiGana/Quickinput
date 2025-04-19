@@ -224,7 +224,7 @@
          <string notr="true">font-size:16px</string>
         </property>
         <property name="text">
-         <string>自定义文字</string>
+         <string>文字/声音</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -239,68 +239,39 @@
         <property name="spacing">
          <number>10</number>
         </property>
-        <item row="4" column="2">
-         <widget class="QPushButton" name="window_off_button">
-          <property name="maximumSize">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color:red</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
+        <item row="3" column="1">
+         <widget class="QLineEdit" name="window_on_edit"/>
         </item>
-        <item row="9" column="2">
-         <widget class="QPushButton" name="down_on_button">
-          <property name="maximumSize">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color:red</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
+        <item row="12" column="1">
+         <widget class="QLineEdit" name="up_off_edit"/>
         </item>
-        <item row="9" column="1">
-         <widget class="QLineEdit" name="down_on_edit"/>
+        <item row="6" column="1">
+         <widget class="QLineEdit" name="click_off_edit"/>
         </item>
-        <item row="11" column="2">
-         <widget class="QPushButton" name="up_on_button">
-          <property name="maximumSize">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-color:red</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
+        <item row="8" column="1">
+         <widget class="QLineEdit" name="switch_off_edit"/>
         </item>
         <item row="10" column="1">
          <widget class="QLineEdit" name="down_off_edit"/>
         </item>
-        <item row="10" column="0">
-         <widget class="QLabel" name="down_off_label">
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="enable_edit"/>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="window_on_label">
           <property name="text">
-           <string>按下模式结束</string>
+           <string>窗口已激活</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="2">
+        <item row="2" column="0">
+         <widget class="QLabel" name="disable_label">
+          <property name="text">
+           <string>禁用</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
          <widget class="QPushButton" name="enable_button">
           <property name="maximumSize">
            <size>
@@ -316,13 +287,33 @@
           </property>
          </widget>
         </item>
-        <item row="12" column="1">
-         <widget class="QLineEdit" name="up_off_edit"/>
-        </item>
-        <item row="9" column="0">
-         <widget class="QLabel" name="down_on_label">
+        <item row="8" column="0">
+         <widget class="QLabel" name="switch_off_label">
           <property name="text">
-           <string>按下模式开始</string>
+           <string>切换模式结束</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="3">
+         <widget class="QPushButton" name="click_on_button">
+          <property name="maximumSize">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color:red</string>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="0">
+         <widget class="QLabel" name="up_off_label">
+          <property name="text">
+           <string>松开模式结束</string>
           </property>
          </widget>
         </item>
@@ -339,8 +330,8 @@
           </property>
          </widget>
         </item>
-        <item row="12" column="2">
-         <widget class="QPushButton" name="up_off_button">
+        <item row="8" column="3">
+         <widget class="QPushButton" name="switch_off_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -355,13 +346,76 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
-         <widget class="QLineEdit" name="switch_off_edit"/>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="window_on_label">
+        <item row="6" column="0">
+         <widget class="QLabel" name="click_off_label">
           <property name="text">
-           <string>窗口已激活</string>
+           <string>快捷连点停止</string>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="0">
+         <widget class="QLabel" name="up_on_label">
+          <property name="text">
+           <string>松开模式开始</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QLabel" name="color_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>颜色</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="window_off_label">
+          <property name="text">
+           <string>窗口已失效</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
+         <widget class="QLabel" name="click_on_label">
+          <property name="text">
+           <string>快捷连点开始</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1">
+         <widget class="QLineEdit" name="switch_on_edit"/>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="tip_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>自定义文字，@引用名称，$引用次数</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="3">
+         <widget class="QPushButton" name="switch_on_button">
+          <property name="maximumSize">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color:red</string>
+          </property>
+          <property name="text">
+           <string/>
           </property>
          </widget>
         </item>
@@ -372,8 +426,8 @@
           </property>
          </widget>
         </item>
-        <item row="10" column="2">
-         <widget class="QPushButton" name="down_off_button">
+        <item row="4" column="3">
+         <widget class="QPushButton" name="window_off_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -391,54 +445,8 @@
         <item row="4" column="1">
          <widget class="QLineEdit" name="window_off_edit"/>
         </item>
-        <item row="8" column="0">
-         <widget class="QLabel" name="switch_off_label">
-          <property name="text">
-           <string>切换模式结束</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLineEdit" name="enable_edit"/>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLabel" name="tip_label">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>自定义文字，@引用名称，$引用次数</string>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="1">
-         <widget class="QLineEdit" name="up_on_edit"/>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="enable_label">
-          <property name="text">
-           <string>启用</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2">
-         <widget class="QLabel" name="color_label">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>颜色</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="QPushButton" name="disable_button">
+        <item row="10" column="3">
+         <widget class="QPushButton" name="down_off_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -453,16 +461,7 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="1">
-         <widget class="QLineEdit" name="click_off_edit"/>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLineEdit" name="disable_edit"/>
-        </item>
-        <item row="5" column="1">
-         <widget class="QLineEdit" name="click_on_edit"/>
-        </item>
-        <item row="6" column="2">
+        <item row="6" column="3">
          <widget class="QPushButton" name="click_off_button">
           <property name="maximumSize">
            <size>
@@ -478,15 +477,8 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="click_on_label">
-          <property name="text">
-           <string>快捷连点开始</string>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="2">
-         <widget class="QPushButton" name="click_on_button">
+        <item row="2" column="3">
+         <widget class="QPushButton" name="disable_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -501,22 +493,35 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="disable_label">
+        <item row="11" column="1">
+         <widget class="QLineEdit" name="up_on_edit"/>
+        </item>
+        <item row="5" column="1">
+         <widget class="QLineEdit" name="click_on_edit"/>
+        </item>
+        <item row="10" column="0">
+         <widget class="QLabel" name="down_off_label">
           <property name="text">
-           <string>禁用</string>
+           <string>按下模式结束</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="window_off_label">
+        <item row="1" column="0">
+         <widget class="QLabel" name="enable_label">
           <property name="text">
-           <string>窗口已失效</string>
+           <string>启用</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="2">
-         <widget class="QPushButton" name="switch_on_button">
+        <item row="9" column="0">
+         <widget class="QLabel" name="down_on_label">
+          <property name="text">
+           <string>按下模式开始</string>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="3">
+         <widget class="QPushButton" name="up_on_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -531,8 +536,8 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="2">
-         <widget class="QPushButton" name="switch_off_button">
+        <item row="9" column="3">
+         <widget class="QPushButton" name="down_on_button">
           <property name="maximumSize">
            <size>
             <width>40</width>
@@ -547,10 +552,7 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
-         <widget class="QLineEdit" name="window_on_edit"/>
-        </item>
-        <item row="3" column="2">
+        <item row="3" column="3">
          <widget class="QPushButton" name="window_on_button">
           <property name="maximumSize">
            <size>
@@ -566,29 +568,76 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
-         <widget class="QLineEdit" name="switch_on_edit"/>
+        <item row="9" column="1">
+         <widget class="QLineEdit" name="down_on_edit"/>
         </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="click_off_label">
+        <item row="12" column="3">
+         <widget class="QPushButton" name="up_off_button">
+          <property name="maximumSize">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color:red</string>
+          </property>
           <property name="text">
-           <string>快捷连点停止</string>
+           <string/>
           </property>
          </widget>
         </item>
-        <item row="11" column="0">
-         <widget class="QLabel" name="up_on_label">
+        <item row="2" column="1">
+         <widget class="QLineEdit" name="disable_edit"/>
+        </item>
+        <item row="1" column="2">
+         <widget class="QFileEdit" name="enable_sound_edit"/>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="sound_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
-           <string>松开模式开始</string>
+           <string>声音</string>
           </property>
          </widget>
         </item>
-        <item row="12" column="0">
-         <widget class="QLabel" name="up_off_label">
-          <property name="text">
-           <string>松开模式结束</string>
-          </property>
-         </widget>
+        <item row="2" column="2">
+         <widget class="QFileEdit" name="disable_sound_edit"/>
+        </item>
+        <item row="3" column="2">
+         <widget class="QFileEdit" name="window_on_sound_edit"/>
+        </item>
+        <item row="4" column="2">
+         <widget class="QFileEdit" name="window_off_sound_edit"/>
+        </item>
+        <item row="5" column="2">
+         <widget class="QFileEdit" name="click_on_sound_edit"/>
+        </item>
+        <item row="6" column="2">
+         <widget class="QFileEdit" name="click_off_sound_edit"/>
+        </item>
+        <item row="7" column="2">
+         <widget class="QFileEdit" name="switch_on_sound_edit"/>
+        </item>
+        <item row="8" column="2">
+         <widget class="QFileEdit" name="switch_off_sound_edit"/>
+        </item>
+        <item row="9" column="2">
+         <widget class="QFileEdit" name="down_on_sound_edit"/>
+        </item>
+        <item row="10" column="2">
+         <widget class="QFileEdit" name="down_off_sound_edit"/>
+        </item>
+        <item row="11" column="2">
+         <widget class="QFileEdit" name="up_on_sound_edit"/>
+        </item>
+        <item row="12" column="2">
+         <widget class="QFileEdit" name="up_off_sound_edit"/>
         </item>
        </layout>
       </item>
@@ -786,6 +835,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QFileEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">qfileedit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="../res/QuickInput.qrc"/>
  </resources>

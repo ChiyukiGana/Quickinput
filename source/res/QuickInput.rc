@@ -1,1 +1,7 @@
 ﻿ICOAPP ICON "icon.ico"
+
+SND_ON WAVE "sound\\on.wav"
+SND_OFF WAVE "sound\\off.wav"
+SND_RUN WAVE "sound\\run.wav"
+SND_STOP WAVE "sound\\stop.wav"
+SND_TIP WAVE "sound\\notify.wav"

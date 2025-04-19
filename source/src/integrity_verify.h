@@ -10,7 +10,7 @@
 #pragma comment(lib,"ntdll.lib")
 
 #pragma optimize("",off)
-static const char integrity_verify_textSha256[] = "28174f6c27081a4e464d77dc0636d61ce44b186c54e18b3a3c708261ea65feff";
+static const char integrity_verify_textSha256[] = "f425de0fe8d3cbbe6695a4220c595e5a38748f8d7bc5e0de15bb635b9f7b9c59";
 #pragma optimize("",on)
 
 struct PROCESS_BASIC_INFORMATION_EX {

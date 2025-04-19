@@ -38,6 +38,9 @@
     <Filter Include="Header Files\0">
       <UniqueIdentifier>{823ba9de-41d5-41ca-abc9-b40b6361e999}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Form Files\source">
+      <UniqueIdentifier>{6c402766-1b4f-43d2-b8ef-2901ed0d039c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp">
@@ -57,6 +60,42 @@
     </ClCompile>
     <ClCompile Include="source\src\interpreter.cpp">
       <Filter>Source Files\1</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\EditUi.cpp">
+      <Filter>Form Files\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\AboutUi.cpp">
+      <Filter>Form Files\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\FuncUi.cpp">
+      <Filter>Form Files\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\MacroUi.cpp">
+      <Filter>Form Files\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\MainUi.cpp">
+      <Filter>Form Files\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\MoreUi.cpp">
+      <Filter>Form Files\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\PopsUi.cpp">
+      <Filter>Form Files\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\RecordUi.cpp">
+      <Filter>Form Files\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\SettingsUi.cpp">
+      <Filter>Form Files\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\TriggerUi.cpp">
+      <Filter>Form Files\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\UpdateUi.cpp">
+      <Filter>Form Files\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\ui\VarViewUi.cpp">
+      <Filter>Form Files\source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -209,6 +248,9 @@
       <Filter>Form Files\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QDistanceSelection.h">
+      <Filter>Form Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\widget\QFileEdit.h">
       <Filter>Form Files\widget</Filter>
     </QtMoc>
   </ItemGroup>

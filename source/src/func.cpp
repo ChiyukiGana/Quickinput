@@ -145,6 +145,29 @@ namespace QiFn
 			else Qi::popText->Popup(Qi::ui.pop.time, ParseMacro(Qi::ui.pop.upd.t, macro->name, macro->count), Qi::ui.pop.upd.c);
 		}
 	}
+	void SoundPlay(const QString& sound, bool sync)
+	{
+		Sound::SoundClose();
+		PlaySoundW(nullptr, GetModuleHandleW(nullptr), SND_ASYNC);
+		if (!sound.isEmpty())
+		{
+			int index = Qi::ui.sounds.indexOf(sound);
+			if (index != -1)
+			{
+				PlaySoundW((const wchar_t*)Qi::ui.sounds.at(index).utf16(), GetModuleHandleW(nullptr), (sync ? SND_SYNC : SND_ASYNC) | SND_RESOURCE);
+			}
+			else if (sound.indexOf(".wav") == -1)
+			{
+				Sound::SoundClose();
+				Sound::SoundOpen((const wchar_t*)sound.utf16());
+				Sound::SoundPlay(sync);
+			}
+			else
+			{
+				Sound::WavePlay((const wchar_t*)sound.utf16(), sync);
+			}
+		}
+	}
 	// State
 	void Trigger(short vk, const bool* state)
 	{
@@ -173,11 +196,13 @@ namespace QiFn
 					{
 						QiThread::ExitQuickClick();
 						if (Qi::set.showTips) QuickClickPop(false);
+						if (Qi::set.audFx) SoundPlay(Qi::ui.pop.qcd.s, false);
 					}
 					else
 					{
 						QiThread::StartQuickClick();
 						if (Qi::set.showTips) QuickClickPop(true);
+						if (Qi::set.audFx) SoundPlay(Qi::ui.pop.qce.s, false);
 					}
 				}
 				else // press mode
@@ -186,6 +211,7 @@ namespace QiFn
 					{
 						QiThread::StartQuickClick();
 						if (Qi::set.showTips) QuickClickPop(true);
+						if (Qi::set.audFx) SoundPlay(Qi::ui.pop.qce.s, false);
 					}
 				}
 			}
@@ -197,6 +223,7 @@ namespace QiFn
 					{
 						QiThread::ExitQuickClick();
 						if (Qi::set.showTips) QuickClickPop(false);
+						if (Qi::set.audFx) SoundPlay(Qi::ui.pop.qcd.s, false);
 					}
 				}
 			}
@@ -223,12 +250,14 @@ namespace QiFn
 								QiThread::ExitMacroRun(&macro);
 								QiThread::StartMacroEnd(&macro);
 								if (Qi::set.showTips) MacroPop(&macro, false);
+								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.swd.s, false);
 							}
 							else
 							{
 								QiThread::ExitMacroEnd(&macro);
 								QiThread::StartMacroRun(&macro);
 								if (Qi::set.showTips) MacroPop(&macro, true);
+								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.swe.s, false);
 							}
 						}
 					} break;
@@ -240,6 +269,7 @@ namespace QiFn
 							QiThread::ExitMacroEnd(&macro);
 							QiThread::StartMacroRun(&macro);
 							if (Qi::set.showTips) MacroPop(&macro, true);
+							if (Qi::set.audFx) SoundPlay(Qi::ui.pop.dwe.s, false);
 						}
 						else
 						{
@@ -248,6 +278,7 @@ namespace QiFn
 								QiThread::ExitMacroRun(&macro);
 								QiThread::StartMacroEnd(&macro);
 								if (Qi::set.showTips) MacroPop(&macro, false);
+								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.dwd.s, false);
 							}
 						}
 					} break;
@@ -261,6 +292,7 @@ namespace QiFn
 								QiThread::ExitMacroRun(&macro);
 								QiThread::StartMacroEnd(&macro);
 								if (Qi::set.showTips) MacroPop(&macro, false);
+								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.upd.s, false);
 							}
 						}
 						else
@@ -273,6 +305,7 @@ namespace QiFn
 								QiThread::ExitMacroEnd(&macro);
 								QiThread::StartMacroRun(&macro);
 								if (Qi::set.showTips) MacroPop(&macro, true);
+								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.upe.s, false);
 							}
 						}
 					} break;
@@ -335,17 +368,17 @@ namespace QiFn
 			}
 
 			Qi::state = true;
-			StatePop(true);
-			if (Qi::set.audFx) Sound::WavePlay(sound_on);
 			if (Qi::fun.wndActive.state) { if (!QiThread::WindowStateActive()) QiThread::StartWindowState(); }
 			else Qi::run = true;
+			StatePop(true);
+			if (Qi::set.audFx) SoundPlay(Qi::ui.pop.qe.s, false);
 		}
 		else
 		{
 			Qi::state = false, Qi::run = false;
-			StatePop(false);
 			if (Qi::fun.wndActive.state) { if (QiThread::WindowStateActive()) QiThread::ExitWindowState(); }
-			if (Qi::set.audFx)Sound::WavePlay(sound_off);
+			StatePop(false);
+			if (Qi::set.audFx) SoundPlay(Qi::ui.pop.qd.s, false);
 		}
 	}
 

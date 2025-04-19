@@ -115,17 +115,20 @@ namespace QiThread
 				{
 					Qi::run = true;
 					if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wndInfo.wndName, true);
+					if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.we.s, false);
 				}
 				else if (Qi::run && !active)
 				{
 					Qi::run = false;
 					if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wndInfo.wndName, false);
+					if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.wd.s, false);
 				}
 			}
 			else if (Qi::run)
 			{
 				Qi::run = false;
 				if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wndInfo.wndName, false);
+				if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.wd.s, false);
 			}
 			Sleep(100);
 		}

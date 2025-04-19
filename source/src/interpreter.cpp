@@ -585,24 +585,23 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 				{
 					if (jumpId || debug_entry) continue;
 					const QiSoundPlay& ref = std::get<QiSoundPlay>(action);
-					if (ref.stop)
+					if (ref.state == QiSoundPlay::play)
 					{
-						Sound::SoundClose();
-						Sound::WavePlay(std::wstring());
+						QiFn::SoundPlay(ref.file, ref.sync);
+						if (!ref.sync) Sleep(10);
+					}
+					else if (ref.state == QiSoundPlay::pause)
+					{
+						Sound::SoundPause();
+					}
+					else if (ref.state == QiSoundPlay::resume)
+					{
+						Sound::SoundResume();
 					}
 					else
 					{
-						if (ref.file.indexOf(".wav") == -1)
-						{
-							Sound::SoundClose();
-							Sound::SoundOpen((const wchar_t*)ref.file.utf16());
-							Sound::SoundPlay(ref.sync);
-						}
-						else if (!ref.file.isEmpty())
-						{
-							Sound::WavePlay((const wchar_t*)ref.file.utf16(), ref.sync);
-						}
-						if (!ref.sync) Sleep(10);
+						Sound::SoundClose();
+						Sound::WavePlay(std::wstring());
 					}
 				} break;
 				}

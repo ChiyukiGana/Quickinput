@@ -446,7 +446,9 @@ struct QiVolume : QiBase
 };
 struct QiSoundPlay : QiBase
 {
-	bool sync = false, stop = false;
+	enum { play, pause, resume, stop };
+	bool sync = false;
+	int state = play;
 	QString file;
 	QiSoundPlay() : QiBase(QiType::soundPlay) {}
 };

@@ -33,6 +33,7 @@ namespace QiFn
 	void WindowPop(const QString& window, bool state);
 	void QuickClickPop(bool state);
 	void MacroPop(Macro* macro, bool state);
+	void SoundPlay(const QString& sound, bool sync);
 	// State
 	void Trigger(short vk, const bool* state);
 	void QiHook(bool state);

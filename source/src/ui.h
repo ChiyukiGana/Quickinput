@@ -101,8 +101,9 @@ namespace QiUi
 	};
 	struct PopTextInfo
 	{
-		QString t;
 		QColor c;
+		QString t;
+		QString s;
 	};
 	struct PopText
 	{
@@ -125,6 +126,7 @@ namespace QiUi
 	struct QuickInputUi
 	{
 		QList<Theme> themes;
+		QList<QString> sounds;
 		PopText pop;
 	};
 }

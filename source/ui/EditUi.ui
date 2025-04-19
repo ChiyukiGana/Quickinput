@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1080</width>
-    <height>720</height>
+    <height>718</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -1939,8 +1939,8 @@
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>378</width>
-                 <height>633</height>
+                 <width>0</width>
+                 <height>0</height>
                 </size>
                </property>
               </spacer>
@@ -2789,8 +2789,8 @@
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>378</width>
-                 <height>422</height>
+                 <width>0</width>
+                 <height>0</height>
                 </size>
                </property>
               </spacer>
@@ -3564,8 +3564,8 @@
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>378</width>
-                 <height>460</height>
+                 <width>0</width>
+                 <height>0</height>
                 </size>
                </property>
               </spacer>
@@ -4172,8 +4172,8 @@
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>20</width>
-                 <height>727</height>
+                 <width>0</width>
+                 <height>0</height>
                 </size>
                </property>
               </spacer>
@@ -4475,8 +4475,8 @@
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>20</width>
-                 <height>303</height>
+                 <width>0</width>
+                 <height>0</height>
                 </size>
                </property>
               </spacer>
@@ -4845,8 +4845,8 @@
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>20</width>
-                 <height>253</height>
+                 <width>0</width>
+                 <height>0</height>
                 </size>
                </property>
               </spacer>
@@ -5525,8 +5525,8 @@
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>378</width>
-                 <height>710</height>
+                 <width>0</width>
+                 <height>0</height>
                 </size>
                </property>
               </spacer>
@@ -6192,8 +6192,8 @@
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>378</width>
-                 <height>798</height>
+                 <width>0</width>
+                 <height>0</height>
                 </size>
                </property>
               </spacer>
@@ -7526,8 +7526,8 @@
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>378</width>
-                 <height>599</height>
+                 <width>0</width>
+                 <height>0</height>
                 </size>
                </property>
               </spacer>
@@ -8258,8 +8258,8 @@
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>378</width>
-                 <height>497</height>
+                 <width>0</width>
+                 <height>0</height>
                 </size>
                </property>
               </spacer>
@@ -8339,7 +8339,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="open_edit">
+                   <widget class="QFileEdit" name="open_edit">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -8518,7 +8518,7 @@
                    </widget>
                   </item>
                   <item>
-                   <widget class="QLineEdit" name="soundPlay_edit">
+                   <widget class="QFileEdit" name="soundPlay_edit">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -8570,7 +8570,73 @@
                    </spacer>
                   </item>
                   <item>
-                   <widget class="QCheckBox" name="soundPlay_stop_check">
+                   <widget class="QRadioButton" name="soundPlay_play_radio">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="focusPolicy">
+                     <enum>Qt::ClickFocus</enum>
+                    </property>
+                    <property name="toolTip">
+                     <string/>
+                    </property>
+                    <property name="layoutDirection">
+                     <enum>Qt::RightToLeft</enum>
+                    </property>
+                    <property name="text">
+                     <string>播放</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QRadioButton" name="soundPlay_pause_radio">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="focusPolicy">
+                     <enum>Qt::ClickFocus</enum>
+                    </property>
+                    <property name="toolTip">
+                     <string/>
+                    </property>
+                    <property name="layoutDirection">
+                     <enum>Qt::RightToLeft</enum>
+                    </property>
+                    <property name="text">
+                     <string>暂停</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QRadioButton" name="soundPlay_resume_radio">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="focusPolicy">
+                     <enum>Qt::ClickFocus</enum>
+                    </property>
+                    <property name="toolTip">
+                     <string/>
+                    </property>
+                    <property name="layoutDirection">
+                     <enum>Qt::RightToLeft</enum>
+                    </property>
+                    <property name="text">
+                     <string>继续</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QRadioButton" name="soundPlay_stop_radio">
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -8708,8 +8774,8 @@
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>20</width>
-                 <height>415</height>
+                 <width>0</width>
+                 <height>0</height>
                 </size>
                </property>
               </spacer>
@@ -9144,8 +9210,8 @@
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>378</width>
-                 <height>663</height>
+                 <width>0</width>
+                 <height>0</height>
                 </size>
                </property>
               </spacer>
@@ -9532,8 +9598,8 @@
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
-                 <width>378</width>
-                 <height>813</height>
+                 <width>0</width>
+                 <height>0</height>
                 </size>
                </property>
               </spacer>
@@ -9595,6 +9661,11 @@
    <class>QKeyEdit</class>
    <extends>QLineEdit</extends>
    <header location="global">qkeyedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QFileEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">qfileedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

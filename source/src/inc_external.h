@@ -30,6 +30,7 @@
 #include <qjsonarray.h>
 #include <qjsonvalue.h>
 #include <qthread.h>
+#include <qlistview.h>
 // std
 #include <atomic>
 #include <variant>

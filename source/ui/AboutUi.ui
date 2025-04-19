@@ -91,7 +91,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-4-18</string>
+         <string>2025-4-19</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -107,8 +107,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加变量函数：判断路径，删除文件
-增加播放音频</string>
+         <string>修复编辑窗口大小异常
+增加自定义音效</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

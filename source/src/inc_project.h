@@ -23,6 +23,7 @@
 #include <src/tools/time.h>
 #include <src/tools/texteditbox.h>
 #include <src/tools/csvtool.h>
+#include <src/tools/restool.h>
 using namespace QiTools;
 // custom widget
 #include <QKeyEdit.h>

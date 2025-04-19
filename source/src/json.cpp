@@ -35,6 +35,18 @@ namespace QiJson
 		Qi::ui.pop.dwd.t = "停止 @";
 		Qi::ui.pop.upe.t = "执行$次 @";
 		Qi::ui.pop.upd.t = "停止 @";
+		Qi::ui.pop.qe.s = "SND_ON";
+		Qi::ui.pop.qd.s = "SND_OFF";
+		Qi::ui.pop.we.s = "SND_ON";
+		Qi::ui.pop.wd.s = "SND_OFF";
+		Qi::ui.pop.qce.s = "SND_RUN";
+		Qi::ui.pop.qcd.s = "SND_STOP";
+		Qi::ui.pop.swe.s = "SND_RUN";
+		Qi::ui.pop.swd.s = "SND_STOP";
+		Qi::ui.pop.dwe.s = "SND_RUN";
+		Qi::ui.pop.dwd.s = "SND_STOP";
+		Qi::ui.pop.upe.s = "SND_RUN";
+		Qi::ui.pop.upd.s = "SND_STOP";
 		Qi::ui.pop.qe.c = QColor(0xC0, 0xE0, 0xFF);
 		Qi::ui.pop.qd.c = QColor(0xFF, 0x50, 0x50);
 		Qi::ui.pop.we.c = QColor(0xAA, 0xBB, 0xFF);
@@ -54,16 +66,18 @@ namespace QiJson
 	QJsonObject SavePopTextInfo(const QiUi::PopTextInfo& p)
 	{
 		QJsonObject json;
-		json.insert("t", p.t);
 		json.insert("c", (int)RGB(p.c.red(), p.c.green(), p.c.blue()));
+		json.insert("t", p.t);
+		json.insert("s", p.s);
 		return json;
 	}
 	QiUi::PopTextInfo LoadPopTextInfo(const QJsonObject& json)
 	{
 		QiUi::PopTextInfo info;
-		info.t = json.value("t").toString();
 		int c = json.value("c").toInt();
 		info.c = QColor(GetRValue(c), GetGValue(c), GetBValue(c));
+		info.t = json.value("t").toString();
+		info.s = json.value("s").toString();
 		return info;
 	}
 	QJsonArray SaveAction(const Actions& actions)
@@ -291,7 +305,7 @@ namespace QiJson
 				const QiSoundPlay &ref = std::get<QiSoundPlay>(var);
 				jAction.insert("file", ref.file);
 				jAction.insert("sync", ref.sync);
-				jAction.insert("stop", ref.stop);
+				jAction.insert("state", ref.state);
 			} break;
 			default: success = false;
 			}
@@ -678,7 +692,7 @@ namespace QiJson
 					QiSoundPlay var; var.disable = dis, var.mark = mark;
 					var.file = jAction.value("file").toString();
 					var.sync = jAction.value("sync").toBool();
-					var.stop = jAction.value("stop").toBool();
+					var.state = jAction.value("state").toInt();
 					actions.append(var);
 				} break;
 				default: actions.append(QiBase(type)); break;
