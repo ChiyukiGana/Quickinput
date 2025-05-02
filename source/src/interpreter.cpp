@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "interpreter.h"
+#include "QTextDialog.h"
 
 bool HaveEntry(const Actions& actions)
 {
@@ -104,7 +105,14 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 				{
 					if (jumpId || debug_entry) continue;
 					const QiDelay& ref = std::get<QiDelay>(action);
-					if (PeekSleep(Rand(ref.max, ref.min))) return r_exit;
+					int min = 1;
+					int max = 1;
+					try { min = ref.v_min.isEmpty() ? ref.min : varMap.at(ref.v_min.toStdString()).toInteger(); }
+					catch (...) { MsgBox::Error(std::wstring(L"等待变量无效：") + ref.v_min.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); break; }
+					try { max = ref.v_max.isEmpty() ? ref.max : varMap.at(ref.v_max.toStdString()).toInteger(); }
+					catch (...) { MsgBox::Error(std::wstring(L"等待变量无效：") + ref.v_max.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); break; }
+
+					if (PeekSleep(Rand(max, min))) return r_exit;
 				} break;
 				case QiType::key:
 				{
@@ -259,14 +267,20 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 				} break;
 				case QiType::loop:
 				{
-					const QiLoop& ref = std::get<QiLoop>(action);
-					int n = 0;
-					int e = 0;
-					bool uloop = false;
-					if (ref.max) uloop = true, e = Rand(ref.max, ref.min);
-					while (!isInvalid())
+					const QiLoop& ref = std::get<QiLoop>(action);	
+					int min = 1;
+					int max = 1;
+					try { min = ref.v_min.isEmpty() ? ref.min : varMap.at(ref.v_min.toStdString()).toInteger(); }
+					catch (...) { MsgBox::Error(std::wstring(L"循环变量无效：") + ref.v_min.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); break; }
+					try { max = ref.v_max.isEmpty() ? ref.max : varMap.at(ref.v_max.toStdString()).toInteger(); }
+					catch (...) { MsgBox::Error(std::wstring(L"循环变量无效：") + ref.v_max.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); break; }
+
+					bool infinite = (min < 1) && (max < 1);
+					int count = Rand(max, min);
+					int i = 0;
+
+					for (size_t i = 0; !isInvalid() && (infinite || i < count); infinite ? true : i++)
 					{
-						if (uloop) { n++; if (n > e) break; }
 						r_result = ActionInterpreter(ref.next, layer + 1);
 						if (debug_entry || jumpId) break;
 						if (r_result != r_continue)
@@ -355,7 +369,14 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 				case QiType::timer:
 				{
 					const QiTimer& ref = std::get<QiTimer>(action);
-					clock_t time = Rand(ref.max, ref.min);
+					int min = 1;
+					int max = 1;
+					try { min = ref.v_min.isEmpty() ? ref.min : varMap.at(ref.v_min.toStdString()).toInteger(); }
+					catch (...) { MsgBox::Error(std::wstring(L"定时变量无效：") + ref.v_min.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); break; }
+					try { max = ref.v_max.isEmpty() ? ref.max : varMap.at(ref.v_max.toStdString()).toInteger(); }
+					catch (...) { MsgBox::Error(std::wstring(L"定时变量无效：") + ref.v_max.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); break; }
+
+					clock_t time = Rand(max, min);
 					clock_t begin = clock();
 					while (!isInvalid())
 					{
@@ -483,8 +504,8 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 							image.ReleaseDC();
 							if (!text.empty())
 							{
-								Qi::interpreter.makeValue(ref.var.toStdString(), text, varMap);
-								if ((ref.match && ref.text == text.c_str()) || (!ref.match && text.find_first_of(ref.text.toStdString()) != std::string::npos))
+								bool rr =Qi::interpreter.makeValue(ref.var.toStdString(), text, varMap);
+								if ((ref.match && ref.text == text.c_str()) || (!ref.match && text.find(ref.text.toStdString()) != std::string::npos))
 								{
 									r_result = ActionInterpreter(ref.next, layer + 1);
 									break;
@@ -509,10 +530,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next, layer + 1); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2, layer + 1); continue; }
 					try {
 						QiVar var = Qi::interpreter.execute(ref.script.toStdString(), varMap);
-						bool scriptResult = false;
-						if (var.isNumber()) scriptResult = var.num;
-						else if (var.isString()) scriptResult == !var.str.empty();
-						if (scriptResult) r_result = ActionInterpreter(ref.next, layer + 1);
+						if (var.toBool()) r_result = ActionInterpreter(ref.next, layer + 1);
 						else r_result = ActionInterpreter(ref.next2, layer + 1);
 					}
 					catch (std::runtime_error e) { Qi::interpreter.showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); }
@@ -522,13 +540,13 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 				{
 					if (jumpId || debug_entry) continue;
 					const QiMouseTrack& ref = std::get<QiMouseTrack>(action);
-					clock_t begin = clock();
+					const clock_t begin = clock();
 					if (wndInput)
 					{
 						POINT scale = QiFn::PF_WATR(QPointF(posScaleX, posScaleY), wndInput->wnd);
 						for (const auto& i : ref.s)
 						{
-							while (Qi::run && !QiThread::PeekExitMsg())
+							while (!isInvalid())
 							{
 								if ((i.t / speed) <= (clock() - begin))
 								{
@@ -546,7 +564,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 						POINT scale = QiFn::P_ATA(QPointF(posScaleX, posScaleY));
 						for (const auto& i : ref.s)
 						{
-							while (Qi::run && !QiThread::PeekExitMsg())
+							while (!isInvalid())
 							{
 								if ((i.t / speed) <= (clock() - begin))
 								{

@@ -45,5 +45,9 @@ namespace QiTools
 		SIZE size = RectSize(rect);
 		return size.cx * size.cy;
 	}
-	static int Rand(int max, int min = 0) { return min + (rand() % (max - min + 1)); }
+	static int Rand(int max, int min = 0)
+	{
+		if (min > max) std::swap(max, min);
+		return min + (rand() % (max - min + 1));
+	}
 }

@@ -875,7 +875,11 @@ int main(int argc, char* argv[])
 	Process::RunPath(); // reset work path to exe path
 
 #ifdef INTEGRITY_VERIFY
+#ifndef DEBUG
+#ifndef TEST
 	integrity_verify();
+#endif
+#endif
 #endif
 
 	std::wstring mutex = Path::toSlash(Process::runPath()); // mutex name, the current directory is only running one

@@ -4,6 +4,8 @@
 
 /.vs
 /.app
+/.app_t
 /.app_d
 /.build
+/.build_t
 /.build_d

@@ -23,6 +23,9 @@ namespace QiFn
 	RECT R_WATR(const RECT& abs, const HWND& wnd);
 	QRectF RF_WRTA(const RECT& rel, const HWND& wnd);
 	RECT RF_WATR(const QRectF& abs, const HWND& wnd);
+
+	QString FoldText(QString str, int len = 20, bool back = false);
+
 	// Pop text
 	QString ParseCustom(QString text, QString name, QString number);
 	QString ParseState(QString text);

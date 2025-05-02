@@ -1,4 +1,5 @@
 ﻿#include "TriggerUi.h"
+#include "QTextDialog.h"
 TriggerUi::TriggerUi(QWidget* parent) : QWidget(parent)
 {
 	ui.setupUi(this);
@@ -85,6 +86,7 @@ void TriggerUi::Event()
 		}
 		// edit
 		{
+			ui.var_edit->setText(macro.script);
 			ui.count_edit->setValue(macro.count);
 			ui.speed_edit->setValue(macro.speed);
 			ui.timer_start_edit->setTime(QTime(QiTime::h(macro.timerStart), QiTime::m(macro.timerStart), QiTime::s(macro.timerStart)));
@@ -165,6 +167,17 @@ void TriggerUi::Event()
 		SetTableItem(currentTable, currentRow, *currentMacro);
 		});
 
+	connect(ui.var_button, &QPushButton::clicked, this, [this] {
+		if (!ItemCurrented()) return;
+		QTextDialog edit(true);
+		ui.var_edit->setText(edit.Start(ui.var_edit->text()));
+		});
+	connect(ui.var_edit, &QLineEdit::textChanged, this, [this](const QString& text) {
+		if (!ItemCurrented()) return;
+		currentMacro->script = text;
+		QiJson::SaveMacro(*currentMacro);
+		});
+
 	connect(ui.moveScale_x_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 		if (!ItemCurrented()) return;
 		currentMacro->moveScaleX = QiRange::Restricted(value, Macro::range_moveScale);
@@ -225,6 +238,8 @@ void TriggerUi::StyleGroup()
 	ui.mode_combo->setView(new QListView());
 	ui.mode_combo->setProperty("group", "combo");
 	ui.mode_combo->view()->setProperty("group", "combo_body");
+	ui.var_button->setProperty("group", "get_button");
+	ui.var_edit->setProperty("group", "line_edit");
 	ui.count_edit->setProperty("group", "line_edit");
 	ui.speed_edit->setProperty("group", "line_edit");
 	ui.timer_start_edit->setProperty("group", "line_edit");

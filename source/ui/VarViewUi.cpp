@@ -34,12 +34,12 @@ void VarViewUi::TableUpdate(QTableWidget* table, const QiVarMap varMap)
 		const QiVar& var = (*iter).second;
 
 		QTableWidgetItem* item = new QTableWidgetItem(name);
-		if (var.type == QiVar::Type::t_str) item->setTextColor(QColor(255, 128, 0));
+		if (var.isString()) item->setTextColor(QColor(255, 128, 0));
 		else item->setTextColor(QColor(0, 192, 0));
 		item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		table->setItem(i, tableColumn_name, item);
 
-		if (var.type == QiVar::Type::t_str)
+		if (var.isString())
 		{
 			item = new QTableWidgetItem("str");
 			item->setTextColor(QColor(255, 128, 0));
@@ -53,7 +53,7 @@ void VarViewUi::TableUpdate(QTableWidget* table, const QiVarMap varMap)
 		table->setItem(i, tableColumn_type, item);
 
 		item = new QTableWidgetItem(var.toString().c_str());
-		if (var.type == QiVar::Type::t_str) item->setTextColor(QColor(255, 128, 0));
+		if (var.isString()) item->setTextColor(QColor(255, 128, 0));
 		else item->setTextColor(QColor(0, 192, 0));
 		item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		table->setItem(i, tableColumn_value, item);
@@ -106,8 +106,8 @@ void VarViewUi::TableUpdate()
 			if (updating) return;
 			QString name = table->item(row, tableColumn_name)->text();
 			QString text = table->item(row, tableColumn_value)->text();
-			if (QiVar::isNumber(text.toUtf8().data())) varMap->at(name.toUtf8().data()) = QiVar(QiVar::toNumber(text.toUtf8().data()));
-			else varMap->at(name.toUtf8().data()) = QiVar(text.toUtf8().data());
+			if (QiVar::isNumber(text.toStdString())) varMap->at(name.toStdString()) = QiVar(QiVar::toNumber(text.toStdString()));
+			else varMap->at(name.toStdString()) = QiVar(text.toStdString());
 			TableUpdate(table, *varMap);
 			});
 	}

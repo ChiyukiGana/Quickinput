@@ -95,8 +95,8 @@ public:
         if (!good()) return false;
         QJsonDocument json(QJsonDocument::fromJson(response.c_str()));
         QJsonObject obj(json.object());
-        version = obj.value("tag_name").toString().toUtf8();
-        content = obj.value("body").toString().toUtf8();
+        version = obj.value("tag_name").toString().toStdString();
+        content = obj.value("body").toString().toStdString();
         return parse(version, latest_date, latest_count);
     }
     bool compare()

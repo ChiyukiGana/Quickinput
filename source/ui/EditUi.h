@@ -184,10 +184,6 @@ private:
 	void WidgetSet(const QiSoundPlay& soundPlay);
 
 
-	// table param text
-	QString FoldText(QString str, int len = 20, bool back = false);
-
-
 	// iter binds
 	template<class Ty, class Fn>
 	void BindSafeIter(QiVector<Ty*>& bind, Fn call);

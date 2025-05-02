@@ -50,4 +50,5 @@ namespace Qi
 	inline const QString macroDir = dir + "/macro/";
 	inline const QString macroType = ".json";
 	inline const QString configFile = "QuickInput.json";
+	inline QString version;
 }

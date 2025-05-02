@@ -106,6 +106,24 @@ namespace QiFn
 	RECT R_WATR(const RECT& abs, const HWND& wnd) { return R_ATR(abs, Window::size(wnd)); }
 	QRectF RF_WRTA(const RECT& rel, const HWND& wnd) { return RF_RTA(rel, Window::size(wnd)); }
 	RECT RF_WATR(const QRectF& abs, const HWND& wnd) { return RF_ATR(abs, Window::size(wnd)); }
+
+	QString FoldText(QString str, int len, bool back)
+	{
+		int size = str.size();
+		str.replace("\n", " ").replace("\t", " ");
+		if (back)
+		{
+			str = str.size() - len < 0 ? str.mid(0, len) : str.mid(str.size() - len, len);
+			if (size > len) str = QString("...") + str;
+		}
+		else
+		{
+			str = str.mid(0, len);
+			if (size > len) str = str + QString("...");
+		}
+		return str;
+	}
+
 	// Pop text
 	QString ParseCustom(QString text, QString name, QString number) { text.replace("@", name); return text.replace("$", number); }
 	QString ParseState(QString text) { return text.replace("@", Qi::folder); }

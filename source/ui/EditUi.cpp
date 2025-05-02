@@ -142,12 +142,12 @@ void EditUi::Init()
 		ui.mouse_y_edit->setValidator(new QIntValidator(QiMouse::range_pos.first, QiMouse::range_pos.second, this));
 		ui.mouse_speed_edit->setValidator(new QIntValidator(QiMouse::range_speed.first, QiMouse::range_speed.second, this));
 		ui.mouse_rand_edit->setValidator(new QIntValidator(QiMouse::range_rand.first, QiMouse::range_rand.second, this));
-		ui.delay_min_edit->setValidator(new QIntValidator(QiDelay::range_time.first, QiDelay::range_time.second, this));
-		ui.delay_max_edit->setValidator(new QIntValidator(QiDelay::range_time.first, QiDelay::range_time.second, this));
-		ui.loop_min_edit->setValidator(new QIntValidator(QiLoop::range_count.first, QiLoop::range_count.second, this));
-		ui.loop_max_edit->setValidator(new QIntValidator(QiLoop::range_count.first, QiLoop::range_count.second, this));
-		ui.timer_max_edit->setValidator(new QIntValidator(QiTimer::range_count.first, QiTimer::range_count.second, this));
-		ui.timer_min_edit->setValidator(new QIntValidator(QiTimer::range_count.first, QiTimer::range_count.second, this));
+		//ui.delay_min_edit->setValidator(new QRegExpValidator(QRegExp(QiIntVarRegex), this));
+		//ui.delay_max_edit->setValidator(new QRegExpValidator(QRegExp(QiIntVarRegex), this));
+		//ui.loop_min_edit->setValidator(new QRegExpValidator(QRegExp(QiIntVarRegex), this));
+		//ui.loop_max_edit->setValidator(new QRegExpValidator(QRegExp(QiIntVarRegex), this));
+		//ui.timer_max_edit->setValidator(new QRegExpValidator(QRegExp(QiIntVarRegex), this));
+		//ui.timer_min_edit->setValidator(new QRegExpValidator(QRegExp(QiIntVarRegex), this));
 		ui.color_red_edit->setValidator(new QIntValidator(QiColor::range_rgb.first, QiColor::range_rgb.second, this));
 		ui.color_green_edit->setValidator(new QIntValidator(QiColor::range_rgb.first, QiColor::range_rgb.second, this));
 		ui.color_blue_edit->setValidator(new QIntValidator(QiColor::range_rgb.first, QiColor::range_rgb.second, this));
@@ -1282,13 +1282,11 @@ void EditUi::TableUpdate(int index)
 		const QiDelay& ref = std::get<QiDelay>(var);
 		type = QiUi::Text::acWait;
 
-		if (ref.min != ref.max)
-		{
-			param = QString::number(ref.min);
-			param += " ~ ";
-			param += QString::number(ref.max);
-		}
-		else param = QString::number(ref.min);
+		QString min = ref.v_min.isEmpty() ? QString::number(ref.min) : ref.v_min;
+		QString max = ref.v_max.isEmpty() ? QString::number(ref.max) : ref.v_max;
+
+		if (min == max) param = min;
+		else param = min + QString(" ~ ") + max;
 	} break;
 	case QiType::key:
 	{
@@ -1323,7 +1321,7 @@ void EditUi::TableUpdate(int index)
 	{
 		const QiCopyText& ref = std::get<QiCopyText>(var);
 		type = QiUi::Text::acCopyText;
-		param = FoldText(ref.text);
+		param = QiFn::FoldText(ref.text);
 	} break;
 	case QiType::color:
 	{
@@ -1352,16 +1350,12 @@ void EditUi::TableUpdate(int index)
 		const QiLoop& ref = std::get<QiLoop>(var);
 		type = QiUi::Text::acLoop;
 
-		if ((ref.min == 0 && ref.max == 0))
-			param = "无限";
-		else if (ref.min == ref.max)
-			param = QString::number(ref.min);
-		else
-		{
-			param = QString::number(ref.min);
-			param += " ~ ";
-			param += QString::number(ref.max);
-		}
+		QString min = ref.v_min.isEmpty() ? QString::number(ref.min) : ref.v_min;
+		QString max = ref.v_max.isEmpty() ? QString::number(ref.max) : ref.v_max;
+
+		if (min == '0' && max == '0') param = "无限";
+		else if (min == max) param = min;
+		else param = min + QString(" ~ ") + max;
 	} break;
 	case QiType::loopEnd:
 	{
@@ -1402,7 +1396,7 @@ void EditUi::TableUpdate(int index)
 	{
 		const QiPopText& ref = std::get<QiPopText>(var);
 		type = QiUi::Text::acPopText;
-		param = FoldText(ref.text, 16);
+		param = QiFn::FoldText(ref.text, 16);
 		param += " |　时长：";
 		param += QString::number(ref.time);
 		if (ref.sync) param += " 等待";
@@ -1416,13 +1410,11 @@ void EditUi::TableUpdate(int index)
 		const QiTimer& ref = std::get<QiTimer>(var);
 		type = QiUi::Text::acTimer;
 
-		if (ref.min == ref.max) param = QString::number(ref.min);
-		else
-		{
-			param = QString::number(ref.min);
-			param += " ~ ";
-			param += QString::number(ref.max);
-		}
+		QString min = ref.v_min.isEmpty() ? QString::number(ref.min) : ref.v_min;
+		QString max = ref.v_max.isEmpty() ? QString::number(ref.max) : ref.v_max;
+
+		if (min == max) param = min;
+		else param = min + QString(" ~ ") + max;
 	} break;
 	case QiType::jump:
 	{
@@ -1451,9 +1443,9 @@ void EditUi::TableUpdate(int index)
 	{
 		const QiDialog& ref = std::get<QiDialog>(var);
 		type = QiUi::Text::acDialog;
-		param = FoldText(ref.title, 8);
+		param = QiFn::FoldText(ref.title, 8);
 		param += " | ";
-		param = FoldText(ref.text, 12);
+		param = QiFn::FoldText(ref.text, 12);
 	} break;
 	case QiType::block:
 	{
@@ -1482,7 +1474,7 @@ void EditUi::TableUpdate(int index)
 	{
 		const QiQuickInput& ref = std::get<QiQuickInput>(var);
 		type = QiUi::Text::acQuickInput;
-		param = FoldText(KeyToString(ref.chars));
+		param = QiFn::FoldText(KeyToString(ref.chars));
 	} break;
 	case QiType::keyBlock:
 	{
@@ -1517,19 +1509,19 @@ void EditUi::TableUpdate(int index)
 		param += "|";
 		if (ref.match) param += "匹配：";
 		else param += "搜索：";
-		param += FoldText(ref.text, 12);
+		param += QiFn::FoldText(ref.text, 12);
 	} break;
 	case QiType::varOperator:
 	{
 		const QiVarOperator& ref = std::get<QiVarOperator>(var);
 		type = QiUi::Text::acVarOperator;
-		param = FoldText(ref.script);
+		param = QiFn::FoldText(ref.script);
 	} break;
 	case QiType::varCondition:
 	{
 		const QiVarCondition& ref = std::get<QiVarCondition>(var);
 		type = QiUi::Text::acVarCondition;
-		param = FoldText(ref.script);
+		param = QiFn::FoldText(ref.script);
 	} break;
 	case QiType::mouseTrack:
 	{
@@ -1542,23 +1534,23 @@ void EditUi::TableUpdate(int index)
 	{
 		const QiOpen& ref = std::get<QiOpen>(var);
 		type = QiUi::Text::acOpen;
-		param = FoldText(ref.url, 20, true);
+		param = QiFn::FoldText(ref.url, 20, true);
 	} break;
 	case QiType::textPad:
 	{
 		const QiTextPad& ref = std::get<QiTextPad>(var);
 		type = QiUi::Text::acTextPad;
-		param = FoldText(ref.text);
+		param = QiFn::FoldText(ref.text);
 	} break;
 	case QiType::editDialog:
 	{
 		const QiEditDialog& ref = std::get<QiEditDialog>(var);
 		type = QiUi::Text::acEditDialog;
-		param = FoldText(ref.title, 4);
+		param = QiFn::FoldText(ref.title, 4);
 		param += " | ";
-		param = FoldText(ref.text, 8);
+		param = QiFn::FoldText(ref.text, 8);
 		param += " | ";
-		param = FoldText(ref.var, 8);
+		param = QiFn::FoldText(ref.var, 8);
 	} break;
 	case QiType::volume:
 	{
@@ -1575,7 +1567,7 @@ void EditUi::TableUpdate(int index)
 		type = QiUi::Text::acSoundPlay;
 		if (ref.state == QiSoundPlay::play)
 		{
-			param = FoldText(ref.file, 18, true);
+			param = QiFn::FoldText(ref.file, 18, true);
 			if (ref.sync) param += " 等待";
 		}
 		else if (ref.state == QiSoundPlay::pause) param = "暂停";
@@ -1860,8 +1852,26 @@ QiMouse EditUi::WidgetGetMouse() {
 }
 QiDelay EditUi::WidgetGetDelay() {
 	QiDelay delay;
-	delay.min = ui.delay_min_edit->text().isEmpty() ? 10 : QiRange::Restricted(ui.delay_min_edit->text().toInt(), QiDelay::range_time);
-	delay.max = ui.delay_max_edit->text().isEmpty() ? delay.min : QiRange::Restricted(ui.delay_max_edit->text().toInt(), QiDelay::range_time);
+	QString min = ui.delay_min_edit->text();
+	QString max = ui.delay_max_edit->text();
+	if (min.isEmpty())
+	{
+		delay.min = 10;
+	}
+	else
+	{
+		if (QiVar::isInteger(min.toStdString())) delay.min = QiRange::Restricted(min.toInt(), QiDelay::range_time);
+		else delay.v_min = min;
+	}
+	if (max.isEmpty())
+	{
+		delay.max = delay.min;
+	}
+	else
+	{
+		if (QiVar::isInteger(max.toStdString())) delay.max = QiRange::Restricted(max.toInt(), QiDelay::range_time);
+		else delay.v_max = max;
+	}
 	return delay;
 }
 QiCopyText EditUi::WidgetGetText() {
@@ -1889,8 +1899,26 @@ QiColor EditUi::WidgetGetColor() {
 QiLoop EditUi::WidgetGetLoop()
 {
 	QiLoop loop;
-	loop.min = ui.loop_min_edit->text().isEmpty() ? 1 : QiRange::Restricted(ui.loop_min_edit->text().toInt(), QiLoop::range_count);
-	loop.max = ui.loop_max_edit->text().isEmpty() ? loop.min : QiRange::Restricted(ui.loop_max_edit->text().toInt(), QiLoop::range_count);
+	QString min = ui.loop_min_edit->text();
+	QString max = ui.loop_max_edit->text();
+	if (min.isEmpty())
+	{
+		loop.min = 1;
+	}
+	else
+	{
+		if (QiVar::isInteger(min.toStdString())) loop.min = QiRange::Restricted(min.toInt(), QiLoop::range_count);
+		else loop.v_min = min;
+	}
+	if (max.isEmpty())
+	{
+		loop.max = loop.min;
+	}
+	else
+	{
+		if (QiVar::isInteger(max.toStdString())) loop.max = QiRange::Restricted(max.toInt(), QiLoop::range_count);
+		else loop.v_max = max;
+	}
 	return loop;
 }
 QiImage EditUi::WidgetGetImage()
@@ -1918,8 +1946,26 @@ QiPopText EditUi::WidgetGetPopText()
 QiTimer EditUi::WidgetGetTimer()
 {
 	QiTimer timer;
-	timer.min = ui.timer_min_edit->text().isEmpty() ? 1000 : QiRange::Restricted(ui.timer_min_edit->text().toInt(), QiTimer::range_count);
-	timer.max = ui.timer_max_edit->text().isEmpty() ? timer.min : QiRange::Restricted(ui.timer_max_edit->text().toInt(), QiTimer::range_count);
+	QString min = ui.timer_min_edit->text();
+	QString max = ui.timer_max_edit->text();
+	if (min.isEmpty())
+	{
+		timer.min = 1000;
+	}
+	else
+	{
+		if (QiVar::isInteger(min.toStdString())) timer.min = QiRange::Restricted(min.toInt(), QiTimer::range_time);
+		else timer.v_min = min;
+	}
+	if (max.isEmpty())
+	{
+		timer.max = timer.min;
+	}
+	else
+	{
+		if (QiVar::isInteger(max.toStdString())) timer.max = QiRange::Restricted(max.toInt(), QiTimer::range_time);
+		else timer.v_max = max;
+	}
 	return timer;
 }
 QiJump EditUi::WidgetGetJump()
@@ -2070,8 +2116,8 @@ void EditUi::WidgetSet(const QiMouse& mouse)
 }
 void EditUi::WidgetSet(const QiDelay& delay)
 {
-	ui.delay_min_edit->setText(QString::number(delay.min));
-	ui.delay_max_edit->setText(QString::number(delay.max));
+	ui.delay_min_edit->setText(delay.v_min.isEmpty() ? QString::number(delay.min) : delay.v_min);
+	ui.delay_max_edit->setText(delay.v_max.isEmpty() ? QString::number(delay.max) : delay.v_max);
 }
 void EditUi::WidgetSet(const QiCopyText& text)
 {
@@ -2098,8 +2144,8 @@ void EditUi::WidgetSet(const QiColor& color) {
 }
 void EditUi::WidgetSet(const QiLoop& loop)
 {
-	ui.loop_min_edit->setText(QString::number(loop.min));
-	ui.loop_max_edit->setText(QString::number(loop.max));
+	ui.loop_min_edit->setText(loop.v_min.isEmpty() ? QString::number(loop.min) : loop.v_min);
+	ui.loop_max_edit->setText(loop.v_max.isEmpty() ? QString::number(loop.max) : loop.v_max);
 }
 void EditUi::WidgetSet(const QiImage& image) {
 	ui.image_left_edit->setText(QString::number(image.rect.left));
@@ -2119,8 +2165,8 @@ void EditUi::WidgetSet(const QiPopText& popText) {
 }
 void EditUi::WidgetSet(const QiTimer& timer)
 {
-	ui.timer_min_edit->setText(QString::number(timer.min));
-	ui.timer_max_edit->setText(QString::number(timer.max));
+	ui.timer_min_edit->setText(timer.v_min.isEmpty() ? QString::number(timer.min) : timer.v_min);
+	ui.timer_max_edit->setText(timer.v_max.isEmpty() ? QString::number(timer.max) : timer.v_max);
 }
 void EditUi::WidgetSet(const QiDialog& dialog)
 {
@@ -2192,25 +2238,6 @@ void EditUi::WidgetSet(const QiSoundPlay& soundPlay)
 	if (soundPlay.state == QiSoundPlay::pause) ui.soundPlay_pause_radio->setChecked(true);
 	if (soundPlay.state == QiSoundPlay::resume) ui.soundPlay_resume_radio->setChecked(true);
 	if (soundPlay.state == QiSoundPlay::stop) ui.soundPlay_stop_radio->setChecked(true);
-}
-
-
-// table param text
-QString EditUi::FoldText(QString str, int len, bool back)
-{
-	int size = str.size();
-	str.replace("\n", " ").replace("\t", " ");
-	if (back)
-	{
-		str = str.size() - len < 0 ? str.mid(0, len) : str.mid(str.size() - len, len);
-		if (size > len) str = QString("...") + str;
-	}
-	else
-	{
-		str = str.mid(0, len);
-		if (size > len) str = str + QString("...");
-	}
-	return str;
 }
 
 

@@ -38,6 +38,7 @@ namespace QiThread
 	}
 	DWORD _stdcall MacroExec(PVOID pParam)
 	{
+		srand(clock());
 		ThreadParam* param = (ThreadParam*)pParam;
 		Macro* pMacro = param->macro;
 		bool isRunning = param->run;
@@ -57,6 +58,7 @@ namespace QiThread
 						while (Qi::run && !PeekExitMsg() && (pMacro->timer && !(QiTime::in(pMacro->timerStart, pMacro->timerEnd)))) Sleep(1);
 					}
 					Qi::curBlock += pMacro->curBlock;
+					Qi::interpreter.interpretAll(pMacro->script.toStdString(), pMacro->varMap);
 					if (pMacro->count && pMacro->mode != Macro::sw)
 					{
 						for (size_t i = 0; i < pMacro->count && !IsInvalid(pMacro); i++) if (interpreter.ActionInterpreter(pMacro->acRun, 1) != r_continue) break;
@@ -75,6 +77,7 @@ namespace QiThread
 			else if (Qi::debug)
 			{
 				Qi::curBlock += pMacro->curBlock;
+				Qi::interpreter.interpretAll(pMacro->script.toStdString(), pMacro->varMap);
 				interpreter.ActionInterpreter(pMacro->acRun, 1);
 				Qi::curBlock -= pMacro->curBlock;
 			}
