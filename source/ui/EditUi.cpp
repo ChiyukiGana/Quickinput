@@ -733,6 +733,10 @@ void EditUi::Event_Action_Widget()
 		QTextDialog td(true);
 		ui.textPad_edit->setText(td.Start(ui.textPad_edit->text()));
 		});
+	// varOperator
+	connect(ui.varOperator_test_button, &QPushButton::clicked, this, [this] {
+		Qi::interpreter.interpretAll(ui.varOperator_edit->toPlainText().toStdString(), macro->varMap);
+		});
 }
 // TODO: new action's preview
 void EditUi::Event_Table_Selection()
@@ -868,6 +872,7 @@ void EditUi::StyleGroup()
 		BindSafeIter(bind_edt2_button, [this](QPushButton* p, size_t i) { p->setProperty("group", "edit-edit_button"); });
 		BindSafeIter(bind_tab_button, [this](QPushButton* p, size_t i) { p->setProperty("group", "edit-tab_button"); });
 		ui.ocr_test_button->setProperty("group", "edit-edit_button");
+		ui.varOperator_test_button->setProperty("group", "edit-edit_button");
 	}
 	if ("check box")
 	{

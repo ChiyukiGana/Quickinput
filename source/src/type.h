@@ -233,10 +233,10 @@ struct QiDelay : QiBase
 	QJsonObject toJson() const
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("ms", min);
-		json.insert("ex", max);
-		json.insert("v_min", v_min);
-		json.insert("v_max", v_max);
+		json.insert("ms", (int)min);
+		json.insert("ex", (int)max);
+		json.insert("v_min", (QString)v_min);
+		json.insert("v_max", (QString)v_max);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -256,8 +256,8 @@ struct QiKey : QiBase
 	QJsonObject toJson() const
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("vk", vk);
-		json.insert("state", state);
+		json.insert("vk", (int)vk);
+		json.insert("state", (int)state);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -274,19 +274,18 @@ struct QiMouse : QiBase
 	static constexpr QiIntRange range_rand = { 0, 10000 };
 	static constexpr QiIntRange range_speed = { 0, 99 };
 
-	float speed = 0;
-	int x = 0, y = 0, ex = 0;
+	int x = 0, y = 0, ex = 0, speed = 0;
 	bool move = false, track = false;
 	QiMouse() : QiBase(QiType::mouse) {}
 	QJsonObject toJson() const
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("x", x);
-		json.insert("y", y);
-		json.insert("ex", ex);
-		json.insert("spd", speed);
-		json.insert("trk", track);
-		json.insert("move", move);
+		json.insert("x", (int)x);
+		json.insert("y", (int)y);
+		json.insert("ex", (int)ex);
+		json.insert("spd", (int)speed);
+		json.insert("trk", (bool)track);
+		json.insert("move", (bool)move);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -307,7 +306,7 @@ struct QiCopyText : QiBase
 	QJsonObject toJson() const
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("text", text);
+		json.insert("text", (QString)text);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -330,11 +329,11 @@ struct QiColor : QiBase
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
 		json.insert("next2", next2.toJson());
-		json.insert("move", move);
-		json.insert("left", rect.left);
-		json.insert("top", rect.top);
-		json.insert("right", rect.right);
-		json.insert("bottom", rect.bottom);
+		json.insert("move", (bool)move);
+		json.insert("left", (int)rect.left);
+		json.insert("top", (int)rect.top);
+		json.insert("right", (int)rect.right);
+		json.insert("bottom", (int)rect.bottom);
 		json.insert("rgbe", (int)rgbe.toCOLORREF());
 		return json;
 	}
@@ -362,10 +361,10 @@ struct QiLoop : QiBase
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
-		json.insert("count", min);
-		json.insert("rand", max);
-		json.insert("v_min", v_min);
-		json.insert("v_max", v_max);
+		json.insert("count", (int)min);
+		json.insert("rand", (int)max);
+		json.insert("v_min", (QString)v_min);
+		json.insert("v_max", (QString)v_max);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -399,7 +398,7 @@ struct QiKeyState : QiBase
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
 		json.insert("next2", next2.toJson());
-		json.insert("vk", vk);
+		json.insert("vk", (int)vk);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -437,15 +436,15 @@ struct QiImage : QiBase
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
 		json.insert("next2", next2.toJson());
-		json.insert("move", move);
-		json.insert("left", rect.left);
-		json.insert("top", rect.top);
-		json.insert("right", rect.right);
-		json.insert("bottom", rect.bottom);
-		json.insert("sim", sim);
-		json.insert("width", map.width());
-		json.insert("height", map.height());
-		json.insert("data", toBase64());
+		json.insert("move", (bool)move);
+		json.insert("left", (int)rect.left);
+		json.insert("top", (int)rect.top);
+		json.insert("right", (int)rect.right);
+		json.insert("bottom", (int)rect.bottom);
+		json.insert("sim", (int)sim);
+		json.insert("width", (int)map.width());
+		json.insert("height", (int)map.height());
+		json.insert("data", (QString)toBase64());
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -490,9 +489,9 @@ struct QiPopText : QiBase
 	QJsonObject toJson() const
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("text", text);
-		json.insert("time", time);
-		json.insert("sync", sync);
+		json.insert("text", (QString)text);
+		json.insert("time", (int)time);
+		json.insert("sync", (bool)sync);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -526,10 +525,10 @@ struct QiTimer : QiBase
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
-		json.insert("min", min);
-		json.insert("max", max);
-		json.insert("v_min", v_min);
-		json.insert("v_max", v_max);
+		json.insert("min", (int)min);
+		json.insert("max", (int)max);
+		json.insert("v_min", (QString)v_min);
+		json.insert("v_max", (QString)v_max);
 		return json;
 	}
 	virtual void fromJson(const QJsonObject& json)
@@ -549,7 +548,7 @@ struct QiJump : QiBase
 	QJsonObject toJson() const
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("id", id);
+		json.insert("id", (int)id);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -565,7 +564,7 @@ struct QiJumpPoint : QiBase
 	QJsonObject toJson() const
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("id", id);
+		json.insert("id", (int)id);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -593,9 +592,9 @@ struct QiDialog : QiBase
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
 		json.insert("next2", next2.toJson());
-		json.insert("style", style);
-		json.insert("title", title);
-		json.insert("text", text);
+		json.insert("style", (int)style);
+		json.insert("title", (QString)title);
+		json.insert("text", (QString)text);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -616,7 +615,7 @@ struct QiBlock : QiBase
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
-		json.insert("id", id);
+		json.insert("id", (int)id);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -633,7 +632,7 @@ struct QiBlockExec : QiBase
 	QJsonObject toJson() const
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("id", id);
+		json.insert("id", (int)id);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -668,8 +667,8 @@ struct QiKeyBlock : QiBase
 	QJsonObject toJson() const
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("k", vk);
-		json.insert("b", block);
+		json.insert("k", (int)vk);
+		json.insert("b", (bool)block);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -690,7 +689,7 @@ struct QiClock : QiBase
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
 		json.insert("next2", next2.toJson());
-		json.insert("t", time);
+		json.insert("t", (int)time);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -705,24 +704,23 @@ struct QiOcr : QiBase
 {
 	static constexpr QiIntRange range_rect = { 0, 10000 };
 
-	bool match = false;
-	bool row = false;
+	bool match = false, row = false;
 	RECT rect = {};
-	QString text;
-	QString var;
+	QString text, var;
 	QiOcr() : QiBase(QiType::ocr) {}
 	QJsonObject toJson() const
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
 		json.insert("next2", next2.toJson());
-		json.insert("left", rect.left);
-		json.insert("top", rect.top);
-		json.insert("right", rect.right);
-		json.insert("bottom", rect.bottom);
-		json.insert("var", var);
-		json.insert("match", match);
-		json.insert("row", row);
+		json.insert("left", (int)rect.left);
+		json.insert("top", (int)rect.top);
+		json.insert("right", (int)rect.right);
+		json.insert("bottom", (int)rect.bottom);
+		json.insert("text", (QString)text);
+		json.insert("var", (QString)var);
+		json.insert("match", (bool)match);
+		json.insert("row", (bool)row);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -734,6 +732,7 @@ struct QiOcr : QiBase
 		rect.top = json.value("top").toInt();
 		rect.right = json.value("right").toInt();
 		rect.bottom = json.value("bottom").toInt();
+		text = json.value("text").toString();
 		var = json.value("var").toString();
 		match = json.value("match").toBool();
 		row = json.value("row").toBool();
@@ -746,7 +745,7 @@ struct QiVarOperator : QiBase
 	QJsonObject toJson() const
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("t", script);
+		json.insert("t", (QString)script);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -764,7 +763,7 @@ struct QiVarCondition : QiBase
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
 		json.insert("next2", next2.toJson());
-		json.insert("t", script);
+		json.insert("t", (QString)script);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -790,7 +789,7 @@ struct QiMouseTrack : QiBase
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("size", (int)s.size());
-		json.insert("data", toBase64());
+		json.insert("data", (QString)toBase64());
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -838,7 +837,7 @@ struct QiOpen : QiBase
 	QJsonObject toJson() const
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("url", url);
+		json.insert("url", (QString)url);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -854,7 +853,7 @@ struct QiTextPad : QiBase
 	QJsonObject toJson() const
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("text", text);
+		json.insert("text", (QString)text);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -873,16 +872,16 @@ struct QiEditDialog : QiBase
 	QJsonObject toJson() const
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("mult", mult);
-		json.insert("title", title);
-		json.insert("text", text);
-		json.insert("var", var);
+		json.insert("mult", (bool)mult);
+		json.insert("title", (QString)title);
+		json.insert("text", (QString)text);
+		json.insert("var", (QString)var);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
 	{
 		QiBase::fromJson(json);
-		mult = json.value("mult").toInt();
+		mult = json.value("mult").toBool();
 		title = json.value("title").toString();
 		text = json.value("text").toString();
 		var = json.value("var").toString();
@@ -902,9 +901,9 @@ struct QiVolume : QiBase
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
 		json.insert("next2", next2.toJson());
-		json.insert("volume", volume);
-		json.insert("time", time);
-		json.insert("max", max);
+		json.insert("volume", (double)volume);
+		json.insert("time", (int)time);
+		json.insert("max", (bool)max);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)
@@ -927,9 +926,9 @@ struct QiSoundPlay : QiBase
 	QJsonObject toJson() const
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("file", file);
-		json.insert("state", state);
-		json.insert("sync", sync);
+		json.insert("file", (QString)file);
+		json.insert("state", (int)state);
+		json.insert("sync", (bool)sync);
 		return json;
 	}
 	void fromJson(const QJsonObject& json)

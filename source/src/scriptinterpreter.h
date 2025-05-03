@@ -105,54 +105,100 @@ public:
 
 	QiVar merge(const QiVar& other) const
 	{
-		return QiVar(this->toString() + other.toString());
+		return this->toString() + other.toString();
 	}
-
 	QiVar operator+(const QiVar& other) const
 	{
-		double a = this->toNumber();
-		double b = other.toNumber();
-		return QiVar(a + b);
+		return (this->isInteger() && other.isInteger()) ? this->toInteger() + other.toInteger() : this->toNumber() + other.toNumber();
 	}
 	QiVar operator-(const QiVar& other) const
 	{
-		double a = this->toNumber();
-		double b = other.toNumber();
-		return QiVar(a - b);
+		return (this->isInteger() && other.isInteger()) ? this->toInteger() - other.toInteger() : this->toNumber() - other.toNumber();
 	}
 	QiVar operator*(const QiVar& other) const
 	{
-		double a = this->toNumber();
-		double b = other.toNumber();
-		return QiVar(a * b);
+		return (this->isInteger() && other.isInteger()) ? this->toInteger() * other.toInteger() : this->toNumber() * other.toNumber();
 	}
 	QiVar operator/(const QiVar& other) const
 	{
-		double a = this->toNumber();
 		double b = other.toNumber();
-		return b != 0.0 ? QiVar(a / b) : QiVar(0.0);
+		return b == 0.0 ? 0.0 : this->toNumber() / b;
 	}
 	QiVar operator%(const QiVar& other) const
 	{
-		long long a = this->toInteger();
 		long long b = other.toInteger();
-		return b != 0LL ? QiVar(a % b) : QiVar(0LL);
+		return b == 0LL ? 0LL : this->toInteger() % b;
 	}
+
+	QiVar operator~() const
+	{
+		return ~this->toInteger();
+	}
+	QiVar operator&(const QiVar& other) const
+	{
+		return this->toInteger() & other.toInteger();
+	}
+	QiVar operator|(const QiVar& other) const
+	{
+		return this->toInteger() | other.toInteger();
+	}
+	QiVar operator^(const QiVar& other) const
+	{
+		return this->toInteger() ^ other.toInteger();
+	}
+	QiVar operator<<(const QiVar& other) const
+	{
+		return this->toInteger() << other.toInteger();
+	}
+	QiVar operator>>(const QiVar& other) const
+	{
+		return this->toInteger() >> other.toInteger();
+	}
+
 	bool operator>(const QiVar& other) const
 	{
-		return this->toNumber() > other.toNumber();
+		return (this->isInteger() && other.isInteger()) ? this->toInteger() > other.toInteger() : this->toNumber() > other.toNumber();
+	}
+	bool operator>=(const QiVar& other) const
+	{
+		return (this->isInteger() && other.isInteger()) ? this->toInteger() >= other.toInteger() : this->toNumber() >= other.toNumber();
 	}
 	bool operator<(const QiVar& other) const
 	{
-		return this->toNumber() < other.toNumber();
+		return (this->isInteger() && other.isInteger()) ? this->toInteger() < other.toInteger() : this->toNumber() < other.toNumber();
+	}
+	bool operator<=(const QiVar& other) const
+	{
+		return (this->isInteger() && other.isInteger()) ? this->toInteger() <= other.toInteger() : this->toNumber() <= other.toNumber();
 	}
 	bool operator==(const QiVar& other) const
 	{
+		if (this->isInteger() && other.isInteger())
+			return this->toInteger() == other.toInteger();
 		if (this->isNumber() && other.isNumber())
-		{
 			return this->toNumber() == other.toNumber();
-		}
 		return this->toString() == other.toString();
+	}
+	bool operator!=(const QiVar& other) const
+	{
+		if (this->isInteger() && other.isInteger())
+			return this->toInteger() != other.toInteger();
+		if (this->isNumber() && other.isNumber())
+			return this->toNumber() != other.toNumber();
+		return this->toString() != other.toString();
+	}
+
+	bool operator!() const
+	{
+		return !this->toBool();
+	}
+	bool operator&&(const QiVar& other) const
+	{
+		return this->toBool() && other.toBool();
+	}
+	bool operator||(const QiVar& other) const
+	{
+		return this->toBool() || other.toBool();
 	}
 
 	static std::string sub(const std::string& str, size_t where, size_t length = ~size_t(0))
@@ -841,6 +887,7 @@ class QiScriptInterpreter
 	std::mutex excuteMutex;
 	static inline const std::string error_invalid_character = "error_invalid_character";
 	static inline const std::string error_not_enough_operands = "error_not_enough_operands";
+	static inline const std::string error_unknown_operator = "error_unknown_operator";
 	static inline const std::string error_invalid_expression = "error_invalid_expression";
 	static inline const std::string error_unknown_functions = "error_unknown_functions";
 public:
@@ -906,28 +953,52 @@ public:
 				pos++;
 			}
 			// Operators
-			else if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '>' || c == '<' || c == '=' || c == '%')
+			else if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '>' || c == '<' || c == '=' || c == '%' || c == '~' || c == '&' || c == '|' || c == '!')
 			{
-				if (c == '=' && pos + 1 < expr.length() && expr[pos + 1] == '=')
+				std::string op(1, c);
+				int prec = 0;
+				bool dual_char = false;
+
+				if (pos + 1 < expr.length())
 				{
-					tokens.emplace_back(OPERATOR, "==", 1);
-					pos += 2;
+					char next_c = expr[pos + 1];
+					std::string dual_op = op + next_c;
+
+					if ((dual_op == "<<" || dual_op == ">>") || (dual_op == ">=" || dual_op == "<=" || dual_op == "!=" || dual_op == "==" || dual_op == "&&" || dual_op == "||" || dual_op == "^^"))
+					{
+						op = dual_op;
+						pos++;
+						dual_char = true;
+					}
 				}
-				else
-				{
-					std::string op(1, c);
-					int prec = 0;
-					if (c == '*' || c == '/' || c == '%')
-						prec = 3;
-					else if (c == '+' || c == '-')
-						prec = 2;
-					else if (c == '>' || c == '<' || c == '=')
-						prec = 1;
-					else if (c == '^')
-						prec = 0;
-					tokens.emplace_back(OPERATOR, op, prec);
-					pos++;
-				}
+
+				if (op == "!" || op == "~")
+					prec = 4;
+				else if (op == "*" || op == "/" || op == "%")
+					prec = 3;
+				else if (op == "+" || op == "-")
+					prec = 2;
+				else if (op == "<<" || op == ">>")
+					prec = 1;
+				else if (op == "&")
+					prec = 1;
+				else if (op == "^")
+					prec = 0;
+				else if (op == "^^")
+					prec = 1;
+				else if (op == "|")
+					prec = 1;
+				else if (op == ">" || op == "<" || op == ">=" || op == "<=")
+					prec = 1;
+				else if (op == "==" || op == "!=")
+					prec = 1;
+				else if (op == "&&")
+					prec = 0;
+				else if (op == "||")
+					prec = 0;
+
+				tokens.emplace_back(OPERATOR, op, prec);
+				pos++;
 			}
 			// Parentheses
 			else if (c == '(' || c == ')')
@@ -1090,24 +1161,53 @@ public:
 			}
 			else if (token.type == OPERATOR)
 			{
-				if (stack.size() < 2) throw std::runtime_error(error_not_enough_operands);
-
-				QiVar right = stack.back();
-				stack.pop_back();
-				QiVar left = stack.back();
-				stack.pop_back();
 				QiVar result;
+				try
+				{
+					if (token.value == "!" || token.value == "~")
+					{
+						if (stack.size() < 1) throw std::runtime_error(error_not_enough_operands);
+						QiVar right = stack.back();
+						stack.pop_back();
 
-				if (token.value == "+") result = left + right;
-				else if (token.value == "-") result = left - right;
-				else if (token.value == "*") result = left * right;
-				else if (token.value == "/") result = left / right;
-				else if (token.value == ">") result = QiVar(left > right ? 1.0 : 0.0);
-				else if (token.value == "<") result = QiVar(left < right ? 1.0 : 0.0);
-				else if (token.value == "^") result = left.merge(right);
-				else if (token.value == "%") result = left % right;
-				else if (token.value == "==") result = QiVar(left == right ? 1.0 : 0.0);
+						if (token.value == "!") result = !right;
+						else if (token.value == "~") result = ~right;
+					}
+					else
+					{
+						if (stack.size() < 2) throw std::runtime_error(error_not_enough_operands);
+						QiVar right = stack.back();
+						stack.pop_back();
+						QiVar left = stack.back();
+						stack.pop_back();
 
+						if (token.value == "^") result = left.merge(right);
+						else if (token.value == "+") result = left + right;
+						else if (token.value == "-") result = left - right;
+						else if (token.value == "*") result = left * right;
+						else if (token.value == "/") result = left / right;
+						else if (token.value == "%") result = left % right;
+						else if (token.value == "&") result = left & right;
+						else if (token.value == "|") result = left | right;
+						else if (token.value == "^^") result = left ^ right;
+						else if (token.value == "<<") result = left << right;
+						else if (token.value == ">>") result = left >> right;
+						else if (token.value == ">") result = left > right;
+						else if (token.value == "<") result = left < right;
+						else if (token.value == ">=") result = left >= right;
+						else if (token.value == "<=") result = left <= right;
+						else if (token.value == "==") result = left == right;
+						else if (token.value == "!=") result = left != right;
+						else if (token.value == "&&") result = left && right;
+						else if (token.value == "||") result = left || right;
+						else throw std::runtime_error(error_unknown_operator + std::string(": ") + token.value);
+					}
+				}
+				catch (std::exception e)
+				{
+					if (std::string(e.what()) == error_not_enough_operands) throw std::runtime_error(error_not_enough_operands);
+					throw std::runtime_error(e.what());
+				}
 				stack.push_back(result);
 			}
 			else if (token.type == FUNCTION)
@@ -1280,6 +1380,10 @@ public:
 		else if (msg.find("==") != std::string::npos)
 		{
 			text = L"== 操作符使用错误";
+		}
+		else if (msg.find(QiScriptInterpreter::error_unknown_operator) != std::string::npos)
+		{
+			text = L"未知运算符号";
 		}
 		else if (msg.find(QiScriptInterpreter::error_unknown_functions) != std::string::npos)
 		{
