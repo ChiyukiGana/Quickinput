@@ -91,7 +91,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-5-3</string>
+         <string>2025-5-4</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -107,9 +107,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>修复文字识别保存异常
-增加变量运算符号
-增加变量测试按钮</string>
+         <string>修复文字识别写入变量异常
+增加变量函数：电源操作</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

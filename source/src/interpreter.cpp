@@ -220,8 +220,12 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 				{
 					if (jumpId || debug_entry) continue;
 					const QiCopyText& ref = std::get<QiCopyText>(action);
-					std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
-					System::ClipBoardText(String::toWString(text).c_str());
+					try
+					{
+						std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
+						System::ClipBoardText(String::toWString(text).c_str());
+					}
+					catch (std::exception e) { QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); }
 				} break;
 				case QiType::color:
 				{
@@ -267,7 +271,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 				} break;
 				case QiType::loop:
 				{
-					const QiLoop& ref = std::get<QiLoop>(action);	
+					const QiLoop& ref = std::get<QiLoop>(action);
 					int min = 1;
 					int max = 1;
 					try { min = ref.v_min.isEmpty() ? ref.min : varMap.at(ref.v_min.toStdString()).toInteger(); }
@@ -353,13 +357,17 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 				{
 					if (jumpId || debug_entry) continue;
 					const QiPopText& ref = std::get<QiPopText>(action);
-					std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
-					Qi::popText->Popup(ref.time, text.c_str(), RGB(223, 223, 223));
-					if (ref.sync)
+					try
 					{
-						if (ref.sync && PeekSleep(ref.time)) r_result = r_exit;
+						std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
+						Qi::popText->Popup(ref.time, text.c_str(), RGB(223, 223, 223));
+						if (ref.sync)
+						{
+							if (ref.sync && PeekSleep(ref.time)) r_result = r_exit;
+						}
+						else Sleep(10);
 					}
-					else Sleep(10);
+					catch (std::exception e) { QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); }
 				} break;
 				case QiType::savePos:
 				{
@@ -411,13 +419,17 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 					const QiDialog& ref = std::get<QiDialog>(action);
 					if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next, layer + 1); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2, layer + 1); continue; }
 					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next, layer + 1); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2, layer + 1); continue; }
-					std::string title = Qi::interpreter.execute(Qi::interpreter.makeString(ref.title.toStdString()), varMap).toString();
-					std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
-					DWORD style = MB_YESNO | MB_TOPMOST;
-					if (ref.style == QiDialog::warning) style |= MB_ICONWARNING;
-					else if (ref.style == QiDialog::error) style |= MB_ICONERROR;
-					if (MessageBoxW(nullptr, String::toWString(text).c_str(), String::toWString(title).c_str(), style) == IDYES) r_result = ActionInterpreter(ref.next, layer + 1);
-					else r_result = ActionInterpreter(ref.next2, layer + 1);
+					try
+					{
+						std::string title = Qi::interpreter.execute(Qi::interpreter.makeString(ref.title.toStdString()), varMap).toString();
+						std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
+						DWORD style = MB_YESNO | MB_TOPMOST;
+						if (ref.style == QiDialog::warning) style |= MB_ICONWARNING;
+						else if (ref.style == QiDialog::error) style |= MB_ICONERROR;
+						if (MessageBoxW(nullptr, String::toWString(text).c_str(), String::toWString(title).c_str(), style) == IDYES) r_result = ActionInterpreter(ref.next, layer + 1);
+						else r_result = ActionInterpreter(ref.next2, layer + 1);
+					}
+					catch (std::exception e) { QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); }
 				} break;
 				case QiType::block:
 				{
@@ -479,47 +491,55 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 					const QiOcr& ref = std::get<QiOcr>(action);
 					if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next, layer + 1); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2, layer + 1); continue; }
 					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next, layer + 1); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2, layer + 1); continue; }
-					if (Qi::ocr)
+					try
 					{
-						RECT rect = QiFn::R_SATR(ref.rect);
-						CImage image;
-						HDC hdc;
-						if (wndInput)
+						if (Qi::ocr)
 						{
-							hdc = GetDC(wndInput->wnd);
-							rect = QiFn::R_WATR(ref.rect, wndInput->wnd);
-							image = Image::toCImage32(hdc, rect);
-							ReleaseDC(wndInput->wnd, hdc);
-						}
-						else
-						{
-							hdc = GetDC(nullptr);
-							rect = QiFn::R_SATR(ref.rect);
-							image = Image::toCImage32(hdc, rect);
-							ReleaseDC(nullptr, hdc);
-						}
-						if (!image.IsNull())
-						{
-							std::string text = Qi::ocr->scan(image, ref.row);
-							image.ReleaseDC();
-							if (!text.empty())
+							RECT rect = QiFn::R_SATR(ref.rect);
+							CImage image;
+							HDC hdc;
+							if (wndInput)
 							{
-								bool rr =Qi::interpreter.makeValue(ref.var.toStdString(), text, varMap);
-								if ((ref.match && ref.text == text.c_str()) || (!ref.match && text.find(ref.text.toStdString()) != std::string::npos))
+								hdc = GetDC(wndInput->wnd);
+								rect = QiFn::R_WATR(ref.rect, wndInput->wnd);
+								image = Image::toCImage32(hdc, rect);
+								ReleaseDC(wndInput->wnd, hdc);
+							}
+							else
+							{
+								hdc = GetDC(nullptr);
+								rect = QiFn::R_SATR(ref.rect);
+								image = Image::toCImage32(hdc, rect);
+								ReleaseDC(nullptr, hdc);
+							}
+
+							if (!image.IsNull())
+							{
+								std::string text = Qi::ocr->scan(image, ref.row);
+								image.ReleaseDC();
+								if (!text.empty())
 								{
-									r_result = ActionInterpreter(ref.next, layer + 1);
-									break;
+									bool rr = Qi::interpreter.makeValue(ref.var.toStdString(), text, varMap);
+									if ((ref.match && ref.text == text.c_str()) || (!ref.match && text.find(ref.text.toStdString()) != std::string::npos))
+									{
+										r_result = ActionInterpreter(ref.next, layer + 1);
+										break;
+									}
 								}
 							}
+							r_result = ActionInterpreter(ref.next2, layer + 1);
 						}
-						r_result = ActionInterpreter(ref.next2, layer + 1);
 					}
+					catch (std::exception e) { QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); }
 				} break;
 				case QiType::varOperator:
 				{
 					if (jumpId || debug_entry) continue;
 					const QiVarOperator& ref = std::get<QiVarOperator>(action);
-					try { Qi::interpreter.interpretAll(ref.script.toStdString(), varMap); }
+					try
+					{
+						Qi::interpreter.interpretAll(ref.script.toStdString(), varMap);
+					}
 					catch (std::runtime_error e) { Qi::interpreter.showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); }
 					Qi::widget.varViewReload();
 				} break;
@@ -528,7 +548,8 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 					const QiVarCondition& ref = std::get<QiVarCondition>(action);
 					if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next, layer + 1); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2, layer + 1); continue; }
 					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next, layer + 1); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2, layer + 1); continue; }
-					try {
+					try
+					{
 						QiVar var = Qi::interpreter.execute(ref.script.toStdString(), varMap);
 						if (var.toBool()) r_result = ActionInterpreter(ref.next, layer + 1);
 						else r_result = ActionInterpreter(ref.next2, layer + 1);
@@ -586,10 +607,14 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 				{
 					if (jumpId || debug_entry) continue;
 					const QiEditDialog& ref = std::get<QiEditDialog>(action);
-					std::string title = Qi::interpreter.execute(Qi::interpreter.makeString(ref.title.toStdString()), varMap).toString();
-					std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
-					text = String::toString(TextEditBox(nullptr, String::toWString(title).c_str(), String::toWString(text).c_str(), ref.mult, WS_EX_TOPMOST, L"ICOAPP"));
-					if (!text.empty()) Qi::interpreter.makeValue(ref.var.toStdString(), text, varMap);
+					try
+					{
+						std::string title = Qi::interpreter.execute(Qi::interpreter.makeString(ref.title.toStdString()), varMap).toString();
+						std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
+						text = String::toString(TextEditBox(nullptr, String::toWString(title).c_str(), String::toWString(text).c_str(), ref.mult, WS_EX_TOPMOST, L"ICOAPP"));
+						if (!text.empty()) Qi::interpreter.makeValue(ref.var.toStdString(), text, varMap);
+					}
+					catch (std::exception e) { QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); }
 				} break;
 				case QiType::volume:
 				{

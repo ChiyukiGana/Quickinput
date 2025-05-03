@@ -735,7 +735,14 @@ void EditUi::Event_Action_Widget()
 		});
 	// varOperator
 	connect(ui.varOperator_test_button, &QPushButton::clicked, this, [this] {
-		Qi::interpreter.interpretAll(ui.varOperator_edit->toPlainText().toStdString(), macro->varMap);
+		try
+		{
+			Qi::interpreter.interpretAll(ui.varOperator_edit->toPlainText().toStdString(), macro->varMap);
+		}
+		catch (std::exception e)
+		{
+			QiScriptInterpreter::showError(e.what());
+		}
 		});
 }
 // TODO: new action's preview

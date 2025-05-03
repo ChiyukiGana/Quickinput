@@ -34,6 +34,7 @@ public:
 	};
 
 	QiVar() : var(long long(0LL)) {}
+	QiVar(bool val) : var(long long(val)) {}
 	QiVar(int val) : var(long long(val)) {}
 	QiVar(long long val) : var(val) {}
 	QiVar(double val) : var(val) {}
@@ -312,11 +313,11 @@ public:
 		return result;
 	}
 
-	static bool isInteger(const std::string& str)
+	static bool isInteger(const std::string& str, bool commas = false)
 	{
 		try
 		{
-			std::string cleanedStr = removeCommas(str);
+			std::string cleanedStr = commas ? removeCommas(str) : str;
 			std::size_t pos;
 			std::stoi(cleanedStr, &pos);
 			return pos == cleanedStr.size();
@@ -330,11 +331,11 @@ public:
 	{
 		return std::fmod(num, 1.0) == 0.0;
 	}
-	static bool isNumber(const std::string& str)
+	static bool isNumber(const std::string& str, bool commas = false)
 	{
 		try
 		{
-			std::string cleanedStr = removeCommas(str);
+			std::string cleanedStr = commas ? removeCommas(str) : str;
 			std::size_t pos;
 			std::stod(cleanedStr, &pos);
 			return pos == cleanedStr.size();
@@ -402,11 +403,11 @@ public:
 };
 using QiVarMap = std::map<std::string, QiVar>;
 
-class QiFunc
+struct QiFunc
 {
 	const size_t m_args;
 	const size_t m_args_max;
-public:
+
 	QiFunc() = delete;
 	QiFunc(size_t args, size_t args_max = 0) : m_args(args), m_args_max(args_max ? args_max : args) {}
 	bool valid(size_t args) const
@@ -418,9 +419,8 @@ public:
 class QiFuncMap : public std::map<std::string, std::unique_ptr<QiFunc>>
 {
 public:
-	class QiFunc_date : public QiFunc
+	struct QiFunc_date : public QiFunc
 	{
-	public:
 		QiFunc_date() : QiFunc(0) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -430,9 +430,8 @@ public:
 			return QiVar::toString(m.tm_year + 1900) + std::string("-") + QiVar::toString(m.tm_mon + 1) + std::string("-") + QiVar::toString(m.tm_mday);
 		}
 	};
-	class QiFunc_time : public QiFunc
+	struct QiFunc_time : public QiFunc
 	{
-	public:
 		QiFunc_time() : QiFunc(0) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -442,9 +441,8 @@ public:
 			return QiVar::toString(m.tm_hour) + std::string(":") + QiVar::toString(m.tm_min) + std::string(":") + QiVar::toString(m.tm_sec);
 		}
 	};
-	class QiFunc_time_y : public QiFunc
+	struct QiFunc_time_y : public QiFunc
 	{
-	public:
 		QiFunc_time_y() : QiFunc(0) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -454,9 +452,8 @@ public:
 			return int(m.tm_year + 1900);
 		}
 	};
-	class QiFunc_time_yd : public QiFunc
+	struct QiFunc_time_yd : public QiFunc
 	{
-	public:
 		QiFunc_time_yd() : QiFunc(0) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -466,18 +463,16 @@ public:
 			return int(m.tm_yday);
 		}
 	};
-	class QiFunc_time_ys : public QiFunc
+	struct QiFunc_time_ys : public QiFunc
 	{
-	public:
 		QiFunc_time_ys() : QiFunc(0) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
 			return int(time(nullptr));
 		}
 	};
-	class QiFunc_time_m : public QiFunc
+	struct QiFunc_time_m : public QiFunc
 	{
-	public:
 		QiFunc_time_m() : QiFunc(0) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -487,9 +482,8 @@ public:
 			return int(m.tm_mon + 1);
 		}
 	};
-	class QiFunc_time_w : public QiFunc
+	struct QiFunc_time_w : public QiFunc
 	{
-	public:
 		QiFunc_time_w() : QiFunc(0) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -500,9 +494,8 @@ public:
 			return int(m.tm_wday);
 		}
 	};
-	class QiFunc_time_d : public QiFunc
+	struct QiFunc_time_d : public QiFunc
 	{
-	public:
 		QiFunc_time_d() : QiFunc(0) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -512,9 +505,8 @@ public:
 			return int(m.tm_mday);
 		}
 	};
-	class QiFunc_time_dh : public QiFunc
+	struct QiFunc_time_dh : public QiFunc
 	{
-	public:
 		QiFunc_time_dh() : QiFunc(0) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -524,9 +516,8 @@ public:
 			return int(m.tm_hour);
 		}
 	};
-	class QiFunc_time_dm : public QiFunc
+	struct QiFunc_time_dm : public QiFunc
 	{
-	public:
 		QiFunc_time_dm() : QiFunc(0) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -536,9 +527,8 @@ public:
 			return int(m.tm_min);
 		}
 	};
-	class QiFunc_time_ds : public QiFunc
+	struct QiFunc_time_ds : public QiFunc
 	{
-	public:
 		QiFunc_time_ds() : QiFunc(0) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -548,54 +538,48 @@ public:
 			return int(m.tm_sec);
 		}
 	};
-	class QiFunc_time_ms : public QiFunc
+	struct QiFunc_time_ms : public QiFunc
 	{
-	public:
 		QiFunc_time_ms() : QiFunc(0) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
 			return int(clock());
 		}
 	};
-	class QiFunc_str : public QiFunc
+	struct QiFunc_str : public QiFunc
 	{
-	public:
 		QiFunc_str() : QiFunc(1) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
 			return args[0].toString();
 		}
 	};
-	class QiFunc_num : public QiFunc
+	struct QiFunc_num : public QiFunc
 	{
-	public:
 		QiFunc_num() : QiFunc(1) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
 			return args[0].toNumber();
 		}
 	};
-	class QiFunc_int : public QiFunc
+	struct QiFunc_int : public QiFunc
 	{
-	public:
 		QiFunc_int() : QiFunc(1) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
 			return args[0].toInteger();
 		}
 	};
-	class QiFunc_rmn : public QiFunc
+	struct QiFunc_rmn : public QiFunc
 	{
-	public:
 		QiFunc_rmn() : QiFunc(1) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
 			return QiVar::removeNums(args[0].toString());
 		}
 	};
-	class QiFunc_rmc : public QiFunc
+	struct QiFunc_rmc : public QiFunc
 	{
-	public:
 		QiFunc_rmc() : QiFunc(1, 2) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -603,9 +587,8 @@ public:
 			return QiVar::removeChars(args[0].toString());
 		}
 	};
-	class QiFunc_rms : public QiFunc
+	struct QiFunc_rms : public QiFunc
 	{
-	public:
 		QiFunc_rms() : QiFunc(1, ~size_t(0)) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -615,18 +598,16 @@ public:
 			return result;
 		}
 	};
-	class QiFunc_len : public QiFunc
+	struct QiFunc_len : public QiFunc
 	{
-	public:
 		QiFunc_len() : QiFunc(1) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
 			return args[0].len();
 		}
 	};
-	class QiFunc_sleep : public QiFunc
+	struct QiFunc_sleep : public QiFunc
 	{
-	public:
 		QiFunc_sleep() : QiFunc(1) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -634,9 +615,8 @@ public:
 			return true;
 		}
 	};
-	class QiFunc_pop : public QiFunc
+	struct QiFunc_pop : public QiFunc
 	{
-	public:
 		QiFunc_pop() : QiFunc(1, 2) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -644,9 +624,8 @@ public:
 			return args[0];
 		}
 	};
-	class QiFunc_rand : public QiFunc
+	struct QiFunc_rand : public QiFunc
 	{
-	public:
 		QiFunc_rand() : QiFunc(1, 2) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -658,9 +637,8 @@ public:
 			return min + (rand() % (max - min + 1));
 		}
 	};
-	class QiFunc_cur_to : public QiFunc
+	struct QiFunc_cur_to : public QiFunc
 	{
-	public:
 		QiFunc_cur_to() : QiFunc(2) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -682,9 +660,8 @@ public:
 			return true;
 		}
 	};
-	class QiFunc_cur_move : public QiFunc
+	struct QiFunc_cur_move : public QiFunc
 	{
-	public:
 		QiFunc_cur_move() : QiFunc(2) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -701,25 +678,23 @@ public:
 			return true;
 		}
 	};
-	class QiFunc_sub : public QiFunc
+	struct QiFunc_sub : public QiFunc
 	{
-	public:
 		QiFunc_sub() : QiFunc(2, 3) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
 			return QiVar::sub(args[0].toString(), args[1].toInteger(), args.size() > 2 ? args[2].toInteger() : ~size_t(0));
 		}
 	};
-	class QiFunc_subx : public QiFunc
+	struct QiFunc_subx : public QiFunc
 	{
-	public:
 		QiFunc_subx() : QiFunc(2, 3) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
 			return QiVar::subx(args[0].toString(), args[1].toInteger(), args.size() > 2 ? args[2].toInteger() : ~size_t(0));
 		}
 	};
-	class QiFunc_text_box : public QiFunc
+	struct QiFunc_text_box : public QiFunc
 	{
 		enum
 		{
@@ -727,7 +702,7 @@ public:
 			warning,
 			error
 		};
-	public:
+
 		QiFunc_text_box() : QiFunc(1, 3) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -742,9 +717,8 @@ public:
 			return MessageBoxW(nullptr, String::toWString(text).c_str(), String::toWString(title).c_str(), style) == IDYES;
 		}
 	};
-	class QiFunc_edit_box : public QiFunc
+	struct QiFunc_edit_box : public QiFunc
 	{
-	public:
 		QiFunc_edit_box() : QiFunc(0, 3) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -753,18 +727,16 @@ public:
 			return String::toString(TextEditBox(nullptr, String::toWString(title).c_str(), String::toWString(text).c_str(), args.size() > 2 ? args[2].toBool() : false, WS_EX_TOPMOST, L"ICOAPP"));
 		}
 	};
-	class QiFunc_volume : public QiFunc
+	struct QiFunc_volume : public QiFunc
 	{
-	public:
 		QiFunc_volume() : QiFunc(0, 2) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
 			return (double)Sound::SpeakerVolume(args.size() > 0 ? args[0].toInteger() : 10, args.size() > 1 ? args[1].toBool() : false);
 		}
 	};
-	class QiFunc_file_read : public QiFunc
+	struct QiFunc_file_read : public QiFunc
 	{
-	public:
 		QiFunc_file_read() : QiFunc(1) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
@@ -773,49 +745,96 @@ public:
 			return QiVar();
 		}
 	};
-	class QiFunc_file_write : public QiFunc
+	struct QiFunc_file_write : public QiFunc
 	{
-	public:
 		QiFunc_file_write() : QiFunc(2) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
 			return File::SaveText(args[0].toString().c_str(), args[1].toString().c_str());
 		}
 	};
-	class QiFunc_file_exist : public QiFunc
+	struct QiFunc_file_exist : public QiFunc
 	{
-	public:
 		QiFunc_file_exist() : QiFunc(1) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
 			return File::PathState(String::toWString(args[0].toString()));
 		}
 	};
-	class QiFunc_file_remove : public QiFunc
+	struct QiFunc_file_remove : public QiFunc
 	{
-	public:
 		QiFunc_file_remove() : QiFunc(1) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
 			return bool(DeleteFileW(String::toWString(args[0].toString()).c_str()));
 		}
 	};
-	class QiFunc_csv_read : public QiFunc
+	struct QiFunc_csv_read : public QiFunc
 	{
-	public:
 		QiFunc_csv_read() : QiFunc(3) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
 			return CsvTool::read(args[0].toString(), args[1].toInteger(), args[2].toInteger());
 		}
 	};
-	class QiFunc_csv_write : public QiFunc
+	struct QiFunc_csv_write : public QiFunc
 	{
-	public:
 		QiFunc_csv_write() : QiFunc(4) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
 			return CsvTool::write(args[0].toString(), args[1].toInteger(), args[2].toInteger(), args[3].toString());
+		}
+	};
+	struct QiFunc_power : public QiFunc
+	{
+		enum
+		{
+			lock,
+			signout,
+			shutdown,
+			reboot,
+		};
+
+		QiFunc_power() : QiFunc(0, 1) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			BOOL result = FALSE;
+			int op = lock;
+			if (args.empty());
+			else if (args[0].isInteger()) op = args[0].toInteger();
+			else
+			{
+				if (args[0].toString() == "lock") op = lock;
+				else if (args[0].toString() == "sign") op = signout;
+				else if (args[0].toString() == "shutdown") op = shutdown;
+				else if (args[0].toString() == "reboot") op = reboot;
+			}
+
+			if (op > lock && op <= reboot)
+			{
+				HANDLE hToken;
+				TOKEN_PRIVILEGES tkp;
+
+				if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken)) return QiVar(false);
+
+				LookupPrivilegeValueW(NULL, SE_SHUTDOWN_NAME, &tkp.Privileges[0].Luid);
+
+				tkp.PrivilegeCount = 1;
+				tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+				AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
+
+				if (GetLastError() != ERROR_SUCCESS) return QiVar(false);
+			}
+
+			switch (op)
+			{
+			case lock: result = LockWorkStation(); break;
+			case signout: result = ExitWindowsEx(EWX_LOGOFF, SHTDN_REASON_MAJOR_APPLICATION); break;
+			case shutdown: result = ExitWindowsEx(EWX_POWEROFF, SHTDN_REASON_MAJOR_APPLICATION); break;
+			case reboot: result = ExitWindowsEx(EWX_REBOOT, SHTDN_REASON_MAJOR_APPLICATION); break;
+			}
+			return result;
 		}
 	};
 	QiFuncMap()
@@ -855,6 +874,7 @@ public:
 		insert({ "file_remove", std::make_unique<QiFunc_file_remove>() });
 		insert({ "csv_read", std::make_unique<QiFunc_csv_read>() });
 		insert({ "csv_write", std::make_unique<QiFunc_csv_write>() });
+		insert({ "power", std::make_unique<QiFunc_power>() });
 	}
 };
 
@@ -1321,7 +1341,7 @@ public:
 		{
 			if (value.isNumber())
 			{
-				interpret(var + "=" + value.toString(), localVariables);
+				interpret(var + "=" + std::to_string(value.toNumber()), localVariables);
 				return true;
 			}
 			else if (value.isString())
