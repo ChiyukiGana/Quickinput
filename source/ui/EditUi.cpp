@@ -363,7 +363,8 @@ void EditUi::Event()
 			if (column != tableColumn_mark) return;
 			QiBase& base = actions->at(row).base();
 			base.mark = ui.action_table->item(row, tableColumn_mark)->text();
-			if ((base.type == QiType::jumpPoint) || (base.type == QiType::block)) TableUpdate(row);
+			if (base.type == QiType::jumpPoint) ListJumpPointReload();
+			else if (base.type == QiType::block) ListBlockReload();
 			});
 		// mark, disable, debug
 		connect(ui.action_table, &QTableWidget::cellClicked, this, [this](int row, int column) {
@@ -1441,6 +1442,17 @@ void EditUi::TableUpdate(int index)
 		{
 			param = "id：";
 			param += QString::number(ref.id);
+			IterActions(*actionsRoot, [&param, id = ref.id](const Action& action) {
+				const QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(action);
+				if (jumpPoint.id == id)
+				{
+					if (jumpPoint.mark.isEmpty()) return false;
+					param += " ";
+					param += jumpPoint.mark;
+					return false;
+				}
+				return true;
+				}, QiType::jumpPoint);
 		}
 	} break;
 	case QiType::jumpPoint:
@@ -1480,6 +1492,17 @@ void EditUi::TableUpdate(int index)
 		{
 			param = "id：";
 			param += QString::number(ref.id);
+			IterActions(*actionsRoot, [&param, id = ref.id](const Action& action) {
+				const QiBlock& block = std::get<QiBlock>(action);
+				if (block.id == id)
+				{
+					if (block.mark.isEmpty()) return false;
+					param += " ";
+					param += block.mark;
+					return false;
+				}
+				return true;
+				}, QiType::block);
 		}
 	} break;
 	case QiType::quickInput:

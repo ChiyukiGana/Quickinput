@@ -617,10 +617,11 @@ public:
 	};
 	struct QiFunc_pop : public QiFunc
 	{
-		QiFunc_pop() : QiFunc(1, 2) {}
+		QiFunc_pop() : QiFunc(1, 3) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
 			Qi::interpreter_pop(args[0].toString(), args.size() > 1 ? args[1].toInteger() : 1000);
+			if (args.size() > 2 && args[2].toBool()) Sleep(args[1].toInteger());
 			return args[0];
 		}
 	};
@@ -837,6 +838,169 @@ public:
 			return result;
 		}
 	};
+	struct QiFunc_wnd_find : public QiFunc
+	{
+		QiFunc_wnd_find() : QiFunc(1, 3) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			struct EnumParam
+			{
+				std::wstring name;
+				std::wstring clas;
+				size_t n;
+				size_t i;
+				HWND wnd;
+			} param;
+
+			param.name = String::toWString(args[0].toString());
+			param.n = 0;
+			param.i = 0;
+			param.wnd = nullptr;
+
+			if (args.size() > 1)
+			{
+				if (args[1].isString())
+				{
+					param.clas = String::toWString(args[1].toString());
+					if (args.size() > 2) param.n = args[2].toInteger();
+				}
+				else param.n = args[1].toInteger();
+			}
+
+			EnumWindows([](HWND wnd, LPARAM lp) -> BOOL {
+				EnumParam& param = *((EnumParam*)lp);
+
+				wchar_t name[256];
+				GetWindowTextW(wnd, name, 256);
+				if (!param.name.empty() && param.name != name) return TRUE;
+
+				GetClassNameW(wnd, name, 256);
+				if (!param.clas.empty() && param.clas != name) return TRUE;
+
+				if (param.i >= param.n)
+				{
+					param.wnd = wnd;
+					return FALSE;
+				}
+				param.i++;
+				return TRUE;
+				}, (LPARAM)&param);
+
+			return QiVar((long long)param.wnd);
+		}
+	};
+	struct QiFunc_wnd_search : public QiFunc
+	{
+		QiFunc_wnd_search() : QiFunc(1, 3) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			struct EnumParam
+			{
+				std::wstring name;
+				std::wstring clas;
+				size_t n;
+				size_t i;
+				HWND wnd;
+			} param;
+
+			param.name = String::toWString(args[0].toString());
+			param.n = 0;
+			param.i = 0;
+			param.wnd = nullptr;
+
+			if (args.size() > 1)
+			{
+				if (args[1].isString())
+				{
+					param.clas = String::toWString(args[1].toString());
+					if (args.size() > 2) param.n = args[2].toInteger();
+				}
+				else param.n = args[1].toInteger();
+			}
+
+			EnumWindows([](HWND wnd, LPARAM lp) -> BOOL {
+				EnumParam& param = *((EnumParam*)lp);
+
+				wchar_t name[256];
+				GetWindowTextW(wnd, name, 256);
+				if (!param.name.empty() && (std::wstring(name).find(param.name) == std::wstring::npos)) return TRUE;
+
+				GetClassNameW(wnd, name, 256);
+				if (!param.clas.empty() && (std::wstring(name).find(param.clas) == std::wstring::npos)) return TRUE;
+
+				if (param.i >= param.n)
+				{
+					param.wnd = wnd;
+					return FALSE;
+				}
+				param.i++;
+				return TRUE;
+				}, (LPARAM)&param);
+
+			return QiVar((long long)param.wnd);
+		}
+	};
+	struct QiFunc_wnd_open : public QiFunc
+	{
+		QiFunc_wnd_open() : QiFunc(1) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			HWND wnd = (HWND)args[0].toInteger();
+			if (!IsWindow(wnd)) return QiVar(false);
+			return QiVar(ShowWindow(wnd, SW_SHOW) && SetForegroundWindow(wnd));
+		}
+	};
+	struct QiFunc_wnd_close : public QiFunc
+	{
+		QiFunc_wnd_close() : QiFunc(1) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			HWND wnd = (HWND)args[0].toInteger();
+			if (!IsWindow(wnd)) return QiVar(false);
+			return QiVar(CloseWindow(wnd));
+		}
+	};
+	struct QiFunc_wnd_show : public QiFunc
+	{
+		QiFunc_wnd_show() : QiFunc(1, 2) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			HWND wnd = (HWND)args[0].toInteger();
+			if (!IsWindow(wnd)) return QiVar(false);
+			return QiVar(ShowWindow(wnd, args.size() > 1 ? args[1].toBool() : SW_SHOW));
+		}
+	};
+	struct QiFunc_wnd_top : public QiFunc
+	{
+		QiFunc_wnd_top() : QiFunc(1, 2) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			HWND wnd = (HWND)args[0].toInteger();
+			if (!IsWindow(wnd)) return QiVar(false);
+			bool top = args.size() > 1 ? args[1].toBool() : true;
+			if (top) return QiVar(SetWindowPos(wnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE) && SetWindowPos(wnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE));
+			return QiVar(SetWindowPos(wnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE));
+		}
+	};
+	struct QiFunc_wnd_opacty : public QiFunc
+	{
+		QiFunc_wnd_opacty() : QiFunc(1, 2) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			HWND wnd = (HWND)args[0].toInteger();
+			if (!IsWindow(wnd)) return QiVar(false);
+			size_t opacty = args.size() > 1 ? args[1].toNumber() * 255 : 255;
+			if (opacty > 255) opacty = 255;
+
+			DWORD style = GetWindowLongW(wnd, GWL_EXSTYLE);
+			if (!(style & WS_EX_LAYERED))
+			{
+				if (opacty == 255) return QiVar(true);
+				SetWindowLongW(wnd, GWL_EXSTYLE, style | WS_EX_LAYERED);
+			}
+			return QiVar(SetLayeredWindowAttributes(wnd, 0, opacty, LWA_ALPHA));
+		}
+	};
 	QiFuncMap()
 	{
 		insert({ "date", std::make_unique<QiFunc_date>() });
@@ -875,6 +1039,12 @@ public:
 		insert({ "csv_read", std::make_unique<QiFunc_csv_read>() });
 		insert({ "csv_write", std::make_unique<QiFunc_csv_write>() });
 		insert({ "power", std::make_unique<QiFunc_power>() });
+		insert({ "wnd_find", std::make_unique<QiFunc_wnd_find>() });
+		insert({ "wnd_search", std::make_unique<QiFunc_wnd_search>() });
+		insert({ "wnd_open", std::make_unique<QiFunc_wnd_open>() });
+		insert({ "wnd_close", std::make_unique<QiFunc_wnd_close>() });
+		insert({ "wnd_show", std::make_unique<QiFunc_wnd_show>() });
+		insert({ "wnd_opacty", std::make_unique<QiFunc_wnd_opacty>() });
 	}
 };
 

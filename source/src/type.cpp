@@ -288,6 +288,8 @@ QJsonObject Macro::toJson() const
 }
 void Macro::fromJson(const QJsonObject& json)
 {
+	name = json.value("name").toString();
+
 	wndState = json.value("wndState").toBool();
 	wndInput.child = json.value("wndChild").toBool();
 	wndInfo.wndName = json.value("wndName").toString();

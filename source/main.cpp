@@ -864,7 +864,7 @@ QToolTip,
 	}
     if ("sound")
     {
-        ResourceTool::find(L"WAVE", [](char* data, size_t size, std::wstring name) { Qi::ui.sounds.append(QString::fromWCharArray(name.c_str())); return true; });
+        ResourceTool::search(L"WAVE", [](std::wstring name, LPCWSTR) { Qi::ui.sounds.append(QString::fromWCharArray(name.c_str())); return true; });
     }
 	if (Qi::set.theme >= Qi::ui.themes.size()) Qi::set.theme = 0;
 }

@@ -63,6 +63,27 @@ namespace QiTools
 			if (file != INVALID_FILE_ATTRIBUTES) return true;
 			return false;
 		}
+		static DWORD FileSize(std::wstring path)
+		{
+			HANDLE handle = CreateFileW(path.c_str(), FILE_READ_EA, FILE_SHARE_WRITE | FILE_SHARE_DELETE, 0, OPEN_EXISTING, 0, 0);
+			if (handle != INVALID_HANDLE_VALUE) {
+				DWORD size = GetFileSize(handle, 0);
+				CloseHandle(handle);
+				return size;
+			}
+			return 0;
+		}
+		static bool FileLocked(const std::wstring& filePath) {
+			HANDLE hFile = CreateFileW(filePath.c_str(), GENERIC_READ | GENERIC_WRITE, NULL, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+			if (!hFile || hFile == INVALID_HANDLE_VALUE)
+			{
+				DWORD error = GetLastError();
+				if (error == ERROR_SHARING_VIOLATION || error == ERROR_LOCK_VIOLATION) return true;
+				return false;
+			}
+			CloseHandle(hFile);
+			return false;
+		}
 		static bool UsableName(const QString file)
 		{
 			for (QChar c : file) if (c == L'\\' || c == L'/' || c == L':' || c == L'*' || c == L'?' || c == L'\"' || c == L'<' || c == L'>' || c == L'|' || c == L'.') return false;
@@ -78,6 +99,7 @@ namespace QiTools
 			QStringList filters(filter);
 			QDir d(dir);
 			d.setNameFilters(filters);
+			d.setFilter(QDir::Files | QDir::Hidden | QDir::System | QDir::NoSymLinks);
 			QDirIterator iter(d, QDirIterator::NoIteratorFlags);
 			while (iter.hasNext())
 			{
