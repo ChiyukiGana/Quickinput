@@ -847,24 +847,20 @@ public:
 			{
 				std::wstring name;
 				std::wstring clas;
-				size_t n;
-				size_t i;
-				HWND wnd;
+				std::vector<HWND> wnd;
 			} param;
 
 			param.name = String::toWString(args[0].toString());
-			param.n = 0;
-			param.i = 0;
-			param.wnd = nullptr;
+			size_t i = 0;
 
 			if (args.size() > 1)
 			{
 				if (args[1].isString())
 				{
 					param.clas = String::toWString(args[1].toString());
-					if (args.size() > 2) param.n = args[2].toInteger();
+					if (args.size() > 2) i = args[2].toInteger();
 				}
-				else param.n = args[1].toInteger();
+				else i = args[1].toInteger();
 			}
 
 			EnumWindows([](HWND wnd, LPARAM lp) -> BOOL {
@@ -877,16 +873,14 @@ public:
 				GetClassNameW(wnd, name, 256);
 				if (!param.clas.empty() && param.clas != name) return TRUE;
 
-				if (param.i >= param.n)
-				{
-					param.wnd = wnd;
-					return FALSE;
-				}
-				param.i++;
+				param.wnd.push_back(wnd);
 				return TRUE;
 				}, (LPARAM)&param);
 
-			return QiVar((long long)param.wnd);
+			if (param.wnd.size() <= i) return QiVar();
+
+			std::sort(param.wnd.begin(), param.wnd.end());
+			return QiVar((long long)param.wnd[i]);
 		}
 	};
 	struct QiFunc_wnd_search : public QiFunc
@@ -898,24 +892,20 @@ public:
 			{
 				std::wstring name;
 				std::wstring clas;
-				size_t n;
-				size_t i;
-				HWND wnd;
+				std::vector<HWND> wnd;
 			} param;
 
 			param.name = String::toWString(args[0].toString());
-			param.n = 0;
-			param.i = 0;
-			param.wnd = nullptr;
+			size_t i = 0;
 
 			if (args.size() > 1)
 			{
 				if (args[1].isString())
 				{
 					param.clas = String::toWString(args[1].toString());
-					if (args.size() > 2) param.n = args[2].toInteger();
+					if (args.size() > 2) i = args[2].toInteger();
 				}
-				else param.n = args[1].toInteger();
+				else i = args[1].toInteger();
 			}
 
 			EnumWindows([](HWND wnd, LPARAM lp) -> BOOL {
@@ -928,16 +918,14 @@ public:
 				GetClassNameW(wnd, name, 256);
 				if (!param.clas.empty() && (std::wstring(name).find(param.clas) == std::wstring::npos)) return TRUE;
 
-				if (param.i >= param.n)
-				{
-					param.wnd = wnd;
-					return FALSE;
-				}
-				param.i++;
+				param.wnd.push_back(wnd);
 				return TRUE;
 				}, (LPARAM)&param);
 
-			return QiVar((long long)param.wnd);
+			if (param.wnd.size() <= i) return QiVar();
+
+			std::sort(param.wnd.begin(), param.wnd.end());
+			return QiVar((long long)param.wnd[i]);
 		}
 	};
 	struct QiFunc_wnd_open : public QiFunc
@@ -1001,6 +989,35 @@ public:
 			return QiVar(SetLayeredWindowAttributes(wnd, 0, opacty, LWA_ALPHA));
 		}
 	};
+	struct QiFunc_wnd_pos : public QiFunc
+	{
+		QiFunc_wnd_pos() : QiFunc(3) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			HWND wnd = (HWND)args[0].toInteger();
+			if (!IsWindow(wnd)) return QiVar(false);
+			return QiVar(SetWindowPos(wnd, nullptr, args[1].toInteger(), args[2].toInteger(), 0, 0, SWP_NOSIZE));
+		}
+	};
+	struct QiFunc_wnd_size : public QiFunc
+	{
+		QiFunc_wnd_size() : QiFunc(3) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			HWND wnd = (HWND)args[0].toInteger();
+			if (!IsWindow(wnd)) return QiVar(false);
+			return QiVar(SetWindowPos(wnd, nullptr, 0, 0, args[1].toInteger(), args[2].toInteger(), SWP_NOMOVE));
+		}
+	};
+	struct QiFunc_wnd_exist : public QiFunc
+	{
+		QiFunc_wnd_exist() : QiFunc(1) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			HWND wnd = (HWND)args[0].toInteger();
+			return QiVar((bool)IsWindow(wnd));
+		}
+	};
 	QiFuncMap()
 	{
 		insert({ "date", std::make_unique<QiFunc_date>() });
@@ -1044,7 +1061,11 @@ public:
 		insert({ "wnd_open", std::make_unique<QiFunc_wnd_open>() });
 		insert({ "wnd_close", std::make_unique<QiFunc_wnd_close>() });
 		insert({ "wnd_show", std::make_unique<QiFunc_wnd_show>() });
+		insert({ "wnd_top", std::make_unique<QiFunc_wnd_top>() });
 		insert({ "wnd_opacty", std::make_unique<QiFunc_wnd_opacty>() });
+		insert({ "wnd_pos", std::make_unique<QiFunc_wnd_pos>() });
+		insert({ "wnd_size", std::make_unique<QiFunc_wnd_size>() });
+		insert({ "wnd_exist", std::make_unique<QiFunc_wnd_exist>() });
 	}
 };
 

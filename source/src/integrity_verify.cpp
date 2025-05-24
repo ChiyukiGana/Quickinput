@@ -11,7 +11,7 @@
 #include "integrity_verify.h"
 
 #pragma optimize("",off)
-static const char integrity_verify_textSha256[] = "d7e6902e6fad7031eec235ce890304a91f6e47ece4d6959f9f54d554f2837711";
+static const char integrity_verify_textSha256[] = "89321aa3116fb8b9f6b0759d96bd4df31913e802959ff532892eb8c6fa7800ea";
 #pragma optimize("",on)
 
 struct PROCESS_BASIC_INFORMATION_EX {
@@ -169,7 +169,8 @@ void integrity_verify()
 					integrity_verify_find(path, L"rar") ||
 					integrity_verify_find(path, L"压缩") ||
 					integrity_verify_find(path, L"压.exe") ||
-					integrity_verify_find(path, L"dopus"))
+					integrity_verify_find(path, L"dopus") ||
+					integrity_verify_find(path, L"360"))
 				{
 					exist = true;
 					break;
