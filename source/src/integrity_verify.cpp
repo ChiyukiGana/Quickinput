@@ -11,7 +11,7 @@
 #include "integrity_verify.h"
 
 #pragma optimize("",off)
-static const char integrity_verify_textSha256[] = "89321aa3116fb8b9f6b0759d96bd4df31913e802959ff532892eb8c6fa7800ea";
+static const char integrity_verify_textSha256[] = "0ce8a26c904e7fd61138727fa36765215fc95efc457b9fa0e6259513c60fd33a";
 #pragma optimize("",on)
 
 struct PROCESS_BASIC_INFORMATION_EX {
@@ -95,6 +95,7 @@ void integrity_verify()
 {
 	bool failed = false;
 	bool env = false;
+	std::wstring parent;
 	do
 	{
 		std::wstring exeName = QiTools::Process::exeName();
@@ -147,38 +148,21 @@ void integrity_verify()
 			}
 			CloseHandle(hProcess);
 
-			bool exist = false;
-			do
-			{
-				WCHAR envPath[MAX_PATH];
-				ExpandEnvironmentStringsW(L"%windir%\\explorer.exe", envPath, MAX_PATH);
-				if (_wcsicmp(path, envPath) == 0)
-				{
-					exist = true;
-					break;
-				}
-				ExpandEnvironmentStringsW(L"%windir%\\System32\\svchost.exe", envPath, MAX_PATH);
-				if (_wcsicmp(path, envPath) == 0)
-				{
-					exist = true;
-					break;
-				}
-				if (integrity_verify_find(path, L"devenv.exe") ||
-					integrity_verify_find(path, L"7zFM.exe") ||
-					integrity_verify_find(path, L"zip") ||
-					integrity_verify_find(path, L"rar") ||
-					integrity_verify_find(path, L"压缩") ||
-					integrity_verify_find(path, L"压.exe") ||
-					integrity_verify_find(path, L"dopus") ||
-					integrity_verify_find(path, L"360"))
-				{
-					exist = true;
-					break;
-				}
-			} while (false);
-			if (!exist)
+			if (integrity_verify_find(path, L"explorer.exe") ||
+				integrity_verify_find(path, L"svchost.exe") ||
+				integrity_verify_find(path, L"devenv.exe") ||
+				integrity_verify_find(path, L"7zFM.exe") ||
+				integrity_verify_find(path, L"zip") ||
+				integrity_verify_find(path, L"rar") ||
+				integrity_verify_find(path, L"压缩") ||
+				integrity_verify_find(path, L"压.exe") ||
+				integrity_verify_find(path, L"dopus") ||
+				integrity_verify_find(path, L"360") ||
+				integrity_verify_find(path, L"explorer64.exe"));
+			else
 			{
 				failed = env = true;
+				parent = path;
 				break;
 			}
 		}
@@ -202,7 +186,9 @@ void integrity_verify()
 	{
 		if (env)
 		{
-			MessageBoxW(nullptr, L"程序启动环境异常，请通过资源管理器运行\n访问http://qinput.cyk.moe\n获取技术支持/商业授权", L"请勿私自销售软件", MB_ICONERROR);
+			const std::wstring text = L"程序启动环境异常，请通过资源管理器运行\n访问http://qinput.cyk.moe\n获取技术支持/商业授权";
+			if (parent.empty()) MessageBoxW(nullptr, text.c_str(), L"启动失败", MB_ICONERROR);
+			else MessageBoxW(nullptr, (text + std::wstring(L"\n\n 启动进程：") + parent).c_str(), L"启动失败", MB_ICONERROR);
 			ShellExecuteW(nullptr, L"open", L"http://qinput.cyk.moe", nullptr, nullptr, SW_HIDE);
 			exit(0);
 		}

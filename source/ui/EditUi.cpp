@@ -180,11 +180,15 @@ void EditUi::Init()
 	if ("timer")
 	{
 		testTimer = new QTimer(this);
+		markPointTimer = new QTimer(this);
+		markPointTimer->setInterval(32);
+		if (Qi::set.markPoint) markPointTimer->start();
 	}
 	if ("check")
 	{
 		ui.tab_lock_check->setChecked(Qi::set.tabLock);
 		ui.tab_hideTip_check->setChecked(Qi::set.tabHideTip);
+		ui.tab_markPoint_check->setChecked(Qi::set.markPoint);
 		DisableTip(Qi::set.tabHideTip);
 	}
 	// enable qlable scale
@@ -487,27 +491,38 @@ void EditUi::Event()
 	}
 	if ("timer")
 	{
-		connect(testTimer, &QTimer::timeout, this, [this]
+		connect(testTimer, &QTimer::timeout, this, [this] {
+			if (QiThread::MacroRunActive(macro) || QiThread::MacroEndActive(macro))
 			{
-				if (QiThread::MacroRunActive(macro) || QiThread::MacroEndActive(macro))
+				if (GetAsyncKeyState(VK_SHIFT) && GetAsyncKeyState(VK_F10))
 				{
-					if (GetAsyncKeyState(VK_SHIFT) && GetAsyncKeyState(VK_F10))
-					{
-						macro->interpreter->DebugContinue();
-						if (ui.action_running_radio->isChecked()) QiThread::ExitMacroRun(macro);
-						else QiThread::ExitMacroEnd(macro);
-					}
-				}
-				else
-				{
-					testTimer->stop();
-					timeEndPeriod(1);
-					Qi::debug = false;
-					Sleep(300);
-					SetDebugState(debug_idel);
+					macro->interpreter->DebugContinue();
+					if (ui.action_running_radio->isChecked()) QiThread::ExitMacroRun(macro);
+					else QiThread::ExitMacroEnd(macro);
 				}
 			}
-		);
+			else
+			{
+				testTimer->stop();
+				timeEndPeriod(1);
+				Qi::debug = false;
+				Sleep(300);
+				SetDebugState(debug_idel);
+			}
+			});
+		connect(markPointTimer, &QTimer::timeout, this, [this] {
+			static bool isPress;
+			if (GetAsyncKeyState(VK_SHIFT))
+			{
+				if (!isPress)
+				{
+					isPress = true;
+					POINT cur; GetCursorPos(&cur);
+					widget_mkpv.Show(cur, 30, 2, QColor(0, 160, 0));
+				}
+			}
+			else if (isPress) isPress = false;
+			});
 	}
 }
 // TODO: new widgets
@@ -524,6 +539,18 @@ void EditUi::Event_Action_Widget()
 		QiJson::SaveJson();
 		});
 	connect(ui.tab_hideTip_check, &QCheckBox::toggled, this, [this](bool state) { DisableTip(Qi::set.tabHideTip = state); QiJson::SaveJson(); });
+	connect(ui.tab_markPoint_check, &QCheckBox::toggled, this, [this](bool state) {
+		if (Qi::set.markPoint = state)
+		{
+			markPointTimer->start();
+		}
+		else
+		{
+			markPointTimer->stop();
+			widget_mkpv.hide();
+		}
+		QiJson::SaveJson();
+		});
 	// move
 	connect(ui.mouse_position_button, &QPushButton::clicked, this, [this] {
 		QPointSelection ps;
@@ -886,6 +913,7 @@ void EditUi::StyleGroup()
 	{
 		ui.tab_lock_check->setProperty("group", "check");
 		ui.tab_hideTip_check->setProperty("group", "check");
+		ui.tab_markPoint_check->setProperty("group", "check");
 		ui.mouse_track_check->setProperty("group", "check");
 		ui.color_move_check->setProperty("group", "check");
 		ui.image_move_check->setProperty("group", "check");
@@ -2616,6 +2644,7 @@ void EditUi::customEvent(QEvent* e)
 	{
 		Qi::widget.macroEdited();
 		widget_pv.hide();
+		widget_mkpv.hide();
 		widget_rv.hide();
 		widget_td.hide();
 		close();

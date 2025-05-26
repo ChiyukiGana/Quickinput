@@ -51,6 +51,7 @@ class EditUi : public QDialog
 
 	// debug run
 	QTimer* testTimer;
+	QTimer* markPointTimer;
 
 	// table context menu
 	QMenu* menu;
@@ -72,6 +73,7 @@ class EditUi : public QDialog
 
 	// custom widget
 	QPointView widget_pv;
+	QPointView widget_mkpv;
 	QRectView widget_rv;
 	QTextDialog widget_td;
 

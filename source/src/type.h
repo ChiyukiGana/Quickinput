@@ -1160,6 +1160,7 @@ struct SettingsData
 	// eidt
 	bool tabLock = false;
 	bool tabHideTip = false;
+	bool markPoint = false;
 };
 struct FoldData
 {

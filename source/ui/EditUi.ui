@@ -9669,6 +9669,16 @@
             </widget>
            </item>
            <item>
+            <widget class="QCheckBox" name="tab_markPoint_check">
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
+             </property>
+             <property name="text">
+              <string>Shift标点</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <spacer name="check_spacer">
              <property name="orientation">
               <enum>Qt::Horizontal</enum>

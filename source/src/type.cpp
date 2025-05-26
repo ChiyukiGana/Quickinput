@@ -288,7 +288,7 @@ QJsonObject Macro::toJson() const
 }
 void Macro::fromJson(const QJsonObject& json)
 {
-	name = json.value("name").toString();
+	if (name.isEmpty()) name = json.value("name").toString();
 
 	wndState = json.value("wndState").toBool();
 	wndInput.child = json.value("wndChild").toBool();
@@ -365,6 +365,7 @@ namespace Qi
 		json.insert("minMode", (bool)set.minMode);
 		json.insert("tabLock", (bool)set.tabLock);
 		json.insert("tabHideTip", (bool)set.tabHideTip);
+		json.insert("markPoint", (bool)set.markPoint);
 		json.insert("quickClickKey", (int)fun.quickClick.key);
 		json.insert("quickClickState", (bool)fun.quickClick.state);
 		json.insert("quickClickDelay", (int)fun.quickClick.delay);
@@ -493,6 +494,7 @@ namespace Qi
 			set.minMode = json.value("minMode").toBool();
 			set.tabLock = json.value("tabLock").toBool();
 			set.tabHideTip = json.value("tabHideTip").toBool();
+			set.markPoint = json.value("markPoint").toBool();
 			fun.quickClick.state = json.value("quickClickState").toBool();
 			fun.quickClick.key = json.value("quickClickKey").toInt();
 			fun.quickClick.delay = json.value("quickClickDelay").toInt();

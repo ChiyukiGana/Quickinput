@@ -46,13 +46,13 @@ public:
         std::string date;
         std::string count;
         std::smatch match;
-        if (std::regex_match(version, match, std::regex(R"((\d{4})-(\d{1,2})-(\d{1,2}))")))
+        if (std::regex_match(version, match, std::regex(R"((\d{4})-(\d{1,2})-(\d{1,2})(\D*))")))
         {
             date = match[1].str();
             t = match[2].str(); if (t.size() == 1) t = t.insert(0, 1, '0'); date += t;
             t = match[3].str(); if (t.size() == 1) t = t.insert(0, 1, '0'); date += t;
         }
-        else if (std::regex_match(version, match, std::regex(R"((\d{4})-(\d{1,2})-(\d{1,2})_(\d+))")))
+        else if (std::regex_match(version, match, std::regex(R"((\d{4})-(\d{1,2})-(\d{1,2})_(\d+)(\D*))")))
         {
             date = match[1].str();
             t = match[2].str(); if (t.size() == 1) t = t.insert(0, 1, '0'); date += t;

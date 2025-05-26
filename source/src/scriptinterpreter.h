@@ -679,6 +679,26 @@ public:
 			return true;
 		}
 	};
+	struct QiFunc_cur_x : public QiFunc
+	{
+		QiFunc_cur_x() : QiFunc(0) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			POINT pt;
+			GetCursorPos(&pt);
+			return QiVar(pt.x);
+		}
+	};
+	struct QiFunc_cur_y : public QiFunc
+	{
+		QiFunc_cur_y() : QiFunc(0) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			POINT pt;
+			GetCursorPos(&pt);
+			return QiVar(pt.y);
+		}
+	};
 	struct QiFunc_sub : public QiFunc
 	{
 		QiFunc_sub() : QiFunc(2, 3) {}
@@ -883,6 +903,54 @@ public:
 			return QiVar((long long)param.wnd[i]);
 		}
 	};
+	struct QiFunc_wnd_find_other : public QiFunc
+	{
+		QiFunc_wnd_find_other() : QiFunc(1, 3) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			struct EnumParam
+			{
+				std::wstring name;
+				std::wstring clas;
+				std::vector<HWND> wnd;
+				HWND current;
+			} param;
+
+			param.name = String::toWString(args[0].toString());
+			size_t i = 0;
+
+			if (args.size() > 1)
+			{
+				if (args[1].isString())
+				{
+					param.clas = String::toWString(args[1].toString());
+					if (args.size() > 2) i = args[2].toInteger();
+				}
+				else i = args[1].toInteger();
+			}
+
+			param.current = GetForegroundWindow();
+			EnumWindows([](HWND wnd, LPARAM lp) -> BOOL {
+				EnumParam& param = *((EnumParam*)lp);
+				if (wnd == param.current) return TRUE;
+
+				wchar_t name[256];
+				GetWindowTextW(wnd, name, 256);
+				if (!param.name.empty() && param.name != name) return TRUE;
+
+				GetClassNameW(wnd, name, 256);
+				if (!param.clas.empty() && param.clas != name) return TRUE;
+
+				param.wnd.push_back(wnd);
+				return TRUE;
+				}, (LPARAM)&param);
+
+			if (param.wnd.size() <= i) return QiVar();
+
+			std::sort(param.wnd.begin(), param.wnd.end());
+			return QiVar((long long)param.wnd[i]);
+		}
+	};
 	struct QiFunc_wnd_search : public QiFunc
 	{
 		QiFunc_wnd_search() : QiFunc(1, 3) {}
@@ -928,6 +996,54 @@ public:
 			return QiVar((long long)param.wnd[i]);
 		}
 	};
+	struct QiFunc_wnd_search_other : public QiFunc
+	{
+		QiFunc_wnd_search_other() : QiFunc(1, 3) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			struct EnumParam
+			{
+				std::wstring name;
+				std::wstring clas;
+				std::vector<HWND> wnd;
+				HWND current;
+			} param;
+
+			param.name = String::toWString(args[0].toString());
+			size_t i = 0;
+
+			if (args.size() > 1)
+			{
+				if (args[1].isString())
+				{
+					param.clas = String::toWString(args[1].toString());
+					if (args.size() > 2) i = args[2].toInteger();
+				}
+				else i = args[1].toInteger();
+			}
+
+			param.current = GetForegroundWindow();
+			EnumWindows([](HWND wnd, LPARAM lp) -> BOOL {
+				EnumParam& param = *((EnumParam*)lp);
+				if (wnd == param.current) return TRUE;
+
+				wchar_t name[256];
+				GetWindowTextW(wnd, name, 256);
+				if (!param.name.empty() && (std::wstring(name).find(param.name) == std::wstring::npos)) return TRUE;
+
+				GetClassNameW(wnd, name, 256);
+				if (!param.clas.empty() && (std::wstring(name).find(param.clas) == std::wstring::npos)) return TRUE;
+
+				param.wnd.push_back(wnd);
+				return TRUE;
+				}, (LPARAM)&param);
+
+			if (param.wnd.size() <= i) return QiVar();
+
+			std::sort(param.wnd.begin(), param.wnd.end());
+			return QiVar((long long)param.wnd[i]);
+		}
+	};
 	struct QiFunc_wnd_open : public QiFunc
 	{
 		QiFunc_wnd_open() : QiFunc(1) {}
@@ -935,7 +1051,15 @@ public:
 		{
 			HWND wnd = (HWND)args[0].toInteger();
 			if (!IsWindow(wnd)) return QiVar(false);
-			return QiVar(ShowWindow(wnd, SW_SHOW) && SetForegroundWindow(wnd));
+
+			ShowWindow(wnd, SW_SHOW);
+			SetWindowPos(wnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			SetWindowPos(wnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			SetWindowPos(wnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
+			SetForegroundWindow(wnd);
+			SetFocus(wnd);
+
+			return QiVar(true);
 		}
 	};
 	struct QiFunc_wnd_close : public QiFunc
@@ -970,9 +1094,9 @@ public:
 			return QiVar(SetWindowPos(wnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE));
 		}
 	};
-	struct QiFunc_wnd_opacty : public QiFunc
+	struct QiFunc_wnd_opacity : public QiFunc
 	{
-		QiFunc_wnd_opacty() : QiFunc(1, 2) {}
+		QiFunc_wnd_opacity() : QiFunc(1, 2) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
 			HWND wnd = (HWND)args[0].toInteger();
@@ -1018,6 +1142,14 @@ public:
 			return QiVar((bool)IsWindow(wnd));
 		}
 	};
+	struct QiFunc_wnd_current : public QiFunc
+	{
+		QiFunc_wnd_current() : QiFunc(0) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			return QiVar((long long)GetForegroundWindow());
+		}
+	};
 	QiFuncMap()
 	{
 		insert({ "date", std::make_unique<QiFunc_date>() });
@@ -1044,6 +1176,8 @@ public:
 		insert({ "rand", std::make_unique<QiFunc_rand>() });
 		insert({ "cur_to", std::make_unique<QiFunc_cur_to>() });
 		insert({ "cur_move", std::make_unique<QiFunc_cur_move>() });
+		insert({ "cur_x", std::make_unique<QiFunc_cur_x>() });
+		insert({ "cur_y", std::make_unique<QiFunc_cur_y>() });
 		insert({ "sub", std::make_unique<QiFunc_sub>() });
 		insert({ "subx", std::make_unique<QiFunc_subx>() });
 		insert({ "text_box", std::make_unique<QiFunc_text_box>() });
@@ -1057,15 +1191,20 @@ public:
 		insert({ "csv_write", std::make_unique<QiFunc_csv_write>() });
 		insert({ "power", std::make_unique<QiFunc_power>() });
 		insert({ "wnd_find", std::make_unique<QiFunc_wnd_find>() });
+		insert({ "wnd_find_other", std::make_unique<QiFunc_wnd_find_other>() });
 		insert({ "wnd_search", std::make_unique<QiFunc_wnd_search>() });
+		insert({ "wnd_search_other", std::make_unique<QiFunc_wnd_search_other>() });
 		insert({ "wnd_open", std::make_unique<QiFunc_wnd_open>() });
 		insert({ "wnd_close", std::make_unique<QiFunc_wnd_close>() });
 		insert({ "wnd_show", std::make_unique<QiFunc_wnd_show>() });
 		insert({ "wnd_top", std::make_unique<QiFunc_wnd_top>() });
-		insert({ "wnd_opacty", std::make_unique<QiFunc_wnd_opacty>() });
+		insert({ "wnd_opacty", std::make_unique<QiFunc_wnd_opacity>() });
+		insert({ "wnd_opacity", std::make_unique<QiFunc_wnd_opacity>() });
+		insert({ "wnd_alpha", std::make_unique<QiFunc_wnd_opacity>() });
 		insert({ "wnd_pos", std::make_unique<QiFunc_wnd_pos>() });
 		insert({ "wnd_size", std::make_unique<QiFunc_wnd_size>() });
 		insert({ "wnd_exist", std::make_unique<QiFunc_wnd_exist>() });
+		insert({ "wnd_current", std::make_unique<QiFunc_wnd_current>() });
 	}
 };
 

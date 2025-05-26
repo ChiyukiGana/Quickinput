@@ -15,7 +15,7 @@ class QPointView : public QWidget
 	QColor color = QColor(255, 0, 0);
 	quint32 weight = 2;
 	quint32 size = 20;
-	float zoom;
+	float scale;
 
 public:
 	static SIZE screenSize()
@@ -41,10 +41,10 @@ public:
 		setAttribute(Qt::WA_TransparentForMouseEvents);
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setAttribute(Qt::WA_TranslucentBackground);
-		zoom = (float)(screenSize().cx) / (float)(QGuiApplication::primaryScreen()->geometry().width());
+		scale = (float)(screenSize().cx) / (float)(QGuiApplication::primaryScreen()->geometry().width());
 	}
 
-	void APoint(POINT apt) { pt.setX(apt.x / zoom), pt.setY(apt.y / zoom); }
+	void APoint(POINT apt) { pt.setX(apt.x / scale), pt.setY(apt.y / scale); }
 	void Point(QPoint pt) { this->pt = pt; }
 	void Size(quint32 size) { this->size = size; }
 	void Weight(quint32 weight) { this->weight = weight; }
@@ -54,6 +54,13 @@ public:
 	void Show(POINT apt, const quint32 size = 30, const quint32 weight = 2, QColor color = QColor(255, 0, 0))
 	{
 		APoint(apt), Size(size), Weight(weight), Color(color);
+		Move();
+		show();
+	}
+
+	void Show(QPoint pt, const quint32 size = 30, const quint32 weight = 2, QColor color = QColor(255, 0, 0))
+	{
+		Point(pt), Size(size), Weight(weight), Color(color);
 		Move();
 		show();
 	}
