@@ -41,4 +41,5 @@ private:
 	bool event(QEvent*);
 	bool eventFilter(QObject*, QEvent*);
 	void showEvent(QShowEvent*);
+	void customEvent(QEvent*);
 };

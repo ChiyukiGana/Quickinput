@@ -16,7 +16,7 @@ void TriggerUi::Init()
 	if ("key")
 	{
 		ui.key_keyedit->setCombinationMode(false);
-		ui.key_keyedit->setDeviceEnabled(true, true, true, true);
+		ui.key_keyedit->setDeviceEnabled(true, true, true, Qi::set.pad);
 		ui.key_keyedit->setMaximumKeys(2);
 	}
 	if ("mode")
@@ -385,4 +385,11 @@ void TriggerUi::showEvent(QShowEvent*)
 	ui.macroGroup_table->clearSelection();
 	TableUpdate();
 	ui.scrollArea->setDisabled(true);
+}
+void TriggerUi::customEvent(QEvent* e)
+{
+	if (e->type() == QiEvent::key_reset)
+	{
+		ui.key_keyedit->setPadEnabled(Qi::set.pad);
+	}
 }

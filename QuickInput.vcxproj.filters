@@ -41,9 +41,6 @@
     <Filter Include="Form Files\source">
       <UniqueIdentifier>{6c402766-1b4f-43d2-b8ef-2901ed0d039c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\2">
-      <UniqueIdentifier>{7912c419-20e6-4295-acee-4dc751bd012b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\0">
       <UniqueIdentifier>{6922deab-0f82-4578-9627-c4b7baf22454}</UniqueIdentifier>
     </Filter>
@@ -103,11 +100,11 @@
     <ClCompile Include="source\ui\VarViewUi.cpp">
       <Filter>Form Files\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\src\integrity_verify.cpp">
-      <Filter>Source Files\2</Filter>
-    </ClCompile>
     <ClCompile Include="source\src\type.cpp">
       <Filter>Source Files\0</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\integrity_verify.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

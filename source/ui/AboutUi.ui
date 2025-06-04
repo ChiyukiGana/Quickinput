@@ -91,7 +91,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-5-26</string>
+         <string>2025-6-4</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -107,10 +107,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>优化打开窗口函数
-增加获取当前窗口函数
-增加获取鼠标位置函数
-增加编辑标点功能</string>
+         <string>增加手柄识别开关
+增加更多CSV函数</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

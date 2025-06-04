@@ -31,7 +31,7 @@ void FuncUi::Init()
 	{
 		ui.clock_check->setChecked(func->showClock.state);
 		ui.clock_keyedit->setCombinationMode(false);
-		ui.clock_keyedit->setDeviceEnabled(true, true, true, true);
+		ui.clock_keyedit->setDeviceEnabled(true, true, true, Qi::set.pad);
 		ui.clock_keyedit->setKey(func->showClock.key);
 	}
 	if ("window")
@@ -97,4 +97,12 @@ bool FuncUi::eventFilter(QObject* obj, QEvent* e)
 {
 	if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease)) return true;
 	return QWidget::eventFilter(obj, e);
+}
+void FuncUi::customEvent(QEvent* e)
+{
+	if (e->type() == QiEvent::key_reset)
+	{
+		ui.click_keyedit->setPadEnabled(Qi::set.pad);
+		ui.clock_keyedit->setPadEnabled(Qi::set.pad);
+	}
 }

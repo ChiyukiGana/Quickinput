@@ -4,7 +4,6 @@
 #include "EditUi.h"
 MacroUi::MacroUi(QWidget* parent) : QWidget(parent)
 {
-	Qi::widget.macro = this;
 	ui.setupUi(this);
 	setWindowFlags(Qt::FramelessWindowHint);
 	Init();
@@ -303,7 +302,7 @@ void MacroUi::showEvent(QShowEvent*)
 void MacroUi::customEvent(QEvent* e)
 {
 	static Macro* macro;
-	if (e->type() == MacroEvent::edit)
+	if (e->type() == QiEvent::mac_edit_enter)
 	{
 		if (!isSold()) return;
 		macro = currentMacros.first();
@@ -314,7 +313,7 @@ void MacroUi::customEvent(QEvent* e)
 		Qi::widget.main->setDisabled(true);
 		edit->show();
 	}
-	else if (e->type() == MacroEvent::load)
+	else if (e->type() == QiEvent::mac_load)
 	{
 		QiJson::LoadMacro();
 		TableUpdate();
@@ -322,7 +321,7 @@ void MacroUi::customEvent(QEvent* e)
 		DisableWidget();
 		Qi::popText->Hide();
 	}
-	else if (e->type() == MacroEvent::edited)
+	else if (e->type() == QiEvent::mac_edit_exit)
 	{
 		Qi::widget.main->setDisabled(false);
 		Qi::widget.main->show();

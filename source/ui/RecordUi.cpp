@@ -113,7 +113,7 @@ void RecordUi::showEvent(QShowEvent*)
 }
 void RecordUi::customEvent(QEvent* e)
 {
-	if (e->type() == RecordEvent::start) RecStart();
-	else if (e->type() == RecordEvent::stop) RecStop();
-	else if (e->type() == RecordEvent::close) RecClose();
+	if (e->type() == QiEvent::rec_start) RecStart();
+	else if (e->type() == QiEvent::rec_stop) RecStop();
+	else if (e->type() == QiEvent::rec_close) RecClose();
 }

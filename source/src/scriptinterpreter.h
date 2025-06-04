@@ -790,6 +790,22 @@ public:
 			return bool(DeleteFileW(String::toWString(args[0].toString()).c_str()));
 		}
 	};
+	struct QiFunc_csv_rows : public QiFunc
+	{
+		QiFunc_csv_rows() : QiFunc(1) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			return (long long)CsvTool::rows(args[0].toString());
+		}
+	};
+	struct QiFunc_csv_cols : public QiFunc
+	{
+		QiFunc_csv_cols() : QiFunc(1) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			return (long long)CsvTool::cols(args[0].toString());
+		}
+	};
 	struct QiFunc_csv_read : public QiFunc
 	{
 		QiFunc_csv_read() : QiFunc(3) {}
@@ -803,7 +819,10 @@ public:
 		QiFunc_csv_write() : QiFunc(4) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
-			return CsvTool::write(args[0].toString(), args[1].toInteger(), args[2].toInteger(), args[3].toString());
+			long long row = args[1].toInteger();
+			long long col = args[2].toInteger();
+			if (row < 0 || col < 0) return std::string();
+			return CsvTool::write(args[0].toString(), row, col, args[3].toString());
 		}
 	};
 	struct QiFunc_power : public QiFunc
@@ -1187,6 +1206,8 @@ public:
 		insert({ "file_write", std::make_unique<QiFunc_file_write>() });
 		insert({ "file_exist", std::make_unique<QiFunc_file_exist>() });
 		insert({ "file_remove", std::make_unique<QiFunc_file_remove>() });
+		insert({ "csv_rows", std::make_unique<QiFunc_csv_rows>() });
+		insert({ "csv_cols", std::make_unique<QiFunc_csv_cols>() });
 		insert({ "csv_read", std::make_unique<QiFunc_csv_read>() });
 		insert({ "csv_write", std::make_unique<QiFunc_csv_write>() });
 		insert({ "power", std::make_unique<QiFunc_power>() });

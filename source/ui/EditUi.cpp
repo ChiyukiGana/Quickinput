@@ -170,7 +170,7 @@ void EditUi::Init()
 		ui.key_keyedit->setKey(VK_LBUTTON);
 
 		ui.keyState_keyedit->setCombinationMode(false);
-		ui.keyState_keyedit->setDeviceEnabled(true, true, true, true);
+		ui.keyState_keyedit->setDeviceEnabled(true, true, true, Qi::set.pad);
 		ui.keyState_keyedit->setKey(VK_LBUTTON);
 
 		ui.keyBlock_keyedit->setCombinationMode(false);
@@ -2561,20 +2561,7 @@ bool EditUi::eventFilter(QObject* obj, QEvent* e)
 		if (e->type() == QEvent::KeyPress)
 		{
 			QKeyEvent* key = (QKeyEvent*)e;
-			if (key->modifiers() == Qt::NoModifier)
-			{
-				if (key->key() == Qt::Key_Backspace)
-				{
-					ItemDel();
-					return true;
-				}
-				else if (key->key() == Qt::Key_Delete)
-				{
-					ItemDel();
-					return true;
-				}
-			}
-			else if (key->modifiers() == Qt::ControlModifier)
+			if (key->modifiers() == Qt::ControlModifier)
 			{
 				if (key->key() == Qt::Key_C)
 				{
@@ -2602,6 +2589,16 @@ bool EditUi::eventFilter(QObject* obj, QEvent* e)
 				else if (key->key() == Qt::Key_Down)
 				{
 					ItemMove(false, 1);
+					return true;
+				}
+				else if (key->key() == Qt::Key_Backspace)
+				{
+					ItemDel();
+					return true;
+				}
+				else if (key->key() == Qt::Key_Delete)
+				{
+					ItemDel();
 					return true;
 				}
 			}
@@ -2640,7 +2637,7 @@ void EditUi::showEvent(QShowEvent*)
 }
 void EditUi::customEvent(QEvent* e)
 {
-	if (e->type() == EditEvent::close)
+	if (e->type() == QiEvent::wid_close)
 	{
 		Qi::widget.macroEdited();
 		widget_pv.hide();
@@ -2649,5 +2646,5 @@ void EditUi::customEvent(QEvent* e)
 		widget_td.hide();
 		close();
 	}
-	if (e->type() == EditEvent::debug_pause) SetDebugState(debug_pause);
+	if (e->type() == QiEvent::edt_debug_pause) SetDebugState(debug_pause);
 }

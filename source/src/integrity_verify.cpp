@@ -11,7 +11,7 @@
 #include "integrity_verify.h"
 
 #pragma optimize("",off)
-static const char integrity_verify_textSha256[] = "0ce8a26c904e7fd61138727fa36765215fc95efc457b9fa0e6259513c60fd33a";
+static const char integrity_verify_textSha256[] = "c0c6dcb1230bb97e383ce6bf7db9c7d7ad9ae4570ea3df9edaf7dada59b2d617";
 #pragma optimize("",on)
 
 struct PROCESS_BASIC_INFORMATION_EX {

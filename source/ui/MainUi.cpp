@@ -4,6 +4,10 @@ DefWindowMove(MainUi) MainUi::MainUi(int tab)
 	Qi::widget.main = this;
 	Qi::widget.varView = &varView;
 	ui.setupUi(this);
+	Qi::widget.macro = ui.macro;
+	Qi::widget.trigger = ui.trigger;
+	Qi::widget.func = ui.func;
+	Qi::widget.settings = ui.settings;
 	setWindowFlags(Qt::FramelessWindowHint);
 	Init();
 	Event();

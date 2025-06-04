@@ -24,40 +24,23 @@ struct DataRole
 		macro
 	};
 };
-struct RecordEvent
+struct QiEvent
 {
 	enum
 	{
-		start = QEvent::User + 1,
-		stop,
-		close,
+		wid_close = QEvent::User + 1,
+		rec_start,
+		rec_stop,
+		rec_close,
+		mac_edit_enter,
+		mac_edit_exit,
+		mac_load,
+		edt_debug_pause,
+		var_reload,
+		key_reset
 	};
 };
-struct EditEvent
-{
-	enum
-	{
-		close = QEvent::User + 1,
-		debug_pause
-	};
-};
-struct VarViewEvent
-{
-	enum
-	{
-		close = QEvent::User + 1,
-		reload
-	};
-};
-struct MacroEvent
-{
-	enum
-	{
-		edit = QEvent::User,
-		edited,
-		load
-	};
-};
+
 ////////////////// Window
 struct WndInput
 {
@@ -218,7 +201,7 @@ struct QiEnd : QiBase
 	{
 		return QiBase::toJson();
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 	}
@@ -230,7 +213,7 @@ struct QiDelay : QiBase
 	int min = 0, max = 0;
 	QString v_min, v_max;
 	QiDelay() : QiBase(QiType::delay) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("ms", (int)min);
@@ -239,7 +222,7 @@ struct QiDelay : QiBase
 		json.insert("v_max", (QString)v_max);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		min = json.value("ms").toInt();
@@ -253,14 +236,14 @@ struct QiKey : QiBase
 	enum { up, down, click };
 	int vk = 0, state = down;
 	QiKey() : QiBase(QiType::key) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("vk", (int)vk);
 		json.insert("state", (int)state);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		vk = json.value("vk").toInt();
@@ -277,7 +260,7 @@ struct QiMouse : QiBase
 	int x = 0, y = 0, ex = 0, speed = 0;
 	bool move = false, track = false;
 	QiMouse() : QiBase(QiType::mouse) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("x", (int)x);
@@ -288,7 +271,7 @@ struct QiMouse : QiBase
 		json.insert("move", (bool)move);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		x = json.value("x").toInt();
@@ -303,13 +286,13 @@ struct QiCopyText : QiBase
 {
 	QString text;
 	QiCopyText() : QiBase(QiType::copyText) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("text", (QString)text);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		text = json.value("text").toString();
@@ -324,7 +307,7 @@ struct QiColor : QiBase
 	RECT rect = {};
 	bool move = false;
 	QiColor() : QiBase(QiType::color) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
@@ -337,7 +320,7 @@ struct QiColor : QiBase
 		json.insert("rgbe", (int)rgbe.toCOLORREF());
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		next.fromJson(json.value("next").toArray());
@@ -357,7 +340,7 @@ struct QiLoop : QiBase
 	int min = 0, max = 0;
 	QString v_min, v_max;
 	QiLoop() : QiBase(QiType::loop) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
@@ -367,7 +350,7 @@ struct QiLoop : QiBase
 		json.insert("v_max", (QString)v_max);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		next.fromJson(json.value("next").toArray());
@@ -380,11 +363,11 @@ struct QiLoop : QiBase
 struct QiLoopEnd : QiBase
 {
 	QiLoopEnd() : QiBase(QiType::loopEnd) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		return QiBase::toJson();
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 	}
@@ -393,7 +376,7 @@ struct QiKeyState : QiBase
 {
 	int vk = 0;
 	QiKeyState() : QiBase(QiType::keyState) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
@@ -401,7 +384,7 @@ struct QiKeyState : QiBase
 		json.insert("vk", (int)vk);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		next.fromJson(json.value("next").toArray());
@@ -412,11 +395,11 @@ struct QiKeyState : QiBase
 struct QiResetPos : QiBase
 {
 	QiResetPos() : QiBase(QiType::resetPos) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		return QiBase::toJson();
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 	}
@@ -431,7 +414,7 @@ struct QiImage : QiBase
 	RECT rect = {};
 	bool move = false;
 	QiImage() : QiBase(QiType::image) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
@@ -447,7 +430,7 @@ struct QiImage : QiBase
 		json.insert("data", (QString)toBase64());
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		next.fromJson(json.value("next").toArray());
@@ -486,7 +469,7 @@ struct QiPopText : QiBase
 	int time = 0;
 	bool sync = false;
 	QiPopText() : QiBase(QiType::popText) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("text", (QString)text);
@@ -494,7 +477,7 @@ struct QiPopText : QiBase
 		json.insert("sync", (bool)sync);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		text = json.value("text").toString();
@@ -505,11 +488,11 @@ struct QiPopText : QiBase
 struct QiSavePos : QiBase
 {
 	QiSavePos() : QiBase(QiType::savePos) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		return QiBase::toJson();
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 	}
@@ -521,7 +504,7 @@ struct QiTimer : QiBase
 	int min = 0, max = 0;
 	QString v_min, v_max;
 	QiTimer() : QiBase(QiType::timer) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
@@ -531,7 +514,7 @@ struct QiTimer : QiBase
 		json.insert("v_max", (QString)v_max);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		next.fromJson(json.value("next").toArray());
@@ -545,13 +528,13 @@ struct QiJump : QiBase
 {
 	int id = 0;
 	QiJump() : QiBase(QiType::jump) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("id", (int)id);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		id = json.value("id").toInt();
@@ -561,13 +544,13 @@ struct QiJumpPoint : QiBase
 {
 	int id = 0;
 	QiJumpPoint() : QiBase(QiType::jumpPoint) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("id", (int)id);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		id = json.value("id").toInt();
@@ -587,7 +570,7 @@ struct QiDialog : QiBase
 	QString title;
 	QString text;
 	QiDialog() : QiBase(QiType::dialog) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
@@ -597,7 +580,7 @@ struct QiDialog : QiBase
 		json.insert("text", (QString)text);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		next.fromJson(json.value("next").toArray());
@@ -611,14 +594,14 @@ struct QiBlock : QiBase
 {
 	int id = 0;
 	QiBlock() : QiBase(QiType::block) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
 		json.insert("id", (int)id);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		next.fromJson(json.value("next").toArray());
@@ -629,13 +612,13 @@ struct QiBlockExec : QiBase
 {
 	int id = 0;
 	QiBlockExec() : QiBase(QiType::blockExec) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("id", (int)id);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		id = json.value("id").toInt();
@@ -645,7 +628,7 @@ struct QiQuickInput : QiBase
 {
 	QiVector<unsigned char> chars;
 	QiQuickInput() : QiBase(QiType::quickInput) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		QJsonArray array;
@@ -653,7 +636,7 @@ struct QiQuickInput : QiBase
 		json.insert("c", array);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		for (const auto& c : json.value("c").toArray()) chars.append(c.toInt());
@@ -664,14 +647,14 @@ struct QiKeyBlock : QiBase
 	int vk = 0;
 	bool block = false;
 	QiKeyBlock() : QiBase(QiType::keyBlock) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("k", (int)vk);
 		json.insert("b", (bool)block);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		vk = json.value("k").toInt();
@@ -684,7 +667,7 @@ struct QiClock : QiBase
 
 	int time = 0;
 	QiClock() : QiBase(QiType::clock) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
@@ -692,7 +675,7 @@ struct QiClock : QiBase
 		json.insert("t", (int)time);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		next.fromJson(json.value("next").toArray());
@@ -708,7 +691,7 @@ struct QiOcr : QiBase
 	RECT rect = {};
 	QString text, var;
 	QiOcr() : QiBase(QiType::ocr) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
@@ -723,7 +706,7 @@ struct QiOcr : QiBase
 		json.insert("row", (bool)row);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		next.fromJson(json.value("next").toArray());
@@ -742,13 +725,13 @@ struct QiVarOperator : QiBase
 {
 	QString script;
 	QiVarOperator() : QiBase(QiType::varOperator) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("t", (QString)script);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		script = json.value("t").toString();
@@ -758,7 +741,7 @@ struct QiVarCondition : QiBase
 {
 	QString script;
 	QiVarCondition() : QiBase(QiType::varCondition) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
@@ -766,7 +749,7 @@ struct QiVarCondition : QiBase
 		json.insert("t", (QString)script);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		next.fromJson(json.value("next").toArray());
@@ -785,14 +768,14 @@ struct QiMouseTrack : QiBase
 	clock_t t = 0;
 	std::vector<MovePart> s;
 	QiMouseTrack() : QiBase(QiType::mouseTrack), t(clock()) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("size", (int)s.size());
 		json.insert("data", (QString)toBase64());
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		int size = json.value("size").toInt();
@@ -834,13 +817,13 @@ struct QiOpen : QiBase
 {
 	QString url;
 	QiOpen() : QiBase(QiType::open) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("url", (QString)url);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		url = json.value("url").toString();
@@ -850,13 +833,13 @@ struct QiTextPad : QiBase
 {
 	QString text;
 	QiTextPad() : QiBase(QiType::textPad) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("text", (QString)text);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		text = json.value("text").toString();
@@ -869,7 +852,7 @@ struct QiEditDialog : QiBase
 	QString text;
 	QString var;
 	QiEditDialog() : QiBase(QiType::editDialog) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("mult", (bool)mult);
@@ -878,7 +861,7 @@ struct QiEditDialog : QiBase
 		json.insert("var", (QString)var);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		mult = json.value("mult").toBool();
@@ -896,7 +879,7 @@ struct QiVolume : QiBase
 	int time = 10;
 	float volume = 0.0f;
 	QiVolume() : QiBase(QiType::volume) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
@@ -906,7 +889,7 @@ struct QiVolume : QiBase
 		json.insert("max", (bool)max);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		next.fromJson(json.value("next").toArray());
@@ -923,7 +906,7 @@ struct QiSoundPlay : QiBase
 	int state = play;
 	QString file;
 	QiSoundPlay() : QiBase(QiType::soundPlay) {}
-	QJsonObject toJson() const override 
+	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("file", (QString)file);
@@ -931,7 +914,7 @@ struct QiSoundPlay : QiBase
 		json.insert("sync", (bool)sync);
 		return json;
 	}
-	void fromJson(const QJsonObject& json) override 
+	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
 		file = json.value("file").toString();
@@ -1157,6 +1140,7 @@ struct SettingsData
 	bool showTips = false;
 	bool audFx = false;
 	bool minMode = false;
+	bool pad = false;
 	// eidt
 	bool tabLock = false;
 	bool tabHideTip = false;
@@ -1173,6 +1157,9 @@ struct Widget
 	bool moreActive = false;
 	QWidget* main = nullptr;
 	QWidget* macro = nullptr;
+	QWidget* trigger = nullptr;
+	QWidget* func = nullptr;
+	QWidget* settings = nullptr;
 	QWidget* record = nullptr;
 	QWidget* edit = nullptr;
 	QWidget* varView = nullptr;
@@ -1182,39 +1169,46 @@ struct Widget
 	}
 	void recordStart() const
 	{
-		QApplication::postEvent(record, new QEvent((QEvent::Type)RecordEvent::start));
+		QApplication::postEvent(record, new QEvent((QEvent::Type)QiEvent::rec_start));
 	}
 	void recordStop() const
 	{
-		QApplication::postEvent(record, new QEvent((QEvent::Type)RecordEvent::stop));
+		QApplication::postEvent(record, new QEvent((QEvent::Type)QiEvent::rec_stop));
 	}
 	void recordClose() const
 	{
-		QApplication::postEvent(record, new QEvent((QEvent::Type)RecordEvent::close));
+		QApplication::postEvent(record, new QEvent((QEvent::Type)QiEvent::rec_close));
 	}
 	void macroLoad() const
 	{
-		QApplication::postEvent(macro, new QEvent((QEvent::Type)MacroEvent::load));
+		QApplication::postEvent(macro, new QEvent((QEvent::Type)QiEvent::mac_load));
 	}
 	void macroEdit() const
 	{
-		QApplication::postEvent(macro, new QEvent((QEvent::Type)MacroEvent::edit));
+		QApplication::postEvent(macro, new QEvent((QEvent::Type)QiEvent::mac_edit_enter));
 	}
 	void macroEdited() const
 	{
-		QApplication::postEvent(macro, new QEvent((QEvent::Type)MacroEvent::edited));
+		QApplication::postEvent(macro, new QEvent((QEvent::Type)QiEvent::mac_edit_exit));
 	}
 	void editClose() const
 	{
-		QApplication::postEvent(edit, new QEvent((QEvent::Type)EditEvent::close));
+		QApplication::postEvent(edit, new QEvent((QEvent::Type)QiEvent::wid_close));
 	}
 	void editDebugPause() const
 	{
-		QApplication::postEvent(edit, new QEvent((QEvent::Type)EditEvent::debug_pause));
+		QApplication::postEvent(edit, new QEvent((QEvent::Type)QiEvent::edt_debug_pause));
 	}
 	void varViewReload() const
 	{
-		if (!varView->isHidden()) QApplication::postEvent(varView, new QEvent((QEvent::Type)VarViewEvent::reload));
+		if (!varView->isHidden()) QApplication::postEvent(varView, new QEvent((QEvent::Type)QiEvent::var_reload));
+	}
+	void Widget::keyEditReload() const
+	{
+		QApplication::postEvent(macro, new QEvent((QEvent::Type)QiEvent::key_reset));
+		QApplication::postEvent(trigger, new QEvent((QEvent::Type)QiEvent::key_reset));
+		QApplication::postEvent(func, new QEvent((QEvent::Type)QiEvent::key_reset));
+		QApplication::postEvent(settings, new QEvent((QEvent::Type)QiEvent::key_reset));
 	}
 };
 

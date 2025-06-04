@@ -130,7 +130,7 @@ void VarViewUi::showEvent(QShowEvent*)
 }
 void VarViewUi::customEvent(QEvent* e)
 {
-	if (e->type() == VarViewEvent::reload)
+	if (e->type() == QiEvent::var_reload)
 	{
 		if (!isHidden())
 		{

@@ -13,11 +13,11 @@ void SettingsUi::Init()
 {
 	// state key
 	ui.stateKey_keyedit->setCombinationMode(false);
-	ui.stateKey_keyedit->setDeviceEnabled(true, true, true, true);
+	ui.stateKey_keyedit->setDeviceEnabled(true, true, true, Qi::set.pad);
 	ui.stateKey_keyedit->setMaximumKeys(2);
 	// record key
 	ui.recordKey_keyedit->setCombinationMode(false);
-	ui.recordKey_keyedit->setDeviceEnabled(true, true, true, true);
+	ui.recordKey_keyedit->setDeviceEnabled(true, true, true, Qi::set.pad);
 	ui.recordKey_keyedit->setMaximumKeys(2);
 	// theme
 	ui.theme_combo->setEditable(true);
@@ -46,6 +46,7 @@ void SettingsUi::Init()
 	ui.showState_check->setChecked(sets->showTips);
 	ui.sound_check->setChecked(sets->audFx);
 	ui.hideDefault_check->setChecked(sets->minMode);
+	ui.pad_check->setChecked(sets->pad);
 	ui.start_check->setChecked(Task::Find(L"QuickInput"));
 	if ("clear shortcut")
 	{
@@ -56,6 +57,7 @@ void SettingsUi::Init()
 		ui.showState_check->installEventFilter(this);
 		ui.sound_check->installEventFilter(this);
 		ui.hideDefault_check->installEventFilter(this);
+		ui.pad_check->installEventFilter(this);
 		ui.start_check->installEventFilter(this);
 	}
 }
@@ -77,60 +79,61 @@ void SettingsUi::Event()
 			Qi::application->setStyleSheet(Qi::ui.themes[Qi::set.theme].style);
 			QiJson::SaveJson();
 		}});
-		connect(ui.stateKey_keyedit, &QKeyEdit::changed, this, [this] {
-			QKeyEditKeys keys = ui.stateKey_keyedit->keys();
-			DWORD vk = VK_F8;
-			if (keys.size() == 1)
-			{
-				vk = keys.first();
-				if (vk = keys.first() == VK_LBUTTON) ui.stateKey_keyedit->setKey(VK_F8);
-				else vk = keys.first();
-			}
-			else if (keys.size() > 1)
-			{
-				vk = keys.first() | (keys.last() << 16);
-			}
-			Qi::set.key = vk;
-			QiJson::SaveJson(); });
-		connect(ui.recordKey_keyedit, &QKeyEdit::changed, this, [this] {
-			QKeyEditKeys keys = ui.recordKey_keyedit->keys();
-			DWORD vk = VK_F8;
-			if (keys.size() == 1)
-			{
-				vk = keys.first();
-				if (vk = keys.first() == VK_LBUTTON) ui.recordKey_keyedit->setKey(VK_F8);
-				else vk = keys.first();
-			}
-			else if (keys.size() > 1)
-			{
-				vk = keys.first() | (keys.last() << 16);
-			}
-			Qi::set.recKey = vk;
-			QiJson::SaveJson(); });
-		connect(ui.recordTrack_check, &QCheckBox::toggled, this, [this](bool state) { sets->recTrack = state; QiJson::SaveJson(); });
-		connect(ui.enableDefault_check, &QCheckBox::toggled, this, [this](bool state) { sets->defOn = state; QiJson::SaveJson(); });
-		connect(ui.showState_check, &QCheckBox::toggled, this, [this](bool state) { sets->showTips = state; QiJson::SaveJson(); });
-		connect(ui.sound_check, &QCheckBox::toggled, this, [this](bool state) { sets->audFx = state; QiJson::SaveJson(); });
-		connect(ui.hideDefault_check, &QCheckBox::toggled, this, [this](bool state) { sets->minMode = state; QiJson::SaveJson(); });
-		connect(ui.start_check, &QCheckBox::toggled, this, [this] {
-			if (Task::Find(L"QuickInput"))
-			{
-				if (Task::Delete(L"QuickInput")) ui.start_check->setChecked(false);
-				else
-				{
-					ui.start_check->setChecked(true);
-					MsgBox::Error(L"需要以管理员权限运行", L"删除任务错误");
-				}
-			}
+	connect(ui.stateKey_keyedit, &QKeyEdit::changed, this, [this] {
+		QKeyEditKeys keys = ui.stateKey_keyedit->keys();
+		DWORD vk = VK_F8;
+		if (keys.size() == 1)
+		{
+			vk = keys.first();
+			if (vk = keys.first() == VK_LBUTTON) ui.stateKey_keyedit->setKey(VK_F8);
+			else vk = keys.first();
+		}
+		else if (keys.size() > 1)
+		{
+			vk = keys.first() | (keys.last() << 16);
+		}
+		Qi::set.key = vk;
+		QiJson::SaveJson(); });
+	connect(ui.recordKey_keyedit, &QKeyEdit::changed, this, [this] {
+		QKeyEditKeys keys = ui.recordKey_keyedit->keys();
+		DWORD vk = VK_F8;
+		if (keys.size() == 1)
+		{
+			vk = keys.first();
+			if (vk = keys.first() == VK_LBUTTON) ui.recordKey_keyedit->setKey(VK_F8);
+			else vk = keys.first();
+		}
+		else if (keys.size() > 1)
+		{
+			vk = keys.first() | (keys.last() << 16);
+		}
+		Qi::set.recKey = vk;
+		QiJson::SaveJson(); });
+	connect(ui.recordTrack_check, &QCheckBox::toggled, this, [this](bool state) { sets->recTrack = state; QiJson::SaveJson(); });
+	connect(ui.enableDefault_check, &QCheckBox::toggled, this, [this](bool state) { sets->defOn = state; QiJson::SaveJson(); });
+	connect(ui.showState_check, &QCheckBox::toggled, this, [this](bool state) { sets->showTips = state; QiJson::SaveJson(); });
+	connect(ui.sound_check, &QCheckBox::toggled, this, [this](bool state) { sets->audFx = state; QiJson::SaveJson(); });
+	connect(ui.hideDefault_check, &QCheckBox::toggled, this, [this](bool state) { sets->minMode = state; QiJson::SaveJson(); });
+	connect(ui.pad_check, &QCheckBox::toggled, this, [this](bool state) { sets->pad = state; Qi::widget.keyEditReload(); QiJson::SaveJson(); });
+	connect(ui.start_check, &QCheckBox::toggled, this, [this] {
+		if (Task::Find(L"QuickInput"))
+		{
+			if (Task::Delete(L"QuickInput")) ui.start_check->setChecked(false);
 			else
 			{
-				if (Task::Register(L"QuickInput")) ui.start_check->setChecked(true);
-				else
-				{
-					ui.start_check->setChecked(false);
-					MsgBox::Error(L"需要以管理员权限运行", L"创建任务错误");
-				}
-			}});
+				ui.start_check->setChecked(true);
+				MsgBox::Error(L"需要以管理员权限运行", L"删除任务错误");
+			}
+		}
+		else
+		{
+			if (Task::Register(L"QuickInput")) ui.start_check->setChecked(true);
+			else
+			{
+				ui.start_check->setChecked(false);
+				MsgBox::Error(L"需要以管理员权限运行", L"创建任务错误");
+			}
+		}});
 }
 void SettingsUi::StyleGroup()
 {
@@ -141,6 +144,7 @@ void SettingsUi::StyleGroup()
 	ui.showState_check->setProperty("group", "check");
 	ui.sound_check->setProperty("group", "check");
 	ui.hideDefault_check->setProperty("group", "check");
+	ui.pad_check->setProperty("group", "check");
 	ui.start_check->setProperty("group", "check");
 	ui.theme_combo->setProperty("group", "combo");
 	ui.theme_combo->setView(new QListView());
@@ -166,4 +170,12 @@ bool SettingsUi::eventFilter(QObject* obj, QEvent* e)
 void SettingsUi::closeEvent(QCloseEvent* e)
 {
 	more.close();
+}
+void SettingsUi::customEvent(QEvent* e)
+{
+	if (e->type() == QiEvent::key_reset)
+	{
+		ui.stateKey_keyedit->setPadEnabled(Qi::set.pad);
+		ui.recordKey_keyedit->setPadEnabled(Qi::set.pad);
+	}
 }

@@ -35,35 +35,66 @@ namespace QiTools
             return m_csv[row][col];
         }
 
-        std::string read(size_t row, size_t col) const {
-            if (row < m_csv.size() && col < m_csv[row].size()) return m_csv[row][col];
-            return {};
+        size_t rows() const {
+            return m_csv.size();
         }
 
-        std::string write(size_t row, size_t col, const std::string& data) {
-            if (row < m_csv.size() && col < m_csv[row].size()) {
-                m_csv[row][col] = data;
-                return data;
-            }
-            return {};
+        size_t cols() const {
+            return m_csv.empty() ? 0 : m_csv.front().size();
+        }
+
+        void expand(size_t row, size_t col) {
+            expand(m_csv, row, col);
+        }
+
+        std::string read(size_t row, size_t col) const {
+            return read(m_csv, row, col);
+        }
+
+        bool write(size_t row, size_t col, const std::string& data) {
+            return write(m_csv, row, col, data);
         }
 
         std::string toString() const {
             return toString(m_csv);
         }
 
+        static void expand(Csv& csv, size_t row, size_t col) {
+            if (row >= csv.size()) csv.resize(row + 1);
+            for (auto& r : csv) {
+                if (col >= r.size()) r.resize(col + 1);
+            }
+        }
+
+        static std::string read(const Csv& csv, size_t row, size_t col) {
+            if (row < csv.size() && col < csv[row].size()) return csv[row][col];
+            return {};
+        }
+
+        static bool write(Csv& csv, size_t row, size_t col, const std::string& data) {
+            expand(csv, row, col);
+            csv[row][col] = data;
+            return true;
+        }
+
+        static size_t rows(const std::string& csv) {
+            Csv csvm = parse(csv);
+            return csvm.size();
+        }
+
+        static size_t cols(const std::string& csv) {
+            Csv csvm = parse(csv);
+            return csvm.empty() ? 0 : csvm.front().size();
+        }
+
         static std::string read(const std::string& csv, size_t row, size_t col) {
             Csv csvm = parse(csv);
-            if (row < csvm.size() && col < csvm[row].size()) return csvm[row][col];
-            return {};
+            return read(csvm, row, col);
         }
 
         static std::string write(const std::string& csv, size_t row, size_t col, const std::string& data) {
             Csv csvm = parse(csv);
-            if (row < csvm.size() && col < csvm[row].size()) {
-                csvm[row][col] = data;
-                return toString(csvm);
-            }
+            if (write(csvm, row, col, data)) return toString(csvm);
             return csv;
         }
 

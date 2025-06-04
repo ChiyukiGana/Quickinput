@@ -9609,7 +9609,7 @@
                   <property name="text">
                    <string>菜单：列表右键
 读取：双击
-删除：Delete    Backspace
+删除：Shift Delete    Shift ←
 移动：Shift ↑    Shift ↓
 多选：Ctrl A    按住Ctrl点击    按住Shift点击
 复制：Ctrl C    Ctrl X
