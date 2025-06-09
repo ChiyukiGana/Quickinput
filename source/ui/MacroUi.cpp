@@ -40,29 +40,9 @@ void MacroUi::Init()
 }
 void MacroUi::Event()
 {
-	std::function currentChanged = [this](int table_index) {
-		currentMacros.clear();
-		currentGroup = &groups->front();
-		if (table_index < 0) return;
-		currentGroup = &groups->at(table_index);
-		for (auto& i : ui.macroGroup_table->currentIndex(table_index)) currentMacros.append(&currentGroup->macros[i]);
-
-		DisableWidget();
-		if (isSold())
-		{
-			ui.edit_button->setEnabled(true);
-			ui.export_button->setEnabled(true);
-			ui.delete_button->setEnabled(true);
-		}
-		else if (isMult())
-		{
-			ui.delete_button->setEnabled(true);
-		}
-		if (!currentGroup->base) ui.delete_group_button->setEnabled(true);
-		};
-	connect(ui.macroGroup_table, &QMacroTable::currentChanged, this, currentChanged);
-	connect(ui.macroGroup_table, &QMacroTable::itemClicked, this, currentChanged);
-	connect(ui.macroGroup_table, &QMacroTable::headerClicked, this, currentChanged);
+	connect(ui.macroGroup_table, &QMacroTable::currentChanged, this, &This::CurrentChanged);
+	connect(ui.macroGroup_table, &QMacroTable::itemClicked, this, &This::CurrentChanged);
+	connect(ui.macroGroup_table, &QMacroTable::headerClicked, this, &This::CurrentChanged);
 	connect(ui.macroGroup_table, &QMacroTable::headerDoubleClicked, this, [this](int index, int column) {
 		if (index <= 0) return;
 		QTableWidget* table = ui.macroGroup_table->table(index);
@@ -289,6 +269,27 @@ void MacroUi::RecStart(bool wnd)
 	Qi::widget.dialogActive = false;
 	Qi::widget.main->show();
 }
+void MacroUi::CurrentChanged(int table_index)
+{
+	currentMacros.clear();
+	currentGroup = &groups->front();
+	if (table_index < 0) return;
+	currentGroup = &groups->at(table_index);
+	for (auto& i : ui.macroGroup_table->currentIndex(table_index)) currentMacros.append(&currentGroup->macros[i]);
+
+	DisableWidget();
+	if (isSold())
+	{
+		ui.edit_button->setEnabled(true);
+		ui.export_button->setEnabled(true);
+		ui.delete_button->setEnabled(true);
+	}
+	else if (isMult())
+	{
+		ui.delete_button->setEnabled(true);
+	}
+	if (!currentGroup->base) ui.delete_group_button->setEnabled(true);
+}
 
 bool MacroUi::isSold() { return (currentGroup && currentMacros.size() == 1); }
 bool MacroUi::isMult() { return (currentGroup && currentMacros.size()); }
@@ -331,6 +332,14 @@ void MacroUi::customEvent(QEvent* e)
 		Qi::popText->Hide();
 		ResetWidget();
 		DisableWidget();
+	}
+	else if (e->type() == QiEvent::mac_edit_exit_d)
+	{
+		Qi::widget.main->setDisabled(false);
+		Qi::widget.main->show();
+		Qi::widget.dialogActive = Qi::debug = false;
+		Qi::widget.edit = nullptr;
+		Qi::widget.macroLoad();
 	}
 }
 bool MacroUi::eventFilter(QObject* sender, QEvent* event)

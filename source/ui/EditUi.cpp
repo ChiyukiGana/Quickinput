@@ -23,6 +23,11 @@ void EditUi::Init()
 {
 	Init_Bind();
 
+	if ("title")
+	{
+		ui.title_icon->installEventFilter(this);
+		ui.title_label->installEventFilter(this);
+	}
 	if ("table")
 	{
 		ui.action_table->setColumnCount(tableColumn_count);
@@ -48,21 +53,20 @@ void EditUi::Init()
 		ui.action_table->setColumnWidth(tableColumn_param, 300);
 		ui.action_table->setColumnWidth(tableColumn_mark, 200);
 	}
-	if ("table context menu")
+	if ("context menu")
 	{
 		menu = new QMenu(this);
-		muDel = new QAction("删除", this);
-		muCut = new QAction("剪切", this);
-		muCopy = new QAction("复制", this);
-		muPaste = new QAction("粘贴", this);
-		muEdit = new QAction("编辑", this);
-		muEdit2 = new QAction("编辑2", this);
-		menu->addAction(muDel);
-		menu->addAction(muCut);
-		menu->addAction(muCopy);
-		menu->addAction(muPaste);
-		menu->addAction(muEdit);
-		menu->addAction(muEdit2);
+		muDel = menu->addAction("删除");
+		muCut = menu->addAction("剪切");
+		muCopy = menu->addAction("复制");
+		muPaste = menu->addAction("粘贴");
+		muEdit = menu->addAction("编辑");
+		muEdit2 = menu->addAction("编辑2");
+
+		titleMenu = new QMenu(this);
+		muBack = titleMenu->addAction("返回");
+		muSave = titleMenu->addAction("保存更改");
+		muDiscard = titleMenu->addAction("放弃更改");
 	}
 	if ("button")
 	{
@@ -287,20 +291,7 @@ void EditUi::Event()
 	if ("title")
 	{
 		connect(ui.title_close_button, &QPushButton::clicked, this, [this] { Qi::popText->Show("正在保存宏"); Qi::widget.editClose(); });
-		connect(ui.title_back_button, &QPushButton::clicked, this, [this] {
-			layers.removeLast();
-			if (layers.empty())
-			{
-				Qi::popText->Show("正在保存宏");
-				Qi::widget.editClose();
-			}
-			else
-			{
-				actions = layers.last().second;
-				setWindowTitle(layers.last().first);
-				Reload();
-			}
-			});
+		connect(ui.title_back_button, &QPushButton::clicked, this, [this] { Back(); });
 		connect(ui.title_run_button, &QPushButton::clicked, this, [this] {
 			if (QiThread::MacroRunActive(macro) || QiThread::MacroEndActive(macro))
 			{
@@ -469,7 +460,7 @@ void EditUi::Event()
 			}
 			});
 	}
-	if ("action table menu")
+	if ("context menu")
 	{
 		connect(muDel, &QAction::triggered, this, [this] { ItemDel(); });
 		connect(muCut, &QAction::triggered, this, [this] { ItemCut(); });
@@ -477,6 +468,10 @@ void EditUi::Event()
 		connect(muPaste, &QAction::triggered, this, [this] { ItemPaste(); });
 		connect(muEdit, &QAction::triggered, this, [this] { NextEdit(false); });
 		connect(muEdit2, &QAction::triggered, this, [this] { NextEdit(true); });
+
+		connect(muBack, &QAction::triggered, this, [this]() { Back(); });
+		connect(muSave, &QAction::triggered, this, [this]() { Qi::popText->Show("正在保存宏"); Qi::widget.editClose(); });
+		connect(muDiscard, &QAction::triggered, this, [this]() { Exit(false); });
 	}
 	if ("action list")
 	{
@@ -511,6 +506,7 @@ void EditUi::Event()
 			}
 			});
 		connect(markPointTimer, &QTimer::timeout, this, [this] {
+			if (isHidden()) return;
 			static bool isPress;
 			if (GetAsyncKeyState(VK_SHIFT))
 			{
@@ -1020,7 +1016,11 @@ void EditUi::StyleGroup()
 		ui.action_table->horizontalHeader()->setProperty("group", "action_table_header");
 		ui.action_table->verticalHeader()->setProperty("group", "action_table_header");
 		ui.action_table->setStyleSheet("QTableCornerButton::section,QHeaderView::section,QScrollBar,QScrollBar::sub-line,QScrollBar::add-line{background-color:rgba(0,0,0,0);border:none}QScrollBar::handle{background-color:rgba(128,128,128,0.3);border:none}");
+	}
+	if ("menu")
+	{
 		menu->setProperty("group", "context_menu");
+		titleMenu->setProperty("group", "context_menu");
 	}
 	if ("table corner button")
 	{
@@ -1294,13 +1294,7 @@ void EditUi::NextEdit(bool edit2)
 		}
 	} break;
 	}
-	if (next)
-	{
-		layers.append(Layer(title, next));
-		actions = next;
-		setWindowTitle(title);
-		Reload();
-	}
+	if (next) Forward(title, next);
 }
 
 
@@ -2545,6 +2539,39 @@ QString EditUi::KeyToString(const QiVector<unsigned char >& keys)
 }
 
 
+void EditUi::Back()
+{
+	layers.removeLast();
+	if (layers.empty())
+	{
+		Qi::popText->Show("正在保存宏");
+		Qi::widget.editClose();
+	}
+	else
+	{
+		actions = layers.last().second;
+		setWindowTitle(layers.last().first);
+		Reload();
+	}
+}
+void EditUi::Forward(const QString& title, Actions* next)
+{
+	layers.append(Layer(title, next));
+	setWindowTitle(title);
+	actions = next;
+	Reload();
+}
+void EditUi::Exit(bool save)
+{
+	widget_pv.hide();
+	widget_mkpv.hide();
+	widget_rv.hide();
+	widget_td.hide();
+	Qi::widget.macroEdited(save);
+	close();
+}
+
+
 bool EditUi::event(QEvent* e)
 {
 	if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))
@@ -2626,7 +2653,15 @@ bool EditUi::eventFilter(QObject* obj, QEvent* e)
 	}
 	else if ("buttons")
 	{
-		if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease)) return true;
+		if (obj == ui.title_icon || obj == ui.title_label)
+		{
+			if (e->type() == QEvent::MouseButtonRelease)
+			{
+				QMouseEvent* mouse = (QMouseEvent*)e;
+				if (mouse->button() == Qt::LeftButton) titleMenu->exec(QCursor::pos());
+			}
+		}
+		else if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease)) return true;
 	}
 	return QDialog::eventFilter(obj, e);
 }
@@ -2637,14 +2672,6 @@ void EditUi::showEvent(QShowEvent*)
 }
 void EditUi::customEvent(QEvent* e)
 {
-	if (e->type() == QiEvent::wid_close)
-	{
-		Qi::widget.macroEdited();
-		widget_pv.hide();
-		widget_mkpv.hide();
-		widget_rv.hide();
-		widget_td.hide();
-		close();
-	}
+	if (e->type() == QiEvent::wid_close) Exit();
 	if (e->type() == QiEvent::edt_debug_pause) SetDebugState(debug_pause);
 }

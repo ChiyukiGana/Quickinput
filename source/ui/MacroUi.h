@@ -23,6 +23,7 @@ private:
 	void DisableWidget();
 	void TableUpdate();
 	void RecStart(bool);
+	void CurrentChanged(int);
 
 	bool isSold();
 	bool isMult();

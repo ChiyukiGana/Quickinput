@@ -53,7 +53,7 @@ class EditUi : public QDialog
 	QTimer* testTimer;
 	QTimer* markPointTimer;
 
-	// table context menu
+	// context menu
 	QMenu* menu;
 	QAction* muDel;
 	QAction* muCut;
@@ -61,6 +61,11 @@ class EditUi : public QDialog
 	QAction* muPaste;
 	QAction* muEdit;
 	QAction* muEdit2;
+
+	QMenu* titleMenu;
+	QAction* muBack;
+	QAction* muSave;
+	QAction* muDiscard;
 
 	// widget bind
 	QiVector<size_t> bind_type_tab = QiVector<size_t>(QiType::count, 0);
@@ -213,6 +218,9 @@ private:
 	QiVector<unsigned char> StringToKey(const QString str);
 	QString KeyToString(const QiVector<unsigned char >& keys);
 
+	void Forward(const QString& title, Actions* next);
+	void Back();
+	void Exit(bool save = true);
 
 	bool event(QEvent*);
 	bool eventFilter(QObject*, QEvent*);

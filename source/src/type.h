@@ -34,6 +34,7 @@ struct QiEvent
 		rec_close,
 		mac_edit_enter,
 		mac_edit_exit,
+		mac_edit_exit_d,
 		mac_load,
 		edt_debug_pause,
 		var_reload,
@@ -1187,9 +1188,9 @@ struct Widget
 	{
 		QApplication::postEvent(macro, new QEvent((QEvent::Type)QiEvent::mac_edit_enter));
 	}
-	void macroEdited() const
+	void macroEdited(bool save = true) const
 	{
-		QApplication::postEvent(macro, new QEvent((QEvent::Type)QiEvent::mac_edit_exit));
+		QApplication::postEvent(macro, new QEvent((QEvent::Type)(save ? QiEvent::mac_edit_exit : QiEvent::mac_edit_exit_d)));
 	}
 	void editClose() const
 	{
