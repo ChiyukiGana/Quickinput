@@ -10,9 +10,6 @@ namespace QiThread
 		std::condition_variable load;
 	};
 
-	void PrecSleep(clock_t ms);
-	bool PeekExitMsg();
-	bool PeekSleep(clock_t ms);
 	// start
 	void StartMacroRun(Macro* pMacro);
 	void StartMacroEnd(Macro* pMacro);

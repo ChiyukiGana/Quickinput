@@ -611,7 +611,7 @@ public:
 		QiFunc_sleep() : QiFunc(1) {}
 		QiVar exec(const std::vector<QiVar>& args) const
 		{
-			Sleep(args[0].toInteger());
+			Qi::PeekSleep(args[0].toInteger());
 			return true;
 		}
 	};
@@ -1231,6 +1231,35 @@ public:
 
 class QiScriptInterpreter
 {
+	struct StatementType {
+		enum {
+			NODE,
+			IF,
+			LOOP
+		};
+	};
+
+	class Statement;
+	using StatementList = std::vector<Statement>;
+
+	using Node = std::string;
+
+	struct If {
+		std::string condition;
+		StatementList trueBlock;
+		StatementList falseBlock;
+	};
+
+	struct Loop {
+		std::string condition;
+		StatementList body;
+	};
+
+	using StatementVariant = std::variant<Node, If, Loop>;
+	struct Statement : public StatementVariant {
+		using StatementVariant::StatementVariant;
+	};
+
 	enum TokenType
 	{
 		VARIABLE,
@@ -1261,11 +1290,7 @@ class QiScriptInterpreter
 	static inline const std::string error_unknown_operator = "error_unknown_operator";
 	static inline const std::string error_invalid_expression = "error_invalid_expression";
 	static inline const std::string error_unknown_functions = "error_unknown_functions";
-public:
-	QiVarMap* varMap()
-	{
-		return &globalVariables;
-	}
+
 	auto trim(const std::string& s) -> std::string
 	{
 		auto start = s.find_first_not_of(" \t");
@@ -1605,6 +1630,19 @@ public:
 		if (stack.size() != 1) throw std::runtime_error(error_invalid_expression);
 		return stack.back();
 	}
+	auto splitLines(const std::string& code) -> std::vector<std::string>
+	{
+		std::vector<std::string> lines;
+		std::istringstream stream(code);
+		std::string line;
+		while (std::getline(stream, line)) {
+			line = trim(line);
+			if (!line.empty()) {
+				lines.push_back(line);
+			}
+		}
+		return lines;
+	}
 	auto splitBySemicolonAndNewline(const std::string& code) -> std::vector<std::string>
 	{
 		std::vector<std::string> result;
@@ -1629,6 +1667,169 @@ public:
 
 		return result;
 	}
+
+	std::pair<StatementList, size_t> parseTopLevel(const std::vector<std::string>& lines, size_t start_index) {
+		StatementList block;
+		size_t index = start_index;
+		while (index < lines.size()) {
+			auto [stmt, next_index] = parseStatement(lines, index);
+			block.push_back(stmt);
+			index = next_index;
+		}
+		return { block, index };
+	}
+	std::pair<Statement, size_t> parseStatement(const std::vector<std::string>& lines, size_t start_index) {
+		if (start_index >= lines.size()) {
+			return { Node(""), start_index };
+		}
+
+		std::string line = lines[start_index];
+		if (line.substr(0, 2) == "if") {
+			size_t start_paren = line.find('(');
+			if (start_paren == std::string::npos) {
+				return { Node(line), start_index + 1 };
+			}
+
+			int paren_count = 1;
+			size_t current_pos = start_paren + 1;
+			size_t end_paren = std::string::npos;
+
+			while (current_pos < line.length()) {
+				if (line[current_pos] == '(') {
+					paren_count++;
+				}
+				else if (line[current_pos] == ')') {
+					paren_count--;
+					if (paren_count == 0) {
+						end_paren = current_pos;
+						break;
+					}
+				}
+				current_pos++;
+			}
+
+			if (end_paren == std::string::npos) {
+				return { Node(line), start_index + 1 };
+			}
+
+			std::string condition = line.substr(start_paren + 1, end_paren - start_paren - 1);
+
+			if (start_index + 1 >= lines.size() || lines[start_index + 1] != "{") {
+				return { Node(line), start_index + 1 };
+			}
+
+			auto [trueBlock, index_after_true] = parseBlock(lines, start_index + 2);
+			StatementList falseBlock;
+			size_t next_index = index_after_true;
+
+			if (index_after_true < lines.size() && lines[index_after_true] == "else") {
+				if (index_after_true + 1 < lines.size() && lines[index_after_true + 1] == "{") {
+					auto [fb, idx] = parseBlock(lines, index_after_true + 2);
+					falseBlock = fb;
+					next_index = idx;
+				}
+				else {
+					next_index = index_after_true + 1;
+				}
+			}
+
+			return { If{ condition, trueBlock, falseBlock }, next_index };
+		}
+		else if (line.substr(0, 4) == "loop") {
+			size_t start_paren = line.find('(');
+			if (start_paren == std::string::npos) {
+				return { Node(line), start_index + 1 };
+			}
+
+			int paren_count = 1;
+			size_t current_pos = start_paren + 1;
+			size_t end_paren = std::string::npos;
+
+			while (current_pos < line.length()) {
+				if (line[current_pos] == '(') {
+					paren_count++;
+				}
+				else if (line[current_pos] == ')') {
+					paren_count--;
+					if (paren_count == 0) {
+						end_paren = current_pos;
+						break;
+					}
+				}
+				current_pos++;
+			}
+
+			if (end_paren == std::string::npos) {
+				return { Node(line), start_index + 1 };
+			}
+
+			std::string condition = line.substr(start_paren + 1, end_paren - start_paren - 1);
+
+			if (start_index + 1 >= lines.size() || lines[start_index + 1] != "{") {
+				return { Node(line), start_index + 1 };
+			}
+
+			auto [body, next_index] = parseBlock(lines, start_index + 2);
+			return { Loop{ condition, body }, next_index };
+		}
+		else {
+			return { Node(line), start_index + 1 };
+		}
+	}
+	std::pair<StatementList, size_t> parseBlock(const std::vector<std::string>& lines, size_t start_index) {
+		StatementList block;
+		size_t index = start_index;
+		while (index < lines.size()) {
+			if (lines[index] == "}") {
+				return { block, index + 1 };
+			}
+			auto [stmt, next_index] = parseStatement(lines, index);
+			block.push_back(stmt);
+			index = next_index;
+		}
+		return { block, index };
+	}
+	void executeStatementList(const StatementList& statements, QiVarMap& localVariables) {
+		for (const auto& stmt : statements) {
+			if (std::holds_alternative<Node>(stmt)) {
+				std::string code = std::get<Node>(stmt);
+				if (!code.empty()) {
+					interpret(code, localVariables);
+				}
+			}
+			else if (std::holds_alternative<If>(stmt)) {
+				const If& ifStmt = std::get<If>(stmt);
+				QiVar condition = execute(ifStmt.condition, localVariables);
+				if (condition.toBool()) {
+					executeStatementList(ifStmt.trueBlock, localVariables);
+				}
+				else {
+					executeStatementList(ifStmt.falseBlock, localVariables);
+				}
+			}
+			else if (std::holds_alternative<Loop>(stmt)) {
+				const Loop& loopStmt = std::get<Loop>(stmt);
+				while (Qi::IsActive()) {
+					QiVar condition = execute(loopStmt.condition, localVariables);
+					if (!condition.toBool()) {
+						break;
+					}
+					executeStatementList(loopStmt.body, localVariables);
+				}
+			}
+		}
+	}
+
+public:
+	QiVarMap* varMap()
+	{
+		return &globalVariables;
+	}
+	const QiVarMap* varMap() const
+	{
+		return &globalVariables;
+	}
+
 	auto execute(const std::string& code, QiVarMap& localVariables) -> QiVar
 	{
 		std::unique_lock<std::mutex> lock(excuteMutex);
@@ -1668,17 +1869,28 @@ public:
 	void interpretAll(const std::string& code, QiVarMap& localVariables)
 	{
 		if (code.empty()) return;
-		auto operations = splitBySemicolonAndNewline(code);
-		for (const auto& op : operations)
-		{
-			size_t commentPos = op.find('#');
-			std::string trimmedOp = (commentPos != std::string::npos) ? trim(op.substr(0, commentPos)) : trim(op);
-			if (!trimmedOp.empty())
-			{
-				interpret(trimmedOp, localVariables);
+
+		std::string normalizedCode = code;
+		std::replace(normalizedCode.begin(), normalizedCode.end(), ';', '\n');
+
+		std::vector<std::string> lines;
+		std::istringstream stream(normalizedCode);
+		std::string line;
+		while (std::getline(stream, line)) {
+			size_t commentPos = line.find('#');
+			if (commentPos != std::string::npos) {
+				line = line.substr(0, commentPos);
+			}
+			line = trim(line);
+			if (!line.empty()) {
+				lines.push_back(line);
 			}
 		}
+
+		auto [topLevelStatements, next_index] = parseTopLevel(lines, 0);
+		executeStatementList(topLevelStatements, localVariables);
 	}
+
 	auto removeWrap(const std::string str) -> std::string
 	{
 		std::string result = str;

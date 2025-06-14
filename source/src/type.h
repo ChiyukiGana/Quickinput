@@ -125,7 +125,7 @@ struct WndLock
 ////////////////// Action
 struct QiType
 {
-	enum Type
+	enum
 	{
 		none,
 		end,
@@ -1222,7 +1222,6 @@ namespace Qi
 	inline QiUi::QuickInputUi ui;
 	// state
 	inline bool state = false;
-	inline bool run = false;
 	// record
 	inline bool recordState = false;
 	inline bool recording = false;
@@ -1248,7 +1247,6 @@ namespace Qi
 	// other
 	inline SIZE screen = {};
 	inline MSG msg;
-	inline bool debug = false;
 
 	QJsonObject toJson();
 	void fromJson(const QJsonObject& json);

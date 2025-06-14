@@ -1,40 +1,10 @@
 ﻿#include "thread.h"
 namespace QiThread
 {
-	void PrecSleep(clock_t ms)
-	{
-		clock_t begin = clock();
-		if (ms > 5)
-		{
-			begin--;
-			while ((begin + ms) > clock()) Sleep(1);
-		}
-		else while ((begin + ms) > clock()) Sleep(0);
-	}
-	bool PeekExitMsg()
-	{
-		return PeekMessageW(&Qi::msg, 0, Qi::msg_exit, Qi::msg_exit, PM_NOREMOVE);
-	}
-	bool PeekSleep(clock_t ms)
-	{
-		clock_t begin = clock();
-		if (ms > 5)
-		{
-			begin--;
-			while ((begin + ms) > clock())
-			{
-				if (PeekExitMsg()) return true;
-				Sleep(1);
-			}
-			return false;
-		}
-		else while ((begin + ms) > clock()) Sleep(0);
-		return PeekExitMsg();
-	}
 	bool IsInvalid(const Macro* macro)
 	{
-		if (Qi::debug) return PeekExitMsg();
-		return !Qi::run || PeekExitMsg() || (macro->timer && !QiTime::in(macro->timerStart, macro->timerEnd));
+		if (Qi::debug) return Qi::PeekExitMsg();
+		return !Qi::run || Qi::PeekExitMsg() || (macro->timer && !QiTime::in(macro->timerStart, macro->timerEnd));
 	}
 	DWORD _stdcall MacroExec(PVOID pParam)
 	{
@@ -55,7 +25,7 @@ namespace QiThread
 					if (pMacro->timer && QiTime::compare(pMacro->timerStart, pMacro->timerEnd) == -1)
 					{
 						Qi::popText->Popup(QString("宏：") + pMacro->name + QString("等待运行"));
-						while (Qi::run && !PeekExitMsg() && (pMacro->timer && !(QiTime::in(pMacro->timerStart, pMacro->timerEnd)))) Sleep(1);
+						while (Qi::run && !Qi::PeekExitMsg() && (pMacro->timer && !(QiTime::in(pMacro->timerStart, pMacro->timerEnd)))) Sleep(1);
 					}
 					Qi::curBlock += pMacro->curBlock;
 					Qi::interpreter.interpretAll(pMacro->script.toStdString(), pMacro->varMap);
@@ -97,12 +67,12 @@ namespace QiThread
 		if (Qi::fun.quickClick.delay > 200) dmax = 70, dmin = 30, umax = umin = Qi::fun.quickClick.delay - 200;
 		else if (Qi::fun.quickClick.delay > 1) dmax = umax = (Qi::fun.quickClick.delay >> 1) + (Qi::fun.quickClick.delay >> 2), dmin = umin = (Qi::fun.quickClick.delay >> 1) - (Qi::fun.quickClick.delay >> 2);
 		else if (Qi::fun.quickClick.delay == 1) dmax = umax = 1, dmin = umin = 0;
-		while (Qi::run && !PeekExitMsg())
+		while (Qi::run && !Qi::PeekExitMsg())
 		{
 			Input::State(Qi::fun.quickClick.key, true, Qi::key_info);
-			PrecSleep(Rand(dmax, dmin));
+			Qi::PrecSleep(Rand(dmax, dmin));
 			Input::State(Qi::fun.quickClick.key, false, Qi::key_info);
-			PrecSleep(Rand(umax, umin));
+			Qi::PrecSleep(Rand(umax, umin));
 		}
 		return 0;
 	}

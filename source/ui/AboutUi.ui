@@ -91,7 +91,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-6-9</string>
+         <string>2025-6-14</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>
@@ -107,7 +107,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加编辑窗口标题菜单</string>
+         <string>增加脚本条件和循环</string>
         </property>
         <property name="textFormat">
          <enum>Qt::PlainText</enum>

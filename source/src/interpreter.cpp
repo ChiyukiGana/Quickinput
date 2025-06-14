@@ -45,8 +45,8 @@ QiInterpreter::QiInterpreter(Macro& macro, bool isRunning) :
 
 bool QiInterpreter::isInvalid()
 {
-	if (Qi::debug) return QiThread::PeekExitMsg();
-	return !Qi::run || QiThread::PeekExitMsg() || (timer && !QiTime::in(timerStart, timerEnd));
+	if (Qi::debug) return Qi::PeekExitMsg();
+	return !Qi::run || Qi::PeekExitMsg() || (timer && !QiTime::in(timerStart, timerEnd));
 }
 
 void QiInterpreter::DebugContinue()
@@ -56,7 +56,7 @@ void QiInterpreter::DebugContinue()
 
 bool QiInterpreter::PeekSleep(clock_t ms)
 {
-	return QiThread::PeekSleep(ms / speed);
+	return Qi::PeekSleep(ms / speed);
 }
 
 int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
