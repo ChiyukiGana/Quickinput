@@ -123,7 +123,7 @@ private:
 		QSize screen = QApplication::primaryScreen()->size();
 		int pos_x = (int)((float)(point.x()) * ((float)(screen.width()) / 10000.0f));
 		int pos_y = (int)((float)(point.y()) * ((float)(screen.height()) / 10000.0f));
-		int size_x = painter.fontMetrics().width(text) + font.pixelSize();
+		int size_x = painter.fontMetrics().horizontalAdvance(text) + font.pixelSize();
 		int size_y = painter.fontMetrics().height() + (font.pixelSize() >> 1);
 		if (pos_x < (size_x >> 1)) pos_x = (size_x >> 1);
 		else if (pos_x > (screen.width() - (size_x >> 1))) pos_x = screen.width() - (size_x >> 1);

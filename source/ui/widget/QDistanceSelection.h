@@ -7,7 +7,6 @@
 #include <qscreen.h>
 #include <qapplication.h>
 #include <qguiapplication.h>
-#include <qdesktopwidget.h>
 
 class QDistanceSelector : public QDialog
 {
@@ -58,7 +57,7 @@ protected:
     void updateLabel()
     {
         lb.setText(QString::number(amsAfter.x - amsBefore.x) + QString::fromUtf8(" , ") + QString::number(amsAfter.y - amsBefore.y));
-        QFontMetrics fc(lb.font()); int cx = fc.width(lb.text()), cy = fc.height();
+        QFontMetrics fc(lb.font()); int cx = fc.horizontalAdvance(lb.text()), cy = fc.height();
         QPoint pt(msAfter.x() + 25, msAfter.y() + 25);
         lb.setGeometry(QRect(pt, QSize(cx + 6, cy)));
     }

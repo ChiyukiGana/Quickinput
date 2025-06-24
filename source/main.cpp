@@ -13,7 +13,9 @@ void Init()
 {
 	QiJson::LoadJson(); // config, macro
 	Qi::screen = System::screenSize(); // screen pixel size
-	qputenv("QT_SCALE_FACTOR", QByteArray::number(System::screenScaleRote(), 10, 1)); // enlarge high resolution screen
+    float scale = System::screenScaleRote();
+    if (scale < 1.9) qputenv("QT_SCALE_FACTOR", QByteArray::number(scale, 10, 1)); // enlarge high resolution screen
+    qputenv("QT_QPA_PLATFORM", "windows:darkmode=0");
 	if ("style")
 	{
 		QiUi::Theme theme;
@@ -876,9 +878,7 @@ int main(int argc, char* argv[])
 
 #ifdef INTEGRITY_VERIFY
 #ifndef DEBUG
-#ifndef TEST
 	integrity_verify();
-#endif
 #endif
 #endif
 
@@ -894,6 +894,7 @@ int main(int argc, char* argv[])
 	// ocr
 	if (File::PathState(L"OCR")) Qi::ocr = QiOcrInterfaceInit();
 
+    QApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::Floor);
 	QApplication application(argc, argv);
 	Qi::application = &application; // save to global
 	Qi::popText = new QPopText; // popup text on screen of global widget

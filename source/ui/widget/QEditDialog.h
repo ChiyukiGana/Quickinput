@@ -15,7 +15,6 @@ public:
 		QHBoxLayout* layout = new QHBoxLayout(this);
 		layout->addWidget(lineEdit);
 		layout->setContentsMargins(0, 0, 0, 0);
-		layout->setMargin(0);
 		connect(lineEdit, &QLineEdit::returnPressed, this, [this]() { close(); });
 	}
 	QLineEdit* edit()

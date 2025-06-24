@@ -266,7 +266,6 @@ namespace QiFn
 							if (QiThread::MacroRunActive(&macro))
 							{
 								QiThread::ExitMacroRun(&macro);
-								QiThread::StartMacroEnd(&macro);
 								if (Qi::set.showTips) MacroPop(&macro, false);
 								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.swd.s, false);
 							}
@@ -294,7 +293,6 @@ namespace QiFn
 							if (macro.count == 0 && QiThread::MacroRunActive(&macro))
 							{
 								QiThread::ExitMacroRun(&macro);
-								QiThread::StartMacroEnd(&macro);
 								if (Qi::set.showTips) MacroPop(&macro, false);
 								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.dwd.s, false);
 							}
@@ -308,7 +306,6 @@ namespace QiFn
 							if (macro.count == 0 && QiThread::MacroRunActive(&macro))
 							{
 								QiThread::ExitMacroRun(&macro);
-								QiThread::StartMacroEnd(&macro);
 								if (Qi::set.showTips) MacroPop(&macro, false);
 								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.upd.s, false);
 							}

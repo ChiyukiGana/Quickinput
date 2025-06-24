@@ -10,7 +10,7 @@ DefWindowMove(EditUi) EditUi::EditUi(Macro* macro, Actions* actions)
 	// set as top layer
 	this->macro = macro;
 	this->actionsRoot = this->actions = actions;
-	layers.append(Layer(QString::fromUtf8("编辑 - ") + macro->name, this->actionsRoot));
+	layers.append({ QString::fromUtf8("编辑 - ") + macro->name, this->actionsRoot });
 
 	Init();
 	Event();
@@ -340,14 +340,14 @@ void EditUi::Event()
 		connect(ui.action_running_radio, &QRadioButton::toggled, this, [this](bool state) {
 			if (state && (layers.size() == 1))
 			{
-				layers.first().second = actionsRoot = actions = &macro->acRun;
+				layers.first().actions = actionsRoot = actions = &macro->acRun;
 				TableReload();
 			}
 			});
 		connect(ui.action_ending_radio, &QRadioButton::toggled, this, [this](bool state) {
 			if (state && (layers.size() == 1))
 			{
-				layers.first().second = actionsRoot = actions = &macro->acEnd;
+				layers.first().actions = actionsRoot = actions = &macro->acEnd;
 				TableReload();
 			}
 			});
@@ -1033,7 +1033,7 @@ void EditUi::StyleGroup()
 			{
 				QWidget* corner = (QWidget*)obj;
 				QHBoxLayout* box = new QHBoxLayout(corner);
-				box->setMargin(0);
+				box->setContentsMargins(0, 0, 0, 0);
 				QWidget* widget = new QWidget(corner);
 				box->addWidget(widget);
 				corner->setProperty("group", "action_table_header");
@@ -1130,7 +1130,7 @@ void EditUi::SelectWindow()
 }
 void EditUi::Reload()
 {
-	setWindowTitle(layers.last().first);
+	setWindowTitle(layers.last().title);
 	if (layers.size() > 1)
 	{
 		ui.action_running_radio->setVisible(false);
@@ -1658,7 +1658,7 @@ void EditUi::TableUpdate(int index)
 		{
 			QTableWidgetItem* item = new QTableWidgetItem(param);
 			item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			if (color.alpha() == 255) item->setTextColor(color);
+			if (color.alpha() == 255) item->setForeground(color);
 			ui.action_table->setItem(index, tableColumn_param, item);
 		}
 
@@ -1712,7 +1712,20 @@ void EditUi::TableRemove(int index)
 }
 void EditUi::TableSelection(const QiVector<int> selection)
 {
-	for (auto& i : selection) for (size_t c = 0; c < ui.action_table->columnCount(); c++) ui.action_table->setItemSelected(ui.action_table->item(i, c), true);
+	QItemSelectionModel* selectionModel = ui.action_table->selectionModel();
+	QItemSelection itemSelection;
+	for (auto& row : selection)
+	{
+		if (row >= 0 && row < ui.action_table->rowCount())
+		{
+			for (int col = 0; col < ui.action_table->columnCount(); col++)
+			{
+				QModelIndex index = ui.action_table->model()->index(row, col);
+				itemSelection.select(index, index);
+			}
+		}
+	}
+	selectionModel->select(itemSelection, QItemSelectionModel::Select);
 }
 
 
@@ -2213,7 +2226,8 @@ void EditUi::WidgetSet(const QiImage& image) {
 	ui.image_move_check->setChecked(image.move);
 	imageMap = image.map;
 	HBITMAP hbmp = Image::toBmp32(imageMap);
-	if (hbmp) ui.image_view_label->setPixmap(QtWin::fromHBITMAP(hbmp));
+	if (hbmp) ui.image_view_label->setPixmap(QPixmap::fromImage(QImage::fromHBITMAP(hbmp)));
+	DeleteObject(hbmp);
 }
 void EditUi::WidgetSet(const QiPopText& popText) {
 	ui.popText_text_edit->setText(popText.text);
@@ -2533,7 +2547,7 @@ QString EditUi::KeyToString(const QiVector<unsigned char >& keys)
 			case VK_OEM_5: c = '\\'; break;
 			}
 		}
-		if (c) str += c;
+		if (c) str += QChar(c);
 	}
 	return str;
 }
@@ -2549,14 +2563,16 @@ void EditUi::Back()
 	}
 	else
 	{
-		actions = layers.last().second;
-		setWindowTitle(layers.last().first);
+		actions = layers.last().actions;
+		setWindowTitle(layers.last().title);
 		Reload();
+		TableSelection(layers.last().items);
 	}
 }
 void EditUi::Forward(const QString& title, Actions* next)
 {
-	layers.append(Layer(title, next));
+	layers.last().items = tableCurrent;
+	layers.append({ title, next });
 	setWindowTitle(title);
 	actions = next;
 	Reload();

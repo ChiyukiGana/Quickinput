@@ -42,7 +42,12 @@ class EditUi : public QDialog
 	Ui::EditUiClass ui;
 	
 	// edit ui param
-	using Layer = std::pair<QString, Actions*>;
+	struct Layer
+	{
+		QString title;
+		Actions* actions;
+		QiVector<int> items;
+	};
 	QList<Layer> layers;
 	bool changing = false;
 	bool updating = false;

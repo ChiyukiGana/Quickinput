@@ -28,13 +28,8 @@ void MacroUi::Init()
 		ui.delete_group_button->installEventFilter(this);
 		ui.delete_button->installEventFilter(this);
 	}
-	ui.macroGroup_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Stretch);
 	ui.macroGroup_table->horizontalHeader()->setHidden(true);
 	ui.macroGroup_table->verticalHeader()->setHidden(true);
-	ui.macroGroup_table->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-	ui.macroGroup_table->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
-	ui.macroGroup_table->setShowGrid(false);
-	ui.macroGroup_table->setDropIndicatorShown(false);
 	ui.macroGroup_table->setAutoScroll(false);
 	ui.macroGroup_table->setEditTriggers(QAbstractItemView::EditTrigger::DoubleClicked);
 }
@@ -230,6 +225,8 @@ void MacroUi::TableUpdate()
 		QTableWidget* table = ui.macroGroup_table->table(mgPos);
 		table->setColumnCount(1);
 		table->setRowCount(mg.macros.size());
+		table->setMinimumWidth(ui.macroGroup_table->width());
+		table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
 		table->setDragEnabled(true);
 		table->setDragDropMode(QAbstractItemView::DragDrop);
 		table->setDefaultDropAction(Qt::DropAction::IgnoreAction);

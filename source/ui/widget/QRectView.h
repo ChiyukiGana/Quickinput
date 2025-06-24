@@ -6,7 +6,6 @@
 #include <qscreen.h>
 #include <qapplication.h>
 #include <qguiapplication.h>
-#include <qdesktopwidget.h>
 
 class QRectView : public QWidget
 {

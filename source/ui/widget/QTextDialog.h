@@ -34,11 +34,9 @@ public:
 
 		layout = new QVBoxLayout(this);
 		layout->setContentsMargins(8, 8, 8, 8);
-		layout->setMargin(8);
 
 		buttonLayout = new QHBoxLayout();
 		buttonLayout->setContentsMargins(0, 0, 0, 0);
-		buttonLayout->setMargin(0);
 
 		buttonLayout->addItem(new QSpacerItem(2, 2, QSizePolicy::Expanding, QSizePolicy::Minimum));
 		buttonLayout->addWidget(saveButton);

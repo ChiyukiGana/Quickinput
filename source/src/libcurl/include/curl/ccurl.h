@@ -9,11 +9,7 @@
 #pragma comment(lib, "crypt32.lib")
 #pragma comment(lib, "wldap32.lib")
 #pragma comment(lib, "normaliz.lib")
-#ifdef _DEBUG
-#pragma comment(lib, "msvcrtd.lib")
-#else
-#pragma comment(lib, "msvcrt.lib")
-#endif
+
 class ccurl
 {
 	bool failed;

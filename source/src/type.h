@@ -1204,7 +1204,7 @@ struct Widget
 	{
 		if (!varView->isHidden()) QApplication::postEvent(varView, new QEvent((QEvent::Type)QiEvent::var_reload));
 	}
-	void Widget::keyEditReload() const
+	void keyEditReload() const
 	{
 		QApplication::postEvent(macro, new QEvent((QEvent::Type)QiEvent::key_reset));
 		QApplication::postEvent(trigger, new QEvent((QEvent::Type)QiEvent::key_reset));

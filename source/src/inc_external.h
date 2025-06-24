@@ -1,6 +1,5 @@
 ﻿#pragma once
 // qt
-#include <QtWinExtras/qwinfunctions.h>
 #include <qsystemtrayicon.h>
 #include <qdesktopservices.h>
 #include <qapplication.h>

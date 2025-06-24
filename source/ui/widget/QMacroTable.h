@@ -45,7 +45,7 @@ public:
 					{
 						QWidget* corner = (QWidget*)obj;
 						QHBoxLayout* box = new QHBoxLayout(corner);
-						box->setMargin(0);
+						box->setContentsMargins(0, 0, 0, 0);
 						QWidget* widget = new QWidget(corner);
 						box->addWidget(widget);
 						corner->setProperty("group", "group_table_header");
@@ -113,7 +113,7 @@ public:
 							label->setAlignment(Qt::AlignCenter);
 							label->setText(u8"▾");
 							box->addWidget(label);
-							box->setMargin(0);
+							box->setContentsMargins(0, 0, 0, 0);
 							table->setProperty("table_corner_label", QVariant::fromValue((QLabel*)label));
 							corner->setProperty("group", "macro_table_header");
 							label->setProperty("group", "macro_table_header");

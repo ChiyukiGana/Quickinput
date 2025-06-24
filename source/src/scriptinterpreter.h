@@ -36,6 +36,7 @@ public:
 	QiVar() : var(long long(0LL)) {}
 	QiVar(bool val) : var(long long(val)) {}
 	QiVar(int val) : var(long long(val)) {}
+	QiVar(long val) : var(long long(val)) {}
 	QiVar(long long val) : var(val) {}
 	QiVar(double val) : var(val) {}
 	QiVar(const char* str) : var(std::string(str)) {}
@@ -1169,6 +1170,16 @@ public:
 			return QiVar((long long)GetForegroundWindow());
 		}
 	};
+	struct QiFunc_wnd_visible : public QiFunc
+	{
+		QiFunc_wnd_visible() : QiFunc(1) {}
+		QiVar exec(const std::vector<QiVar>& args) const
+		{
+			HWND wnd = (HWND)args[0].toInteger();
+			if (!IsWindow(wnd)) return QiVar(false);
+			return QiVar((bool)IsWindowVisible(wnd));
+		}
+	};
 	QiFuncMap()
 	{
 		insert({ "date", std::make_unique<QiFunc_date>() });
@@ -1226,6 +1237,7 @@ public:
 		insert({ "wnd_size", std::make_unique<QiFunc_wnd_size>() });
 		insert({ "wnd_exist", std::make_unique<QiFunc_wnd_exist>() });
 		insert({ "wnd_current", std::make_unique<QiFunc_wnd_current>() });
+		insert({ "wnd_visible", std::make_unique<QiFunc_wnd_visible>() });
 	}
 };
 

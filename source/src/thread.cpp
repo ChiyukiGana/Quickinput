@@ -19,14 +19,15 @@ namespace QiThread
 		{
 			if (Qi::run)
 			{
-				if (pMacro->timer && QiTime::compare(pMacro->timerStart, pMacro->timerEnd) == 1) Qi::popText->Popup(QString("宏：") + pMacro->name + QString("已超过时间范围"));
-				else
+				bool timerOnce = false;
+				do
 				{
-					if (pMacro->timer && QiTime::compare(pMacro->timerStart, pMacro->timerEnd) == -1)
+					if (pMacro->timer)
 					{
-						Qi::popText->Popup(QString("宏：") + pMacro->name + QString("等待运行"));
+						Qi::popText->Popup(QString("宏：") + pMacro->name + QString(timerOnce ? "已超时结束，等待下一次运行" : "等待运行"));
 						while (Qi::run && !Qi::PeekExitMsg() && (pMacro->timer && !(QiTime::in(pMacro->timerStart, pMacro->timerEnd)))) Sleep(1);
 					}
+
 					Qi::curBlock += pMacro->curBlock;
 					Qi::interpreter.interpretAll(pMacro->script.toStdString(), pMacro->varMap);
 					if (pMacro->count && pMacro->mode != Macro::sw)
@@ -37,12 +38,11 @@ namespace QiThread
 					{
 						while (!IsInvalid(pMacro)) if (interpreter.ActionInterpreter(pMacro->acRun, 1) != r_continue) break;
 					}
-					if (pMacro->timer && !QiTime::in(pMacro->timerStart, pMacro->timerEnd))
-					{
-						Qi::popText->Popup(QString("宏：") + pMacro->name + QString("已超时结束"));
-					}
 					Qi::curBlock -= pMacro->curBlock;
-				}
+
+					timerOnce = true;
+					StartMacroEnd(pMacro);
+				} while (Qi::run && !Qi::PeekExitMsg() && pMacro->timer);
 			}
 			else if (Qi::debug)
 			{

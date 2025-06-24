@@ -63,7 +63,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 {
 	if (current.empty())
 	{
-		if (&current == &actions) return r_exit;
+		if (&current == &actions) Sleep(1);
 		return r_continue;
 	}
 	int r_result = r_continue;

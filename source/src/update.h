@@ -83,7 +83,8 @@ public:
         (
             [this]
             {
-                bool result = curl.get(url, response, nullptr, 10000, &std::list<std::string>(1, header));
+                std::list<std::string> headerList(1, header);
+                bool result = curl.get(url, response, nullptr, 10000, &headerList);
                 QApplication::postEvent(parent, new QEvent(QEvent::Type::User));
                 response_state = (result && !response.empty());
             }

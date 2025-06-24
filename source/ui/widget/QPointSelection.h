@@ -7,7 +7,6 @@
 #include <qscreen.h>
 #include <qapplication.h>
 #include <qguiapplication.h>
-#include <qdesktopwidget.h>
 
 class QPointSelection : public QDialog
 {
@@ -70,7 +69,7 @@ protected:
 	{
 		GetCursorPos(&ams);
 		lb.setText(QString::number(ams.x - rect.left) + QString::fromUtf8(" - ") + QString::number(ams.y - rect.top));
-		QFontMetrics fc(lb.font()); int cx = fc.width(lb.text()), cy = fc.height();
+		QFontMetrics fc(lb.font()); int cx = fc.horizontalAdvance(lb.text()), cy = fc.height();
 		QPoint pt(ms.x() + 25, ms.y() + 25);
 		if ((pt.x() > vrect.width() - cx - 25) && (pt.y() > vrect.height() - cy - 25)) pt.setX(ms.x() - cx - 25), pt.setY(ms.y() - cy - 25);
 		else { if (pt.x() > vrect.width() - cx - 25) pt.setX(vrect.width() - cx - 25); if (pt.y() > vrect.height() - cy - 25) pt.setY(vrect.height() - cy - 25); }
