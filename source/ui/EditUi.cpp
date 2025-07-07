@@ -295,6 +295,11 @@ void EditUi::Event()
 		connect(ui.title_run_button, &QPushButton::clicked, this, [this] {
 			if (QiThread::MacroRunActive(macro) || QiThread::MacroEndActive(macro))
 			{
+				if (debugState == debug_run)
+				{
+					if (ui.action_running_radio->isChecked()) QiThread::ExitMacroRun(macro);
+					else QiThread::ExitMacroEnd(macro);
+				}
 				macro->interpreter->DebugContinue();
 			}
 			else
@@ -489,11 +494,15 @@ void EditUi::Event()
 		connect(testTimer, &QTimer::timeout, this, [this] {
 			if (QiThread::MacroRunActive(macro) || QiThread::MacroEndActive(macro))
 			{
-				if (GetAsyncKeyState(VK_SHIFT) && GetAsyncKeyState(VK_F10))
+				if (Input::state(VK_F10))
 				{
+					if (Input::state(VK_SHIFT))
+					{
+						if (ui.action_running_radio->isChecked()) QiThread::ExitMacroRun(macro);
+						else QiThread::ExitMacroEnd(macro);
+					}
 					macro->interpreter->DebugContinue();
-					if (ui.action_running_radio->isChecked()) QiThread::ExitMacroRun(macro);
-					else QiThread::ExitMacroEnd(macro);
+					Input::Loop(VK_F10, 1);
 				}
 			}
 			else
@@ -1087,6 +1096,7 @@ void EditUi::SetTabCurrent(int index)
 }
 void EditUi::SetDebugState(int debugState)
 {
+	this->debugState = debugState;
 	if (debugState == debug_idel)
 	{
 		ui.title_run_label->setText("运行");
@@ -1099,8 +1109,8 @@ void EditUi::SetDebugState(int debugState)
 	}
 	else if (debugState == debug_run)
 	{
-		ui.title_run_label->setText("运行中（Shift F10停止）");
-		ui.title_run_button->setStyleSheet("QPushButton{background-color:#0E0;border-radius:10px}QPushButton:hover{background-color:#0C0}");
+		ui.title_run_label->setText("停止(Shift F10)");
+		ui.title_run_button->setStyleSheet("QPushButton{background-color:#E00;border-radius:10px}QPushButton:hover{background-color:#C00}");
 		ui.action_running_radio->setDisabled(true);
 		ui.action_ending_radio->setDisabled(true);
 		ui.title_close_button->setDisabled(true);
@@ -1109,7 +1119,7 @@ void EditUi::SetDebugState(int debugState)
 	}
 	else if (debugState == debug_pause)
 	{
-		ui.title_run_label->setText("已暂停，点击继续（Shift F10停止）");
+		ui.title_run_label->setText("继续(F10) 停止(Shift F10)");
 		ui.title_run_button->setStyleSheet("QPushButton{background-color:#FC0;border-radius:10px}QPushButton:hover{background-color:#DA0}");
 	}
 }

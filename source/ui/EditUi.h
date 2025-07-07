@@ -57,6 +57,7 @@ class EditUi : public QDialog
 	// debug run
 	QTimer* testTimer;
 	QTimer* markPointTimer;
+	int debugState = debug_idel;
 
 	// context menu
 	QMenu* menu;

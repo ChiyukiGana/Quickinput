@@ -1849,6 +1849,14 @@ public:
 		auto postfix = infixToPostfix(tokens);
 		return evaluatePostfix(postfix, localVariables);
 	}
+	auto execute(const std::string& code) -> QiVar
+	{
+		std::unique_lock<std::mutex> lock(excuteMutex);
+		QiVarMap localVariables;
+		auto tokens = tokenize(code);
+		auto postfix = infixToPostfix(tokens);
+		return evaluatePostfix(postfix, localVariables);
+	}
 	void interpret(const std::string& code, QiVarMap& localVariables)
 	{
 		size_t eqPos = code.find('=');
@@ -1878,6 +1886,11 @@ public:
 			localVariables[varName] = value;
 		}
 	}
+	void interpret(const std::string& code)
+	{
+		QiVarMap localVariables;
+		interpretAll(code, localVariables);
+	}
 	void interpretAll(const std::string& code, QiVarMap& localVariables)
 	{
 		if (code.empty()) return;
@@ -1901,6 +1914,11 @@ public:
 
 		auto [topLevelStatements, next_index] = parseTopLevel(lines, 0);
 		executeStatementList(topLevelStatements, localVariables);
+	}
+	void interpretAll(const std::string& code)
+	{
+		QiVarMap localVariables;
+		interpretAll(code, localVariables);
 	}
 
 	auto removeWrap(const std::string str) -> std::string

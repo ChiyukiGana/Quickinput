@@ -90,7 +90,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-6-23</string>
+         <string>2025-7-7</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>
@@ -106,10 +106,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>升级到Qt6.9
-修改定时触发为循环
-优化结束时宏的执行
-增加窗口显示判断函数</string>
+         <string>修改调试按钮和调试快捷键</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>

@@ -11,16 +11,8 @@
 #include "integrity_verify.h"
 
 #pragma optimize("",off)
-static const char integrity_verify_textSha256[] = "b27ba5f1cc5fe4fd2488a2a17d7d00ff6a358d10751cf65fd775ecfe770c94b2";
+static const char integrity_verify_textSha256[] = "b0bf8ad8a06f7a4d8a50a2d0a5acdc1928b018f75cc039a8384a84bdbd88519a";
 #pragma optimize("",on)
-
-struct PROCESS_BASIC_INFORMATION_EX {
-	PVOID Reserved1;
-	PPEB PebBaseAddress;
-	PVOID Reserved2[2];
-	ULONG_PTR UniqueProcessId;
-	DWORD ParentProcessId;
-};
 
 std::string integrity_verify_Sha256TextSection(std::wstring filePath = std::wstring()) {
 	if (filePath.empty())
@@ -121,51 +113,6 @@ void integrity_verify()
 				break;
 			}
 		}
-		// 父进程
-		if (true)
-		{
-			PROCESS_BASIC_INFORMATION_EX pbi;
-			NTSTATUS status = NtQueryInformationProcess(GetCurrentProcess(), ProcessBasicInformation, &pbi, sizeof(pbi), NULL);
-			if (status != 0)
-			{
-				failed = env = true;
-				break;
-			}
-
-			HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pbi.ParentProcessId);
-			if (!hProcess)
-			{
-				failed = env = true;
-				break;
-			}
-			WCHAR path[MAX_PATH];
-			DWORD size = MAX_PATH;
-			if (!QueryFullProcessImageNameW(hProcess, 0, path, &size))
-			{
-				CloseHandle(hProcess);
-				failed = env = true;
-				break;
-			}
-			CloseHandle(hProcess);
-
-			if (integrity_verify_find(path, L"explorer.exe") ||
-				integrity_verify_find(path, L"svchost.exe") ||
-				integrity_verify_find(path, L"devenv.exe") ||
-				integrity_verify_find(path, L"7zFM.exe") ||
-				integrity_verify_find(path, L"zip") ||
-				integrity_verify_find(path, L"rar") ||
-				integrity_verify_find(path, L"压缩") ||
-				integrity_verify_find(path, L"压.exe") ||
-				integrity_verify_find(path, L"dopus") ||
-				integrity_verify_find(path, L"360") ||
-				integrity_verify_find(path, L"explorer64.exe"));
-			else
-			{
-				failed = env = true;
-				parent = path;
-				break;
-			}
-		}
 		// 植入了代码段
 		if (true)
 		{
@@ -184,19 +131,8 @@ void integrity_verify()
 	} while (false);
 	if (failed)
 	{
-		if (env)
-		{
-			const std::wstring text = L"程序启动环境异常，请通过资源管理器运行\n访问http://qinput.cyk.moe\n获取技术支持/商业授权";
-			if (parent.empty()) MessageBoxW(nullptr, text.c_str(), L"启动失败", MB_ICONERROR);
-			else MessageBoxW(nullptr, (text + std::wstring(L"\n\n 启动进程：") + parent).c_str(), L"启动失败", MB_ICONERROR);
-			ShellExecuteW(nullptr, L"open", L"http://qinput.cyk.moe", nullptr, nullptr, SW_HIDE);
-			exit(0);
-		}
-		else
-		{
-			MessageBoxW(nullptr, L"程序已损坏\n访问http://qinput.cyk.moe\n获取技术支持/商业授权", L"请勿私自销售软件", MB_ICONERROR);
-			ShellExecuteW(nullptr, L"open", L"http://qinput.cyk.moe", nullptr, nullptr, SW_HIDE);
-			exit(0);
-		}
+		MessageBoxW(nullptr, L"程序已损坏\n访问http://qinput.cyk.moe\n获取技术支持/商业授权", L"请勿私自销售软件", MB_ICONERROR);
+		ShellExecuteW(nullptr, L"open", L"http://qinput.cyk.moe", nullptr, nullptr, SW_HIDE);
+		exit(0);
 	}
 }
