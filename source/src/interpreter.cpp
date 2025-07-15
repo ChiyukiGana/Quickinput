@@ -148,14 +148,17 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 							}
 							else if (ref.state == QiKey::click)
 							{
-								Input::Click(current, ref.vk, pt, 10);
-								if (ref.vk == VK_LBUTTON) wndInput->mk |= MK_LBUTTON;
-								else if (ref.vk == VK_RBUTTON) wndInput->mk |= MK_RBUTTON;
-								else if (ref.vk == VK_MBUTTON) wndInput->mk |= MK_MBUTTON;
-								else if (ref.vk == VK_XBUTTON1) wndInput->mk |= MK_XBUTTON1;
-								else if (ref.vk == VK_XBUTTON2) wndInput->mk |= MK_XBUTTON2;
-								else if (ref.vk == VK_CONTROL) wndInput->mk |= MK_CONTROL;
-								else if (ref.vk == VK_SHIFT) wndInput->mk |= MK_SHIFT;
+								Input::State(current, ref.vk, pt, true);
+								Sleep(Rand(20, 10));
+								Input::State(current, ref.vk, pt, false);
+								Sleep(Rand(20, 10));
+								if (ref.vk == VK_LBUTTON) wndInput->mk &= ~MK_LBUTTON;
+								else if (ref.vk == VK_RBUTTON) wndInput->mk &= ~MK_RBUTTON;
+								else if (ref.vk == VK_MBUTTON) wndInput->mk &= ~MK_MBUTTON;
+								else if (ref.vk == VK_XBUTTON1) wndInput->mk &= ~MK_XBUTTON1;
+								else if (ref.vk == VK_XBUTTON2) wndInput->mk &= ~MK_XBUTTON2;
+								else if (ref.vk == VK_CONTROL) wndInput->mk &= ~MK_CONTROL;
+								else if (ref.vk == VK_SHIFT) wndInput->mk &= ~MK_SHIFT;
 							}
 						}
 					}
@@ -163,7 +166,13 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 					{
 						if (ref.state == QiKey::up) Input::State(ref.vk, false, Qi::key_info);
 						else if (ref.state == QiKey::down) Input::State(ref.vk, true, Qi::key_info);
-						else if (ref.state == QiKey::click) Input::Click(ref.vk, 10, Qi::key_info);
+						else if (ref.state == QiKey::click)
+						{
+							Input::State(ref.vk, true, Qi::key_info);
+							Sleep(Rand(20, 10));
+							Input::State(ref.vk, false, Qi::key_info);
+							Sleep(Rand(20, 10));
+						}
 					}
 				} break;
 				case QiType::mouse:
@@ -528,6 +537,10 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 								}
 							}
 							r_result = ActionInterpreter(ref.next2, layer + 1);
+						}
+						else
+						{
+							MsgBox::Error(std::wstring(L"未安装OCR组件\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1));
 						}
 					}
 					catch (std::exception e) { QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); }

@@ -90,7 +90,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-7-7</string>
+         <string>2025-7-15</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>
@@ -106,7 +106,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>修改调试按钮和调试快捷键</string>
+         <string>修复窗口选择器不显示问题
+增加OCR状态提示</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>

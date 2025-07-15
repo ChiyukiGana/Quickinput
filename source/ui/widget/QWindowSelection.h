@@ -26,6 +26,24 @@ class QWindowSelection : public QDialog
 	DWORD call;
 
 public:
+	static SIZE screenSize()
+	{
+		HWND wnd = GetDesktopWindow();
+		HMONITOR mt = MonitorFromWindow(wnd, MONITOR_DEFAULTTONEAREST);
+
+		MONITORINFOEXW mti;
+		mti.cbSize = sizeof(MONITORINFOEXW);
+		GetMonitorInfoW(mt, &mti);
+
+		DEVMODEW dm;
+		dm.dmSize = sizeof(DEVMODEW);
+		dm.dmDriverExtra = 0;
+		EnumDisplaySettingsW(mti.szDevice, ENUM_CURRENT_SETTINGS, &dm);
+
+		return { (LONG)dm.dmPelsWidth, (LONG)dm.dmPelsHeight };
+	}
+	static RECT screenRect() { SIZE size = screenSize(); return { 0, 0, size.cx - 1, size.cy - 1 }; }
+
 	QWindowSelection()
 	{
 		setAttribute(Qt::WA_TranslucentBackground, true);
@@ -33,8 +51,7 @@ public:
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setStyleSheet("background-color:rgba(0,128,255,0.2)");
 
-		QString scale_env = qgetenv("QT_SCALE_FACTOR");
-		scale = scale_env.toFloat();
+		scale = (float)(screenSize().cx) / (float)(QGuiApplication::primaryScreen()->geometry().width());
 
 		timer = new QTimer(this);
 		connect(timer, &QTimer::timeout, this, &This::timerEvent);

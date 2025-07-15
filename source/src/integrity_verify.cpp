@@ -7,11 +7,10 @@
 #include <src/tools/string.h>
 #include <src/tools/file.h>
 #include <src/tools/process.h>
-#pragma comment(lib,"ntdll.lib")
 #include "integrity_verify.h"
 
 #pragma optimize("",off)
-static const char integrity_verify_textSha256[] = "b0bf8ad8a06f7a4d8a50a2d0a5acdc1928b018f75cc039a8384a84bdbd88519a";
+static const char integrity_verify_textSha256[] = "52b93c595c08b26a3f9d87d15339d97a5542882f007d4e2a838ac073b354dbaa";
 #pragma optimize("",on)
 
 std::string integrity_verify_Sha256TextSection(std::wstring filePath = std::wstring()) {
@@ -85,54 +84,39 @@ bool integrity_verify_find(const std::wstring str, const std::wstring str2)
 
 void integrity_verify()
 {
-	bool failed = false;
-	bool env = false;
-	std::wstring parent;
-	do
+	std::function error = [] { MessageBoxW(nullptr, L"程序异常", L"错误", MB_ICONERROR), exit(0); };
+	std::wstring exeName = QiTools::Process::exeName();
+	std::wstring exePath = QiTools::Process::exePath();
+	std::wstring runPath = QiTools::Process::runPath();
+	// 从内存创建
+	if (true)
 	{
-		std::wstring exeName = QiTools::Process::exeName();
-		std::wstring exePath = QiTools::Process::exePath();
-		std::wstring runPath = QiTools::Process::runPath();
-		// 从内存创建
-		if (true)
+		if (!QiTools::File::PathState(exePath) || !QiTools::File::PathState(runPath) || !QiTools::Process::find(exeName))
 		{
-			if (!QiTools::File::PathState(exePath) || !QiTools::File::PathState(runPath) || !QiTools::Process::find(exeName))
-			{
-				failed = true;
-				break;
-			}
+			error();
 		}
-		// 释放到隐藏目录
-		if (true)
-		{
-			DWORD file = GetFileAttributesW(exePath.c_str());
-			DWORD folder = GetFileAttributesW(runPath.c_str());
-			if ((file == FILE_ATTRIBUTE_HIDDEN) || (file == FILE_ATTRIBUTE_SYSTEM) || (folder == FILE_ATTRIBUTE_HIDDEN))
-			{
-				failed = true;
-				break;
-			}
-		}
-		// 植入了代码段
-		if (true)
-		{
-			std::string sha256 = integrity_verify_Sha256TextSection();
-			if (sha256.empty())
-			{
-				MessageBoxW(nullptr, L"程序完整性验证错误", L"Error", MB_ICONERROR);
-				exit(0);
-			}
-			if (sha256 != integrity_verify_textSha256)
-			{
-				failed = true;
-				break;
-			}
-		}
-	} while (false);
-	if (failed)
+	}
+	// 释放到隐藏目录
+	if (true)
 	{
-		MessageBoxW(nullptr, L"程序已损坏\n访问http://qinput.cyk.moe\n获取技术支持/商业授权", L"请勿私自销售软件", MB_ICONERROR);
-		ShellExecuteW(nullptr, L"open", L"http://qinput.cyk.moe", nullptr, nullptr, SW_HIDE);
-		exit(0);
+		DWORD file = GetFileAttributesW(exePath.c_str());
+		DWORD folder = GetFileAttributesW(runPath.c_str());
+		if ((file == FILE_ATTRIBUTE_HIDDEN) || (file == FILE_ATTRIBUTE_SYSTEM) || (folder == FILE_ATTRIBUTE_HIDDEN))
+		{
+			error();
+		}
+	}
+	// 植入了代码段
+	if (true)
+	{
+		std::string sha256 = integrity_verify_Sha256TextSection();
+		if (sha256.empty())
+		{
+			error();
+		}
+		if (sha256 != integrity_verify_textSha256)
+		{
+			error();
+		}
 	}
 }
