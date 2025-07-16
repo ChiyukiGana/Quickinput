@@ -790,7 +790,6 @@ void EditUi::Event_Table_Selection()
 		tableCurrent.sort([](const int& v1, const int& v2) { return v1 < v2; });
 
 		DisableMenus();
-		DisableEditButtons(true);
 		DisableChangeButtons(tableCurrent.empty());
 		widget_pv.hide();
 		widget_rv.hide();
@@ -801,11 +800,8 @@ void EditUi::Event_Table_Selection()
 			const Action& var = actions->at(tableCurrent.front());
 
 			if (!ui.tab_lock_check->isChecked()) SetTabCurrent(bind_type_tab.at(var.index()));
-
-			auto& edit = bind_edt_button.at(var.index());
-			auto& edit2 = bind_edt2_button.at(var.index());
-			if (edit) edit->setEnabled(true);
-			if (edit2) edit2->setEnabled(true);
+			SetGroupCurrent(var.index());
+			SetEditCurrent(var.index());
 
 			switch (var.index())
 			{
@@ -876,6 +872,11 @@ void EditUi::Event_Table_Selection()
 				widget_td.show();
 			} break;
 			}
+		}
+		else
+		{
+			SetGroupCurrent();
+			SetEditCurrent();
 		}
 		});
 }
@@ -1075,13 +1076,6 @@ void EditUi::DisableChangeButtons(bool disable)
 {
 	BindSafeIter(bind_chg_button, [this, disable](QPushButton* p, size_t i) { p->setDisabled(disable); });
 }
-void EditUi::DisableEditButtons(bool disable)
-{
-	BindSafeIter(bind_edt_button, [this, disable](QPushButton* p, size_t i) { p->setDisabled(disable); });
-	BindSafeIter(bind_edt2_button, [this, disable](QPushButton* p, size_t i) { p->setDisabled(disable); });
-	ui.jump_add_button->setDisabled(this);
-	ui.blockExec_add_button->setDisabled(this);
-}
 
 
 void EditUi::setWindowTitle(const QString& title)
@@ -1093,6 +1087,24 @@ void EditUi::SetTabCurrent(int index)
 {
 	ui.tab_stacked_widget->setCurrentIndex(index);
 	BindSafeIter(bind_tab_button, [this, index](QPushButton* p, size_t i) { index == i ? p->setDisabled(true) : p->setEnabled(true); });
+}
+void EditUi::SetGroupCurrent(int type)
+{
+	BindSafeIter(bind_type_group, [this, type](QGroupBox* p, size_t i) {
+		if (i == type) p->setStyleSheet("QGroupBox{border:1px solid red;border-radius:5px}");
+		else p->setStyleSheet("QGroupBox{border:1px solid gray;border-radius:5px}");
+		});
+}
+void EditUi::SetEditCurrent(int type)
+{
+	BindSafeIter(bind_edt_button, [this, type](QPushButton* p, size_t i) {
+		if (i == type) p->setEnabled(true);
+		else p->setDisabled(true);
+		});
+	BindSafeIter(bind_edt2_button, [this, type](QPushButton* p, size_t i) {
+		if (i == type) p->setEnabled(true);
+		else p->setDisabled(true);
+		});
 }
 void EditUi::SetDebugState(int debugState)
 {
@@ -1216,8 +1228,16 @@ void EditUi::NextEdit(bool edit2)
 	case QiType::timer:
 	{
 		QiTimer& timer = std::get<QiTimer>(var);
-		next = &timer.next;
-		title = "编辑 - 定时";
+		if (edit2)
+		{
+			next = &timer.next2;
+			title = "编辑 - 定时（超时）";
+		}
+		else
+		{
+			next = &timer.next;
+			title = "编辑 - 定时（循环）";
+		}
 	} break;
 	case QiType::jump:
 	{
@@ -1686,8 +1706,9 @@ void EditUi::TableReload()
 	tableCurrent.clear();
 	tableCurrentPrev.clear();
 	DisableMenus();
-	DisableEditButtons(true);
 	DisableChangeButtons(true);
+	SetGroupCurrent();
+	SetEditCurrent();
 	ListJumpPointReload();
 	ListBlockReload();
 	ui.action_table->setRowCount(actions->size());
@@ -1722,6 +1743,12 @@ void EditUi::TableRemove(int index)
 }
 void EditUi::TableSelection(const QiVector<int> selection)
 {
+	if (selection.empty()) return;
+	if (selection.size() == 1)
+	{
+		ui.action_table->setCurrentCell(selection.front(), 0);
+		return;
+	}
 	QItemSelectionModel* selectionModel = ui.action_table->selectionModel();
 	QItemSelection itemSelection;
 	for (auto& row : selection)

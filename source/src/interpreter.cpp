@@ -400,11 +400,15 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 						if (!((begin + time) > clock())) { break; }
 						r_result = ActionInterpreter(ref.next, layer + 1);
 						if (debug_entry || jumpId) break;
-						if (r_result != r_continue)
-						{
-							if (r_result == r_break) r_result = r_continue;
-							break;
-						}
+						if (r_result != r_continue) break;
+					}
+					if (r_result == r_continue)
+					{
+						ActionInterpreter(ref.next2, layer + 1);
+					}
+					else if (r_result == r_break)
+					{
+						r_result = r_continue;
 					}
 				} break;
 				case QiType::jump:

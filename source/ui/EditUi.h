@@ -113,11 +113,13 @@ private:
 	void DisableTip(bool disable);
 	void DisableMenus();
 	void DisableChangeButtons(bool disable);
-	void DisableEditButtons(bool disable);
 
 
 	void setWindowTitle(const QString& title);
 	void SetTabCurrent(int index);
+	void SetGroupCurrent(int type = QiType::none);
+	void SetEditCurrent(int type = QiType::none);
+	void SetChangeCurrent(int type = QiType::none);
 	void SetDebugState(int debugState);
 	void SetWindowMode();
 

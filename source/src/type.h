@@ -509,6 +509,7 @@ struct QiTimer : QiBase
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("next", next.toJson());
+		json.insert("next2", next2.toJson());
 		json.insert("min", (int)min);
 		json.insert("max", (int)max);
 		json.insert("v_min", (QString)v_min);
@@ -519,6 +520,7 @@ struct QiTimer : QiBase
 	{
 		QiBase::fromJson(json);
 		next.fromJson(json.value("next").toArray());
+		next2.fromJson(json.value("next2").toArray());
 		min = json.value("min").toInt();
 		max = json.value("max").toInt();
 		v_min = json.value("v_min").toString();

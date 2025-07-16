@@ -127,8 +127,7 @@
          <font>
           <family>Microsoft YaHei</family>
           <pointsize>-1</pointsize>
-          <weight>63</weight>
-          <bold>true</bold>
+          <fontweight>Medium</fontweight>
          </font>
         </property>
         <property name="mouseTracking">
@@ -145,10 +144,10 @@
       <item>
        <spacer name="title_icon_spacer">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+         <enum>QSizePolicy::Policy::Fixed</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -167,13 +166,13 @@
          </sizepolicy>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::ClickFocus</enum>
+         <enum>Qt::FocusPolicy::ClickFocus</enum>
         </property>
         <property name="toolTip">
          <string/>
         </property>
         <property name="layoutDirection">
-         <enum>Qt::RightToLeft</enum>
+         <enum>Qt::LayoutDirection::RightToLeft</enum>
         </property>
         <property name="styleSheet">
          <string notr="true">margin-right:10px</string>
@@ -192,13 +191,13 @@
          </sizepolicy>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::ClickFocus</enum>
+         <enum>Qt::FocusPolicy::ClickFocus</enum>
         </property>
         <property name="toolTip">
          <string/>
         </property>
         <property name="layoutDirection">
-         <enum>Qt::RightToLeft</enum>
+         <enum>Qt::LayoutDirection::RightToLeft</enum>
         </property>
         <property name="text">
          <string>结束时</string>
@@ -208,7 +207,7 @@
       <item>
        <spacer name="title_center_spacer">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -229,7 +228,6 @@
         <property name="font">
          <font>
           <family>Microsoft YaHei</family>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -265,7 +263,7 @@
          </size>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::ClickFocus</enum>
+         <enum>Qt::FocusPolicy::ClickFocus</enum>
         </property>
         <property name="toolTip">
          <string>运行</string>
@@ -284,10 +282,10 @@
       <item>
        <spacer name="title_var_spacer">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+         <enum>QSizePolicy::Policy::Fixed</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -308,7 +306,6 @@
         <property name="font">
          <font>
           <family>Microsoft YaHei</family>
-          <weight>50</weight>
           <bold>false</bold>
          </font>
         </property>
@@ -344,7 +341,7 @@
          </size>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::ClickFocus</enum>
+         <enum>Qt::FocusPolicy::ClickFocus</enum>
         </property>
         <property name="toolTip">
          <string>运行</string>
@@ -363,10 +360,10 @@
       <item>
        <spacer name="title_run_spacer">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
+         <enum>QSizePolicy::Policy::Fixed</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -397,7 +394,7 @@
          </size>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::ClickFocus</enum>
+         <enum>Qt::FocusPolicy::ClickFocus</enum>
         </property>
         <property name="toolTip">
          <string>关闭</string>
@@ -431,7 +428,7 @@
          </size>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::ClickFocus</enum>
+         <enum>Qt::FocusPolicy::ClickFocus</enum>
         </property>
         <property name="toolTip">
          <string>返回</string>
@@ -467,24 +464,23 @@
         <property name="font">
          <font>
           <family>Microsoft YaHei</family>
-          <weight>75</weight>
           <bold>true</bold>
          </font>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::ClickFocus</enum>
+         <enum>Qt::FocusPolicy::ClickFocus</enum>
         </property>
         <property name="frameShadow">
-         <enum>QFrame::Plain</enum>
+         <enum>QFrame::Shadow::Plain</enum>
         </property>
         <property name="lineWidth">
          <number>0</number>
         </property>
         <property name="verticalScrollBarPolicy">
-         <enum>Qt::ScrollBarAsNeeded</enum>
+         <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
         </property>
         <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAsNeeded</enum>
+         <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
         </property>
         <property name="autoScroll">
          <bool>true</bool>
@@ -493,7 +489,7 @@
          <number>16</number>
         </property>
         <property name="editTriggers">
-         <set>QAbstractItemView::NoEditTriggers</set>
+         <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
         </property>
         <property name="tabKeyNavigation">
          <bool>false</bool>
@@ -502,13 +498,13 @@
          <bool>true</bool>
         </property>
         <property name="dragDropMode">
-         <enum>QAbstractItemView::DragDrop</enum>
+         <enum>QAbstractItemView::DragDropMode::DragDrop</enum>
         </property>
         <property name="selectionMode">
-         <enum>QAbstractItemView::ExtendedSelection</enum>
+         <enum>QAbstractItemView::SelectionMode::ExtendedSelection</enum>
         </property>
         <property name="selectionBehavior">
-         <enum>QAbstractItemView::SelectRows</enum>
+         <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
         </property>
         <property name="showGrid">
          <bool>false</bool>
@@ -543,6 +539,9 @@
           <number>0</number>
          </property>
          <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
           <number>0</number>
          </property>
          <property name="rightMargin">
@@ -754,7 +753,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -768,7 +766,7 @@
 　　松开：松开这个按键</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>按键</string>
@@ -822,7 +820,7 @@
                   <item>
                    <spacer name="key_spacer">
                     <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -841,13 +839,13 @@
                      </sizepolicy>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="text">
                      <string>点击</string>
@@ -863,13 +861,13 @@
                      </sizepolicy>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="text">
                      <string>按下</string>
@@ -885,13 +883,13 @@
                      </sizepolicy>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="text">
                      <string>松开</string>
@@ -922,12 +920,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -963,12 +960,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -991,7 +987,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -1003,7 +998,7 @@
 可用于输入数字密码等</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>输入字符</string>
@@ -1062,12 +1057,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -1104,12 +1098,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -1145,12 +1138,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -1173,7 +1165,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -1189,7 +1180,7 @@
 可选择轨迹来过渡移动</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>鼠标位置/移动</string>
@@ -1239,13 +1230,13 @@
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="text">
                      <string>位置</string>
@@ -1273,7 +1264,7 @@
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -1295,13 +1286,13 @@
                      </sizepolicy>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="styleSheet">
                      <string notr="true">margin-left:10px</string>
@@ -1332,7 +1323,7 @@
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -1348,7 +1339,7 @@
                   <item>
                    <spacer name="mouse_spacer">
                     <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -1373,13 +1364,13 @@
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="text">
                      <string>轨迹</string>
@@ -1425,12 +1416,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -1489,12 +1479,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -1540,12 +1529,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -1588,12 +1576,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -1627,12 +1614,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -1668,12 +1654,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -1696,7 +1681,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -1707,7 +1691,7 @@
 如果最大时长和最小时长不同将会随机</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>等待</string>
@@ -1766,12 +1750,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -1823,12 +1806,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -1868,12 +1850,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -1909,12 +1890,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -1935,7 +1915,7 @@
              <item>
               <spacer name="tab_base_spacer">
                <property name="orientation">
-                <enum>Qt::Vertical</enum>
+                <enum>Qt::Orientation::Vertical</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -1969,7 +1949,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -1982,7 +1961,7 @@
 点击编辑进入循环内容编辑，里面的动作将会被循环</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>循环（执行里面的内容）</string>
@@ -2041,12 +2020,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -2098,12 +2076,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -2141,12 +2118,11 @@
                   <property name="font">
                    <font>
                     <family>Microsoft YaHei</family>
-                    <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::ClickFocus</enum>
+                   <enum>Qt::FocusPolicy::ClickFocus</enum>
                   </property>
                   <property name="toolTip">
                    <string/>
@@ -2184,12 +2160,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -2225,12 +2200,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -2253,20 +2227,14 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
                <property name="toolTip">
-                <string>循环指定时长
-
-输入最小时长，输入最大时长
-如果最大时长和最小时长不同将会随机
-
-点击编辑进入循环内容编辑，里面的动作将会被循环</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;循环指定时长&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;输入最小时长，输入最大时长&lt;/p&gt;&lt;p&gt;如果最大时长和最小时长不同将会随机&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;期间内执行循环的内容，如果执行了结束循环则不会执行超时的内容&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>定时（执行里面的内容）</string>
@@ -2325,12 +2293,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -2382,12 +2349,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -2409,42 +2375,79 @@
                  </layout>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="timer_edit_button">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
+                 <layout class="QHBoxLayout" name="timer_edit_box">
+                  <property name="spacing">
+                   <number>0</number>
                   </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>30</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Microsoft YaHei</family>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="focusPolicy">
-                   <enum>Qt::ClickFocus</enum>
-                  </property>
-                  <property name="toolTip">
-                   <string/>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true"/>
-                  </property>
-                  <property name="text">
-                   <string>编辑</string>
-                  </property>
-                  <property name="autoDefault">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
+                  <item>
+                   <widget class="QPushButton" name="timer_edit_button">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Microsoft YaHei</family>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="focusPolicy">
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
+                    </property>
+                    <property name="toolTip">
+                     <string/>
+                    </property>
+                    <property name="text">
+                     <string>编辑（循环）</string>
+                    </property>
+                    <property name="autoDefault">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="timer_edit2_button">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Microsoft YaHei</family>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="focusPolicy">
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
+                    </property>
+                    <property name="toolTip">
+                     <string/>
+                    </property>
+                    <property name="text">
+                     <string>编辑（超时）</string>
+                    </property>
+                    <property name="autoDefault">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
                 <item>
                  <layout class="QHBoxLayout" name="timer_button_box">
@@ -2468,12 +2471,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -2509,12 +2511,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -2537,7 +2538,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -2550,7 +2550,7 @@
 　　任意位置让宏停止运行</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>结束循环</string>
@@ -2593,12 +2593,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -2634,12 +2633,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -2662,7 +2660,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -2675,7 +2672,7 @@
 　　任意位置让宏停止运行</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>结束运行</string>
@@ -2718,12 +2715,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -2759,12 +2755,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -2785,7 +2780,7 @@
              <item>
               <spacer name="tab_loop_spacer">
                <property name="orientation">
-                <enum>Qt::Vertical</enum>
+                <enum>Qt::Orientation::Vertical</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -2819,7 +2814,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -2832,7 +2826,7 @@
 否则执行未按下</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>按键状态（执行里面的内容）</string>
@@ -2892,7 +2886,7 @@
                   <item>
                    <spacer name="keyState_spacer">
                     <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -2926,12 +2920,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -2961,12 +2954,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -3003,12 +2995,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -3044,12 +3035,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -3072,7 +3062,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -3087,7 +3076,7 @@
 　　解除：按键恢复正常</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>屏蔽按键</string>
@@ -3153,13 +3142,13 @@
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="text">
                      <string>移动</string>
@@ -3169,7 +3158,7 @@
                   <item>
                    <spacer name="keyBlock_spacer">
                     <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -3188,13 +3177,13 @@
                      </sizepolicy>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="text">
                      <string>屏蔽</string>
@@ -3210,13 +3199,13 @@
                      </sizepolicy>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="text">
                      <string>解除</string>
@@ -3247,12 +3236,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -3288,12 +3276,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -3316,7 +3303,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -3327,7 +3313,7 @@
 恢复：恢复保存的位置</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>保存鼠标位置</string>
@@ -3370,12 +3356,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -3411,12 +3396,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -3439,7 +3423,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -3450,7 +3433,7 @@
 恢复：恢复保存的位置</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>恢复鼠标位置</string>
@@ -3493,12 +3476,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -3534,12 +3516,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -3560,7 +3541,7 @@
              <item>
               <spacer name="tab_state_spacer">
                <property name="orientation">
-                <enum>Qt::Vertical</enum>
+                <enum>Qt::Orientation::Vertical</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -3594,7 +3575,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -3607,7 +3587,7 @@
 否则执行未经过</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>时钟（执行里面的内容）</string>
@@ -3642,7 +3622,7 @@
                      </size>
                     </property>
                     <property name="buttonSymbols">
-                     <enum>QAbstractSpinBox::NoButtons</enum>
+                     <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
                     </property>
                     <property name="displayFormat">
                      <string>H:mm:ss</string>
@@ -3652,7 +3632,7 @@
                   <item>
                    <spacer name="clock_spacer">
                     <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -3686,12 +3666,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -3721,12 +3700,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -3763,12 +3741,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -3804,12 +3781,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -3832,7 +3808,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -3846,7 +3821,7 @@
 平均/最大：时长的平均音量或最大音量</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>音量检测</string>
@@ -3900,7 +3875,7 @@
                      </size>
                     </property>
                     <property name="buttonSymbols">
-                     <enum>QAbstractSpinBox::NoButtons</enum>
+                     <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
                     </property>
                     <property name="maximum">
                      <double>1.000000000000000</double>
@@ -3942,7 +3917,7 @@
                      </size>
                     </property>
                     <property name="buttonSymbols">
-                     <enum>QAbstractSpinBox::NoButtons</enum>
+                     <enum>QAbstractSpinBox::ButtonSymbols::NoButtons</enum>
                     </property>
                     <property name="minimum">
                      <number>10</number>
@@ -3959,7 +3934,7 @@
                   <item>
                    <spacer name="volume_max_spacer">
                     <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -3984,13 +3959,13 @@
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="styleSheet">
                      <string notr="true"/>
@@ -4024,12 +3999,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -4059,12 +4033,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -4101,12 +4074,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -4142,12 +4114,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -4168,7 +4139,7 @@
              <item>
               <spacer name="tab_time_spacer">
                <property name="orientation">
-                <enum>Qt::Vertical</enum>
+                <enum>Qt::Orientation::Vertical</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -4202,7 +4173,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -4216,7 +4186,7 @@
 当运行到跳转时会跳转到对应的锚点</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>锚点</string>
@@ -4259,12 +4229,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -4300,12 +4269,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -4328,7 +4296,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -4342,7 +4309,7 @@
 当运行到跳转时会跳转到对应的锚点</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>跳转</string>
@@ -4404,12 +4371,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -4445,12 +4411,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -4471,7 +4436,7 @@
              <item>
               <spacer name="tab_jump_spacer">
                <property name="orientation">
-                <enum>Qt::Vertical</enum>
+                <enum>Qt::Orientation::Vertical</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -4505,7 +4470,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -4519,7 +4483,7 @@
 当运行到执行时会执行到对应的块</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>块</string>
@@ -4557,7 +4521,6 @@
                   <property name="font">
                    <font>
                     <family>Microsoft YaHei</family>
-                    <weight>50</weight>
                     <bold>false</bold>
                    </font>
                   </property>
@@ -4586,12 +4549,11 @@
                   <property name="font">
                    <font>
                     <family>Microsoft YaHei</family>
-                    <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::ClickFocus</enum>
+                   <enum>Qt::FocusPolicy::ClickFocus</enum>
                   </property>
                   <property name="toolTip">
                    <string/>
@@ -4629,12 +4591,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -4670,12 +4631,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -4698,7 +4658,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -4712,7 +4671,7 @@
 当运行到执行时会执行到对应的块</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>执行</string>
@@ -4774,12 +4733,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -4815,12 +4773,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -4841,7 +4798,7 @@
              <item>
               <spacer name="tab_block_spacer">
                <property name="orientation">
-                <enum>Qt::Vertical</enum>
+                <enum>Qt::Orientation::Vertical</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -4875,7 +4832,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -4887,7 +4843,7 @@
 在需要粘贴文字的位置按快捷键粘贴</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>复制</string>
@@ -4955,12 +4911,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -4996,12 +4951,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -5024,7 +4978,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -5032,7 +4985,7 @@
                 <string>显示文本窗口便于记录大量数据</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>文本</string>
@@ -5094,12 +5047,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -5127,7 +5079,7 @@
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -5164,12 +5116,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -5205,12 +5156,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -5233,7 +5183,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -5247,7 +5196,7 @@
 选择等待完成会暂停运行直到文字消失</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>弹出文字</string>
@@ -5309,12 +5258,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -5367,12 +5315,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -5389,7 +5336,7 @@
                   <item>
                    <spacer name="popText_wait_spacer">
                     <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -5414,13 +5361,13 @@
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="styleSheet">
                      <string notr="true"/>
@@ -5454,12 +5401,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -5495,12 +5441,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -5521,7 +5466,7 @@
              <item>
               <spacer name="tab_text_spacer">
                <property name="orientation">
-                <enum>Qt::Vertical</enum>
+                <enum>Qt::Orientation::Vertical</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -5555,7 +5500,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -5577,7 +5521,7 @@
 如果错误提示请检查是否有OCR文件夹并且解压了语言</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>识别文字（执行里面的内容）</string>
@@ -5639,12 +5583,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -5677,12 +5620,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -5712,12 +5654,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -5753,12 +5694,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -5798,7 +5738,7 @@
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -5848,12 +5788,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -5903,12 +5842,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -5931,7 +5869,7 @@
                   <item>
                    <spacer name="ocr_option_spacer">
                     <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -5950,13 +5888,13 @@
                      </sizepolicy>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="text">
                      <string>单行模式（更精准）</string>
@@ -5972,13 +5910,13 @@
                      </sizepolicy>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="text">
                      <string>完全匹配</string>
@@ -6004,12 +5942,11 @@
                   <property name="font">
                    <font>
                     <family>Microsoft YaHei</family>
-                    <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::ClickFocus</enum>
+                   <enum>Qt::FocusPolicy::ClickFocus</enum>
                   </property>
                   <property name="toolTip">
                    <string/>
@@ -6044,12 +5981,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -6079,12 +6015,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -6121,12 +6056,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -6162,12 +6096,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -6188,7 +6121,7 @@
              <item>
               <spacer name="tab_ocr_spacer">
                <property name="orientation">
-                <enum>Qt::Vertical</enum>
+                <enum>Qt::Orientation::Vertical</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -6222,7 +6155,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -6241,7 +6173,7 @@
 如果目标区域颜色难以查找可提高误差值</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>查找颜色（执行里面的内容）</string>
@@ -6303,12 +6235,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -6344,12 +6275,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -6379,12 +6309,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -6420,12 +6349,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -6465,7 +6393,7 @@
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -6515,12 +6443,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -6556,12 +6483,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -6597,12 +6523,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -6638,12 +6563,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -6683,7 +6607,7 @@
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -6713,13 +6637,13 @@
                    </sizepolicy>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::ClickFocus</enum>
+                   <enum>Qt::FocusPolicy::ClickFocus</enum>
                   </property>
                   <property name="toolTip">
                    <string/>
                   </property>
                   <property name="layoutDirection">
-                   <enum>Qt::RightToLeft</enum>
+                   <enum>Qt::LayoutDirection::RightToLeft</enum>
                   </property>
                   <property name="text">
                    <string>找到并移动到</string>
@@ -6760,12 +6684,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -6795,12 +6718,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -6837,12 +6759,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -6878,12 +6799,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -6906,7 +6826,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -6925,7 +6844,7 @@
 如果目标区域颜色难以查找可减少相似值</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>查找图像（执行里面的内容）</string>
@@ -6987,12 +6906,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -7028,12 +6946,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -7063,12 +6980,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -7104,12 +7020,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -7149,7 +7064,7 @@
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -7205,12 +7120,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -7232,7 +7146,7 @@
                   <item>
                    <spacer name="image_data_spacer">
                     <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -7276,7 +7190,7 @@
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -7300,13 +7214,13 @@
                    </sizepolicy>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::ClickFocus</enum>
+                   <enum>Qt::FocusPolicy::ClickFocus</enum>
                   </property>
                   <property name="toolTip">
                    <string/>
                   </property>
                   <property name="layoutDirection">
-                   <enum>Qt::RightToLeft</enum>
+                   <enum>Qt::LayoutDirection::RightToLeft</enum>
                   </property>
                   <property name="text">
                    <string>找到并移动到</string>
@@ -7352,7 +7266,7 @@
                    <string>没有图像</string>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignCenter</set>
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
                   </property>
                  </widget>
                 </item>
@@ -7378,12 +7292,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -7413,12 +7326,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -7455,12 +7367,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -7496,12 +7407,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -7522,7 +7432,7 @@
              <item>
               <spacer name="tab_image_spacer">
                <property name="orientation">
-                <enum>Qt::Vertical</enum>
+                <enum>Qt::Orientation::Vertical</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -7556,7 +7466,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -7573,7 +7482,7 @@
 否则执行否</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>对话框</string>
@@ -7639,7 +7548,7 @@
                   <item>
                    <spacer name="dialog_style_spacer">
                     <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -7692,12 +7601,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -7750,12 +7658,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -7789,12 +7696,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -7824,12 +7730,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -7866,12 +7771,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -7907,12 +7811,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -7935,7 +7838,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -7951,7 +7853,7 @@
 多行编辑：可输入换行符</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>编辑框</string>
@@ -8013,12 +7915,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -8071,12 +7972,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -8126,12 +8026,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -8152,13 +8051,13 @@
                    </sizepolicy>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::ClickFocus</enum>
+                   <enum>Qt::FocusPolicy::ClickFocus</enum>
                   </property>
                   <property name="toolTip">
                    <string/>
                   </property>
                   <property name="layoutDirection">
-                   <enum>Qt::RightToLeft</enum>
+                   <enum>Qt::LayoutDirection::RightToLeft</enum>
                   </property>
                   <property name="text">
                    <string>多行编辑</string>
@@ -8187,12 +8086,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -8228,12 +8126,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -8254,7 +8151,7 @@
              <item>
               <spacer name="tab_dialog_spacer">
                <property name="orientation">
-                <enum>Qt::Vertical</enum>
+                <enum>Qt::Orientation::Vertical</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -8288,7 +8185,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -8296,7 +8192,7 @@
                 <string>打开文件或网址</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>打开</string>
@@ -8355,12 +8251,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -8394,12 +8289,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -8435,12 +8329,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -8463,7 +8356,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -8475,7 +8367,7 @@
 停止：停止全部音频</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>播放</string>
@@ -8534,12 +8426,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -8559,7 +8450,7 @@
                   <item>
                    <spacer name="soundPlay_option_spacer">
                     <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -8578,13 +8469,13 @@
                      </sizepolicy>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="text">
                      <string>播放</string>
@@ -8600,13 +8491,13 @@
                      </sizepolicy>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="text">
                      <string>暂停</string>
@@ -8622,13 +8513,13 @@
                      </sizepolicy>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="text">
                      <string>继续</string>
@@ -8644,13 +8535,13 @@
                      </sizepolicy>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="text">
                      <string>停止</string>
@@ -8666,13 +8557,13 @@
                      </sizepolicy>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="text">
                      <string>等待</string>
@@ -8703,12 +8594,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -8744,12 +8634,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -8770,7 +8659,7 @@
              <item>
               <spacer name="tab_file_spacer">
                <property name="orientation">
-                <enum>Qt::Vertical</enum>
+                <enum>Qt::Orientation::Vertical</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -8804,7 +8693,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -8814,7 +8702,7 @@
 详细说明查看示例宏</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>变量运算</string>
@@ -8877,12 +8765,11 @@
                   <property name="font">
                    <font>
                     <family>Microsoft YaHei</family>
-                    <weight>75</weight>
                     <bold>true</bold>
                    </font>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::ClickFocus</enum>
+                   <enum>Qt::FocusPolicy::ClickFocus</enum>
                   </property>
                   <property name="toolTip">
                    <string/>
@@ -8917,12 +8804,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -8958,12 +8844,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -8986,7 +8871,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -8999,7 +8883,7 @@
 详细说明查看示例宏</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>变量判断（执行里面的内容）</string>
@@ -9055,12 +8939,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -9097,12 +8980,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -9132,12 +9014,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -9174,12 +9055,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -9215,12 +9095,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -9241,7 +9120,7 @@
              <item>
               <spacer name="tab_var_spacer">
                <property name="orientation">
-                <enum>Qt::Vertical</enum>
+                <enum>Qt::Orientation::Vertical</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -9275,7 +9154,6 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
@@ -9291,7 +9169,7 @@
 目前旧软件或谷歌Edge浏览器兼容性较好</string>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>窗口模式（需要窗口支持后台控制）</string>
@@ -9331,15 +9209,14 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>50</weight>
                       <bold>false</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="styleSheet">
                      <string notr="true"/>
@@ -9364,7 +9241,7 @@
                   <item>
                    <spacer name="window_state_spacer">
                     <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -9398,15 +9275,14 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>50</weight>
                       <bold>false</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="layoutDirection">
-                     <enum>Qt::RightToLeft</enum>
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="styleSheet">
                      <string notr="true"/>
@@ -9431,7 +9307,7 @@
                   <item>
                    <spacer name="window_child_spacer">
                     <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -9456,7 +9332,6 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>50</weight>
                       <bold>false</bold>
                      </font>
                     </property>
@@ -9485,12 +9360,11 @@
                     <property name="font">
                      <font>
                       <family>Microsoft YaHei</family>
-                      <weight>75</weight>
                       <bold>true</bold>
                      </font>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="statusTip">
                      <string/>
@@ -9533,7 +9407,7 @@
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string/>
@@ -9556,12 +9430,11 @@
                <property name="font">
                 <font>
                  <family>Microsoft YaHei</family>
-                 <weight>75</weight>
                  <bold>true</bold>
                 </font>
                </property>
                <property name="styleSheet">
-                <string notr="true">QGroupBox{border:1px solid gray}</string>
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
                 <string>快捷操作</string>
@@ -9599,7 +9472,6 @@
                   <property name="font">
                    <font>
                     <family>Microsoft YaHei</family>
-                    <weight>50</weight>
                     <bold>false</bold>
                    </font>
                   </property>
@@ -9616,7 +9488,7 @@
 粘贴：Ctrl V</string>
                   </property>
                   <property name="textFormat">
-                   <enum>Qt::PlainText</enum>
+                   <enum>Qt::TextFormat::PlainText</enum>
                   </property>
                   <property name="wordWrap">
                    <bool>true</bool>
@@ -9629,7 +9501,7 @@
              <item>
               <spacer name="tab_wnd_spacer">
                <property name="orientation">
-                <enum>Qt::Vertical</enum>
+                <enum>Qt::Orientation::Vertical</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -9651,7 +9523,7 @@
            <item>
             <widget class="QCheckBox" name="tab_lock_check">
              <property name="focusPolicy">
-              <enum>Qt::ClickFocus</enum>
+              <enum>Qt::FocusPolicy::ClickFocus</enum>
              </property>
              <property name="text">
               <string>锁定标签</string>
@@ -9661,7 +9533,7 @@
            <item>
             <widget class="QCheckBox" name="tab_hideTip_check">
              <property name="focusPolicy">
-              <enum>Qt::ClickFocus</enum>
+              <enum>Qt::FocusPolicy::ClickFocus</enum>
              </property>
              <property name="text">
               <string>隐藏提示</string>
@@ -9671,7 +9543,7 @@
            <item>
             <widget class="QCheckBox" name="tab_markPoint_check">
              <property name="focusPolicy">
-              <enum>Qt::ClickFocus</enum>
+              <enum>Qt::FocusPolicy::ClickFocus</enum>
              </property>
              <property name="text">
               <string>Shift标点</string>
@@ -9681,7 +9553,7 @@
            <item>
             <spacer name="check_spacer">
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
              <property name="sizeHint" stdset="0">
               <size>
