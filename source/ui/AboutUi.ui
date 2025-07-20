@@ -90,7 +90,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-7-16</string>
+         <string>2025-7-20</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>
@@ -106,8 +106,9 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加当前选择功能提示
-增加定时功能的超时状态</string>
+         <string>增加字符的换行转义
+增加true/false类型的识别
+增加初始化脚本错误处理</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>

@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "interpreter.h"
-#include "QTextDialog.h"
+#include <QTextDialog.h>
 
 bool HaveEntry(const Actions& actions)
 {
@@ -40,6 +40,7 @@ QiInterpreter::QiInterpreter(Macro& macro, bool isRunning) :
 		GetCursorPos(&cursor);
 	}
 	if (macro.wndState) wndInput = &macro.wndInput;
+	else wndInput = nullptr;
 	if (Qi::debug) debug_entry = HaveEntry(actions);
 }
 

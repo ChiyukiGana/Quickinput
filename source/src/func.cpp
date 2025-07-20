@@ -110,7 +110,7 @@ namespace QiFn
 	QString FoldText(QString str, int len, bool back)
 	{
 		int size = str.size();
-		str.replace("\n", " ").replace("\t", " ");
+		str.remove('\r').replace('\n', ' ').replace('\t', ' ');
 		if (back)
 		{
 			str = str.size() - len < 0 ? str.mid(0, len) : str.mid(str.size() - len, len);
@@ -345,7 +345,7 @@ namespace QiFn
 #ifndef DEBUG
 				if (!InputHook::Start()) MsgBox::Error(L"创建输入Hook失败，检查是否管理员身份运行 或 是否被安全软件拦截。");
 #endif
-				Qi::xboxpad.setStateEvent(XBoxPadProc, true);
+				if (Qi::set.pad) Qi::xboxpad.setStateEvent(XBoxPadProc, true);
 			}
 		}
 		else
@@ -354,7 +354,7 @@ namespace QiFn
 			{
 				timeEndPeriod(1); // reset clock accuracy
 				InputHook::Close();
-				Qi::xboxpad.closeStateEvent();
+				if (Qi::set.pad) Qi::xboxpad.closeStateEvent();
 			}
 		}
 	}

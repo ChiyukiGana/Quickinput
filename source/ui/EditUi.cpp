@@ -1521,7 +1521,7 @@ void EditUi::TableUpdate(int index)
 		type = QiUi::Text::acDialog;
 		param = QiFn::FoldText(ref.title, 8);
 		param += " | ";
-		param = QiFn::FoldText(ref.text, 12);
+		param += QiFn::FoldText(ref.text, 12);
 	} break;
 	case QiType::block:
 	{
@@ -1635,9 +1635,9 @@ void EditUi::TableUpdate(int index)
 		type = QiUi::Text::acEditDialog;
 		param = QiFn::FoldText(ref.title, 4);
 		param += " | ";
-		param = QiFn::FoldText(ref.text, 8);
+		param += QiFn::FoldText(ref.text, 8);
 		param += " | ";
-		param = QiFn::FoldText(ref.var, 8);
+		param += QiFn::FoldText(ref.var, 8);
 	} break;
 	case QiType::volume:
 	{

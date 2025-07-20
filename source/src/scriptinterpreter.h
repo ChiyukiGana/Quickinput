@@ -401,6 +401,39 @@ public:
 			str.pop_back();
 		return str;
 	}
+	static std::string replace(const std::string& str, const std::string& str_rp, const std::string& str_new)
+	{
+		std::string result(str);
+		std::string::size_type pos = 0;
+		while ((pos = result.find(str_rp)) != std::string::npos) result.replace(pos, str_rp.length(), str_new);
+		return result;
+	}
+	static std::string replace_escape(const std::string& str)
+	{
+		std::string result;
+		bool escapeMode = false;
+		iterateStr(str, [&](const std::string& ch) {
+			if (escapeMode)
+			{
+				if (ch == "n") result += '\n';
+				else if (ch == "r") result += '\r';
+				else if (ch == "\\") result += '\\';
+				else
+				{
+					result += '\\';
+					result += ch;
+				}
+				escapeMode = false;
+			}
+			else
+			{
+				if (ch == "\\") escapeMode = true;
+				else result += ch;
+			}
+			});
+		if (escapeMode) result += '\\';
+		return result;
+	}
 };
 using QiVarMap = std::map<std::string, QiVar>;
 
@@ -1326,6 +1359,17 @@ class QiScriptInterpreter
 				size_t start = pos++;
 				while (pos < expr.length() && isValidVariableChar(expr[pos])) pos++;
 				std::string identifier = expr.substr(start, pos - start);
+				// Bool
+				if (identifier[0] != '$') {
+					if (_stricmp(identifier.c_str(), "true") == 0) {
+						tokens.emplace_back(NUMBER, "1");
+						continue;
+					}
+					else if (::_stricmp(identifier.c_str(), "false") == 0) {
+						tokens.emplace_back(NUMBER, "0");
+						continue;
+					}
+				}
 				// Functions
 				if (pos < expr.length() && expr[pos] == '(')
 				{
@@ -1357,7 +1401,7 @@ class QiScriptInterpreter
 			{
 				size_t start = ++pos;
 				while (pos < expr.length() && expr[pos] != '\'') pos++;
-				tokens.emplace_back(STRING, expr.substr(start, pos - start));
+				tokens.emplace_back(STRING, QiVar::replace_escape(expr.substr(start, pos - start)));
 				pos++;
 			}
 			// Operators
@@ -1561,7 +1605,14 @@ class QiScriptInterpreter
 			}
 			else if (token.type == NUMBER)
 			{
-				stack.push_back(QiVar(QiVar::toNumber(token.value)));
+				if (QiVar::isInteger(token.value, false))
+				{
+					stack.push_back(QiVar(QiVar::toInteger(token.value)));
+				}
+				else
+				{
+					stack.push_back(QiVar(QiVar::toNumber(token.value)));
+				}
 			}
 			else if (token.type == STRING)
 			{
@@ -1895,21 +1946,38 @@ public:
 	{
 		if (code.empty()) return;
 
-		std::string normalizedCode = code;
-		std::replace(normalizedCode.begin(), normalizedCode.end(), ';', '\n');
+		// split return
+		std::vector<std::string> rawLines;
+		std::istringstream codeStream(code);
+		std::string rawLine;
+		while (std::getline(codeStream, rawLine)) rawLines.push_back(rawLine);
 
 		std::vector<std::string> lines;
-		std::istringstream stream(normalizedCode);
-		std::string line;
-		while (std::getline(stream, line)) {
+		for (const auto& rawLine : rawLines) {
+			// remove #
+			std::string line = rawLine;
 			size_t commentPos = line.find('#');
 			if (commentPos != std::string::npos) {
 				line = line.substr(0, commentPos);
 			}
-			line = trim(line);
-			if (!line.empty()) {
-				lines.push_back(line);
+
+			// split ;
+			std::vector<std::string> statements;
+			size_t start = 0;
+			size_t end = line.find(';');
+			while (end != std::string::npos) {
+				std::string stmt = trim(line.substr(start, end - start));
+				if (!stmt.empty()) {
+					statements.push_back(stmt);
+				}
+				start = end + 1;
+				end = line.find(';', start);
 			}
+			// append last
+			std::string lastStmt = trim(line.substr(start));
+			if (!lastStmt.empty()) statements.push_back(lastStmt);
+
+			for (const auto& stmt : statements) lines.push_back(stmt);
 		}
 
 		auto [topLevelStatements, next_index] = parseTopLevel(lines, 0);

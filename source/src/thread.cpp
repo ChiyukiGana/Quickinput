@@ -28,8 +28,10 @@ namespace QiThread
 						while (Qi::run && !Qi::PeekExitMsg() && (pMacro->timer && !(QiTime::in(pMacro->timerStart, pMacro->timerEnd)))) Sleep(1);
 					}
 
+					try { Qi::interpreter.interpretAll(pMacro->script.toStdString(), pMacro->varMap); }
+					catch (std::runtime_error e) { Qi::interpreter.showError(e.what(), std::string("位于初始化脚本")); return -1; }
+
 					Qi::curBlock += pMacro->curBlock;
-					Qi::interpreter.interpretAll(pMacro->script.toStdString(), pMacro->varMap);
 					if (pMacro->count && pMacro->mode != Macro::sw)
 					{
 						for (size_t i = 0; i < pMacro->count && !IsInvalid(pMacro); i++) if (interpreter.ActionInterpreter(pMacro->acRun, 1) != r_continue) break;

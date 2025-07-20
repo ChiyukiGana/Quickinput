@@ -77,6 +77,23 @@ public:
 	void Popup(int time, const QString& text, const QColor color = QColor(0xC0, 0xE0, 0xFF)) { QApplication::postEvent(this, new PopTextEvent(PopTextEvent::pop, text, color, time)); }
 	void Hide() { QApplication::postEvent(this, new PopTextEvent(PopTextEvent::hide)); }
 private:
+	QString FoldText(QString str, int len, bool back) const
+	{
+		int size = str.size();
+		str.remove('\r').replace('\n', ' ').replace('\t', ' ');
+		if (back)
+		{
+			str = str.size() - len < 0 ? str.mid(0, len) : str.mid(str.size() - len, len);
+			if (size > len) str = QString("...") + str;
+		}
+		else
+		{
+			str = str.mid(0, len);
+			if (size > len) str = str + QString("...");
+		}
+		return str;
+	}
+
 	void customEvent(QEvent* e)
 	{
 		PopTextEvent* popText = (PopTextEvent*)e;
@@ -84,7 +101,7 @@ private:
 		{
 			timer->stop();
 			color = popText->color();
-			text = popText->text();
+			text = FoldText(popText->text(), 256, false);
 			time = popText->time();
 			setWindowOpacity(1.0);
 			timer->start(32);
@@ -94,7 +111,7 @@ private:
 		{
 			timer->stop();
 			color = popText->color();
-			text = popText->text();
+			text = FoldText(popText->text(), 256, false);
 			setWindowOpacity(1.0);
 			repaint();
 		}
@@ -120,6 +137,7 @@ private:
 		QPainter painter(this);
 		QFont font("Microsoft YaHei"); font.setPixelSize(size); font.setBold(true);
 		painter.setFont(font);
+		painter.setPen(color.lightness() > 127 ? QColor(0, 0, 0) : QColor(255, 255, 255));
 		QSize screen = QApplication::primaryScreen()->size();
 		int pos_x = (int)((float)(point.x()) * ((float)(screen.width()) / 10000.0f));
 		int pos_y = (int)((float)(point.y()) * ((float)(screen.height()) / 10000.0f));
