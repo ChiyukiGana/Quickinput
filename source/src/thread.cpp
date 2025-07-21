@@ -29,7 +29,7 @@ namespace QiThread
 					}
 
 					try { Qi::interpreter.interpretAll(pMacro->script.toStdString(), pMacro->varMap); }
-					catch (std::runtime_error e) { Qi::interpreter.showError(e.what(), std::string("位于初始化脚本")); return -1; }
+					catch (std::runtime_error e) { QiFn::UnBlock(); Qi::interpreter.showError(e.what(), std::string("位于初始化脚本")); return -1; }
 
 					Qi::curBlock += pMacro->curBlock;
 					if (pMacro->count && pMacro->mode != Macro::sw)

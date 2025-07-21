@@ -356,6 +356,7 @@ namespace Qi
 		json.insert("type", "QuickInputConfig");
 		json.insert("ver", (QString)version);
 		json.insert("theme", (int)set.theme);
+		json.insert("ocr_thread", (int)set.ocr_thread);
 		json.insert("key", (int)set.key);
 		json.insert("recKey", (int)set.recKey);
 		json.insert("recTrack", (bool)set.recTrack);
@@ -419,6 +420,7 @@ namespace Qi
 	void fromJson(const QJsonObject& json)
 	{
 		std::function<void()> DefaultConfig = [] {
+			set.ocr_thread = 4;
 			set.key = VK_F8;
 			set.recKey = VK_F8;
 			set.recTrack = true;
@@ -485,6 +487,7 @@ namespace Qi
 		}
 		else
 		{
+			set.ocr_thread = std::clamp(json.value("ocr_thread").toInt(), 0, 16);
 			set.theme = json.value("theme").toInt();
 			set.key = json.value("key").toInt();
 			set.recTrack = json.value("recTrack").toBool();

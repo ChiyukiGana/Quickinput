@@ -109,9 +109,9 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 					int min = 1;
 					int max = 1;
 					try { min = ref.v_min.isEmpty() ? ref.min : varMap.at(ref.v_min.toStdString()).toInteger(); }
-					catch (...) { MsgBox::Error(std::wstring(L"等待变量无效：") + ref.v_min.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); break; }
+					catch (...) { QiFn::UnBlock(); MsgBox::Error(std::wstring(L"等待变量无效：") + ref.v_min.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); return r_exit; }
 					try { max = ref.v_max.isEmpty() ? ref.max : varMap.at(ref.v_max.toStdString()).toInteger(); }
-					catch (...) { MsgBox::Error(std::wstring(L"等待变量无效：") + ref.v_max.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); break; }
+					catch (...) { QiFn::UnBlock(); MsgBox::Error(std::wstring(L"等待变量无效：") + ref.v_max.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); return r_exit; }
 
 					if (PeekSleep(Rand(max, min))) return r_exit;
 				} break;
@@ -235,7 +235,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 						std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
 						System::ClipBoardText(String::toWString(text).c_str());
 					}
-					catch (std::exception e) { QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); }
+					catch (std::exception e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); return r_exit; }
 				} break;
 				case QiType::color:
 				{
@@ -285,9 +285,9 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 					int min = 1;
 					int max = 1;
 					try { min = ref.v_min.isEmpty() ? ref.min : varMap.at(ref.v_min.toStdString()).toInteger(); }
-					catch (...) { MsgBox::Error(std::wstring(L"循环变量无效：") + ref.v_min.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); break; }
+					catch (...) { QiFn::UnBlock(); MsgBox::Error(std::wstring(L"循环变量无效：") + ref.v_min.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); return r_exit; }
 					try { max = ref.v_max.isEmpty() ? ref.max : varMap.at(ref.v_max.toStdString()).toInteger(); }
-					catch (...) { MsgBox::Error(std::wstring(L"循环变量无效：") + ref.v_max.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); break; }
+					catch (...) { QiFn::UnBlock(); MsgBox::Error(std::wstring(L"循环变量无效：") + ref.v_max.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); return r_exit; }
 
 					bool infinite = (min < 1) && (max < 1);
 					int count = Rand(max, min);
@@ -377,7 +377,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 						}
 						else Sleep(10);
 					}
-					catch (std::exception e) { QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); }
+					catch (std::exception e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); return r_exit; }
 				} break;
 				case QiType::savePos:
 				{
@@ -390,9 +390,9 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 					int min = 1;
 					int max = 1;
 					try { min = ref.v_min.isEmpty() ? ref.min : varMap.at(ref.v_min.toStdString()).toInteger(); }
-					catch (...) { MsgBox::Error(std::wstring(L"定时变量无效：") + ref.v_min.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); break; }
+					catch (...) { QiFn::UnBlock(); MsgBox::Error(std::wstring(L"定时变量无效：") + ref.v_min.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); return r_exit; }
 					try { max = ref.v_max.isEmpty() ? ref.max : varMap.at(ref.v_max.toStdString()).toInteger(); }
-					catch (...) { MsgBox::Error(std::wstring(L"定时变量无效：") + ref.v_max.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); break; }
+					catch (...) { QiFn::UnBlock(); MsgBox::Error(std::wstring(L"定时变量无效：") + ref.v_max.toStdWString() + std::wstring(L"\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); return r_exit; }
 
 					clock_t time = Rand(max, min);
 					clock_t begin = clock();
@@ -443,7 +443,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 						if (MessageBoxW(nullptr, String::toWString(text).c_str(), String::toWString(title).c_str(), style) == IDYES) r_result = ActionInterpreter(ref.next, layer + 1);
 						else r_result = ActionInterpreter(ref.next2, layer + 1);
 					}
-					catch (std::exception e) { QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); }
+					catch (std::exception e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); return r_exit; }
 				} break;
 				case QiType::block:
 				{
@@ -507,7 +507,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next, layer + 1); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2, layer + 1); continue; }
 					try
 					{
-						if (Qi::ocr)
+						if (Qi::ocr.valid())
 						{
 							RECT rect = QiFn::R_SATR(ref.rect);
 							CImage image;
@@ -529,7 +529,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 
 							if (!image.IsNull())
 							{
-								std::string text = Qi::ocr->scan(image, ref.row);
+								std::string text = Qi::ocr.scan(image, ref.row);
 								image.ReleaseDC();
 								if (!text.empty())
 								{
@@ -545,10 +545,10 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 						}
 						else
 						{
-							MsgBox::Error(std::wstring(L"未安装OCR组件\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1));
+							MsgBox::Error(std::wstring(L"未安装OCR组件\n\n位于层：") + std::to_wstring(layer) + std::wstring(L"，行：") + std::to_wstring(i + 1)); return r_exit;
 						}
 					}
-					catch (std::exception e) { QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); }
+					catch (std::exception e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); return r_exit; }
 				} break;
 				case QiType::varOperator:
 				{
@@ -558,7 +558,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 					{
 						Qi::interpreter.interpretAll(ref.script.toStdString(), varMap);
 					}
-					catch (std::runtime_error e) { Qi::interpreter.showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); }
+					catch (std::runtime_error e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); return r_exit; }
 					Qi::widget.varViewReload();
 				} break;
 				case QiType::varCondition:
@@ -572,7 +572,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 						if (var.toBool()) r_result = ActionInterpreter(ref.next, layer + 1);
 						else r_result = ActionInterpreter(ref.next2, layer + 1);
 					}
-					catch (std::runtime_error e) { Qi::interpreter.showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); }
+					catch (std::runtime_error e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); return r_exit; }
 					Qi::widget.varViewReload();
 				} break;
 				case QiType::mouseTrack:
@@ -632,7 +632,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 						text = String::toString(TextEditBox(nullptr, String::toWString(title).c_str(), String::toWString(text).c_str(), ref.mult, WS_EX_TOPMOST, L"ICOAPP"));
 						if (!text.empty()) Qi::interpreter.makeValue(ref.var.toStdString(), text, varMap);
 					}
-					catch (std::exception e) { QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); }
+					catch (std::exception e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), std::string("位于层：") + std::to_string(layer) + std::string("，行：") + std::to_string(i + 1)); return r_exit; }
 				} break;
 				case QiType::volume:
 				{

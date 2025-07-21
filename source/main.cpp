@@ -11,8 +11,9 @@ static const char QUICKINPUT_COPYRIGHT_STRING[] = "QUICKINPUT_(C)CHIYUKIGANA";
 
 void Init()
 {
-	QiJson::LoadJson(); // config, macro
-	Qi::screen = System::screenSize(); // screen pixel size
+	QiJson::LoadJson();
+    QiFn::InitOcr(true);
+	Qi::screen = System::screenSize();
     qputenv("QT_QPA_PLATFORM", "windows:darkmode=0");
 	if ("style")
 	{
@@ -870,7 +871,7 @@ QToolTip,
 }
 int main(int argc, char* argv[])
 {
-	std::cout << QUICKINPUT_COPYRIGHT_STRING << std::endl;
+    puts(QUICKINPUT_COPYRIGHT_STRING);
 	std::locale::global(std::locale(".UTF8")); // set utf8 for all std streams
 	Process::RunPath(); // reset work path to exe path
 
@@ -888,9 +889,6 @@ int main(int argc, char* argv[])
 	}
 	CreateMutexW(0, 0, mutex.c_str()); // create mutex
 	Init(); // json, font, style
-
-	// ocr
-	if (File::PathState(L"OCR")) Qi::ocr = QiOcrInterfaceInit();
 
 	QApplication application(argc, argv);
 	Qi::application = &application; // save to global

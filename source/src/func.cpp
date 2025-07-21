@@ -97,7 +97,7 @@ namespace QiFn
 	RECT R_SATR(const RECT& abs) { return R_ATR(abs, Qi::screen); }
 	QRectF RF_SRTA(const RECT& rel) { return RF_RTA(rel, Qi::screen); }
 	RECT RF_SATR(const QRectF& abs) { return RF_ATR(abs, Qi::screen); }
-	
+
 	POINT P_WRTA(const POINT& rel, const HWND& wnd) { return P_RTA(rel, Window::size(wnd)); }
 	POINT P_WATR(const POINT& abs, const HWND& wnd) { return P_ATR(abs, Window::size(wnd)); }
 	QPointF PF_WATR(const POINT& rel, const HWND& wnd) { return PF_RTA(rel, Window::size(wnd)); }
@@ -395,6 +395,25 @@ namespace QiFn
 			StatePop(false);
 			if (Qi::set.audFx) SoundPlay(Qi::ui.pop.qd.s, false);
 		}
+	}
+	void UnBlock()
+	{
+		Qi::curBlock = 0;
+		memset(Qi::keyBlock, 0, sizeof Qi::keyBlock);
+	}
+
+	void InitOcr(bool first)
+	{
+		if (File::PathState(L"OCR"))
+		{
+			if (QiOcrInterfaceVersion() > 0)
+			{
+				Qi::ocr = QiOcrInterfaceInit(Qi::set.ocr_thread);
+				if (!Qi::ocr.valid()) MsgBox::Error(L"文字识别加载失败");
+			}
+			else MsgBox::Warning(L"文字识别版本低于1，需要更新");
+		}
+		else if (!first) MsgBox::Warning(L"没有安装文字识别功能");
 	}
 
 	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, std::function<void(int x, int y, int stepx, int stepy)> CallBack)

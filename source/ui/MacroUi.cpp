@@ -9,8 +9,8 @@ MacroUi::MacroUi(QWidget* parent) : QWidget(parent)
 	Init();
 	Event();
 	StyleGroup();
-	DisableWidget();
-	TableUpdate();
+	Qi::popText->Show("正在加载宏");
+	QTimer::singleShot(32, [] { Qi::widget.macroLoad(); });
 }
 
 void MacroUi::Init()
@@ -112,7 +112,7 @@ void MacroUi::Event()
 		ResetWidget();
 		DisableWidget();
 		});
-	connect(ui.edit_button, &QPushButton::clicked, this, [this] { if (isSold()) Qi::popText->Show("正在加载宏"); Qi::widget.macroEdit(); });
+	connect(ui.edit_button, &QPushButton::clicked, this, [this] { if (!isSold()) return; Qi::popText->Show("正在加载宏"); QTimer::singleShot(32, [] { Qi::widget.macroEdit(); }); });
 	connect(ui.export_button, &QPushButton::clicked, this, [this] {
 		if (!isSold()) return;
 		Qi::widget.dialogActive = true;
@@ -151,7 +151,7 @@ void MacroUi::Event()
 		}
 		Qi::widget.dialogActive = false;
 		});
-	connect(ui.reload_button, &QPushButton::clicked, this, [this] { Qi::popText->Show("正在加载宏"); Qi::widget.macroLoad(); });
+	connect(ui.reload_button, &QPushButton::clicked, this, [this] { Qi::popText->Show("正在加载宏"); QTimer::singleShot(32, [] { Qi::widget.macroLoad(); }); });
 	connect(ui.add_group_button, &QPushButton::clicked, this, [this] {
 		QString path = Qi::macroDir + Qi::macroGroups.append(MacroGroup(false, Qi::macroGroups.makeName())).name;
 
@@ -310,6 +310,7 @@ void MacroUi::customEvent(QEvent* e)
 		Qi::widget.main->hide();
 		Qi::widget.main->setDisabled(true);
 		edit->show();
+		Qi::popText->Hide();
 	}
 	else if (e->type() == QiEvent::mac_load)
 	{

@@ -63,18 +63,18 @@
        <number>40</number>
       </property>
       <property name="topMargin">
-       <number>20</number>
+       <number>15</number>
       </property>
       <property name="rightMargin">
        <number>40</number>
       </property>
       <property name="bottomMargin">
-       <number>20</number>
+       <number>10</number>
       </property>
       <item>
-       <layout class="QGridLayout" name="content_box" columnminimumwidth="0,0,150">
+       <layout class="QGridLayout" name="content_box">
         <property name="sizeConstraint">
-         <enum>QLayout::SetDefaultConstraint</enum>
+         <enum>QLayout::SizeConstraint::SetDefaultConstraint</enum>
         </property>
         <property name="leftMargin">
          <number>0</number>
@@ -92,10 +92,10 @@
          <number>0</number>
         </property>
         <property name="verticalSpacing">
-         <number>12</number>
+         <number>8</number>
         </property>
-        <item row="9" column="0">
-         <widget class="QLabel" name="hideDefault_label">
+        <item row="11" column="0">
+         <widget class="QLabel" name="pad_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -105,7 +105,6 @@
           <property name="font">
            <font>
             <family>Microsoft YaHei</family>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -113,12 +112,12 @@
            <string/>
           </property>
           <property name="text">
-           <string>默认隐藏（点击任务栏右侧图标显示）</string>
+           <string>启用手柄识别</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="0">
-         <widget class="QLabel" name="sound_label">
+        <item row="8" column="2">
+         <widget class="QCheckBox" name="showState_check">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -128,74 +127,14 @@
           <property name="font">
            <font>
             <family>Microsoft YaHei</family>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="toolTip">
-           <string/>
-          </property>
-          <property name="text">
-           <string>启用音效</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <spacer name="content_spacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="6" column="2">
-         <widget class="QCheckBox" name="enableDefault_check">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>Microsoft YaHei</family>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
           <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
+           <enum>Qt::FocusPolicy::ClickFocus</enum>
           </property>
           <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="2">
-         <widget class="QCheckBox" name="start_check">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>Microsoft YaHei</family>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
+           <enum>Qt::LayoutDirection::LeftToRight</enum>
           </property>
          </widget>
         </item>
@@ -210,12 +149,11 @@
           <property name="font">
            <font>
             <family>Microsoft YaHei</family>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
           <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
+           <enum>Qt::FocusPolicy::ClickFocus</enum>
           </property>
           <property name="styleSheet">
            <string notr="true"/>
@@ -225,8 +163,8 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="0">
-         <widget class="QLabel" name="showState_label">
+        <item row="10" column="0">
+         <widget class="QLabel" name="hideDefault_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -236,7 +174,6 @@
           <property name="font">
            <font>
             <family>Microsoft YaHei</family>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -244,12 +181,12 @@
            <string/>
           </property>
           <property name="text">
-           <string>显示触发状态提示</string>
+           <string>默认隐藏（点击任务栏右侧图标显示）</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="2">
-         <widget class="QComboBox" name="theme_combo">
+        <item row="6" column="2">
+         <widget class="QCheckBox" name="recordTrack_check">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -259,15 +196,46 @@
           <property name="font">
            <font>
             <family>Microsoft YaHei</family>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
           <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
+           <enum>Qt::FocusPolicy::ClickFocus</enum>
           </property>
           <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
+           <enum>Qt::LayoutDirection::LeftToRight</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
+         <widget class="QKeyEdit" name="stateKey_keyedit">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2">
+         <widget class="QComboBox" name="ocr_thread_combo">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Microsoft YaHei</family>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::FocusPolicy::ClickFocus</enum>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LayoutDirection::LeftToRight</enum>
           </property>
           <property name="styleSheet">
            <string notr="true">QComboBox{padding-left:30px}QComboBox::drop-down{width:30px;border:none}QComboBox::down-arrow{image:url(:/arrow.png);width:14px;height:14px}</string>
@@ -283,18 +251,8 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="2">
-         <widget class="QKeyEdit" name="recordKey_keyedit">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="11" column="0">
-         <widget class="QLabel" name="start_label">
+        <item row="9" column="2">
+         <widget class="QCheckBox" name="sound_check">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -304,19 +262,18 @@
           <property name="font">
            <font>
             <family>Microsoft YaHei</family>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
-          <property name="toolTip">
-           <string/>
+          <property name="focusPolicy">
+           <enum>Qt::FocusPolicy::ClickFocus</enum>
           </property>
-          <property name="text">
-           <string>开机启动</string>
+          <property name="layoutDirection">
+           <enum>Qt::LayoutDirection::LeftToRight</enum>
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
+        <item row="7" column="0">
          <widget class="QLabel" name="enableDefault_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -327,7 +284,6 @@
           <property name="font">
            <font>
             <family>Microsoft YaHei</family>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -339,7 +295,151 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="0">
+        <item row="10" column="2">
+         <widget class="QCheckBox" name="hideDefault_check">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Microsoft YaHei</family>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::FocusPolicy::ClickFocus</enum>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LayoutDirection::LeftToRight</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="0">
+         <widget class="QLabel" name="showState_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Microsoft YaHei</family>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="text">
+           <string>显示触发状态提示</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="recordTrack_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Microsoft YaHei</family>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="text">
+           <string>录制鼠标准确位置</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="2">
+         <widget class="QCheckBox" name="enableDefault_check">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Microsoft YaHei</family>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::FocusPolicy::ClickFocus</enum>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LayoutDirection::LeftToRight</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QComboBox" name="theme_combo">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Microsoft YaHei</family>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::FocusPolicy::ClickFocus</enum>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LayoutDirection::LeftToRight</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QComboBox{padding-left:30px}QComboBox::drop-down{width:30px;border:none}QComboBox::down-arrow{image:url(:/arrow.png);width:14px;height:14px}</string>
+          </property>
+          <property name="editable">
+           <bool>false</bool>
+          </property>
+          <property name="maxCount">
+           <number>64</number>
+          </property>
+          <property name="frame">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="2">
+         <widget class="QCheckBox" name="start_check">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Microsoft YaHei</family>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::FocusPolicy::ClickFocus</enum>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LayoutDirection::LeftToRight</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0">
          <widget class="QLabel" name="recordKey_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -350,7 +450,6 @@
           <property name="font">
            <font>
             <family>Microsoft YaHei</family>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -359,32 +458,6 @@
           </property>
           <property name="text">
            <string>录制快捷键</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="2">
-         <widget class="QPushButton" name="popText_button">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>Microsoft YaHei</family>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-          <property name="styleSheet">
-           <string notr="true"/>
-          </property>
-          <property name="text">
-           <string>前往设置</string>
           </property>
          </widget>
         </item>
@@ -399,7 +472,6 @@
           <property name="font">
            <font>
             <family>Microsoft YaHei</family>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -408,6 +480,28 @@
           </property>
           <property name="text">
            <string>提示框设置</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="ocr_thread_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Microsoft YaHei</family>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="text">
+           <string>文字识别线程（过高可能更慢）</string>
           </property>
          </widget>
         </item>
@@ -428,7 +522,6 @@
           <property name="font">
            <font>
             <family>Microsoft YaHei</family>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -440,18 +533,8 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="2">
-         <widget class="QKeyEdit" name="stateKey_keyedit">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-         </widget>
-        </item>
-        <item row="9" column="2">
-         <widget class="QCheckBox" name="hideDefault_check">
+        <item row="1" column="2">
+         <widget class="QPushButton" name="popText_button">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -461,15 +544,93 @@
           <property name="font">
            <font>
             <family>Microsoft YaHei</family>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
           <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
+           <enum>Qt::FocusPolicy::ClickFocus</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="text">
+           <string>前往设置</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="stateKey_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Microsoft YaHei</family>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="text">
+           <string>开启/停止键</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2">
+         <widget class="QKeyEdit" name="recordKey_keyedit">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="2">
+         <widget class="QCheckBox" name="pad_check">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Microsoft YaHei</family>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::FocusPolicy::ClickFocus</enum>
           </property>
           <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
+           <enum>Qt::LayoutDirection::LeftToRight</enum>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="0">
+         <widget class="QLabel" name="sound_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="font">
+           <font>
+            <family>Microsoft YaHei</family>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="toolTip">
+           <string/>
+          </property>
+          <property name="text">
+           <string>启用音效</string>
           </property>
          </widget>
         </item>
@@ -484,7 +645,6 @@
           <property name="font">
            <font>
             <family>Microsoft YaHei</family>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -496,8 +656,8 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="2">
-         <widget class="QCheckBox" name="recordTrack_check">
+        <item row="12" column="0">
+         <widget class="QLabel" name="start_label">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
             <horstretch>0</horstretch>
@@ -507,30 +667,6 @@
           <property name="font">
            <font>
             <family>Microsoft YaHei</family>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="recordTrack_label">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>Microsoft YaHei</family>
-            <weight>75</weight>
             <bold>true</bold>
            </font>
           </property>
@@ -538,122 +674,17 @@
            <string/>
           </property>
           <property name="text">
-           <string>录制鼠标准确位置</string>
+           <string>开机启动</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="2">
-         <widget class="QCheckBox" name="sound_check">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>Microsoft YaHei</family>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="7" column="2">
-         <widget class="QCheckBox" name="showState_check">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>Microsoft YaHei</family>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="stateKey_label">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>Microsoft YaHei</family>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="toolTip">
-           <string/>
-          </property>
-          <property name="text">
-           <string>开启/停止键</string>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="0">
-         <widget class="QLabel" name="pad_label">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>Microsoft YaHei</family>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="toolTip">
-           <string/>
-          </property>
-          <property name="text">
-           <string>启用手柄识别</string>
-          </property>
-         </widget>
-        </item>
-        <item row="10" column="2">
-         <widget class="QCheckBox" name="pad_check">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="font">
-           <font>
-            <family>Microsoft YaHei</family>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
+        <item row="0" column="1">
+         <widget class="QWidget" name="grid_widget" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>0</height>
+           </size>
           </property>
          </widget>
         </item>

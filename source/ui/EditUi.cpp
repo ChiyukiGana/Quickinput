@@ -4,9 +4,6 @@ DefWindowMove(EditUi) EditUi::EditUi(Macro* macro, Actions* actions)
 	ui.setupUi(this);
 	setWindowFlags(Qt::FramelessWindowHint);
 
-	// loading tip
-	Qi::popText->Hide();
-
 	// set as top layer
 	this->macro = macro;
 	this->actionsRoot = this->actions = actions;
@@ -167,6 +164,11 @@ void EditUi::Init()
 		ui.image_sim_edit->setValidator(new QIntValidator(QiImage::range_sim.first, QiImage::range_sim.second, this));
 		ui.popText_time_edit->setValidator(new QIntValidator(QiPopText::range_time.first, QiPopText::range_time.second, this));
 	}
+	if ("text edit")
+	{
+		ui.copyText_text->setTabStopDistance(QFontMetrics(QFont("Microsoft YaHei")).horizontalAdvance("    "));
+		ui.varOperator_edit->setTabStopDistance(QFontMetrics(QFont("Microsoft YaHei")).horizontalAdvance("    "));
+	}
 	if ("key edit")
 	{
 		ui.key_keyedit->setCombinationMode(false);
@@ -290,7 +292,7 @@ void EditUi::Event()
 
 	if ("title")
 	{
-		connect(ui.title_close_button, &QPushButton::clicked, this, [this] { Qi::popText->Show("正在保存宏"); Qi::widget.editClose(); });
+		connect(ui.title_close_button, &QPushButton::clicked, this, [this] { Qi::popText->Show("正在保存宏"); QTimer::singleShot(32, [] { Qi::widget.editClose(); }); });
 		connect(ui.title_back_button, &QPushButton::clicked, this, [this] { Back(); });
 		connect(ui.title_run_button, &QPushButton::clicked, this, [this] {
 			if (QiThread::MacroRunActive(macro) || QiThread::MacroEndActive(macro))
@@ -475,7 +477,7 @@ void EditUi::Event()
 		connect(muEdit2, &QAction::triggered, this, [this] { NextEdit(true); });
 
 		connect(muBack, &QAction::triggered, this, [this]() { Back(); });
-		connect(muSave, &QAction::triggered, this, [this]() { Qi::popText->Show("正在保存宏"); Qi::widget.editClose(); });
+		connect(muSave, &QAction::triggered, this, [this]() { Qi::popText->Show("正在保存宏"); QTimer::singleShot(32, [] { Qi::widget.editClose(); }); });
 		connect(muDiscard, &QAction::triggered, this, [this]() { Exit(false); });
 	}
 	if ("action list")
@@ -743,13 +745,13 @@ void EditUi::Event_Action_Widget()
 		WidgetSet(ocr);
 		});
 	connect(ui.ocr_test_button, &QPushButton::clicked, this, [this] {
-		if (!Qi::ocr)
+		if (!Qi::ocr.valid())
 		{
 			MsgBox::Warning(L"没有安装OCR组件，无法使用文字识别功能");
 			return;
 		}
 		const QiOcr& ocr = WidgetGetOcr();
-		std::string text = Qi::ocr->scan(QiFn::R_SATR(ocr.rect), ocr.row);
+		std::string text = Qi::ocr.scan(QiFn::R_SATR(ocr.rect), ocr.row);
 		if (text.empty())
 		{
 			Qi::popText->Popup("没有识别到内容");
@@ -2596,7 +2598,7 @@ void EditUi::Back()
 	if (layers.empty())
 	{
 		Qi::popText->Show("正在保存宏");
-		Qi::widget.editClose();
+		QTimer::singleShot(32, [] { Qi::widget.editClose(); });
 	}
 	else
 	{

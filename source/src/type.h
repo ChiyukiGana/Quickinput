@@ -1135,6 +1135,7 @@ struct FuncData
 };
 struct SettingsData
 {
+	int ocr_thread = 0;
 	int theme = 0;
 	int key = 0;
 	int recKey = 0;
@@ -1217,7 +1218,7 @@ struct Widget
 
 namespace Qi
 {
-	inline QiOcrInterface* ocr = nullptr;
+	inline QiOcrModule ocr;
 	inline QiScriptInterpreter interpreter;
 	// for setStyle
 	inline QApplication* application = nullptr;

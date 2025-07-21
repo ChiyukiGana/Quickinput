@@ -24,6 +24,7 @@ public:
 
 		textEdit = new QPlainTextEdit(this);
 		textEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		textEdit->setTabStopDistance(QFontMetrics(QFont("Microsoft YaHei")).horizontalAdvance("    "));
 
 		saveButton = new QPushButton(this);
 		saveButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);

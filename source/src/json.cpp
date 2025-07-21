@@ -95,11 +95,9 @@ namespace QiJson
 			if (json.isObject())
 			{
 				Qi::fromJson(json.object());
-				LoadMacro();
 				return;
 			}
 		}
 		Qi::fromJson(QJsonObject());
-		LoadMacro();
 	}
 }
