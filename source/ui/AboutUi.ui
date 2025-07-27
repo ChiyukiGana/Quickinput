@@ -90,7 +90,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-7-21</string>
+         <string>2025-7-28</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>
@@ -106,7 +106,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加文字识别线程数量</string>
+         <string>增加分组排序
+增加编辑窗口录制</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>

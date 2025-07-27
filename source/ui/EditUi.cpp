@@ -1,4 +1,5 @@
 ﻿#include <EditUi.h>
+#include <RecordUi.h>
 DefWindowMove(EditUi) EditUi::EditUi(Macro* macro, Actions* actions)
 {
 	ui.setupUi(this);
@@ -333,6 +334,34 @@ void EditUi::Event()
 			}
 			});
 		connect(ui.window_child_check, &QCheckBox::toggled, this, [this](bool state) { macro->wndInfo.child = state; });
+	}
+	if ("record")
+	{
+		connect(ui.rec_button, &QPushButton::clicked, this, [this] {
+			Qi::widget.dialogActive = true;
+			hide();
+			RecordUi rw(nullptr);
+			Macro macro = rw.Start();
+			if (macro.acRun) actions->append(std::move(macro.acRun));
+			show();
+			Qi::widget.dialogActive = false;
+			TableReload();
+			});
+		connect(ui.rec_window_button, &QPushButton::clicked, this, [this] {
+			Qi::widget.dialogActive = true;
+			hide();
+			WndInfo wndInfo = QiFn::WindowSelection();
+			if (wndInfo.wnd)
+			{
+				RecordUi rw(&wndInfo);
+				Macro macro = rw.Start();
+				if (macro.acRun) actions->append(std::move(macro.acRun));
+			}
+			else Qi::popText->Popup(2000, "窗口已失效");
+			show();
+			Qi::widget.dialogActive = false;
+			TableReload();
+			});
 	}
 	if ("tab index button")
 	{
@@ -914,6 +943,8 @@ void EditUi::StyleGroup()
 		BindSafeIter(bind_edt_button, [this](QPushButton* p, size_t i) { p->setProperty("group", "edit-edit_button"); });
 		BindSafeIter(bind_edt2_button, [this](QPushButton* p, size_t i) { p->setProperty("group", "edit-edit_button"); });
 		BindSafeIter(bind_tab_button, [this](QPushButton* p, size_t i) { p->setProperty("group", "edit-tab_button"); });
+		ui.rec_button->setProperty("group", "edit-add_button");
+		ui.rec_window_button->setProperty("group", "edit-add_button");
 		ui.ocr_test_button->setProperty("group", "edit-edit_button");
 		ui.varOperator_test_button->setProperty("group", "edit-edit_button");
 	}

@@ -20,6 +20,7 @@ struct DataRole
 	enum
 	{
 		id = Qt::UserRole,
+		type,
 		group,
 		macro
 	};
@@ -1150,9 +1151,10 @@ struct SettingsData
 	bool tabHideTip = false;
 	bool markPoint = false;
 };
-struct FoldData
+struct GroupData
 {
-	std::map<QString, bool> group;
+	std::map<QString, bool> fold;
+	QiVector<QString> sort;
 };
 struct Widget
 {
@@ -1238,7 +1240,7 @@ namespace Qi
 	// data
 	inline FuncData fun;
 	inline SettingsData set;
-	inline FoldData fold;
+	inline GroupData group;
 	inline Widget widget;
 	inline QPopText* popText = nullptr;
 	inline QWindowSelection* windowSelection = nullptr;

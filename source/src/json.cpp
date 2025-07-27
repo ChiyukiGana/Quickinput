@@ -85,6 +85,27 @@ namespace QiJson
 				if (LoadMacro(macro, file.filePath(), file.baseName())) group->macros.append(std::move(macro));
 			}
 		}
+
+		if (Qi::macroGroups)
+		{
+			std::sort(Qi::macroGroups.begin() + 1, Qi::macroGroups.end(), [&index = Qi::group.sort](const MacroGroup& a, const MacroGroup& b) -> bool {
+				auto it_a = std::find(index.begin(), index.end(), a.name);
+				auto it_b = std::find(index.begin(), index.end(), b.name);
+
+				if (it_a != index.end() && it_b != index.end()) {
+					return std::distance(index.begin(), it_a) < std::distance(index.begin(), it_b);
+				}
+				else if (it_a != index.end()) {
+					return true;
+				}
+				else if (it_b != index.end()) {
+					return false;
+				}
+				else {
+					return false;
+				}
+				});
+		}
 	}
 	void LoadJson()
 	{

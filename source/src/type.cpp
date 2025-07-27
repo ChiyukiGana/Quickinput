@@ -351,32 +351,35 @@ namespace Qi
 	QJsonObject toJson()
 	{
 		QJsonObject json;
-		json.insert("document_charset", "UTF8");
-		json.insert("app", "QuickInput");
-		json.insert("type", "QuickInputConfig");
-		json.insert("ver", (QString)version);
-		json.insert("theme", (int)set.theme);
-		json.insert("ocr_thread", (int)set.ocr_thread);
-		json.insert("key", (int)set.key);
-		json.insert("recKey", (int)set.recKey);
-		json.insert("recTrack", (bool)set.recTrack);
-		json.insert("defOn", (bool)set.defOn);
-		json.insert("showTips", (bool)set.showTips);
-		json.insert("audFx", (bool)set.audFx);
-		json.insert("minMode", (bool)set.minMode);
-		json.insert("pad", (bool)set.pad);
-		json.insert("tabLock", (bool)set.tabLock);
-		json.insert("tabHideTip", (bool)set.tabHideTip);
-		json.insert("markPoint", (bool)set.markPoint);
-		json.insert("quickClickKey", (int)fun.quickClick.key);
-		json.insert("quickClickState", (bool)fun.quickClick.state);
-		json.insert("quickClickDelay", (int)fun.quickClick.delay);
-		json.insert("quickClickMode", (int)fun.quickClick.mode);
-		json.insert("showClockKey", (int)fun.showClock.key);
-		json.insert("showClockState", (bool)fun.showClock.state);
-		json.insert("wndActiveState", (bool)fun.wndActive.state);
-		json.insert("wndActiveName", (QString)fun.wndActive.wndInfo.wndName);
-		json.insert("wndActiveClass", (QString)fun.wndActive.wndInfo.wndClass);
+		if ("settings")
+		{
+			json.insert("document_charset", "UTF8");
+			json.insert("app", "QuickInput");
+			json.insert("type", "QuickInputConfig");
+			json.insert("ver", (QString)version);
+			json.insert("theme", (int)set.theme);
+			json.insert("ocr_thread", (int)set.ocr_thread);
+			json.insert("key", (int)set.key);
+			json.insert("recKey", (int)set.recKey);
+			json.insert("recTrack", (bool)set.recTrack);
+			json.insert("defOn", (bool)set.defOn);
+			json.insert("showTips", (bool)set.showTips);
+			json.insert("audFx", (bool)set.audFx);
+			json.insert("minMode", (bool)set.minMode);
+			json.insert("pad", (bool)set.pad);
+			json.insert("tabLock", (bool)set.tabLock);
+			json.insert("tabHideTip", (bool)set.tabHideTip);
+			json.insert("markPoint", (bool)set.markPoint);
+			json.insert("quickClickKey", (int)fun.quickClick.key);
+			json.insert("quickClickState", (bool)fun.quickClick.state);
+			json.insert("quickClickDelay", (int)fun.quickClick.delay);
+			json.insert("quickClickMode", (int)fun.quickClick.mode);
+			json.insert("showClockKey", (int)fun.showClock.key);
+			json.insert("showClockState", (bool)fun.showClock.state);
+			json.insert("wndActiveState", (bool)fun.wndActive.state);
+			json.insert("wndActiveName", (QString)fun.wndActive.wndInfo.wndName);
+			json.insert("wndActiveClass", (QString)fun.wndActive.wndInfo.wndClass);
+		}
 		if ("pop config")
 		{
 			QJsonObject pop;
@@ -402,18 +405,29 @@ namespace Qi
 		{
 			QJsonArray groupFolds;
 			size_t groupFoldIndex = 0;
-			for (const auto& i : fold.group)
+			for (const auto& i : group.fold)
 			{
 				if (macroGroups.find([&i](const MacroGroup& group) { if (group.name == i.first) return true; return false; }))
 				{
 					QJsonObject groupFold;
-					groupFold.insert("name", i.first);
-					groupFold.insert("fold", i.second);
+					groupFold.insert("name", (QString)i.first);
+					groupFold.insert("fold", (bool)i.second);
 					groupFolds.insert(groupFoldIndex, groupFold);
 					groupFoldIndex++;
 				}
 			}
 			json.insert("groupFold", groupFolds);
+		}
+		if ("group sort")
+		{
+			QJsonArray groupSort;
+			size_t groupSortIndex = 0;
+			for (const auto& i : macroGroups)
+			{
+				groupSort.append((QString)i.name);
+				groupSortIndex++;
+			}
+			json.insert("groupSort", groupSort);
 		}
 		return json;
 	}
@@ -487,28 +501,31 @@ namespace Qi
 		}
 		else
 		{
-			set.ocr_thread = std::clamp(json.value("ocr_thread").toInt(), 0, 16);
-			set.theme = json.value("theme").toInt();
-			set.key = json.value("key").toInt();
-			set.recTrack = json.value("recTrack").toBool();
-			set.recKey = json.value("recKey").toInt();
-			set.defOn = json.value("defOn").toBool();
-			set.showTips = json.value("showTips").toBool();
-			set.audFx = json.value("audFx").toBool();
-			set.minMode = json.value("minMode").toBool();
-			set.pad = json.value("pad").toBool();
-			set.tabLock = json.value("tabLock").toBool();
-			set.tabHideTip = json.value("tabHideTip").toBool();
-			set.markPoint = json.value("markPoint").toBool();
-			fun.quickClick.state = json.value("quickClickState").toBool();
-			fun.quickClick.key = json.value("quickClickKey").toInt();
-			fun.quickClick.delay = json.value("quickClickDelay").toInt();
-			fun.quickClick.mode = json.value("quickClickMode").toInt();
-			fun.showClock.state = json.value("showClockState").toBool();
-			fun.showClock.key = json.value("showClockKey").toInt();
-			fun.wndActive.state = json.value("wndActiveState").toBool();
-			fun.wndActive.wndInfo.wndName = json.value("wndActiveName").toString();
-			fun.wndActive.wndInfo.wndClass = json.value("wndActiveClass").toString();
+			if ("settings")
+			{
+				set.theme = json.value("theme").toInt();
+				set.ocr_thread = std::clamp(json.value("ocr_thread").toInt(), 0, 16);
+				set.key = json.value("key").toInt();
+				set.recTrack = json.value("recTrack").toBool();
+				set.recKey = json.value("recKey").toInt();
+				set.defOn = json.value("defOn").toBool();
+				set.showTips = json.value("showTips").toBool();
+				set.audFx = json.value("audFx").toBool();
+				set.minMode = json.value("minMode").toBool();
+				set.pad = json.value("pad").toBool();
+				set.tabLock = json.value("tabLock").toBool();
+				set.tabHideTip = json.value("tabHideTip").toBool();
+				set.markPoint = json.value("markPoint").toBool();
+				fun.quickClick.state = json.value("quickClickState").toBool();
+				fun.quickClick.key = json.value("quickClickKey").toInt();
+				fun.quickClick.delay = json.value("quickClickDelay").toInt();
+				fun.quickClick.mode = json.value("quickClickMode").toInt();
+				fun.showClock.state = json.value("showClockState").toBool();
+				fun.showClock.key = json.value("showClockKey").toInt();
+				fun.wndActive.state = json.value("wndActiveState").toBool();
+				fun.wndActive.wndInfo.wndName = json.value("wndActiveName").toString();
+				fun.wndActive.wndInfo.wndClass = json.value("wndActiveClass").toString();
+			}
 			if ("pop config")
 			{
 				QJsonObject pop = json.value("popbox").toObject();
@@ -539,10 +556,19 @@ namespace Qi
 			if ("group fold")
 			{
 				QJsonArray groupFolds = json.value("groupFold").toArray();
-				for (size_t i = 0; i < groupFolds.size(); i++)
+				for (const auto& i : groupFolds)
 				{
-					QJsonObject groupFold = groupFolds.at(i).toObject();
-					fold.group[groupFold.value("name").toString()] = groupFold.value("fold").toBool();
+					QJsonObject groupFold = i.toObject();
+					group.fold[groupFold.value("name").toString()] = groupFold.value("fold").toBool();
+				}
+			}
+			if ("group sort")
+			{
+				Qi::group.sort.clear();
+				QJsonArray groupSort = json.value("groupSort").toArray();
+				for (const auto& i : groupSort)
+				{
+					Qi::group.sort.append(i.toString());
 				}
 			}
 		}

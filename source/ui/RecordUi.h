@@ -7,12 +7,12 @@ class RecordUi : public QDialog
 	DecWindowMove;
 	using This = RecordUi;
 	Ui::RecordUiClass ui;
-
-	MacroGroup* group;
+	WndInfo* wndInfo;
 	Macro macro;
 
 public:
-	RecordUi(MacroGroup* group, WndInfo* wndInfo);
+	RecordUi(WndInfo* wndInfo);
+	Macro Start();
 
 private:
 	void StyleGroup();

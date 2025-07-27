@@ -13,6 +13,12 @@ MacroUi::MacroUi(QWidget* parent) : QWidget(parent)
 	QTimer::singleShot(32, [] { Qi::widget.macroLoad(); });
 }
 
+enum
+{
+	table_groups,
+	table_macros
+};
+
 void MacroUi::Init()
 {
 	if ("clear shortcut")
@@ -83,7 +89,7 @@ void MacroUi::Event()
 		DisableWidget();
 		});
 	connect(ui.macroGroup_table, &QMacroTable::foldChanged, this, [this](QTableWidget* table, bool fold) {
-		Qi::fold.group[table->horizontalHeaderItem(0)->text()] = fold;
+		Qi::group.fold[table->horizontalHeaderItem(0)->text()] = fold;
 		QiJson::SaveJson();
 		});
 
@@ -226,22 +232,34 @@ void MacroUi::TableUpdate()
 		table->setColumnCount(1);
 		table->setRowCount(mg.macros.size());
 		table->setMinimumWidth(ui.macroGroup_table->width());
+		table->setHorizontalHeaderItem(0, new QTableWidgetItem(mg.name));
 		table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
+		// group move
+		table->horizontalHeader()->setAcceptDrops(true);
+		table->horizontalHeader()->installEventFilter(this);
+		table->horizontalHeader()->setProperty("tableType", table_groups);
+		table->horizontalHeader()->setProperty("tableIndex", mgPos);
+		table->horizontalHeader()->viewport()->setAcceptDrops(true);
+		table->horizontalHeader()->viewport()->installEventFilter(this);
+		table->horizontalHeader()->viewport()->setProperty("tableType", table_groups);
+		table->horizontalHeader()->viewport()->setProperty("tableIndex", mgPos);
+		// macro move
 		table->setDragEnabled(true);
 		table->setDragDropMode(QAbstractItemView::DragDrop);
 		table->setDefaultDropAction(Qt::DropAction::IgnoreAction);
-		table->setHorizontalHeaderItem(0, new QTableWidgetItem(mg.name));
 		table->viewport()->installEventFilter(this);
-		table->viewport()->setProperty("groupIndex", mgPos);
+		table->viewport()->setProperty("tableType", table_macros);
+		table->viewport()->setProperty("tableIndex", mgPos);
 		for (size_t mPos = 0; mPos < mg.macros.size(); mPos++)
 		{
 			Macro& m = mg.macros[mPos];
 			table->setItem(mPos, 0, new QTableWidgetItem(m.name));
 			table->item(mPos, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+			table->item(mPos, 0)->setData(DataRole::type, table_macros);
 			table->item(mPos, 0)->setData(DataRole::group, mgPos);
 			table->item(mPos, 0)->setData(DataRole::macro, mPos);
 		}
-		ui.macroGroup_table->setFold(table, Qi::fold.group[mg.name]);
+		ui.macroGroup_table->setFold(table, Qi::group.fold[mg.name]);
 	}
 	Qi::widget.varViewReload();
 	updating = false;
@@ -261,8 +279,24 @@ void MacroUi::RecStart(bool wnd)
 			return;
 		}
 	}
-	if (wndInfo.wnd) RecordUi rw(currentGroup, &wndInfo);
-	else RecordUi rw(currentGroup, nullptr);
+	if (wndInfo.wnd)
+	{
+		RecordUi rw(&wndInfo);
+		Macro macro = rw.Start();
+		macro.groupName = currentGroup->name;
+		macro.groupBase = currentGroup->base;
+		macro.name = currentGroup->makeName("窗口录制");
+		if (macro.acRun) QiJson::SaveMacro(currentGroup->macros.append(std::move(macro)));
+	}
+	else
+	{
+		RecordUi rw(nullptr);
+		Macro macro = rw.Start();
+		macro.groupName = currentGroup->name;
+		macro.groupBase = currentGroup->base;
+		macro.name = currentGroup->makeName("录制");
+		if (macro.acRun) QiJson::SaveMacro(currentGroup->macros.append(std::move(macro)));
+	}
 	Qi::widget.dialogActive = false;
 	Qi::widget.main->show();
 }
@@ -342,29 +376,98 @@ void MacroUi::customEvent(QEvent* e)
 }
 bool MacroUi::eventFilter(QObject* sender, QEvent* event)
 {
-	const QString mime = "application/x-qabstractitemmodeldatalist";
-	if (event->type() == QEvent::DragEnter)
+	static const QString itemMime = "application/x-qabstractitemmodeldatalist";
+	static const QString headerMime = "application/x-qheaderview-section";
+	static QObject* enter;
+
+	const int tableType = sender->property("tableType").toInt();
+	const int tableIndex = sender->property("tableIndex").toInt();
+
+	if (event->type() == QEvent::MouseMove)
 	{
-		QDropEvent* dropEvent = (QDropEvent*)event;
-		if (dropEvent->mimeData()->hasFormat(mime)) dropEvent->acceptProposedAction();
-		else return true;
+		if (tableType == table_groups && tableIndex > 0 && sender->property("press").toBool())
+		{
+			QDrag* drag = new QDrag(sender);
+			QMimeData* mimeData = new QMimeData;
+			mimeData->setData(headerMime, QByteArray::number(tableIndex));
+			drag->setMimeData(mimeData);
+			drag->exec(Qt::DropAction::MoveAction);
+
+			if (enter)
+			{
+				const int index = enter->property("tableIndex").toInt();
+				if (index > 0 && tableIndex > 0 && index != tableIndex)
+				{
+					Qi::macroGroups.move(tableIndex, index);
+					QiJson::SaveJson();
+					TableUpdate();
+					ResetWidget();
+					DisableWidget();
+				}
+			}
+
+			sender->setProperty("press", false);
+			return true;
+		}
+	}
+	if (event->type() == QEvent::MouseButtonPress)
+	{
+		if (tableType == table_groups && tableIndex > 0) sender->setProperty("press", true);
+	}
+	else if (event->type() == QEvent::MouseButtonRelease)
+	{
+		if (tableType == table_groups && tableIndex > 0) sender->setProperty("press", false);
+	}
+	else if (event->type() == QEvent::DragEnter)
+	{
+		enter = nullptr;
+		QDragEnterEvent* dragEnter = (QDragEnterEvent*)event;
+		if (tableType == table_macros && dragEnter->mimeData()->hasFormat(itemMime))
+		{
+			QStandardItemModel model;
+			model.dropMimeData(dragEnter->mimeData(), Qt::CopyAction, 0, 0, QModelIndex());
+			if (model.rowCount() < 1) return QWidget::eventFilter(sender, event);
+
+			if (model.item(0)->data(DataRole::type).toInt() == table_macros && model.item(0)->data(DataRole::group).toInt() != tableIndex)
+			{
+				dragEnter->acceptProposedAction();
+			}
+		}
+		else if (tableType == table_groups && dragEnter->mimeData()->hasFormat(headerMime))
+		{
+			const int index = dragEnter->mimeData()->data(headerMime).toInt();
+			if (index > 0 && tableIndex > 0 && index != tableIndex)
+			{
+				dragEnter->acceptProposedAction();
+				enter = sender;
+				return false;
+			}
+		}
+		return true;
+	}
+	else if (event->type() == QEvent::DragLeave)
+	{
+		QDragLeaveEvent* dragLeave = (QDragLeaveEvent*)event;
+		if (tableType == table_groups)
+		{
+			enter = nullptr;
+		}
 	}
 	else if (event->type() == QEvent::Drop)
 	{
 		QDropEvent* dropEvent = (QDropEvent*)event;
-		if (dropEvent->mimeData()->hasFormat(mime))
+		if (tableType == table_macros && dropEvent->mimeData()->hasFormat(itemMime))
 		{
 			QStandardItemModel model;
 			model.dropMimeData(dropEvent->mimeData(), Qt::CopyAction, 0, 0, QModelIndex());
 			for (size_t i = 0; i < model.rowCount(); i++)
 			{
 				QStandardItem* item = model.item(i);
-				int currentGroupIndex = sender->property("groupIndex").toInt();
 				int groupIndex = item->data(DataRole::group).toInt();
 				int macroIndex = item->data(DataRole::macro).toInt();
-				if (currentGroupIndex >= groups->size() || groupIndex >= groups->size() || currentGroupIndex == groupIndex) break;
+				if (tableIndex >= groups->size() || groupIndex >= groups->size() || tableIndex == groupIndex) break;
 
-				const MacroGroup& group = groups->at(currentGroupIndex);
+				const MacroGroup& group = groups->at(tableIndex);
 				const Macros& macros = groups->at(groupIndex).macros;
 				if (macroIndex >= macros.size()) break;
 				const Macro& macro = macros.at(macroIndex);

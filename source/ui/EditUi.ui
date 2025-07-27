@@ -9150,6 +9150,65 @@
               <number>0</number>
              </property>
              <item>
+              <widget class="QGroupBox" name="grp_rec">
+               <property name="font">
+                <font>
+                 <family>Microsoft YaHei</family>
+                 <bold>true</bold>
+                </font>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
+               </property>
+               <property name="title">
+                <string>录制</string>
+               </property>
+               <layout class="QVBoxLayout" name="grp_tip_layout_2">
+                <property name="spacing">
+                 <number>10</number>
+                </property>
+                <property name="leftMargin">
+                 <number>5</number>
+                </property>
+                <property name="topMargin">
+                 <number>24</number>
+                </property>
+                <property name="rightMargin">
+                 <number>5</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>5</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="rec_button">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>录制</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="rec_window_button">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>30</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>录制窗口</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
               <widget class="QGroupBox" name="grp_window">
                <property name="font">
                 <font>

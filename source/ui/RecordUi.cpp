@@ -1,5 +1,5 @@
 ﻿#include "RecordUi.h"
-DefWindowMove(RecordUi) RecordUi::RecordUi(MacroGroup* group, WndInfo* wndInfo) : QDialog()
+DefWindowMove(RecordUi) RecordUi::RecordUi(WndInfo* wndInfo) : QDialog(), wndInfo(wndInfo)
 {
 	ui.setupUi(this);
 	setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
@@ -16,9 +16,18 @@ DefWindowMove(RecordUi) RecordUi::RecordUi(MacroGroup* group, WndInfo* wndInfo) 
 		connect(ui.close_button, &QPushButton::clicked, this, [this] { RecClose(); });
 		StyleGroup();
 	}
-	this->group = group;
-	macro.groupName = group->name;
-	macro.groupBase = group->base;
+}
+
+void RecordUi::StyleGroup()
+{
+	setProperty("group", "frame");
+	ui.content_widget->setProperty("group", "client");
+	ui.start_button->setProperty("group", "record-button");
+	ui.close_button->setProperty("group", "record-button");
+}
+
+Macro RecordUi::Start()
+{
 	Qi::widget.record = this;
 	Qi::recordState = true;
 	QiFn::QiHook(true);
@@ -36,7 +45,7 @@ DefWindowMove(RecordUi) RecordUi::RecordUi(MacroGroup* group, WndInfo* wndInfo) 
 		Qi::recordWindow = wndInfo->wnd;
 		macro.wndInfo = *wndInfo;
 		macro.wndState = true;
-		macro.name = group->makeName("窗口录制");
+		macro.name = "窗口录制";
 		POINT wpt = Window::pos(Qi::recordWindow);
 		move(wpt.x, wpt.y);
 		WndLock::Lock(Qi::recordWindow);
@@ -45,20 +54,13 @@ DefWindowMove(RecordUi) RecordUi::RecordUi(MacroGroup* group, WndInfo* wndInfo) 
 	}
 	else
 	{
-		macro.name = group->makeName("录制");
+		macro.name = "录制";
 		exec();
 	}
 	QiFn::QiHook(false);
 	Qi::recordState = false;
 	Qi::widget.record = nullptr;
-}
-
-void RecordUi::StyleGroup()
-{
-	setProperty("group", "frame");
-	ui.content_widget->setProperty("group", "client");
-	ui.start_button->setProperty("group", "record-button");
-	ui.close_button->setProperty("group", "record-button");
+	return std::move(macro);
 }
 
 void RecordUi::RecStart()
@@ -78,11 +80,7 @@ void RecordUi::RecStart()
 void RecordUi::RecStop()
 {
 	Qi::recording = false;
-	if (Qi::record.size())
-	{
-		macro.acRun = std::move(Qi::record);
-		QiJson::SaveMacro(group->macros.append(std::move(macro)));
-	}
+	if (Qi::record.size()) macro.acRun = std::move(Qi::record);
 	Qi::popText->Hide();
 	close();
 }

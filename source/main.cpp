@@ -11,6 +11,7 @@ static const char QUICKINPUT_COPYRIGHT_STRING[] = "QUICKINPUT_(C)CHIYUKIGANA";
 
 void Init()
 {
+    Qi::macroGroups.append(MacroGroup(true, "默认分组"));
 	QiJson::LoadJson();
     QiFn::InitOcr(true);
 	Qi::screen = System::screenSize();

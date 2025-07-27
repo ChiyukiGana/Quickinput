@@ -121,7 +121,7 @@ void TriggerUi::Event()
 		TableState();
 		});
 	connect(ui.macroGroup_table, &QMacroTable::foldChanged, this, [this](QTableWidget* table, bool fold) {
-		Qi::fold.group[table->horizontalHeaderItem(tableColumn_name)->text()] = fold;
+		Qi::group.fold[table->horizontalHeaderItem(tableColumn_name)->text()] = fold;
 		QiJson::SaveJson();
 		});
 
@@ -278,7 +278,8 @@ void TriggerUi::TableState(int macroGroup)
 	bool state_on = true; for (auto& i : mg->macros) { if (!i.state) { state_on = false; break; } }
 	bool state_off = true; for (auto& i : mg->macros) { if (i.state) { state_off = false; break; } }
 	if (!table) return;
-	if (state_on) table->horizontalHeaderItem(tableColumn_state)->setText(QString("全部") + QiUi::Symbol::On);
+	if (state_on && state_off) table->horizontalHeaderItem(tableColumn_state)->setText(QString("全部") + QiUi::Symbol::Off);
+	else if (state_on) table->horizontalHeaderItem(tableColumn_state)->setText(QString("全部") + QiUi::Symbol::On);
 	else if (state_off) table->horizontalHeaderItem(tableColumn_state)->setText(QString("全部") + QiUi::Symbol::Off);
 	else table->horizontalHeaderItem(tableColumn_state)->setText(QString("全部") + QiUi::Symbol::Any);
 }
@@ -362,7 +363,7 @@ void TriggerUi::TableUpdate()
 		table->setHorizontalHeaderItem(tableColumn_mode, new QTableWidgetItem(""));
 		table->setHorizontalHeaderItem(tableColumn_state, new QTableWidgetItem("全部" + QiUi::Symbol::Any));
 		TableState(mgPos);
-		ui.macroGroup_table->setFold(table, Qi::fold.group[mg.name]);
+		ui.macroGroup_table->setFold(table, Qi::group.fold[mg.name]);
 	}
 }
 

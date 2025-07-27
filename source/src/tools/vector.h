@@ -13,6 +13,14 @@ namespace QiTools
 		static constexpr size_t end_pos = (size_t)(~0);
 		using base_vector::base_vector;
 		using base_vector::assign;
+		operator bool() const
+		{
+			return not_empty();
+		}
+		operator size_t() const
+		{
+			return base_vector::size();
+		}
 		// size
 		using base_vector::empty;
 		bool not_empty() const

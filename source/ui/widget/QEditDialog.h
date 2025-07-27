@@ -12,6 +12,7 @@ public:
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
 		lineEdit = new QLineEdit(this);
 		lineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+		lineEdit->setAlignment(Qt::AlignCenter);
 		QHBoxLayout* layout = new QHBoxLayout(this);
 		layout->addWidget(lineEdit);
 		layout->setContentsMargins(0, 0, 0, 0);
@@ -23,6 +24,7 @@ public:
 	}
 	QString Start(const QString& text)
 	{
+		setFocus();
 		lineEdit->setText(text);
 		lineEdit->setFocus();
 		lineEdit->selectAll();
