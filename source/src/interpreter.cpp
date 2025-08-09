@@ -531,9 +531,13 @@ int QiInterpreter::ActionInterpreter(const Actions& current, int layer)
 							{
 								std::string text = Qi::ocr.scan(image, ref.row);
 								image.ReleaseDC();
+								if (!ref.var.isEmpty())
+								{
+									Qi::interpreter.makeValue(ref.var.toStdString(), text, varMap);
+									Qi::widget.varViewReload();
+								}
 								if (!text.empty())
 								{
-									bool rr = Qi::interpreter.makeValue(ref.var.toStdString(), text, varMap);
 									if ((ref.match && ref.text == text.c_str()) || (!ref.match && text.find(ref.text.toStdString()) != std::string::npos))
 									{
 										r_result = ActionInterpreter(ref.next, layer + 1);

@@ -47,7 +47,7 @@ namespace Qi
 	constexpr int msg_exit = (WM_USER + 0xFF);
 	inline bool run = false;
 	inline bool debug = false;
-	inline const QString dir = QDir::fromNativeSeparators(QString::fromWCharArray(Process::runPath().c_str()));
+	inline const QString dir = QDir::fromNativeSeparators(QString::fromWCharArray(Path::RemoveFile(Process::exePath()).c_str()));
 	inline const QString folder = dir.mid(dir.lastIndexOf('/') + 1);
 	inline const QString macroDir = dir + "/macro/";
 	inline const QString macroType = ".json";

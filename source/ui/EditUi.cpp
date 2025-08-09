@@ -2559,8 +2559,8 @@ QiVector<unsigned char> EditUi::StringToKey(const QString str)
 	{
 		unsigned char c = i.toLatin1();
 		unsigned char converted = 0;
-		if (InRange(c, '0', '9', 0) || InRange(c, 'A', 'Z', 0)) converted = c;
-		else if (InRange(c, 'a', 'z', 0))  converted = toupper(c);
+		if (InRange(char(c), '0', '9', char()) || InRange(char(c), 'A', 'Z', char())) converted = c;
+		else if (InRange(char(c), 'a', 'z', char()))  converted = toupper(c);
 		else
 		{
 			switch (c)
@@ -2599,7 +2599,7 @@ QString EditUi::KeyToString(const QiVector<unsigned char >& keys)
 	for (auto& i : keys)
 	{
 		unsigned char c = 0;
-		if (InRange(i, '0', '9', 0) || InRange(i, 'A', 'Z', 0)) c = i;
+		if (InRange(char(i), '0', '9', char()) || InRange(char(i), 'A', 'Z', char())) c = i;
 		else
 		{
 			switch (i)

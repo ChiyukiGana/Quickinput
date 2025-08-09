@@ -10,21 +10,29 @@
 #define GetAValue(rgba) ((BYTE)((rgba)>>24))
 namespace QiTools
 {
-	static int Distance(int left, int right)
+	template <class num>
+	static num Distance(num left, num right)
 	{
 		return (left > right) ? left - right : right - left;
 	}
-	static double Distance(int x1, int y1, int x2, int y2)
+	template <class num>
+	static double Distance(num x1, num y1, num x2, num y2)
 	{
-		return std::sqrt(std::pow(x1 - x2, 2) + std::pow(y1 - y2, 2));
+		return std::sqrt(std::pow((double)x1 - (double)x2, 2.0) + std::pow((double)y1 - (double)y2, 2.0));
 	}
 	static double Distance(POINT pt1, POINT pt2)
 	{
 		return Distance(pt1.x, pt1.y, pt2.x, pt2.y);
 	}
-	static bool InRange(const int& num, const int& _min, const int& _max, const int& extent) { return ((num >= _min - extent) && (num <= _max + extent)); }
-	static bool InRange(const int& num, const int& refer, const int& extend) { return (num <= (refer + extend)) && (num >= (refer - extend)); }
-	static bool InRect(const RECT& rect, const int& x, const int& y) { if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) return false; return true; }
+	template <class num>
+	static bool InRange(num value, num _min, num _max, num ex)
+	{
+		return ((value >= _min - ex) && (value <= _max + ex));
+	}
+	template <class num>
+	static bool InRange(num value, num refer, num ex) { return (value <= (refer + ex)) && (value >= (refer - ex)); }
+	template <class num>
+	static bool InRect(const RECT& rect, num x, num y) { if ((LONG)x < rect.left || (LONG)x > rect.right || (LONG)y < rect.top || (LONG)y > rect.bottom) return false; return true; }
 	static bool InRect(const RECT& rect, const POINT& pt) { if (pt.x < rect.left || pt.x > rect.right && pt.y < rect.top || pt.y > rect.bottom) return false; return true; }
 	static bool InRect(const RECT& rectParent, const RECT& rectChild) { if (rectChild.left < rectParent.left || rectChild.top < rectParent.top || rectChild.right > rectParent.right || rectChild.bottom > rectParent.bottom) return false; return true; }
 	static POINT InRectPos(const RECT& rect, const POINT& pt) { if (pt.x >= rect.left && pt.x <= rect.right && pt.y >= rect.top && pt.y <= rect.bottom) return { pt.x - rect.left, pt.y - rect.top }; return { -1, -1 }; }

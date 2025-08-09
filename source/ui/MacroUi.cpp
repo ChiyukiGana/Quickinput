@@ -176,8 +176,7 @@ void MacroUi::Event()
 	connect(ui.delete_group_button, &QPushButton::clicked, this, [this] {
 		if (!currentGroup) return;
 		if (currentGroup->macros.not_empty() && MsgBox::Warning(L"确认删除分组的全部宏？", L"Warning", MB_ICONWARNING | MB_YESNO) != IDYES) return;
-		QDir dir(currentGroup->makePath());
-		dir.removeRecursively();
+		if (!QFile::moveToTrash(currentGroup->makePath())) MsgBox::Error(L"删除分组失败");
 		QiJson::LoadMacro();
 		currentGroup = &groups->front();
 		TableUpdate();
@@ -186,7 +185,7 @@ void MacroUi::Event()
 		});
 	connect(ui.delete_button, &QPushButton::clicked, this, [this] {
 		if (!isMult()) return;
-		for (auto& i : currentMacros) if (!QFile::remove(i->makePath())) MsgBox::Error(L"删除宏失败");
+		for (auto& i : currentMacros) if (!QFile::moveToTrash(i->makePath())) MsgBox::Error(L"删除宏失败");
 
 		QiJson::LoadMacro();
 		TableUpdate();

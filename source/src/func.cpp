@@ -406,12 +406,15 @@ namespace QiFn
 	{
 		if (File::PathState(L"OCR"))
 		{
-			if (QiOcrInterfaceVersion() > 0)
+			if (File::PathState(L"OCR\\qiocr.dll"))
 			{
-				Qi::ocr = QiOcrInterfaceInit(Qi::set.ocr_thread);
-				if (!Qi::ocr.valid()) MsgBox::Error(L"文字识别加载失败");
+				if (QiOcrInterfaceVersion() > 0)
+				{
+					Qi::ocr = QiOcrInterfaceInit(Qi::set.ocr_thread);
+					if (!Qi::ocr.valid()) MsgBox::Error(L"文字识别加载失败");
+				}
+				else MsgBox::Warning(L"文字识别版本低于1，需要更新");
 			}
-			else MsgBox::Warning(L"文字识别版本低于1，需要更新");
 		}
 		else if (!first) MsgBox::Warning(L"没有安装文字识别功能");
 	}

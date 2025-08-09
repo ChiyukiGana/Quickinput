@@ -80,11 +80,11 @@ namespace QiTools {
 	public:
 		struct FindResult { bool find = 0; POINT pt = { 0 }; };
 		static bool Equal(const Rgb& rgb1, const Rgb& rgb2, byte extend) { return (InRange(rgb1.r, rgb2.r, extend) && InRange(rgb1.g, rgb2.g, extend) && InRange(rgb1.b, rgb2.b, extend)); }
-		static bool Equal(const Rgb& rgba1, const Rgb& min, const Rgb& max) { return (InRange(rgba1.r, min.r, max.r, 0) && InRange(rgba1.g, min.g, max.g, 0) && InRange(rgba1.b, min.b, max.b, 0)); }
+		static bool Equal(const Rgb& rgba1, const Rgb& min, const Rgb& max) { return (InRange(rgba1.r, min.r, max.r, (byte)0) && InRange(rgba1.g, min.g, max.g, (byte)0) && InRange(rgba1.b, min.b, max.b, (byte)0)); }
 		static bool Equal(const Rgba& rgb1, const Rgba& rgba2, byte extend) { return (InRange(rgb1.r, rgba2.r, extend) && InRange(rgb1.g, rgba2.g, extend) && InRange(rgb1.b, rgba2.b, extend)); }
-		static bool Equal(const Rgba& rgba1, const Rgba& min, const Rgba& max) { return (InRange(rgba1.r, min.r, max.r, 0) && InRange(rgba1.g, min.g, max.g, 0) && InRange(rgba1.b, min.b, max.b, 0)); }
+		static bool Equal(const Rgba& rgba1, const Rgba& min, const Rgba& max) { return (InRange(rgba1.r, min.r, max.r, (byte)0) && InRange(rgba1.g, min.g, max.g, (byte)0) && InRange(rgba1.b, min.b, max.b, (byte)0)); }
 		static bool Equal(COLORREF rgb, COLORREF refer, byte extend) { return (InRange(GetRValue(rgb), GetRValue(refer), extend) && InRange(GetGValue(rgb), GetGValue(refer), extend) && InRange(GetBValue(rgb), GetBValue(refer), extend)); }
-		static bool Equal(COLORREF rgb, COLORREF _min, COLORREF _max) { return (InRange(GetRValue(rgb), GetRValue(_min), GetRValue(_max), 0) && InRange(GetGValue(rgb), GetGValue(_min), GetGValue(_max), 0) && InRange(GetBValue(rgb), GetBValue(_min), GetBValue(_max), 0)); }
+		static bool Equal(COLORREF rgb, COLORREF _min, COLORREF _max) { return (InRange(GetRValue(rgb), GetRValue(_min), GetRValue(_max), (BYTE)0) && InRange(GetGValue(rgb), GetGValue(_min), GetGValue(_max), (BYTE)0) && InRange(GetBValue(rgb), GetBValue(_min), GetBValue(_max), (BYTE)0)); }
 		// POINT: x/y >= 0;
 		static bool Find(const RgbMap& map, POINT pt, const Rgb& rgb, byte extend = 10) { if (pt.x < 0 || pt.y < 0) return 0; if (pt.x >= map.width()) pt.x = map.width() - 1; if (pt.y >= map.width()) pt.y = map.width() - 1; return Equal(map[pt.y][pt.x], rgb, extend); }
 		// POINT: x/y >= 0;

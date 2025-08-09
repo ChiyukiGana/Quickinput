@@ -203,6 +203,22 @@ public:
 		return this->toBool() || other.toBool();
 	}
 
+	static std::string ch(const std::string& str, size_t where)
+	{
+		if (str.empty()) return std::string();
+		size_t i = 0;
+		std::string c;
+		iterateStrX(str, [&c, &i, where](const std::string& ch) -> bool {
+			if (where == i)
+			{
+				c = ch;
+				return false;
+			}
+			i++;
+			return true;
+		});
+		return c;
+	}
 	static std::string sub(const std::string& str, size_t where, size_t length = ~size_t(0))
 	{
 		if (str.empty()) return std::string();
@@ -444,11 +460,8 @@ struct QiFunc
 
 	QiFunc() = delete;
 	QiFunc(size_t args, size_t args_max = 0) : m_args(args), m_args_max(args_max ? args_max : args) {}
-	bool valid(size_t args) const
-	{
-		return args >= m_args && args <= m_args_max;
-	}
-	virtual QiVar exec(const std::vector<QiVar>& args) const { return QiVar(); }
+	bool valid(size_t args) const { return args >= m_args && args <= m_args_max; }
+	virtual QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const { return QiVar(); }
 };
 class QiFuncMap : public std::map<std::string, std::unique_ptr<QiFunc>>
 {
@@ -456,7 +469,7 @@ public:
 	struct QiFunc_date : public QiFunc
 	{
 		QiFunc_date() : QiFunc(0) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			time_t s = time(nullptr);
 			tm m;
@@ -467,7 +480,7 @@ public:
 	struct QiFunc_time : public QiFunc
 	{
 		QiFunc_time() : QiFunc(0) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			time_t s = time(nullptr);
 			tm m;
@@ -478,7 +491,7 @@ public:
 	struct QiFunc_time_y : public QiFunc
 	{
 		QiFunc_time_y() : QiFunc(0) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			time_t s = time(nullptr);
 			tm m;
@@ -489,7 +502,7 @@ public:
 	struct QiFunc_time_yd : public QiFunc
 	{
 		QiFunc_time_yd() : QiFunc(0) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			time_t s = time(nullptr);
 			tm m;
@@ -500,7 +513,7 @@ public:
 	struct QiFunc_time_ys : public QiFunc
 	{
 		QiFunc_time_ys() : QiFunc(0) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return int(time(nullptr));
 		}
@@ -508,7 +521,7 @@ public:
 	struct QiFunc_time_m : public QiFunc
 	{
 		QiFunc_time_m() : QiFunc(0) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			time_t s = time(nullptr);
 			tm m;
@@ -519,7 +532,7 @@ public:
 	struct QiFunc_time_w : public QiFunc
 	{
 		QiFunc_time_w() : QiFunc(0) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			time_t s = time(nullptr);
 			tm m;
@@ -531,7 +544,7 @@ public:
 	struct QiFunc_time_d : public QiFunc
 	{
 		QiFunc_time_d() : QiFunc(0) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			time_t s = time(nullptr);
 			tm m;
@@ -542,7 +555,7 @@ public:
 	struct QiFunc_time_dh : public QiFunc
 	{
 		QiFunc_time_dh() : QiFunc(0) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			time_t s = time(nullptr);
 			tm m;
@@ -553,7 +566,7 @@ public:
 	struct QiFunc_time_dm : public QiFunc
 	{
 		QiFunc_time_dm() : QiFunc(0) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			time_t s = time(nullptr);
 			tm m;
@@ -564,7 +577,7 @@ public:
 	struct QiFunc_time_ds : public QiFunc
 	{
 		QiFunc_time_ds() : QiFunc(0) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			time_t s = time(nullptr);
 			tm m;
@@ -575,15 +588,33 @@ public:
 	struct QiFunc_time_ms : public QiFunc
 	{
 		QiFunc_time_ms() : QiFunc(0) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return int(clock());
+		}
+	};
+	struct QiFunc_exist : public QiFunc
+	{
+		QiFunc_exist() : QiFunc(1) {}
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
+		{
+			std::string var = args[0].toString();
+			if (var.empty()) return false;
+			if (var.front() == '$' && global)
+			{
+				return global->find(var.substr(1)) != global->end();
+			}
+			else if (local)
+			{
+				return local->find(var) != local->end();
+			}
+			return false;
 		}
 	};
 	struct QiFunc_str : public QiFunc
 	{
 		QiFunc_str() : QiFunc(1) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return args[0].toString();
 		}
@@ -591,7 +622,7 @@ public:
 	struct QiFunc_num : public QiFunc
 	{
 		QiFunc_num() : QiFunc(1) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return args[0].toNumber();
 		}
@@ -599,7 +630,7 @@ public:
 	struct QiFunc_int : public QiFunc
 	{
 		QiFunc_int() : QiFunc(1) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return args[0].toInteger();
 		}
@@ -607,7 +638,7 @@ public:
 	struct QiFunc_rmn : public QiFunc
 	{
 		QiFunc_rmn() : QiFunc(1) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return QiVar::removeNums(args[0].toString());
 		}
@@ -615,7 +646,7 @@ public:
 	struct QiFunc_rmc : public QiFunc
 	{
 		QiFunc_rmc() : QiFunc(1, 2) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			if (args.size() == 2) return QiVar::removeChars(args[0].toString(), args[1].toString());
 			return QiVar::removeChars(args[0].toString());
@@ -624,7 +655,7 @@ public:
 	struct QiFunc_rms : public QiFunc
 	{
 		QiFunc_rms() : QiFunc(1, ~size_t(0)) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			if (args.size() == 1) return QiVar::removeChars(args[0].toString());
 			std::string result = args[0].toString();
@@ -635,7 +666,7 @@ public:
 	struct QiFunc_len : public QiFunc
 	{
 		QiFunc_len() : QiFunc(1) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return args[0].len();
 		}
@@ -643,7 +674,7 @@ public:
 	struct QiFunc_sleep : public QiFunc
 	{
 		QiFunc_sleep() : QiFunc(1) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			Qi::PeekSleep(args[0].toInteger());
 			return true;
@@ -652,7 +683,7 @@ public:
 	struct QiFunc_pop : public QiFunc
 	{
 		QiFunc_pop() : QiFunc(1, 3) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			Qi::interpreter_pop(args[0].toString(), args.size() > 1 ? args[1].toInteger() : 1000);
 			if (args.size() > 2 && args[2].toBool()) Sleep(args[1].toInteger());
@@ -662,7 +693,7 @@ public:
 	struct QiFunc_rand : public QiFunc
 	{
 		QiFunc_rand() : QiFunc(1, 2) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return int(random((int)(args[0].toInteger()), args.size() > 1 ? (int)(args[1].toInteger()) : 0));
 		}
@@ -675,7 +706,7 @@ public:
 	struct QiFunc_cur_to : public QiFunc
 	{
 		QiFunc_cur_to() : QiFunc(2) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			SIZE screen = System::screenSize();
 			double x = args[0].toNumber();
@@ -698,7 +729,7 @@ public:
 	struct QiFunc_cur_move : public QiFunc
 	{
 		QiFunc_cur_move() : QiFunc(2) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			SIZE screen = System::screenSize();
 			double x = args[0].toNumber();
@@ -716,7 +747,7 @@ public:
 	struct QiFunc_cur_x : public QiFunc
 	{
 		QiFunc_cur_x() : QiFunc(0) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			POINT pt;
 			GetCursorPos(&pt);
@@ -726,17 +757,25 @@ public:
 	struct QiFunc_cur_y : public QiFunc
 	{
 		QiFunc_cur_y() : QiFunc(0) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			POINT pt;
 			GetCursorPos(&pt);
 			return QiVar(pt.y);
 		}
 	};
+	struct QiFunc_char : public QiFunc
+	{
+		QiFunc_char() : QiFunc(2) {}
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
+		{
+			return QiVar::ch(args[0].toString(), args[1].toInteger());
+		}
+	};
 	struct QiFunc_sub : public QiFunc
 	{
 		QiFunc_sub() : QiFunc(2, 3) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return QiVar::sub(args[0].toString(), args[1].toInteger(), args.size() > 2 ? args[2].toInteger() : ~size_t(0));
 		}
@@ -744,9 +783,18 @@ public:
 	struct QiFunc_subx : public QiFunc
 	{
 		QiFunc_subx() : QiFunc(2, 3) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return QiVar::subx(args[0].toString(), args[1].toInteger(), args.size() > 2 ? args[2].toInteger() : ~size_t(0));
+		}
+	};
+	struct QiFunc_find : public QiFunc
+	{
+		QiFunc_find() : QiFunc(1, 3) {}
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
+		{
+			size_t i = args[0].toString().find(args[1].toString(), args.size() > 2 ? args[2].toInteger() : 0);
+			return i == std::string::npos ? -1ll : static_cast<long long>(i);
 		}
 	};
 	struct QiFunc_text_box : public QiFunc
@@ -759,7 +807,7 @@ public:
 		};
 
 		QiFunc_text_box() : QiFunc(1, 3) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			std::string text(args[0].toString());
 			std::string title("MessageBox"); if (args.size() > 1) title = args[1].toString();
@@ -775,7 +823,7 @@ public:
 	struct QiFunc_edit_box : public QiFunc
 	{
 		QiFunc_edit_box() : QiFunc(0, 3) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			std::string title("TextEditBox"); if (args.size() > 0) title = args[0].toString();
 			std::string text; if (args.size() > 1) text = args[1].toString();
@@ -785,7 +833,7 @@ public:
 	struct QiFunc_volume : public QiFunc
 	{
 		QiFunc_volume() : QiFunc(0, 2) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return (double)Sound::SpeakerVolume(args.size() > 0 ? args[0].toInteger() : 10, args.size() > 1 ? args[1].toBool() : false);
 		}
@@ -793,7 +841,7 @@ public:
 	struct QiFunc_file_read : public QiFunc
 	{
 		QiFunc_file_read() : QiFunc(1) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			QByteArray data;
 			if (File::LoadText(args[0].toString().c_str(), data)) return QiVar(QString::fromUtf8(data).toStdString());
@@ -803,7 +851,7 @@ public:
 	struct QiFunc_file_write : public QiFunc
 	{
 		QiFunc_file_write() : QiFunc(2) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return File::SaveText(args[0].toString().c_str(), args[1].toString().c_str());
 		}
@@ -811,7 +859,7 @@ public:
 	struct QiFunc_file_exist : public QiFunc
 	{
 		QiFunc_file_exist() : QiFunc(1) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return File::PathState(String::toWString(args[0].toString()));
 		}
@@ -819,7 +867,7 @@ public:
 	struct QiFunc_file_remove : public QiFunc
 	{
 		QiFunc_file_remove() : QiFunc(1) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return bool(DeleteFileW(String::toWString(args[0].toString()).c_str()));
 		}
@@ -827,7 +875,7 @@ public:
 	struct QiFunc_csv_rows : public QiFunc
 	{
 		QiFunc_csv_rows() : QiFunc(1) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return (long long)CsvTool::rows(args[0].toString());
 		}
@@ -835,7 +883,7 @@ public:
 	struct QiFunc_csv_cols : public QiFunc
 	{
 		QiFunc_csv_cols() : QiFunc(1) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return (long long)CsvTool::cols(args[0].toString());
 		}
@@ -843,7 +891,7 @@ public:
 	struct QiFunc_csv_read : public QiFunc
 	{
 		QiFunc_csv_read() : QiFunc(3) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return CsvTool::read(args[0].toString(), args[1].toInteger(), args[2].toInteger());
 		}
@@ -851,7 +899,7 @@ public:
 	struct QiFunc_csv_write : public QiFunc
 	{
 		QiFunc_csv_write() : QiFunc(4) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			long long row = args[1].toInteger();
 			long long col = args[2].toInteger();
@@ -870,7 +918,7 @@ public:
 		};
 
 		QiFunc_power() : QiFunc(0, 1) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			BOOL result = FALSE;
 			int op = lock;
@@ -914,7 +962,7 @@ public:
 	struct QiFunc_wnd_find : public QiFunc
 	{
 		QiFunc_wnd_find() : QiFunc(1, 3) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			struct EnumParam
 			{
@@ -959,7 +1007,7 @@ public:
 	struct QiFunc_wnd_find_other : public QiFunc
 	{
 		QiFunc_wnd_find_other() : QiFunc(1, 3) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			struct EnumParam
 			{
@@ -1007,7 +1055,7 @@ public:
 	struct QiFunc_wnd_search : public QiFunc
 	{
 		QiFunc_wnd_search() : QiFunc(1, 3) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			struct EnumParam
 			{
@@ -1052,7 +1100,7 @@ public:
 	struct QiFunc_wnd_search_other : public QiFunc
 	{
 		QiFunc_wnd_search_other() : QiFunc(1, 3) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			struct EnumParam
 			{
@@ -1100,7 +1148,7 @@ public:
 	struct QiFunc_wnd_open : public QiFunc
 	{
 		QiFunc_wnd_open() : QiFunc(1) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			HWND wnd = (HWND)args[0].toInteger();
 			if (!IsWindow(wnd)) return QiVar(false);
@@ -1118,7 +1166,7 @@ public:
 	struct QiFunc_wnd_close : public QiFunc
 	{
 		QiFunc_wnd_close() : QiFunc(1) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			HWND wnd = (HWND)args[0].toInteger();
 			if (!IsWindow(wnd)) return QiVar(false);
@@ -1128,7 +1176,7 @@ public:
 	struct QiFunc_wnd_show : public QiFunc
 	{
 		QiFunc_wnd_show() : QiFunc(1, 2) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			HWND wnd = (HWND)args[0].toInteger();
 			if (!IsWindow(wnd)) return QiVar(false);
@@ -1138,7 +1186,7 @@ public:
 	struct QiFunc_wnd_top : public QiFunc
 	{
 		QiFunc_wnd_top() : QiFunc(1, 2) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			HWND wnd = (HWND)args[0].toInteger();
 			if (!IsWindow(wnd)) return QiVar(false);
@@ -1150,7 +1198,7 @@ public:
 	struct QiFunc_wnd_opacity : public QiFunc
 	{
 		QiFunc_wnd_opacity() : QiFunc(1, 2) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			HWND wnd = (HWND)args[0].toInteger();
 			if (!IsWindow(wnd)) return QiVar(false);
@@ -1169,7 +1217,7 @@ public:
 	struct QiFunc_wnd_pos : public QiFunc
 	{
 		QiFunc_wnd_pos() : QiFunc(3) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			HWND wnd = (HWND)args[0].toInteger();
 			if (!IsWindow(wnd)) return QiVar(false);
@@ -1179,7 +1227,7 @@ public:
 	struct QiFunc_wnd_size : public QiFunc
 	{
 		QiFunc_wnd_size() : QiFunc(3) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			HWND wnd = (HWND)args[0].toInteger();
 			if (!IsWindow(wnd)) return QiVar(false);
@@ -1189,7 +1237,7 @@ public:
 	struct QiFunc_wnd_exist : public QiFunc
 	{
 		QiFunc_wnd_exist() : QiFunc(1) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			HWND wnd = (HWND)args[0].toInteger();
 			return QiVar((bool)IsWindow(wnd));
@@ -1198,7 +1246,7 @@ public:
 	struct QiFunc_wnd_current : public QiFunc
 	{
 		QiFunc_wnd_current() : QiFunc(0) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			return QiVar((long long)GetForegroundWindow());
 		}
@@ -1206,7 +1254,7 @@ public:
 	struct QiFunc_wnd_visible : public QiFunc
 	{
 		QiFunc_wnd_visible() : QiFunc(1) {}
-		QiVar exec(const std::vector<QiVar>& args) const
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			HWND wnd = (HWND)args[0].toInteger();
 			if (!IsWindow(wnd)) return QiVar(false);
@@ -1227,6 +1275,7 @@ public:
 		insert({ "time_dm", std::make_unique<QiFunc_time_dm>() });
 		insert({ "time_ds", std::make_unique<QiFunc_time_ds>() });
 		insert({ "time_ms", std::make_unique<QiFunc_time_ms>() });
+		insert({ "exist", std::make_unique<QiFunc_exist>() });
 		insert({ "str", std::make_unique<QiFunc_str>() });
 		insert({ "num", std::make_unique<QiFunc_num>() });
 		insert({ "int", std::make_unique<QiFunc_int>() });
@@ -1241,8 +1290,10 @@ public:
 		insert({ "cur_move", std::make_unique<QiFunc_cur_move>() });
 		insert({ "cur_x", std::make_unique<QiFunc_cur_x>() });
 		insert({ "cur_y", std::make_unique<QiFunc_cur_y>() });
+		insert({ "char", std::make_unique<QiFunc_char>() });
 		insert({ "sub", std::make_unique<QiFunc_sub>() });
 		insert({ "subx", std::make_unique<QiFunc_subx>() });
+		insert({ "find", std::make_unique<QiFunc_find>() });
 		insert({ "text_box", std::make_unique<QiFunc_text_box>() });
 		insert({ "edit_box", std::make_unique<QiFunc_edit_box>() });
 		insert({ "volume", std::make_unique<QiFunc_volume>() });
@@ -1681,7 +1732,7 @@ class QiScriptInterpreter
 					const std::unique_ptr<QiFunc>& func = i->second;
 					if (func->valid(stack.size()))
 					{
-						stack.assign(1, func->exec(stack));
+						stack.assign(1, func->exec(stack, &globalVariables, &localVariables));
 					}
 					else
 					{
