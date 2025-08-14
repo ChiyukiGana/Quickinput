@@ -216,7 +216,7 @@ public:
 			}
 			i++;
 			return true;
-		});
+			});
 		return c;
 	}
 	static std::string sub(const std::string& str, size_t where, size_t length = ~size_t(0))
@@ -422,6 +422,16 @@ public:
 		std::string result(str);
 		std::string::size_type pos = 0;
 		while ((pos = result.find(str_rp)) != std::string::npos) result.replace(pos, str_rp.length(), str_new);
+		return result;
+	}
+	static std::string replace_u8(const std::string& str, const std::string& str_rp, const std::string& str_new)
+	{
+		if (str_rp.length() > 1) return replace(str, str_rp, str_new);
+		std::string result;
+		iterateStr(str, [&](const std::string& ch) {
+			if (ch == str_rp) result += str_new;
+			else result += ch;
+			});
 		return result;
 	}
 	static std::string replace_escape(const std::string& str)
@@ -790,11 +800,19 @@ public:
 	};
 	struct QiFunc_find : public QiFunc
 	{
-		QiFunc_find() : QiFunc(1, 3) {}
+		QiFunc_find() : QiFunc(2, 3) {}
 		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
 			size_t i = args[0].toString().find(args[1].toString(), args.size() > 2 ? args[2].toInteger() : 0);
 			return i == std::string::npos ? -1ll : static_cast<long long>(i);
+		}
+	};
+	struct QiFunc_replace : public QiFunc
+	{
+		QiFunc_replace() : QiFunc(2, 3) {}
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
+		{
+			return QiVar::replace_u8(args[0].toString(), args[1].toString(), args.size() > 2 ? args[2].toString() : std::string(""));
 		}
 	};
 	struct QiFunc_text_box : public QiFunc
@@ -1294,6 +1312,7 @@ public:
 		insert({ "sub", std::make_unique<QiFunc_sub>() });
 		insert({ "subx", std::make_unique<QiFunc_subx>() });
 		insert({ "find", std::make_unique<QiFunc_find>() });
+		insert({ "replace", std::make_unique<QiFunc_replace>() });
 		insert({ "text_box", std::make_unique<QiFunc_text_box>() });
 		insert({ "edit_box", std::make_unique<QiFunc_edit_box>() });
 		insert({ "volume", std::make_unique<QiFunc_volume>() });
@@ -1997,7 +2016,6 @@ public:
 	{
 		if (code.empty()) return;
 
-		// split return
 		std::vector<std::string> rawLines;
 		std::istringstream codeStream(code);
 		std::string rawLine;
@@ -2005,30 +2023,53 @@ public:
 
 		std::vector<std::string> lines;
 		for (const auto& rawLine : rawLines) {
-			// remove #
 			std::string line = rawLine;
-			size_t commentPos = line.find('#');
-			if (commentPos != std::string::npos) {
-				line = line.substr(0, commentPos);
-			}
+			bool in_string = false;
+			bool escape_next = false;
 
-			// split ;
-			std::vector<std::string> statements;
-			size_t start = 0;
-			size_t end = line.find(';');
-			while (end != std::string::npos) {
-				std::string stmt = trim(line.substr(start, end - start));
-				if (!stmt.empty()) {
-					statements.push_back(stmt);
+			for (size_t i = 0; i < line.length(); i++) {
+				char c = line[i];
+				if (in_string) {
+					if (escape_next) {
+						escape_next = false;
+					}
+					else {
+						if (c == '\\') {
+							escape_next = true;
+						}
+						else if (c == '\'') {
+							in_string = false;
+						}
+					}
 				}
-				start = end + 1;
-				end = line.find(';', start);
+				else {
+					if (c == '\'') {
+						in_string = true;
+					}
+					else if (c == '#') {
+						line = line.substr(0, i);
+						break;
+					}
+				}
 			}
-			// append last
-			std::string lastStmt = trim(line.substr(start));
-			if (!lastStmt.empty()) statements.push_back(lastStmt);
 
-			for (const auto& stmt : statements) lines.push_back(stmt);
+			if (!line.empty()) {
+				std::vector<std::string> statements;
+				size_t start = 0;
+				size_t end = line.find(';');
+				while (end != std::string::npos) {
+					std::string stmt = trim(line.substr(start, end - start));
+					if (!stmt.empty()) {
+						statements.push_back(stmt);
+					}
+					start = end + 1;
+					end = line.find(';', start);
+				}
+				std::string lastStmt = trim(line.substr(start));
+				if (!lastStmt.empty()) statements.push_back(lastStmt);
+
+				for (const auto& stmt : statements) lines.push_back(stmt);
+			}
 		}
 
 		auto [topLevelStatements, next_index] = parseTopLevel(lines, 0);

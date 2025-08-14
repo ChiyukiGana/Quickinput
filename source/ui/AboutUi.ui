@@ -90,7 +90,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-8-8</string>
+         <string>2025-8-14</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>
@@ -106,9 +106,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加函数
-增加回收站删除
-修复文字识别无效时变量为0</string>
+         <string>增加替换函数
+修复字符内的#被处理</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>
