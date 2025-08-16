@@ -90,10 +90,33 @@ private:
 		if (m_hook) return;
 		std::thread([this] {
 			m_hook = SetWindowsHookExW(WH_KEYBOARD_LL, [](int code, WPARAM wParam, LPARAM lParam) {
-				auto key = ((PKBDLLHOOKSTRUCT)lParam)->vkCode;
+				short key = ((PKBDLLHOOKSTRUCT)lParam)->vkCode;
 				auto mgr = QKeyEditHookManager::instance();
-
 				if (code == HC_ACTION) {
+					if (((PKBDLLHOOKSTRUCT)lParam)->flags & 1)
+					{
+						switch (key)
+						{
+						case VK_RETURN: key = VK_SEPARATOR; break;
+						}
+					}
+					else
+					{
+						switch (key)
+						{
+						case VK_CLEAR: key = VK_NUMPAD5; break;
+						case VK_PRIOR: key = VK_NUMPAD9; break;
+						case VK_NEXT: key = VK_NUMPAD3; break;
+						case VK_END: key = VK_NUMPAD1; break;
+						case VK_HOME: key = VK_NUMPAD7; break;
+						case VK_INSERT: key = VK_NUMPAD0; break;
+						case VK_DELETE: key = VK_DECIMAL; break;
+						case VK_LEFT: key = VK_NUMPAD4; break;
+						case VK_UP: key = VK_NUMPAD8; break;
+						case VK_RIGHT: key = VK_NUMPAD6; break;
+						case VK_DOWN: key = VK_NUMPAD2; break;
+						}
+					}
 					bool press = (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN);
 					mgr->dispatchKeyEvent(key, press);
 				}

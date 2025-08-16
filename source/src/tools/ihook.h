@@ -103,25 +103,46 @@ namespace QiTools
 
 			if (isDown || isUp)
 			{
-				const BYTE vk = static_cast<BYTE>(kb->vkCode);
-				if (vk >= s_keys.size())
-					return CallNextHookEx(s_keybdHook, code, msg, param);
+				BYTE vk = static_cast<BYTE>(kb->vkCode);
+
+				if (kb->flags & 1)
+				{
+					switch (vk)
+					{
+					case VK_RETURN: vk = VK_SEPARATOR; break;
+					}
+				}
+				else
+				{
+					switch (vk)
+					{
+					case VK_CLEAR: vk = VK_NUMPAD5; break;
+					case VK_PRIOR: vk = VK_NUMPAD9; break;
+					case VK_NEXT: vk = VK_NUMPAD3; break;
+					case VK_END: vk = VK_NUMPAD1; break;
+					case VK_HOME: vk = VK_NUMPAD7; break;
+					case VK_INSERT: vk = VK_NUMPAD0; break;
+					case VK_DELETE: vk = VK_DECIMAL; break;
+					case VK_LEFT: vk = VK_NUMPAD4; break;
+					case VK_UP: vk = VK_NUMPAD8; break;
+					case VK_RIGHT: vk = VK_NUMPAD6; break;
+					case VK_DOWN: vk = VK_NUMPAD2; break;
+					}
+				}
+
+				if (vk >= s_keys.size()) return CallNextHookEx(s_keybdHook, code, msg, param);
 
 				bool block = false;
 
 				if (isDown)
 				{
-					if (!s_blockRep || !s_keys[vk])
-						block = InputProc(vk, true, {}, &kb->dwExtraInfo);
-
-					if (s_blockRep)
-						s_keys[vk] = true;
+					if (!s_blockRep || !s_keys[vk]) block = InputProc(vk, true, {}, &kb->dwExtraInfo);
+					if (s_blockRep) s_keys[vk] = true;
 				}
 				else
 				{
 					block = InputProc(vk, false, {}, &kb->dwExtraInfo);
-					if (s_blockRep)
-						s_keys[vk] = false;
+					if (s_blockRep) s_keys[vk] = false;
 				}
 
 				return block ? 1 : CallNextHookEx(s_keybdHook, code, msg, param);
@@ -188,7 +209,7 @@ namespace QiTools
 				s_thread = CreateThread(nullptr, 0, HookThread, nullptr, 0, &s_threadId);
 				if (!s_thread)
 					return false;
-				
+
 				while (!s_createFlag.load(std::memory_order_acquire))
 					Sleep(1);
 
