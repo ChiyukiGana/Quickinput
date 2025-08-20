@@ -1,10 +1,9 @@
 ﻿#pragma once
 #include <src/inc_header.h>
 #include "ui_PopsUi.h"
-class PopsUi : public QDialog
+class PopsUi : public QDialogFrameless
 {
 	Q_OBJECT;
-	DecWindowMove;
 	using This = PopsUi;
 	Ui::PopsUiClass ui;
 	QiVector<QLineEdit*> bind_text_edit;

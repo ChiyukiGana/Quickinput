@@ -2,10 +2,9 @@
 #include <src/inc_header.h>
 #include "VarViewUi.h"
 #include "ui_MainUi.h"
-class MainUi : public QMainWindow
+class MainUi : public QMainWindowFrameless
 {
 	Q_OBJECT;
-	DecWindowMove;
 	using This = MainUi;
 	Ui::MainUiClass ui;
 

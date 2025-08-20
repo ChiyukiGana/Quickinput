@@ -1,10 +1,9 @@
 ﻿#pragma once
 #include <src/inc_header.h>
 #include "ui_MoreUi.h"
-class MoreUi : public QDialog
+class MoreUi : public QDialogFrameless
 {
 	Q_OBJECT;
-	DecWindowMove;
 	using This = MoreUi;
 	Ui::MoreUiClass ui;
 

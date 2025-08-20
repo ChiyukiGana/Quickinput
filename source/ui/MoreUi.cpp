@@ -1,5 +1,5 @@
 ﻿#include "MoreUi.h"
-DefWindowMove(MoreUi) MoreUi::MoreUi()
+MoreUi::MoreUi()
 {
 	ui.setupUi(this);
 	setWindowFlags(Qt::FramelessWindowHint);
@@ -38,7 +38,7 @@ bool MoreUi::event(QEvent* e)
 		QKeyEvent* keyEvent = (QKeyEvent*)e;
 		if ((keyEvent->key() == Qt::Key_Escape) || (keyEvent->key() == Qt::Key_Return) || keyEvent->key() == Qt::Key_Enter || (keyEvent->key() == Qt::Key_Space)) return true;
 	}
-	return QWidget::event(e);
+	return QDialogFrameless::event(e);
 }
 void MoreUi::showEvent(QShowEvent*)
 {

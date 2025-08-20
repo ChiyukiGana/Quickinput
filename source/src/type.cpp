@@ -370,6 +370,8 @@ namespace Qi
 			json.insert("tabLock", (bool)set.tabLock);
 			json.insert("tabHideTip", (bool)set.tabHideTip);
 			json.insert("markPoint", (bool)set.markPoint);
+			json.insert("editWidth", (int)set.editSize.width());
+			json.insert("editHeight", (int)set.editSize.height());
 			json.insert("quickClickKey", (int)fun.quickClick.key);
 			json.insert("quickClickState", (bool)fun.quickClick.state);
 			json.insert("quickClickDelay", (int)fun.quickClick.delay);
@@ -516,6 +518,7 @@ namespace Qi
 				set.tabLock = json.value("tabLock").toBool();
 				set.tabHideTip = json.value("tabHideTip").toBool();
 				set.markPoint = json.value("markPoint").toBool();
+				set.editSize = QSize(json.value("editWidth").toInt(), json.value("editHeight").toInt());
 				fun.quickClick.state = json.value("quickClickState").toBool();
 				fun.quickClick.key = json.value("quickClickKey").toInt();
 				fun.quickClick.delay = json.value("quickClickDelay").toInt();

@@ -1,5 +1,5 @@
 ﻿#include "MainUi.h"
-DefWindowMove(MainUi) MainUi::MainUi(int tab)
+MainUi::MainUi(int tab)
 {
 	Qi::widget.main = this;
 	Qi::widget.varView = &varView;
@@ -109,12 +109,12 @@ bool MainUi::event(QEvent* e)
 		QKeyEvent* keyEvent = (QKeyEvent*)e;
 		if ((keyEvent->key() == Qt::Key_Return) || (keyEvent->key() == Qt::Key_Space)) return true;
 	}
-	return QMainWindow::event(e);
+	return QMainWindowFrameless::event(e);
 }
 bool MainUi::eventFilter(QObject* obj, QEvent* e)
 {
 	if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease)) return true;
-	return QMainWindow::eventFilter(obj, e);
+	return QMainWindowFrameless::eventFilter(obj, e);
 }
 void MainUi::showEvent(QShowEvent* e)
 {

@@ -16,6 +16,7 @@ class QiInterpreter
 	const float posScaleY;
 	WndInput* wndInput;
 
+	QiVector<QString> path;
 	std::mutex debug_mutex;
 	std::condition_variable debug_condition;
 	int jumpId = 0;
@@ -25,5 +26,6 @@ public:
 	bool isInvalid();
 	void DebugContinue();
 	bool PeekSleep(clock_t ms);
-	int ActionInterpreter(const Actions& current, int layer);
+	int ActionInterpreter(const Actions& current);
+	QString makePath();
 };

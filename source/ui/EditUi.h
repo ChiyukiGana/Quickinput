@@ -1,10 +1,9 @@
 ﻿#pragma once
 #include <src/inc_header.h>
 #include "ui_EditUi.h"
-class EditUi : public QDialog
+class EditUi : public QDialogFrameless
 {
 	Q_OBJECT;
-	DecWindowMove;
 	using This = EditUi;
 	enum TabIndex
 	{
@@ -58,6 +57,7 @@ class EditUi : public QDialog
 	QTimer* testTimer;
 	QTimer* markPointTimer;
 	int debugState = debug_idel;
+	std::future<void> varop;
 
 	// context menu
 	QMenu* menu;
@@ -110,6 +110,7 @@ private:
 	void StyleGroup();
 
 
+	void Disable(bool disable);
 	void DisableTip(bool disable);
 	void DisableMenus();
 	void DisableChangeButtons(bool disable);
@@ -233,5 +234,6 @@ private:
 	bool event(QEvent*);
 	bool eventFilter(QObject*, QEvent*);
 	void showEvent(QShowEvent*);
+	void resizeEvent(QResizeEvent*);
 	void customEvent(QEvent*);
 };

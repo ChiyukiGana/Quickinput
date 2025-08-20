@@ -26,6 +26,7 @@
 #include <src/tools/restool.h>
 using namespace QiTools;
 // custom widget
+#include <QFrameless.h>
 #include <QKeyEdit.h>
 #include <QPopText.h>
 #include <QWindowSelection.h>

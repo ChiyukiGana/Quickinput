@@ -34,11 +34,11 @@ namespace QiThread
 					Qi::curBlock += pMacro->curBlock;
 					if (pMacro->count && pMacro->mode != Macro::sw)
 					{
-						for (size_t i = 0; i < pMacro->count && !IsInvalid(pMacro); i++) if (interpreter.ActionInterpreter(pMacro->acRun, 1) != r_continue) break;
+						for (size_t i = 0; i < pMacro->count && !IsInvalid(pMacro); i++) if (interpreter.ActionInterpreter(pMacro->acRun) != r_continue) break;
 					}
 					else if (!pMacro->count || pMacro->mode == Macro::sw)
 					{
-						while (!IsInvalid(pMacro)) if (interpreter.ActionInterpreter(pMacro->acRun, 1) != r_continue) break;
+						while (!IsInvalid(pMacro)) if (interpreter.ActionInterpreter(pMacro->acRun) != r_continue) break;
 					}
 					Qi::curBlock -= pMacro->curBlock;
 
@@ -50,14 +50,14 @@ namespace QiThread
 			{
 				Qi::curBlock += pMacro->curBlock;
 				Qi::interpreter.interpretAll(pMacro->script.toStdString(), pMacro->varMap);
-				interpreter.ActionInterpreter(pMacro->acRun, 1);
+				interpreter.ActionInterpreter(pMacro->acRun);
 				Qi::curBlock -= pMacro->curBlock;
 			}
 		}
 		else
 		{
 			Qi::curBlock += pMacro->curBlock;
-			if (Qi::run || Qi::debug) interpreter.ActionInterpreter(pMacro->acEnd, 1);
+			if (Qi::run || Qi::debug) interpreter.ActionInterpreter(pMacro->acEnd);
 			Qi::curBlock -= pMacro->curBlock;
 		}
 		return 0;

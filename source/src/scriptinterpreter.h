@@ -2092,15 +2092,13 @@ public:
 	{
 		if (isValidVariableName(var))
 		{
-			if (value.isNumber())
+			if (isGlobalVariable(var))
 			{
-				interpret(var + "=" + std::to_string(value.toNumber()), localVariables);
-				return true;
+				globalVariables[var] = value;
 			}
-			else if (value.isString())
+			else
 			{
-				interpret(var + "=" + makeString(value.toString()), localVariables);
-				return true;
+				localVariables[var] = value;
 			}
 		}
 		return false;
@@ -2134,6 +2132,10 @@ public:
 			if (ch.size() == 1 && !isValidVariableChar(ch[0])) return false;
 			return true;
 			});
+	}
+	static bool isGlobalVariable(const std::string& name)
+	{
+		return isValidVariableName(name) && name.front() == '$';
 	}
 	static void showError(std::string msg, std::string addition = std::string())
 	{

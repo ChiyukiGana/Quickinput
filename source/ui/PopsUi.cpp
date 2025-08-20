@@ -1,5 +1,5 @@
 ﻿#include "PopsUi.h"
-DefWindowMove(PopsUi) PopsUi::PopsUi() : QDialog()
+PopsUi::PopsUi()
 {
 	ui.setupUi(this);
 	setWindowFlags(Qt::FramelessWindowHint);
@@ -215,7 +215,7 @@ bool PopsUi::event(QEvent* e)
 		QKeyEvent* keyEvent = (QKeyEvent*)e;
 		if ((keyEvent->key() == Qt::Key_Escape) || (keyEvent->key() == Qt::Key_Return) || keyEvent->key() == Qt::Key_Enter || (keyEvent->key() == Qt::Key_Space)) return true;
 	}
-	return QDialog::event(e);
+	return QDialogFrameless::event(e);
 }
 bool PopsUi::eventFilter(QObject* obj, QEvent* e)
 {
@@ -282,7 +282,7 @@ bool PopsUi::eventFilter(QObject* obj, QEvent* e)
 	{
 		Qi::popText->Hide();
 	}
-	return QDialog::eventFilter(obj, e);
+	return QDialogFrameless::eventFilter(obj, e);
 }
 void PopsUi::showEvent(QShowEvent*)
 {

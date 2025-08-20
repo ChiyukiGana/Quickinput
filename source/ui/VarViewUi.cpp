@@ -1,5 +1,5 @@
 ﻿#include "VarViewUi.h"
-DefWindowMove(VarViewUi) VarViewUi::VarViewUi()
+VarViewUi::VarViewUi()
 {
 	ui.setupUi(this);
 	setWindowFlags(Qt::FramelessWindowHint);
@@ -121,7 +121,7 @@ bool VarViewUi::event(QEvent* e)
 		QKeyEvent* keyEvent = (QKeyEvent*)e;
 		if ((keyEvent->key() == Qt::Key_Escape) || (keyEvent->key() == Qt::Key_Return) || keyEvent->key() == Qt::Key_Enter || (keyEvent->key() == Qt::Key_Space)) return true;
 	}
-	return QWidget::event(e);
+	return QDialogFrameless::event(e);
 }
 void VarViewUi::showEvent(QShowEvent*)
 {

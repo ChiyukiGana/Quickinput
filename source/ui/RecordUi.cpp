@@ -1,5 +1,5 @@
 ﻿#include "RecordUi.h"
-DefWindowMove(RecordUi) RecordUi::RecordUi(WndInfo* wndInfo) : QDialog(), wndInfo(wndInfo)
+RecordUi::RecordUi(WndInfo* wndInfo) : wndInfo(wndInfo)
 {
 	ui.setupUi(this);
 	setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
@@ -98,12 +98,12 @@ bool RecordUi::event(QEvent* e)
 		QKeyEvent* keyEvent = (QKeyEvent*)e;
 		if ((keyEvent->key() == Qt::Key_Escape) || (keyEvent->key() == Qt::Key_Return) || keyEvent->key() == Qt::Key_Enter || (keyEvent->key() == Qt::Key_Space)) return true;
 	}
-	return QWidget::event(e);
+	return QDialogFrameless::event(e);
 }
 bool RecordUi::eventFilter(QObject* obj, QEvent* e)
 {
 	if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease)) return true;
-	return QWidget::eventFilter(obj, e);
+	return QDialogFrameless::eventFilter(obj, e);
 }
 void RecordUi::showEvent(QShowEvent*)
 {

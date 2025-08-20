@@ -1,9 +1,19 @@
 ﻿#include <EditUi.h>
 #include <RecordUi.h>
-DefWindowMove(EditUi) EditUi::EditUi(Macro* macro, Actions* actions)
+EditUi::EditUi(Macro* macro, Actions* actions)
 {
 	ui.setupUi(this);
-	setWindowFlags(Qt::FramelessWindowHint);
+
+	QRect screen = QGuiApplication::primaryScreen()->geometry();
+	setMaximumSize(screen.size());
+	if (Qi::set.editSize.width() >= minimumWidth() && Qi::set.editSize.height() >= minimumHeight())
+	{
+		Qi::set.editSize.setWidth(std::clamp(Qi::set.editSize.width(), minimumWidth(), screen.width()));
+		Qi::set.editSize.setHeight(std::clamp(Qi::set.editSize.height(), minimumHeight(), screen.height()));
+		QRect centeredRect(QPoint(0, 0), Qi::set.editSize);
+		centeredRect.moveCenter(screen.center());
+		setGeometry(centeredRect);
+	}
 
 	// set as top layer
 	this->macro = macro;
@@ -43,13 +53,12 @@ void EditUi::Init()
 		ui.action_table->horizontalHeader()->setSectionResizeMode(tableColumn_debug, QHeaderView::ResizeMode::Fixed);
 		ui.action_table->horizontalHeader()->setSectionResizeMode(tableColumn_disable, QHeaderView::ResizeMode::Fixed);
 		ui.action_table->horizontalHeader()->setSectionResizeMode(tableColumn_type, QHeaderView::ResizeMode::Fixed);
-		ui.action_table->horizontalHeader()->setSectionResizeMode(tableColumn_param, QHeaderView::ResizeMode::Interactive);
-		ui.action_table->horizontalHeader()->setSectionResizeMode(tableColumn_mark, QHeaderView::ResizeMode::Interactive);
+		ui.action_table->horizontalHeader()->setSectionResizeMode(tableColumn_param, QHeaderView::ResizeMode::Fixed);
+		ui.action_table->horizontalHeader()->setSectionResizeMode(tableColumn_mark, QHeaderView::ResizeMode::Stretch);
 		ui.action_table->setColumnWidth(tableColumn_debug, 35);
 		ui.action_table->setColumnWidth(tableColumn_disable, 50);
 		ui.action_table->setColumnWidth(tableColumn_type, 100);
 		ui.action_table->setColumnWidth(tableColumn_param, 300);
-		ui.action_table->setColumnWidth(tableColumn_mark, 200);
 	}
 	if ("context menu")
 	{
@@ -188,6 +197,7 @@ void EditUi::Init()
 	{
 		testTimer = new QTimer(this);
 		markPointTimer = new QTimer(this);
+		testTimer->setInterval(32);
 		markPointTimer->setInterval(32);
 		if (Qi::set.markPoint) markPointTimer->start();
 	}
@@ -311,7 +321,7 @@ void EditUi::Event()
 				timeBeginPeriod(1);
 				if (ui.action_running_radio->isChecked()) QiThread::StartMacroRun(macro);
 				else QiThread::StartMacroEnd(macro);
-				testTimer->start(16);
+				testTimer->start();
 			}
 			SetDebugState(debug_run);
 			});
@@ -799,14 +809,18 @@ void EditUi::Event_Action_Widget()
 		});
 	// varOperator
 	connect(ui.varOperator_test_button, &QPushButton::clicked, this, [this] {
-		try
-		{
-			Qi::interpreter.interpretAll(ui.varOperator_edit->toPlainText().toStdString(), macro->varMap);
-		}
-		catch (std::exception e)
-		{
-			QiScriptInterpreter::showError(e.what());
-		}
+		setDisabled(true);
+		varop = std::async([code = ui.varOperator_edit->toPlainText().toStdString(), varMap = &macro->varMap]() {
+			try
+			{
+				Qi::interpreter.interpretAll(code, *varMap);
+			}
+			catch (std::exception e)
+			{
+				QiScriptInterpreter::showError(e.what());
+			}
+			Qi::widget.editVaropStop();
+			});
 		});
 }
 // TODO: new action's preview
@@ -1093,6 +1107,14 @@ void EditUi::StyleGroup()
 }
 
 
+void EditUi::Disable(bool disable)
+{
+	ui.action_running_radio->setDisabled(disable);
+	ui.action_ending_radio->setDisabled(disable);
+	ui.title_close_button->setDisabled(disable);
+	ui.title_back_button->setDisabled(disable);
+	ui.content_widget->setDisabled(disable);
+}
 void EditUi::DisableTip(bool disable)
 {
 	BindSafeIter(bind_type_group, [this, disable](QGroupBox* p, size_t i) {p->setToolTipDuration(disable ? 1 : 0); });
@@ -1146,21 +1168,13 @@ void EditUi::SetDebugState(int debugState)
 	{
 		ui.title_run_label->setText("运行");
 		ui.title_run_button->setStyleSheet("QPushButton{background-color:#0E0;border-radius:10px}QPushButton:hover{background-color:#0C0}");
-		ui.action_running_radio->setDisabled(false);
-		ui.action_ending_radio->setDisabled(false);
-		ui.title_close_button->setDisabled(false);
-		ui.title_back_button->setDisabled(false);
-		ui.content_widget->setDisabled(false);
+		Disable(false);
 	}
 	else if (debugState == debug_run)
 	{
 		ui.title_run_label->setText("停止(Shift F10)");
 		ui.title_run_button->setStyleSheet("QPushButton{background-color:#E00;border-radius:10px}QPushButton:hover{background-color:#C00}");
-		ui.action_running_radio->setDisabled(true);
-		ui.action_ending_radio->setDisabled(true);
-		ui.title_close_button->setDisabled(true);
-		ui.title_back_button->setDisabled(true);
-		ui.content_widget->setDisabled(true);
+		Disable(true);
 	}
 	else if (debugState == debug_pause)
 	{
@@ -1745,24 +1759,21 @@ void EditUi::TableReload()
 	ListJumpPointReload();
 	ListBlockReload();
 	ui.action_table->setRowCount(actions->size());
-	if (ui.action_table->rowCount() > 0)
+	for (size_t i = 0; i < ui.action_table->rowCount(); i++)
 	{
-		for (size_t i = 0; i < ui.action_table->rowCount(); i++)
-		{
-			updating = true;
-			ui.action_table->setItem(i, tableColumn_debug, new QTableWidgetItem());
-			ui.action_table->item(i, tableColumn_debug)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			ui.action_table->setItem(i, tableColumn_disable, new QTableWidgetItem());
-			ui.action_table->item(i, tableColumn_disable)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			ui.action_table->setItem(i, tableColumn_type, new QTableWidgetItem());
-			ui.action_table->item(i, tableColumn_type)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			//ui.action_table->setItem(i, tableColumn_param, new QTableWidgetItem());
-			//ui.action_table->item(i, tableColumn_param)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			ui.action_table->setItem(i, tableColumn_mark, new QTableWidgetItem());
-			ui.action_table->item(i, tableColumn_mark)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			TableUpdate(i);
-			updating = false;
-		}
+		updating = true;
+		ui.action_table->setItem(i, tableColumn_debug, new QTableWidgetItem());
+		ui.action_table->item(i, tableColumn_debug)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		ui.action_table->setItem(i, tableColumn_disable, new QTableWidgetItem());
+		ui.action_table->item(i, tableColumn_disable)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		ui.action_table->setItem(i, tableColumn_type, new QTableWidgetItem());
+		ui.action_table->item(i, tableColumn_type)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		//ui.action_table->setItem(i, tableColumn_param, new QTableWidgetItem());
+		//ui.action_table->item(i, tableColumn_param)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		ui.action_table->setItem(i, tableColumn_mark, new QTableWidgetItem());
+		ui.action_table->item(i, tableColumn_mark)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		TableUpdate(i);
+		updating = false;
 	}
 }
 void EditUi::TableInsert(int index)
@@ -2654,6 +2665,7 @@ void EditUi::Exit(bool save)
 	widget_rv.hide();
 	widget_td.hide();
 	Qi::widget.macroEdited(save);
+	QiJson::SaveJson();
 	close();
 }
 
@@ -2665,7 +2677,7 @@ bool EditUi::event(QEvent* e)
 		QKeyEvent* keyEvent = (QKeyEvent*)e;
 		if ((keyEvent->key() == Qt::Key_Escape) || (keyEvent->key() == Qt::Key_Return) || keyEvent->key() == Qt::Key_Enter || (keyEvent->key() == Qt::Key_Space)) return true;
 	}
-	return QDialog::event(e);
+	return QDialogFrameless::event(e);
 }
 bool EditUi::eventFilter(QObject* obj, QEvent* e)
 {
@@ -2721,7 +2733,7 @@ bool EditUi::eventFilter(QObject* obj, QEvent* e)
 	{
 		if (e->type() == QEvent::Drop)
 		{
-			QDropEvent* drop = static_cast<QDropEvent*>(e);
+			QDropEvent* drop = reinterpret_cast<QDropEvent*>(e);
 			QTableWidgetItem* item = ui.action_table->itemAt(drop->pos());
 			int before = 0, after = 0;
 			before = ui.action_table->currentRow();
@@ -2756,8 +2768,13 @@ void EditUi::showEvent(QShowEvent*)
 	Qi::application->setStyleSheet(Qi::ui.themes[Qi::set.theme].style);
 	SetForegroundWindow((HWND)QWidget::winId());
 }
+void EditUi::resizeEvent(QResizeEvent* e)
+{
+	Qi::set.editSize = e->size();
+}
 void EditUi::customEvent(QEvent* e)
 {
 	if (e->type() == QiEvent::wid_close) Exit();
-	if (e->type() == QiEvent::edt_debug_pause) SetDebugState(debug_pause);
+	else if (e->type() == QiEvent::edt_debug_pause) SetDebugState(debug_pause);
+	else if (e->type() == QiEvent::edt_varop_stop) setDisabled(false);
 }

@@ -77,6 +77,10 @@ namespace QiTools
 		}
 		// remove
 		using base_vector::clear;
+		void remove()
+		{
+			base_vector::pop_back();
+		}
 		void remove(size_t where)
 		{
 			base_vector::erase(base_vector::begin() + where);

@@ -1,10 +1,9 @@
 ﻿#pragma once
 #include <src/inc_header.h>
 #include "ui_RecordUi.h"
-class RecordUi : public QDialog
+class RecordUi : public QDialogFrameless
 {
 	Q_OBJECT;
-	DecWindowMove;
 	using This = RecordUi;
 	Ui::RecordUiClass ui;
 	WndInfo* wndInfo;

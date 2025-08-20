@@ -1,10 +1,9 @@
 ﻿#pragma once
 #include <src/inc_header.h>
 #include "ui_VarViewUi.h"
-class VarViewUi : public QDialog
+class VarViewUi : public QDialogFrameless
 {
 	Q_OBJECT;
-	DecWindowMove;
 	using This = VarViewUi;
 	enum
 	{

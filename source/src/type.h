@@ -38,6 +38,7 @@ struct QiEvent
 		mac_edit_exit_d,
 		mac_load,
 		edt_debug_pause,
+		edt_varop_stop,
 		var_reload,
 		key_reset
 	};
@@ -181,6 +182,7 @@ struct QiBase
 	Actions next = Actions();
 	Actions next2 = Actions();
 	QiBase(int type = QiType::none) noexcept : type(type) {}
+	virtual QString name() const { return "base"; }
 	virtual QJsonObject toJson() const
 	{
 		QJsonObject json;
@@ -199,7 +201,8 @@ struct QiBase
 struct QiEnd : QiBase
 {
 	QiEnd() : QiBase(QiType::end) {}
-	QJsonObject toJson() const
+	QString name() const override { return "结束"; }
+	QJsonObject toJson() const override
 	{
 		return QiBase::toJson();
 	}
@@ -215,6 +218,7 @@ struct QiDelay : QiBase
 	int min = 0, max = 0;
 	QString v_min, v_max;
 	QiDelay() : QiBase(QiType::delay) {}
+	QString name() const override { return "等待"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -238,6 +242,7 @@ struct QiKey : QiBase
 	enum { up, down, click };
 	int vk = 0, state = down;
 	QiKey() : QiBase(QiType::key) {}
+	QString name() const override { return "按键"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -262,6 +267,7 @@ struct QiMouse : QiBase
 	int x = 0, y = 0, ex = 0, speed = 0;
 	bool move = false, track = false;
 	QiMouse() : QiBase(QiType::mouse) {}
+	QString name() const override { return "鼠标"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -288,6 +294,7 @@ struct QiCopyText : QiBase
 {
 	QString text;
 	QiCopyText() : QiBase(QiType::copyText) {}
+	QString name() const override { return "复制"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -309,6 +316,7 @@ struct QiColor : QiBase
 	RECT rect = {};
 	bool move = false;
 	QiColor() : QiBase(QiType::color) {}
+	QString name() const override { return "找色"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -342,6 +350,7 @@ struct QiLoop : QiBase
 	int min = 0, max = 0;
 	QString v_min, v_max;
 	QiLoop() : QiBase(QiType::loop) {}
+	QString name() const override { return "循环"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -365,6 +374,7 @@ struct QiLoop : QiBase
 struct QiLoopEnd : QiBase
 {
 	QiLoopEnd() : QiBase(QiType::loopEnd) {}
+	QString name() const override { return "结束循环"; }
 	QJsonObject toJson() const override
 	{
 		return QiBase::toJson();
@@ -378,6 +388,7 @@ struct QiKeyState : QiBase
 {
 	int vk = 0;
 	QiKeyState() : QiBase(QiType::keyState) {}
+	QString name() const override { return "按键状态"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -397,6 +408,7 @@ struct QiKeyState : QiBase
 struct QiResetPos : QiBase
 {
 	QiResetPos() : QiBase(QiType::resetPos) {}
+	QString name() const override { return "恢复位置"; }
 	QJsonObject toJson() const override
 	{
 		return QiBase::toJson();
@@ -416,6 +428,7 @@ struct QiImage : QiBase
 	RECT rect = {};
 	bool move = false;
 	QiImage() : QiBase(QiType::image) {}
+	QString name() const override { return "找图"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -471,6 +484,7 @@ struct QiPopText : QiBase
 	int time = 0;
 	bool sync = false;
 	QiPopText() : QiBase(QiType::popText) {}
+	QString name() const override { return "弹出"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -490,6 +504,7 @@ struct QiPopText : QiBase
 struct QiSavePos : QiBase
 {
 	QiSavePos() : QiBase(QiType::savePos) {}
+	QString name() const override { return "记录位置"; }
 	QJsonObject toJson() const override
 	{
 		return QiBase::toJson();
@@ -506,6 +521,7 @@ struct QiTimer : QiBase
 	int min = 0, max = 0;
 	QString v_min, v_max;
 	QiTimer() : QiBase(QiType::timer) {}
+	QString name() const override { return "定时"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -532,6 +548,7 @@ struct QiJump : QiBase
 {
 	int id = 0;
 	QiJump() : QiBase(QiType::jump) {}
+	QString name() const override { return "跳转"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -548,6 +565,7 @@ struct QiJumpPoint : QiBase
 {
 	int id = 0;
 	QiJumpPoint() : QiBase(QiType::jumpPoint) {}
+	QString name() const override { return "锚点"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -574,6 +592,7 @@ struct QiDialog : QiBase
 	QString title;
 	QString text;
 	QiDialog() : QiBase(QiType::dialog) {}
+	QString name() const override { return "对话框"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -598,6 +617,7 @@ struct QiBlock : QiBase
 {
 	int id = 0;
 	QiBlock() : QiBase(QiType::block) {}
+	QString name() const override { return "块"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -616,6 +636,7 @@ struct QiBlockExec : QiBase
 {
 	int id = 0;
 	QiBlockExec() : QiBase(QiType::blockExec) {}
+	QString name() const override { return "执行"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -632,6 +653,7 @@ struct QiQuickInput : QiBase
 {
 	QiVector<unsigned char> chars;
 	QiQuickInput() : QiBase(QiType::quickInput) {}
+	QString name() const override { return "输入字符"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -651,6 +673,7 @@ struct QiKeyBlock : QiBase
 	int vk = 0;
 	bool block = false;
 	QiKeyBlock() : QiBase(QiType::keyBlock) {}
+	QString name() const override { return "屏蔽按键"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -671,6 +694,7 @@ struct QiClock : QiBase
 
 	int time = 0;
 	QiClock() : QiBase(QiType::clock) {}
+	QString name() const override { return "时钟"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -695,6 +719,7 @@ struct QiOcr : QiBase
 	RECT rect = {};
 	QString text, var;
 	QiOcr() : QiBase(QiType::ocr) {}
+	QString name() const override { return "文字识别"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -729,6 +754,7 @@ struct QiVarOperator : QiBase
 {
 	QString script;
 	QiVarOperator() : QiBase(QiType::varOperator) {}
+	QString name() const override { return "变量运算"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -745,6 +771,7 @@ struct QiVarCondition : QiBase
 {
 	QString script;
 	QiVarCondition() : QiBase(QiType::varCondition) {}
+	QString name() const override { return "变量判断"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -772,6 +799,7 @@ struct QiMouseTrack : QiBase
 	clock_t t = 0;
 	std::vector<MovePart> s;
 	QiMouseTrack() : QiBase(QiType::mouseTrack), t(clock()) {}
+	QString name() const override { return "鼠标轨迹"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -821,6 +849,7 @@ struct QiOpen : QiBase
 {
 	QString url;
 	QiOpen() : QiBase(QiType::open) {}
+	QString name() const override { return "打开"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -837,6 +866,7 @@ struct QiTextPad : QiBase
 {
 	QString text;
 	QiTextPad() : QiBase(QiType::textPad) {}
+	QString name() const override { return "文本"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -856,6 +886,7 @@ struct QiEditDialog : QiBase
 	QString text;
 	QString var;
 	QiEditDialog() : QiBase(QiType::editDialog) {}
+	QString name() const override { return "编辑框"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -883,6 +914,7 @@ struct QiVolume : QiBase
 	int time = 10;
 	float volume = 0.0f;
 	QiVolume() : QiBase(QiType::volume) {}
+	QString name() const override { return "音量检测"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -910,6 +942,7 @@ struct QiSoundPlay : QiBase
 	int state = play;
 	QString file;
 	QiSoundPlay() : QiBase(QiType::soundPlay) {}
+	QString name() const override { return "播放音频"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -1150,6 +1183,7 @@ struct SettingsData
 	bool tabLock = false;
 	bool tabHideTip = false;
 	bool markPoint = false;
+	QSize editSize;
 };
 struct GroupData
 {
@@ -1204,6 +1238,10 @@ struct Widget
 	void editDebugPause() const
 	{
 		QApplication::postEvent(edit, new QEvent((QEvent::Type)QiEvent::edt_debug_pause));
+	}
+	void editVaropStop() const
+	{
+		QApplication::postEvent(edit, new QEvent((QEvent::Type)QiEvent::edt_varop_stop));
 	}
 	void varViewReload() const
 	{

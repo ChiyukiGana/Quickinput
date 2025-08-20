@@ -1,10 +1,9 @@
 #pragma once
 #include <src/inc_header.h>
 #include "ui_UpdateUi.h"
-class UpdateUi : public QDialog
+class UpdateUi : public QDialogFrameless
 {
 	Q_OBJECT;
-	DecWindowMove;
 	Ui::UpdateUiClass ui;
 
 public:

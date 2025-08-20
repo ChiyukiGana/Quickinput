@@ -199,6 +199,7 @@
     <ClInclude Include="source\src\type.h" />
     <ClInclude Include="source\src\ui.h" />
     <ClInclude Include="source\src\update.h" />
+    <QtMoc Include="source\ui\widget\QFrameless.h" />
     <QtMoc Include="source\ui\widget\QFileEdit.h" />
     <QtMoc Include="source\ui\widget\QDistanceSelection.h" />
     <QtMoc Include="source\ui\widget\QTextDialog.h" />
