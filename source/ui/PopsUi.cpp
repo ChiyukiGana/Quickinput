@@ -2,7 +2,6 @@
 PopsUi::PopsUi()
 {
 	ui.setupUi(this);
-	setWindowFlags(Qt::FramelessWindowHint);
 	Init();
 	Event();
 	StyleGroup();

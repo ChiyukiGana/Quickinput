@@ -2,7 +2,6 @@
 UpdateUi::UpdateUi(const QString& version, const QString& content)
 {
 	ui.setupUi(this);
-	setWindowFlags(Qt::FramelessWindowHint);
 	StyleGroup();
 	ui.version_label->setText(version);
 	ui.content_label->setText(content);

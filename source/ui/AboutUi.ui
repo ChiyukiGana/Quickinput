@@ -90,7 +90,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-8-20</string>
+         <string>2025-8-23</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>
@@ -106,7 +106,9 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加编辑窗口大小调整</string>
+         <string>屏幕大小函数
+剪贴板函数
+增加消息窗口</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>

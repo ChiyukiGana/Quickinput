@@ -10,225 +10,199 @@ void Action::fromJson(const QJsonObject& json)
 		QiBase a;
 		a.fromJson(json);
 		emplace<QiBase>(a);
-	}
-	break;
+	} break;
 	case QiType::end:
 	{
 		QiEnd a;
 		a.fromJson(json);
 		emplace<QiEnd>(a);
-	}
-	break;
+	} break;
 	case QiType::delay:
 	{
 		QiDelay a;
 		a.fromJson(json);
 		emplace<QiDelay>(a);
-	}
-	break;
+	} break;
 	case QiType::key:
 	{
 		QiKey a;
 		a.fromJson(json);
 		emplace<QiKey>(a);
-	}
-	break;
+	} break;
 	case QiType::mouse:
 	{
 		QiMouse a;
 		a.fromJson(json);
 		emplace<QiMouse>(a);
-	}
-	break;
+	} break;
 	case QiType::copyText:
 	{
 		QiCopyText a;
 		a.fromJson(json);
 		emplace<QiCopyText>(a);
-	}
-	break;
+	} break;
 	case QiType::color:
 	{
 		QiColor a;
 		a.fromJson(json);
 		emplace<QiColor>(a);
-	}
-	break;
+	} break;
 	case QiType::loop:
 	{
 		QiLoop a;
 		a.fromJson(json);
 		emplace<QiLoop>(a);
-	}
-	break;
+	} break;
 	case QiType::loopEnd:
 	{
 		QiLoopEnd a;
 		a.fromJson(json);
 		emplace<QiLoopEnd>(a);
-	}
-	break;
+	} break;
 	case QiType::keyState:
 	{
 		QiKeyState a;
 		a.fromJson(json);
 		emplace<QiKeyState>(a);
-	}
-	break;
+	} break;
 	case QiType::resetPos:
 	{
 		QiResetPos a;
 		a.fromJson(json);
 		emplace<QiResetPos>(a);
-	}
-	break;
+	} break;
 	case QiType::image:
 	{
 		QiImage a;
 		a.fromJson(json);
 		emplace<QiImage>(a);
-	}
-	break;
+	} break;
 	case QiType::popText:
 	{
 		QiPopText a;
 		a.fromJson(json);
 		emplace<QiPopText>(a);
-	}
-	break;
+	} break;
 	case QiType::savePos:
 	{
 		QiSavePos a;
 		a.fromJson(json);
 		emplace<QiSavePos>(a);
-	}
-	break;
+	} break;
 	case QiType::timer:
 	{
 		QiTimer a;
 		a.fromJson(json);
 		emplace<QiTimer>(a);
-	}
-	break;
+	} break;
 	case QiType::jump:
 	{
 		QiJump a;
 		a.fromJson(json);
 		emplace<QiJump>(a);
-	}
-	break;
+	} break;
 	case QiType::jumpPoint:
 	{
 		QiJumpPoint a;
 		a.fromJson(json);
 		emplace<QiJumpPoint>(a);
-	}
-	break;
+	} break;
 	case QiType::dialog:
 	{
 		QiDialog a;
 		a.fromJson(json);
 		emplace<QiDialog>(a);
-	}
-	break;
+	} break;
 	case QiType::block:
 	{
 		QiBlock a;
 		a.fromJson(json);
 		emplace<QiBlock>(a);
-	}
-	break;
+	} break;
 	case QiType::blockExec:
 	{
 		QiBlockExec a;
 		a.fromJson(json);
 		emplace<QiBlockExec>(a);
-	}
-	break;
+	} break;
 	case QiType::quickInput:
 	{
 		QiQuickInput a;
 		a.fromJson(json);
 		emplace<QiQuickInput>(a);
-	}
-	break;
+	} break;
 	case QiType::keyBlock:
 	{
 		QiKeyBlock a;
 		a.fromJson(json);
 		emplace<QiKeyBlock>(a);
-	}
-	break;
+	} break;
 	case QiType::clock:
 	{
 		QiClock a;
 		a.fromJson(json);
 		emplace<QiClock>(a);
-	}
-	break;
+	} break;
 	case QiType::ocr:
 	{
 		QiOcr a;
 		a.fromJson(json);
 		emplace<QiOcr>(a);
-	}
-	break;
+	} break;
 	case QiType::varOperator:
 	{
 		QiVarOperator a;
 		a.fromJson(json);
 		emplace<QiVarOperator>(a);
-	}
-	break;
+	} break;
 	case QiType::varCondition:
 	{
 		QiVarCondition a;
 		a.fromJson(json);
 		emplace<QiVarCondition>(a);
-	}
-	break;
+	} break;
 	case QiType::mouseTrack:
 	{
 		QiMouseTrack a;
 		a.fromJson(json);
 		emplace<QiMouseTrack>(a);
-	}
-	break;
+	} break;
 	case QiType::open:
 	{
 		QiOpen a;
 		a.fromJson(json);
 		emplace<QiOpen>(a);
-	}
-	break;
+	} break;
 	case QiType::textPad:
 	{
 		QiTextPad a;
 		a.fromJson(json);
 		emplace<QiTextPad>(a);
-	}
-	break;
+	} break;
 	case QiType::editDialog:
 	{
 		QiEditDialog a;
 		a.fromJson(json);
 		emplace<QiEditDialog>(a);
-	}
-	break;
+	} break;
 	case QiType::volume:
 	{
 		QiVolume a;
 		a.fromJson(json);
 		emplace<QiVolume>(a);
-	}
-	break;
+	} break;
 	case QiType::soundPlay:
 	{
 		QiSoundPlay a;
 		a.fromJson(json);
 		emplace<QiSoundPlay>(a);
-	}
-	break;
+	} break;
+	case QiType::msgView:
+	{
+		QiMsgView a;
+		a.fromJson(json);
+		emplace<QiMsgView>(a);
+	} break;
 	default:
 	{
 		QiBase a;

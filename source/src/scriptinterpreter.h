@@ -1279,6 +1279,38 @@ public:
 			return QiVar((bool)IsWindowVisible(wnd));
 		}
 	};
+	struct QiFunc_scr_cx : public QiFunc
+	{
+		QiFunc_scr_cx() : QiFunc(0) {}
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
+		{
+			return QiVar(static_cast<long long>(System::screenSize().cx));
+		}
+	};
+	struct QiFunc_scr_cy : public QiFunc
+	{
+		QiFunc_scr_cy() : QiFunc(0) {}
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
+		{
+			return QiVar(static_cast<long long>(System::screenSize().cy));
+		}
+	};
+	struct QiFunc_clip_read : public QiFunc
+	{
+		QiFunc_clip_read() : QiFunc(0) {}
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
+		{
+			return QiVar(String::toString(System::ClipBoardText()));
+		}
+	};
+	struct QiFunc_clip_write : public QiFunc
+	{
+		QiFunc_clip_write() : QiFunc(1) {}
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
+		{
+			return QiVar(System::ClipBoardText(String::toWString(args[0].toString()).c_str()));
+		}
+	};
 	QiFuncMap()
 	{
 		insert({ "date", std::make_unique<QiFunc_date>() });
@@ -1341,6 +1373,10 @@ public:
 		insert({ "wnd_exist", std::make_unique<QiFunc_wnd_exist>() });
 		insert({ "wnd_current", std::make_unique<QiFunc_wnd_current>() });
 		insert({ "wnd_visible", std::make_unique<QiFunc_wnd_visible>() });
+		insert({ "scr_cx", std::make_unique<QiFunc_scr_cx>() });
+		insert({ "scr_cy", std::make_unique<QiFunc_scr_cy>() });
+		insert({ "clip_read", std::make_unique<QiFunc_clip_read>() });
+		insert({ "clip_write", std::make_unique<QiFunc_clip_write>() });
 	}
 };
 

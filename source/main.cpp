@@ -15,6 +15,7 @@ void Init()
 	QiJson::LoadJson();
     QiFn::InitOcr(true);
 	Qi::screen = System::screenSize();
+    QiThread::StartDisplayUpdate();
     qputenv("QT_QPA_PLATFORM", "windows:darkmode=0");
 	if ("style")
 	{

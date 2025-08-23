@@ -80,6 +80,7 @@ namespace QiUi
 		static inline QString acEditDialog = QString("编辑框") + Symbol::Text;
 		static inline QString acVolume = QString("音量检测") + Symbol::Speaker;
 		static inline QString acSoundPlay = QString("播放音频") + Symbol::Speaker;
+		static inline QString acMsgView = QString("消息窗口") + Symbol::Text;
 		// state
 		static inline QString trOn = QString("启用") + Symbol::On;
 		static inline QString trOff = QString("禁用") + Symbol::Off;

@@ -43,6 +43,22 @@ struct QiEvent
 		key_reset
 	};
 };
+class MsgViewEvent : public QEvent
+{
+	const QString _text;
+public:
+	enum Type
+	{
+		setText = QEvent::User + 1,
+		newLine,
+		clear,
+		show,
+		hide
+	};
+	MsgViewEvent(int type) : QEvent((QEvent::Type)type), _text(QString()) {}
+	MsgViewEvent(int type, const QString& text) : QEvent((QEvent::Type)type), _text(text) {}
+	QString text() const { return _text; }
+};
 
 ////////////////// Window
 struct WndInput
@@ -161,6 +177,7 @@ struct QiType
 		editDialog,
 		volume,
 		soundPlay,
+		msgView,
 		count
 	};
 };
@@ -959,6 +976,27 @@ struct QiSoundPlay : QiBase
 		sync = json.value("sync").toBool();
 	}
 };
+struct QiMsgView : QiBase
+{
+	enum { set, add, clear, show, hide };
+	int option;
+	QString text;
+	QiMsgView() : QiBase(QiType::msgView) {}
+	QString name() const override { return "消息窗口"; }
+	QJsonObject toJson() const override
+	{
+		QJsonObject json = QiBase::toJson();
+		json.insert("opt", (int)option);
+		json.insert("text", (QString)text);
+		return json;
+	}
+	void fromJson(const QJsonObject& json) override
+	{
+		QiBase::fromJson(json);
+		option = json.value("opt").toInt();
+		text = json.value("text").toString();
+	}
+};
 using ActionVariant = std::variant
 <
 	QiBase,
@@ -992,7 +1030,8 @@ using ActionVariant = std::variant
 	QiTextPad,
 	QiEditDialog,
 	QiVolume,
-	QiSoundPlay
+	QiSoundPlay,
+	QiMsgView
 > ;
 class Action : public ActionVariant
 {
@@ -1203,6 +1242,7 @@ struct Widget
 	QWidget* record = nullptr;
 	QWidget* edit = nullptr;
 	QWidget* varView = nullptr;
+	QWidget* msgView = nullptr;
 	bool active() const
 	{
 		return !(mainActive || dialogActive || moreActive);
@@ -1246,6 +1286,26 @@ struct Widget
 	void varViewReload() const
 	{
 		if (!varView->isHidden()) QApplication::postEvent(varView, new QEvent((QEvent::Type)QiEvent::var_reload));
+	}
+	void msgViewSet(const QString text) const
+	{
+		QApplication::postEvent(msgView, new MsgViewEvent(MsgViewEvent::Type::setText, text));
+	}
+	void msgViewAdd(const QString text) const
+	{
+		QApplication::postEvent(msgView, new MsgViewEvent(MsgViewEvent::Type::newLine, text));
+	}
+	void msgViewClear() const
+	{
+		QApplication::postEvent(msgView, new MsgViewEvent(MsgViewEvent::Type::clear));
+	}
+	void msgViewShow() const
+	{
+		QApplication::postEvent(msgView, new MsgViewEvent(MsgViewEvent::Type::show));
+	}
+	void msgViewHide() const
+	{
+		QApplication::postEvent(msgView, new MsgViewEvent(MsgViewEvent::Type::hide));
 	}
 	void keyEditReload() const
 	{

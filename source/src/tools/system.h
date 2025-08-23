@@ -49,15 +49,32 @@ namespace QiTools
 			size_t size = (wcslen(str) + 1) * sizeof(wchar_t);
 			HANDLE hGlobalMemory = GlobalAlloc(GMEM_MOVEABLE, size);
 			if (!hGlobalMemory) return false;
-			HANDLE pGlobalMemory = GlobalLock(hGlobalMemory);
-			if (!pGlobalMemory) return false;
-			wcscpy_s((wchar_t*)pGlobalMemory, size, str);
-			GlobalUnlock(pGlobalMemory);
-			if (!OpenClipboard(nullptr)) return 0;
+			wchar_t* pTextMemory = reinterpret_cast<wchar_t*>(GlobalLock(hGlobalMemory));
+			if (!pTextMemory)
+			{
+				GlobalFree(hGlobalMemory);
+				return false;
+			}
+			wcscpy_s((wchar_t*)pTextMemory, size, str);
+			GlobalUnlock(hGlobalMemory);
+			if (!OpenClipboard(nullptr)) return false;
 			EmptyClipboard();
 			SetClipboardData(CF_UNICODETEXT, hGlobalMemory);
 			CloseClipboard();
 			return true;
+		}
+		static std::wstring ClipBoardText() {
+			if (!OpenClipboard(nullptr)) return std::wstring();
+			HANDLE hGlobalMemory = GetClipboardData(CF_UNICODETEXT);
+			if (!hGlobalMemory) return std::wstring();
+			wchar_t* pTextMemory = reinterpret_cast<wchar_t*>(GlobalLock(hGlobalMemory));
+			if (!pTextMemory) return std::wstring();
+			size_t size = wcslen(pTextMemory);
+			if (!size) return std::wstring();
+			std::wstring text(pTextMemory, pTextMemory + size);
+			GlobalUnlock(hGlobalMemory);
+			CloseClipboard();
+			return text;
 		}
 	};
 }

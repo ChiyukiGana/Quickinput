@@ -691,6 +691,21 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 						Sound::WavePlay(std::wstring());
 					}
 				} break;
+				case QiType::msgView:
+				{
+					if (jumpId || debug_entry) continue;
+					const QiMsgView& ref = std::get<QiMsgView>(action);
+					try
+					{
+						std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
+						if (ref.option == QiMsgView::set) Qi::widget.msgViewSet(QString::fromStdString(text));
+						else if (ref.option == QiMsgView::add) Qi::widget.msgViewAdd(QString::fromStdString(text));
+						else if (ref.option == QiMsgView::clear) Qi::widget.msgViewClear();
+						else if (ref.option == QiMsgView::show) Qi::widget.msgViewShow();
+						else if (ref.option == QiMsgView::hide) Qi::widget.msgViewHide();
+					}
+					catch (std::exception e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return r_exit; }
+				} break;
 				}
 			}
 			if (r_result != r_continue) break;

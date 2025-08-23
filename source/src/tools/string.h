@@ -117,6 +117,20 @@ namespace QiTools {
 		static std::wstring toWString(const POINT& val) { return std::to_wstring(val.x) + std::wstring(L", ") + std::to_wstring(val.y); }
 		static std::wstring toWString(const RECT& val) { return std::to_wstring(val.left) + std::wstring(L", ") + std::to_wstring(val.top) + std::wstring(L", ") + std::to_wstring(val.right) + std::wstring(L", ") + std::to_wstring(val.bottom); }
 
+		template<typename... Args>
+		static std::string Connect(Args&&... args) {
+			std::string result;
+			(result += ... += toString(std::forward<Args>(args)));
+			return result;
+		}
+
+		template<typename... Args>
+		static std::wstring ConnectW(Args&&... args) {
+			std::wstring result;
+			(result += ... += toWString(std::forward<Args>(args)));
+			return result;
+		}
+
 		static std::string toLower(std::string str) { std::string result; for (size_t s = 0; s < str.length(); s++) result += tolower(str[s]); return result; }
 		static std::wstring toLower(std::wstring str) { std::wstring result; for (size_t s = 0; s < str.length(); s++) result += towlower(str[s]); return result; }
 		static std::string toUpper(std::string str) { std::string result; for (size_t s = 0; s < str.length(); s++) result += toupper(str[s]); return result; }

@@ -106,6 +106,9 @@
     <ClCompile Include="source\src\integrity_verify.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\ui\MsgViewUi.cpp">
+      <Filter>Form Files\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\src\inc_external.h">
@@ -183,6 +186,9 @@
       <Filter>Form Files\ui</Filter>
     </QtUic>
     <QtUic Include="source\ui\VarViewUi.ui">
+      <Filter>Form Files\ui</Filter>
+    </QtUic>
+    <QtUic Include="source\ui\MsgViewUi.ui">
       <Filter>Form Files\ui</Filter>
     </QtUic>
   </ItemGroup>
@@ -264,6 +270,9 @@
     </QtMoc>
     <QtMoc Include="source\ui\widget\QFrameless.h">
       <Filter>Form Files\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\MsgViewUi.h">
+      <Filter>Form Files\header</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

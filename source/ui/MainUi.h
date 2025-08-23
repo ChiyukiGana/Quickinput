@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <src/inc_header.h>
 #include "VarViewUi.h"
+#include "MsgViewUi.h"
 #include "ui_MainUi.h"
 class MainUi : public QMainWindowFrameless
 {
@@ -17,6 +18,7 @@ class MainUi : public QMainWindowFrameless
 	QAction* ac_exit = nullptr;
 
 	VarViewUi varView;
+	MsgViewUi msgView;
 
 public:
 	MainUi(int tab = 0);
@@ -30,6 +32,4 @@ private:
 	bool event(QEvent*);
 	bool eventFilter(QObject*, QEvent*);
 	void showEvent(QShowEvent*);
-	void closeEvent(QCloseEvent*);
-	bool nativeEvent(const QByteArray&, void*, long*);
 };

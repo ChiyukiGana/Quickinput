@@ -2,7 +2,7 @@
 RecordUi::RecordUi(WndInfo* wndInfo) : wndInfo(wndInfo)
 {
 	ui.setupUi(this);
-	setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+	setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
 	if ("init")
 	{
 		ui.start_button->setText(QiUi::Text::rcStart);

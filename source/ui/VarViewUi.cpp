@@ -2,7 +2,6 @@
 VarViewUi::VarViewUi()
 {
 	ui.setupUi(this);
-	setWindowFlags(Qt::FramelessWindowHint);
 	connect(ui.title_close_button, &QPushButton::clicked, this, [this] { hide(); });
 	StyleGroup();
 	if ("table")

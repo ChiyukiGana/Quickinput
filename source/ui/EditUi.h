@@ -174,6 +174,7 @@ private:
 	QiEditDialog WidgetGetEditDialog();
 	QiVolume WidgetGetVolume();
 	QiSoundPlay WidgetGetSoundPlay();
+	QiMsgView WidgetGetMsgView();
 
 	// load params to widget
 	void WidgetSet(const QiKey& key);
@@ -198,6 +199,7 @@ private:
 	void WidgetSet(const QiEditDialog& editDialog);
 	void WidgetSet(const QiVolume& volume);
 	void WidgetSet(const QiSoundPlay& soundPlay);
+	void WidgetSet(const QiMsgView& msgView);
 
 
 	// iter binds

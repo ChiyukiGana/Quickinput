@@ -46,7 +46,7 @@ void EditUi::Init()
 		ui.action_table->verticalHeader()->setDefaultAlignment(Qt::AlignCenter);
 		ui.action_table->verticalHeader()->setDefaultSectionSize(0);
 		ui.action_table->setHorizontalHeaderItem(tableColumn_debug, new QTableWidgetItem("调试"));
-		ui.action_table->setHorizontalHeaderItem(tableColumn_disable, new QTableWidgetItem("调试"));
+		ui.action_table->setHorizontalHeaderItem(tableColumn_disable, new QTableWidgetItem("禁用"));
 		ui.action_table->setHorizontalHeaderItem(tableColumn_type, new QTableWidgetItem("功能"));
 		ui.action_table->setHorizontalHeaderItem(tableColumn_param, new QTableWidgetItem("参数"));
 		ui.action_table->setHorizontalHeaderItem(tableColumn_mark, new QTableWidgetItem("备注"));
@@ -141,6 +141,14 @@ void EditUi::Init()
 		soundPlayRbs->addButton(ui.soundPlay_resume_radio);
 		soundPlayRbs->addButton(ui.soundPlay_stop_radio);
 		ui.soundPlay_play_radio->setChecked(true);
+
+		QButtonGroup* msgViewRbs = new QButtonGroup(this);
+		msgViewRbs->addButton(ui.msgView_type_set_radio);
+		msgViewRbs->addButton(ui.msgView_type_add_radio);
+		msgViewRbs->addButton(ui.msgView_type_clear_radio);
+		msgViewRbs->addButton(ui.msgView_type_show_radio);
+		msgViewRbs->addButton(ui.msgView_type_hide_radio);
+		ui.msgView_type_set_radio->setChecked(true);
 	}
 	if ("file edit")
 	{
@@ -178,6 +186,7 @@ void EditUi::Init()
 	{
 		ui.copyText_text->setTabStopDistance(QFontMetrics(QFont("Microsoft YaHei")).horizontalAdvance("    "));
 		ui.varOperator_edit->setTabStopDistance(QFontMetrics(QFont("Microsoft YaHei")).horizontalAdvance("    "));
+		ui.msgView_edit->setTabStopDistance(QFontMetrics(QFont("Microsoft YaHei")).horizontalAdvance("    "));
 	}
 	if ("key edit")
 	{
@@ -249,6 +258,7 @@ void EditUi::Init_Bind()
 		bind_type_group.at(QiType::editDialog) = ui.grp_editDialog;
 		bind_type_group.at(QiType::volume) = ui.grp_volume;
 		bind_type_group.at(QiType::soundPlay) = ui.grp_soundPlay;
+		bind_type_group.at(QiType::msgView) = ui.grp_msgView;
 	}
 	if ("buttons")
 	{
@@ -998,6 +1008,11 @@ void EditUi::StyleGroup()
 		ui.soundPlay_pause_radio->setProperty("group", "radio");
 		ui.soundPlay_resume_radio->setProperty("group", "radio");
 		ui.soundPlay_stop_radio->setProperty("group", "radio");
+		ui.msgView_type_set_radio->setProperty("group", "radio");
+		ui.msgView_type_add_radio->setProperty("group", "radio");
+		ui.msgView_type_clear_radio->setProperty("group", "radio");
+		ui.msgView_type_show_radio->setProperty("group", "radio");
+		ui.msgView_type_hide_radio->setProperty("group", "radio");
 	}
 	if ("line edit")
 	{
@@ -1051,6 +1066,7 @@ void EditUi::StyleGroup()
 	{
 		ui.copyText_text->setProperty("group", "text_edit");
 		ui.varOperator_edit->setProperty("group", "text_edit");
+		ui.msgView_edit->setProperty("group", "text_edit");
 	}
 	if ("hotkey edit")
 	{
@@ -1708,6 +1724,16 @@ void EditUi::TableUpdate(int index)
 		else if (ref.state == QiSoundPlay::resume) param = "继续";
 		else if (ref.state == QiSoundPlay::stop) param = "停止";
 	} break;
+	case QiType::msgView:
+	{
+		const QiMsgView& ref = std::get<QiMsgView>(var);
+		type = QiUi::Text::acMsgView;
+		if (ref.option == QiMsgView::set) param = QString("设置：") + QiFn::FoldText(ref.text, 16, true);
+		else if (ref.option == QiMsgView::add) param = QString("添加：") + QiFn::FoldText(ref.text, 16, true);
+		else if (ref.option == QiMsgView::clear) param = "清空";
+		else if (ref.option == QiMsgView::show) param = "显示";
+		else if (ref.option == QiMsgView::hide) param = "隐藏";
+	} break;
 	}
 
 	if (type.isEmpty())
@@ -1845,6 +1871,7 @@ Action EditUi::ItemGet(int type)
 	case QiType::editDialog: return WidgetGetEditDialog();
 	case QiType::volume: return WidgetGetVolume();
 	case QiType::soundPlay: return WidgetGetSoundPlay();
+	case QiType::msgView: return WidgetGetMsgView();
 	}
 	return Action();
 }
@@ -1876,6 +1903,7 @@ void EditUi::ItemSet(int p)
 	case QiType::editDialog: WidgetSet(std::get<QiEditDialog>(var)); break;
 	case QiType::volume: WidgetSet(std::get<QiVolume>(var)); break;
 	case QiType::soundPlay: WidgetSet(std::get<QiSoundPlay>(var)); break;
+	case QiType::msgView: WidgetSet(std::get<QiMsgView>(var)); break;
 	}
 }
 void EditUi::ItemMove(bool up, int len)
@@ -2245,6 +2273,17 @@ QiSoundPlay EditUi::WidgetGetSoundPlay()
 	else if (ui.soundPlay_stop_radio->isChecked()) soundPlay.state = QiSoundPlay::stop;
 	return soundPlay;
 }
+QiMsgView EditUi::WidgetGetMsgView()
+{
+	QiMsgView msgView;
+	msgView.text = ui.msgView_edit->toPlainText();
+	if (ui.msgView_type_set_radio->isChecked()) msgView.option = QiMsgView::set;
+	else if (ui.msgView_type_add_radio->isChecked()) msgView.option = QiMsgView::add;
+	else if (ui.msgView_type_clear_radio->isChecked()) msgView.option = QiMsgView::clear;
+	else if (ui.msgView_type_show_radio->isChecked()) msgView.option = QiMsgView::show;
+	else if (ui.msgView_type_hide_radio->isChecked()) msgView.option = QiMsgView::hide;
+	return msgView;
+}
 
 // TODO: new action's widget set
 void EditUi::WidgetSet(const QiKey& key)
@@ -2390,6 +2429,15 @@ void EditUi::WidgetSet(const QiSoundPlay& soundPlay)
 	if (soundPlay.state == QiSoundPlay::pause) ui.soundPlay_pause_radio->setChecked(true);
 	if (soundPlay.state == QiSoundPlay::resume) ui.soundPlay_resume_radio->setChecked(true);
 	if (soundPlay.state == QiSoundPlay::stop) ui.soundPlay_stop_radio->setChecked(true);
+}
+void EditUi::WidgetSet(const QiMsgView& msgView)
+{
+	ui.msgView_edit->setPlainText(msgView.text);
+	if (msgView.option == QiMsgView::set) ui.msgView_type_set_radio->setChecked(true);
+	else if (msgView.option == QiMsgView::add) ui.msgView_type_add_radio->setChecked(true);
+	else if (msgView.option == QiMsgView::clear) ui.msgView_type_clear_radio->setChecked(true);
+	else if (msgView.option == QiMsgView::show) ui.msgView_type_show_radio->setChecked(true);
+	else if (msgView.option == QiMsgView::hide) ui.msgView_type_hide_radio->setChecked(true);
 }
 
 

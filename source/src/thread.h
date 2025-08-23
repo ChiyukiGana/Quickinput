@@ -15,6 +15,8 @@ namespace QiThread
 	void StartMacroEnd(Macro* pMacro);
 	void StartQuickClick();
 	void StartWindowState();
+	void StartDisplayUpdate();
+
 	// exit
 	void ExitMacroRun(Macro* pMacro);
 	void ExitMacroEnd(Macro* pMacro);

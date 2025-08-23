@@ -112,6 +112,7 @@
     <ClCompile Include="source\src\json.cpp" />
     <ClCompile Include="source\src\thread.cpp" />
     <ClCompile Include="source\src\type.cpp" />
+    <ClCompile Include="source\ui\MsgViewUi.cpp" />
     <ClCompile Include="source\ui\VarViewUi.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
@@ -199,6 +200,7 @@
     <ClInclude Include="source\src\type.h" />
     <ClInclude Include="source\src\ui.h" />
     <ClInclude Include="source\src\update.h" />
+    <QtMoc Include="source\ui\MsgViewUi.h" />
     <QtMoc Include="source\ui\widget\QFrameless.h" />
     <QtMoc Include="source\ui\widget\QFileEdit.h" />
     <QtMoc Include="source\ui\widget\QDistanceSelection.h" />
@@ -233,6 +235,7 @@
     <QtUic Include="source\ui\MacroUi.ui" />
     <QtUic Include="source\ui\MainUi.ui" />
     <QtUic Include="source\ui\MoreUi.ui" />
+    <QtUic Include="source\ui\MsgViewUi.ui" />
     <QtUic Include="source\ui\RecordUi.ui" />
     <QtUic Include="source\ui\SettingsUi.ui" />
     <QtUic Include="source\ui\PopsUi.ui" />

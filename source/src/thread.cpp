@@ -1,6 +1,20 @@
 ﻿#include "thread.h"
 namespace QiThread
 {
+	LRESULT _stdcall DisplayUpdateProcess(HWND w, UINT m, WPARAM wp, LPARAM lp)
+	{
+		if (m == WM_DISPLAYCHANGE) Qi::screen = System::screenSize();
+		return DefWindowProcW(w, m, wp, lp);
+	}
+	DWORD _stdcall DisplayUpdateThread(PVOID)
+	{
+		Window::Register(L"QuickInputDisplayUpdateClass", DisplayUpdateProcess);
+		HWND wnd = Window::Create(L"QuickInputDisplayUpdate", L"QuickInputDisplayUpdateClass", WS_OVERLAPPED, 0, 100, 100, 0, 0);
+		MSG msg;
+		while (GetMessageW(&msg, wnd, 0, 0)) DispatchMessageW(&msg);
+		return 0;
+	}
+
 	bool IsInvalid(const Macro* macro)
 	{
 		if (Qi::debug) return Qi::PeekExitMsg();
@@ -150,6 +164,11 @@ namespace QiThread
 	void StartWindowState()
 	{
 		Qi::fun.wndActive.thread = Thread::Start(WindowState, nullptr);
+	}
+	void StartDisplayUpdate()
+	{
+		static HANDLE t;
+		if (!t) Thread::Start(DisplayUpdateThread);
 	}
 	void ExitMacroRun(Macro* pMacro)
 	{

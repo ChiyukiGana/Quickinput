@@ -3,12 +3,12 @@ MainUi::MainUi(int tab)
 {
 	Qi::widget.main = this;
 	Qi::widget.varView = &varView;
+	Qi::widget.msgView = &msgView;
 	ui.setupUi(this);
 	Qi::widget.macro = ui.macro;
 	Qi::widget.trigger = ui.trigger;
 	Qi::widget.func = ui.func;
 	Qi::widget.settings = ui.settings;
-	setWindowFlags(Qt::FramelessWindowHint);
 	Init();
 	Event();
 	StyleGroup();
@@ -119,17 +119,4 @@ bool MainUi::eventFilter(QObject* obj, QEvent* e)
 void MainUi::showEvent(QShowEvent* e)
 {
 	SetForegroundWindow((HWND)QWidget::winId());
-}
-void MainUi::closeEvent(QCloseEvent* e)
-{
-	varView.close();
-}
-bool MainUi::nativeEvent(const QByteArray& type, void* pMsg, long* pResult)
-{
-	if (((MSG*)pMsg)->message == WM_DISPLAYCHANGE)
-	{
-		Qi::screen = System::screenSize();
-		return true;
-	}
-	return false;
 }
