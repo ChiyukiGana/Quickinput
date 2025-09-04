@@ -408,7 +408,8 @@ namespace QiFn
 		{
 			if (File::PathState(L"OCR\\qiocr.dll"))
 			{
-				if (QiOcrInterfaceVersion() > 0)
+				Qi::ocr_ver = QiOcrInterfaceVersion();
+				if (Qi::ocr_ver > 0)
 				{
 					Qi::ocr = QiOcrInterfaceInit(Qi::set.ocr_thread);
 					if (!Qi::ocr.valid()) MsgBox::Error(L"文字识别加载失败");

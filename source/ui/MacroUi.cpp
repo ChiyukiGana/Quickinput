@@ -358,6 +358,7 @@ void MacroUi::customEvent(QEvent* e)
 		Qi::widget.main->setDisabled(false);
 		Qi::widget.main->show();
 		Qi::widget.dialogActive = Qi::debug = false;
+		if (Qi::widget.edit) delete Qi::widget.edit;
 		Qi::widget.edit = nullptr;
 		QiJson::SaveMacro(*macro);
 		Qi::popText->Hide();
@@ -369,6 +370,7 @@ void MacroUi::customEvent(QEvent* e)
 		Qi::widget.main->setDisabled(false);
 		Qi::widget.main->show();
 		Qi::widget.dialogActive = Qi::debug = false;
+		if (Qi::widget.edit) delete Qi::widget.edit;
 		Qi::widget.edit = nullptr;
 		Qi::widget.macroLoad();
 	}

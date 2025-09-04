@@ -2237,7 +2237,12 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;循环指定时长&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;输入最小时长，输入最大时长&lt;/p&gt;&lt;p&gt;如果最大时长和最小时长不同将会随机&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;期间内执行循环的内容，如果执行了结束循环则不会执行超时的内容&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                <string>循环指定时长
+
+输入最小时长，输入最大时长
+如果最大时长和最小时长不同将会随机
+
+期间内执行循环的内容，如果执行了结束循环则不会执行超时的内容</string>
                </property>
                <property name="styleSheet">
                 <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
@@ -5903,7 +5908,7 @@
                      <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="text">
-                     <string>单行模式（更精准）</string>
+                     <string>单行模式</string>
                     </property>
                    </widget>
                   </item>
@@ -5926,6 +5931,28 @@
                     </property>
                     <property name="text">
                      <string>完全匹配</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QCheckBox" name="ocr_move_check">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="focusPolicy">
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
+                    </property>
+                    <property name="toolTip">
+                     <string/>
+                    </property>
+                    <property name="layoutDirection">
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
+                    </property>
+                    <property name="text">
+                     <string>找到并移动</string>
                     </property>
                    </widget>
                   </item>
@@ -6652,7 +6679,7 @@
                    <enum>Qt::LayoutDirection::RightToLeft</enum>
                   </property>
                   <property name="text">
-                   <string>找到并移动到</string>
+                   <string>找到并移动</string>
                   </property>
                   <property name="checkable">
                    <bool>true</bool>
@@ -7229,7 +7256,7 @@
                    <enum>Qt::LayoutDirection::RightToLeft</enum>
                   </property>
                   <property name="text">
-                   <string>找到并移动到</string>
+                   <string>找到并移动</string>
                   </property>
                   <property name="checkable">
                    <bool>true</bool>
@@ -8671,16 +8698,11 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>弹出对话框
+                <string>在消息窗口中显示文本
 
-选择类型对应不同的对话框图标
+设置：设置并覆盖窗口中的文本
 
-在标题输入对话框标题
-
-在内容输入显示的内容
-
-点击是按钮执行是
-否则执行否</string>
+添加：在原有文本后面添加新的</string>
                </property>
                <property name="styleSheet">
                 <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>

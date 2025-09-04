@@ -44,6 +44,19 @@ QiInterpreter::QiInterpreter(Macro& macro, bool isRunning) :
 	if (Qi::debug) debug_entry = HaveEntry(actions);
 }
 
+int QiInterpreter::rand(int max, int min)
+{
+	min = Rand(max, min);
+	varMap[std::string("rand_last")] = min;
+	return min;
+}
+
+void QiInterpreter::setLastPos(int x, int y)
+{
+	varMap[std::string("cur_last_x")] = x;
+	varMap[std::string("cur_last_y")] = y;
+}
+
 bool QiInterpreter::isInvalid()
 {
 	if (Qi::debug) return Qi::PeekExitMsg();
@@ -96,7 +109,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 			std::function errPath = [this] { return std::string("路径：") + makePath().toStdString(); };
 			std::function werrPath = [this] { return std::wstring(L"\n\n路径：") + makePath().toStdWString(); };
 			path.back() = QString("[") + QString::number(i + 1) + QString("]") + action.base().name();
-			
+
 			r_result = r_continue;
 			if (debug_entry)
 			{
@@ -135,7 +148,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					try { max = ref.v_max.isEmpty() ? ref.max : varMap.at(ref.v_max.toStdString()).toInteger(); }
 					catch (...) { QiFn::UnBlock(); MsgBox::Error(std::wstring(L"等待变量无效：") + ref.v_max.toStdWString() + werrPath()); return r_exit; }
 
-					if (PeekSleep(Rand(max, min))) return r_exit;
+					if (PeekSleep(rand(max, min))) return r_exit;
 				} break;
 				case QiType::key:
 				{
@@ -284,9 +297,9 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					Color::FindResult findResult = Color::FindOr(rgbMap, ref.rgbe.toRgb(), ref.rgbe.a);
 					if (findResult.find)
 					{
+						setLastPos(findResult.pt.x += rect.left, findResult.pt.y += rect.top);
 						if (ref.move)
 						{
-							findResult.pt.x += rect.left, findResult.pt.y += rect.top;
 							if (wndInput)
 							{
 								wndInput->pt = findResult.pt;
@@ -312,7 +325,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					catch (...) { QiFn::UnBlock(); MsgBox::Error(std::wstring(L"循环变量无效：") + ref.v_max.toStdWString() + werrPath()); return r_exit; }
 
 					bool infinite = (min < 1) && (max < 1);
-					int count = Rand(max, min);
+					int count = rand(max, min);
 					int i = 0;
 
 					for (size_t i = 0; !isInvalid() && (infinite || i < count); infinite ? true : i++)
@@ -368,9 +381,9 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					POINT pt = Image::Find(rgbMap, ref.map, ref.sim, 10);
 					if (pt.x != Image::npos)
 					{
+						setLastPos(pt.x += rect.left + (ref.map.width() >> 1), pt.y += rect.top + (ref.map.height() >> 1));
 						if (ref.move)
 						{
-							pt.x += rect.left + (ref.map.width() >> 1), pt.y += rect.top + (ref.map.height() >> 1);
 							if (wndInput)
 							{
 								wndInput->pt = pt;
@@ -416,7 +429,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					try { max = ref.v_max.isEmpty() ? ref.max : varMap.at(ref.v_max.toStdString()).toInteger(); }
 					catch (...) { QiFn::UnBlock(); MsgBox::Error(std::wstring(L"定时变量无效：") + ref.v_max.toStdWString() + werrPath()); return r_exit; }
 
-					clock_t time = Rand(max, min);
+					clock_t time = rand(max, min);
 					clock_t begin = clock();
 					while (!isInvalid())
 					{
@@ -551,16 +564,51 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 
 							if (!image.IsNull())
 							{
-								std::string text = Qi::ocr.scan(image, ref.row);
+								std::vector<POINT> centers;
+								std::vector<std::string> text = Qi::ocr.scan_list(image, ref.row, &centers);
 								image.ReleaseDC();
 								if (!ref.var.isEmpty())
 								{
-									Qi::interpreter.makeValue(ref.var.toStdString(), text, varMap);
+									std::string str;
+									for (const auto& s : text)
+									{
+										if (str.empty()) str += s;
+										else str += std::string(" ") + s;
+									}
+									Qi::interpreter.makeValue(ref.var.toStdString(), str, varMap);
 									Qi::widget.varViewReload();
 								}
 								if (!text.empty())
 								{
-									if ((ref.match && ref.text == text.c_str()) || (!ref.match && text.find(ref.text.toStdString()) != std::string::npos))
+									bool condition = false;
+									if (ref.match) condition = text.size() == 1 && ref.text == text.front().c_str();
+									else
+									{
+										for (size_t i = 0; i < text.size(); i++)
+										{
+											if (text[i].find(ref.text.toStdString()) != std::string::npos)
+											{
+												condition = true;
+												POINT pt = centers.size() > i ? centers[i] : POINT();
+												setLastPos(pt.x += rect.left, pt.y += rect.top);
+												if (ref.move)
+												{
+													if (Qi::ocr_ver > 1)
+													{
+														if (wndInput)
+														{
+															wndInput->pt = pt;
+															Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
+														}
+														else Input::MoveTo(pt.x, pt.y, Qi::key_info);
+													}
+													else MsgBox::Warning(std::wstring(L"文字识别版本低于2，不支持找到并移动，需要更新"));
+												}
+												break;
+											}
+										}
+									}
+									if (condition)
 									{
 										r_result = ActionInterpreter(ref.next);
 										break;

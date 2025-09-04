@@ -1,5 +1,6 @@
 #pragma once
-#include "inc_external.h"
+#include <qstring.h>
+#include <algorithm>
 
 inline QString QiVarRegexAscii = R"(^([$_]|[a-zA-Z])([a-zA-Z0-9_]*)$)";
 inline QString QiVarRegexUnicode = R"(^([$_]|[\p{L}])([_\p{L}\p{Nd}]*)$)";

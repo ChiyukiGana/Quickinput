@@ -705,12 +705,20 @@ public:
 		QiFunc_rand() : QiFunc(1, 2) {}
 		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
 		{
-			return int(random((int)(args[0].toInteger()), args.size() > 1 ? (int)(args[1].toInteger()) : 0));
+			return (*local)[std::string("rand_last")] = random((args[0].toInteger()), args.size() > 1 ? (args[1].toInteger()) : 0);
 		}
-		static int random(int max, int min = 0)
+		static long long random(long long max, long long min = 0)
 		{
 			if (min > max) std::swap(min, max);
 			return min + (rand() % (max - min + 1));
+		}
+	};
+	struct QiFunc_rand_last : public QiFunc
+	{
+		QiFunc_rand_last() : QiFunc(0) {}
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
+		{
+			return (*local)[std::string("rand_last")];
 		}
 	};
 	struct QiFunc_cur_to : public QiFunc
@@ -772,6 +780,22 @@ public:
 			POINT pt;
 			GetCursorPos(&pt);
 			return QiVar(pt.y);
+		}
+	};
+	struct QiFunc_cur_last_x : public QiFunc
+	{
+		QiFunc_cur_last_x() : QiFunc(0) {}
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
+		{
+			return (*local)[std::string("cur_last_x")];
+		}
+	};
+	struct QiFunc_cur_last_y : public QiFunc
+	{
+		QiFunc_cur_last_y() : QiFunc(0) {}
+		QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
+		{
+			return (*local)[std::string("cur_last_y")];
 		}
 	};
 	struct QiFunc_char : public QiFunc
@@ -1336,10 +1360,13 @@ public:
 		insert({ "pop", std::make_unique<QiFunc_pop>() });
 		insert({ "sleep", std::make_unique<QiFunc_sleep>() });
 		insert({ "rand", std::make_unique<QiFunc_rand>() });
+		insert({ "rand_last", std::make_unique<QiFunc_rand_last>() });
 		insert({ "cur_to", std::make_unique<QiFunc_cur_to>() });
 		insert({ "cur_move", std::make_unique<QiFunc_cur_move>() });
 		insert({ "cur_x", std::make_unique<QiFunc_cur_x>() });
 		insert({ "cur_y", std::make_unique<QiFunc_cur_y>() });
+		insert({ "cur_last_x", std::make_unique<QiFunc_cur_last_x>() });
+		insert({ "cur_last_y", std::make_unique<QiFunc_cur_last_y>() });
 		insert({ "char", std::make_unique<QiFunc_char>() });
 		insert({ "sub", std::make_unique<QiFunc_sub>() });
 		insert({ "subx", std::make_unique<QiFunc_subx>() });

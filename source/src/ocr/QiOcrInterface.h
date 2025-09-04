@@ -14,8 +14,8 @@
 
 struct QiOcrInterface
 {
-	virtual std::vector<std::string> scan_list(const CImage& image, bool skipDet = false) = 0;
-	virtual std::vector<std::string> scan_list(const RECT& rect_screen, bool skipDet = false) = 0;
+	virtual std::vector<std::string> scan_list(const CImage& image, bool skipDet = false, std::vector<POINT>* centers = nullptr) = 0;
+	virtual std::vector<std::string> scan_list(const RECT& rect_screen, bool skipDet = false, std::vector<POINT>* centers = nullptr) = 0;
 	virtual std::string scan(const CImage& image, bool skipDet = false) = 0;
 	virtual std::string scan(const RECT& rect_screen, bool skipDet = false) = 0;
 	virtual void release() = 0;
@@ -63,15 +63,15 @@ public:
 	{
 		return dll && ocr;
 	}
-	std::vector<std::string> scan_list(const CImage& image, bool skipDet = false)
+	std::vector<std::string> scan_list(const CImage& image, bool skipDet = false, std::vector<POINT>* centers = nullptr)
 	{
 		if (!valid()) return {};
-		return ocr->scan_list(image, skipDet);
+		return ocr->scan_list(image, skipDet, centers);
 	}
-	std::vector<std::string> scan_list(const RECT& rect_screen, bool skipDet = false)
+	std::vector<std::string> scan_list(const RECT& rect_screen, bool skipDet = false, std::vector<POINT>* centers = nullptr)
 	{
 		if (!valid()) return {};
-		return ocr->scan_list(rect_screen, skipDet);
+		return ocr->scan_list(rect_screen, skipDet, centers);
 	}
 	std::string scan(const CImage& image, bool skipDet = false)
 	{

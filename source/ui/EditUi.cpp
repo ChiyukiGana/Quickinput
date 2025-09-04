@@ -986,6 +986,7 @@ void EditUi::StyleGroup()
 		ui.keyBlock_move_check->setProperty("group", "check");
 		ui.ocr_match_check->setProperty("group", "check");
 		ui.ocr_row_check->setProperty("group", "check");
+		ui.ocr_move_check->setProperty("group", "check");
 		ui.editDialog_mult_check->setProperty("group", "check");
 		ui.volume_max_check->setProperty("group", "check");
 		ui.soundPlay_sync_check->setProperty("group", "check");
@@ -2217,8 +2218,9 @@ QiOcr EditUi::WidgetGetOcr()
 	};
 	ocr.text = ui.ocr_text_edit->text();
 	ocr.var = ui.ocr_var_edit->text();
-	ocr.match = ui.ocr_match_check->isChecked();
 	ocr.row = ui.ocr_row_check->isChecked();
+	ocr.match = ui.ocr_match_check->isChecked();
+	ocr.move = ui.ocr_move_check->isChecked();
 	return ocr;
 }
 QiVarOperator EditUi::WidgetGetVarOperator()
@@ -2389,8 +2391,9 @@ void EditUi::WidgetSet(const QiOcr& ocr)
 	ui.ocr_bottom_edit->setText(QString::number(ocr.rect.bottom));
 	ui.ocr_text_edit->setText(ocr.text);
 	ui.ocr_var_edit->setText(ocr.var);
-	ui.ocr_match_check->setChecked(ocr.match);
 	ui.ocr_row_check->setChecked(ocr.row);
+	ui.ocr_match_check->setChecked(ocr.match);
+	ui.ocr_move_check->setChecked(ocr.move);
 }
 void EditUi::WidgetSet(const QiVarOperator& varOperator)
 {
@@ -2708,10 +2711,6 @@ void EditUi::Forward(const QString& title, Actions* next)
 }
 void EditUi::Exit(bool save)
 {
-	widget_pv.hide();
-	widget_mkpv.hide();
-	widget_rv.hide();
-	widget_td.hide();
 	Qi::widget.macroEdited(save);
 	QiJson::SaveJson();
 	close();

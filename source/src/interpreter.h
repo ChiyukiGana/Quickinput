@@ -23,6 +23,8 @@ class QiInterpreter
 	bool debug_entry = false;
 public:
 	QiInterpreter(Macro& macro, bool isRunning);
+	int rand(int max, int min = 0);
+	void setLastPos(int x, int y);
 	bool isInvalid();
 	void DebugContinue();
 	bool PeekSleep(clock_t ms);

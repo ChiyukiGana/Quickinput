@@ -732,7 +732,7 @@ struct QiOcr : QiBase
 {
 	static constexpr QiIntRange range_rect = { 0, 10000 };
 
-	bool match = false, row = false;
+	bool match = false, row = false, move = false;
 	RECT rect = {};
 	QString text, var;
 	QiOcr() : QiBase(QiType::ocr) {}
@@ -750,6 +750,7 @@ struct QiOcr : QiBase
 		json.insert("var", (QString)var);
 		json.insert("match", (bool)match);
 		json.insert("row", (bool)row);
+		json.insert("move", (bool)move);
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
@@ -765,6 +766,7 @@ struct QiOcr : QiBase
 		var = json.value("var").toString();
 		match = json.value("match").toBool();
 		row = json.value("row").toBool();
+		move = json.value("move").toBool();
 	}
 };
 struct QiVarOperator : QiBase
@@ -1318,6 +1320,7 @@ struct Widget
 
 namespace Qi
 {
+	inline size_t ocr_ver = 0;
 	inline QiOcrModule ocr;
 	inline QiScriptInterpreter interpreter;
 	// for setStyle
