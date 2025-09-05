@@ -410,7 +410,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 						{
 							if (ref.sync && PeekSleep(ref.time)) r_result = r_exit;
 						}
-						else Sleep(10);
+						else Sleep(1);
 					}
 					catch (std::exception e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return r_exit; }
 				} break;
