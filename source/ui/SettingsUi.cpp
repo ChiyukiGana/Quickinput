@@ -19,7 +19,7 @@ void SettingsUi::Init()
 	ui.recordKey_keyedit->setCombinationMode(false);
 	ui.recordKey_keyedit->setDeviceEnabled(true, true, true, Qi::set.pad);
 	ui.recordKey_keyedit->setMaximumKeys(2);
-	if ("ocr")
+	if ("ocr thraed")
 	{
 		ui.ocr_thread_combo->setEditable(true);
 		ui.ocr_thread_combo->lineEdit()->setReadOnly(true);
@@ -29,6 +29,32 @@ void SettingsUi::Init()
 		QStandardItemModel* model = (QStandardItemModel*)ui.ocr_thread_combo->view()->model();
 		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
 		ui.ocr_thread_combo->setCurrentIndex(std::clamp(Qi::set.ocr_thread, 0, 16));
+	}
+	if ("ocr lang")
+	{
+		ui.ocr_lang_combo->setEditable(true);
+		ui.ocr_lang_combo->lineEdit()->setReadOnly(true);
+		ui.ocr_lang_combo->lineEdit()->setAlignment(Qt::AlignCenter);
+		ui.ocr_lang_combo->addItem("默认");
+		QDir dir("OCR");
+		dir.setFilter(QDir::Filter::Dirs);
+		QFileInfoList dirInfos = dir.entryInfoList();
+		if (!dirInfos.isEmpty())
+		{
+			for (auto& i : dirInfos) if (i.fileName() != "." && i.fileName() != "..")
+			{
+				std::wstring lang = i.fileName().toStdWString() + L"\\";
+				std::wstring rec = std::wstring(L"OCR\\") + lang + L"ppocr.onnx";
+				std::wstring keys = std::wstring(L"OCR\\") + lang + L"ppocr.keys";
+				if (File::PathState(rec) && File::PathState(keys))
+				{
+					ui.ocr_lang_combo->addItem(i.fileName());
+					if (i.fileName() == Qi::set.ocr_current) ui.ocr_lang_combo->setCurrentIndex(ui.ocr_lang_combo->count() - 1);
+				}
+			}
+		}
+		QStandardItemModel* model = (QStandardItemModel*)ui.ocr_thread_combo->view()->model();
+		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
 	}
 	if ("theme")
 	{
@@ -85,6 +111,20 @@ void SettingsUi::Event()
 		Qi::widget.main->show();
 		Qi::widget.dialogActive = false;
 		QiJson::SaveJson(); });
+	connect(ui.ocr_lang_combo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) {
+		if (index >= 0)
+		{
+			QString lang;
+			if (index != 0) lang = ui.ocr_lang_combo->currentText();
+			Qi::popText->Show("正在切换");
+			QTimer::singleShot(32, [lang] {
+				Qi::set.ocr_current = lang;
+				QiFn::InitOcr();
+				QiJson::SaveJson();
+				Qi::popText->Hide();
+				});
+		}
+		});
 	connect(ui.ocr_thread_combo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) {
 		if (index >= 0 && index != Qi::set.ocr_thread)
 		{
@@ -171,6 +211,9 @@ void SettingsUi::StyleGroup()
 	ui.hideDefault_check->setProperty("group", "check");
 	ui.pad_check->setProperty("group", "check");
 	ui.start_check->setProperty("group", "check");
+	ui.ocr_lang_combo->setProperty("group", "combo");
+	ui.ocr_lang_combo->setView(new QListView());
+	ui.ocr_lang_combo->view()->setProperty("group", "combo_body");
 	ui.ocr_thread_combo->setProperty("group", "combo");
 	ui.ocr_thread_combo->setView(new QListView());
 	ui.ocr_thread_combo->view()->setProperty("group", "combo_body");

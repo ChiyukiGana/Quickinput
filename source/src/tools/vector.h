@@ -5,6 +5,7 @@
 #include <functional>
 namespace QiTools
 {
+	using QiVectorIndex = std::vector<size_t>;
 	template<class Ty>
 	class QiVector : protected std::vector<Ty>
 	{
@@ -85,9 +86,9 @@ namespace QiTools
 		{
 			base_vector::erase(base_vector::begin() + where);
 		}
-		void remove(const std::vector<size_t>& positions)
+		void remove(const QiVectorIndex& positions)
 		{
-			std::vector<size_t> sortedPositions(positions);
+			QiVectorIndex sortedPositions(positions);
 			std::sort(sortedPositions.begin(), sortedPositions.end(), std::greater<size_t>());
 			for (size_t i = 0; i < sortedPositions.size(); i++) base_vector::erase(base_vector::begin() + (sortedPositions[i]));
 		}
@@ -103,17 +104,48 @@ namespace QiTools
 			if (count > where) count = where;
 			base_vector::erase(base_vector::begin() + (where - count), base_vector::begin() + where);
 		}
-		bool remove_of_find(const Ty* elementOfSelf)
+		bool remove_of_find(const Ty* elementInVector)
 		{
 			for (size_t i = 0; i < base_vector::size(); i++)
 			{
-				if (&base_vector::operator[](i) == elementOfSelf)
+				if (&base_vector::operator[](i) == elementInVector)
 				{
 					base_vector::erase(base_vector::begin() + i);
 					return true;
 				}
 			}
 			return false;
+		}
+		size_t remove_of_find(std::function<bool(const Ty&)> compareCallback)
+		{
+			if (base_vector::empty()) return 0;
+			size_t count = 0;
+			for (size_t i = base_vector::size() - 1; true; i--)
+			{
+				if (compareCallback(base_vector::operator[](i)))
+				{
+					base_vector::erase(base_vector::begin() + i);
+					count++;
+				}
+				if (i == 0) break;
+			}
+			return count;
+		}
+		size_t remove_of_find(std::function<bool(const Ty&, bool& _break)> compareCallback)
+		{
+			if (base_vector::empty()) return 0;
+			size_t count = 0;
+			for (size_t i = base_vector::size() - 1; true; i--)
+			{
+				bool _break = false;
+				if (compareCallback(base_vector::operator[](i), _break))
+				{
+					base_vector::erase(base_vector::begin() + i);
+					count++;
+				}
+				if (i == 0 || _break) break;
+			}
+			return count;
 		}
 		// move
 		void swap(size_t element_1_where, size_t element_2_where)
@@ -128,6 +160,19 @@ namespace QiTools
 			else if (element_where > target_where) for (size_t where = element_where; where > target_where; where--) swap(where, where - 1);
 		}
 		// find
+		Ty* find(std::function<bool(Ty&)> compareCallback)
+		{
+			Ty* result = nullptr;
+			for (size_t i = 0; i < base_vector::size(); i++)
+			{
+				if (compareCallback(base_vector::at(i)))
+				{
+					result = &base_vector::at(i);
+					break;
+				}
+			}
+			return result;
+		}
 		const Ty* find(std::function<bool(const Ty&)> compareCallback) const
 		{
 			const Ty* result = nullptr;

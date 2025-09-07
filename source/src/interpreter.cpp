@@ -20,6 +20,7 @@ bool HaveEntry(const Actions& actions)
 }
 
 QiInterpreter::QiInterpreter(Macro& macro, bool isRunning) :
+	macro(macro),
 	actions(isRunning ? macro.acRun : macro.acEnd),
 	varMap(macro.varMap),
 	cursor(macro.cursor),
@@ -703,7 +704,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					{
 						std::string title = Qi::interpreter.execute(Qi::interpreter.makeString(ref.title.toStdString()), varMap).toString();
 						std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
-						text = String::toString(TextEditBox(nullptr, String::toWString(title).c_str(), String::toWString(text).c_str(), ref.mult, WS_EX_TOPMOST, L"ICOAPP"));
+						text = String::toString(TextEditBox(nullptr, String::toWString(title).c_str(), String::toWString(text).c_str(), ref.mult, WS_EX_TOPMOST, Qi::ico));
 						if (!text.empty()) Qi::interpreter.makeValue(ref.var.toStdString(), text, varMap);
 					}
 					catch (std::exception e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return r_exit; }
@@ -747,7 +748,15 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					{
 						std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
 						if (ref.option == QiMsgView::set) Qi::widget.msgViewSet(QString::fromStdString(text));
-						else if (ref.option == QiMsgView::add) Qi::widget.msgViewAdd(QString::fromStdString(text));
+						else if (ref.option == QiMsgView::add)
+						{
+							MsgViewInfo info;
+							info.level = ref.level;
+							info.time = time(nullptr);
+							info.macro = macro.name;
+							info.text = text.c_str();
+							Qi::widget.msgViewAdd(info);
+						}
 						else if (ref.option == QiMsgView::clear) Qi::widget.msgViewClear();
 						else if (ref.option == QiMsgView::show) Qi::widget.msgViewShow();
 						else if (ref.option == QiMsgView::hide) Qi::widget.msgViewHide();

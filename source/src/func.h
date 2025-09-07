@@ -43,7 +43,7 @@ namespace QiFn
 	void QiState(bool state);
 	void UnBlock();
 
-	void InitOcr(bool first = false);
+	void InitOcr(bool warning = true);
 
 	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, std::function<void(int x, int y, int stepx, int stepy)> CallBack);
 	WndInfo WindowSelection();

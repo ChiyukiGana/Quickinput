@@ -43,9 +43,24 @@ struct QiEvent
 		key_reset
 	};
 };
+
+struct MsgViewInfo
+{
+	enum
+	{
+		_msg,
+		_war,
+		_err
+	};
+	size_t level = _msg;
+	time_t time = ::time(nullptr);
+	QString text;
+	QString macro;
+};
+using MsgViewInfos = QiVector<MsgViewInfo>;
 class MsgViewEvent : public QEvent
 {
-	const QString _text;
+	const MsgViewInfo _info;
 public:
 	enum Type
 	{
@@ -55,9 +70,9 @@ public:
 		show,
 		hide
 	};
-	MsgViewEvent(int type) : QEvent((QEvent::Type)type), _text(QString()) {}
-	MsgViewEvent(int type, const QString& text) : QEvent((QEvent::Type)type), _text(text) {}
-	QString text() const { return _text; }
+	MsgViewEvent(int type) : QEvent((QEvent::Type)type) {}
+	MsgViewEvent(int type, const MsgViewInfo& info) : QEvent((QEvent::Type)type), _info(info) {}
+	MsgViewInfo info() const { return _info; }
 };
 
 ////////////////// Window
@@ -982,6 +997,7 @@ struct QiMsgView : QiBase
 {
 	enum { set, add, clear, show, hide };
 	int option;
+	int level;
 	QString text;
 	QiMsgView() : QiBase(QiType::msgView) {}
 	QString name() const override { return "消息窗口"; }
@@ -989,6 +1005,7 @@ struct QiMsgView : QiBase
 	{
 		QJsonObject json = QiBase::toJson();
 		json.insert("opt", (int)option);
+		json.insert("level", level);
 		json.insert("text", (QString)text);
 		return json;
 	}
@@ -996,6 +1013,7 @@ struct QiMsgView : QiBase
 	{
 		QiBase::fromJson(json);
 		option = json.value("opt").toInt();
+		level = json.value("level").toInt();
 		text = json.value("text").toString();
 	}
 };
@@ -1210,6 +1228,7 @@ struct FuncData
 };
 struct SettingsData
 {
+	QString ocr_current;
 	int ocr_thread = 0;
 	int theme = 0;
 	int key = 0;
@@ -1289,13 +1308,14 @@ struct Widget
 	{
 		if (!varView->isHidden()) QApplication::postEvent(varView, new QEvent((QEvent::Type)QiEvent::var_reload));
 	}
-	void msgViewSet(const QString text) const
+	void msgViewSet(const QString& text) const
 	{
-		QApplication::postEvent(msgView, new MsgViewEvent(MsgViewEvent::Type::setText, text));
+		MsgViewInfo info; info.text = text;
+		QApplication::postEvent(msgView, new MsgViewEvent(MsgViewEvent::Type::setText, info));
 	}
-	void msgViewAdd(const QString text) const
+	void msgViewAdd(const MsgViewInfo& info) const
 	{
-		QApplication::postEvent(msgView, new MsgViewEvent(MsgViewEvent::Type::newLine, text));
+		QApplication::postEvent(msgView, new MsgViewEvent(MsgViewEvent::Type::newLine, info));
 	}
 	void msgViewClear() const
 	{

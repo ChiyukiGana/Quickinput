@@ -3,6 +3,7 @@
 
 class QiInterpreter
 {
+	Macro& macro;
 	QiVarMap& varMap;
 	POINT& cursor;
 	const Actions& actions;

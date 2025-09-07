@@ -76,5 +76,44 @@ namespace QiTools
 			CloseClipboard();
 			return text;
 		}
+		static bool ExecuteCmd(std::wstring cmd, std::wstring& output) {
+			SECURITY_ATTRIBUTES sa;
+			sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+			sa.bInheritHandle = TRUE;
+			sa.lpSecurityDescriptor = NULL;
+			HANDLE hReadPipe, hWritePipe;
+			if (!CreatePipe(&hReadPipe, &hWritePipe, &sa, 0)) return false;
+			STARTUPINFOW si = {};
+			PROCESS_INFORMATION pi = {};
+			si.cb = sizeof(STARTUPINFOW);
+			si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+			si.hStdOutput = hWritePipe;
+			si.hStdError = hWritePipe;
+			si.wShowWindow = SW_HIDE;
+			cmd = std::wstring(L" /c ") + cmd;
+			std::unique_ptr<wchar_t[]> cmdLine = std::make_unique<wchar_t[]>(cmd.size() + 1);
+			wcscpy_s(cmdLine.get(), cmd.size() + 1, cmd.c_str());
+			wchar_t cmdPath[64]; ExpandEnvironmentStringsW(L"%ComSpec%", cmdPath, 64);
+			if (CreateProcessW(cmdPath, cmdLine.get(), NULL, NULL, TRUE, CREATE_NEW_CONSOLE | CREATE_UNICODE_ENVIRONMENT, NULL, NULL, &si, &pi))
+			{
+				CloseHandle(hWritePipe);
+				std::string result;
+				char buffer[4096];
+				DWORD bytesRead;
+				while (true)
+				{
+					if (!ReadFile(hReadPipe, buffer, 4096, &bytesRead, NULL) || bytesRead == 0) break;
+					result.append(buffer, bytesRead);
+				}
+				WaitForSingleObject(pi.hProcess, INFINITE);
+				CloseHandle(pi.hProcess);
+				CloseHandle(pi.hThread);
+				output = String::toWString(result, CP_ACP);
+				return true;
+			}
+			CloseHandle(hWritePipe);
+			CloseHandle(hReadPipe);
+			return false;
+		}
 	};
 }

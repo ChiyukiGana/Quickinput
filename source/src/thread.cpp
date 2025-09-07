@@ -28,7 +28,7 @@ namespace QiThread
 		bool isRunning = param->run;
 		QiInterpreter interpreter(*pMacro, isRunning);
 		param->load.notify_all();
-		Sleep(1);
+		pMacro->varMap[std::string("macro_name")] = pMacro->name.toStdString();
 		if (isRunning)
 		{
 			if (Qi::run)

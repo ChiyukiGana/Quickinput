@@ -10,7 +10,7 @@
 #include "integrity_verify.h"
 
 #pragma optimize("",off)
-static const char integrity_verify_textSha256[] = "4aef293bf86572f47f35d454cf22747192297e6b038045b0fca4979193de6942";
+static const char integrity_verify_textSha256[] = "4e33db345f50bbb77e00b768f605da48add167b1c9b39c126397ff49e2154fb1";
 #pragma optimize("",on)
 
 std::string integrity_verify_Sha256TextSection(std::wstring filePath = std::wstring()) {

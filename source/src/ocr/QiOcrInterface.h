@@ -22,7 +22,7 @@ struct QiOcrInterface
 };
 
 using PFQiOcrInterfaceVersion = size_t(*)();
-using PFQiOcrInterfaceInit = QiOcrInterface * (*)(size_t);
+using PFQiOcrInterfaceInit = QiOcrInterface * (*)(const std::wstring&, const std::wstring&, const std::wstring&, size_t);
 using PFQiOcrInterfaceInitFromMemory = QiOcrInterface * (*)(void*, size_t, void*, size_t, void*, size_t, size_t);
 
 class QiOcrModule
@@ -86,35 +86,27 @@ public:
 };
 
 #ifdef QIOCR_SHARED
-inline size_t QiOcrInterfaceVersion()
+inline size_t QiOcrInterfaceVersion(const std::wstring dll)
 {
-	HMODULE hModule = LoadLibraryW(L"qiocr.dll");
-	if (!hModule)
-	{
-		hModule = LoadLibraryW(L"OCR\\qiocr.dll");
-		if (!hModule) return 0;
-	}
+	HMODULE hModule = LoadLibraryW(dll.c_str());
+	if (!hModule) return 0;
 	size_t version = 0;
 	PFQiOcrInterfaceVersion pFunction = (PFQiOcrInterfaceVersion)GetProcAddress(hModule, "QiOcrInterfaceVersionInterface");
 	if (pFunction) version = pFunction();
 	FreeLibrary(hModule);
 	return version;
 }
-inline QiOcrModule QiOcrInterfaceInit(size_t threads = 0)
+inline QiOcrModule QiOcrInterfaceInit(const std::wstring dll, const std::wstring& recFile, const std::wstring& keyFile, const std::wstring& detFile, size_t threads)
 {
-	HMODULE hModule = LoadLibraryW(L"qiocr.dll");
-	if (!hModule)
-	{
-		hModule = LoadLibraryW(L"OCR\\qiocr.dll");
-		if (!hModule) return QiOcrModule();
-	}
+	HMODULE hModule = LoadLibraryW(dll.c_str());
+	if (!hModule) return QiOcrModule();
 	PFQiOcrInterfaceInit pFunction = (PFQiOcrInterfaceInit)GetProcAddress(hModule, "QiOcrInterfaceInitInterface");
 	if (!pFunction)
 	{
 		FreeLibrary(hModule);
 		return QiOcrModule();
 	}
-	QiOcrInterface* pInterface = pFunction(threads);
+	QiOcrInterface* pInterface = pFunction(recFile, keyFile, detFile, threads);
 	if (!pInterface)
 	{
 		FreeLibrary(hModule);
@@ -122,14 +114,10 @@ inline QiOcrModule QiOcrInterfaceInit(size_t threads = 0)
 	}
 	return QiOcrModule(hModule, pInterface);
 }
-inline QiOcrModule QiOcrInterfaceInit(void* recData, size_t recSize, void* keysData, size_t keysSize, void* detData, size_t detSize, size_t threads = 0)
+inline QiOcrModule QiOcrInterfaceInit(const std::wstring dll, void* recData, size_t recSize, void* keysData, size_t keysSize, void* detData, size_t detSize, size_t threads)
 {
-	HMODULE hModule = LoadLibraryW(L"qiocr.dll");
-	if (!hModule)
-	{
-		hModule = LoadLibraryW(L"OCR\\qiocr.dll");
-		if (!hModule) return QiOcrModule();
-	}
+	HMODULE hModule = LoadLibraryW(dll.c_str());
+	if (!hModule) return QiOcrModule();
 	PFQiOcrInterfaceInitFromMemory pFunction = (PFQiOcrInterfaceInitFromMemory)GetProcAddress(hModule, "QiOcrInterfaceInitInterfaceFromMemory");
 	if (!pFunction)
 	{
@@ -146,6 +134,6 @@ inline QiOcrModule QiOcrInterfaceInit(void* recData, size_t recSize, void* keysD
 }
 #else
 size_t QiOcrInterfaceVersion();
-QiOcrInterface* QiOcrInterfaceInit(size_t threads = 0);
-QiOcrInterface* QiOcrInterfaceInit(void* recData, size_t recSize, void* keysData, size_t keysSize, void* detData, size_t detSize, size_t threads = 0);
+QiOcrInterface* QiOcrInterfaceInit(const std::string& recFile, const std::string& keyFile, const std::string& detFile, size_t threads);
+QiOcrInterface* QiOcrInterfaceInit(void* recData, size_t recSize, void* keysData, size_t keysSize, void* detData, size_t detSize, size_t threads);
 #endif

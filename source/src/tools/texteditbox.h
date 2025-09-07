@@ -99,7 +99,7 @@ static LRESULT CALLBACK _TextEditBoxProc(HWND hwnd, UINT msg, WPARAM wParam, LPA
     return DefWindowProcW(hwnd, msg, wParam, lParam);
 }
 
-static std::wstring TextEditBox(HWND parent, const wchar_t* title, const wchar_t* text = nullptr, bool multiLine = false, DWORD exStyle = WS_EX_TOPMOST, LPCWSTR icon = nullptr)
+static std::wstring TextEditBox(HWND parent, const wchar_t* title, const wchar_t* text = nullptr, bool multiLine = false, DWORD exStyle = WS_EX_TOPMOST, HICON icon = nullptr)
 {
     _TextEditBoxParams params;
     std::wstring result;
@@ -109,7 +109,7 @@ static std::wstring TextEditBox(HWND parent, const wchar_t* title, const wchar_t
     params.result = &result;
 
     WNDCLASSEXW wc = { sizeof(WNDCLASSEX) };
-    if (icon) wc.hIcon = LoadIconW(params.instance, icon);
+    wc.hIcon = icon;
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW);
     wc.hCursor = LoadCursorW(NULL, IDC_ARROW);
     wc.style = CS_HREDRAW | CS_VREDRAW;

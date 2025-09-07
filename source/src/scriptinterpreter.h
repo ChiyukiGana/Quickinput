@@ -42,6 +42,7 @@ public:
 	QiVar(double val) : var(val) {}
 	QiVar(const char* str) : var(std::string(str)) {}
 	QiVar(const std::string& str) : var(str) {}
+	QiVar(const std::wstring& str) : var(String::toString(str)) {}
 	QiVar(void* ptr) : var(reinterpret_cast<long long>(ptr)) {}
 
 	Type type() const {
@@ -96,6 +97,10 @@ public:
 		if (var.index() == t_num) return toString(std::get<double>(var));
 		if (var.index() == t_str) return std::get<std::string>(var);
 		return std::string();
+	}
+	std::wstring toWString() const
+	{
+		return String::toWString(toString());
 	}
 
 	long long len() const
@@ -944,7 +949,7 @@ class QiScriptInterpreter
 			{
 				std::string title("TextEditBox"); if (args.size() > 0) title = args[0].toString();
 				std::string text; if (args.size() > 1) text = args[1].toString();
-				return String::toString(TextEditBox(nullptr, String::toWString(title).c_str(), String::toWString(text).c_str(), args.size() > 2 ? args[2].toBool() : false, WS_EX_TOPMOST, L"ICOAPP"));
+				return TextEditBox(nullptr, String::toWString(title).c_str(), String::toWString(text).c_str(), args.size() > 2 ? args[2].toBool() : false, WS_EX_TOPMOST, Qi::ico);
 			}
 		};
 		struct QiFunc_volume : public QiFunc
@@ -1082,6 +1087,16 @@ class QiScriptInterpreter
 				case reboot: result = ExitWindowsEx(EWX_REBOOT, SHTDN_REASON_MAJOR_APPLICATION); break;
 				}
 				return result;
+			}
+		};
+		struct QiFunc_cmd : public QiFunc
+		{
+			QiFunc_cmd() : QiFunc(1) {}
+			QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
+			{
+				std::wstring output;
+				System::ExecuteCmd(String::toWString(args[0].toString()), output);
+				return output;
 			}
 		};
 		struct QiFunc_wnd_find : public QiFunc
@@ -1418,6 +1433,14 @@ class QiScriptInterpreter
 				return QiVar(System::ClipBoardText(String::toWString(args[0].toString()).c_str()));
 			}
 		};
+		struct QiFunc_macro_name : public QiFunc
+		{
+			QiFunc_macro_name() : QiFunc(0) {}
+			QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr) const override
+			{
+				return (*local)[std::string("macro_name")];
+			}
+		};
 		QiFuncMap()
 		{
 			insert({ "date", std::make_unique<QiFunc_date>() });
@@ -1468,6 +1491,7 @@ class QiScriptInterpreter
 			insert({ "csv_read", std::make_unique<QiFunc_csv_read>() });
 			insert({ "csv_write", std::make_unique<QiFunc_csv_write>() });
 			insert({ "power", std::make_unique<QiFunc_power>() });
+			insert({ "cmd", std::make_unique<QiFunc_cmd>() });
 			insert({ "wnd_find", std::make_unique<QiFunc_wnd_find>() });
 			insert({ "wnd_find_other", std::make_unique<QiFunc_wnd_find_other>() });
 			insert({ "wnd_search", std::make_unique<QiFunc_wnd_search>() });
@@ -1488,6 +1512,7 @@ class QiScriptInterpreter
 			insert({ "scr_cy", std::make_unique<QiFunc_scr_cy>() });
 			insert({ "clip_read", std::make_unique<QiFunc_clip_read>() });
 			insert({ "clip_write", std::make_unique<QiFunc_clip_write>() });
+			insert({ "macro_name", std::make_unique<QiFunc_macro_name>() });
 		}
 	};
 

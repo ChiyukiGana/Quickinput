@@ -149,6 +149,12 @@ void EditUi::Init()
 		msgViewRbs->addButton(ui.msgView_type_show_radio);
 		msgViewRbs->addButton(ui.msgView_type_hide_radio);
 		ui.msgView_type_set_radio->setChecked(true);
+
+		QButtonGroup* msgViewRbs2 = new QButtonGroup(this);
+		msgViewRbs2->addButton(ui.msgView_level_msg_radio);
+		msgViewRbs2->addButton(ui.msgView_level_war_radio);
+		msgViewRbs2->addButton(ui.msgView_level_err_radio);
+		ui.msgView_level_msg_radio->setChecked(true);
 	}
 	if ("file edit")
 	{
@@ -832,6 +838,10 @@ void EditUi::Event_Action_Widget()
 			Qi::widget.editVaropStop();
 			});
 		});
+	// msgWindow
+	connect(ui.msgView_level_msg_radio, &QRadioButton::toggled, [this] { ui.msgView_type_add_radio->setChecked(true); });
+	connect(ui.msgView_level_war_radio, &QRadioButton::toggled, [this] { ui.msgView_type_add_radio->setChecked(true); });
+	connect(ui.msgView_level_err_radio, &QRadioButton::toggled, [this] { ui.msgView_type_add_radio->setChecked(true); });
 }
 // TODO: new action's preview
 void EditUi::Event_Table_Selection()
@@ -1014,6 +1024,9 @@ void EditUi::StyleGroup()
 		ui.msgView_type_clear_radio->setProperty("group", "radio");
 		ui.msgView_type_show_radio->setProperty("group", "radio");
 		ui.msgView_type_hide_radio->setProperty("group", "radio");
+		ui.msgView_level_msg_radio->setProperty("group", "radio");
+		ui.msgView_level_war_radio->setProperty("group", "radio");
+		ui.msgView_level_err_radio->setProperty("group", "radio");
 	}
 	if ("line edit")
 	{
@@ -1998,6 +2011,7 @@ void EditUi::ItemPaste()
 	TableReload();
 }
 
+
 // TODO: new action's widget get
 QiKey EditUi::WidgetGetKey() {
 	QiKey key;
@@ -2284,6 +2298,9 @@ QiMsgView EditUi::WidgetGetMsgView()
 	else if (ui.msgView_type_clear_radio->isChecked()) msgView.option = QiMsgView::clear;
 	else if (ui.msgView_type_show_radio->isChecked()) msgView.option = QiMsgView::show;
 	else if (ui.msgView_type_hide_radio->isChecked()) msgView.option = QiMsgView::hide;
+	if (ui.msgView_level_msg_radio->isChecked()) msgView.level = MsgViewInfo::_msg;
+	else if (ui.msgView_level_war_radio->isChecked()) msgView.level = MsgViewInfo::_war;
+	else if (ui.msgView_level_err_radio->isChecked()) msgView.level = MsgViewInfo::_err;
 	return msgView;
 }
 
@@ -2441,6 +2458,9 @@ void EditUi::WidgetSet(const QiMsgView& msgView)
 	else if (msgView.option == QiMsgView::clear) ui.msgView_type_clear_radio->setChecked(true);
 	else if (msgView.option == QiMsgView::show) ui.msgView_type_show_radio->setChecked(true);
 	else if (msgView.option == QiMsgView::hide) ui.msgView_type_hide_radio->setChecked(true);
+	if (msgView.level == MsgViewInfo::_msg) ui.msgView_level_msg_radio->setChecked(true);
+	else if (msgView.level == MsgViewInfo::_war) ui.msgView_level_war_radio->setChecked(true);
+	else if (msgView.level == MsgViewInfo::_err) ui.msgView_level_err_radio->setChecked(true);
 }
 
 

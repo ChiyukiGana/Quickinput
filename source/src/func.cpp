@@ -402,22 +402,34 @@ namespace QiFn
 		memset(Qi::keyBlock, 0, sizeof Qi::keyBlock);
 	}
 
-	void InitOcr(bool first)
+	void InitOcr(bool warning)
 	{
-		if (File::PathState(L"OCR"))
+		std::wstring dll = L"OCR\\qiocr.dll";
+		if (File::PathState(dll))
 		{
-			if (File::PathState(L"OCR\\qiocr.dll"))
+			Qi::ocr_ver = QiOcrInterfaceVersion(dll);
+			if (Qi::ocr_ver > 2)
 			{
-				Qi::ocr_ver = QiOcrInterfaceVersion();
-				if (Qi::ocr_ver > 0)
+				std::wstring rec = L"ppocr.onnx";
+				std::wstring keys = L"ppocr.keys";
+				std::wstring det = L"OCR\\ppdet.onnx";
+				if (Qi::set.ocr_current.isEmpty())
 				{
-					Qi::ocr = QiOcrInterfaceInit(Qi::set.ocr_thread);
-					if (!Qi::ocr.valid()) MsgBox::Error(L"文字识别加载失败");
+					rec = std::wstring(L"OCR\\") + rec;
+					keys = std::wstring(L"OCR\\") + keys;
 				}
-				else MsgBox::Warning(L"文字识别版本低于1，需要更新");
+				else
+				{
+					std::wstring lang = Qi::set.ocr_current.toStdWString() + L"\\";
+					rec = std::wstring(L"OCR\\") + lang + rec;
+					keys = std::wstring(L"OCR\\") + lang + keys;
+				}
+				Qi::ocr = QiOcrInterfaceInit(dll, rec, keys, det, Qi::set.ocr_thread);
+				if (!Qi::ocr.valid()) MsgBox::Error(L"文字识别加载失败");
 			}
+			else MsgBox::Warning(L"文字识别版本低于2，需要更新");
 		}
-		else if (!first) MsgBox::Warning(L"没有安装文字识别功能");
+		else if (warning) MsgBox::Warning(L"没有安装文字识别功能");
 	}
 
 	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, std::function<void(int x, int y, int stepx, int stepy)> CallBack)

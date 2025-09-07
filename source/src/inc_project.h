@@ -30,6 +30,7 @@ namespace Qi
 	inline const QString macroType = ".json";
 	inline const QString configFile = "QuickInput.json";
 	inline QString version;
+	inline HICON ico = LoadIconW(GetModuleHandleW(nullptr), L"ICOAPP");
 
 	bool IsActive();
 	void PrecSleep(clock_t ms);

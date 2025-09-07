@@ -8732,11 +8732,33 @@
                    <number>5</number>
                   </property>
                   <item>
-                   <widget class="QRadioButton" name="msgView_type_set_radio">
+                   <widget class="QLabel" name="msgView_type_label">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="toolTip">
+                     <string/>
+                    </property>
                     <property name="text">
-                     <string>设置</string>
+                     <string>操作</string>
                     </property>
                    </widget>
+                  </item>
+                  <item>
+                   <spacer name="msgView_type_spacer">
+                    <property name="orientation">
+                     <enum>Qt::Orientation::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>20</height>
+                     </size>
+                    </property>
+                   </spacer>
                   </item>
                   <item>
                    <widget class="QRadioButton" name="msgView_type_add_radio">
@@ -8749,6 +8771,13 @@
                    <widget class="QRadioButton" name="msgView_type_clear_radio">
                     <property name="text">
                      <string>清空</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QRadioButton" name="msgView_type_set_radio">
+                    <property name="text">
+                     <string>文本</string>
                     </property>
                    </widget>
                   </item>
@@ -8766,8 +8795,31 @@
                     </property>
                    </widget>
                   </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="msgView_info_box">
+                  <property name="spacing">
+                   <number>5</number>
+                  </property>
                   <item>
-                   <spacer name="msgView_type_spacer">
+                   <widget class="QLabel" name="msgView_level_label">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="toolTip">
+                     <string/>
+                    </property>
+                    <property name="text">
+                     <string>添加类型</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="msgView_type_spacer_2">
                     <property name="orientation">
                      <enum>Qt::Orientation::Horizontal</enum>
                     </property>
@@ -8778,6 +8830,27 @@
                      </size>
                     </property>
                    </spacer>
+                  </item>
+                  <item>
+                   <widget class="QRadioButton" name="msgView_level_msg_radio">
+                    <property name="text">
+                     <string>消息</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QRadioButton" name="msgView_level_war_radio">
+                    <property name="text">
+                     <string>警告</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QRadioButton" name="msgView_level_err_radio">
+                    <property name="text">
+                     <string>错误</string>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </item>

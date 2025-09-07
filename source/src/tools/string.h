@@ -118,14 +118,14 @@ namespace QiTools {
 		static std::wstring toWString(const RECT& val) { return std::to_wstring(val.left) + std::wstring(L", ") + std::to_wstring(val.top) + std::wstring(L", ") + std::to_wstring(val.right) + std::wstring(L", ") + std::to_wstring(val.bottom); }
 
 		template<typename... Args>
-		static std::string Connect(Args&&... args) {
+		static std::string connect(Args&&... args) {
 			std::string result;
 			(result += ... += toString(std::forward<Args>(args)));
 			return result;
 		}
 
 		template<typename... Args>
-		static std::wstring ConnectW(Args&&... args) {
+		static std::wstring connectW(Args&&... args) {
 			std::wstring result;
 			(result += ... += toWString(std::forward<Args>(args)));
 			return result;
