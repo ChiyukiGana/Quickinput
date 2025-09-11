@@ -322,12 +322,11 @@ void EditUi::Event()
 		connect(ui.title_close_button, &QPushButton::clicked, this, [this] { Qi::popText->Show("正在保存宏"); QTimer::singleShot(32, [] { Qi::widget.editClose(); }); });
 		connect(ui.title_back_button, &QPushButton::clicked, this, [this] { Back(); });
 		connect(ui.title_run_button, &QPushButton::clicked, this, [this] {
-			if (QiThread::MacroRunActive(macro) || QiThread::MacroEndActive(macro))
+			if (macro->thread.active())
 			{
 				if (debugState == debug_run)
 				{
-					if (ui.action_running_radio->isChecked()) QiThread::ExitMacroRun(macro);
-					else QiThread::ExitMacroEnd(macro);
+					macro->thread.exit();
 				}
 				macro->interpreter->DebugContinue();
 			}
@@ -335,8 +334,7 @@ void EditUi::Event()
 			{
 				Qi::debug = true;
 				timeBeginPeriod(1);
-				if (ui.action_running_radio->isChecked()) QiThread::StartMacroRun(macro);
-				else QiThread::StartMacroEnd(macro);
+				macro->thread.start(macro, ui.action_running_radio->isChecked());
 				testTimer->start();
 			}
 			SetDebugState(debug_run);
@@ -549,15 +547,11 @@ void EditUi::Event()
 	if ("timer")
 	{
 		connect(testTimer, &QTimer::timeout, this, [this] {
-			if (QiThread::MacroRunActive(macro) || QiThread::MacroEndActive(macro))
+			if (macro->thread.active())
 			{
 				if (Input::state(VK_F10))
 				{
-					if (Input::state(VK_SHIFT))
-					{
-						if (ui.action_running_radio->isChecked()) QiThread::ExitMacroRun(macro);
-						else QiThread::ExitMacroEnd(macro);
-					}
+					if (Input::state(VK_SHIFT)) macro->thread.start(macro, ui.action_running_radio->isChecked());
 					macro->interpreter->DebugContinue();
 					Input::Loop(VK_F10, 1);
 				}
@@ -826,10 +820,10 @@ void EditUi::Event_Action_Widget()
 	// varOperator
 	connect(ui.varOperator_test_button, &QPushButton::clicked, this, [this] {
 		setDisabled(true);
-		varop = std::async([code = ui.varOperator_edit->toPlainText().toStdString(), varMap = &macro->varMap]() {
+		varop = std::async([code = ui.varOperator_edit->toPlainText().toStdString(), pMacro = macro]() {
 			try
 			{
-				Qi::interpreter.interpretAll(code, *varMap);
+				pMacro->script_interpreter.interpretAll(code);
 			}
 			catch (std::exception e)
 			{

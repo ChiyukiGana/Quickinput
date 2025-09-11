@@ -210,24 +210,24 @@ namespace QiFn
 			{
 				if (Qi::fun.quickClick.mode) // switch mode
 				{
-					if (QiThread::QuickClickActive())
+					if (Qi::fun.quickClick.thread.active())
 					{
-						QiThread::ExitQuickClick();
+						Qi::fun.quickClick.thread.exit();
 						if (Qi::set.showTips) QuickClickPop(false);
 						if (Qi::set.audFx) SoundPlay(Qi::ui.pop.qcd.s, false);
 					}
 					else
 					{
-						QiThread::StartQuickClick();
+						Qi::fun.quickClick.thread.start();
 						if (Qi::set.showTips) QuickClickPop(true);
 						if (Qi::set.audFx) SoundPlay(Qi::ui.pop.qce.s, false);
 					}
 				}
 				else // press mode
 				{
-					if (!QiThread::QuickClickActive())
+					if (!Qi::fun.quickClick.thread.active())
 					{
-						QiThread::StartQuickClick();
+						Qi::fun.quickClick.thread.start();
 						if (Qi::set.showTips) QuickClickPop(true);
 						if (Qi::set.audFx) SoundPlay(Qi::ui.pop.qce.s, false);
 					}
@@ -237,9 +237,9 @@ namespace QiFn
 			{
 				if (!Qi::fun.quickClick.mode) // press mode
 				{
-					if (QiThread::QuickClickActive())
+					if (Qi::fun.quickClick.thread.active())
 					{
-						QiThread::ExitQuickClick();
+						Qi::fun.quickClick.thread.exit();
 						if (Qi::set.showTips) QuickClickPop(false);
 						if (Qi::set.audFx) SoundPlay(Qi::ui.pop.qcd.s, false);
 					}
@@ -263,16 +263,15 @@ namespace QiFn
 					{
 						if (k1 && k2)
 						{
-							if (QiThread::MacroRunActive(&macro))
+							if (macro.thread.active(true))
 							{
-								QiThread::ExitMacroRun(&macro);
+								macro.thread.start(&macro, false);
 								if (Qi::set.showTips) MacroPop(&macro, false);
 								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.swd.s, false);
 							}
 							else
 							{
-								QiThread::ExitMacroEnd(&macro);
-								QiThread::StartMacroRun(&macro);
+								macro.thread.start(&macro, true);
 								if (Qi::set.showTips) MacroPop(&macro, true);
 								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.swe.s, false);
 							}
@@ -282,17 +281,15 @@ namespace QiFn
 					{
 						if (k1 && k2)
 						{
-							QiThread::ExitMacroRun(&macro);
-							QiThread::ExitMacroEnd(&macro);
-							QiThread::StartMacroRun(&macro);
+							macro.thread.start(&macro, true);
 							if (Qi::set.showTips) MacroPop(&macro, true);
 							if (Qi::set.audFx) SoundPlay(Qi::ui.pop.dwe.s, false);
 						}
 						else
 						{
-							if (macro.count == 0 && QiThread::MacroRunActive(&macro))
+							if (macro.count == 0 && macro.thread.active(true))
 							{
-								QiThread::ExitMacroRun(&macro);
+								macro.thread.start(&macro, false);
 								if (Qi::set.showTips) MacroPop(&macro, false);
 								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.dwd.s, false);
 							}
@@ -303,9 +300,9 @@ namespace QiFn
 						if (k1 && k2)
 						{
 							macro.active = true;
-							if (macro.count == 0 && QiThread::MacroRunActive(&macro))
+							if (macro.count == 0 && macro.thread.active(true))
 							{
-								QiThread::ExitMacroRun(&macro);
+								macro.thread.start(&macro, false);
 								if (Qi::set.showTips) MacroPop(&macro, false);
 								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.upd.s, false);
 							}
@@ -315,10 +312,7 @@ namespace QiFn
 							if (macro.active)
 							{
 								macro.active = false;
-
-								QiThread::ExitMacroRun(&macro);
-								QiThread::ExitMacroEnd(&macro);
-								QiThread::StartMacroRun(&macro);
+								macro.thread.start(&macro, true);
 								if (Qi::set.showTips) MacroPop(&macro, true);
 								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.upe.s, false);
 							}
@@ -383,7 +377,7 @@ namespace QiFn
 			}
 
 			Qi::state = true;
-			if (Qi::fun.wndActive.state) { if (!QiThread::WindowStateActive()) QiThread::StartWindowState(); }
+			if (Qi::fun.wndActive.state) { if (!Qi::fun.wndActive.thread.active()) Qi::fun.wndActive.thread.start(); }
 			else Qi::run = true;
 			StatePop(true);
 			if (Qi::set.audFx) SoundPlay(Qi::ui.pop.qe.s, false);
@@ -391,7 +385,7 @@ namespace QiFn
 		else
 		{
 			Qi::state = false, Qi::run = false;
-			if (Qi::fun.wndActive.state) { if (QiThread::WindowStateActive()) QiThread::ExitWindowState(); }
+			if (Qi::fun.wndActive.state) { if (Qi::fun.wndActive.thread.active()) Qi::fun.wndActive.thread.exit(); }
 			StatePop(false);
 			if (Qi::set.audFx) SoundPlay(Qi::ui.pop.qd.s, false);
 		}
@@ -472,6 +466,30 @@ namespace QiFn
 		}
 		return wndInfo;
 	}
+
+	Macro* FindMacro(const QString& path)
+	{
+		int i = path.indexOf("/");
+		MacroGroup* group = nullptr;
+		Macro* macro = nullptr;
+		QString macro_name;
+		if (i == -1)
+		{
+			macro_name = path;
+			group = &Qi::macroGroups.front();
+		}
+		else
+		{
+			macro_name = path.mid(i + 1);
+			group = Qi::macroGroups.find([group_name = path.mid(0, i)](const MacroGroup& group) -> bool { return group_name == group.name; });
+		}
+		if (group)
+		{
+			macro = group->macros.find([&macro_name](Macro& macro) -> bool { return macro_name == macro.name; });
+		}
+		return macro;
+	}
+
 	QiBlock* FindBlock(Actions& actions, int id)
 	{
 		for (size_t i = 0; (i < actions.size()); i++)

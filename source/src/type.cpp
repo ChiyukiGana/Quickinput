@@ -552,40 +552,4 @@ namespace Qi
 			}
 		}
 	}
-
-	bool IsActive()
-	{
-		if (Qi::debug) return !Qi::PeekExitMsg();
-		return Qi::run && !Qi::PeekExitMsg();
-	}
-	void PrecSleep(clock_t ms)
-	{
-		clock_t begin = clock();
-		if (ms > 5)
-		{
-			begin--;
-			while ((begin + ms) > clock()) Sleep(1);
-		}
-		else while ((begin + ms) > clock()) Sleep(0);
-	}
-	bool PeekExitMsg()
-	{
-		return PeekMessageW(&Qi::msg, 0, Qi::msg_exit, Qi::msg_exit, PM_NOREMOVE);
-	}
-	bool PeekSleep(clock_t ms)
-	{
-		clock_t begin = clock();
-		if (ms > 5)
-		{
-			begin--;
-			while ((begin + ms) > clock())
-			{
-				if (PeekExitMsg()) return true;
-				Sleep(1);
-			}
-			return false;
-		}
-		else while ((begin + ms) > clock()) Sleep(0);
-		return PeekExitMsg();
-	}
 }

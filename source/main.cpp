@@ -15,7 +15,7 @@ void Init()
 	QiJson::LoadJson();
     QiFn::InitOcr(false);
 	Qi::screen = System::screenSize();
-    QiThread::StartDisplayUpdate();
+    Qi::display_update.start();
     qputenv("QT_QPA_PLATFORM", "windows:darkmode=0");
 	if ("style")
 	{
@@ -898,7 +898,35 @@ int main(int argc, char* argv[])
 	Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y);
 	Qi::popText->setSize(Qi::ui.pop.size);
 	Qi::windowSelection = new QWindowSelection; // select a window of global widget
-	Qi::interpreter_pop = [](std::string text, int time) { Qi::popText->Popup(time, text.c_str(), RGB(223, 223, 223)); };
+
+    if ("regster script interpreter callback")
+    {
+        Qi::interpreter_pop = [](const std::string& text, int time) { Qi::popText->Popup(time, text.c_str(), RGB(223, 223, 223)); };
+        Qi::interpreter_macro_active = [](const std::string& text) -> bool {
+            Macro* macro = QiFn::FindMacro(text.c_str());
+            if (macro) return macro->thread.active();
+            return false;
+        };
+        Qi::interpreter_macro_start = [](const std::string& text) -> bool {
+            Macro* macro = QiFn::FindMacro(text.c_str());
+            if (macro)
+            {
+                macro->thread.start(macro, true);
+                return true;
+            }
+            return false;
+        };
+        Qi::interpreter_macro_stop = [](const std::string& text) -> bool {
+            Macro* macro = QiFn::FindMacro(text.c_str());
+            if (macro)
+            {
+                macro->thread.exit();
+                return true;
+            }
+            return false;
+        };
+    }
+
 	MainUi mainWindow;
 	Qi::version = mainWindow.Version();
 	application.exec();

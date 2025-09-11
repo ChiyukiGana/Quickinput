@@ -2,6 +2,10 @@
 VarViewUi::VarViewUi()
 {
 	ui.setupUi(this);
+
+	QRect screen = QGuiApplication::primaryScreen()->geometry();
+	setMaximumSize(screen.size());
+
 	connect(ui.title_close_button, &QPushButton::clicked, this, [this] { hide(); });
 	StyleGroup();
 	if ("table")
@@ -66,11 +70,12 @@ void VarViewUi::TableUpdate()
 	for (auto& i : Qi::macroGroups) for (auto& im : i.macros) macros.append(&im);
 	ui.macroGroup_table->setRowCount(macros.size() + 1);
 
-	bool first = true;
+	bool global = true;
 	for (size_t i = 0; i < macros.size() + 1; i++)
 	{
 		QTableWidget* table = ui.macroGroup_table->table(i);
-		QiVarMap* varMap;
+		Macro* macro = nullptr;
+		QiVarMap* varMap = nullptr;
 		if ("column")
 		{
 			table->setColumnCount(3);
@@ -84,16 +89,16 @@ void VarViewUi::TableUpdate()
 			table->setEditTriggers(QAbstractItemView::EditTrigger::NoEditTriggers);
 			table->setAutoScroll(false);
 		}
-		if (first)
+		if (global)
 		{
-			first = false;
-			varMap = Qi::interpreter.varMap();
+			global = false;
+			varMap = QiScriptInterpreter::global();
 		}
 		else
 		{
-			Macro* macro = macros.at(i - 1);
+			macro = macros.at(i - 1);
 			table->horizontalHeaderItem(tableColumn_name)->setText(macro->name);
-			varMap = &macro->varMap;
+			varMap = macro->script_interpreter.local();
 		}
 
 		TableUpdate(table, *varMap);
@@ -101,12 +106,22 @@ void VarViewUi::TableUpdate()
 			if (updating) return;
 			if (column == tableColumn_value) table->editItem(table->item(row, tableColumn_value));
 			});
-		connect(table, &QTableWidget::cellChanged, this, [this, table, varMap](int row, int column) {
+		connect(table, &QTableWidget::cellChanged, this, [this, table, varMap, macro](int row, int column) {
 			if (updating) return;
 			QString name = table->item(row, tableColumn_name)->text();
 			QString text = table->item(row, tableColumn_value)->text();
-			if (QiVar::isNumber(text.toStdString())) varMap->at(name.toStdString()) = QiVar(QiVar::toNumber(text.toStdString()));
-			else varMap->at(name.toStdString()) = QiVar(text.toStdString());
+
+			if (QiVar::isNumber(text.toStdString()))
+			{
+				if (macro) macro->script_interpreter.setLocalValue(name.toStdString(), QiVar::toNumber(text.toStdString()));
+				else QiScriptInterpreter::setGlobalValue(name.toStdString(), QiVar::toNumber(text.toStdString()));
+			}
+			else
+			{
+				if (macro) macro->script_interpreter.setLocalValue(name.toStdString(), text.toStdString());
+				else QiScriptInterpreter::setGlobalValue(name.toStdString(), text.toStdString());
+			}
+
 			TableUpdate(table, *varMap);
 			});
 	}

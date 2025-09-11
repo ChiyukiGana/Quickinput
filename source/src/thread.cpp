@@ -1,98 +1,149 @@
-﻿#include "thread.h"
-namespace QiThread
-{
-	LRESULT _stdcall DisplayUpdateProcess(HWND w, UINT m, WPARAM wp, LPARAM lp)
-	{
-		if (m == WM_DISPLAYCHANGE) Qi::screen = System::screenSize();
-		return DefWindowProcW(w, m, wp, lp);
-	}
-	DWORD _stdcall DisplayUpdateThread(PVOID)
-	{
-		Window::Register(L"QuickInputDisplayUpdateClass", DisplayUpdateProcess);
-		HWND wnd = Window::Create(L"QuickInputDisplayUpdate", L"QuickInputDisplayUpdateClass", WS_OVERLAPPED, 0, 100, 100, 0, 0);
-		MSG msg;
-		while (GetMessageW(&msg, wnd, 0, 0)) DispatchMessageW(&msg);
-		return 0;
-	}
+﻿#include "inc_header.h"
 
-	bool IsInvalid(const Macro* macro)
+struct QiMacroWorkerArgs
+{
+	bool run;
+	Macro* macro;
+	std::mutex mutex;
+	std::condition_variable load;
+};
+struct QiMacroWorker : public QiWorkerWithArgs<QiMacroWorkerArgs*>
+{
+	static inline std::mutex worker_mutex;
+	Macro* macro = nullptr;
+	using QiWorkerWithArgs::QiWorkerWithArgs;
+	bool invalid()
 	{
-		if (Qi::debug) return Qi::PeekExitMsg();
-		return !Qi::run || Qi::PeekExitMsg() || (macro->timer && !QiTime::in(macro->timerStart, macro->timerEnd));
+		if (Qi::debug) return m_stop;
+		return !Qi::run || m_stop || (macro->timer && !QiTime::in(macro->timerStart, macro->timerEnd));
 	}
-	DWORD _stdcall MacroExec(PVOID pParam)
+	void run(QiMacroWorkerArgs* param) override
 	{
 		srand(clock());
-		ThreadParam* param = (ThreadParam*)pParam;
-		Macro* pMacro = param->macro;
-		bool isRunning = param->run;
-		QiInterpreter interpreter(*pMacro, isRunning);
+		QiInterpreter interpreter(*param->macro, param->run, *this);
 		param->load.notify_all();
-		pMacro->varMap[std::string("macro_name")] = pMacro->name.toStdString();
-		if (isRunning)
+		macro = param->macro;
+
 		{
-			if (Qi::run)
+			std::unique_lock<std::mutex> lock(worker_mutex);
+			macro->script_interpreter.setWorker(this);
+		}
+
+		macro->script_interpreter.setValue(QiScriptInterpreter::var_macro_name, macro->name.toStdString());
+		try {
+			if (param->run)
 			{
-				bool timerOnce = false;
-				do
+				if (Qi::run)
 				{
-					if (pMacro->timer)
+					bool timerOnce = false;
+					do
 					{
-						Qi::popText->Popup(QString("宏：") + pMacro->name + QString(timerOnce ? "已超时结束，等待下一次运行" : "等待运行"));
-						while (Qi::run && !Qi::PeekExitMsg() && (pMacro->timer && !(QiTime::in(pMacro->timerStart, pMacro->timerEnd)))) Sleep(1);
-					}
+						if (macro->timer)
+						{
+							Qi::popText->Popup(QString("宏：") + macro->name + QString(timerOnce ? "已超时结束，等待下一次运行" : "等待运行"));
+							while (Qi::run && !m_stop && (macro->timer && !(QiTime::in(macro->timerStart, macro->timerEnd)))) Sleep(1);
+						}
 
-					try { Qi::interpreter.interpretAll(pMacro->script.toStdString(), pMacro->varMap); }
-					catch (std::runtime_error e) { QiFn::UnBlock(); Qi::interpreter.showError(e.what(), std::string("位于初始化脚本")); return -1; }
+						macro->script_interpreter.interpretAll(macro->script.toStdString());
 
-					Qi::curBlock += pMacro->curBlock;
-					if (pMacro->count && pMacro->mode != Macro::sw)
-					{
-						for (size_t i = 0; i < pMacro->count && !IsInvalid(pMacro); i++) if (interpreter.ActionInterpreter(pMacro->acRun) != r_continue) break;
-					}
-					else if (!pMacro->count || pMacro->mode == Macro::sw)
-					{
-						while (!IsInvalid(pMacro)) if (interpreter.ActionInterpreter(pMacro->acRun) != r_continue) break;
-					}
-					Qi::curBlock -= pMacro->curBlock;
+						Qi::curBlock += macro->curBlock;
+						if (macro->count && macro->mode != Macro::sw)
+						{
+							for (size_t i = 0; i < macro->count && !invalid(); i++) if (interpreter.ActionInterpreter(macro->acRun) != r_continue) break;
+						}
+						else if (!macro->count || macro->mode == Macro::sw)
+						{
+							while (!invalid()) if (interpreter.ActionInterpreter(macro->acRun) != r_continue) break;
+						}
+						Qi::curBlock -= macro->curBlock;
+						
+						if (!invalid()) macro->thread.start(macro, false);
 
-					timerOnce = true;
-					StartMacroEnd(pMacro);
-				} while (Qi::run && !Qi::PeekExitMsg() && pMacro->timer);
+						timerOnce = true;
+					} while (Qi::run && !m_stop && macro->timer);
+				}
+				else if (Qi::debug)
+				{
+					Qi::curBlock += macro->curBlock;
+					macro->script_interpreter.interpretAll(macro->script.toStdString());
+					interpreter.ActionInterpreter(macro->acRun);
+					Qi::curBlock -= macro->curBlock;
+				}
 			}
-			else if (Qi::debug)
+			else
 			{
-				Qi::curBlock += pMacro->curBlock;
-				Qi::interpreter.interpretAll(pMacro->script.toStdString(), pMacro->varMap);
-				interpreter.ActionInterpreter(pMacro->acRun);
-				Qi::curBlock -= pMacro->curBlock;
+				Qi::curBlock += macro->curBlock;
+				if (Qi::run || Qi::debug) interpreter.ActionInterpreter(macro->acEnd);
+				Qi::curBlock -= macro->curBlock;
 			}
 		}
-		else
+		catch (std::runtime_error e) { QiFn::UnBlock(); macro->script_interpreter.showError(e.what(), std::string("位于初始化脚本")); }
+
 		{
-			Qi::curBlock += pMacro->curBlock;
-			if (Qi::run || Qi::debug) interpreter.ActionInterpreter(pMacro->acEnd);
-			Qi::curBlock -= pMacro->curBlock;
+			std::unique_lock<std::mutex> lock(worker_mutex);
+			if (macro->script_interpreter.worker() == this) macro->script_interpreter.setWorker(nullptr);
 		}
-		return 0;
 	}
-	DWORD _stdcall QuickClick(PVOID)
+};
+void QiMacroThread::start(Macro* macro, bool running)
+{
+	m_running = running;
+	if (macro->wndState)
+	{
+		macro->wndInput.wnd = macro->wndInfo.wnd;
+		macro->wndInput.child = macro->wndInfo.child;
+		if (!macro->wndInput.active())
+		{
+			macro->wndInput.wnd = macro->wndInfo.wnd = FindWindowW((LPCWSTR)(macro->wndInfo.wndClass.utf16()), (LPCWSTR)(macro->wndInfo.wndName.utf16()));
+			if (!macro->wndInput.wnd) macro->wndInput.wnd = (macro->wndInfo = QiFn::WindowSelection()).wnd;
+			if (!macro->wndInput.wnd)
+			{
+				Qi::popText->Popup("窗口失效");
+				return;
+			}
+		}
+	}
+	QiMacroWorkerArgs tp;
+	tp.run = running;
+	tp.macro = macro;
+	QiThreadManager::start<QiMacroWorker>(&tp);
+	std::unique_lock<std::mutex> lock(tp.mutex);
+	tp.load.wait(lock);
+}
+bool QiMacroThread::active(bool running)
+{
+	if (m_running == running) return QiThreadManager::active();
+	return false;
+}
+
+
+struct QiQuickClickWorker : QiWorker
+{
+	void run() override
 	{
 		srand(clock());
 		int dmax = 0, dmin = 0, umax = 0, umin = 0;
 		if (Qi::fun.quickClick.delay > 200) dmax = 70, dmin = 30, umax = umin = Qi::fun.quickClick.delay - 200;
 		else if (Qi::fun.quickClick.delay > 1) dmax = umax = (Qi::fun.quickClick.delay >> 1) + (Qi::fun.quickClick.delay >> 2), dmin = umin = (Qi::fun.quickClick.delay >> 1) - (Qi::fun.quickClick.delay >> 2);
 		else if (Qi::fun.quickClick.delay == 1) dmax = umax = 1, dmin = umin = 0;
-		while (Qi::run && !Qi::PeekExitMsg())
+		while (Qi::run && !m_stop)
 		{
 			Input::State(Qi::fun.quickClick.key, true, Qi::key_info);
-			Qi::PrecSleep(Rand(dmax, dmin));
+			sleep(Rand(dmax, dmin));
 			Input::State(Qi::fun.quickClick.key, false, Qi::key_info);
-			Qi::PrecSleep(Rand(umax, umin));
+			sleep(Rand(umax, umin));
 		}
-		return 0;
 	}
-	DWORD _stdcall WindowState(PVOID)
+};
+void QiQuickClickThread::start()
+{
+	QiThreadManager::start<QiQuickClickWorker>();
+}
+
+
+struct QiWindowBindWorker : QiWorker
+{
+	void run() override
 	{
 		while (Qi::state)
 		{
@@ -121,121 +172,30 @@ namespace QiThread
 			}
 			Sleep(100);
 		}
-		Qi::fun.wndActive.thread = 0;
-		return 0;
 	}
-	void StartMacro(Macro* pMacro, bool run)
+};
+void QiWindowBindThread::start()
+{
+	QiThreadManager::start<QiWindowBindWorker>();
+}
+
+
+struct QiDisplayUpdateWorker : QiWorker
+{
+	static LRESULT _stdcall DisplayUpdateProcess(HWND w, UINT m, WPARAM wp, LPARAM lp)
 	{
-		if (pMacro->wndState)
-		{
-			pMacro->wndInput.wnd = pMacro->wndInfo.wnd;
-			pMacro->wndInput.child = pMacro->wndInfo.child;
-			if (!pMacro->wndInput.active())
-			{
-				pMacro->wndInput.wnd = pMacro->wndInfo.wnd = FindWindowW((LPCWSTR)(pMacro->wndInfo.wndClass.utf16()), (LPCWSTR)(pMacro->wndInfo.wndName.utf16()));
-				if (!pMacro->wndInput.wnd) pMacro->wndInput.wnd = (pMacro->wndInfo = QiFn::WindowSelection()).wnd;
-				if (!pMacro->wndInput.wnd)
-				{
-					Qi::popText->Popup("窗口失效");
-					return;
-				}
-			}
-		}
-		ThreadParam tp;
-		tp.run = run;
-		tp.macro = pMacro;
-		if (run) pMacro->thRun = Thread::Start(MacroExec, &tp);
-		else pMacro->thEnd = Thread::Start(MacroExec, &tp);
-		std::unique_lock<std::mutex> lock(tp.mutex);
-		tp.load.wait(lock);
+		if (m == WM_DISPLAYCHANGE) Qi::screen = System::screenSize();
+		return DefWindowProcW(w, m, wp, lp);
 	}
-	void StartMacroRun(Macro* pMacro)
+	void run() override
 	{
-		StartMacro(pMacro, true);
+		Window::Register(L"QuickInputDisplayUpdateClass", DisplayUpdateProcess);
+		HWND wnd = Window::Create(L"QuickInputDisplayUpdate", L"QuickInputDisplayUpdateClass", WS_OVERLAPPED, 0, 100, 100, 0, 0);
+		MSG msg;
+		while (GetMessageW(&msg, wnd, 0, 0)) DispatchMessageW(&msg);
 	}
-	void StartMacroEnd(Macro* pMacro)
-	{
-		StartMacro(pMacro, false);
-	}
-	void StartQuickClick()
-	{
-		Qi::fun.quickClick.thread = Thread::Start(QuickClick, nullptr);
-	}
-	void StartWindowState()
-	{
-		Qi::fun.wndActive.thread = Thread::Start(WindowState, nullptr);
-	}
-	void StartDisplayUpdate()
-	{
-		static HANDLE t;
-		if (!t) Thread::Start(DisplayUpdateThread);
-	}
-	void ExitMacroRun(Macro* pMacro)
-	{
-		if (pMacro->thRun)
-		{
-			PostThreadMessageW(GetThreadId(pMacro->thRun), Qi::msg_exit, 0, 0);
-			pMacro->thRun = nullptr;
-		}
-	}
-	void ExitMacroEnd(Macro* pMacro)
-	{
-		if (pMacro->thEnd)
-		{
-			PostThreadMessageW(GetThreadId(pMacro->thEnd), Qi::msg_exit, 0, 0);
-			pMacro->thEnd = nullptr;
-		}
-	}
-	void ExitQuickClick()
-	{
-		if (Qi::fun.quickClick.thread)
-		{
-			PostThreadMessageW(GetThreadId(Qi::fun.quickClick.thread), Qi::msg_exit, 0, 0);
-			Qi::fun.quickClick.thread = nullptr;
-		}
-	}
-	void ExitWindowState()
-	{
-		if (Qi::fun.wndActive.thread)
-		{
-			PostThreadMessageW(GetThreadId(Qi::fun.wndActive.thread), Qi::msg_exit, 0, 0);
-			Qi::fun.wndActive.thread = nullptr;
-		}
-	}
-	bool MacroRunActive(const Macro* pMacro)
-	{
-		if (pMacro->thRun)
-		{
-			DWORD ecode; GetExitCodeThread(pMacro->thRun, &ecode);
-			if (ecode == STILL_ACTIVE) return true;
-		}
-		return false;
-	}
-	bool MacroEndActive(const Macro* pMacro)
-	{
-		if (pMacro->thEnd)
-		{
-			DWORD ecode; GetExitCodeThread(pMacro->thEnd, &ecode);
-			if (ecode == STILL_ACTIVE) return true;
-		}
-		return false;
-	}
-	bool QuickClickActive()
-	{
-		if (Qi::fun.quickClick.thread)
-		{
-			DWORD ecode; GetExitCodeThread(Qi::fun.quickClick.thread, &ecode);
-			if (ecode == STILL_ACTIVE) return true;
-		}
-		return false;
-	}
-	bool WindowStateActive()
-	{
-		if (Qi::fun.wndActive.thread)
-		{
-			DWORD ecode; GetExitCodeThread(Qi::fun.wndActive.thread, &ecode);
-			if (ecode == STILL_ACTIVE) return true;
-		}
-		return false;
-	}
+};
+void QiDisplayUpdateThread::start()
+{
+	QiThreadManager::start<QiWindowBindWorker>();
 }

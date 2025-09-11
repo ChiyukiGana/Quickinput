@@ -47,6 +47,9 @@ namespace QiFn
 
 	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, std::function<void(int x, int y, int stepx, int stepy)> CallBack);
 	WndInfo WindowSelection();
+
+	Macro* FindMacro(const QString& name);
+
 	QiBlock* FindBlock(Actions& actions, int id);
 	const QiBlock* FindBlock(const Actions& actions, int id);
 };

@@ -3,8 +3,8 @@
 
 class QiInterpreter
 {
+	QiWorker& worker;
 	Macro& macro;
-	QiVarMap& varMap;
 	POINT& cursor;
 	const Actions& actions;
 	const bool timer;
@@ -23,7 +23,7 @@ class QiInterpreter
 	int jumpId = 0;
 	bool debug_entry = false;
 public:
-	QiInterpreter(Macro& macro, bool isRunning);
+	QiInterpreter(Macro& macro, bool isRunning, QiWorker& worker);
 	int rand(int max, int min = 0);
 	void setLastPos(int x, int y);
 	bool isInvalid();

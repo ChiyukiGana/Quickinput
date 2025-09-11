@@ -46,6 +46,8 @@ void FuncUi::Init()
 		ui.window_check->installEventFilter(this);
 		ui.window_select_button->installEventFilter(this);
 		ui.clock_check->installEventFilter(this);
+		ui.varView_button->installEventFilter(this);
+		ui.msgView_button->installEventFilter(this);
 	}
 }
 void FuncUi::Event()
@@ -67,6 +69,7 @@ void FuncUi::Event()
 	connect(ui.clock_check, &QCheckBox::toggled, this, [this](bool state) { func->showClock.state = state; QiJson::SaveJson(); });
 	connect(ui.clock_keyedit, &QKeyEdit::changed, this, [this] { func->showClock.key = ui.clock_keyedit->key(); QiJson::SaveJson(); });
 	connect(ui.varView_button, &QPushButton::clicked, this, [this] { Qi::widget.varView->show(); });
+	connect(ui.msgView_button, &QPushButton::clicked, this, [this] { Qi::widget.msgView->show(); });
 }
 void FuncUi::StyleGroup()
 {
@@ -82,6 +85,7 @@ void FuncUi::StyleGroup()
 	ui.click_keyedit->setProperty("group", "line_edit");
 	ui.clock_keyedit->setProperty("group", "line_edit");
 	ui.varView_button->setProperty("group", "get_button");
+	ui.msgView_button->setProperty("group", "get_button");
 }
 
 bool FuncUi::event(QEvent* e)

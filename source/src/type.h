@@ -3,6 +3,7 @@
 #include "scriptinterpreter.h"
 #include "ui.h"
 #include "range.h"
+#include "thread.h"
 
 class QiInterpreter;
 class MacroGroup;
@@ -1076,6 +1077,11 @@ public:
 ////////////////// Macro
 struct Macro
 {
+	Macro() {};
+	Macro(Macro&&) = default;
+	Macro(const Macro&) = delete;
+	Macro& operator=(Macro&&) = default;
+	Macro& operator=(const Macro&) = delete;
 	enum { sw, down, up };
 
 	static constexpr QiIntRange range_count = { 0, 9999 };
@@ -1110,10 +1116,9 @@ struct Macro
 	POINT cursor = {};
 	WndInfo wndInfo;
 	WndInput wndInput;
-	HANDLE thRun = nullptr;
-	HANDLE thEnd = nullptr;
 	QiInterpreter* interpreter;
-	QiVarMap varMap;
+	QiScriptInterpreter script_interpreter;
+	QiMacroThread thread;
 	QJsonObject toJson() const;
 	void fromJson(const QJsonObject& json);
 	QString makePath() const
@@ -1212,7 +1217,7 @@ struct FuncData
 		int mode = 0;
 		int key = 0;
 		int delay = 10;
-		HANDLE thread = 0;
+		QiQuickClickThread thread;
 	} quickClick;
 	struct ShowClock
 	{
@@ -1223,7 +1228,7 @@ struct FuncData
 	{
 		bool state = false;
 		WndInfo wndInfo;
-		HANDLE thread = 0;
+		QiWindowBindThread thread;
 	} wndActive;
 };
 struct SettingsData
@@ -1342,7 +1347,6 @@ namespace Qi
 {
 	inline size_t ocr_ver = 0;
 	inline QiOcrModule ocr;
-	inline QiScriptInterpreter interpreter;
 	// for setStyle
 	inline QApplication* application = nullptr;
 	inline QiUi::QuickInputUi ui;
@@ -1371,6 +1375,7 @@ namespace Qi
 	inline int curBlock = 0;
 	inline XBoxPad xboxpad;
 	// other
+	inline QiDisplayUpdateThread display_update;
 	inline SIZE screen = {};
 	inline MSG msg;
 

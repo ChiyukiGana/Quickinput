@@ -19,10 +19,10 @@ bool HaveEntry(const Actions& actions)
 	return false;
 }
 
-QiInterpreter::QiInterpreter(Macro& macro, bool isRunning) :
+QiInterpreter::QiInterpreter(Macro& macro, bool isRunning, QiWorker& worker) :
+	worker(worker),
 	macro(macro),
 	actions(isRunning ? macro.acRun : macro.acEnd),
-	varMap(macro.varMap),
 	cursor(macro.cursor),
 	speed(macro.speed),
 	timer(macro.timer),
@@ -36,7 +36,7 @@ QiInterpreter::QiInterpreter(Macro& macro, bool isRunning) :
 	macro.interpreter = this;
 	if (isRunning)
 	{
-		macro.varMap.clear();
+		macro.script_interpreter.clearLocal();
 		Qi::widget.varViewReload();
 		GetCursorPos(&cursor);
 	}
@@ -48,20 +48,20 @@ QiInterpreter::QiInterpreter(Macro& macro, bool isRunning) :
 int QiInterpreter::rand(int max, int min)
 {
 	min = Rand(max, min);
-	varMap[std::string("rand_last")] = min;
+	macro.script_interpreter.setValue(QiScriptInterpreter::var_rand_last, min);
 	return min;
 }
 
 void QiInterpreter::setLastPos(int x, int y)
 {
-	varMap[std::string("cur_last_x")] = x;
-	varMap[std::string("cur_last_y")] = y;
+	macro.script_interpreter.setValue(QiScriptInterpreter::var_cur_last_x, x);
+	macro.script_interpreter.setValue(QiScriptInterpreter::var_cur_last_y, y);
 }
 
 bool QiInterpreter::isInvalid()
 {
-	if (Qi::debug) return Qi::PeekExitMsg();
-	return !Qi::run || Qi::PeekExitMsg() || (timer && !QiTime::in(timerStart, timerEnd));
+	if (Qi::debug) return worker.m_stop;
+	return !Qi::run || worker.m_stop || (timer && !QiTime::in(timerStart, timerEnd));
 }
 
 void QiInterpreter::DebugContinue()
@@ -71,7 +71,16 @@ void QiInterpreter::DebugContinue()
 
 bool QiInterpreter::PeekSleep(clock_t ms)
 {
-	return Qi::PeekSleep(ms / speed);
+	clock_t end = clock() + (ms / speed);
+	if (ms > 5)
+	{
+		while (!worker.m_stop && (clock() < end)) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	}
+	else
+	{
+		while (!worker.m_stop && (clock() < end)) std::this_thread::yield();;
+	}
+	return worker.m_stop;
 }
 
 QString QiInterpreter::makePath()
@@ -142,12 +151,8 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 				{
 					if (jumpId || debug_entry) continue;
 					const QiDelay& ref = std::get<QiDelay>(action);
-					int min = 1;
-					int max = 1;
-					try { min = ref.v_min.isEmpty() ? ref.min : varMap.at(ref.v_min.toStdString()).toInteger(); }
-					catch (...) { QiFn::UnBlock(); MsgBox::Error(std::wstring(L"等待变量无效：") + ref.v_min.toStdWString() + werrPath()); return r_exit; }
-					try { max = ref.v_max.isEmpty() ? ref.max : varMap.at(ref.v_max.toStdString()).toInteger(); }
-					catch (...) { QiFn::UnBlock(); MsgBox::Error(std::wstring(L"等待变量无效：") + ref.v_max.toStdWString() + werrPath()); return r_exit; }
+					int min = ref.v_min.isEmpty() ? ref.min : macro.script_interpreter.value(ref.v_min.toStdString()).toInteger();
+					int max = ref.v_max.isEmpty() ? ref.max : macro.script_interpreter.value(ref.v_max.toStdString()).toInteger();
 
 					if (PeekSleep(rand(max, min))) return r_exit;
 				} break;
@@ -268,7 +273,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					const QiCopyText& ref = std::get<QiCopyText>(action);
 					try
 					{
-						std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
+						std::string text = macro.script_interpreter.execute(macro.script_interpreter.makeString(ref.text.toStdString())).toString();
 						System::ClipBoardText(String::toWString(text).c_str());
 					}
 					catch (std::exception e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return r_exit; }
@@ -318,12 +323,8 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 				case QiType::loop:
 				{
 					const QiLoop& ref = std::get<QiLoop>(action);
-					int min = 1;
-					int max = 1;
-					try { min = ref.v_min.isEmpty() ? ref.min : varMap.at(ref.v_min.toStdString()).toInteger(); }
-					catch (...) { QiFn::UnBlock(); MsgBox::Error(std::wstring(L"循环变量无效：") + ref.v_min.toStdWString() + werrPath()); return r_exit; }
-					try { max = ref.v_max.isEmpty() ? ref.max : varMap.at(ref.v_max.toStdString()).toInteger(); }
-					catch (...) { QiFn::UnBlock(); MsgBox::Error(std::wstring(L"循环变量无效：") + ref.v_max.toStdWString() + werrPath()); return r_exit; }
+					int min = ref.v_min.isEmpty() ? ref.min : macro.script_interpreter.value(ref.v_min.toStdString()).toInteger();
+					int max = ref.v_max.isEmpty() ? ref.max : macro.script_interpreter.value(ref.v_max.toStdString()).toInteger();
 
 					bool infinite = (min < 1) && (max < 1);
 					int count = rand(max, min);
@@ -405,7 +406,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					const QiPopText& ref = std::get<QiPopText>(action);
 					try
 					{
-						std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
+						std::string text = macro.script_interpreter.execute(macro.script_interpreter.makeString(ref.text.toStdString())).toString();
 						Qi::popText->Popup(ref.time, text.c_str(), RGB(223, 223, 223));
 						if (ref.sync)
 						{
@@ -423,13 +424,8 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 				case QiType::timer:
 				{
 					const QiTimer& ref = std::get<QiTimer>(action);
-					int min = 1;
-					int max = 1;
-					try { min = ref.v_min.isEmpty() ? ref.min : varMap.at(ref.v_min.toStdString()).toInteger(); }
-					catch (...) { QiFn::UnBlock(); MsgBox::Error(std::wstring(L"定时变量无效：") + ref.v_min.toStdWString() + werrPath()); return r_exit; }
-					try { max = ref.v_max.isEmpty() ? ref.max : varMap.at(ref.v_max.toStdString()).toInteger(); }
-					catch (...) { QiFn::UnBlock(); MsgBox::Error(std::wstring(L"定时变量无效：") + ref.v_max.toStdWString() + werrPath()); return r_exit; }
-
+					clock_t min = ref.v_min.isEmpty() ? ref.min : macro.script_interpreter.value(ref.v_min.toStdString()).toInteger();
+					clock_t max = ref.v_max.isEmpty() ? ref.max : macro.script_interpreter.value(ref.v_max.toStdString()).toInteger();
 					clock_t time = rand(max, min);
 					clock_t begin = clock();
 					while (!isInvalid())
@@ -471,8 +467,8 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 					try
 					{
-						std::string title = Qi::interpreter.execute(Qi::interpreter.makeString(ref.title.toStdString()), varMap).toString();
-						std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
+						std::string title = macro.script_interpreter.execute(macro.script_interpreter.makeString(ref.title.toStdString())).toString();
+						std::string text = macro.script_interpreter.execute(macro.script_interpreter.makeString(ref.text.toStdString())).toString();
 						DWORD style = MB_YESNO | MB_TOPMOST;
 						if (ref.style == QiDialog::warning) style |= MB_ICONWARNING;
 						else if (ref.style == QiDialog::error) style |= MB_ICONERROR;
@@ -576,7 +572,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 										if (str.empty()) str += s;
 										else str += std::string(" ") + s;
 									}
-									Qi::interpreter.makeValue(ref.var.toStdString(), str, varMap);
+									macro.script_interpreter.setValue(ref.var.toStdString(), str);
 									Qi::widget.varViewReload();
 								}
 								if (!text.empty())
@@ -631,7 +627,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					const QiVarOperator& ref = std::get<QiVarOperator>(action);
 					try
 					{
-						Qi::interpreter.interpretAll(ref.script.toStdString(), varMap);
+						macro.script_interpreter.interpretAll(ref.script.toStdString());
 					}
 					catch (std::runtime_error e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return r_exit; }
 					Qi::widget.varViewReload();
@@ -643,7 +639,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 					try
 					{
-						QiVar var = Qi::interpreter.execute(ref.script.toStdString(), varMap);
+						QiVar var = macro.script_interpreter.execute(ref.script.toStdString());
 						if (var.toBool()) r_result = ActionInterpreter(ref.next);
 						else r_result = ActionInterpreter(ref.next2);
 					}
@@ -702,10 +698,10 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					const QiEditDialog& ref = std::get<QiEditDialog>(action);
 					try
 					{
-						std::string title = Qi::interpreter.execute(Qi::interpreter.makeString(ref.title.toStdString()), varMap).toString();
-						std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
+						std::string title = macro.script_interpreter.execute(macro.script_interpreter.makeString(ref.title.toStdString())).toString();
+						std::string text = macro.script_interpreter.execute(macro.script_interpreter.makeString(ref.text.toStdString())).toString();
 						text = String::toString(TextEditBox(nullptr, String::toWString(title).c_str(), String::toWString(text).c_str(), ref.mult, WS_EX_TOPMOST, Qi::ico));
-						if (!text.empty()) Qi::interpreter.makeValue(ref.var.toStdString(), text, varMap);
+						if (!text.empty()) macro.script_interpreter.setValue(ref.var.toStdString(), text);
 					}
 					catch (std::exception e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return r_exit; }
 				} break;
@@ -746,7 +742,7 @@ int QiInterpreter::ActionInterpreter(const Actions& current)
 					const QiMsgView& ref = std::get<QiMsgView>(action);
 					try
 					{
-						std::string text = Qi::interpreter.execute(Qi::interpreter.makeString(ref.text.toStdString()), varMap).toString();
+						std::string text = macro.script_interpreter.execute(macro.script_interpreter.makeString(ref.text.toStdString())).toString();
 						if (ref.option == QiMsgView::set) Qi::widget.msgViewSet(QString::fromStdString(text));
 						else if (ref.option == QiMsgView::add)
 						{
