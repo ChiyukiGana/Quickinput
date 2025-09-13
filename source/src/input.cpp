@@ -1,6 +1,20 @@
 ﻿#include <src/inc_header.h>
 #include "../ui/RecordUi.h"
 QiMouseTrack mouseTrack;
+
+class RecordTimer
+{
+	clock_t t = 0;
+	clock_t load()
+	{
+		clock() - t;
+	}
+	void reset()
+	{
+		t = clock();
+	}
+};
+
 clock_t mouseTrack_prev = 0;
 void RecordInput(BYTE vk, bool state, POINT pt)
 {

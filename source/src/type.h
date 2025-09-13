@@ -9,40 +9,34 @@ class QiInterpreter;
 class MacroGroup;
 class Action;
 
-enum InterpreterResult
+enum class InterpreterResult
 {
 	r_exit,
 	r_continue,
 	r_break,
 	r_top
 };
-struct DataRole
+enum class DataRole
 {
-	enum
-	{
-		id = Qt::UserRole,
-		type,
-		group,
-		macro
-	};
+	id = Qt::UserRole,
+	type,
+	group,
+	macro
 };
-struct QiEvent
+enum class QiEvent
 {
-	enum
-	{
-		wid_close = QEvent::User + 1,
-		rec_start,
-		rec_stop,
-		rec_close,
-		mac_edit_enter,
-		mac_edit_exit,
-		mac_edit_exit_d,
-		mac_load,
-		edt_debug_pause,
-		edt_varop_stop,
-		var_reload,
-		key_reset
-	};
+	wid_close = QEvent::User + 1,
+	rec_start,
+	rec_stop,
+	rec_close,
+	mac_edit_enter,
+	mac_edit_exit,
+	mac_edit_exit_d,
+	mac_load,
+	edt_debug_pause,
+	edt_varop_stop,
+	var_reload,
+	key_reset
 };
 
 struct MsgViewInfo
@@ -71,8 +65,8 @@ public:
 		show,
 		hide
 	};
-	MsgViewEvent(int type) : QEvent((QEvent::Type)type) {}
-	MsgViewEvent(int type, const MsgViewInfo& info) : QEvent((QEvent::Type)type), _info(info) {}
+	MsgViewEvent(int type) : QEvent(static_cast<QEvent::Type>(type)) {}
+	MsgViewEvent(int type, const MsgViewInfo& info) : QEvent(static_cast<QEvent::Type>(type)), _info(info) {}
 	MsgViewInfo info() const { return _info; }
 };
 
@@ -200,9 +194,14 @@ struct QiType
 
 struct Actions : QiVector<Action>
 {
+	using base_actions = QiVector<Action>;
+	using base_actions::base_actions;
+	using base_actions::operator=;
 	QJsonArray toJson() const;
 	void fromJson(const QJsonArray& json);
 };
+
+using HistoryActions = QiHistoryVector<Action>;
 
 struct QiBase
 {
@@ -1097,7 +1096,8 @@ struct Macro
 	bool wndState = false; // window mode enable | disable
 	bool active = false; // state of release trigger
 	bool timer = false;
-	int key = 0;
+	short key1 = 0;
+	short key2 = 0;
 	int mode = 0;
 	int count = 0;
 	time_t timerStart = 0;
@@ -1125,6 +1125,40 @@ struct Macro
 	{
 		if (groupBase) return Qi::macroDir + name + Qi::macroType;
 		return Qi::macroDir + groupName + QString('/') + name + Qi::macroType;
+	}
+	Macro copy() const
+	{
+		Macro macro;
+		macro.state = state;
+		macro.keyBlock = keyBlock;
+		macro.curBlock = curBlock;
+		macro.wndState = wndState;
+		macro.active = active;
+		macro.timer = timer;
+		macro.key1 = key1;
+		macro.key2 = key2;
+		macro.mode = mode;
+		macro.count = count;
+		macro.timerStart = timerStart;
+		macro.timerEnd = timerEnd;
+		macro.speed = speed;
+		macro.moveScaleX = moveScaleX;
+		macro.moveScaleY = moveScaleY;
+		macro.posScaleX = posScaleX;
+		macro.posScaleY = posScaleY;
+		macro.script = script;
+		macro.name = name;
+		macro.groupName = groupName;
+		macro.groupBase = groupBase;
+		macro.acRun = acRun;
+		macro.acEnd = acEnd;
+		macro.cursor = cursor;
+		macro.wndInfo = wndInfo;
+		macro.wndInput = wndInput;
+		macro.interpreter = interpreter;
+		macro.script_interpreter;
+		macro.thread;
+		return macro;
 	}
 };
 using Macros = QiVector<Macro>;
@@ -1236,8 +1270,9 @@ struct SettingsData
 	QString ocr_current;
 	int ocr_thread = 0;
 	int theme = 0;
-	int key = 0;
-	int recKey = 0;
+	short key1 = 0;
+	short key2 = 0;
+	short recKey = 0;
 	bool recTrack = false;
 	bool defOn = false;
 	bool showTips = false;
@@ -1275,43 +1310,43 @@ struct Widget
 	}
 	void recordStart() const
 	{
-		QApplication::postEvent(record, new QEvent((QEvent::Type)QiEvent::rec_start));
+		QApplication::postEvent(record, new QEvent(static_cast<QEvent::Type>(QiEvent::rec_start)));
 	}
 	void recordStop() const
 	{
-		QApplication::postEvent(record, new QEvent((QEvent::Type)QiEvent::rec_stop));
+		QApplication::postEvent(record, new QEvent(static_cast<QEvent::Type>(QiEvent::rec_stop)));
 	}
 	void recordClose() const
 	{
-		QApplication::postEvent(record, new QEvent((QEvent::Type)QiEvent::rec_close));
+		QApplication::postEvent(record, new QEvent(static_cast<QEvent::Type>(QiEvent::rec_close)));
 	}
 	void macroLoad() const
 	{
-		QApplication::postEvent(macro, new QEvent((QEvent::Type)QiEvent::mac_load));
+		QApplication::postEvent(macro, new QEvent(static_cast<QEvent::Type>(QiEvent::mac_load)));
 	}
 	void macroEdit() const
 	{
-		QApplication::postEvent(macro, new QEvent((QEvent::Type)QiEvent::mac_edit_enter));
+		QApplication::postEvent(macro, new QEvent(static_cast<QEvent::Type>(QiEvent::mac_edit_enter)));
 	}
 	void macroEdited(bool save = true) const
 	{
-		QApplication::postEvent(macro, new QEvent((QEvent::Type)(save ? QiEvent::mac_edit_exit : QiEvent::mac_edit_exit_d)));
+		QApplication::postEvent(macro, new QEvent(static_cast<QEvent::Type>((save ? QiEvent::mac_edit_exit : QiEvent::mac_edit_exit_d))));
 	}
 	void editClose() const
 	{
-		QApplication::postEvent(edit, new QEvent((QEvent::Type)QiEvent::wid_close));
+		QApplication::postEvent(edit, new QEvent(static_cast<QEvent::Type>(QiEvent::wid_close)));
 	}
 	void editDebugPause() const
 	{
-		QApplication::postEvent(edit, new QEvent((QEvent::Type)QiEvent::edt_debug_pause));
+		QApplication::postEvent(edit, new QEvent(static_cast<QEvent::Type>(QiEvent::edt_debug_pause)));
 	}
 	void editVaropStop() const
 	{
-		QApplication::postEvent(edit, new QEvent((QEvent::Type)QiEvent::edt_varop_stop));
+		QApplication::postEvent(edit, new QEvent(static_cast<QEvent::Type>(QiEvent::edt_varop_stop)));
 	}
 	void varViewReload() const
 	{
-		if (!varView->isHidden()) QApplication::postEvent(varView, new QEvent((QEvent::Type)QiEvent::var_reload));
+		if (!varView->isHidden()) QApplication::postEvent(varView, new QEvent(static_cast<QEvent::Type>(QiEvent::var_reload)));
 	}
 	void msgViewSet(const QString& text) const
 	{
@@ -1336,10 +1371,10 @@ struct Widget
 	}
 	void keyEditReload() const
 	{
-		QApplication::postEvent(macro, new QEvent((QEvent::Type)QiEvent::key_reset));
-		QApplication::postEvent(trigger, new QEvent((QEvent::Type)QiEvent::key_reset));
-		QApplication::postEvent(func, new QEvent((QEvent::Type)QiEvent::key_reset));
-		QApplication::postEvent(settings, new QEvent((QEvent::Type)QiEvent::key_reset));
+		QApplication::postEvent(macro, new QEvent(static_cast<QEvent::Type>(QiEvent::key_reset)));
+		QApplication::postEvent(trigger, new QEvent(static_cast<QEvent::Type>(QiEvent::key_reset)));
+		QApplication::postEvent(func, new QEvent(static_cast<QEvent::Type>(QiEvent::key_reset)));
+		QApplication::postEvent(settings, new QEvent(static_cast<QEvent::Type>(QiEvent::key_reset)));
 	}
 };
 

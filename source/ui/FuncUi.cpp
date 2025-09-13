@@ -104,7 +104,7 @@ bool FuncUi::eventFilter(QObject* obj, QEvent* e)
 }
 void FuncUi::customEvent(QEvent* e)
 {
-	if (e->type() == QiEvent::key_reset)
+	if (e->type() == static_cast<int>(QiEvent::key_reset))
 	{
 		ui.click_keyedit->setPadEnabled(Qi::set.pad);
 		ui.clock_keyedit->setPadEnabled(Qi::set.pad);

@@ -911,7 +911,7 @@ int main(int argc, char* argv[])
             Macro* macro = QiFn::FindMacro(text.c_str());
             if (macro)
             {
-                macro->thread.start(macro, true);
+                macro->thread.run_start(macro);
                 return true;
             }
             return false;

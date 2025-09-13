@@ -1,6 +1,6 @@
 ﻿#include <EditUi.h>
 #include <RecordUi.h>
-EditUi::EditUi(Macro* macro, Actions* actions)
+EditUi::EditUi(Macro* macro, Actions* actions) : macro(macro), actionsRoot(&macro->acRun), actionsHistory(30)
 {
 	ui.setupUi(this);
 
@@ -15,11 +15,7 @@ EditUi::EditUi(Macro* macro, Actions* actions)
 		setGeometry(centeredRect);
 	}
 
-	// set as top layer
-	this->macro = macro;
-	this->actionsRoot = this->actions = actions;
-	layers.append({ QString::fromUtf8("编辑 - ") + macro->name, this->actionsRoot });
-
+	Forward(QString::fromUtf8("编辑 - ") + macro->name, actionsRoot);
 	Init();
 	Event();
 	StyleGroup();
@@ -69,6 +65,8 @@ void EditUi::Init()
 		muPaste = menu->addAction("粘贴");
 		muEdit = menu->addAction("编辑");
 		muEdit2 = menu->addAction("编辑2");
+		muRedo = menu->addAction("恢复");
+		muUndo = menu->addAction("撤销");
 
 		titleMenu = new QMenu(this);
 		muBack = titleMenu->addAction("返回");
@@ -334,7 +332,7 @@ void EditUi::Event()
 			{
 				Qi::debug = true;
 				timeBeginPeriod(1);
-				macro->thread.start(macro, ui.action_running_radio->isChecked());
+				ui.action_running_radio->isChecked() ? macro->thread.run_start(macro) : macro->thread.end_start(macro);
 				testTimer->start();
 			}
 			SetDebugState(debug_run);
@@ -504,6 +502,8 @@ void EditUi::Event()
 			if ("set menu item state")
 			{
 				muPaste->setEnabled(Qi::clipboard.not_empty());
+				muRedo->setEnabled(actionsHistory.canRedo());
+				muUndo->setEnabled(actionsHistory.canUndo());
 				if (!tableCurrent.empty())
 				{
 					muDel->setEnabled(true);
@@ -528,6 +528,8 @@ void EditUi::Event()
 		connect(muPaste, &QAction::triggered, this, [this] { ItemPaste(); });
 		connect(muEdit, &QAction::triggered, this, [this] { NextEdit(false); });
 		connect(muEdit2, &QAction::triggered, this, [this] { NextEdit(true); });
+		connect(muRedo, &QAction::triggered, this, [this] { Redo(); });
+		connect(muUndo, &QAction::triggered, this, [this] { Undo(); });
 
 		connect(muBack, &QAction::triggered, this, [this]() { Back(); });
 		connect(muSave, &QAction::triggered, this, [this]() { Qi::popText->Show("正在保存宏"); QTimer::singleShot(32, [] { Qi::widget.editClose(); }); });
@@ -551,7 +553,7 @@ void EditUi::Event()
 			{
 				if (Input::state(VK_F10))
 				{
-					if (Input::state(VK_SHIFT)) macro->thread.start(macro, ui.action_running_radio->isChecked());
+					if (Input::state(VK_SHIFT)) ui.action_running_radio->isChecked() ? macro->thread.run_start(macro) : macro->thread.end_start(macro);
 					macro->interpreter->DebugContinue();
 					Input::Loop(VK_F10, 1);
 				}
@@ -1744,6 +1746,17 @@ void EditUi::TableUpdate(int index)
 	} break;
 	}
 
+	for (size_t i = 0; i < tableColumn_count; i++)
+	{
+		QTableWidgetItem* item = ui.action_table->item(index, i);
+		if (!item)
+		{
+			item = new QTableWidgetItem();
+			ui.action_table->setItem(index, i, item);
+		}
+		item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+	}
+
 	if (type.isEmpty())
 	{
 		ui.action_table->item(index, tableColumn_type)->setText("无效类型");
@@ -1766,13 +1779,8 @@ void EditUi::TableUpdate(int index)
 
 		ui.action_table->item(index, tableColumn_type)->setText(type);
 
-		{
-			QTableWidgetItem* item = new QTableWidgetItem(param);
-			item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			if (color.alpha() == 255) item->setForeground(color);
-			ui.action_table->setItem(index, tableColumn_param, item);
-		}
-
+		ui.action_table->item(index, tableColumn_param)->setText(param);
+		if (color.alpha() == 255) ui.action_table->item(index, tableColumn_param)->setForeground(color);
 
 		ui.action_table->item(index, tableColumn_mark)->setText(var.base().mark);
 	}
@@ -1780,7 +1788,9 @@ void EditUi::TableUpdate(int index)
 }
 void EditUi::TableUpdate(int begin, int end)
 {
-	for (size_t i = begin; i <= end; i++) TableUpdate(i);
+	int b = qMin(begin, end);
+	int e = qMax(begin, end);
+	for (size_t i = b; i <= e; i++) TableUpdate(i);
 }
 void EditUi::TableReload()
 {
@@ -1793,22 +1803,7 @@ void EditUi::TableReload()
 	ListJumpPointReload();
 	ListBlockReload();
 	ui.action_table->setRowCount(actions->size());
-	for (size_t i = 0; i < ui.action_table->rowCount(); i++)
-	{
-		updating = true;
-		ui.action_table->setItem(i, tableColumn_debug, new QTableWidgetItem());
-		ui.action_table->item(i, tableColumn_debug)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-		ui.action_table->setItem(i, tableColumn_disable, new QTableWidgetItem());
-		ui.action_table->item(i, tableColumn_disable)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-		ui.action_table->setItem(i, tableColumn_type, new QTableWidgetItem());
-		ui.action_table->item(i, tableColumn_type)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-		//ui.action_table->setItem(i, tableColumn_param, new QTableWidgetItem());
-		//ui.action_table->item(i, tableColumn_param)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-		ui.action_table->setItem(i, tableColumn_mark, new QTableWidgetItem());
-		ui.action_table->item(i, tableColumn_mark)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-		TableUpdate(i);
-		updating = false;
-	}
+	for (size_t i = 0; i < ui.action_table->rowCount(); i++) TableUpdate(i);
 }
 void EditUi::TableInsert(int index)
 {
@@ -1920,7 +1915,13 @@ void EditUi::ItemMove(bool up, int len)
 	if (count < 1) return;
 	if (tableCurrent.not_empty())
 	{
+		int old_min = tableCurrent.front();
+		int old_max = tableCurrent.back();
+
 		QiVector<int> after;
+		int new_min = INT_MAX;
+		int new_max = INT_MIN;
+
 		for (int i = 0, p = 0, t = 0, over = 0; i < tableCurrent.size(); i++)
 		{
 			if (up)
@@ -1929,8 +1930,7 @@ void EditUi::ItemMove(bool up, int len)
 				if (over < 0) over = 0;
 				p = tableCurrent[i];
 				t = p - len + over;
-				after.append(t);
-				actions->move(p, t);
+
 			}
 			else
 			{
@@ -1938,11 +1938,19 @@ void EditUi::ItemMove(bool up, int len)
 				if (over > 0) over = 0;
 				p = tableCurrent[tableCurrent.size() - i - 1];
 				t = p + len + over;
-				after.append(t);
-				actions->move(p, t);
 			}
+			if (t < new_min) new_min = t;
+			if (t > new_max) new_max = t;
+
+			after.append(t);
+			actions->move(p, t);
+			actionsHistory.move(p, t);
 		}
-		TableReload();
+
+		int begin = qMin(old_min, new_min);
+		int end = qMax(old_max, new_max);
+
+		TableUpdate(begin, end);
 		ui.action_table->clearSelection();
 		TableSelection(after);
 	}
@@ -1952,13 +1960,17 @@ void EditUi::ItemAdd(int type)
 	int p = ui.action_table->currentRow();
 	if (p < 0) p = actions->size();
 	else p++;
-	actions->insert(p, ItemGet(type));
-	TableReload();
+
+	Action action = ItemGet(type);
+	actions->insert(p, action);
+	actionsHistory.insert(p, action);
+
+	TableInsert(p);
 	ui.action_table->setCurrentItem(ui.action_table->item(p, tableColumn_type));
 }
 void EditUi::ItemChange(int type)
 {
-	for (auto& i : tableCurrent)
+	for (int i : tableCurrent)
 	{
 		Action& current = actions->at(i);
 		QiBase base_old = current.base();
@@ -1968,17 +1980,21 @@ void EditUi::ItemChange(int type)
 		base_new.mark = std::move(base_old.mark);
 		base_new.next = std::move(base_old.next);
 		base_new.next2 = std::move(base_old.next2);
+		actionsHistory.set(i, current);
+		TableUpdate(i);
 	}
-	TableReload();
 	ui.action_table->clearSelection();
 }
 void EditUi::ItemDel()
 {
 	if (tableCurrent.empty()) return;
-	std::vector<size_t> positions;
-	for (auto& i : tableCurrent) positions.push_back(i);
-	actions->remove(positions);
-	TableReload();
+	for (int i = tableCurrent.size() - 1; i >= 0; i--)
+	{
+		int index = tableCurrent.at(i);
+		TableRemove(index);
+		actions->remove(index);
+		actionsHistory.remove(index);
+	}
 	ui.action_table->setCurrentItem(0);
 }
 void EditUi::ItemCut()
@@ -1994,6 +2010,7 @@ void EditUi::ItemCopy()
 }
 void EditUi::ItemPaste()
 {
+	if (Qi::clipboard.empty()) return;
 	int p = ui.action_table->currentRow();
 	if (p < 0) p = actions->size();
 	else p++;
@@ -2002,7 +2019,26 @@ void EditUi::ItemPaste()
 	// reset block id
 	UniqueActionsId(LoadIds(*actionsRoot, QiType::block), Qi::clipboard, QiType::block);
 	actions->insert(p, Qi::clipboard);
-	TableReload();
+	actionsHistory.insert(p, Qi::clipboard);
+	for (size_t i = 0; i < Qi::clipboard.size(); i++) TableInsert(p + i);
+}
+void EditUi::Redo()
+{
+	if (actionsHistory.canRedo())
+	{
+		actionsHistory.redo();
+		*actions = actionsHistory.toVector();
+		TableReload();
+	}
+}
+void EditUi::Undo()
+{
+	if (actionsHistory.canUndo())
+	{
+		actionsHistory.undo();
+		*actions = actionsHistory.toVector();
+		TableReload();
+	}
 }
 
 
@@ -2160,7 +2196,7 @@ QiJump EditUi::WidgetGetJump()
 {
 	QiJump jump;
 	int row = ui.jumpPoint_list->currentRow();
-	if (row > -1) jump.id = ui.jumpPoint_list->item(row)->data(DataRole::id).toInt();
+	if (row > -1) jump.id = ui.jumpPoint_list->item(row)->data(static_cast<int>(DataRole::id)).toInt();
 	return jump;
 }
 QiJumpPoint EditUi::WidgetGetJumpPoint()
@@ -2191,7 +2227,7 @@ QiBlockExec EditUi::WidgetGetBlockExec()
 {
 	QiBlockExec blockExec;
 	int row = ui.block_list->currentRow();
-	if (row > -1) blockExec.id = ui.block_list->item(row)->data(DataRole::id).toInt();
+	if (row > -1) blockExec.id = ui.block_list->item(row)->data(static_cast<int>(DataRole::id)).toInt();
 	return blockExec;
 }
 QiQuickInput EditUi::WidgetGetQuickInput()
@@ -2608,7 +2644,7 @@ void EditUi::ListJumpPointReload()
 	{
 		const QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(i);
 		QListWidgetItem* item = new QListWidgetItem(QString::number(jumpPoint.id) + QString::fromUtf8("　　　") + jumpPoint.mark);
-		item->setData(DataRole::id, jumpPoint.id);
+		item->setData(static_cast<int>(DataRole::id), jumpPoint.id);
 		ui.jumpPoint_list->addItem(item);
 	}
 }
@@ -2621,7 +2657,7 @@ void EditUi::ListBlockReload()
 	{
 		const QiBlock& block = std::get<QiBlock>(i);
 		QListWidgetItem* item = new QListWidgetItem(QString::number(block.id) + QString::fromUtf8("　　　") + block.mark);
-		item->setData(DataRole::id, block.id);
+		item->setData(static_cast<int>(DataRole::id), block.id);
 		ui.block_list->addItem(item);
 	}
 }
@@ -2669,7 +2705,7 @@ QiVector<unsigned char> EditUi::StringToKey(const QString str)
 	}
 	return keys;
 }
-QString EditUi::KeyToString(const QiVector<unsigned char >& keys)
+QString EditUi::KeyToString(const QiVector<unsigned char>& keys)
 {
 	QString str;
 	for (auto& i : keys)
@@ -2710,6 +2746,7 @@ void EditUi::Back()
 	else
 	{
 		actions = layers.last().actions;
+		actionsHistory = *actions;
 		setWindowTitle(layers.last().title);
 		Reload();
 		TableSelection(layers.last().items);
@@ -2717,11 +2754,15 @@ void EditUi::Back()
 }
 void EditUi::Forward(const QString& title, Actions* next)
 {
-	layers.last().items = tableCurrent;
-	layers.append({ title, next });
-	setWindowTitle(title);
 	actions = next;
-	Reload();
+	actionsHistory = *actions;
+	if (layers.isEmpty()) layers.append({ title, next });
+	else
+	{
+		layers.last().items = tableCurrent;
+		layers.append({ title, next });
+		Reload();
+	}
 }
 void EditUi::Exit(bool save)
 {
@@ -2762,6 +2803,16 @@ bool EditUi::eventFilter(QObject* obj, QEvent* e)
 				else if (key->key() == Qt::Key_V)
 				{
 					ItemPaste();
+					return true;
+				}
+				else if (key->key() == Qt::Key_R)
+				{
+					Redo();
+					return true;
+				}
+				else if (key->key() == Qt::Key_Z)
+				{
+					Undo();
 					return true;
 				}
 			}
@@ -2835,7 +2886,7 @@ void EditUi::resizeEvent(QResizeEvent* e)
 }
 void EditUi::customEvent(QEvent* e)
 {
-	if (e->type() == QiEvent::wid_close) Exit();
-	else if (e->type() == QiEvent::edt_debug_pause) SetDebugState(debug_pause);
-	else if (e->type() == QiEvent::edt_varop_stop) setDisabled(false);
+	if (e->type() == static_cast<int>(QiEvent::wid_close)) Exit();
+	else if (e->type() == static_cast<int>(QiEvent::edt_debug_pause)) SetDebugState(debug_pause);
+	else if (e->type() == static_cast<int>(QiEvent::edt_varop_stop)) setDisabled(false);
 }

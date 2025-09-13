@@ -254,9 +254,9 @@ void MacroUi::TableUpdate()
 			Macro& m = mg.macros[mPos];
 			table->setItem(mPos, 0, new QTableWidgetItem(m.name));
 			table->item(mPos, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-			table->item(mPos, 0)->setData(DataRole::type, table_macros);
-			table->item(mPos, 0)->setData(DataRole::group, mgPos);
-			table->item(mPos, 0)->setData(DataRole::macro, mPos);
+			table->item(mPos, 0)->setData(static_cast<int>(DataRole::type), table_macros);
+			table->item(mPos, 0)->setData(static_cast<int>(DataRole::group), mgPos);
+			table->item(mPos, 0)->setData(static_cast<int>(DataRole::macro), mPos);
 		}
 		ui.macroGroup_table->setFold(table, Qi::group.fold[mg.name]);
 	}
@@ -332,20 +332,19 @@ void MacroUi::showEvent(QShowEvent*)
 }
 void MacroUi::customEvent(QEvent* e)
 {
-	static Macro* macro;
-	if (e->type() == QiEvent::mac_edit_enter)
+	static Macro macro;
+	if (e->type() == static_cast<int>(QiEvent::mac_edit_enter))
 	{
 		if (!isSold()) return;
-		macro = currentMacros.first();
-		EditUi* edit = new EditUi(macro, &macro->acRun);
-		Qi::widget.edit = edit;
+		macro = currentMacros.first()->copy();
+		Qi::widget.edit = new EditUi(&macro, &macro.acRun);
 		Qi::widget.dialogActive = Qi::debug = true;
 		Qi::widget.main->hide();
 		Qi::widget.main->setDisabled(true);
-		edit->show();
+		Qi::widget.edit->show();
 		Qi::popText->Hide();
 	}
-	else if (e->type() == QiEvent::mac_load)
+	else if (e->type() == static_cast<int>(QiEvent::mac_load))
 	{
 		QiJson::LoadMacro();
 		TableUpdate();
@@ -353,26 +352,31 @@ void MacroUi::customEvent(QEvent* e)
 		DisableWidget();
 		Qi::popText->Hide();
 	}
-	else if (e->type() == QiEvent::mac_edit_exit)
+	else if (e->type() == static_cast<int>(QiEvent::mac_edit_exit))
 	{
 		Qi::widget.main->setDisabled(false);
 		Qi::widget.main->show();
 		Qi::widget.dialogActive = Qi::debug = false;
 		if (Qi::widget.edit) delete Qi::widget.edit;
 		Qi::widget.edit = nullptr;
-		QiJson::SaveMacro(*macro);
+		*currentMacros.first() = std::move(macro);
+		QiJson::SaveMacro(*currentMacros.first());
 		Qi::popText->Hide();
 		ResetWidget();
 		DisableWidget();
 	}
-	else if (e->type() == QiEvent::mac_edit_exit_d)
+	else if (e->type() == static_cast<int>(QiEvent::mac_edit_exit_d))
 	{
 		Qi::widget.main->setDisabled(false);
 		Qi::widget.main->show();
 		Qi::widget.dialogActive = Qi::debug = false;
 		if (Qi::widget.edit) delete Qi::widget.edit;
 		Qi::widget.edit = nullptr;
-		Qi::widget.macroLoad();
+		//*currentMacros.first() = std::move(macro);
+		//QiJson::SaveMacro(*currentMacros.first());
+		Qi::popText->Hide();
+		ResetWidget();
+		DisableWidget();
 	}
 }
 bool MacroUi::eventFilter(QObject* sender, QEvent* event)
@@ -429,7 +433,7 @@ bool MacroUi::eventFilter(QObject* sender, QEvent* event)
 			model.dropMimeData(dragEnter->mimeData(), Qt::CopyAction, 0, 0, QModelIndex());
 			if (model.rowCount() < 1) return QWidget::eventFilter(sender, event);
 
-			if (model.item(0)->data(DataRole::type).toInt() == table_macros && model.item(0)->data(DataRole::group).toInt() != tableIndex)
+			if (model.item(0)->data(static_cast<int>(DataRole::type)).toInt() == table_macros && model.item(0)->data(static_cast<int>(DataRole::group)).toInt() != tableIndex)
 			{
 				dragEnter->acceptProposedAction();
 			}
@@ -464,8 +468,8 @@ bool MacroUi::eventFilter(QObject* sender, QEvent* event)
 			for (size_t i = 0; i < model.rowCount(); i++)
 			{
 				QStandardItem* item = model.item(i);
-				int groupIndex = item->data(DataRole::group).toInt();
-				int macroIndex = item->data(DataRole::macro).toInt();
+				int groupIndex = item->data(static_cast<int>(DataRole::group)).toInt();
+				int macroIndex = item->data(static_cast<int>(DataRole::macro)).toInt();
 				if (tableIndex >= groups->size() || groupIndex >= groups->size() || tableIndex == groupIndex) break;
 
 				const MacroGroup& group = groups->at(tableIndex);

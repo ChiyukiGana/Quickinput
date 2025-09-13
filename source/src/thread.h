@@ -53,10 +53,12 @@ struct QiWorkerThread
 
 class QiThreadManager
 {
+protected:
 	std::vector<std::unique_ptr<QiWorkerThread>> m_thread_list;
 	std::mutex m_mutex;
 
 public:
+	using ThreadList = std::vector<std::unique_ptr<QiWorkerThread>>;
 	QiThreadManager() {};
 	QiThreadManager(QiThreadManager&& right)
 	{
@@ -70,6 +72,9 @@ public:
 		m_thread_list = std::move(right.m_thread_list);
 	}
 	QiThreadManager& operator=(const QiThreadManager&) = delete;
+
+	void lock() { m_mutex.lock(); }
+	void unlock() { m_mutex.unlock(); }
 
 	bool active()
 	{
@@ -86,10 +91,7 @@ public:
 
 		std::unique_ptr<QiWorkerThread>& worker_thread = m_thread_list.emplace_back(new QiWorkerThread());
 		worker_thread->m_worker = std::make_unique<QiWorkers>(std::forward<Args>(args)...);
-		worker_thread->m_thread = std::thread([worker = worker_thread->m_worker.get()] {
-			worker->run();
-			worker->m_stop = true;
-			});
+		worker_thread->m_thread = std::thread([worker = worker_thread->m_worker.get()] { worker->run(); worker->m_stop = true; });
 
 		for (size_t i = m_thread_list.size() - 1; true; i--)
 		{
@@ -111,10 +113,7 @@ public:
 	void wait_all()
 	{
 		std::unique_lock<std::mutex> lock(m_mutex);
-		for (const auto& t : m_thread_list)
-		{
-			if (t->m_thread.joinable()) t->m_thread.join();
-		}
+		for (const auto& t : m_thread_list) if (t->m_thread.joinable()) t->m_thread.join();
 	}
 
 	void exit()
@@ -126,10 +125,15 @@ public:
 	void exit_all()
 	{
 		std::unique_lock<std::mutex> lock(m_mutex);
-		for (const auto& t : m_thread_list)
-		{
-			t->m_worker->m_stop = true;
-		}
+		for (const auto& t : m_thread_list) t->m_worker->m_stop = true;
+	}
+
+	const ThreadList* thread_list() const { return &m_thread_list; }
+
+	const QiWorker* worker_last() const
+	{
+		if (m_thread_list.empty()) return nullptr;
+		return m_thread_list.back()->m_worker.get();
 	}
 
 	~QiThreadManager()
@@ -142,10 +146,12 @@ public:
 
 class QiMacroThread : public QiThreadManager
 {
-	bool m_running = false;
-public:
 	void start(struct Macro* self, bool running);
-	bool active(bool runing);
+public:
+	void run_start(struct Macro* self);
+	void end_start(struct Macro* self);
+	bool run_active();
+	bool end_active();
 	using QiThreadManager::active;
 };
 

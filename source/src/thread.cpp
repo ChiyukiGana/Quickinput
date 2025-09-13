@@ -1,15 +1,9 @@
 ﻿#include "inc_header.h"
 
-struct QiMacroWorkerArgs
-{
-	bool run;
-	Macro* macro;
-	std::mutex mutex;
-	std::condition_variable load;
-};
-struct QiMacroWorker : public QiWorkerWithArgs<QiMacroWorkerArgs*>
+struct QiMacroWorker : public QiWorkerWithArgs<bool,Macro*,std::condition_variable&>
 {
 	static inline std::mutex worker_mutex;
+	bool running = true;
 	Macro* macro = nullptr;
 	using QiWorkerWithArgs::QiWorkerWithArgs;
 	bool invalid()
@@ -17,21 +11,22 @@ struct QiMacroWorker : public QiWorkerWithArgs<QiMacroWorkerArgs*>
 		if (Qi::debug) return m_stop;
 		return !Qi::run || m_stop || (macro->timer && !QiTime::in(macro->timerStart, macro->timerEnd));
 	}
-	void run(QiMacroWorkerArgs* param) override
+	void run(bool isRunning, Macro* macro, std::condition_variable& ready) override
 	{
-		srand(clock());
-		QiInterpreter interpreter(*param->macro, param->run, *this);
-		param->load.notify_all();
-		macro = param->macro;
+		QiInterpreter interpreter(*macro, isRunning, *this);
+		this->running = isRunning;
+		this->macro = macro;
+		ready.notify_all();
 
 		{
 			std::unique_lock<std::mutex> lock(worker_mutex);
 			macro->script_interpreter.setWorker(this);
+			macro->script_interpreter.setValue(QiScriptInterpreter::var_macro_name, macro->name.toStdString());
 		}
 
-		macro->script_interpreter.setValue(QiScriptInterpreter::var_macro_name, macro->name.toStdString());
+		srand(clock());
 		try {
-			if (param->run)
+			if (isRunning)
 			{
 				if (Qi::run)
 				{
@@ -49,15 +44,15 @@ struct QiMacroWorker : public QiWorkerWithArgs<QiMacroWorkerArgs*>
 						Qi::curBlock += macro->curBlock;
 						if (macro->count && macro->mode != Macro::sw)
 						{
-							for (size_t i = 0; i < macro->count && !invalid(); i++) if (interpreter.ActionInterpreter(macro->acRun) != r_continue) break;
+							for (size_t i = 0; i < macro->count && !invalid(); i++) if (interpreter.ActionInterpreter(macro->acRun) != InterpreterResult::r_continue) break;
 						}
 						else if (!macro->count || macro->mode == Macro::sw)
 						{
-							while (!invalid()) if (interpreter.ActionInterpreter(macro->acRun) != r_continue) break;
+							while (!invalid()) if (interpreter.ActionInterpreter(macro->acRun) != InterpreterResult::r_continue) break;
 						}
 						Qi::curBlock -= macro->curBlock;
 						
-						if (!invalid()) macro->thread.start(macro, false);
+						if (!invalid()) macro->thread.end_start(macro);
 
 						timerOnce = true;
 					} while (Qi::run && !m_stop && macro->timer);
@@ -87,7 +82,6 @@ struct QiMacroWorker : public QiWorkerWithArgs<QiMacroWorkerArgs*>
 };
 void QiMacroThread::start(Macro* macro, bool running)
 {
-	m_running = running;
 	if (macro->wndState)
 	{
 		macro->wndInput.wnd = macro->wndInfo.wnd;
@@ -103,17 +97,35 @@ void QiMacroThread::start(Macro* macro, bool running)
 			}
 		}
 	}
-	QiMacroWorkerArgs tp;
-	tp.run = running;
-	tp.macro = macro;
-	QiThreadManager::start<QiMacroWorker>(&tp);
-	std::unique_lock<std::mutex> lock(tp.mutex);
-	tp.load.wait(lock);
+	std::mutex mutex;
+	std::condition_variable cv;
+	std::unique_lock<std::mutex> lock(mutex);
+	QiThreadManager::start<QiMacroWorker>(static_cast<bool>(running), reinterpret_cast<Macro*>(macro), reinterpret_cast<std::condition_variable&>(cv));
+	cv.wait(lock);
 }
-bool QiMacroThread::active(bool running)
+void QiMacroThread::run_start(Macro* macro)
 {
-	if (m_running == running) return QiThreadManager::active();
-	return false;
+	start(macro, true);
+}
+void QiMacroThread::end_start(Macro* macro)
+{
+	start(macro, false);
+}
+bool QiMacroThread::run_active()
+{
+	lock();
+	const QiWorker* worker = worker_last();
+	bool active = worker && reinterpret_cast<const QiMacroWorker*>(worker)->running;
+	unlock();
+	return active;
+}
+bool QiMacroThread::end_active()
+{
+	lock();
+	const QiWorker* worker = worker_last();
+	bool active = worker && (!reinterpret_cast<const QiMacroWorker*>(worker)->running);
+	unlock();
+	return active;
 }
 
 

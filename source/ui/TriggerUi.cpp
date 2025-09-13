@@ -80,8 +80,8 @@ void TriggerUi::Event()
 		// key
 		{
 			QKeyEditKeys keys;
-			if (macro.key & 0xFFFF) keys.append(macro.key & 0xFFFF);
-			if (macro.key >> 16) keys.append(macro.key >> 16);
+			if (macro.key1) keys.append(macro.key1);
+			if (macro.key2) keys.append(macro.key2);
 			ui.key_keyedit->setKeys(keys);
 		}
 		// edit
@@ -147,10 +147,8 @@ void TriggerUi::Event()
 	connect(ui.key_keyedit, &QKeyEdit::changed, this, [this] {
 		if (!ItemCurrented()) return;
 		QKeyEditKeys keys = ui.key_keyedit->keys();
-		DWORD vk = VK_SPACE;
-		if (keys.size() == 1) vk = keys.first();
-		else if (keys.size() > 1) vk = keys.first() | (keys.last() << 16);
-		currentMacro->key = vk;
+		if (!keys.isEmpty()) currentMacro->key1 = keys.at(0);
+		if (keys.size() > 1) currentMacro->key2 = keys.at(1);
 		QiJson::SaveMacro(*currentMacro);
 		SetTableItem(currentTable, currentRow, *currentMacro);
 		});
@@ -290,15 +288,9 @@ void TriggerUi::SetTableItem(QTableWidget* table, int index, const Macro& macro)
 	table->item(index, 0)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 	// key
 	QString qs = "----";
-	if ((macro.key & 0xFFFF) != 0)
-	{
-		qs = QKeyEdit::keyName(macro.key & 0xFFFF);
-		if ((macro.key >> 16) != 0)
-		{
-			qs += " + ";
-			qs += QKeyEdit::keyName(macro.key >> 16);
-		}
-	}
+	if (macro.key1 && macro.key2) qs = QKeyEdit::keyName(macro.key1) + " + " + QKeyEdit::keyName(macro.key2);
+	else if (macro.key1) qs = QKeyEdit::keyName(macro.key1);
+	else if (macro.key2) qs = QKeyEdit::keyName(macro.key2);
 	table->setItem(index, 1, new QTableWidgetItem(qs));
 	table->item(index, 1)->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 	// mode and count
@@ -389,7 +381,7 @@ void TriggerUi::showEvent(QShowEvent*)
 }
 void TriggerUi::customEvent(QEvent* e)
 {
-	if (e->type() == QiEvent::key_reset)
+	if (e->type() == static_cast<int>(QiEvent::key_reset))
 	{
 		ui.key_keyedit->setPadEnabled(Qi::set.pad);
 	}

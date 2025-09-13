@@ -245,7 +245,9 @@ QJsonObject Macro::toJson() const
 	json.insert("state", (bool)state);
 	json.insert("keyBlock", (bool)keyBlock);
 	json.insert("curBlock", (bool)curBlock);
-	json.insert("key", (int)key);
+	json.insert("key", (int)(static_cast<int>(key1) | (static_cast<int>(key2) << 16)));
+	json.insert("key1", (int)key1);
+	json.insert("key2", (int)key2);
 	json.insert("mode", (int)mode);
 	json.insert("count", (int)count);
 	json.insert("timer", (bool)timer);
@@ -274,7 +276,17 @@ void Macro::fromJson(const QJsonObject& json)
 	keyBlock = json.value("keyBlock").toBool();
 	curBlock = json.value("curBlock").toBool();
 
-	key = json.value("key").toInt();
+	if (json.contains("key1"))
+	{
+		key1 = json.value("key1").toInt();
+		key2 = json.value("key2").toInt();
+	}
+	else
+	{
+		int key = json.value("key").toInt();
+		key1 = key & 0xFFFF;
+		key2 = key >> 16;
+	}
 
 	mode = QiRange::Restricted(json.value("mode").toInt(), Macro::range_mode);
 	count = QiRange::Restricted(json.value("count").toInt(), Macro::range_count);
@@ -334,7 +346,9 @@ namespace Qi
 			json.insert("theme", (int)set.theme);
 			json.insert("ocr_thread", (int)set.ocr_thread);
 			json.insert("ocr_current", (QString)set.ocr_current);
-			json.insert("key", (int)set.key);
+			json.insert("key", (int)(static_cast<int>(set.key1) | (static_cast<int>(set.key2) << 16)));
+			json.insert("key1", (int)set.key1);
+			json.insert("key2", (int)set.key2);
 			json.insert("recKey", (int)set.recKey);
 			json.insert("recTrack", (bool)set.recTrack);
 			json.insert("defOn", (bool)set.defOn);
@@ -412,7 +426,8 @@ namespace Qi
 	{
 		std::function<void()> DefaultConfig = [] {
 			set.ocr_thread = 4;
-			set.key = VK_F8;
+			set.key1 = VK_F8;
+			set.key2 = 0;
 			set.recKey = VK_F8;
 			set.recTrack = true;
 			set.defOn = true;
@@ -483,9 +498,21 @@ namespace Qi
 				set.theme = json.value("theme").toInt();
 				set.ocr_thread = std::clamp(json.value("ocr_thread").toInt(), 0, 16);
 				set.ocr_current = json.value("ocr_current").toString();
-				set.key = json.value("key").toInt();
-				set.recTrack = json.value("recTrack").toBool();
+
+				if (json.contains("key1"))
+				{
+					set.key1 = json.value("key1").toInt();
+					set.key2 = json.value("key2").toInt();
+				}
+				else
+				{
+					int key = json.value("key").toInt();
+					set.key1 = key & 0xFFFF;
+					set.key2 = key >> 16;
+				}
+
 				set.recKey = json.value("recKey").toInt();
+				set.recTrack = json.value("recTrack").toBool();
 				set.defOn = json.value("defOn").toBool();
 				set.showTips = json.value("showTips").toBool();
 				set.audFx = json.value("audFx").toBool();

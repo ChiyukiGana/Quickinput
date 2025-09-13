@@ -190,18 +190,9 @@ namespace QiFn
 	void Trigger(short vk, const bool* state)
 	{
 		// state swtich
-		if (vk == (Qi::set.key & 0xFFFF) || vk == (Qi::set.key >> 16))
-		{
-			bool k1 = state[Qi::set.key & 0xFFFF];
-			bool k2 = true;
-			if (Qi::set.key >> 16) k2 = state[Qi::set.key >> 16];
-			if (k1 && k2) QiState(!Qi::state);
-		}
+		if ((vk == Qi::set.key1 || vk == Qi::set.key2) && (Qi::set.key1 ? state[Qi::set.key1] : true) && (Qi::set.key2 ? state[Qi::set.key2] : true)) QiState(!Qi::state);
 		// show clock
-		if (Qi::fun.showClock.state && Qi::fun.showClock.key == vk && state[Qi::fun.showClock.key])
-		{
-			Qi::popText->Popup(QDateTime::currentDateTime().toString(L"hh:mm:ss"));
-		}
+		if (Qi::fun.showClock.state && Qi::fun.showClock.key == vk && state[Qi::fun.showClock.key]) Qi::popText->Popup(QDateTime::currentDateTime().toString(L"hh:mm:ss"));
 		if (!Qi::run) return;
 		// quick click
 		if (Qi::fun.quickClick.state && Qi::fun.quickClick.key == vk)
@@ -250,75 +241,71 @@ namespace QiFn
 		for (auto& m : Qi::macroActive)
 		{
 			Macro& macro = *m;
-			if (vk == (macro.key & 0xFFFF) || vk == (macro.key >> 16))
+			if (vk == macro.key1 || vk == macro.key2)
 			{
-				if (macro.state)
+				bool k1 = macro.key1 ? state[macro.key1] : true;
+				bool k2 = macro.key2 ? state[macro.key2] : true;
+				switch (macro.mode)
 				{
-					bool k1 = state[macro.key & 0xFFFF];
-					bool k2 = true;
-					if (macro.key >> 16) k2 = state[macro.key >> 16];
-					switch (macro.mode)
+				case Macro::sw:
+				{
+					if (k1 && k2)
 					{
-					case Macro::sw:
-					{
-						if (k1 && k2)
+						if (macro.thread.run_active())
 						{
-							if (macro.thread.active(true))
-							{
-								macro.thread.start(&macro, false);
-								if (Qi::set.showTips) MacroPop(&macro, false);
-								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.swd.s, false);
-							}
-							else
-							{
-								macro.thread.start(&macro, true);
-								if (Qi::set.showTips) MacroPop(&macro, true);
-								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.swe.s, false);
-							}
+							macro.thread.end_start(&macro);
+							if (Qi::set.showTips) MacroPop(&macro, false);
+							if (Qi::set.audFx) SoundPlay(Qi::ui.pop.swd.s, false);
 						}
-					} break;
-					case Macro::down:
-					{
-						if (k1 && k2)
+						else
 						{
-							macro.thread.start(&macro, true);
+							macro.thread.run_start(&macro);
 							if (Qi::set.showTips) MacroPop(&macro, true);
-							if (Qi::set.audFx) SoundPlay(Qi::ui.pop.dwe.s, false);
+							if (Qi::set.audFx) SoundPlay(Qi::ui.pop.swe.s, false);
 						}
-						else
-						{
-							if (macro.count == 0 && macro.thread.active(true))
-							{
-								macro.thread.start(&macro, false);
-								if (Qi::set.showTips) MacroPop(&macro, false);
-								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.dwd.s, false);
-							}
-						}
-					} break;
-					case Macro::up:
-					{
-						if (k1 && k2)
-						{
-							macro.active = true;
-							if (macro.count == 0 && macro.thread.active(true))
-							{
-								macro.thread.start(&macro, false);
-								if (Qi::set.showTips) MacroPop(&macro, false);
-								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.upd.s, false);
-							}
-						}
-						else
-						{
-							if (macro.active)
-							{
-								macro.active = false;
-								macro.thread.start(&macro, true);
-								if (Qi::set.showTips) MacroPop(&macro, true);
-								if (Qi::set.audFx) SoundPlay(Qi::ui.pop.upe.s, false);
-							}
-						}
-					} break;
 					}
+				} break;
+				case Macro::down:
+				{
+					if (k1 && k2)
+					{
+						macro.thread.run_start(&macro);
+						if (Qi::set.showTips) MacroPop(&macro, true);
+						if (Qi::set.audFx) SoundPlay(Qi::ui.pop.dwe.s, false);
+					}
+					else
+					{
+						if (macro.count == 0 && macro.thread.run_active())
+						{
+							macro.thread.end_start(&macro);
+							if (Qi::set.showTips) MacroPop(&macro, false);
+							if (Qi::set.audFx) SoundPlay(Qi::ui.pop.dwd.s, false);
+						}
+					}
+				} break;
+				case Macro::up:
+				{
+					if (k1 && k2)
+					{
+						macro.active = true;
+						if (macro.count == 0 && macro.thread.run_active())
+						{
+							macro.thread.end_start(&macro);
+							if (Qi::set.showTips) MacroPop(&macro, false);
+							if (Qi::set.audFx) SoundPlay(Qi::ui.pop.upd.s, false);
+						}
+					}
+					else
+					{
+						if (macro.active)
+						{
+							macro.active = false;
+							macro.thread.run_start(&macro);
+							if (Qi::set.showTips) MacroPop(&macro, true);
+							if (Qi::set.audFx) SoundPlay(Qi::ui.pop.upe.s, false);
+						}
+					}
+				} break;
 				}
 			}
 		}
@@ -364,12 +351,12 @@ namespace QiFn
 			{
 				for (auto& m : g.macros)
 				{
-					if (m.state && m.key)
+					if (m.state && (m.key1 || m.key2))
 					{
 						if (m.keyBlock)
 						{
-							if (m.key & 0xFFFF) Qi::keyBlock[m.key & 0xFFFF] = true;
-							if (m.key >> 16) Qi::keyBlock[m.key >> 16] = true;
+							if (m.key1) Qi::keyBlock[m.key1] = true;
+							if (m.key2) Qi::keyBlock[m.key2] = true;
 						}
 						Qi::macroActive.append(&m);
 					}

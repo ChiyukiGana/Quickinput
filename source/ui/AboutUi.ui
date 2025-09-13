@@ -90,7 +90,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-9-11</string>
+         <string>2025-9-13</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>
@@ -106,10 +106,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加宏控制函数
-提高宏运行和切换速
-修复自定义函数无法更新
-修复返回不能用在函数外</string>
+         <string>增加撤销功能</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>

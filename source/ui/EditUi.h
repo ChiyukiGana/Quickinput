@@ -65,6 +65,8 @@ class EditUi : public QDialogFrameless
 	QAction* muCut;
 	QAction* muCopy;
 	QAction* muPaste;
+	QAction* muRedo;
+	QAction* muUndo;
 	QAction* muEdit;
 	QAction* muEdit2;
 
@@ -95,6 +97,7 @@ class EditUi : public QDialogFrameless
 	Macro* macro = nullptr;
 	Actions* actions = nullptr;
 	Actions* actionsRoot = nullptr;
+	HistoryActions actionsHistory;
 
 public:
 	EditUi(Macro* macro, Actions* actions);
@@ -146,6 +149,8 @@ private:
 	void ItemCut();
 	void ItemCopy();
 	void ItemPaste();
+	void Redo();
+	void Undo();
 
 	// get params from widget
 	QiKey WidgetGetKey();

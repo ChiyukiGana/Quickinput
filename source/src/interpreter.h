@@ -29,6 +29,6 @@ public:
 	bool isInvalid();
 	void DebugContinue();
 	bool PeekSleep(clock_t ms);
-	int ActionInterpreter(const Actions& current);
+	InterpreterResult ActionInterpreter(const Actions& current);
 	QString makePath();
 };
