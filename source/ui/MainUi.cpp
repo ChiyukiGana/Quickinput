@@ -65,14 +65,14 @@ void MainUi::Event()
 			if (reason == QSystemTrayIcon::ActivationReason::Trigger) setWindowState(Qt::WindowNoState), show();
 		}
 		});
-	connect(ui.title_close_button, &QPushButton::clicked, this, [] { exit(0); });
+	connect(ui.title_close_button, &QPushButton::clicked, this, [] { ExitProcess(0); });
 	connect(ui.title_min_button, &QPushButton::clicked, this, [this] { setWindowState(Qt::WindowMinimized); });
 	connect(ui.title_hide_button, &QPushButton::clicked, this, [this] { hide(); });
 	connect(ac_on, &QAction::triggered, this, [] { if (Qi::widget.active()) QiFn::QiState(true), QiFn::QiHook(true); });
 	connect(ac_off, &QAction::triggered, this, [] { QiFn::QiState(false); QiFn::QiHook(false); });
 	connect(ac_show, &QAction::triggered, this, [this] { setWindowState(Qt::WindowNoState), show(); });
 	connect(ac_hide, &QAction::triggered, this, [this] { hide(); });
-	connect(ac_exit, &QAction::triggered, this, [] { exit(0); });
+	connect(ac_exit, &QAction::triggered, this, [] { ExitProcess(0); });
 }
 void MainUi::StyleGroup()
 {

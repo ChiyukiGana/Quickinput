@@ -90,7 +90,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-9-13</string>
+         <string>2025-9-15</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>
@@ -106,7 +106,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加撤销功能</string>
+         <string>修复编辑器关闭异常</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>

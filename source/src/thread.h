@@ -60,16 +60,25 @@ protected:
 public:
 	using ThreadList = std::vector<std::unique_ptr<QiWorkerThread>>;
 	QiThreadManager() {};
-	QiThreadManager(QiThreadManager&& right)
+	QiThreadManager(QiThreadManager&& right) noexcept
 	{
+		exit_all();
+		detach_all();
 		std::unique_lock<std::mutex> lock(m_mutex);
+		std::unique_lock<std::mutex> lockr(right.m_mutex);
 		m_thread_list = std::move(right.m_thread_list);
+		right.m_thread_list.clear();
 	}
 	QiThreadManager(const QiThreadManager&) = delete;
-	QiThreadManager& operator=(QiThreadManager&& right)
+	QiThreadManager& operator=(QiThreadManager&& right) noexcept
 	{
+		exit_all();
+		detach_all();
 		std::unique_lock<std::mutex> lock(m_mutex);
+		std::unique_lock<std::mutex> lockr(right.m_mutex);
 		m_thread_list = std::move(right.m_thread_list);
+		right.m_thread_list.clear();
+		return *this;
 	}
 	QiThreadManager& operator=(const QiThreadManager&) = delete;
 
@@ -91,7 +100,7 @@ public:
 
 		std::unique_ptr<QiWorkerThread>& worker_thread = m_thread_list.emplace_back(new QiWorkerThread());
 		worker_thread->m_worker = std::make_unique<QiWorkers>(std::forward<Args>(args)...);
-		worker_thread->m_thread = std::thread([worker = worker_thread->m_worker.get()] { worker->run(); worker->m_stop = true; });
+		worker_thread->m_thread = std::thread([worker = worker_thread->m_worker.get(), thread = &worker_thread->m_thread] { worker->run(); worker->m_stop = true; thread->detach(); });
 
 		for (size_t i = m_thread_list.size() - 1; true; i--)
 		{
@@ -114,6 +123,22 @@ public:
 	{
 		std::unique_lock<std::mutex> lock(m_mutex);
 		for (const auto& t : m_thread_list) if (t->m_thread.joinable()) t->m_thread.join();
+	}
+
+	void detach()
+	{
+		std::unique_lock<std::mutex> lock(m_mutex);
+		if (!m_thread_list.empty())
+		{
+			std::unique_ptr<QiWorkerThread>& last = m_thread_list.back();
+			if (last->m_thread.joinable()) last->m_thread.detach();
+		}
+	}
+
+	void detach_all()
+	{
+		std::unique_lock<std::mutex> lock(m_mutex);
+		for (const auto& t : m_thread_list) if (t->m_thread.joinable()) t->m_thread.detach();
 	}
 
 	void exit()
@@ -139,7 +164,8 @@ public:
 	~QiThreadManager()
 	{
 		exit_all();
-		wait_all();
+		detach_all();
+		m_thread_list.clear();
 	}
 };
 

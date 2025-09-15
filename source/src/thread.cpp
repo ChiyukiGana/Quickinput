@@ -209,5 +209,5 @@ struct QiDisplayUpdateWorker : QiWorker
 };
 void QiDisplayUpdateThread::start()
 {
-	QiThreadManager::start<QiWindowBindWorker>();
+	QiThreadManager::start<QiDisplayUpdateWorker>();
 }
