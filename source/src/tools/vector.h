@@ -27,15 +27,20 @@ namespace QiTools
 		using base_vector::size;
 		using base_vector::resize;
 		// access
-		using base_vector::operator[];
-		using base_vector::at;
 		using base_vector::begin;
 		using base_vector::end;
+		using base_vector::rbegin;
+		using base_vector::rend;
+		using base_vector::at;
+		using base_vector::operator[];
 		// first and last element
 		using base_vector::front;
 		using base_vector::back;
+		using base_vector::pop_back;
 
 		std::vector<Ty> toStdVector() const { return std::vector<Ty>(base_vector::begin(), base_vector::end()); }
+
+		bool valid(size_t index) { return not_empty() && index < base_vector::size(); }
 
 		// append
 		Ty& append(Ty&& right)
@@ -160,6 +165,32 @@ namespace QiTools
 			else if (element_where > target_where) for (size_t where = element_where; where > target_where; where--) swap(where, where - 1);
 		}
 		// find
+		Ty* find(const Ty& value)
+		{
+			Ty* result = nullptr;
+			for (size_t i = 0; i < base_vector::size(); i++)
+			{
+				if (value == base_vector::at(i))
+				{
+					result = &base_vector::at(i);
+					break;
+				}
+			}
+			return result;
+		}
+		const Ty* find(const Ty& value) const
+		{
+			Ty* result = nullptr;
+			for (size_t i = 0; i < base_vector::size(); i++)
+			{
+				if (value == base_vector::at(i))
+				{
+					result = &base_vector::at(i);
+					break;
+				}
+			}
+			return result;
+		}
 		Ty* find(std::function<bool(Ty&)> compareCallback)
 		{
 			Ty* result = nullptr;

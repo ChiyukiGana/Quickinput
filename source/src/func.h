@@ -49,7 +49,4 @@ namespace QiFn
 	WndInfo WindowSelection();
 
 	Macro* FindMacro(const QString& name);
-
-	QiBlock* FindBlock(Actions& actions, int id);
-	const QiBlock* FindBlock(const Actions& actions, int id);
 };

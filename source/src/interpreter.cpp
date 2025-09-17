@@ -140,7 +140,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			}
 			if (!action.base().disable)
 			{
-				switch (action.index())
+				switch (action.type())
 				{
 				case QiType::end:
 				{
@@ -450,8 +450,12 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 					const QiJump& ref = std::get<QiJump>(action);
 					if (ref.id > 0)
 					{
-						jumpId = ref.id;
-						r_result = InterpreterResult::r_top;
+						const Action* jumpPoint = actions.find(QiType::jumpPoint, ref.id);
+						if (jumpPoint)
+						{
+							jumpId = ref.id;
+							r_result = InterpreterResult::r_top;
+						}
 					}
 				} break;
 				case QiType::jumpPoint:
@@ -487,8 +491,12 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				{
 					if (jumpId || debug_entry) continue;
 					const QiBlockExec& ref = std::get<QiBlockExec>(action);
-					const QiBlock* pBlock = QiFn::FindBlock(actions, ref.id);
-					if (pBlock) r_result = ActionInterpreter(pBlock->next);
+
+					const Action* block = actions.find(QiType::block, ref.id);
+					if (block)
+					{
+						r_result = ActionInterpreter(block->base().next);
+					}
 				} break;
 				case QiType::quickInput:
 				{

@@ -476,29 +476,4 @@ namespace QiFn
 		}
 		return macro;
 	}
-
-	QiBlock* FindBlock(Actions& actions, int id)
-	{
-		for (size_t i = 0; (i < actions.size()); i++)
-		{
-			if (actions[i].index() == QiType::block)
-			{
-				QiBlock& block = (QiBlock&)actions[i].base();
-				if (block.id == id) return &block;
-			}
-		}
-		return nullptr;
-	}
-	const QiBlock* FindBlock(const Actions& actions, int id)
-	{
-		for (size_t i = 0; (i < actions.size()); i++)
-		{
-			if (actions[i].index() == QiType::block)
-			{
-				const QiBlock& block = (const QiBlock&)actions[i].base();
-				if (block.id == id) return &block;
-			}
-		}
-		return nullptr;
-	}
 }

@@ -332,12 +332,13 @@ void MacroUi::showEvent(QShowEvent*)
 }
 void MacroUi::customEvent(QEvent* e)
 {
-	static Macro macro;
+	static Macro* edit;
 	if (e->type() == static_cast<int>(QiEvent::mac_edit_enter))
 	{
 		if (!isSold()) return;
-		macro = currentMacros.first()->copy();
-		Qi::widget.edit = new EditUi(&macro, &macro.acRun);
+		edit = currentMacros.first();
+		Qi::widget.editMacro = edit->copy();
+		Qi::widget.edit = new EditUi(&Qi::widget.editMacro, &Qi::widget.editMacro.acRun);
 		Qi::widget.dialogActive = Qi::debug = true;
 		Qi::widget.main->hide();
 		Qi::widget.main->setDisabled(true);
@@ -359,8 +360,8 @@ void MacroUi::customEvent(QEvent* e)
 		Qi::widget.dialogActive = Qi::debug = false;
 		if (Qi::widget.edit) delete Qi::widget.edit;
 		Qi::widget.edit = nullptr;
-		*currentMacros.first() = std::move(macro);
-		QiJson::SaveMacro(*currentMacros.first());
+		*edit = std::move(Qi::widget.editMacro);
+		QiJson::SaveMacro(*edit);
 		Qi::popText->Hide();
 		ResetWidget();
 		DisableWidget();
@@ -372,8 +373,6 @@ void MacroUi::customEvent(QEvent* e)
 		Qi::widget.dialogActive = Qi::debug = false;
 		if (Qi::widget.edit) delete Qi::widget.edit;
 		Qi::widget.edit = nullptr;
-		//*currentMacros.first() = std::move(macro);
-		//QiJson::SaveMacro(*currentMacros.first());
 		Qi::popText->Hide();
 		ResetWidget();
 		DisableWidget();

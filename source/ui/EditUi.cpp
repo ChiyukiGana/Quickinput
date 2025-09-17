@@ -1,6 +1,6 @@
 ﻿#include <EditUi.h>
 #include <RecordUi.h>
-EditUi::EditUi(Macro* macro, Actions* actions) : macro(macro), actionsRoot(&macro->acRun), actionsHistory(30)
+EditUi::EditUi(Macro* macro, Actions* actions) : macro(macro), actionsRoot(&macro->acRun), actionsHistory(30), idChecker(jumpIds, blockIds)
 {
 	ui.setupUi(this);
 
@@ -21,7 +21,6 @@ EditUi::EditUi(Macro* macro, Actions* actions) : macro(macro), actionsRoot(&macr
 	StyleGroup();
 	Reload();
 }
-
 
 void EditUi::Init()
 {
@@ -230,39 +229,39 @@ void EditUi::Init_Bind()
 {
 	if ("group of type")
 	{
-		bind_type_group.at(QiType::none) = nullptr;
-		bind_type_group.at(QiType::end) = ui.grp_end;
-		bind_type_group.at(QiType::delay) = ui.grp_delay;
-		bind_type_group.at(QiType::key) = ui.grp_key;
-		bind_type_group.at(QiType::mouse) = ui.grp_mouse;
-		bind_type_group.at(QiType::copyText) = ui.grp_copyText;
-		bind_type_group.at(QiType::color) = ui.grp_color;
-		bind_type_group.at(QiType::loop) = ui.grp_loop;
-		bind_type_group.at(QiType::loopEnd) = ui.grp_loopEnd;
-		bind_type_group.at(QiType::keyState) = ui.grp_keyState;
-		bind_type_group.at(QiType::resetPos) = ui.grp_resetPos;
-		bind_type_group.at(QiType::image) = ui.grp_image;
-		bind_type_group.at(QiType::popText) = ui.grp_popText;
-		bind_type_group.at(QiType::savePos) = ui.grp_savePos;
-		bind_type_group.at(QiType::timer) = ui.grp_timer;
-		bind_type_group.at(QiType::jump) = ui.grp_jump;
-		bind_type_group.at(QiType::jumpPoint) = ui.grp_jumpPoint;
-		bind_type_group.at(QiType::dialog) = ui.grp_dialog;
-		bind_type_group.at(QiType::block) = ui.grp_block;
-		bind_type_group.at(QiType::blockExec) = ui.grp_blockExec;
-		bind_type_group.at(QiType::quickInput) = ui.grp_quickInput;
-		bind_type_group.at(QiType::keyBlock) = ui.grp_keyBlock;
-		bind_type_group.at(QiType::clock) = ui.grp_clock;
-		bind_type_group.at(QiType::ocr) = ui.grp_ocr;
-		bind_type_group.at(QiType::varOperator) = ui.grp_varOperator;
-		bind_type_group.at(QiType::varCondition) = ui.grp_varCondition;
-		bind_type_group.at(QiType::mouseTrack) = nullptr;
-		bind_type_group.at(QiType::open) = ui.grp_open;
-		bind_type_group.at(QiType::textPad) = ui.grp_textPad;
-		bind_type_group.at(QiType::editDialog) = ui.grp_editDialog;
-		bind_type_group.at(QiType::volume) = ui.grp_volume;
-		bind_type_group.at(QiType::soundPlay) = ui.grp_soundPlay;
-		bind_type_group.at(QiType::msgView) = ui.grp_msgView;
+		bind_type_group.at(static_cast<size_t>(QiType::none)) = nullptr;
+		bind_type_group.at(static_cast<size_t>(QiType::end)) = ui.grp_end;
+		bind_type_group.at(static_cast<size_t>(QiType::delay)) = ui.grp_delay;
+		bind_type_group.at(static_cast<size_t>(QiType::key)) = ui.grp_key;
+		bind_type_group.at(static_cast<size_t>(QiType::mouse)) = ui.grp_mouse;
+		bind_type_group.at(static_cast<size_t>(QiType::copyText)) = ui.grp_copyText;
+		bind_type_group.at(static_cast<size_t>(QiType::color)) = ui.grp_color;
+		bind_type_group.at(static_cast<size_t>(QiType::loop)) = ui.grp_loop;
+		bind_type_group.at(static_cast<size_t>(QiType::loopEnd)) = ui.grp_loopEnd;
+		bind_type_group.at(static_cast<size_t>(QiType::keyState)) = ui.grp_keyState;
+		bind_type_group.at(static_cast<size_t>(QiType::resetPos)) = ui.grp_resetPos;
+		bind_type_group.at(static_cast<size_t>(QiType::image)) = ui.grp_image;
+		bind_type_group.at(static_cast<size_t>(QiType::popText)) = ui.grp_popText;
+		bind_type_group.at(static_cast<size_t>(QiType::savePos)) = ui.grp_savePos;
+		bind_type_group.at(static_cast<size_t>(QiType::timer)) = ui.grp_timer;
+		bind_type_group.at(static_cast<size_t>(QiType::jump)) = ui.grp_jump;
+		bind_type_group.at(static_cast<size_t>(QiType::jumpPoint)) = ui.grp_jumpPoint;
+		bind_type_group.at(static_cast<size_t>(QiType::dialog)) = ui.grp_dialog;
+		bind_type_group.at(static_cast<size_t>(QiType::block)) = ui.grp_block;
+		bind_type_group.at(static_cast<size_t>(QiType::blockExec)) = ui.grp_blockExec;
+		bind_type_group.at(static_cast<size_t>(QiType::quickInput)) = ui.grp_quickInput;
+		bind_type_group.at(static_cast<size_t>(QiType::keyBlock)) = ui.grp_keyBlock;
+		bind_type_group.at(static_cast<size_t>(QiType::clock)) = ui.grp_clock;
+		bind_type_group.at(static_cast<size_t>(QiType::ocr)) = ui.grp_ocr;
+		bind_type_group.at(static_cast<size_t>(QiType::varOperator)) = ui.grp_varOperator;
+		bind_type_group.at(static_cast<size_t>(QiType::varCondition)) = ui.grp_varCondition;
+		bind_type_group.at(static_cast<size_t>(QiType::mouseTrack)) = nullptr;
+		bind_type_group.at(static_cast<size_t>(QiType::open)) = ui.grp_open;
+		bind_type_group.at(static_cast<size_t>(QiType::textPad)) = ui.grp_textPad;
+		bind_type_group.at(static_cast<size_t>(QiType::editDialog)) = ui.grp_editDialog;
+		bind_type_group.at(static_cast<size_t>(QiType::volume)) = ui.grp_volume;
+		bind_type_group.at(static_cast<size_t>(QiType::soundPlay)) = ui.grp_soundPlay;
+		bind_type_group.at(static_cast<size_t>(QiType::msgView)) = ui.grp_msgView;
 	}
 	if ("buttons")
 	{
@@ -367,7 +366,7 @@ void EditUi::Event()
 			if (macro.acRun) actions->append(std::move(macro.acRun));
 			show();
 			Qi::widget.dialogActive = false;
-			TableReload();
+			Reload();
 			});
 		connect(ui.rec_window_button, &QPushButton::clicked, this, [this] {
 			Qi::widget.dialogActive = true;
@@ -382,7 +381,7 @@ void EditUi::Event()
 			else Qi::popText->Popup(2000, "窗口已失效");
 			show();
 			Qi::widget.dialogActive = false;
-			TableReload();
+			Reload();
 			});
 	}
 	if ("tab index button")
@@ -395,18 +394,19 @@ void EditUi::Event()
 		ui.action_table->installEventFilter(this);
 		// drag
 		ui.action_table->viewport()->installEventFilter(this);
+		// actions
 		connect(ui.action_running_radio, &QRadioButton::toggled, this, [this](bool state) {
 			if (state && (layers.size() == 1))
 			{
 				layers.first().actions = actionsRoot = actions = &macro->acRun;
-				TableReload();
+				Reload();
 			}
 			});
 		connect(ui.action_ending_radio, &QRadioButton::toggled, this, [this](bool state) {
 			if (state && (layers.size() == 1))
 			{
 				layers.first().actions = actionsRoot = actions = &macro->acEnd;
-				TableReload();
+				Reload();
 			}
 			});
 		// mark
@@ -470,13 +470,13 @@ void EditUi::Event()
 				QiBase& base = actions->at(row).base();
 				if (Input::state(VK_CONTROL))
 				{
-					IterActions(*actionsRoot, [](Action& action) { if (action.base().debug_entry) action.base().debug_entry = false; return false; });
+					actionsRoot->iter([](Action& action) { if (action.base().debug_entry) action.base().debug_entry = false; return false; });
 					base.debug_entry = true;
 					base.debug_break = base.debug_exit = false;
 				}
 				else if (Input::state(VK_SHIFT))
 				{
-					IterActions(*actionsRoot, [](Action& action) { if (action.base().debug_exit) action.base().debug_exit = false; return false; });
+					actionsRoot->iter([](Action& action) { if (action.base().debug_exit) action.base().debug_exit = false; return false; });
 					base.debug_exit = true;
 					base.debug_break = base.debug_entry = false;
 				}
@@ -587,8 +587,8 @@ void EditUi::Event()
 void EditUi::Event_Action_Widget()
 {
 	// buttons
-	BindSafeIter(bind_add_button, [this](QPushButton* p, size_t i) { connect(bind_add_button[i], &QPushButton::clicked, this, [this, i] { ItemAdd(i); }); });
-	BindSafeIter(bind_chg_button, [this](QPushButton* p, size_t i) { connect(bind_chg_button[i], &QPushButton::clicked, this, [this, i] { ItemChange(i); }); });
+	BindSafeIter(bind_add_button, [this](QPushButton* p, size_t i) { connect(bind_add_button[i], &QPushButton::clicked, this, [this, i] { ItemAdd(static_cast<QiType>(i)); }); });
+	BindSafeIter(bind_chg_button, [this](QPushButton* p, size_t i) { connect(bind_chg_button[i], &QPushButton::clicked, this, [this, i] { ItemChange(static_cast<QiType>(i)); }); });
 	BindSafeIter(bind_edt_button, [this](QPushButton* p, size_t i) { connect(bind_edt_button[i], &QPushButton::clicked, this, [this, i] { NextEdit(false); }); });
 	BindSafeIter(bind_edt2_button, [this](QPushButton* p, size_t i) { connect(bind_edt2_button[i], &QPushButton::clicked, this, [this, i] { NextEdit(true); }); });
 	// check
@@ -861,10 +861,10 @@ void EditUi::Event_Table_Selection()
 			const Action& var = actions->at(tableCurrent.front());
 
 			if (!ui.tab_lock_check->isChecked()) SetTabCurrent(bind_type_tab.at(var.index()));
-			SetGroupCurrent(var.index());
-			SetEditCurrent(var.index());
+			SetGroupCurrent(var.type());
+			SetEditCurrent(var.type());
 
-			switch (var.index())
+			switch (var.type())
 			{
 			case QiType::mouse:
 			{
@@ -1169,21 +1169,21 @@ void EditUi::SetTabCurrent(int index)
 	ui.tab_stacked_widget->setCurrentIndex(index);
 	BindSafeIter(bind_tab_button, [this, index](QPushButton* p, size_t i) { index == i ? p->setDisabled(true) : p->setEnabled(true); });
 }
-void EditUi::SetGroupCurrent(int type)
+void EditUi::SetGroupCurrent(QiType type)
 {
 	BindSafeIter(bind_type_group, [this, type](QGroupBox* p, size_t i) {
-		if (i == type) p->setStyleSheet("QGroupBox{border:1px solid red;border-radius:5px}");
+		if (i == static_cast<size_t>(type)) p->setStyleSheet("QGroupBox{border:1px solid red;border-radius:5px}");
 		else p->setStyleSheet("QGroupBox{border:1px solid gray;border-radius:5px}");
 		});
 }
-void EditUi::SetEditCurrent(int type)
+void EditUi::SetEditCurrent(QiType type)
 {
 	BindSafeIter(bind_edt_button, [this, type](QPushButton* p, size_t i) {
-		if (i == type) p->setEnabled(true);
+		if (i == static_cast<size_t>(type)) p->setEnabled(true);
 		else p->setDisabled(true);
 		});
 	BindSafeIter(bind_edt2_button, [this, type](QPushButton* p, size_t i) {
-		if (i == type) p->setEnabled(true);
+		if (i == static_cast<size_t>(type)) p->setEnabled(true);
 		else p->setDisabled(true);
 		});
 }
@@ -1239,7 +1239,20 @@ void EditUi::Reload()
 		ui.block_add_button->setEnabled(true);
 		ui.block_edit_button->setEnabled(true);
 	}
+	idChecker.load(*actionsRoot);
 	TableReload();
+	WidgetReload();
+}
+void EditUi::WidgetReload()
+{
+	tableCurrent.clear();
+	tableCurrentPrev.clear();
+	DisableMenus();
+	DisableChangeButtons(true);
+	SetGroupCurrent();
+	SetEditCurrent();
+	ListJumpPointReload();
+	ListBlockReload();
 }
 // TODO: new action's next name
 void EditUi::NextEdit(bool edit2)
@@ -1248,7 +1261,7 @@ void EditUi::NextEdit(bool edit2)
 	QString title;
 	Actions* next = nullptr;
 	Action& var = actions->at(p);
-	switch (var.index())
+	switch (var.type())
 	{
 	case QiType::color:
 	{
@@ -1409,7 +1422,7 @@ void EditUi::TableUpdate(int index)
 	QString type;
 	QString param;
 	QColor color(0, 0, 0, 0);
-	switch (var.index())
+	switch (var.type())
 	{
 	case QiType::end:
 	{
@@ -1561,23 +1574,22 @@ void EditUi::TableUpdate(int index)
 
 		if (ref.id < 1)
 		{
-			param = "指定无效的锚点";
+			param = "无效锚点id";
 		}
 		else
 		{
 			param = "id：";
 			param += QString::number(ref.id);
-			IterActions(*actionsRoot, [&param, id = ref.id](const Action& action) {
-				const QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(action);
-				if (jumpPoint.id == id)
-				{
-					if (jumpPoint.mark.isEmpty()) return false;
-					param += " ";
-					param += jumpPoint.mark;
-					return false;
-				}
-				return true;
-				}, QiType::jumpPoint);
+
+			if (jumpIds.exist(ref.id))
+			{
+				const Action* ac = actionsRoot->find(QiType::jumpPoint, ref.id);
+				if (ac && !ac->base().mark.isEmpty()) param += QString(" ") + ac->base().mark;
+			}
+			else
+			{
+				param += " (无效)";
+			}
 		}
 	} break;
 	case QiType::jumpPoint:
@@ -1611,23 +1623,22 @@ void EditUi::TableUpdate(int index)
 
 		if (ref.id < 1)
 		{
-			param = "指定无效的块";
+			param = "无效块id";
 		}
 		else
 		{
 			param = "id：";
 			param += QString::number(ref.id);
-			IterActions(*actionsRoot, [&param, id = ref.id](const Action& action) {
-				const QiBlock& block = std::get<QiBlock>(action);
-				if (block.id == id)
-				{
-					if (block.mark.isEmpty()) return false;
-					param += " ";
-					param += block.mark;
-					return false;
-				}
-				return true;
-				}, QiType::block);
+
+			if (blockIds.exist(ref.id))
+			{
+				const Action* ac = actionsRoot->find(QiType::block, ref.id);
+				if (ac && !ac->base().mark.isEmpty()) param += QString(" ") + ac->base().mark;
+			}
+			else
+			{
+				param += " (无效)";
+			}
 		}
 	} break;
 	case QiType::quickInput:
@@ -1794,14 +1805,6 @@ void EditUi::TableUpdate(int begin, int end)
 }
 void EditUi::TableReload()
 {
-	tableCurrent.clear();
-	tableCurrentPrev.clear();
-	DisableMenus();
-	DisableChangeButtons(true);
-	SetGroupCurrent();
-	SetEditCurrent();
-	ListJumpPointReload();
-	ListBlockReload();
 	ui.action_table->setRowCount(actions->size());
 	for (size_t i = 0; i < ui.action_table->rowCount(); i++) TableUpdate(i);
 }
@@ -1840,7 +1843,7 @@ void EditUi::TableSelection(const QiVector<int> selection)
 
 
 // TODO: new action's widget get
-Action EditUi::ItemGet(int type)
+Action EditUi::ItemGet(QiType type)
 {
 	switch (type)
 	{
@@ -1882,7 +1885,7 @@ Action EditUi::ItemGet(int type)
 void EditUi::ItemSet(int p)
 {
 	const Action& var = actions->at(p);
-	switch (var.index())
+	switch (var.type())
 	{
 	case QiType::delay: WidgetSet(std::get<QiDelay>(var)); break;
 	case QiType::key: WidgetSet(std::get<QiKey>(var)); break;
@@ -1951,11 +1954,12 @@ void EditUi::ItemMove(bool up, int len)
 		int end = qMax(old_max, new_max);
 
 		TableUpdate(begin, end);
+		WidgetReload();
 		ui.action_table->clearSelection();
 		TableSelection(after);
 	}
 }
-void EditUi::ItemAdd(int type)
+void EditUi::ItemAdd(QiType type)
 {
 	int p = ui.action_table->currentRow();
 	if (p < 0) p = actions->size();
@@ -1965,36 +1969,59 @@ void EditUi::ItemAdd(int type)
 	actions->insert(p, action);
 	actionsHistory.insert(p, action);
 
-	TableInsert(p);
+	idChecker.check(action);
+	if (idChecker.reset(*actionsRoot)) TableReload();
+	else TableInsert(p);
+
+	WidgetReload();
 	ui.action_table->setCurrentItem(ui.action_table->item(p, tableColumn_type));
 }
-void EditUi::ItemChange(int type)
+void EditUi::ItemChange(QiType type)
 {
 	for (int i : tableCurrent)
 	{
-		Action& current = actions->at(i);
-		QiBase base_old = current.base();
-		current = ItemGet(type);
-		QiBase& base_new = current.base();
-		base_new.disable = std::move(base_old.disable);
-		base_new.mark = std::move(base_old.mark);
-		base_new.next = std::move(base_old.next);
-		base_new.next2 = std::move(base_old.next2);
-		actionsHistory.set(i, current);
-		TableUpdate(i);
+		if (actions->valid(i))
+		{
+			Action& action = actions->at(i);
+
+			idChecker.check(action);
+
+			QiBase base_old = action.base();
+			action = ItemGet(type);
+			QiBase& base_new = action.base();
+			base_new.disable = std::move(base_old.disable);
+			base_new.mark = std::move(base_old.mark);
+			base_new.next = std::move(base_old.next);
+			base_new.next2 = std::move(base_old.next2);
+			actionsHistory.set(i, action);
+
+			idChecker.check(action);
+
+			TableUpdate(i);
+		}
 	}
+	if (idChecker.reset(*actionsRoot)) TableReload();
+	WidgetReload();
 	ui.action_table->clearSelection();
 }
 void EditUi::ItemDel()
 {
 	if (tableCurrent.empty()) return;
-	for (int i = tableCurrent.size() - 1; i >= 0; i--)
+
+	while (tableCurrent.not_empty())
 	{
-		int index = tableCurrent.at(i);
-		TableRemove(index);
-		actions->remove(index);
-		actionsHistory.remove(index);
+		int i = tableCurrent.back();
+		tableCurrent.pop_back();
+		if (actions->valid(i))
+		{
+			idChecker.check(actions->at(i));
+			TableRemove(i);
+			actions->remove(i);
+			actionsHistory.remove(i);
+		}
 	}
+	if (idChecker.reset(*actionsRoot)) TableReload();
+	WidgetReload();
 	ui.action_table->setCurrentItem(0);
 }
 void EditUi::ItemCut()
@@ -2014,30 +2041,55 @@ void EditUi::ItemPaste()
 	int p = ui.action_table->currentRow();
 	if (p < 0) p = actions->size();
 	else p++;
+
 	// reset jump id
-	UniqueActionsId(LoadIds(*actionsRoot, QiType::jumpPoint), Qi::clipboard, QiType::jumpPoint);
+	UniqueActionsId(actionsRoot->loadId(QiType::jumpPoint), Qi::clipboard, QiType::jumpPoint, QiType::jump);
 	// reset block id
-	UniqueActionsId(LoadIds(*actionsRoot, QiType::block), Qi::clipboard, QiType::block);
+	UniqueActionsId(actionsRoot->loadId(QiType::block), Qi::clipboard, QiType::block, QiType::blockExec);
+
 	actions->insert(p, Qi::clipboard);
 	actionsHistory.insert(p, Qi::clipboard);
-	for (size_t i = 0; i < Qi::clipboard.size(); i++) TableInsert(p + i);
+
+	idChecker.check(Qi::clipboard);
+	idChecker.reset(*actionsRoot);
+
+	if (idChecker.reset(*actionsRoot)) TableReload();
+	else for (size_t i = 0; i < Qi::clipboard.size(); i++) TableInsert(p + i);
+	WidgetReload();
 }
 void EditUi::Redo()
 {
 	if (actionsHistory.canRedo())
 	{
+		idChecker.check(*actions);
+
 		actionsHistory.redo();
 		*actions = actionsHistory.toVector();
+
+		idChecker.check(*actions);
+		idChecker.reset(*actionsRoot);
+
 		TableReload();
+		WidgetReload();
 	}
 }
 void EditUi::Undo()
 {
 	if (actionsHistory.canUndo())
 	{
+		bool jump = false;
+		bool block = false;
+
+		idChecker.check(*actions);
+
 		actionsHistory.undo();
 		*actions = actionsHistory.toVector();
+
+		idChecker.check(*actions);
+		idChecker.reset(*actionsRoot);
+
 		TableReload();
+		WidgetReload();
 	}
 }
 
@@ -2202,8 +2254,7 @@ QiJump EditUi::WidgetGetJump()
 QiJumpPoint EditUi::WidgetGetJumpPoint()
 {
 	QiJumpPoint jumpPoint;
-	QiVector<int> ids = LoadIds(*actionsRoot, QiType::jumpPoint);
-	jumpPoint.id = UniqueId(ids);
+	jumpPoint.id = actionsRoot->loadId(QiType::jumpPoint).unique();
 	return jumpPoint;
 }
 QiDialog EditUi::WidgetGetDialog()
@@ -2219,8 +2270,7 @@ QiDialog EditUi::WidgetGetDialog()
 QiBlock EditUi::WidgetGetBlock()
 {
 	QiBlock block;
-	QiVector<int> ids = LoadIds(*actionsRoot, QiType::block);
-	block.id = UniqueId(ids);
+	block.id = actionsRoot->loadId(QiType::block).unique();
 	return block;
 }
 QiBlockExec EditUi::WidgetGetBlockExec()
@@ -2501,165 +2551,59 @@ void EditUi::BindSafeIter(QiVector<Ty*>& bind, Fn call)
 	for (size_t i = 0; i < bind.size(); i++) if (bind.at(i)) call(bind.at(i), i);
 }
 
-// iter actions
-bool EditUi::IterActions(Actions& actions, std::function<bool(Action&)> callBack, int type)
+// type: jumpPoint, block
+void EditUi::UniqueActionsId(QiIdList ids, Actions& actions, QiType type, QiType type2)
 {
-	for (auto& i : actions)
-	{
-		if ((type == QiType::none || i.index() == type) && callBack(i)) return true;
-		if (i.base().next.not_empty() && IterActions(i.base().next, callBack, type)) return true;
-		if (i.base().next2.not_empty() && IterActions(i.base().next2, callBack, type)) return true;
-	}
-	return false;
-}
-bool EditUi::IterActions(const Actions& actions, std::function<bool(const Action&)> callBack, int type)
-{
-	return IterActions((Actions&)actions, (std::function<bool(Action&)>)callBack, type);
-}
-
-
-// type: jumpPoint, jump, block, blockExec
-QiVector<int> EditUi::LoadIds(const Actions& actions, int type)
-{
-	QiVector<int> ids;
-	IterActions(actions, [&ids, type](const Action& action) {
-		if (action.index() == type)
+	actions.iter([this, &ids, &actions, type2](Action& action) {
+		QiBase base = action.base();
+		if (ids.exist(base.id))
 		{
-			switch (type)
+			int id_res = base.id;
+			base.id = ids.unique();
+			ids.append(base.id);
+
+			if (static_cast<size_t>(type2) > 0)
 			{
-			case QiType::jumpPoint:
-			{
-				const QiJumpPoint& ref = std::get<QiJumpPoint>(action);
-				ids.append(ref.id);
-			} break;
-			case QiType::jump:
-			{
-				const QiJump& ref = std::get<QiJump>(action);
-				ids.append(ref.id);
-			} break;
-			case QiType::block:
-			{
-				const QiBlock& ref = std::get<QiBlock>(action);
-				ids.append(ref.id);
-			} break;
-			case QiType::blockExec:
-			{
-				const QiBlockExec& ref = std::get<QiBlockExec>(action);
-				ids.append(ref.id);
-			} break;
+				actions.iter([id_res, id_new = base.id](Action& action) {
+					QiBase base2 = action.base();
+					if (id_res == base2.id) base2.id = id_new;
+					return false;
+					}, type2);
 			}
 		}
 		return false;
-		});
-	return ids;
-}
-Actions EditUi::LoadType(const Actions& actions, int type)
-{
-	Actions result;
-	IterActions(actions, [&result, type](const Action& action) {
-		if (action.index() == type) result.append(action);
-		return false;
 		}, type);
-	return result;
-}
-bool EditUi::FindId(const QiVector<int>& ids, int id)
-{
-	for (auto& i : ids) if (i == id) return true; return false;
-}
-// type: jump, blockExec
-void EditUi::InvalidId(Actions& actions, int type)
-{
-	if (type == QiType::jump)
-	{
-		QiVector<int> ids = LoadIds(actions, QiType::jumpPoint);
-		IterActions(actions, [this, &ids](Action& action) {
-			QiJump& jump = std::get<QiJump>(action);
-			if (!FindId(ids, jump.id)) jump.id = -1;
-			return false;
-			}, type);
-	}
-	else if (type == QiType::blockExec)
-	{
-		QiVector<int> ids = LoadIds(actions, QiType::block);
-		IterActions(actions, [this, &ids](Action& action) {
-			QiBlockExec& blockExec = std::get<QiBlockExec>(action);
-			if (!FindId(ids, blockExec.id)) blockExec.id = -1;
-			return false;
-			}, type);
-	}
-}
-int EditUi::UniqueId(const QiVector<int>& ids)
-{
-	int id = 1;
-	for (auto& i : ids) if (i >= id) id = i + 1;
-	return id;
-}
-// type: jumpPoint, block
-void EditUi::UniqueActionsId(QiVector<int> ids, Actions& actions, int type)
-{
-	if (type == QiType::jumpPoint)
-	{
-		IterActions(actions, [this, &ids, &actions](Action& action) {
-			QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(action);
-			if (FindId(ids, jumpPoint.id))
-			{
-				int id_res = jumpPoint.id;
-				jumpPoint.id = UniqueId(ids);
-				ids.append(jumpPoint.id);
-				IterActions(actions, [id_res, jumpPoint](Action& action) {
-					QiJump& jump = std::get<QiJump>(action);
-					if (id_res == jump.id) jump.id = jumpPoint.id;
-					return false;
-					}, QiType::jump);
-			}
-			return false;
-			}, type);
-	}
-	else if (type == QiType::block)
-	{
-		IterActions(actions, [this, &ids, &actions](Action& action) {
-			QiBlock& block = std::get<QiBlock>(action);
-			if (FindId(ids, block.id))
-			{
-				int id_res = block.id;
-				block.id = UniqueId(ids);
-				ids.append(block.id);
-				IterActions(actions, [id_res, block](Action& action) {
-					QiBlockExec& blockExec = std::get<QiBlockExec>(action);
-					if (id_res == blockExec.id) blockExec.id = block.id;
-					return false;
-					}, QiType::blockExec);
-			}
-			return false;
-			}, type);
-	}
 }
 // id list
 void EditUi::ListJumpPointReload()
 {
-	InvalidId(*actionsRoot, QiType::jump);
 	ui.jumpPoint_list->clear();
-	Actions jumpPoints = LoadType(*actionsRoot, QiType::jumpPoint);
-	for (auto& i : jumpPoints)
+	for (int i : jumpIds)
 	{
-		const QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(i);
-		QListWidgetItem* item = new QListWidgetItem(QString::number(jumpPoint.id) + QString::fromUtf8("　　　") + jumpPoint.mark);
-		item->setData(static_cast<int>(DataRole::id), jumpPoint.id);
-		ui.jumpPoint_list->addItem(item);
+		const Action* action = actionsRoot->find(QiType::jumpPoint, i);
+		if (action)
+		{
+			QListWidgetItem* item = new QListWidgetItem(QString::number(action->base().id) + QString::fromUtf8("　　　") + action->base().mark);
+			item->setData(static_cast<int>(DataRole::id), action->base().id);
+			ui.jumpPoint_list->addItem(item);
+		}
 	}
+	ui.jump_add_button->setDisabled(true);
 }
 void EditUi::ListBlockReload()
 {
-	InvalidId(*actionsRoot, QiType::blockExec);
 	ui.block_list->clear();
-	Actions blocks = LoadType(*actionsRoot, QiType::block);
-	for (auto& i : blocks)
+	for (int i : blockIds)
 	{
-		const QiBlock& block = std::get<QiBlock>(i);
-		QListWidgetItem* item = new QListWidgetItem(QString::number(block.id) + QString::fromUtf8("　　　") + block.mark);
-		item->setData(static_cast<int>(DataRole::id), block.id);
-		ui.block_list->addItem(item);
+		const Action* action = actionsRoot->find(QiType::block, i);
+		if (action)
+		{
+			QListWidgetItem* item = new QListWidgetItem(QString::number(action->base().id) + QString::fromUtf8("　　　") + action->base().mark);
+			item->setData(static_cast<int>(DataRole::id), action->base().id);
+			ui.block_list->addItem(item);
+		}
 	}
+	ui.blockExec_add_button->setDisabled(true);
 }
 
 

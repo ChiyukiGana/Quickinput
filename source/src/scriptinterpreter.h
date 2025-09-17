@@ -207,6 +207,23 @@ public:
 		return this->toBool() || other.toBool();
 	}
 
+	QiVar& operator+=(const QiVar& other)
+	{
+		*this = operator+(other); return *this;
+	}
+	QiVar& operator-=(const QiVar& other)
+	{
+		*this = operator-(other); return *this;
+	}
+	QiVar& operator*=(const QiVar& other)
+	{
+		*this = operator*(other); return *this;
+	}
+	QiVar& operator/=(const QiVar& other)
+	{
+		*this = operator/(other); return *this;
+	}
+
 	static std::string ch(const std::string& str, size_t where)
 	{
 		if (str.empty()) return std::string();
@@ -1478,7 +1495,7 @@ class QiScriptInterpreter
 				return Qi::interpreter_macro_active(args[0].toString());
 			}
 		};
-		struct QiFunc_macro_start: public QiFunc
+		struct QiFunc_macro_start : public QiFunc
 		{
 			QiFunc_macro_start() : QiFunc(1) {}
 			QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
@@ -1750,7 +1767,7 @@ class QiScriptInterpreter
 					}
 				}
 
-				if (op == "!" || op == "~")
+				if (op == "!" || op == "~" || op == "^")
 					prec = 4;
 				else if (op == "*" || op == "/" || op == "%")
 					prec = 3;
@@ -1758,21 +1775,11 @@ class QiScriptInterpreter
 					prec = 2;
 				else if (op == "<<" || op == ">>")
 					prec = 1;
-				else if (op == "&")
+				else if (op == "|" || op == "&" || op == "^^")
 					prec = 1;
-				else if (op == "^")
-					prec = 0;
-				else if (op == "^^")
+				else if (op == "==" || op == "!=" || op == ">" || op == "<" || op == ">=" || op == "<=")
 					prec = 1;
-				else if (op == "|")
-					prec = 1;
-				else if (op == ">" || op == "<" || op == ">=" || op == "<=")
-					prec = 1;
-				else if (op == "==" || op == "!=")
-					prec = 1;
-				else if (op == "&&")
-					prec = 0;
-				else if (op == "||")
+				else if (op == "||" || op == "&&")
 					prec = 0;
 
 				tokens.emplace_back(OPERATOR, op, prec);
@@ -1884,33 +1891,7 @@ class QiScriptInterpreter
 				result += str.substr(start);
 				break;
 			}
-
-			std::string varName = str.substr(start + 1, end - start - 1);
-			bool isGlobal = (!varName.empty() && varName[0] == '$');
-			QiVar value;
-
-			if (isGlobal)
-			{
-				std::unique_lock<std::mutex> lock(globalVariablesMutex);
-				auto it = globalVariables.find(varName.substr(1));
-				value = (it != globalVariables.end()) ? it->second : QiVar(0.0);
-			}
-			else
-			{
-				if (local)
-				{
-					auto it = local->find(varName);
-					value = (it != local->end()) ? it->second : QiVar(0.0);
-				}
-				else
-				{
-					std::unique_lock<std::mutex> lock(localVariablesMutex);
-					auto it = localVariables.find(varName);
-					value = (it != localVariables.end()) ? it->second : QiVar(0.0);
-				}
-			}
-
-			result += value.toString();
+			result += value(str.substr(start + 1, end - start - 1), local).toString();
 			pos = end + 1;
 		}
 		return result;
@@ -1922,31 +1903,7 @@ class QiScriptInterpreter
 		{
 			if (token.type == VARIABLE)
 			{
-				bool isGlobal = (token.value[0] == '$');
-				std::string varName = isGlobal ? token.value.substr(1) : token.value;
-				QiVar value;
-
-				if (isGlobal)
-				{
-					std::unique_lock<std::mutex> lock(globalVariablesMutex);
-					auto it = globalVariables.find(varName);
-					value = (it != globalVariables.end()) ? it->second : QiVar(0.0);
-				}
-				else
-				{
-					if (local)
-					{
-						auto it = local->find(varName);
-						value = (it != local->end()) ? it->second : QiVar(0.0);
-					}
-					else
-					{
-						std::unique_lock<std::mutex> lock(localVariablesMutex);
-						auto it = localVariables.find(varName);
-						value = (it != localVariables.end()) ? it->second : QiVar(0.0);
-					}
-				}
-				stack.push_back(value);
+				stack.push_back(value(token.value, local));
 			}
 			else if (token.type == NULLOPT)
 			{
@@ -2299,6 +2256,7 @@ public:
 		localVariables = std::move(right.localVariables);
 		workerPtr = right.workerPtr;
 		workerPtr = nullptr;
+		return *this;
 	}
 	QiScriptInterpreter& operator=(const QiScriptInterpreter&) = delete;
 
@@ -2311,38 +2269,79 @@ public:
 	}
 	void interpret(const std::string& code, QiVarMap* local = nullptr)
 	{
-		size_t eqPos = code.find('=');
-		if (eqPos == std::string::npos)
+		std::string trimmedCode = trim(code);
+		size_t incPos = trimmedCode.find("++");
+		size_t decPos = trimmedCode.find("--");
+		if (incPos != std::string::npos || decPos != std::string::npos)
 		{
-			execute(code, local);
+			std::string varName;
+			// front
+			if (trimmedCode.substr(0, 2) == "++")
+			{
+				varName = trim(trimmedCode.substr(2));
+				setValue(varName, value(varName, local) + 1, local);
+			}
+			else if (trimmedCode.substr(0, 2) == "--")
+			{
+				varName = trim(trimmedCode.substr(2));
+				setValue(varName, value(varName, local) - 1, local);
+			}
+			// back
+			else if (trimmedCode.substr(trimmedCode.size() - 2) == "++")
+			{
+				varName = trim(trimmedCode.substr(0, trimmedCode.size() - 2));
+				setValue(varName, value(varName, local) + 1, local);
+			}
+			else if (trimmedCode.substr(trimmedCode.size() - 2) == "--")
+			{
+				varName = trim(trimmedCode.substr(0, trimmedCode.size() - 2));
+				setValue(varName, value(varName, local) - 1, local);
+			}
 			return;
 		}
 
-		std::string left = trim(code.substr(0, eqPos));
-		std::string expr = trim(code.substr(eqPos + 1));
-
-		auto tokens = tokenize(expr);
-		auto postfix = infixToPostfix(tokens);
-		QiVar value;
-		try { value = evaluatePostfix(postfix, local); }
-		catch (const ReturnException& e) { value = e.returnValue; }
-
-		bool isGlobal = (!left.empty() && left[0] == '$');
-		std::string varName = isGlobal ? left.substr(1) : left;
-
-		if (isGlobal)
+		size_t oper = 0;
+		size_t eqPos = trimmedCode.find('=');
+		if (eqPos == std::string::npos)
 		{
-			std::unique_lock<std::mutex> lock(globalVariablesMutex);
-			globalVariables[varName] = value;
+			execute(trimmedCode, local);
+			return;
 		}
 		else
 		{
-			if (local) (*local)[varName] = value;
-			else
+			if (eqPos + 1 < trimmedCode.size() && trimmedCode[eqPos + 1] == '=')
 			{
-				std::unique_lock<std::mutex> lock(localVariablesMutex);
-				localVariables[varName] = value;
+				execute(trimmedCode, local);
+				return;
 			}
+			if (eqPos > 0)
+			{
+				if (trimmedCode[eqPos - 1] == '+') oper = 1;
+				if (trimmedCode[eqPos - 1] == '-') oper = 2;
+				if (trimmedCode[eqPos - 1] == '*') oper = 3;
+				if (trimmedCode[eqPos - 1] == '/') oper = 4;
+				if (trimmedCode[eqPos - 1] == '^') oper = 5;
+			}
+		}
+
+		auto tokens = tokenize(trimmedCode.substr(eqPos + 1));
+		auto postfix = infixToPostfix(tokens);
+		QiVar result;
+		try { result = evaluatePostfix(postfix, local); }
+		catch (const ReturnException& e) { result = e.returnValue; }
+
+		std::string left = trimmedCode.substr(0, oper ? eqPos - 1 : eqPos);
+		if (!left.empty())
+		{
+			switch (oper)
+			{
+			case 1: result = value(left, local) + result; break;
+			case 2:	result = value(left, local) - result; break;
+			case 3:	result = value(left, local) * result; break;
+			case 4:	result = value(left, local) / result; break;
+			case 5:	result = value(left, local).merge(result); break;
+			}
+			setValue(left, result, local);
 		}
 	}
 	void interpretAll(const std::string& code, QiVarMap* local = nullptr)
@@ -2415,7 +2414,7 @@ public:
 			if (isGlobalVariable(var))
 			{
 				std::unique_lock<std::mutex> lock(globalVariablesMutex);
-				const auto & i = globalVariables.find(var);
+				const auto& i = globalVariables.find(var);
 				if (i != globalVariables.end()) return i->second;
 			}
 			else

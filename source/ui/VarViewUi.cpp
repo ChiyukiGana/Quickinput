@@ -39,8 +39,7 @@ void VarViewUi::TableUpdate(QTableWidget* table, const QiVarMap varMap)
 		QTableWidgetItem* item = new QTableWidgetItem(name);
 		if (var.isString()) item->setForeground(QColor(255, 128, 0));
 		else item->setForeground(QColor(0, 192, 0));
-		item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
-		table->setItem(i, tableColumn_name, item);
+		item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);		table->setItem(i, tableColumn_name, item);
 
 		if (var.isString())
 		{
@@ -68,10 +67,13 @@ void VarViewUi::TableUpdate()
 	updating = true;
 	QiVector<Macro*> macros;
 	for (auto& i : Qi::macroGroups) for (auto& im : i.macros) macros.append(&im);
-	ui.macroGroup_table->setRowCount(macros.size() + 1);
 
+	size_t count = macros.size() + 2;
+	ui.macroGroup_table->setRowCount(count);
+
+	bool edit = true;
 	bool global = true;
-	for (size_t i = 0; i < macros.size() + 1; i++)
+	for (size_t i = 0; i < count; i++)
 	{
 		QTableWidget* table = ui.macroGroup_table->table(i);
 		Macro* macro = nullptr;
@@ -94,9 +96,15 @@ void VarViewUi::TableUpdate()
 			global = false;
 			varMap = QiScriptInterpreter::global();
 		}
+		else if (edit)
+		{
+			edit = false;
+			varMap = Qi::widget.editMacro.script_interpreter.local();
+			table->horizontalHeaderItem(tableColumn_name)->setText(Qi::widget.editMacro.name + "(编辑)");
+		}
 		else
 		{
-			macro = macros.at(i - 1);
+			macro = macros.at(i - 2);
 			table->horizontalHeaderItem(tableColumn_name)->setText(macro->name);
 			varMap = macro->script_interpreter.local();
 		}

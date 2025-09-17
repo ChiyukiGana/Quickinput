@@ -1,9 +1,12 @@
 ﻿#include "type.h"
 
+QJsonObject Action::toJson() const
+{
+	return base().toJson();
+}
 void Action::fromJson(const QJsonObject& json)
 {
-	int type = json.value("type").toInt();
-	switch (type)
+	switch (static_cast<QiType>(json.value("type").toInt()))
 	{
 	case QiType::none:
 	{
@@ -211,11 +214,49 @@ void Action::fromJson(const QJsonObject& json)
 	}
 	}
 }
+Action* Action::iter(std::function<bool(Action&)> callBack, QiType type)
+{
+	Action* r = nullptr;
+	if (base().next.not_empty()) r = base().next.iter(callBack, type);
+	if (r) return r;
+	if (base().next2.not_empty()) r = base().next2.iter(callBack, type);
+	if (r) return r;
+	return nullptr;
+}
+const Action* Action::iter(std::function<bool(const Action&)> callBack, QiType type) const
+{
+	const Action* r = nullptr;
+	if (base().next.not_empty()) r = base().next.iter(callBack, type);
+	if (r) return r;
+	if (base().next2.not_empty()) r = base().next2.iter(callBack, type);
+	if (r) return r;
+	return nullptr;
+}
+Action* Action::find(QiType type, int id)
+{
+	return iter([id](Action& action) { if (action.base().id == id) return true; return false; }, type);
+}
+const Action* Action::find(QiType type, int id) const
+{
+	return iter([id](const Action& action) { if (action.base().id == id) return true; return false; }, type);
+}
+Actions Action::loadType(QiType type) const
+{
+	Actions actions;
+	iter([&actions, type](const Action& action) { if (action.type() == type) actions.append(action); return false; }, type);
+	return actions;
+}
+QiIdList Action::loadId(QiType type) const
+{
+	QiIdList id;
+	iter([&id](const Action& action) { id.append(action.base().id); return false; }, type);
+	return id;
+}
 
 QJsonArray Actions::toJson() const
 {
 	QJsonArray array;
-	for (const auto& i : *this) array.append(i.base().toJson());
+	for (const auto& i : *this) array.append(i.toJson());
 	return array;
 }
 void Actions::fromJson(const QJsonArray& json)
@@ -228,6 +269,55 @@ void Actions::fromJson(const QJsonArray& json)
 		append(std::move(a));
 	}
 }
+Action* Actions::iter(std::function<bool(Action&)> callBack, QiType type)
+{
+	for (Action& a : *this)
+	{
+		Action* r = nullptr;
+		if (type == QiType::none || type == a.type()) if (callBack(a)) r = &a;
+		if (r) return r;
+		if (a.base().next.not_empty()) r = a.base().next.iter(callBack, type);
+		if (r) return r;
+		if (a.base().next2.not_empty()) r = a.base().next2.iter(callBack, type);
+		if (r) return r;
+	}
+	return nullptr;
+}
+const Action* Actions::iter(std::function<bool(const Action&)> callBack, QiType type) const
+{
+	for (const Action& a : *this)
+	{
+		const Action* r = nullptr;
+		if (type == QiType::none || type == a.type()) if (callBack(a)) r = &a;
+		if (r) return r;
+		if (a.base().next.not_empty()) r = a.base().next.iter(callBack, type);
+		if (r) return r;
+		if (a.base().next2.not_empty()) r = a.base().next2.iter(callBack, type);
+		if (r) return r;
+	}
+	return nullptr;
+}
+Action* Actions::find(QiType type, int id)
+{
+	return iter([id](Action& action) { if (action.base().id == id) return true; return false; }, type);
+}
+const Action* Actions::find(QiType type, int id) const
+{
+	return iter([id](const Action& action) { if (action.base().id == id) return true; return false; }, type);
+}
+Actions Actions::loadType(QiType type) const
+{
+	Actions actions;
+	iter([&actions, type](const Action& action) { if (action.type() == type) actions.append(action); return false; }, type);
+	return actions;
+}
+QiIdList Actions::loadId(QiType type) const
+{
+	QiIdList id;
+	iter([&id](const Action& action) { id.append(action.base().id); return false; }, type);
+	return id;
+}
+
 
 QJsonObject Macro::toJson() const
 {

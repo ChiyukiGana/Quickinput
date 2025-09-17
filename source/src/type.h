@@ -39,6 +39,23 @@ enum class QiEvent
 	key_reset
 };
 
+class QiIdList : public QiVector<int>
+{
+	using base_vector = QiVector<int>;
+public:
+	using base_vector::base_vector;
+	bool exist(int id) const
+	{
+		for (int i : *this) if (i == id) return true;
+		return false;
+	}
+	int unique(int id = 1) const
+	{
+		for (int i : *this) if (i >= id) id = i + 1;
+		return id;
+	}
+};
+
 struct MsgViewInfo
 {
 	enum
@@ -151,45 +168,42 @@ struct WndLock
 	}
 };
 ////////////////// Action
-struct QiType
+enum class QiType
 {
-	enum
-	{
-		none,
-		end,
-		delay,
-		key,
-		mouse,
-		copyText,
-		color,
-		loop,
-		loopEnd,
-		keyState,
-		resetPos,
-		image,
-		popText,
-		savePos,
-		timer,
-		jump,
-		jumpPoint,
-		dialog,
-		block,
-		blockExec,
-		quickInput,
-		keyBlock,
-		clock,
-		ocr,
-		varOperator,
-		varCondition,
-		mouseTrack,
-		open,
-		textPad,
-		editDialog,
-		volume,
-		soundPlay,
-		msgView,
-		count
-	};
+	none,
+	end,
+	delay,
+	key,
+	mouse,
+	copyText,
+	color,
+	loop,
+	loopEnd,
+	keyState,
+	resetPos,
+	image,
+	popText,
+	savePos,
+	timer,
+	jump,
+	jumpPoint,
+	dialog,
+	block,
+	blockExec,
+	quickInput,
+	keyBlock,
+	clock,
+	ocr,
+	varOperator,
+	varCondition,
+	mouseTrack,
+	open,
+	textPad,
+	editDialog,
+	volume,
+	soundPlay,
+	msgView,
+	count
 };
 
 struct Actions : QiVector<Action>
@@ -199,13 +213,20 @@ struct Actions : QiVector<Action>
 	using base_actions::operator=;
 	QJsonArray toJson() const;
 	void fromJson(const QJsonArray& json);
+	Action* iter(std::function<bool(Action&)> callBack, QiType type = QiType::none);
+	const Action* iter(std::function<bool(const Action&)> callBack, QiType type = QiType::none) const;
+	Action* find(QiType type, int id);
+	const Action* find(QiType type, int id) const;
+	Actions loadType(QiType type) const;
+	QiIdList loadId(QiType type) const;
 };
 
 using HistoryActions = QiHistoryVector<Action>;
 
 struct QiBase
 {
-	int type;
+	QiType type;
+	int id = -1;
 	bool disable = false;
 	bool debug_entry = false;
 	bool debug_break = false;
@@ -213,20 +234,20 @@ struct QiBase
 	QString mark = QString();
 	Actions next = Actions();
 	Actions next2 = Actions();
-	QiBase(int type = QiType::none) noexcept : type(type) {}
+	QiBase(QiType type = QiType::none) noexcept : type(type) {}
 	virtual QString name() const { return "base"; }
 	virtual QJsonObject toJson() const
 	{
 		QJsonObject json;
 		json.insert("dis", disable);
-		json.insert("type", type);
+		json.insert("type", static_cast<int>(type));
 		json.insert("mark", mark);
 		return json;
 	}
 	virtual void fromJson(const QJsonObject& json)
 	{
 		disable = json.value("dis").toBool();
-		type = json.value("type").toInt();
+		type = static_cast<QiType>(json.value("type").toInt());
 		mark = json.value("mark").toString();
 	}
 };
@@ -578,7 +599,6 @@ struct QiTimer : QiBase
 };
 struct QiJump : QiBase
 {
-	int id = 0;
 	QiJump() : QiBase(QiType::jump) {}
 	QString name() const override { return "跳转"; }
 	QJsonObject toJson() const override
@@ -595,7 +615,6 @@ struct QiJump : QiBase
 };
 struct QiJumpPoint : QiBase
 {
-	int id = 0;
 	QiJumpPoint() : QiBase(QiType::jumpPoint) {}
 	QString name() const override { return "锚点"; }
 	QJsonObject toJson() const override
@@ -647,7 +666,6 @@ struct QiDialog : QiBase
 };
 struct QiBlock : QiBase
 {
-	int id = 0;
 	QiBlock() : QiBase(QiType::block) {}
 	QString name() const override { return "块"; }
 	QJsonObject toJson() const override
@@ -666,7 +684,6 @@ struct QiBlock : QiBase
 };
 struct QiBlockExec : QiBase
 {
-	int id = 0;
 	QiBlockExec() : QiBase(QiType::blockExec) {}
 	QString name() const override { return "执行"; }
 	QJsonObject toJson() const override
@@ -1058,6 +1075,10 @@ class Action : public ActionVariant
 public:
 	using ActionVariant::ActionVariant;
 	Action() : ActionVariant(QiBase()) {}
+	QiType type() const
+	{
+		return static_cast<QiType>(index());
+	}
 	QiBase& base()
 	{
 		QiBase* base;
@@ -1070,7 +1091,14 @@ public:
 		std::visit([&base](auto&& var) { base = &var; }, *this);
 		return *base;
 	}
+	QJsonObject toJson() const;
 	void fromJson(const QJsonObject& json);
+	Action* iter(std::function<bool(Action&)> callBack, QiType type = QiType::none);
+	const Action* iter(std::function<bool(const Action&)> callBack, QiType type = QiType::none) const;
+	Action* find(QiType type, int id);
+	const Action* find(QiType type, int id) const;
+	Actions loadType(QiType type) const;
+	QiIdList loadId(QiType type) const;
 };
 
 ////////////////// Macro
@@ -1304,6 +1332,7 @@ struct Widget
 	QWidget* edit = nullptr;
 	QWidget* varView = nullptr;
 	QWidget* msgView = nullptr;
+	Macro editMacro;
 	bool active() const
 	{
 		return !(mainActive || dialogActive || moreActive);

@@ -76,13 +76,13 @@ class EditUi : public QDialogFrameless
 	QAction* muDiscard;
 
 	// widget bind
-	QiVector<size_t> bind_type_tab = QiVector<size_t>(QiType::count, 0);
-	QiVector<QGroupBox*> bind_type_group = QiVector<QGroupBox*>(QiType::count, nullptr);
+	QiVector<size_t> bind_type_tab = QiVector<size_t>(static_cast<size_t>(QiType::count), 0);
+	QiVector<QGroupBox*> bind_type_group = QiVector<QGroupBox*>(static_cast<size_t>(QiType::count), nullptr);
 	QiVector<QPushButton*> bind_tab_button = QiVector<QPushButton*>(TabIndex::tab_count, nullptr);
-	QiVector<QPushButton*> bind_add_button = QiVector<QPushButton*>(QiType::count, nullptr);
-	QiVector<QPushButton*> bind_chg_button = QiVector<QPushButton*>(QiType::count, nullptr);
-	QiVector<QPushButton*> bind_edt_button = QiVector<QPushButton*>(QiType::count, nullptr);
-	QiVector<QPushButton*> bind_edt2_button = QiVector<QPushButton*>(QiType::count, nullptr);
+	QiVector<QPushButton*> bind_add_button = QiVector<QPushButton*>(static_cast<size_t>(QiType::count), nullptr);
+	QiVector<QPushButton*> bind_chg_button = QiVector<QPushButton*>(static_cast<size_t>(QiType::count), nullptr);
+	QiVector<QPushButton*> bind_edt_button = QiVector<QPushButton*>(static_cast<size_t>(QiType::count), nullptr);
+	QiVector<QPushButton*> bind_edt2_button = QiVector<QPushButton*>(static_cast<size_t>(QiType::count), nullptr);
 
 	// custom widget
 	QPointView widget_pv;
@@ -98,6 +98,63 @@ class EditUi : public QDialogFrameless
 	Actions* actions = nullptr;
 	Actions* actionsRoot = nullptr;
 	HistoryActions actionsHistory;
+
+	QiIdList jumpIds;
+	QiIdList blockIds;
+
+	struct IDChecker
+	{
+		bool jump;
+		bool block;
+		QiIdList& jumpIds;
+		QiIdList& blockIds;
+		IDChecker(QiIdList& jump_ids, QiIdList& block_ids) : jump(false), block(false), jumpIds(jump_ids), blockIds(block_ids) {}
+		void check(const Action& action)
+		{
+			if (jump && block) return;
+			if (!jump && action.type() == QiType::jumpPoint) jump = true;
+			if (!block && action.type() == QiType::block) block = true;
+			if (jump && block) return;
+			action.iter([this](const Action& a) {
+				if (!jump && a.type() == QiType::jumpPoint) jump = true;
+				if (!block && a.type() == QiType::block) block = true;
+				return jump && block;
+				});
+		}
+		void check(const Actions& actions)
+		{
+			if (jump && block) return;
+			actions.iter([this](const Action& a) {
+				if (!jump && a.index() == static_cast<size_t>(QiType::jumpPoint)) jump = true;
+				if (!block && a.index() == static_cast<size_t>(QiType::block)) block = true;
+				return jump && block;
+				});
+		}
+		void load(const Actions& actions)
+		{
+			jumpIds = actions.loadId(QiType::jumpPoint);
+			blockIds = actions.loadId(QiType::block);
+		}
+		bool reset(const Actions& actions)
+		{
+			bool result = jump || block;
+			if (jump) jumpIds = actions.loadId(QiType::jumpPoint);
+			if (block) blockIds = actions.loadId(QiType::block);
+			jump = false;
+			block = false;
+			return result;
+		}
+		bool jump_exist() const
+		{
+			return jump;
+		}
+		bool block_exist() const
+		{
+			return block;
+		}
+	};
+
+	IDChecker idChecker;
 
 public:
 	EditUi(Macro* macro, Actions* actions);
@@ -121,14 +178,14 @@ private:
 
 	void setWindowTitle(const QString& title);
 	void SetTabCurrent(int index);
-	void SetGroupCurrent(int type = QiType::none);
-	void SetEditCurrent(int type = QiType::none);
-	void SetChangeCurrent(int type = QiType::none);
+	void SetGroupCurrent(QiType type = QiType::none);
+	void SetEditCurrent(QiType type = QiType::none);
 	void SetDebugState(int debugState);
 	void SetWindowMode();
 
 	void SelectWindow();
 	void Reload();
+	void WidgetReload();
 	void NextEdit(bool edit2);
 
 
@@ -141,10 +198,10 @@ private:
 
 
 	void ItemSet(int p);
-	Action ItemGet(int type);
+	Action ItemGet(QiType type);
 	void ItemMove(bool up, int len);
-	void ItemAdd(int type);
-	void ItemChange(int type);
+	void ItemAdd(QiType type);
+	void ItemChange(QiType type);
 	void ItemDel();
 	void ItemCut();
 	void ItemCopy();
@@ -211,20 +268,8 @@ private:
 	template<class Ty, class Fn>
 	void BindSafeIter(QiVector<Ty*>& bind, Fn call);
 
-	// iter actions
-	bool IterActions(Actions& actions, std::function<bool(Action&)> callBack, int type = QiType::none);
-	bool IterActions(const Actions& actions, std::function<bool(const Action&)> callBack, int type = QiType::none);
-
-
-	// type: jumpPoint, jump, block, blockExec
-	QiVector<int> LoadIds(const Actions& actions, int type);
-	Actions LoadType(const Actions& actions, int type);
-	bool FindId(const QiVector<int>& ids, int id);
-	// type: jump, blockExec
-	void InvalidId(Actions& actions, int type);
-	int UniqueId(const QiVector<int>& ids);
 	// type: jumpPoint, block
-	void UniqueActionsId(QiVector<int> ids, Actions& actions, int type);
+	void UniqueActionsId(QiIdList ids, Actions& actions, QiType type, QiType type2);
 	// id list
 	void ListJumpPointReload();
 	void ListBlockReload();
