@@ -573,10 +573,10 @@ class QiScriptInterpreter
 	public:
 		struct QiFunc_date : public QiFunc
 		{
-			QiFunc_date() : QiFunc(0) {}
+			QiFunc_date() : QiFunc(0, 1) {}
 			QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
 			{
-				time_t s = time(nullptr);
+				time_t s = args.empty() ? time(nullptr) : static_cast<time_t>(args[0].toInteger());
 				tm m;
 				localtime_s(&m, &s);
 				return QiVar::toString(m.tm_year + 1900) + std::string("-") + QiVar::toString(m.tm_mon + 1) + std::string("-") + QiVar::toString(m.tm_mday);
@@ -584,10 +584,10 @@ class QiScriptInterpreter
 		};
 		struct QiFunc_time : public QiFunc
 		{
-			QiFunc_time() : QiFunc(0) {}
+			QiFunc_time() : QiFunc(0, 1) {}
 			QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
 			{
-				time_t s = time(nullptr);
+				time_t s = args.empty() ? time(nullptr) : static_cast<time_t>(args[0].toInteger());
 				tm m;
 				localtime_s(&m, &s);
 				return QiVar::toString(m.tm_hour) + std::string(":") + QiVar::toString(m.tm_min) + std::string(":") + QiVar::toString(m.tm_sec);
@@ -595,110 +595,114 @@ class QiScriptInterpreter
 		};
 		struct QiFunc_datetime : public QiFunc
 		{
-			QiFunc_datetime() : QiFunc(0) {}
+			QiFunc_datetime() : QiFunc(0, 1) {}
 			QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
 			{
-				time_t s = time(nullptr);
+				time_t s = args.empty() ? time(nullptr) : static_cast<time_t>(args[0].toInteger());
 				tm m;
 				localtime_s(&m, &s);
 				return QiVar::toString(m.tm_year + 1900) + std::string("-") + QiVar::toString(m.tm_mon + 1) + std::string("-") + QiVar::toString(m.tm_mday) + std::string(" ") + QiVar::toString(m.tm_hour) + std::string(":") + QiVar::toString(m.tm_min) + std::string(":") + QiVar::toString(m.tm_sec);
 			}
 		};
-		struct QiFunc_time_y : public QiFunc
+		struct QiFunc_time_s : public QiFunc
 		{
-			QiFunc_time_y() : QiFunc(0) {}
+			QiFunc_time_s() : QiFunc(0, 3) {}
 			QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
 			{
-				time_t s = time(nullptr);
+				if (args.empty()) return time(nullptr);
+				time_t hour = args.size() > 0 ? args[0].toInteger() : 0;
+				time_t min = args.size() > 1 ? args[1].toInteger() : 0;
+				time_t sec = args.size() > 2 ? args[2].toInteger() : 0;
+				return hour * 60 * 60 + min * 60 + sec;
+			}
+		};
+		struct QiFunc_time_y : public QiFunc
+		{
+			QiFunc_time_y() : QiFunc(0, 1) {}
+			QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
+			{
+				time_t s = args.empty() ? time(nullptr) : static_cast<time_t>(args[0].toInteger());
 				tm m;
 				localtime_s(&m, &s);
-				return int(m.tm_year + 1900);
+				return m.tm_year + 1900;
 			}
 		};
 		struct QiFunc_time_yd : public QiFunc
 		{
-			QiFunc_time_yd() : QiFunc(0) {}
+			QiFunc_time_yd() : QiFunc(0, 1) {}
 			QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
 			{
-				time_t s = time(nullptr);
+				time_t s = args.empty() ? time(nullptr) : static_cast<time_t>(args[0].toInteger());
 				tm m;
 				localtime_s(&m, &s);
-				return int(m.tm_yday);
-			}
-		};
-		struct QiFunc_time_ys : public QiFunc
-		{
-			QiFunc_time_ys() : QiFunc(0) {}
-			QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
-			{
-				return int(time(nullptr));
+				return m.tm_yday;
 			}
 		};
 		struct QiFunc_time_m : public QiFunc
 		{
-			QiFunc_time_m() : QiFunc(0) {}
+			QiFunc_time_m() : QiFunc(0, 1) {}
 			QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
 			{
-				time_t s = time(nullptr);
+				time_t s = args.empty() ? time(nullptr) : static_cast<time_t>(args[0].toInteger());
 				tm m;
 				localtime_s(&m, &s);
-				return int(m.tm_mon + 1);
+				return m.tm_mon + 1;
 			}
 		};
 		struct QiFunc_time_w : public QiFunc
 		{
-			QiFunc_time_w() : QiFunc(0) {}
+			QiFunc_time_w() : QiFunc(0, 1) {}
 			QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
 			{
-				time_t s = time(nullptr);
+				time_t s = args.empty() ? time(nullptr) : static_cast<time_t>(args[0].toInteger());
 				tm m;
 				localtime_s(&m, &s);
 				if (m.tm_wday == 0) m.tm_wday = 7;
-				return int(m.tm_wday);
+				return m.tm_wday;
 			}
 		};
 		struct QiFunc_time_d : public QiFunc
 		{
-			QiFunc_time_d() : QiFunc(0) {}
+			QiFunc_time_d() : QiFunc(0, 1) {}
 			QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
 			{
-				time_t s = time(nullptr);
+				time_t s = args.empty() ? time(nullptr) : static_cast<time_t>(args[0].toInteger());
 				tm m;
 				localtime_s(&m, &s);
-				return int(m.tm_mday);
+				return m.tm_mday;
 			}
 		};
 		struct QiFunc_time_dh : public QiFunc
 		{
-			QiFunc_time_dh() : QiFunc(0) {}
+			QiFunc_time_dh() : QiFunc(0, 1) {}
 			QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
 			{
-				time_t s = time(nullptr);
+				time_t s = args.empty() ? time(nullptr) : static_cast<time_t>(args[0].toInteger());
 				tm m;
 				localtime_s(&m, &s);
-				return int(m.tm_hour);
+				return m.tm_hour;
 			}
 		};
 		struct QiFunc_time_dm : public QiFunc
 		{
-			QiFunc_time_dm() : QiFunc(0) {}
+			QiFunc_time_dm() : QiFunc(0, 1) {}
 			QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
 			{
-				time_t s = time(nullptr);
+				time_t s = args.empty() ? time(nullptr) : static_cast<time_t>(args[0].toInteger());
 				tm m;
 				localtime_s(&m, &s);
-				return int(m.tm_min);
+				return m.tm_min;
 			}
 		};
 		struct QiFunc_time_ds : public QiFunc
 		{
-			QiFunc_time_ds() : QiFunc(0) {}
+			QiFunc_time_ds() : QiFunc(0, 1) {}
 			QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
 			{
-				time_t s = time(nullptr);
+				time_t s = args.empty() ? time(nullptr) : static_cast<time_t>(args[0].toInteger());
 				tm m;
 				localtime_s(&m, &s);
-				return int(m.tm_sec);
+				return m.tm_sec;
 			}
 		};
 		struct QiFunc_time_ms : public QiFunc
@@ -706,7 +710,7 @@ class QiScriptInterpreter
 			QiFunc_time_ms() : QiFunc(0) {}
 			QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
 			{
-				return int(clock());
+				return clock();
 			}
 		};
 		struct QiFunc_exist : public QiFunc
@@ -1516,9 +1520,10 @@ class QiScriptInterpreter
 			insert({ "date", std::make_unique<QiFunc_date>() });
 			insert({ "time", std::make_unique<QiFunc_time>() });
 			insert({ "datetime", std::make_unique<QiFunc_datetime>() });
+			insert({ "time_s", std::make_unique<QiFunc_time_s>() });
+			insert({ "time_ys", std::make_unique<QiFunc_time_s>() });
 			insert({ "time_y", std::make_unique<QiFunc_time_y>() });
 			insert({ "time_yd", std::make_unique<QiFunc_time_yd>() });
-			insert({ "time_ys", std::make_unique<QiFunc_time_ys>() });
 			insert({ "time_m", std::make_unique<QiFunc_time_m>() });
 			insert({ "time_w", std::make_unique<QiFunc_time_w>() });
 			insert({ "time_d", std::make_unique<QiFunc_time_d>() });
@@ -2330,7 +2335,7 @@ public:
 		try { result = evaluatePostfix(postfix, local); }
 		catch (const ReturnException& e) { result = e.returnValue; }
 
-		std::string left = trimmedCode.substr(0, oper ? eqPos - 1 : eqPos);
+		std::string left = trim(trimmedCode.substr(0, oper ? eqPos - 1 : eqPos));
 		if (!left.empty())
 		{
 			switch (oper)

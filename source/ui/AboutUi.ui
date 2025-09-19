@@ -90,7 +90,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-9-17</string>
+         <string>2025-9-19</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>
@@ -106,9 +106,8 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>修复==操作无效
-增加变量操作符号
-优化跳转和块</string>
+         <string>修改时间函数
+修复变量后带空格无法写入值</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>
