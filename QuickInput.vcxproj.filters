@@ -44,6 +44,9 @@
     <Filter Include="Source Files\0">
       <UniqueIdentifier>{6922deab-0f82-4578-9627-c4b7baf22454}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\2">
+      <UniqueIdentifier>{eee36ec8-d6cc-44c4-a34c-96d21e79557f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp">
@@ -108,6 +111,9 @@
     </ClCompile>
     <ClCompile Include="source\src\thread.cpp">
       <Filter>Source Files\0</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\scriptinterpreter.cpp">
+      <Filter>Source Files\2</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

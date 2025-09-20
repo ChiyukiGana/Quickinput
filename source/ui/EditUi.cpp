@@ -160,28 +160,12 @@ void EditUi::Init()
 	}
 	if ("line edit range")
 	{
-		ui.mouse_x_edit->setValidator(new QIntValidator(QiMouse::range_pos.first, QiMouse::range_pos.second, this));
-		ui.mouse_y_edit->setValidator(new QIntValidator(QiMouse::range_pos.first, QiMouse::range_pos.second, this));
 		ui.mouse_speed_edit->setValidator(new QIntValidator(QiMouse::range_speed.first, QiMouse::range_speed.second, this));
 		ui.mouse_rand_edit->setValidator(new QIntValidator(QiMouse::range_rand.first, QiMouse::range_rand.second, this));
-		//ui.delay_min_edit->setValidator(new QRegExpValidator(QRegExp(QiIntVarRegex), this));
-		//ui.delay_max_edit->setValidator(new QRegExpValidator(QRegExp(QiIntVarRegex), this));
-		//ui.loop_min_edit->setValidator(new QRegExpValidator(QRegExp(QiIntVarRegex), this));
-		//ui.loop_max_edit->setValidator(new QRegExpValidator(QRegExp(QiIntVarRegex), this));
-		//ui.timer_max_edit->setValidator(new QRegExpValidator(QRegExp(QiIntVarRegex), this));
-		//ui.timer_min_edit->setValidator(new QRegExpValidator(QRegExp(QiIntVarRegex), this));
 		ui.color_red_edit->setValidator(new QIntValidator(QiColor::range_rgb.first, QiColor::range_rgb.second, this));
 		ui.color_green_edit->setValidator(new QIntValidator(QiColor::range_rgb.first, QiColor::range_rgb.second, this));
 		ui.color_blue_edit->setValidator(new QIntValidator(QiColor::range_rgb.first, QiColor::range_rgb.second, this));
 		ui.color_sim_edit->setValidator(new QIntValidator(QiColor::range_rgb.first, QiColor::range_rgb.second, this));
-		ui.color_left_edit->setValidator(new QIntValidator(QiColor::range_rect.first, QiColor::range_rect.second, this));
-		ui.color_top_edit->setValidator(new QIntValidator(QiColor::range_rect.first, QiColor::range_rect.second, this));
-		ui.color_right_edit->setValidator(new QIntValidator(QiColor::range_rect.first, QiColor::range_rect.second, this));
-		ui.color_bottom_edit->setValidator(new QIntValidator(QiColor::range_rect.first, QiColor::range_rect.second, this));
-		ui.image_left_edit->setValidator(new QIntValidator(QiImage::range_rect.first, QiImage::range_rect.second, this));
-		ui.image_top_edit->setValidator(new QIntValidator(QiImage::range_rect.first, QiImage::range_rect.second, this));
-		ui.image_right_edit->setValidator(new QIntValidator(QiImage::range_rect.first, QiImage::range_rect.second, this));
-		ui.image_bottom_edit->setValidator(new QIntValidator(QiImage::range_rect.first, QiImage::range_rect.second, this));
 		ui.image_sim_edit->setValidator(new QIntValidator(QiImage::range_sim.first, QiImage::range_sim.second, this));
 		ui.popText_time_edit->setValidator(new QIntValidator(QiPopText::range_time.first, QiPopText::range_time.second, this));
 	}
@@ -1432,10 +1416,8 @@ void EditUi::TableUpdate(int index)
 	{
 		const QiDelay& ref = std::get<QiDelay>(var);
 		type = QiUi::Text::acWait;
-
 		QString min = ref.v_min.isEmpty() ? QString::number(ref.min) : ref.v_min;
 		QString max = ref.v_max.isEmpty() ? QString::number(ref.max) : ref.v_max;
-
 		if (min == max) param = min;
 		else param = min + QString(" ~ ") + max;
 	} break;
@@ -1445,7 +1427,6 @@ void EditUi::TableUpdate(int index)
 		if (ref.state == QiKey::up) type = QiUi::Text::acUp;
 		else if (ref.state == QiKey::down) type = QiUi::Text::acDown;
 		else if (ref.state == QiKey::click) type = QiUi::Text::acClick;
-
 		param = QKeyEdit::keyName(ref.vk);
 	} break;
 	case QiType::mouse:
@@ -1453,10 +1434,8 @@ void EditUi::TableUpdate(int index)
 		const QiMouse& ref = std::get<QiMouse>(var);
 		if (ref.move) type = QiUi::Text::acMove;
 		else type = QiUi::Text::acPos;
-
-		param = QString::number(ref.x);
-		param += " , ";
-		param += QString::number(ref.y);
+		param = (ref.v_x.isEmpty() ? QString::number(ref.x) : ref.v_x)
+			+ " , " + (ref.v_y.isEmpty() ? QString::number(ref.y) : ref.v_y);
 		if (ref.ex)
 		{
 			param += " | 随机：";
@@ -1478,22 +1457,15 @@ void EditUi::TableUpdate(int index)
 	{
 		const QiColor& ref = std::get<QiColor>(var);
 		type = QiUi::Text::acColor;
-		param += QString::number(ref.rect.left);
-		param += ",";
-		param += QString::number(ref.rect.top);
-		param += ",";
-		param += QString::number(ref.rect.right);
-		param += ",";
-		param += QString::number(ref.rect.bottom);
-		param += " | ";
-		param += QString::number(ref.rgbe.r);
-		param += ",";
-		param += QString::number(ref.rgbe.g);
-		param += ",";
-		param += QString::number(ref.rgbe.b);
-		param += ",";
-		param += QString::number(ref.rgbe.a);
-		if (ref.move) param += " 移动";
+		param = (ref.v_left.isEmpty() ? QString::number(ref.rect.left) : ref.v_left)
+			+ "," + (ref.v_top.isEmpty() ? QString::number(ref.rect.top) : ref.v_top)
+			+ "," + (ref.v_right.isEmpty() ? QString::number(ref.rect.right) : ref.v_right)
+			+ "," + (ref.v_bottom.isEmpty() ? QString::number(ref.rect.bottom) : ref.v_bottom)
+			+ " | " + QString::number(ref.rgbe.r)
+			+ "," + QString::number(ref.rgbe.g)
+			+ "," + QString::number(ref.rgbe.b)
+			+ "," + QString::number(ref.rgbe.a)
+			+ (ref.move ? " 移动" : "");
 		color = QColor(ref.rgbe.r, ref.rgbe.g, ref.rgbe.b, 255);
 	} break;
 	case QiType::loop:
@@ -1527,21 +1499,14 @@ void EditUi::TableUpdate(int index)
 	{
 		const QiImage& ref = std::get<QiImage>(var);
 		type = QiUi::Text::acImage;
-
-		param += QString::number(ref.rect.left);
-		param += ",";
-		param += QString::number(ref.rect.top);
-		param += ",";
-		param += QString::number(ref.rect.right);
-		param += ",";
-		param += QString::number(ref.rect.bottom);
-		param += " | ";
-		param += QString::number(ref.map.width());
-		param += ",";
-		param += QString::number(ref.map.height());
-		param += " | ";
-		param += QString::number(ref.sim);
-		if (ref.move) param += "移动";
+		param = (ref.v_left.isEmpty() ? QString::number(ref.rect.left) : ref.v_left)
+			+ "," + (ref.v_top.isEmpty() ? QString::number(ref.rect.top) : ref.v_top)
+			+ "," + (ref.v_right.isEmpty() ? QString::number(ref.rect.right) : ref.v_right)
+			+ "," + (ref.v_bottom.isEmpty() ? QString::number(ref.rect.bottom) : ref.v_bottom)
+			+ " | " + QString::number(ref.map.width())
+			+ "," + QString::number(ref.map.height())
+			+ " | " + QString::number(ref.sim)
+			+ (ref.move ? " 移动" : "");
 	} break;
 	case QiType::popText:
 	{
@@ -1669,18 +1634,12 @@ void EditUi::TableUpdate(int index)
 	{
 		const QiOcr& ref = std::get<QiOcr>(var);
 		type = QiUi::Text::acOcr;
-
-		param += QString::number(ref.rect.left);
-		param += ",";
-		param += QString::number(ref.rect.top);
-		param += ",";
-		param += QString::number(ref.rect.right);
-		param += ",";
-		param += QString::number(ref.rect.bottom);
-		param += "|";
-		if (ref.match) param += "匹配：";
-		else param += "搜索：";
-		param += QiFn::FoldText(ref.text, 12);
+		param = (ref.v_left.isEmpty() ? QString::number(ref.rect.left) : ref.v_left)
+			+ "," + (ref.v_top.isEmpty() ? QString::number(ref.rect.top) : ref.v_top)
+			+ "," + (ref.v_right.isEmpty() ? QString::number(ref.rect.right) : ref.v_right)
+			+ "," + (ref.v_bottom.isEmpty() ? QString::number(ref.rect.bottom) : ref.v_bottom)
+			+ (ref.match ? " 匹配：" : " 搜索：")
+			+ QiFn::FoldText(ref.text, 12);
 	} break;
 	case QiType::varOperator:
 	{
@@ -2110,43 +2069,37 @@ QiKeyState EditUi::WidgetGetKeyState() {
 }
 QiMouse EditUi::WidgetGetMouse() {
 	QiMouse mouse;
-	mouse.move = ui.mouse_move_radio->isChecked();
-	mouse.track = ui.mouse_track_check->isChecked();
-	if (mouse.move)
 	{
-		mouse.x = QiRange::Restricted(ui.mouse_x_edit->text().toInt(), QiMouse::range_move);
-		mouse.y = QiRange::Restricted(ui.mouse_y_edit->text().toInt(), QiMouse::range_move);
+		QString v = ui.mouse_x_edit->text();
+		if (v.isEmpty());
+		else if (QiVar::isInteger(v.toStdString())) mouse.x = QiRange::Restricted(v.toInt(), mouse.move ? QiMouse::range_move : QiMouse::range_pos);
+		else mouse.v_x = v;
 	}
-	else
 	{
-		mouse.x = QiRange::Restricted(ui.mouse_x_edit->text().toInt(), QiMouse::range_pos);
-		mouse.y = QiRange::Restricted(ui.mouse_y_edit->text().toInt(), QiMouse::range_pos);
+		QString v = ui.mouse_y_edit->text();
+		if (v.isEmpty());
+		else if (QiVar::isInteger(v.toStdString())) mouse.y = QiRange::Restricted(v.toInt(), mouse.move ? QiMouse::range_move : QiMouse::range_pos);
+		else mouse.v_y = v;
 	}
 	mouse.ex = QiRange::Restricted(ui.mouse_rand_edit->text().toInt(), QiMouse::range_rand);
 	mouse.speed = ui.mouse_speed_edit->text().isEmpty() ? 20 : QiRange::Restricted(ui.mouse_speed_edit->text().toInt(), QiMouse::range_speed);
+	mouse.move = ui.mouse_move_radio->isChecked();
+	mouse.track = ui.mouse_track_check->isChecked();
 	return mouse;
 }
 QiDelay EditUi::WidgetGetDelay() {
 	QiDelay delay;
-	QString min = ui.delay_min_edit->text();
-	QString max = ui.delay_max_edit->text();
-	if (min.isEmpty())
 	{
-		delay.min = 10;
+		QString v = ui.delay_min_edit->text();
+		if (v.isEmpty()) delay.min = 10;
+		else if (QiVar::isInteger(v.toStdString())) delay.min = QiRange::Restricted(v.toInt(), QiDelay::range_time);
+		else delay.v_min = v;
 	}
-	else
 	{
-		if (QiVar::isInteger(min.toStdString())) delay.min = QiRange::Restricted(min.toInt(), QiDelay::range_time);
-		else delay.v_min = min;
-	}
-	if (max.isEmpty())
-	{
-		delay.max = delay.min;
-	}
-	else
-	{
-		if (QiVar::isInteger(max.toStdString())) delay.max = QiRange::Restricted(max.toInt(), QiDelay::range_time);
-		else delay.v_max = max;
+		QString v = ui.delay_max_edit->text();
+		if (v.isEmpty()) delay.max = delay.min, delay.v_max = delay.v_min;
+		else if (QiVar::isInteger(v.toStdString())) delay.max = QiRange::Restricted(v.toInt(), QiDelay::range_time);
+		else delay.v_max = v;
 	}
 	return delay;
 }
@@ -2157,58 +2110,86 @@ QiCopyText EditUi::WidgetGetText() {
 }
 QiColor EditUi::WidgetGetColor() {
 	QiColor color;
-	color.move = ui.color_move_check->isChecked();
-	color.rect = {
-		QiRange::Restricted(ui.color_left_edit->text().toInt(), QiColor::range_rect),
-		QiRange::Restricted(ui.color_top_edit->text().toInt(), QiColor::range_rect),
-		QiRange::Restricted(ui.color_right_edit->text().toInt(), QiColor::range_rect),
-		QiRange::Restricted(ui.color_bottom_edit->text().toInt(), QiColor::range_rect)
-	};
+	{
+		QString v = ui.color_left_edit->text();
+		if (v.isEmpty());
+		else if (QiVar::isInteger(v.toStdString())) color.rect.left = QiRange::Restricted(v.toInt(), QiColor::range_rect);
+		else color.v_left = v;
+	}
+	{
+		QString v = ui.color_top_edit->text();
+		if (v.isEmpty());
+		else if (QiVar::isInteger(v.toStdString())) color.rect.top = QiRange::Restricted(v.toInt(), QiColor::range_rect);
+		else color.v_top = v;
+	}
+	{
+		QString v = ui.color_right_edit->text();
+		if (v.isEmpty());
+		else if (QiVar::isInteger(v.toStdString())) color.rect.right = QiRange::Restricted(v.toInt(), QiColor::range_rect);
+		else color.v_right = v;
+	}
+	{
+		QString v = ui.color_bottom_edit->text();
+		if (v.isEmpty());
+		else if (QiVar::isInteger(v.toStdString())) color.rect.bottom = QiRange::Restricted(v.toInt(), QiColor::range_rect);
+		else color.v_bottom = v;
+	}
 	color.rgbe.set(
 		QiRange::Restricted(ui.color_red_edit->text().toInt(), QiColor::range_rgb),
 		QiRange::Restricted(ui.color_green_edit->text().toInt(), QiColor::range_rgb),
 		QiRange::Restricted(ui.color_blue_edit->text().toInt(), QiColor::range_rgb),
 		ui.color_sim_edit->text().isEmpty() ? 10 : QiRange::Restricted(ui.color_sim_edit->text().toInt(), QiColor::range_rgb)
 	);
+	color.move = ui.color_move_check->isChecked();
 	return color;
 }
 QiLoop EditUi::WidgetGetLoop()
 {
 	QiLoop loop;
-	QString min = ui.loop_min_edit->text();
-	QString max = ui.loop_max_edit->text();
-	if (min.isEmpty())
 	{
-		loop.min = 1;
+		QString v = ui.loop_min_edit->text();
+		if (v.isEmpty()) loop.min = 1;
+		else if (QiVar::isInteger(v.toStdString())) loop.min = QiRange::Restricted(v.toInt(), QiLoop::range_count);
+		else loop.v_min = v;
 	}
-	else
 	{
-		if (QiVar::isInteger(min.toStdString())) loop.min = QiRange::Restricted(min.toInt(), QiLoop::range_count);
-		else loop.v_min = min;
-	}
-	if (max.isEmpty())
-	{
-		loop.max = loop.min;
-	}
-	else
-	{
-		if (QiVar::isInteger(max.toStdString())) loop.max = QiRange::Restricted(max.toInt(), QiLoop::range_count);
-		else loop.v_max = max;
+		QString v = ui.loop_max_edit->text();
+		if (v.isEmpty()) loop.max = loop.min, loop.v_max = loop.v_min;
+		else if (QiVar::isInteger(v.toStdString())) loop.max = QiRange::Restricted(v.toInt(), QiLoop::range_count);
+		else loop.v_max = v;
 	}
 	return loop;
 }
 QiImage EditUi::WidgetGetImage()
 {
 	QiImage image;
-	image.move = ui.image_move_check->isChecked();
-	image.rect = {
-		QiRange::Restricted(ui.image_left_edit->text().toInt(), QiImage::range_rect),
-		QiRange::Restricted(ui.image_top_edit->text().toInt(), QiImage::range_rect),
-		QiRange::Restricted(ui.image_right_edit->text().toInt(), QiImage::range_rect),
-		QiRange::Restricted(ui.image_bottom_edit->text().toInt(), QiImage::range_rect)
-	};
+	{
+		QString v = ui.image_left_edit->text();
+		if (v.isEmpty());
+		else if (QiVar::isInteger(v.toStdString())) image.rect.left = QiRange::Restricted(v.toInt(), QiImage::range_rect);
+		else image.v_left = v;
+	}
+	{
+		QString v = ui.image_top_edit->text();
+		if (v.isEmpty());
+		else if (QiVar::isInteger(v.toStdString())) image.rect.top = QiRange::Restricted(v.toInt(), QiImage::range_rect);
+		else image.v_top = v;
+	}
+	{
+		QString v = ui.image_right_edit->text();
+		if (v.isEmpty());
+		else if (QiVar::isInteger(v.toStdString())) image.rect.right = QiRange::Restricted(v.toInt(), QiImage::range_rect);
+		else image.v_right = v;
+	}
+	{
+		QString v = ui.image_bottom_edit->text();
+		if (v.isEmpty());
+		else if (QiVar::isInteger(v.toStdString())) image.rect.bottom = QiRange::Restricted(v.toInt(), QiImage::range_rect);
+		else image.v_bottom = v;
+	}
 	image.sim = ui.image_sim_edit->text().isEmpty() ? 80 : QiRange::Restricted(ui.image_sim_edit->text().toInt(), QiImage::range_sim);
 	image.map = imageMap;
+	image.move = ui.image_move_check->isChecked();
 	return image;
 }
 QiPopText EditUi::WidgetGetPopText()
@@ -2222,25 +2203,17 @@ QiPopText EditUi::WidgetGetPopText()
 QiTimer EditUi::WidgetGetTimer()
 {
 	QiTimer timer;
-	QString min = ui.timer_min_edit->text();
-	QString max = ui.timer_max_edit->text();
-	if (min.isEmpty())
 	{
-		timer.min = 1000;
+		QString v = ui.timer_min_edit->text();
+		if (v.isEmpty()) timer.min = 1000;
+		else if (QiVar::isInteger(v.toStdString())) timer.min = QiRange::Restricted(v.toInt(), QiTimer::range_time);
+		else timer.v_min = v;
 	}
-	else
 	{
-		if (QiVar::isInteger(min.toStdString())) timer.min = QiRange::Restricted(min.toInt(), QiTimer::range_time);
-		else timer.v_min = min;
-	}
-	if (max.isEmpty())
-	{
-		timer.max = timer.min;
-	}
-	else
-	{
-		if (QiVar::isInteger(max.toStdString())) timer.max = QiRange::Restricted(max.toInt(), QiTimer::range_time);
-		else timer.v_max = max;
+		QString v = ui.timer_max_edit->text();
+		if (v.isEmpty()) timer.max = timer.min, timer.v_max = timer.v_min;
+		else if (QiVar::isInteger(v.toStdString())) timer.max = QiRange::Restricted(v.toInt(), QiTimer::range_time);
+		else timer.v_max = v;
 	}
 	return timer;
 }
@@ -2304,12 +2277,30 @@ QiClock EditUi::WidgetGetClock()
 QiOcr EditUi::WidgetGetOcr()
 {
 	QiOcr ocr;
-	ocr.rect = {
-		QiRange::Restricted(ui.ocr_left_edit->text().toInt(), QiOcr::range_rect),
-		QiRange::Restricted(ui.ocr_top_edit->text().toInt(), QiOcr::range_rect),
-		QiRange::Restricted(ui.ocr_right_edit->text().toInt(), QiOcr::range_rect),
-		QiRange::Restricted(ui.ocr_bottom_edit->text().toInt(), QiOcr::range_rect)
-	};
+	{
+		QString v = ui.ocr_left_edit->text();
+		if (v.isEmpty());
+		else if (QiVar::isInteger(v.toStdString())) ocr.rect.left = QiRange::Restricted(v.toInt(), QiOcr::range_rect);
+		else ocr.v_left = v;
+	}
+	{
+		QString v = ui.ocr_top_edit->text();
+		if (v.isEmpty());
+		else if (QiVar::isInteger(v.toStdString())) ocr.rect.top = QiRange::Restricted(v.toInt(), QiOcr::range_rect);
+		else ocr.v_top = v;
+	}
+	{
+		QString v = ui.ocr_right_edit->text();
+		if (v.isEmpty());
+		else if (QiVar::isInteger(v.toStdString())) ocr.rect.right = QiRange::Restricted(v.toInt(), QiOcr::range_rect);
+		else ocr.v_right = v;
+	}
+	{
+		QString v = ui.ocr_bottom_edit->text();
+		if (v.isEmpty());
+		else if (QiVar::isInteger(v.toStdString())) ocr.rect.bottom = QiRange::Restricted(v.toInt(), QiOcr::range_rect);
+		else ocr.v_bottom = v;
+	}
 	ocr.text = ui.ocr_text_edit->text();
 	ocr.var = ui.ocr_var_edit->text();
 	ocr.row = ui.ocr_row_check->isChecked();
@@ -2401,7 +2392,9 @@ void EditUi::WidgetSet(const QiMouse& mouse)
 	mouse.move ? ui.mouse_move_radio->setChecked(true) : ui.mouse_position_radio->setChecked(true);
 	ui.mouse_track_check->setChecked(mouse.track);
 	ui.mouse_speed_edit->setText(QString::number(mouse.speed));
-	ui.mouse_x_edit->setText(QString::number(mouse.x)); ui.mouse_y_edit->setText(QString::number(mouse.y)); if (mouse.ex > -1) ui.mouse_rand_edit->setText(QString::number(mouse.ex));
+	ui.mouse_x_edit->setText(mouse.v_x.isEmpty() ? QString::number(mouse.x) : mouse.v_x);
+	ui.mouse_y_edit->setText(mouse.v_y.isEmpty() ? QString::number(mouse.y) : mouse.v_y);
+	if (mouse.ex > -1) ui.mouse_rand_edit->setText(QString::number(mouse.ex));
 }
 void EditUi::WidgetSet(const QiDelay& delay)
 {
@@ -2414,10 +2407,10 @@ void EditUi::WidgetSet(const QiCopyText& text)
 }
 void EditUi::WidgetSet(const QiColor& color) {
 	ui.color_move_check->setChecked(color.move);
-	ui.color_left_edit->setText(QString::number(color.rect.left));
-	ui.color_top_edit->setText(QString::number(color.rect.top));
-	ui.color_right_edit->setText(QString::number(color.rect.right));
-	ui.color_bottom_edit->setText(QString::number(color.rect.bottom));
+	ui.color_left_edit->setText(color.v_left.isEmpty() ? QString::number(color.rect.left) : color.v_left);
+	ui.color_top_edit->setText(color.v_top.isEmpty() ? QString::number(color.rect.top) : color.v_top);
+	ui.color_right_edit->setText(color.v_right.isEmpty() ? QString::number(color.rect.right) : color.v_right);
+	ui.color_bottom_edit->setText(color.v_bottom.isEmpty() ? QString::number(color.rect.bottom) : color.v_bottom);
 	ui.color_sim_edit->setText(QString::number(color.rgbe.a));
 	ui.color_red_edit->setText(QString::number(color.rgbe.r));
 	ui.color_green_edit->setText(QString::number(color.rgbe.g));
@@ -2437,10 +2430,10 @@ void EditUi::WidgetSet(const QiLoop& loop)
 	ui.loop_max_edit->setText(loop.v_max.isEmpty() ? QString::number(loop.max) : loop.v_max);
 }
 void EditUi::WidgetSet(const QiImage& image) {
-	ui.image_left_edit->setText(QString::number(image.rect.left));
-	ui.image_top_edit->setText(QString::number(image.rect.top));
-	ui.image_right_edit->setText(QString::number(image.rect.right));
-	ui.image_bottom_edit->setText(QString::number(image.rect.bottom));
+	ui.image_left_edit->setText(image.v_left.isEmpty() ? QString::number(image.rect.left) : image.v_left);
+	ui.image_top_edit->setText(image.v_top.isEmpty() ? QString::number(image.rect.top) : image.v_top);
+	ui.image_right_edit->setText(image.v_right.isEmpty() ? QString::number(image.rect.right) : image.v_right);
+	ui.image_bottom_edit->setText(image.v_bottom.isEmpty() ? QString::number(image.rect.bottom) : image.v_bottom);
 	ui.image_sim_edit->setText(QString::number(image.sim));
 	ui.image_move_check->setChecked(image.move);
 	imageMap = image.map;
@@ -2482,10 +2475,10 @@ void EditUi::WidgetSet(const QiClock& clock)
 }
 void EditUi::WidgetSet(const QiOcr& ocr)
 {
-	ui.ocr_left_edit->setText(QString::number(ocr.rect.left));
-	ui.ocr_top_edit->setText(QString::number(ocr.rect.top));
-	ui.ocr_right_edit->setText(QString::number(ocr.rect.right));
-	ui.ocr_bottom_edit->setText(QString::number(ocr.rect.bottom));
+	ui.ocr_left_edit->setText(ocr.v_left.isEmpty() ? QString::number(ocr.rect.left) : ocr.v_left);
+	ui.ocr_top_edit->setText(ocr.v_top.isEmpty() ? QString::number(ocr.rect.top) : ocr.v_top);
+	ui.ocr_right_edit->setText(ocr.v_right.isEmpty() ? QString::number(ocr.rect.right) : ocr.v_right);
+	ui.ocr_bottom_edit->setText(ocr.v_bottom.isEmpty() ? QString::number(ocr.rect.bottom) : ocr.v_bottom);
 	ui.ocr_text_edit->setText(ocr.text);
 	ui.ocr_var_edit->setText(ocr.var);
 	ui.ocr_row_check->setChecked(ocr.row);

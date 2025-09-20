@@ -112,6 +112,7 @@
     <ClCompile Include="source\src\integrity_verify.cpp" />
     <ClCompile Include="source\src\interpreter.cpp" />
     <ClCompile Include="source\src\json.cpp" />
+    <ClCompile Include="source\src\scriptinterpreter.cpp" />
     <ClCompile Include="source\src\thread.cpp" />
     <ClCompile Include="source\src\type.cpp" />
     <ClCompile Include="source\ui\MsgViewUi.cpp" />

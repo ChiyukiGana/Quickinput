@@ -5,6 +5,8 @@
 #include "range.h"
 #include "thread.h"
 
+struct RECTF { float left; float top; float right; float bottom; };
+
 class QiInterpreter;
 class MacroGroup;
 class Action;
@@ -206,7 +208,7 @@ enum class QiType
 	count
 };
 
-struct Actions : QiVector<Action>
+struct Actions : public QiVector<Action>
 {
 	using base_actions = QiVector<Action>;
 	using base_actions::base_actions;
@@ -239,15 +241,15 @@ struct QiBase
 	virtual QJsonObject toJson() const
 	{
 		QJsonObject json;
-		json.insert("dis", disable);
 		json.insert("type", static_cast<int>(type));
-		json.insert("mark", mark);
+		if (disable) json.insert("dis", disable);
+		if (!mark.isEmpty()) json.insert("mark", mark);
 		return json;
 	}
 	virtual void fromJson(const QJsonObject& json)
 	{
-		disable = json.value("dis").toBool();
 		type = static_cast<QiType>(json.value("type").toInt());
+		disable = json.value("dis").toBool();
 		mark = json.value("mark").toString();
 	}
 };
@@ -255,14 +257,6 @@ struct QiEnd : QiBase
 {
 	QiEnd() : QiBase(QiType::end) {}
 	QString name() const override { return "结束"; }
-	QJsonObject toJson() const override
-	{
-		return QiBase::toJson();
-	}
-	void fromJson(const QJsonObject& json) override
-	{
-		QiBase::fromJson(json);
-	}
 };
 struct QiDelay : QiBase
 {
@@ -275,19 +269,15 @@ struct QiDelay : QiBase
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("ms", (int)min);
-		json.insert("ex", (int)max);
-		json.insert("v_min", (QString)v_min);
-		json.insert("v_max", (QString)v_max);
+		v_min.isEmpty() ? json.insert("ms", (int)min) : json.insert("v_min", (QString)v_min);
+		v_max.isEmpty() ? json.insert("ex", (int)max) : json.insert("v_max", (QString)v_max);
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
-		min = json.value("ms").toInt();
-		max = json.value("ex").toInt();
-		v_min = json.value("v_min").toString();
-		v_max = json.value("v_max").toString();
+		min = json.value("ms").toInt(), v_min = json.value("v_min").toString();
+		max = json.value("ex").toInt(), v_max = json.value("v_max").toString();
 	}
 };
 struct QiKey : QiBase
@@ -319,24 +309,24 @@ struct QiMouse : QiBase
 
 	int x = 0, y = 0, ex = 0, speed = 0;
 	bool move = false, track = false;
+	QString v_x, v_y;
 	QiMouse() : QiBase(QiType::mouse) {}
 	QString name() const override { return "鼠标"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("x", (int)x);
-		json.insert("y", (int)y);
-		json.insert("ex", (int)ex);
-		json.insert("spd", (int)speed);
-		json.insert("trk", (bool)track);
-		json.insert("move", (bool)move);
+		v_x.isEmpty() ? json.insert("y", (int)y) : json.insert("v_x", (QString)v_x);
+		v_y.isEmpty() ? json.insert("x", (int)x) : json.insert("v_y", (QString)v_y);
+		if (ex) json.insert("ex", (int)ex);
+		if (track) json.insert("trk", (bool)track), json.insert("spd", (int)speed);
+		if (move) json.insert("move", (bool)move);
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
-		x = json.value("x").toInt();
-		y = json.value("y").toInt();
+		x = json.value("x").toInt(), v_x = json.value("v_x").toString();
+		y = json.value("y").toInt(), v_y = json.value("v_y").toString();
 		ex = json.value("ex").toInt();
 		speed = json.value("spd").toInt();
 		track = json.value("trk").toBool();
@@ -368,32 +358,33 @@ struct QiColor : QiBase
 	Rgba rgbe;
 	RECT rect = {};
 	bool move = false;
+	QString v_left, v_top, v_right, v_bottom;
 	QiColor() : QiBase(QiType::color) {}
 	QString name() const override { return "找色"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("next", next.toJson());
-		json.insert("next2", next2.toJson());
-		json.insert("move", (bool)move);
-		json.insert("left", (int)rect.left);
-		json.insert("top", (int)rect.top);
-		json.insert("right", (int)rect.right);
-		json.insert("bottom", (int)rect.bottom);
 		json.insert("rgbe", (int)rgbe.toCOLORREF());
+		v_left.isEmpty() ? json.insert("left", (int)rect.left) : json.insert("v_l", (QString)v_left);
+		v_top.isEmpty() ? json.insert("top", (int)rect.top) : json.insert("v_t", (QString)v_top);
+		v_right.isEmpty() ? json.insert("right", (int)rect.right) : json.insert("v_r", (QString)v_right);
+		v_bottom.isEmpty() ? json.insert("bottom", (int)rect.bottom) : json.insert("v_b", (QString)v_bottom);
+		if (move) json.insert("move", (bool)move);
+		if (next) json.insert("next", next.toJson());
+		if (next2) json.insert("next2", next2.toJson());
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
+		rgbe = json.value("rgbe").toInt();
+		rect.left = json.value("left").toInt(), v_left = json.value("v_l").toString();
+		rect.top = json.value("top").toInt(), v_top = json.value("v_t").toString();
+		rect.right = json.value("right").toInt(), v_right = json.value("v_r").toString();
+		rect.bottom = json.value("bottom").toInt(), v_bottom = json.value("v_b").toString();
+		move = json.value("move").toBool();
 		next.fromJson(json.value("next").toArray());
 		next2.fromJson(json.value("next2").toArray());
-		move = json.value("move").toBool();
-		rect.left = json.value("left").toInt();
-		rect.top = json.value("top").toInt();
-		rect.right = json.value("right").toInt();
-		rect.bottom = json.value("bottom").toInt();
-		rgbe = json.value("rgbe").toInt();
 	}
 };
 struct QiLoop : QiBase
@@ -407,35 +398,23 @@ struct QiLoop : QiBase
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("next", next.toJson());
-		json.insert("count", (int)min);
-		json.insert("rand", (int)max);
-		json.insert("v_min", (QString)v_min);
-		json.insert("v_max", (QString)v_max);
+		v_min.isEmpty() ? json.insert("count", (int)min) : json.insert("v_min", (QString)v_min);
+		v_max.isEmpty() ? json.insert("rand", (int)max) : json.insert("v_max", (QString)v_max);
+		if (next) json.insert("next", next.toJson());
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
+		min = json.value("count").toInt(), v_min = json.value("v_min").toString();
+		max = json.value("rand").toInt(), v_max = json.value("v_max").toString();
 		next.fromJson(json.value("next").toArray());
-		min = json.value("count").toInt();
-		max = json.value("rand").toInt();
-		v_min = json.value("v_min").toString();
-		v_max = json.value("v_max").toString();
 	}
 };
 struct QiLoopEnd : QiBase
 {
 	QiLoopEnd() : QiBase(QiType::loopEnd) {}
 	QString name() const override { return "结束循环"; }
-	QJsonObject toJson() const override
-	{
-		return QiBase::toJson();
-	}
-	void fromJson(const QJsonObject& json) override
-	{
-		QiBase::fromJson(json);
-	}
 };
 struct QiKeyState : QiBase
 {
@@ -445,31 +424,23 @@ struct QiKeyState : QiBase
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("next", next.toJson());
-		json.insert("next2", next2.toJson());
 		json.insert("vk", (int)vk);
+		if (next) json.insert("next", next.toJson());
+		if (next2) json.insert("next2", next2.toJson());
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
+		vk = json.value("vk").toInt();
 		next.fromJson(json.value("next").toArray());
 		next2.fromJson(json.value("next2").toArray());
-		vk = json.value("vk").toInt();
 	}
 };
 struct QiResetPos : QiBase
 {
 	QiResetPos() : QiBase(QiType::resetPos) {}
 	QString name() const override { return "恢复位置"; }
-	QJsonObject toJson() const override
-	{
-		return QiBase::toJson();
-	}
-	void fromJson(const QJsonObject& json) override
-	{
-		QiBase::fromJson(json);
-	}
 };
 struct QiImage : QiBase
 {
@@ -480,39 +451,40 @@ struct QiImage : QiBase
 	int sim = 0;
 	RECT rect = {};
 	bool move = false;
+	QString v_left, v_top, v_right, v_bottom;
 	QiImage() : QiBase(QiType::image) {}
 	QString name() const override { return "找图"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("next", next.toJson());
-		json.insert("next2", next2.toJson());
-		json.insert("move", (bool)move);
-		json.insert("left", (int)rect.left);
-		json.insert("top", (int)rect.top);
-		json.insert("right", (int)rect.right);
-		json.insert("bottom", (int)rect.bottom);
 		json.insert("sim", (int)sim);
-		json.insert("width", (int)map.width());
-		json.insert("height", (int)map.height());
-		json.insert("data", (QString)toBase64());
+		v_left.isEmpty() ? json.insert("left", (int)rect.left) : json.insert("v_l", (QString)v_left);
+		v_top.isEmpty() ? json.insert("top", (int)rect.top) : json.insert("v_t", (QString)v_top);
+		v_right.isEmpty() ? json.insert("right", (int)rect.right) : json.insert("v_r", (QString)v_right);
+		v_bottom.isEmpty() ? json.insert("bottom", (int)rect.bottom) : json.insert("v_b", (QString)v_bottom);
+		if (move) json.insert("move", (bool)move);
+		if (map) json.insert("width", (int)map.width()), json.insert("height", (int)map.height()), json.insert("data", (QString)toBase64());
+		if (next) json.insert("next", next.toJson());
+		if (next2) json.insert("next2", next2.toJson());
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
+		sim = json.value("sim").toInt();
+		rect.left = json.value("left").toInt(), v_left = json.value("v_l").toString();
+		rect.top = json.value("top").toInt(), v_top = json.value("v_t").toString();
+		rect.right = json.value("right").toInt(), v_right = json.value("v_r").toString();
+		rect.bottom = json.value("bottom").toInt(), v_bottom = json.value("v_b").toString();
+		move = json.value("move").toBool();
+		{
+			int width = json.value("width").toInt();
+			int height = json.value("height").toInt();
+			QString data = json.value("data").toString();
+			if (!data.isEmpty() && width && height) fromBase64(data, width, height);
+		}
 		next.fromJson(json.value("next").toArray());
 		next2.fromJson(json.value("next2").toArray());
-		move = json.value("move").toBool();
-		rect.left = json.value("left").toInt();
-		rect.top = json.value("top").toInt();
-		rect.right = json.value("right").toInt();
-		rect.bottom = json.value("bottom").toInt();
-		sim = json.value("sim").toInt();
-		int width = json.value("width").toInt();
-		int height = json.value("height").toInt();
-		QString data = json.value("data").toString();
-		if (!data.isEmpty() && width && height) fromBase64(data, width, height);
 	}
 	void fromBase64(const QString& base64, size_t width, size_t height)
 	{
@@ -543,7 +515,7 @@ struct QiPopText : QiBase
 		QJsonObject json = QiBase::toJson();
 		json.insert("text", (QString)text);
 		json.insert("time", (int)time);
-		json.insert("sync", (bool)sync);
+		if (sync) json.insert("sync", (bool)sync);
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
@@ -558,14 +530,6 @@ struct QiSavePos : QiBase
 {
 	QiSavePos() : QiBase(QiType::savePos) {}
 	QString name() const override { return "记录位置"; }
-	QJsonObject toJson() const override
-	{
-		return QiBase::toJson();
-	}
-	void fromJson(const QJsonObject& json) override
-	{
-		QiBase::fromJson(json);
-	}
 };
 struct QiTimer : QiBase
 {
@@ -578,23 +542,19 @@ struct QiTimer : QiBase
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("next", next.toJson());
-		json.insert("next2", next2.toJson());
-		json.insert("min", (int)min);
-		json.insert("max", (int)max);
-		json.insert("v_min", (QString)v_min);
-		json.insert("v_max", (QString)v_max);
+		v_min.isEmpty() ? json.insert("count", (int)min) : json.insert("v_min", (QString)v_min);
+		v_max.isEmpty() ? json.insert("rand", (int)max) : json.insert("v_max", (QString)v_max);
+		if (next) json.insert("next", next.toJson());
+		if (next2) json.insert("next2", next2.toJson());
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
+		min = json.value("count").toInt(), v_min = json.value("v_min").toString();
+		max = json.value("rand").toInt(), v_max = json.value("v_max").toString();
 		next.fromJson(json.value("next").toArray());
 		next2.fromJson(json.value("next2").toArray());
-		min = json.value("min").toInt();
-		max = json.value("max").toInt();
-		v_min = json.value("v_min").toString();
-		v_max = json.value("v_max").toString();
 	}
 };
 struct QiJump : QiBase
@@ -647,21 +607,21 @@ struct QiDialog : QiBase
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("next", next.toJson());
-		json.insert("next2", next2.toJson());
 		json.insert("style", (int)style);
 		json.insert("title", (QString)title);
 		json.insert("text", (QString)text);
+		if (next) json.insert("next", next.toJson());
+		if (next2) json.insert("next2", next2.toJson());
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
-		next.fromJson(json.value("next").toArray());
-		next2.fromJson(json.value("next2").toArray());
 		style = json.value("style").toInt();
 		title = json.value("title").toString();
 		text = json.value("text").toString();
+		next.fromJson(json.value("next").toArray());
+		next2.fromJson(json.value("next2").toArray());
 	}
 };
 struct QiBlock : QiBase
@@ -671,15 +631,15 @@ struct QiBlock : QiBase
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("next", next.toJson());
 		json.insert("id", (int)id);
+		if (next) json.insert("next", next.toJson());
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
-		next.fromJson(json.value("next").toArray());
 		id = json.value("id").toInt();
+		next.fromJson(json.value("next").toArray());
 	}
 };
 struct QiBlockExec : QiBase
@@ -706,9 +666,12 @@ struct QiQuickInput : QiBase
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		QJsonArray array;
-		for (const auto& i : chars) array.append((int)i);
-		json.insert("c", array);
+		if (chars)
+		{
+			QJsonArray array;
+			for (const auto& i : chars) array.append((int)i);
+			json.insert("c", array);
+		}
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
@@ -747,17 +710,17 @@ struct QiClock : QiBase
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("next", next.toJson());
-		json.insert("next2", next2.toJson());
 		json.insert("t", (int)time);
+		if (next) json.insert("next", next.toJson());
+		if (next2) json.insert("next2", next2.toJson());
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
+		time = json.value("t").toInt();
 		next.fromJson(json.value("next").toArray());
 		next2.fromJson(json.value("next2").toArray());
-		time = json.value("t").toInt();
 	}
 };
 struct QiOcr : QiBase
@@ -767,38 +730,39 @@ struct QiOcr : QiBase
 	bool match = false, row = false, move = false;
 	RECT rect = {};
 	QString text, var;
+	QString v_left, v_top, v_right, v_bottom;
 	QiOcr() : QiBase(QiType::ocr) {}
 	QString name() const override { return "文字识别"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("next", next.toJson());
-		json.insert("next2", next2.toJson());
-		json.insert("left", (int)rect.left);
-		json.insert("top", (int)rect.top);
-		json.insert("right", (int)rect.right);
-		json.insert("bottom", (int)rect.bottom);
-		json.insert("text", (QString)text);
-		json.insert("var", (QString)var);
-		json.insert("match", (bool)match);
-		json.insert("row", (bool)row);
-		json.insert("move", (bool)move);
+		v_left.isEmpty() ? json.insert("left", (int)rect.left) : json.insert("v_l", (QString)v_left);
+		v_top.isEmpty() ? json.insert("top", (int)rect.top) : json.insert("v_t", (QString)v_top);
+		v_right.isEmpty() ? json.insert("right", (int)rect.right) : json.insert("v_r", (QString)v_right);
+		v_bottom.isEmpty() ? json.insert("bottom", (int)rect.bottom) : json.insert("v_b", (QString)v_bottom);
+		if (!text.isEmpty()) json.insert("text", (QString)text);
+		if (!var.isEmpty()) json.insert("var", (QString)var);
+		if (match) json.insert("match", (bool)match);
+		if (row) json.insert("row", (bool)row);
+		if (move) json.insert("move", (bool)move);
+		if (next) json.insert("next", next.toJson());
+		if (next2) json.insert("next2", next2.toJson());
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
-		next.fromJson(json.value("next").toArray());
-		next2.fromJson(json.value("next2").toArray());
-		rect.left = json.value("left").toInt();
-		rect.top = json.value("top").toInt();
-		rect.right = json.value("right").toInt();
-		rect.bottom = json.value("bottom").toInt();
+		rect.left = json.value("left").toInt(), v_left = json.value("v_l").toString();
+		rect.top = json.value("top").toInt(), v_top = json.value("v_t").toString();
+		rect.right = json.value("right").toInt(), v_right = json.value("v_r").toString();
+		rect.bottom = json.value("bottom").toInt(), v_bottom = json.value("v_b").toString();
 		text = json.value("text").toString();
 		var = json.value("var").toString();
 		match = json.value("match").toBool();
 		row = json.value("row").toBool();
 		move = json.value("move").toBool();
+		next.fromJson(json.value("next").toArray());
+		next2.fromJson(json.value("next2").toArray());
 	}
 };
 struct QiVarOperator : QiBase
@@ -826,17 +790,17 @@ struct QiVarCondition : QiBase
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("next", next.toJson());
-		json.insert("next2", next2.toJson());
 		json.insert("t", (QString)script);
+		if (next) json.insert("next", next.toJson());
+		if (next2) json.insert("next2", next2.toJson());
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
+		script = json.value("t").toString();
 		next.fromJson(json.value("next").toArray());
 		next2.fromJson(json.value("next2").toArray());
-		script = json.value("t").toString();
 	}
 };
 struct QiMouseTrack : QiBase
@@ -854,8 +818,11 @@ struct QiMouseTrack : QiBase
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("size", (int)s.size());
-		json.insert("data", (QString)toBase64());
+		if (s.size())
+		{
+			json.insert("size", (int)s.size());
+			json.insert("data", (QString)toBase64());
+		}
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
@@ -941,19 +908,19 @@ struct QiEditDialog : QiBase
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("mult", (bool)mult);
 		json.insert("title", (QString)title);
 		json.insert("text", (QString)text);
 		json.insert("var", (QString)var);
+		if (mult) json.insert("mult", (bool)mult);
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
-		mult = json.value("mult").toBool();
 		title = json.value("title").toString();
 		text = json.value("text").toString();
 		var = json.value("var").toString();
+		mult = json.value("mult").toBool();
 	}
 };
 struct QiVolume : QiBase
@@ -969,21 +936,21 @@ struct QiVolume : QiBase
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		json.insert("next", next.toJson());
-		json.insert("next2", next2.toJson());
 		json.insert("volume", (double)volume);
 		json.insert("time", (int)time);
-		json.insert("max", (bool)max);
+		if (max) json.insert("max", (bool)max);
+		if (next) json.insert("next", next.toJson());
+		if (next2) json.insert("next2", next2.toJson());
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
-		next.fromJson(json.value("next").toArray());
-		next2.fromJson(json.value("next2").toArray());
 		volume = json.value("volume").toDouble();
 		time = json.value("time").toInt();
 		max = json.value("max").toBool();
+		next.fromJson(json.value("next").toArray());
+		next2.fromJson(json.value("next2").toArray());
 	}
 };
 struct QiSoundPlay : QiBase
@@ -999,7 +966,7 @@ struct QiSoundPlay : QiBase
 		QJsonObject json = QiBase::toJson();
 		json.insert("file", (QString)file);
 		json.insert("state", (int)state);
-		json.insert("sync", (bool)sync);
+		if (sync) json.insert("sync", (bool)sync);
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override

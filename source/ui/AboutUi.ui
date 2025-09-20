@@ -90,7 +90,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-9-19</string>
+         <string>2025-9-20</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>
@@ -106,8 +106,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>修改时间函数
-修复变量后带空格无法写入值</string>
+         <string>增加鼠标图像文字的范围变量</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>

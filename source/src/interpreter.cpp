@@ -56,6 +56,9 @@ void QiInterpreter::setLastPos(int x, int y)
 {
 	macro.script_interpreter.setValue(QiScriptInterpreter::var_cur_last_x, x);
 	macro.script_interpreter.setValue(QiScriptInterpreter::var_cur_last_y, y);
+	POINT p = wndInput ? QiFn::P_WRTA(POINT({ x, y }), wndInput->wnd) : QiFn::P_SRTA(POINT({ x,y }));
+	macro.script_interpreter.setValue(QiScriptInterpreter::var_cur_last_ax, p.x);
+	macro.script_interpreter.setValue(QiScriptInterpreter::var_cur_last_ay, p.y);
 }
 
 bool QiInterpreter::isInvalid()
@@ -151,8 +154,8 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				{
 					if (jumpId || debug_entry) continue;
 					const QiDelay& ref = std::get<QiDelay>(action);
-					int min = ref.v_min.isEmpty() ? ref.min : macro.script_interpreter.value(ref.v_min.toStdString()).toInteger();
-					int max = ref.v_max.isEmpty() ? ref.max : macro.script_interpreter.value(ref.v_max.toStdString()).toInteger();
+					const int min = ref.v_min.isEmpty() ? ref.min : macro.script_interpreter.value(ref.v_min.toStdString()).toInteger();
+					const int max = ref.v_max.isEmpty() ? ref.max : macro.script_interpreter.value(ref.v_max.toStdString()).toInteger();
 
 					if (PeekSleep(rand(max, min))) return InterpreterResult::r_exit;
 				} break;
@@ -221,26 +224,27 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				{
 					if (jumpId || debug_entry) continue;
 					const QiMouse& ref = std::get<QiMouse>(action);
+					const int x = (ref.v_x.isEmpty() ? ref.x : macro.script_interpreter.value(ref.v_x.toStdString()).toInteger()) + Rand(ref.ex, (~ref.ex) + 1);
+					const int y = (ref.v_y.isEmpty() ? ref.y : macro.script_interpreter.value(ref.v_y.toStdString()).toInteger()) + Rand(ref.ex, (~ref.ex) + 1);
+
 					if (wndInput)
 					{
-						POINT pt = { ref.x + (Rand(ref.ex, (~ref.ex + 1))) ,ref.y + (Rand(ref.ex, (~ref.ex + 1))) };
+						POINT pt = { x, y };
 						if (ref.move) pt.x += wndInput->pt.x * moveScaleX, pt.y += wndInput->pt.y * moveScaleY;
-						else pt = QiFn::P_WATR({ pt.x, pt.y }, wndInput->wnd);
-						POINT scale = QiFn::PF_WATR(QPointF(posScaleX, posScaleY), wndInput->wnd);
+						else pt = QiFn::P_WATR(pt, wndInput->wnd);
+						POINT scale = QiFn::PF_WATR(POINTF({ posScaleX, posScaleY }), wndInput->wnd);
 						wndInput->pt = { pt.x + scale.x, pt.y + scale.y };
 						if (ref.track)
 						{
 							QiFn::SmoothMove(wndInput->pt.x, wndInput->pt.y, wndInput->pt.x, wndInput->pt.y, ref.speed, [this](int x, int y, int stepx, int stepy) {
 								Input::MoveTo(wndInput->wnd, stepx, stepy, wndInput->mk);
 								PeekSleep(10);
-								});
+							});
 						}
 						else Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
 					}
 					else
 					{
-						int x = ref.x + (Rand(ref.ex, (~ref.ex + 1)));
-						int y = ref.y + (Rand(ref.ex, (~ref.ex + 1)));
 						if (ref.move)
 						{
 							if (ref.track)
@@ -248,20 +252,20 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 								QiFn::SmoothMove(0, 0, x * moveScaleX, y * moveScaleY, ref.speed, [this](int x, int y, int stepx, int stepy) {
 									Input::Move(stepx, stepy, Qi::key_info);
 									PeekSleep(10);
-									});
+								});
 							}
 							else Input::Move(x * moveScaleX, y * moveScaleY, Qi::key_info);
 						}
 						else
 						{
-							POINT scale = QiFn::P_ATA(QPointF(posScaleX, posScaleY));
+							POINT scale = QiFn::P_ATA(POINTF({ posScaleX, posScaleY }));
 							if (ref.track)
 							{
 								POINT spt = QiFn::P_SRTA(Input::pos());
-								QiFn::SmoothMove(spt.x, spt.y, x + scale.x, y + scale.y, ref.speed, [this, scale](int x, int y, int stepx, int stepy) {
+								QiFn::SmoothMove(spt.x, spt.y, x + scale.x, y + scale.y, ref.speed, [this](int x, int y, int stepx, int stepy) {
 									Input::MoveToA(x * 6.5535f, y * 6.5535f, Qi::key_info);
 									PeekSleep(10);
-									});
+								});
 							}
 							else Input::MoveToA((x + scale.x) * 6.5535f, (y + scale.y) * 6.5535f, Qi::key_info);
 						}
@@ -281,22 +285,28 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				case QiType::color:
 				{
 					const QiColor& ref = std::get<QiColor>(action);
+					RECT rect = {
+						ref.v_left.isEmpty() ? ref.rect.left : macro.script_interpreter.value(ref.v_left.toStdString()).toInteger(),
+						ref.v_top.isEmpty() ? ref.rect.top : macro.script_interpreter.value(ref.v_top.toStdString()).toInteger(),
+						ref.v_right.isEmpty() ? ref.rect.right : macro.script_interpreter.value(ref.v_right.toStdString()).toInteger(),
+						ref.v_bottom.isEmpty() ? ref.rect.bottom : macro.script_interpreter.value(ref.v_bottom.toStdString()).toInteger()
+					};
+
 					if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
 					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 					RgbMap rgbMap;
-					RECT rect;
 					HDC hdc;
 					if (wndInput)
 					{
 						hdc = GetDC(wndInput->wnd);
-						rect = QiFn::R_WATR(ref.rect, wndInput->wnd);
+						rect = QiFn::R_WATR(rect, wndInput->wnd);
 						Image::toRgbMap(hdc, rgbMap, rect);
 						ReleaseDC(wndInput->wnd, hdc);
 					}
 					else
 					{
 						hdc = GetDC(nullptr);
-						rect = QiFn::R_SATR(ref.rect);
+						rect = QiFn::R_SATR(rect);
 						Image::toRgbMap(hdc, rgbMap, rect);
 						ReleaseDC(nullptr, hdc);
 					}
@@ -362,21 +372,27 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				case QiType::image:
 				{
 					const QiImage& ref = std::get<QiImage>(action);
+					RECT rect = {
+						ref.v_left.isEmpty() ? ref.rect.left : macro.script_interpreter.value(ref.v_left.toStdString()).toInteger(),
+						ref.v_top.isEmpty() ? ref.rect.top : macro.script_interpreter.value(ref.v_top.toStdString()).toInteger(),
+						ref.v_right.isEmpty() ? ref.rect.right : macro.script_interpreter.value(ref.v_right.toStdString()).toInteger(),
+						ref.v_bottom.isEmpty() ? ref.rect.bottom : macro.script_interpreter.value(ref.v_bottom.toStdString()).toInteger()
+					};
+
 					if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
 					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }RgbMap rgbMap;
-					RECT rect;
 					HDC hdc;
 					if (wndInput)
 					{
 						hdc = GetDC(wndInput->wnd);
-						rect = QiFn::R_WATR(ref.rect, wndInput->wnd);
+						rect = QiFn::R_WATR(rect, wndInput->wnd);
 						Image::toRgbMap(hdc, rgbMap, rect);
 						ReleaseDC(wndInput->wnd, hdc);
 					}
 					else
 					{
 						hdc = GetDC(nullptr);
-						rect = QiFn::R_SATR(ref.rect);
+						rect = QiFn::R_SATR(rect);
 						Image::toRgbMap(hdc, rgbMap, rect);
 						ReleaseDC(nullptr, hdc);
 					}
@@ -543,26 +559,32 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				case QiType::ocr:
 				{
 					const QiOcr& ref = std::get<QiOcr>(action);
+					RECT rect = {
+						ref.v_left.isEmpty() ? ref.rect.left : macro.script_interpreter.value(ref.v_left.toStdString()).toInteger(),
+						ref.v_top.isEmpty() ? ref.rect.top : macro.script_interpreter.value(ref.v_top.toStdString()).toInteger(),
+						ref.v_right.isEmpty() ? ref.rect.right : macro.script_interpreter.value(ref.v_right.toStdString()).toInteger(),
+						ref.v_bottom.isEmpty() ? ref.rect.bottom : macro.script_interpreter.value(ref.v_bottom.toStdString()).toInteger()
+					};
+
 					if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
 					else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 					try
 					{
 						if (Qi::ocr.valid())
 						{
-							RECT rect = QiFn::R_SATR(ref.rect);
 							CImage image;
 							HDC hdc;
 							if (wndInput)
 							{
 								hdc = GetDC(wndInput->wnd);
-								rect = QiFn::R_WATR(ref.rect, wndInput->wnd);
+								rect = QiFn::R_WATR(rect, wndInput->wnd);
 								image = Image::toCImage32(hdc, rect);
 								ReleaseDC(wndInput->wnd, hdc);
 							}
 							else
 							{
 								hdc = GetDC(nullptr);
-								rect = QiFn::R_SATR(ref.rect);
+								rect = QiFn::R_SATR(rect);
 								image = Image::toCImage32(hdc, rect);
 								ReleaseDC(nullptr, hdc);
 							}
@@ -661,7 +683,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 					const clock_t begin = clock();
 					if (wndInput)
 					{
-						POINT scale = QiFn::PF_WATR(QPointF(posScaleX, posScaleY), wndInput->wnd);
+						POINT scale = QiFn::PF_WATR(POINTF({ posScaleX, posScaleY }), wndInput->wnd);
 						for (const auto& i : ref.s)
 						{
 							while (!isInvalid())
@@ -679,7 +701,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 					}
 					else
 					{
-						POINT scale = QiFn::P_ATA(QPointF(posScaleX, posScaleY));
+						POINT scale = QiFn::P_ATA(POINTF({ posScaleX, posScaleY }));
 						for (const auto& i : ref.s)
 						{
 							while (!isInvalid())

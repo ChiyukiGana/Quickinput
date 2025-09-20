@@ -39,16 +39,17 @@ namespace QiTools {
 	class XMap
 	{
 		Ty* _map = nullptr;
-		int _positon = 0;
-		int _width = 0;
-		int _height = 0;
-		int _count = 0;
+		size_t _positon = 0;
+		size_t _width = 0;
+		size_t _height = 0;
+		size_t _count = 0;
 	public:
-		XMap() { }
+		XMap() {}
 		XMap(const XMap& xMap) { copy(xMap); }
 		XMap(XMap&& xMap_r) { move(std::move(xMap_r)); }
 		XMap(int width, int height) { create(width, height); }
 		~XMap() { release(); }
+		operator bool() const { return not_empty(); }
 		void operator=(const XMap& xMap) { copy(xMap); }
 		void operator=(XMap&& xMap_r) { move(std::move(xMap_r)); }
 		Ty* operator[](int row) { return _map + (_width * row); }
@@ -61,10 +62,12 @@ namespace QiTools {
 		const Ty& point(int row, int col) const { return _map[((_width * row) + col)]; }
 		Ty& Iterate() { if (_count) { if (_positon < _count) { _positon++; return *(_map + _positon - 1); } IterateReset(), Iterate(); } return _map[0]; }
 		void IterateReset() { _positon = 0; }
-		int width() const { return _width; }
-		int height() const { return _height; }
-		int count() const { return _count; }
-		int bytes() const { return (_count * sizeof(Ty)); }
+		bool empty() const { return !_width && !_height; }
+		bool not_empty() const { return _width || _height; }
+		size_t width() const { return _width; }
+		size_t height() const { return _height; }
+		size_t count() const { return _count; }
+		size_t bytes() const { return (_count * sizeof(Ty)); }
 		void create(int width, int height) { if (width != _width || _height != height) { release(); if (width && height) { _width = width; _height = height; _count = width * height; _map = new Ty[_count]; } } }
 		void move(XMap&& xMap_r) { release(); _map = xMap_r._map; _positon = xMap_r._positon; _width = xMap_r._width; _height = xMap_r._height; _count = xMap_r._count; xMap_r._map = nullptr; }
 		void copy(const XMap& xMap) { release(); create(xMap._width, xMap._height); memcpy_s(_map, bytes(), xMap._map, xMap.bytes()); }
