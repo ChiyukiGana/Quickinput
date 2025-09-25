@@ -537,8 +537,9 @@ void EditUi::Event()
 			{
 				if (Input::state(VK_F10))
 				{
-					if (Input::state(VK_SHIFT)) ui.action_running_radio->isChecked() ? macro->thread.run_start(macro) : macro->thread.end_start(macro);
+					if (Input::state(VK_SHIFT)) macro->thread.exit();
 					macro->interpreter->DebugContinue();
+					SetDebugState(debug_run);
 					Input::Loop(VK_F10, 1);
 				}
 			}
