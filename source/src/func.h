@@ -29,6 +29,11 @@ namespace QiFn
 	RECTF RF_WRTA(const RECT& rel, const HWND& wnd);
 	RECT RF_WATR(const RECTF& abs, const HWND& wnd);
 
+	void Key(char key, bool press);
+	void Move(int x, int y); // pixel
+	void MoveTo(int x, int y); // screen size
+	void MoveToA(int x, int y); // 0~10000
+
 	QString FoldText(QString str, int len = 20, bool back = false);
 
 	// Pop text
@@ -49,6 +54,7 @@ namespace QiFn
 	void UnBlock();
 
 	void InitOcr(bool warning = true);
+	void InitRawInput(bool warning = true);
 
 	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, std::function<void(int x, int y, int stepx, int stepy)> CallBack);
 	WndInfo WindowSelection();

@@ -194,13 +194,13 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				}
 				else
 				{
-					if (ref.state == QiKey::up) Input::State(ref.vk, false, Qi::key_info);
-					else if (ref.state == QiKey::down) Input::State(ref.vk, true, Qi::key_info);
+					if (ref.state == QiKey::up) QiFn::Key(ref.vk, false);
+					else if (ref.state == QiKey::down) QiFn::Key(ref.vk, true);
 					else if (ref.state == QiKey::click)
 					{
-						Input::State(ref.vk, true, Qi::key_info);
+						QiFn::Key(ref.vk, true);
 						Sleep(Rand(20, 10));
-						Input::State(ref.vk, false, Qi::key_info);
+						QiFn::Key(ref.vk, false);
 						Sleep(Rand(20, 10));
 					}
 				}
@@ -234,11 +234,11 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 						if (ref.track)
 						{
 							QiFn::SmoothMove(0, 0, x * moveScaleX, y * moveScaleY, ref.speed, [this](int x, int y, int stepx, int stepy) {
-								Input::Move(stepx, stepy, Qi::key_info);
+								QiFn::Move(stepx, stepy);
 								PeekSleep(10);
 								});
 						}
-						else Input::Move(x * moveScaleX, y * moveScaleY, Qi::key_info);
+						else QiFn::Move(x * moveScaleX, y * moveScaleY);
 					}
 					else
 					{
@@ -247,11 +247,11 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 						{
 							POINT spt = QiFn::P_SRTA(Input::pos());
 							QiFn::SmoothMove(spt.x, spt.y, x + scale.x, y + scale.y, ref.speed, [this](int x, int y, int stepx, int stepy) {
-								Input::MoveToA(x * 6.5535f, y * 6.5535f, Qi::key_info);
+								QiFn::MoveToA(x, y);
 								PeekSleep(10);
 								});
 						}
-						else Input::MoveToA((x + scale.x) * 6.5535f, (y + scale.y) * 6.5535f, Qi::key_info);
+						else QiFn::MoveToA(x + scale.x, y + scale.y);
 					}
 				}
 			} break;
@@ -304,7 +304,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 							wndInput->pt = findResult.pt;
 							Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
 						}
-						else Input::MoveTo(findResult.pt.x, findResult.pt.y, Qi::key_info);
+						else QiFn::MoveTo(findResult.pt.x, findResult.pt.y);
 					}
 					r_result = ActionInterpreter(ref.next);
 				}
@@ -343,7 +343,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				if (Input::stateEx(ref.vk)) r_result = ActionInterpreter(ref.next);
 				else r_result = ActionInterpreter(ref.next2);
 			} break;
-			case QiType::resetPos: Input::MoveTo(cursor.x, cursor.y, Qi::key_info); break;
+			case QiType::resetPos: QiFn::MoveTo(cursor.x, cursor.y); break;
 			case QiType::image:
 			{
 				const QiImage& ref = std::get<QiImage>(action);
@@ -382,7 +382,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 							wndInput->pt = pt;
 							Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
 						}
-						else Input::MoveTo(pt.x, pt.y, Qi::key_info);
+						else QiFn::MoveTo(pt.x, pt.y);
 					}
 					r_result = ActionInterpreter(ref.next);
 				}
@@ -490,7 +490,10 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 					}
 					else
 					{
-						Input::Click(i, 10, Qi::key_info);
+						QiFn::Key(i, true);
+						Sleep(Rand(20, 10));
+						QiFn::Key(i, false);
+						Sleep(Rand(20, 10));
 					}
 				}
 			} break;
@@ -578,7 +581,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 														wndInput->pt = pt;
 														Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
 													}
-													else Input::MoveTo(pt.x, pt.y, Qi::key_info);
+													else QiFn::MoveTo(pt.x, pt.y);
 												}
 												else MsgBox::Warning(std::wstring(L"文字识别版本低于2，不支持找到并移动，需要更新"));
 											}
@@ -657,7 +660,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 						{
 							if ((i.t / speed) <= (clock() - begin))
 							{
-								Input::MoveToA(i.x * 6.5535f, i.y * 6.5535f, Qi::key_info);
+								QiFn::MoveToA(i.x, i.y);
 								break;
 							}
 							Sleep(0);

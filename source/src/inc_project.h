@@ -13,8 +13,9 @@
 #include <QPointView.h>
 #include <QRectView.h>
 #include <QTextDialog.h>
-// ocr
+// modules
 #include <src/ocr/QiOcrInterface.h>
+#include <src/rawin/QiRawInput.h>
 
 // quickinput
 namespace Qi

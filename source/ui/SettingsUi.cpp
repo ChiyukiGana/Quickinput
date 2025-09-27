@@ -81,6 +81,7 @@ void SettingsUi::Init()
 	ui.showState_check->setChecked(sets->showTips);
 	ui.sound_check->setChecked(sets->audFx);
 	ui.hideDefault_check->setChecked(sets->minMode);
+	ui.rawInput_check->setChecked(sets->rawInput);
 	ui.pad_check->setChecked(sets->pad);
 	ui.start_check->setChecked(Task::Find(L"QuickInput"));
 	if ("clear shortcut")
@@ -167,6 +168,7 @@ void SettingsUi::Event()
 	connect(ui.showState_check, &QCheckBox::toggled, this, [this](bool state) { sets->showTips = state; QiJson::SaveJson(); });
 	connect(ui.sound_check, &QCheckBox::toggled, this, [this](bool state) { sets->audFx = state; QiJson::SaveJson(); });
 	connect(ui.hideDefault_check, &QCheckBox::toggled, this, [this](bool state) { sets->minMode = state; QiJson::SaveJson(); });
+	connect(ui.rawInput_check, &QCheckBox::toggled, this, [this](bool state) { sets->rawInput = state; if (state && !Qi::rawInput.isInit()) QiFn::InitRawInput(); QiJson::SaveJson(); });
 	connect(ui.pad_check, &QCheckBox::toggled, this, [this](bool state) { sets->pad = state; Qi::widget.keyEditReload(); QiJson::SaveJson(); });
 	connect(ui.start_check, &QCheckBox::toggled, this, [this] {
 		if (Task::Find(L"QuickInput"))
@@ -197,6 +199,7 @@ void SettingsUi::StyleGroup()
 	ui.showState_check->setProperty("group", "check");
 	ui.sound_check->setProperty("group", "check");
 	ui.hideDefault_check->setProperty("group", "check");
+	ui.rawInput_check->setProperty("group", "check");
 	ui.pad_check->setProperty("group", "check");
 	ui.start_check->setProperty("group", "check");
 	ui.ocr_lang_combo->setProperty("group", "combo");
@@ -210,6 +213,7 @@ void SettingsUi::StyleGroup()
 	ui.theme_combo->view()->setProperty("group", "combo_body");
 	ui.stateKey_keyedit->setProperty("group", "line_edit");
 	ui.recordKey_keyedit->setProperty("group", "line_edit");
+	ui.scrollArea->setStyleSheet("QScrollArea,QScrollBar,QScrollBar::sub-line,QScrollBar::add-line{background-color:rgba(0,0,0,0);border:none}QScrollBar::handle{background-color:rgba(128,128,128,0.3);border:none}");
 }
 
 bool SettingsUi::event(QEvent* e)

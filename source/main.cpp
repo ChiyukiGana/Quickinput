@@ -14,6 +14,7 @@ void Init()
     Qi::macroGroups.append(MacroGroup(true, "默认分组"));
 	QiJson::LoadJson();
     QiFn::InitOcr(false);
+    if (Qi::set.rawInput) QiFn::InitRawInput(false);
 	Qi::screen = System::screenSize();
     Qi::display_update.start();
     qputenv("QT_QPA_PLATFORM", "windows:darkmode=0");

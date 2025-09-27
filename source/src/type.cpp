@@ -543,6 +543,7 @@ namespace Qi
 			json.insert("theme", (int)set.theme);
 			json.insert("ocr_thread", (int)set.ocr_thread);
 			json.insert("ocr_current", (QString)set.ocr_current);
+			json.insert("rawInput", (bool)Qi::set.rawInput);
 			json.insert("key", (int)(static_cast<int>(set.key1) | (static_cast<int>(set.key2) << 16)));
 			json.insert("key1", (int)set.key1);
 			json.insert("key2", (int)set.key2);
@@ -695,6 +696,8 @@ namespace Qi
 				set.theme = json.value("theme").toInt();
 				set.ocr_thread = std::clamp(json.value("ocr_thread").toInt(), 0, 16);
 				set.ocr_current = json.value("ocr_current").toString();
+
+				Qi::set.rawInput = json.value("rawInput").toBool();
 
 				if (json.contains("key1"))
 				{

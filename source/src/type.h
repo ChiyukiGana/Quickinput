@@ -1280,6 +1280,7 @@ struct SettingsData
 {
 	QString ocr_current;
 	int ocr_thread = 0;
+	bool rawInput = false;
 	int theme = 0;
 	short key1 = 0;
 	short key2 = 0;
@@ -1394,6 +1395,7 @@ namespace Qi
 {
 	inline size_t ocr_ver = 0;
 	inline QiOcrModule ocr;
+	inline QiRawInputModule rawInput;
 	// for setStyle
 	inline QApplication* application = nullptr;
 	inline QiUi::QuickInputUi ui;
