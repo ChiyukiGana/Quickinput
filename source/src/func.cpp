@@ -211,7 +211,7 @@ namespace QiFn
 				{
 					if (Qi::fun.quickClick.thread.active())
 					{
-						Qi::fun.quickClick.thread.exit();
+						Qi::fun.quickClick.thread.stop();
 						if (Qi::set.showTips) QuickClickPop(false);
 						if (Qi::set.audFx) SoundPlay(Qi::ui.pop.qcd.s, false);
 					}
@@ -238,7 +238,7 @@ namespace QiFn
 				{
 					if (Qi::fun.quickClick.thread.active())
 					{
-						Qi::fun.quickClick.thread.exit();
+						Qi::fun.quickClick.thread.stop();
 						if (Qi::set.showTips) QuickClickPop(false);
 						if (Qi::set.audFx) SoundPlay(Qi::ui.pop.qcd.s, false);
 					}
@@ -380,7 +380,7 @@ namespace QiFn
 		else
 		{
 			Qi::state = false, Qi::run = false;
-			if (Qi::fun.wndActive.state) { if (Qi::fun.wndActive.thread.active()) Qi::fun.wndActive.thread.exit(); }
+			if (Qi::fun.wndActive.state) { if (Qi::fun.wndActive.thread.active()) Qi::fun.wndActive.thread.stop(); }
 			StatePop(false);
 			if (Qi::set.audFx) SoundPlay(Qi::ui.pop.qd.s, false);
 		}

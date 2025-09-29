@@ -12,7 +12,7 @@
 
 #ifdef Q_VERIFY
 #define VERIFY_EXEC
-#include <src/verify/verify.h>
+#include <verify/verify.h>
 #endif
 
 #endif
@@ -932,7 +932,7 @@ int main(int argc, char* argv[])
             Macro* macro = QiFn::FindMacro(text.c_str());
             if (macro)
             {
-                macro->thread.exit();
+                macro->thread.stop();
                 return true;
             }
             return false;

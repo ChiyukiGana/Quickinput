@@ -310,7 +310,7 @@ void EditUi::Event()
 			{
 				if (debugState == debug_run)
 				{
-					macro->thread.exit();
+					macro->thread.stop();
 				}
 				macro->interpreter->DebugContinue();
 			}
@@ -540,7 +540,7 @@ void EditUi::Event()
 			{
 				if (Input::state(VK_F10))
 				{
-					if (Input::state(VK_SHIFT)) macro->thread.exit();
+					if (Input::state(VK_SHIFT)) macro->thread.stop();
 					macro->interpreter->DebugContinue();
 					SetDebugState(debug_run);
 					Input::Loop(VK_F10, 1);
@@ -2073,6 +2073,10 @@ QiKeyState EditUi::WidgetGetKeyState() {
 }
 QiMouse EditUi::WidgetGetMouse() {
 	QiMouse mouse;
+	mouse.move = ui.mouse_move_radio->isChecked();
+	mouse.track = ui.mouse_track_check->isChecked();
+	mouse.ex = QiRange::Restricted(ui.mouse_rand_edit->text().toInt(), QiMouse::range_rand);
+	mouse.speed = ui.mouse_speed_edit->text().isEmpty() ? 20 : QiRange::Restricted(ui.mouse_speed_edit->text().toInt(), QiMouse::range_speed);
 	{
 		QString v = ui.mouse_x_edit->text();
 		if (v.isEmpty());
@@ -2085,10 +2089,6 @@ QiMouse EditUi::WidgetGetMouse() {
 		else if (QiVar::isInteger(v.toStdString())) mouse.y = QiRange::Restricted(v.toInt(), mouse.move ? QiMouse::range_move : QiMouse::range_pos);
 		else mouse.v_y = v;
 	}
-	mouse.ex = QiRange::Restricted(ui.mouse_rand_edit->text().toInt(), QiMouse::range_rand);
-	mouse.speed = ui.mouse_speed_edit->text().isEmpty() ? 20 : QiRange::Restricted(ui.mouse_speed_edit->text().toInt(), QiMouse::range_speed);
-	mouse.move = ui.mouse_move_radio->isChecked();
-	mouse.track = ui.mouse_track_check->isChecked();
 	return mouse;
 }
 QiDelay EditUi::WidgetGetDelay() {

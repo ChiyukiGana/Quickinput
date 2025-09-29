@@ -115,7 +115,7 @@ bool QiMacroThread::run_active()
 {
 	lock();
 	const QiWorker* worker = worker_last();
-	bool active = worker && reinterpret_cast<const QiMacroWorker*>(worker)->running;
+	bool active = worker && !worker->m_stop && reinterpret_cast<const QiMacroWorker*>(worker)->running;
 	unlock();
 	return active;
 }
@@ -123,7 +123,7 @@ bool QiMacroThread::end_active()
 {
 	lock();
 	const QiWorker* worker = worker_last();
-	bool active = worker && (!reinterpret_cast<const QiMacroWorker*>(worker)->running);
+	bool active = worker && !worker->m_stop && !reinterpret_cast<const QiMacroWorker*>(worker)->running;
 	unlock();
 	return active;
 }

@@ -7,8 +7,9 @@
 
 struct QiWorker
 {
+	std::mutex m_mutex;
 	std::atomic_bool m_stop;
-	QiWorker() : m_stop(false) {}
+	QiWorker() noexcept : m_stop(false) {}
 	void sleep(clock_t ms)
 	{
 		clock_t end = clock() + ms;
@@ -28,59 +29,31 @@ template<typename... Args>
 struct QiWorkerWithArgs : public QiWorker
 {
 	std::tuple<Args...> m_args;
-
-	QiWorkerWithArgs(Args&&... args) : m_args(std::forward<Args>(args)...) {}
-
+	QiWorkerWithArgs(Args&&... args) noexcept : m_args(std::forward<Args>(args)...) {}
 	void run() override
 	{
 		runImpl(std::index_sequence_for<Args...>{});
 	}
-
 	template<std::size_t... Is>
 	void runImpl(std::index_sequence<Is...>)
 	{
 		run(std::get<Is>(m_args)...);
 	}
-
 	virtual void run(Args... args) = 0;
-};
-
-struct QiWorkerThread
-{
-	std::thread m_thread;
-	std::unique_ptr<QiWorker> m_worker;
 };
 
 class QiThreadManager
 {
 protected:
-	std::vector<std::unique_ptr<QiWorkerThread>> m_thread_list;
+	std::vector<std::shared_ptr<QiWorker>> m_worker_list;
 	std::mutex m_mutex;
 
 public:
-	using ThreadList = std::vector<std::unique_ptr<QiWorkerThread>>;
-	QiThreadManager() {};
-	QiThreadManager(QiThreadManager&& right) noexcept
-	{
-		exit_all();
-		detach_all();
-		std::unique_lock<std::mutex> lock(m_mutex);
-		std::unique_lock<std::mutex> lockr(right.m_mutex);
-		m_thread_list = std::move(right.m_thread_list);
-		right.m_thread_list.clear();
-	}
-	QiThreadManager(const QiThreadManager&) = delete;
-	QiThreadManager& operator=(QiThreadManager&& right) noexcept
-	{
-		exit_all();
-		detach_all();
-		std::unique_lock<std::mutex> lock(m_mutex);
-		std::unique_lock<std::mutex> lockr(right.m_mutex);
-		m_thread_list = std::move(right.m_thread_list);
-		right.m_thread_list.clear();
-		return *this;
-	}
-	QiThreadManager& operator=(const QiThreadManager&) = delete;
+	QiThreadManager() noexcept {};
+	QiThreadManager(QiThreadManager&& right) noexcept { stop(); }
+	QiThreadManager(const QiThreadManager&) noexcept { stop(); }
+	QiThreadManager& operator=(QiThreadManager&& right) noexcept { stop(); return *this; }
+	QiThreadManager& operator=(const QiThreadManager&) noexcept { stop(); return *this; }
 
 	void lock() { m_mutex.lock(); }
 	void unlock() { m_mutex.unlock(); }
@@ -88,87 +61,52 @@ public:
 	bool active()
 	{
 		std::unique_lock<std::mutex> lock(m_mutex);
-		if (m_thread_list.empty()) return false;
-		return !m_thread_list.back()->m_worker->m_stop;
+		if (m_worker_list.empty()) return false;
+		return !m_worker_list.back()->m_stop;
 	}
 
 	template<class QiWorkers, class ...Args>
 	void start(Args&&... args)
 	{
 		std::unique_lock<std::mutex> lock(m_mutex);
-		if (!m_thread_list.empty()) m_thread_list.back()->m_worker->m_stop = true;
+		for (auto& i : m_worker_list) i->m_stop = true;
 
-		std::unique_ptr<QiWorkerThread>& worker_thread = m_thread_list.emplace_back(new QiWorkerThread());
-		worker_thread->m_worker = std::make_unique<QiWorkers>(std::forward<Args>(args)...);
-		worker_thread->m_thread = std::thread([worker = worker_thread->m_worker.get(), thread = &worker_thread->m_thread] { worker->run(); worker->m_stop = true; thread->detach(); });
+		auto& worker = m_worker_list.emplace_back(new QiWorkers(std::forward<Args>(args)...));
+		std::thread([worker_refcopy = worker] { worker_refcopy->run(); worker_refcopy->m_stop = true; }).detach();
 
-		for (size_t i = m_thread_list.size() - 1; true; i--)
-		{
-			if (!m_thread_list[i]->m_thread.joinable()) m_thread_list.erase(m_thread_list.begin() + i);
-			if (i == 0) break;
-		}
+		bool exist = false;
+		do {
+			exist = false;
+			for (auto i = m_worker_list.begin(); i != m_worker_list.end(); i++)
+			{
+				std::unique_lock<std::mutex> lock((*i)->m_mutex);
+				if ((*i)->m_stop)
+				{
+					m_worker_list.erase(i);
+					exist = true;
+					break;
+				}
+			}
+		} while (exist);
 	}
 
-	void wait()
+	void stop()
 	{
 		std::unique_lock<std::mutex> lock(m_mutex);
-		if (!m_thread_list.empty())
-		{
-			std::unique_ptr<QiWorkerThread>& last = m_thread_list.back();
-			if (last->m_thread.joinable()) last->m_thread.join();
-		}
+		for (auto& i : m_worker_list) i->m_stop = true;
 	}
-
-	void wait_all()
-	{
-		std::unique_lock<std::mutex> lock(m_mutex);
-		for (const auto& t : m_thread_list) if (t->m_thread.joinable()) t->m_thread.join();
-	}
-
-	void detach()
-	{
-		std::unique_lock<std::mutex> lock(m_mutex);
-		if (!m_thread_list.empty())
-		{
-			std::unique_ptr<QiWorkerThread>& last = m_thread_list.back();
-			if (last->m_thread.joinable()) last->m_thread.detach();
-		}
-	}
-
-	void detach_all()
-	{
-		std::unique_lock<std::mutex> lock(m_mutex);
-		for (const auto& t : m_thread_list) if (t->m_thread.joinable()) t->m_thread.detach();
-	}
-
-	void exit()
-	{
-		std::unique_lock<std::mutex> lock(m_mutex);
-		if (!m_thread_list.empty()) m_thread_list.back()->m_worker->m_stop = true;
-	}
-
-	void exit_all()
-	{
-		std::unique_lock<std::mutex> lock(m_mutex);
-		for (const auto& t : m_thread_list) t->m_worker->m_stop = true;
-	}
-
-	const ThreadList* thread_list() const { return &m_thread_list; }
 
 	const QiWorker* worker_last() const
 	{
-		if (m_thread_list.empty()) return nullptr;
-		return m_thread_list.back()->m_worker.get();
+		if (m_worker_list.empty()) return nullptr;
+		return m_worker_list.back().get();
 	}
 
 	~QiThreadManager()
 	{
-		exit_all();
-		detach_all();
-		m_thread_list.clear();
+		stop();
 	}
 };
-
 
 class QiMacroThread : public QiThreadManager
 {
