@@ -1,5 +1,99 @@
 ﻿#include "type.h"
 
+bool find_index(const Actions& actions, QiIndex& index, QiType type, int id)
+{
+	for (size_t i = 0; i < actions.size(); i++)
+	{
+		const Action& a = actions[i];
+		if ((type == QiType::none || type == a.type()) && a.base().id == id)
+		{
+			index.index = i;
+			index.next1 = false;
+			index.next2 = false;
+			index.next.reset();
+			return true;
+		}
+		if (a.base().next.not_empty())
+		{
+			auto temp_index = std::make_unique<QiIndex>();
+			if (find_index(a.base().next, *temp_index, type, id))
+			{
+				index.index = i;
+				index.next1 = true;
+				index.next2 = false;
+				index.next = std::move(temp_index);
+				return true;
+			}
+		}
+		if (a.base().next2.not_empty())
+		{
+			auto temp_index = std::make_unique<QiIndex>();
+			if (find_index(a.base().next2, *temp_index, type, id))
+			{
+				index.index = i;
+				index.next1 = false;
+				index.next2 = true;
+				index.next = std::move(temp_index);
+				return true;
+			}
+		}
+	}
+	index.index = QiIndex::npos;
+	index.next1 = false;
+	index.next2 = false;
+	index.next.reset();
+	return false;
+}
+bool find_index(const Actions& actions, QiIndex& index, QiTypeProperty property)
+{
+	for (size_t i = 0; i < actions.size(); i++)
+	{
+		const Action& a = actions[i];
+		if (
+			(property == QiTypeProperty::disable && a.base().disable) ||
+			(property == QiTypeProperty::debug_entry && a.base().debug_entry) ||
+			(property == QiTypeProperty::debug_break && a.base().debug_break) ||
+			(property == QiTypeProperty::debug_exit && a.base().debug_exit)
+		)
+		{
+			index.index = i;
+			index.next1 = false;
+			index.next2 = false;
+			index.next.reset();
+			return true;
+		}
+		if (a.base().next.not_empty())
+		{
+			auto temp_index = std::make_unique<QiIndex>();
+			if (find_index(a.base().next, *temp_index, property))
+			{
+				index.index = i;
+				index.next1 = true;
+				index.next2 = false;
+				index.next = std::move(temp_index);
+				return true;
+			}
+		}
+		if (a.base().next2.not_empty())
+		{
+			auto temp_index = std::make_unique<QiIndex>();
+			if (find_index(a.base().next2, *temp_index, property))
+			{
+				index.index = i;
+				index.next1 = false;
+				index.next2 = true;
+				index.next = std::move(temp_index);
+				return true;
+			}
+		}
+	}
+	index.index = QiIndex::npos;
+	index.next1 = false;
+	index.next2 = false;
+	index.next.reset();
+	return false;
+}
+
 QJsonObject Action::toJson() const
 {
 	return base().toJson();
@@ -305,6 +399,19 @@ const Action* Actions::find(QiType type, int id) const
 {
 	return iter([id](const Action& action) { if (action.base().id == id) return true; return false; }, type);
 }
+
+QiIndex Actions::find_index(QiType type, int id) const
+{
+	QiIndex index;
+	::find_index(*this, index, type, id);
+	return index;
+}
+QiIndex Actions::find_index(QiTypeProperty property) const
+{
+	QiIndex index;
+	::find_index(*this, index, property);
+	return index;
+}
 Actions Actions::loadType(QiType type) const
 {
 	Actions actions;
@@ -436,6 +543,9 @@ namespace Qi
 			json.insert("theme", (int)set.theme);
 			json.insert("ocr_thread", (int)set.ocr_thread);
 			json.insert("ocr_current", (QString)set.ocr_current);
+#ifdef Q_RAWINPUT
+			json.insert("rawInput", (bool)Qi::set.rawInput);
+#endif
 			json.insert("key", (int)(static_cast<int>(set.key1) | (static_cast<int>(set.key2) << 16)));
 			json.insert("key1", (int)set.key1);
 			json.insert("key2", (int)set.key2);
@@ -588,7 +698,9 @@ namespace Qi
 				set.theme = json.value("theme").toInt();
 				set.ocr_thread = std::clamp(json.value("ocr_thread").toInt(), 0, 16);
 				set.ocr_current = json.value("ocr_current").toString();
-
+#ifdef Q_RAWINPUT
+				Qi::set.rawInput = json.value("rawInput").toBool();
+#endif
 				if (json.contains("key1"))
 				{
 					set.key1 = json.value("key1").toInt();

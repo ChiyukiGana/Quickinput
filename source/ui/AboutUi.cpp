@@ -4,10 +4,12 @@ AboutUi::AboutUi(QWidget* parent) : QWidget(parent)
 	ui.setupUi(this);
 	setWindowFlags(Qt::FramelessWindowHint);
 	version_res = ui.version_label->text();
-	update = new QiUpdate(this, version_res);
 	ui.url_label->installEventFilter(this);
 	ui.license_label->installEventFilter(this);
+#ifdef Q_UPDATE
+	update = new QiUpdate(this, version_res);
 	if (update->good()) update->getlatest();
+#endif
 }
 QString AboutUi::Version() const
 {
@@ -91,10 +93,12 @@ bool AboutUi::eventFilter(QObject* obj, QEvent* e)
 }
 void AboutUi::customEvent(QEvent* e)
 {
+#ifdef Q_UPDATE
 	if (update->check(version, content))
 	{
 		ui.version_label->setText(ui.version_label->text() + "（有新版本）");
 		ui.version_label->setCursor(QCursor(Qt::CursorShape::WhatsThisCursor));
 		ui.version_label->installEventFilter(this);
 	}
+#endif
 }

@@ -90,7 +90,7 @@
          <string notr="true">font-size:20px</string>
         </property>
         <property name="text">
-         <string>2025-9-20</string>
+         <string>2025-9-29</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>
@@ -106,7 +106,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>增加鼠标图像文字的范围变量</string>
+         <string>增加编译配置文件</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>

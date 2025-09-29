@@ -239,15 +239,6 @@ struct QiFunc_exit : public QiFunc
 		return bool(worker);
 	}
 };
-struct QiFunc_close : public QiFunc
-{
-	QiFunc_close() : QiFunc(0) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
-	{
-		exit(0);
-		return bool(true);
-	}
-};
 struct QiFunc_pop : public QiFunc
 {
 	QiFunc_pop() : QiFunc(1, 3) {}
@@ -494,7 +485,7 @@ struct QiFunc_file_open : public QiFunc
 	QiFunc_file_open() : QiFunc(1) {}
 	QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
 	{
-		return ShellExecuteW(nullptr, nullptr, String::toWString(args[0].toString()).c_str(), nullptr, nullptr, SW_SHOW);
+		return Process::open(String::toWString(args[0].toString()));
 	}
 };
 struct QiFunc_csv_rows : public QiFunc
@@ -960,6 +951,23 @@ struct QiFunc_macro_stop : public QiFunc
 		return Qi::interpreter_macro_stop(args[0].toString());
 	}
 };
+struct QiFunc_proc_find : public QiFunc
+{
+	QiFunc_proc_find() : QiFunc(1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
+	{
+		return static_cast<long long>(Process::find(args[0].toWString()));
+	}
+};
+struct QiFunc_proc_close : public QiFunc
+{
+	QiFunc_proc_close() : QiFunc(0, 1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const override
+	{
+		if (args.empty()) ExitProcess(0);
+		return static_cast<long long>(Process::close(args[0].toWString()));
+	}
+};
 
 QiFuncMap::QiFuncMap()
 {
@@ -988,7 +996,7 @@ QiFuncMap::QiFuncMap()
 	insert({ "pop", std::make_unique<QiFunc_pop>() });
 	insert({ "sleep", std::make_unique<QiFunc_sleep>() });
 	insert({ "exit", std::make_unique<QiFunc_exit>() });
-	insert({ "close", std::make_unique<QiFunc_close>() });
+	insert({ "close", std::make_unique<QiFunc_proc_close>() });
 	insert({ "rand", std::make_unique<QiFunc_rand>() });
 	insert({ "rand_last", std::make_unique<QiFunc_rand_last>() });
 	insert({ "cur_to", std::make_unique<QiFunc_cur_to>() });
@@ -1042,4 +1050,6 @@ QiFuncMap::QiFuncMap()
 	insert({ "macro_active", std::make_unique<QiFunc_macro_active>() });
 	insert({ "macro_start", std::make_unique<QiFunc_macro_start>() });
 	insert({ "macro_stop", std::make_unique<QiFunc_macro_stop>() });
+	insert({ "proc_find", std::make_unique<QiFunc_proc_find>() });
+	insert({ "proc_close", std::make_unique<QiFunc_proc_close>() });
 }

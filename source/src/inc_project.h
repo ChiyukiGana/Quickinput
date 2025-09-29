@@ -13,8 +13,17 @@
 #include <QPointView.h>
 #include <QRectView.h>
 #include <QTextDialog.h>
-// ocr
+// modules
 #include <src/ocr/QiOcrInterface.h>
+#ifdef Q_RAWINPUT
+#include <rawin/QiRawInput.h>
+#endif
+
+#ifdef DEBUG
+#pragma comment(lib,"msvcrtd.lib")
+#else
+#pragma comment(lib,"msvcrt.lib")
+#endif
 
 // quickinput
 namespace Qi
@@ -27,7 +36,11 @@ namespace Qi
 	inline const QString dir = QDir::fromNativeSeparators(QString::fromWCharArray(Path::RemoveFile(Process::exePath()).c_str()));
 	inline const QString folder = dir.mid(dir.lastIndexOf('/') + 1);
 	inline const QString macroDir = dir + "/macro/";
+#ifdef Q_ENCRYPT
+	inline const QString macroType = ".emacro";
+#else
 	inline const QString macroType = ".json";
+#endif
 	inline const QString configFile = "QuickInput.json";
 	inline QString version;
 	inline HICON ico = LoadIconW(GetModuleHandleW(nullptr), L"ICOAPP");

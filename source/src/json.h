@@ -3,7 +3,7 @@
 namespace QiJson
 {
 	void SaveMacro(const Macro& macro);
-	void SaveJson();
 	void LoadMacro();
+	void SaveJson();
 	void LoadJson();
 };

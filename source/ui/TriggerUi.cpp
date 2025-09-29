@@ -16,8 +16,12 @@ void TriggerUi::Init()
 	if ("key")
 	{
 		ui.key_keyedit->setCombinationMode(false);
-		ui.key_keyedit->setDeviceEnabled(true, true, true, Qi::set.pad);
+		ui.key_keyedit->setDeviceEnabled(true, true, true);
 		ui.key_keyedit->setMaximumKeys(2);
+
+#ifdef Q_KEYEDIT_PAD_ENABLED
+		ui.key_keyedit->setPadEnabled(Qi::set.pad);
+#endif
 	}
 	if ("mode")
 	{
@@ -381,8 +385,10 @@ void TriggerUi::showEvent(QShowEvent*)
 }
 void TriggerUi::customEvent(QEvent* e)
 {
+#ifdef Q_KEYEDIT_PAD_ENABLED
 	if (e->type() == static_cast<int>(QiEvent::key_reset))
 	{
 		ui.key_keyedit->setPadEnabled(Qi::set.pad);
 	}
+#endif
 }

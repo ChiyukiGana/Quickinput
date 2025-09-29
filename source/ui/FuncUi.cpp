@@ -14,7 +14,10 @@ void FuncUi::Init()
 	{
 		ui.click_check->setChecked(func->quickClick.state);
 		ui.click_keyedit->setCombinationMode(false);
-		ui.click_keyedit->setDeviceEnabled(true, true, true, false);
+		ui.click_keyedit->setDeviceEnabled(true, true, true);
+#ifdef Q_KEYEDIT_PAD_ENABLED
+		ui.click_keyedit->setPadEnabled(Qi::set.pad);
+#endif
 		ui.click_keyedit->setKey(func->quickClick.key);
 		ui.click_delay_edit->setValidator(new QIntValidator(0, 99999, this));
 		ui.click_delay_edit->setText(QString::number(func->quickClick.delay));
@@ -31,7 +34,10 @@ void FuncUi::Init()
 	{
 		ui.clock_check->setChecked(func->showClock.state);
 		ui.clock_keyedit->setCombinationMode(false);
-		ui.clock_keyedit->setDeviceEnabled(true, true, true, Qi::set.pad);
+		ui.clock_keyedit->setDeviceEnabled(true, true, true);
+#ifdef Q_KEYEDIT_PAD_ENABLED
+		ui.clock_keyedit->setPadEnabled(Qi::set.pad);
+#endif
 		ui.clock_keyedit->setKey(func->showClock.key);
 	}
 	if ("window")
@@ -104,9 +110,11 @@ bool FuncUi::eventFilter(QObject* obj, QEvent* e)
 }
 void FuncUi::customEvent(QEvent* e)
 {
+#ifdef Q_KEYEDIT_PAD_ENABLED
 	if (e->type() == static_cast<int>(QiEvent::key_reset))
 	{
 		ui.click_keyedit->setPadEnabled(Qi::set.pad);
 		ui.clock_keyedit->setPadEnabled(Qi::set.pad);
 	}
+#endif
 }

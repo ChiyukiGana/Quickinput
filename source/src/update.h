@@ -74,8 +74,8 @@ public:
         r_date = id, r_count = ic;
         return true;
     }
-    bool good() const { return curl.good() && current_date; }
-    bool response_good() const { return curl.good() && response_state; }
+    bool good() const { return curl.isInit() && current_date; }
+    bool response_good() const { return curl.isInit() && response_state; }
     bool getlatest()
     {
         if (!good()) return false;

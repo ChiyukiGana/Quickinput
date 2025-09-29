@@ -5,6 +5,7 @@
 #include <qevent.h>
 #include <qtimer.h>
 #include <qscreen.h>
+#include <windows.h>
 
 class PopTextEvent : public QEvent
 {
@@ -93,12 +94,22 @@ private:
 		}
 		return str;
 	}
+	void TopMost()
+	{
+		HWND wnd = reinterpret_cast<HWND>(winId());
+		if (IsWindow(wnd))
+		{
+			LONG style = GetWindowLongW(wnd, GWL_EXSTYLE);
+			if (!(style & WS_EX_TOPMOST)) SetWindowLongW(wnd, GWL_EXSTYLE, style | WS_EX_TOPMOST);
+		}
+	}
 
 	void customEvent(QEvent* e)
 	{
 		PopTextEvent* popText = (PopTextEvent*)e;
 		if (popText->type() == PopTextEvent::pop)
 		{
+			TopMost();
 			timer->stop();
 			color = popText->color();
 			text = FoldText(popText->text(), 256, false);
@@ -109,6 +120,7 @@ private:
 		}
 		else if (popText->type() == PopTextEvent::show)
 		{
+			TopMost();
 			timer->stop();
 			color = popText->color();
 			text = FoldText(popText->text(), 256, false);

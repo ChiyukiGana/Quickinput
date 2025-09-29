@@ -103,9 +103,6 @@
     <ClCompile Include="source\src\type.cpp">
       <Filter>Source Files\0</Filter>
     </ClCompile>
-    <ClCompile Include="source\src\integrity_verify.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="source\ui\MsgViewUi.cpp">
       <Filter>Form Files\source</Filter>
     </ClCompile>
@@ -113,6 +110,12 @@
       <Filter>Source Files\0</Filter>
     </ClCompile>
     <ClCompile Include="source\src\scriptinterpreter.cpp">
+      <Filter>Source Files\2</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\sha256.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\integrity_verify.cpp">
       <Filter>Source Files\2</Filter>
     </ClCompile>
   </ItemGroup>
@@ -295,5 +298,8 @@
     <Text Include="versions.txt">
       <Filter>Resource Files</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="config.props" />
   </ItemGroup>
 </Project>

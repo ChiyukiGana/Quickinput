@@ -1,6 +1,12 @@
 ﻿#include "json.h"
+
+#ifdef Q_ENCRYPT
+#include <encrypt/encrypt.cpp>
+#endif
+
 namespace QiJson
 {
+#ifndef Q_ENCRYPT
 	void SaveMacro(const Macro& macro)
 	{
 		QJsonDocument json(macro.toJson());
@@ -24,12 +30,6 @@ namespace QiJson
 
 		if (!File::SaveText(path, json.toJson())) MsgBox::Error((const wchar_t*)macro.name.utf16(), L"保存宏失败");
 	}
-	void SaveJson()
-	{
-		QJsonDocument json(Qi::toJson());
-		if (!File::SaveText(Qi::configFile, json.toJson())) MsgBox::Error(L"保存配置失败");
-	}
-
 	bool LoadMacro(Macro& macro, const QString path, const QString name)
 	{
 		QByteArray text;
@@ -46,6 +46,7 @@ namespace QiJson
 		MsgBox::Error((const wchar_t*)name.utf16(), L"加载宏失败");
 		return false;
 	}
+#endif
 	void LoadMacro()
 	{
 		Qi::macroGroups.clear();
@@ -106,6 +107,12 @@ namespace QiJson
 				}
 				});
 		}
+	}
+
+	void SaveJson()
+	{
+		QJsonDocument json(Qi::toJson());
+		if (!File::SaveText(Qi::configFile, json.toJson())) MsgBox::Error(L"保存配置失败");
 	}
 	void LoadJson()
 	{

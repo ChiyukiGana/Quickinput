@@ -1,12 +1,20 @@
-﻿#pragma optimize("",off)
-static const char QUICKINPUT_COPYRIGHT_STRING[] = "QUICKINPUT_(C)CHIYUKIGANA";
-#pragma optimize("",on)
+﻿// 通过config.props配置预处理宏控制编译条件
+
 #include <ui/MainUi.h>
 #include <src/inc_header.h>
 
-#define INTEGRITY_VERIFY
-#ifdef INTEGRITY_VERIFY
+#ifndef DEBUG
+
+#ifdef Q_INTEGRITY_VERIFY
+#define INTEGRITY_VERIFY_EXEC
 #include <src/integrity_verify.h>
+#endif
+
+#ifdef Q_VERIFY
+#define VERIFY_EXEC
+#include <src/verify/verify.h>
+#endif
+
 #endif
 
 void Init()
@@ -14,6 +22,9 @@ void Init()
     Qi::macroGroups.append(MacroGroup(true, "默认分组"));
 	QiJson::LoadJson();
     QiFn::InitOcr(false);
+#ifdef Q_RAWINPUT
+    if (Qi::set.rawInput) QiFn::InitRawInput(false);
+#endif
 	Qi::screen = System::screenSize();
     Qi::display_update.start();
     qputenv("QT_QPA_PLATFORM", "windows:darkmode=0");
@@ -873,14 +884,15 @@ QToolTip,
 }
 int main(int argc, char* argv[])
 {
-    puts(QUICKINPUT_COPYRIGHT_STRING);
+    puts("QUICKINPUT_(C)CHIYUKIGANA");
 	std::locale::global(std::locale(".UTF8")); // set utf8 for all std streams
 	Process::RunPath(); // reset work path to exe path
 
-#ifdef INTEGRITY_VERIFY
-#ifndef DEBUG
+#ifdef INTEGRITY_VERIFY_EXEC
 	integrity_verify();
 #endif
+#ifdef VERIFY_EXEC
+    verify();
 #endif
 
 	std::wstring mutex = Path::toSlash(Process::runPath()); // mutex name, the current directory is only running one

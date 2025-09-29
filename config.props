@@ -1,0 +1,14 @@
+<Project>
+	<ImportGroup Label="PropertySheets" />
+	<PropertyGroup Label="UserMacros">
+		<!--
+			Q_KEYEDIT_PAD_ENABLED	启用XBox手柄
+			Q_INTEGRITY_VERIFY	程序修改验证
+			Q_UPDATE	更新检查
+			Q_RAWINPUT	加载驱动输入（未公开）
+			Q_ENCRYPT	宏文件加密（未公开）
+			Q_VERIFY	网络验证（未公开）
+		-->
+		<QiPreprocessorDefinitions>Q_KEYEDIT_PAD_ENABLED;Q_INTEGRITY_VERIFY;Q_UPDATE</QiPreprocessorDefinitions>
+	</PropertyGroup>
+</Project>

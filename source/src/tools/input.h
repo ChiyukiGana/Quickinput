@@ -18,61 +18,42 @@ namespace QiTools {
 		static void Loop(BYTE vk, UINT delay = 10) { while (state(vk)) Sleep(delay); }
 		static void LoopU(BYTE vk, UINT delay = 10) { while (!state(vk)) Sleep(delay); }
 		// flags: 1 = down, 0 = up
-		static void State(BYTE vk, bool state = 1, ULONG_PTR ex = 0) {
+		static void State(BYTE vk, bool press = true, ULONG_PTR info = 0) {
 			if (vk)
 			{
-				INPUT input = { 0 };
-				if (vk < 0x07 || vk == VK_WHEELUP || vk == VK_WHEELDOWN) {
+				INPUT input = {};
+				if (vk < 0x07 || vk == VK_WHEELUP || vk == VK_WHEELDOWN)
+				{
 					input.type = INPUT_MOUSE;
-					if (vk == VK_LBUTTON) { if (state) input.mi = { 0, 0, 0, MOUSEEVENTF_LEFTDOWN, 0, ex }; else input.mi = { 0, 0, 0, MOUSEEVENTF_LEFTUP, 0, ex }; }
-					else if (vk == VK_RBUTTON) { if (state) input.mi = { 0, 0, 0, MOUSEEVENTF_RIGHTDOWN, 0, ex }; else input.mi = { 0, 0, 0, MOUSEEVENTF_RIGHTUP, 0, ex }; }
-					else if (vk == VK_MBUTTON) { if (state) input.mi = { 0, 0, 0, MOUSEEVENTF_MIDDLEDOWN, 0, ex }; else input.mi = { 0, 0, 0, MOUSEEVENTF_MIDDLEUP, 0, ex }; }
-					else if (vk == VK_XBUTTON1) { if (state) input.mi = { 0, 0, XBUTTON1, MOUSEEVENTF_XDOWN, 0, ex }; else input.mi = { 0, 0, XBUTTON1, MOUSEEVENTF_XUP, 0, ex }; }
-					else if (vk == VK_XBUTTON2) { if (state) input.mi = { 0, 0, XBUTTON2, MOUSEEVENTF_XDOWN, 0, ex }; else input.mi = { 0, 0, XBUTTON2, MOUSEEVENTF_XUP, 0, ex }; }
-					else if (vk == VK_WHEELUP) { input.mi = { 0, 0, (DWORD)(WHEEL_DELTA), MOUSEEVENTF_WHEEL, 0, ex }; }
-					else if (vk == VK_WHEELDOWN) { input.mi = { 0, 0, (DWORD)(-WHEEL_DELTA), MOUSEEVENTF_WHEEL, 0, ex }; }
+					if (vk == VK_LBUTTON) input.mi = press ? MOUSEINPUT({ 0, 0, 0, MOUSEEVENTF_LEFTDOWN, 0, info }) : MOUSEINPUT({ 0, 0, 0, MOUSEEVENTF_LEFTUP, 0, info });
+					else if (vk == VK_RBUTTON) input.mi = press ? MOUSEINPUT({ 0, 0, 0, MOUSEEVENTF_RIGHTDOWN, 0, info }) : input.mi = MOUSEINPUT({ 0, 0, 0, MOUSEEVENTF_RIGHTUP, 0, info });
+					else if (vk == VK_MBUTTON) input.mi = press ? MOUSEINPUT({ 0, 0, 0, MOUSEEVENTF_MIDDLEDOWN, 0, info }) : input.mi = MOUSEINPUT({ 0, 0, 0, MOUSEEVENTF_MIDDLEUP, 0, info });
+					else if (vk == VK_XBUTTON1) input.mi = press ? MOUSEINPUT({ 0, 0, XBUTTON1, MOUSEEVENTF_XDOWN, 0, info }) : input.mi = MOUSEINPUT({ 0, 0, XBUTTON1, MOUSEEVENTF_XUP, 0, info });
+					else if (vk == VK_XBUTTON2) input.mi = press ? MOUSEINPUT({ 0, 0, XBUTTON2, MOUSEEVENTF_XDOWN, 0, info }) : input.mi = MOUSEINPUT({ 0, 0, XBUTTON2, MOUSEEVENTF_XUP, 0, info });
+					else if (vk == VK_WHEELUP) input.mi = { 0, 0, (DWORD)(WHEEL_DELTA), MOUSEEVENTF_WHEEL, 0, info };
+					else if (vk == VK_WHEELDOWN) input.mi = { 0, 0, (DWORD)(-WHEEL_DELTA), MOUSEEVENTF_WHEEL, 0, info };
 				}
-				else {
+				else
+				{
 					input.type = INPUT_KEYBOARD;
-					if (state) input.ki = { vk, ScanCode(vk), 0, 0, ex }; else input.ki = { vk, ScanCode(vk), KEYEVENTF_KEYUP, 0, ex };
+					input.ki = press ? KEYBDINPUT({ static_cast<WORD>(vk), static_cast<USHORT>(MapVirtualKeyW(vk, MAPVK_VK_TO_VSC)), 0, 0, info }) : KEYBDINPUT({ static_cast<WORD>(vk), static_cast<USHORT>(MapVirtualKeyW(vk, MAPVK_VK_TO_VSC)), KEYEVENTF_KEYUP, 0, info });
 				}
 				SendInput(1, &input, sizeof(input));
 			}
 		}
-		static void State(HWND wnd, BYTE vk, POINT pos = { 0 }, bool state = 1)
+		static void State(HWND wnd, BYTE vk, POINT pos = { 0 }, bool press = true)
 		{
 			if (isMouse(vk))
 			{
-				if (vk == VK_LBUTTON)
-				{
-					if (state) PostMessageW(wnd, WM_LBUTTONDOWN, 0, (LPARAM)pos.y << (LPARAM)16 | (LPARAM)pos.x);
-					else PostMessageW(wnd, WM_LBUTTONUP, 0, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
-				}
-				else if (vk == VK_RBUTTON)
-				{
-					if (state) PostMessageW(wnd, WM_RBUTTONDOWN, 0, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
-					else PostMessageW(wnd, WM_RBUTTONUP, 0, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
-				}
-				else if (vk == VK_MBUTTON)
-				{
-					if (state) PostMessageW(wnd, WM_MBUTTONDOWN, 0, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
-					else PostMessageW(wnd, WM_MBUTTONUP, 0, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
-				}
-				else if (vk == VK_XBUTTON1)
-				{
-					if (state) PostMessageW(wnd, WM_XBUTTONDOWN, MK_XBUTTON1 << 16, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
-					else PostMessageW(wnd, WM_XBUTTONUP, MK_XBUTTON1 << 16, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
-				}
-				else if (vk == VK_XBUTTON2)
-				{
-					if (state) PostMessageW(wnd, WM_XBUTTONDOWN, MK_XBUTTON2 << 16, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
-					else PostMessageW(wnd, WM_XBUTTONUP, MK_XBUTTON2 << 16, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
-				}
+				if (vk == VK_LBUTTON) PostMessageW(wnd, press ? WM_LBUTTONDOWN : WM_LBUTTONUP, 0, (LPARAM)pos.y << (LPARAM)16 | (LPARAM)pos.x);
+				else if (vk == VK_RBUTTON) PostMessageW(wnd, press ? WM_RBUTTONDOWN : WM_RBUTTONUP, 0, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
+				else if (vk == VK_MBUTTON) PostMessageW(wnd, press ? WM_MBUTTONDOWN : WM_MBUTTONUP, 0, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
+				else if (vk == VK_XBUTTON1) PostMessageW(wnd, press ? WM_XBUTTONDOWN : WM_XBUTTONUP, MK_XBUTTON1 << 16, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
+				else if (vk == VK_XBUTTON2) PostMessageW(wnd, press ? WM_XBUTTONDOWN : WM_XBUTTONUP, MK_XBUTTON2 << 16, ((LPARAM)pos.y) << ((LPARAM)16) | ((LPARAM)pos.x));
 			}
 			else
 			{
-				if (state) PostMessageW(wnd, WM_KEYDOWN, vk, (LPARAM)Input::ScanCode(vk) << (LPARAM)16);
-				else PostMessageW(wnd, WM_KEYUP, vk, (LPARAM)Input::ScanCode(vk) << (LPARAM)16);
+				PostMessageW(wnd, press ? WM_KEYDOWN : WM_KEYUP, vk, (LPARAM)Input::ScanCode(vk) << (LPARAM)16);
 			}
 		}
 		static void Click(BYTE vk, UINT delay = 10, ULONG_PTR ex = 0) { State(vk, 1, ex); Sleep(delay); State(vk, 0, ex); Sleep(delay); }

@@ -285,7 +285,11 @@ void MacroUi::RecStart(bool wnd)
 		macro.groupName = currentGroup->name;
 		macro.groupBase = currentGroup->base;
 		macro.name = currentGroup->makeName("窗口录制");
-		if (macro.acRun) QiJson::SaveMacro(currentGroup->macros.append(std::move(macro)));
+		if (macro.acRun)
+		{
+			QiJson::SaveMacro(currentGroup->macros.append(std::move(macro)));
+			TableUpdate();
+		}
 	}
 	else
 	{
@@ -294,7 +298,11 @@ void MacroUi::RecStart(bool wnd)
 		macro.groupName = currentGroup->name;
 		macro.groupBase = currentGroup->base;
 		macro.name = currentGroup->makeName("录制");
-		if (macro.acRun) QiJson::SaveMacro(currentGroup->macros.append(std::move(macro)));
+		if (macro.acRun)
+		{
+			QiJson::SaveMacro(currentGroup->macros.append(std::move(macro)));
+			TableUpdate();
+		}
 	}
 	Qi::widget.dialogActive = false;
 	Qi::widget.main->show();

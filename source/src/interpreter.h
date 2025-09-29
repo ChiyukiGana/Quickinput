@@ -31,4 +31,6 @@ public:
 	bool PeekSleep(clock_t ms);
 	InterpreterResult ActionInterpreter(const Actions& current);
 	QString makePath();
+	std::string errPath();
+	std::wstring werrPath();
 };

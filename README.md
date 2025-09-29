@@ -6,5 +6,5 @@
 帮助文档：http://help_qinput.cyk.moe<br><br> 
 观看视频：https://space.bilibili.com/398923924/channel/collectiondetail?sid=1777662<br><br> 
 # 下载<br>
-https://github.com/ChiyukiGana/Quickinput/releases/latest<br><br> 
+当前仓库的Release<br><br> 
 http://qinput.cyk.moe 

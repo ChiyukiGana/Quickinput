@@ -178,15 +178,18 @@ void EditUi::Init()
 	if ("key edit")
 	{
 		ui.key_keyedit->setCombinationMode(false);
-		ui.key_keyedit->setDeviceEnabled(true, true, true, false);
+		ui.key_keyedit->setDeviceEnabled(true, true, true);
 		ui.key_keyedit->setKey(VK_LBUTTON);
 
 		ui.keyState_keyedit->setCombinationMode(false);
-		ui.keyState_keyedit->setDeviceEnabled(true, true, true, Qi::set.pad);
+		ui.keyState_keyedit->setDeviceEnabled(true, true, true);
+#ifdef Q_KEYEDIT_PAD_ENABLED
+		ui.keyState_keyedit->setPadEnabled(Qi::set.pad);
+#endif
 		ui.keyState_keyedit->setKey(VK_LBUTTON);
 
 		ui.keyBlock_keyedit->setCombinationMode(false);
-		ui.keyBlock_keyedit->setDeviceEnabled(true, true, true, false);
+		ui.keyBlock_keyedit->setDeviceEnabled(true, true, true);
 		ui.keyBlock_keyedit->setKey(VK_LBUTTON);
 	}
 	if ("timer")
@@ -537,8 +540,9 @@ void EditUi::Event()
 			{
 				if (Input::state(VK_F10))
 				{
-					if (Input::state(VK_SHIFT)) ui.action_running_radio->isChecked() ? macro->thread.run_start(macro) : macro->thread.end_start(macro);
+					if (Input::state(VK_SHIFT)) macro->thread.exit();
 					macro->interpreter->DebugContinue();
+					SetDebugState(debug_run);
 					Input::Loop(VK_F10, 1);
 				}
 			}

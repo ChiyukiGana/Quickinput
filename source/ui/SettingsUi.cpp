@@ -7,18 +7,32 @@ SettingsUi::SettingsUi(QWidget* parent) : QWidget(parent)
 	Init();
 	Event();
 	StyleGroup();
+#ifndef Q_KEYEDIT_PAD_ENABLED
+	ui.pad_label->setHidden(true);
+	ui.pad_check->setHidden(true);
+#endif
+#ifndef Q_RAWINPUT
+	ui.rawInput_label->setHidden(true);
+	ui.rawInput_check->setHidden(true);
+#endif
 }
 
 void SettingsUi::Init()
 {
 	// state key
 	ui.stateKey_keyedit->setCombinationMode(false);
-	ui.stateKey_keyedit->setDeviceEnabled(true, true, true, Qi::set.pad);
+	ui.stateKey_keyedit->setDeviceEnabled(true, true, true);
 	ui.stateKey_keyedit->setMaximumKeys(2);
 	// record key
 	ui.recordKey_keyedit->setCombinationMode(false);
-	ui.recordKey_keyedit->setDeviceEnabled(true, true, true, Qi::set.pad);
+	ui.recordKey_keyedit->setDeviceEnabled(true, true, true);
 	ui.recordKey_keyedit->setMaximumKeys(1);
+
+#ifdef Q_KEYEDIT_PAD_ENABLED
+	ui.stateKey_keyedit->setPadEnabled(Qi::set.pad);
+	ui.recordKey_keyedit->setPadEnabled(Qi::set.pad);
+#endif
+
 	if ("ocr thraed")
 	{
 		ui.ocr_thread_combo->setEditable(true);
@@ -81,6 +95,7 @@ void SettingsUi::Init()
 	ui.showState_check->setChecked(sets->showTips);
 	ui.sound_check->setChecked(sets->audFx);
 	ui.hideDefault_check->setChecked(sets->minMode);
+	ui.rawInput_check->setChecked(sets->rawInput);
 	ui.pad_check->setChecked(sets->pad);
 	ui.start_check->setChecked(Task::Find(L"QuickInput"));
 	if ("clear shortcut")
@@ -167,6 +182,9 @@ void SettingsUi::Event()
 	connect(ui.showState_check, &QCheckBox::toggled, this, [this](bool state) { sets->showTips = state; QiJson::SaveJson(); });
 	connect(ui.sound_check, &QCheckBox::toggled, this, [this](bool state) { sets->audFx = state; QiJson::SaveJson(); });
 	connect(ui.hideDefault_check, &QCheckBox::toggled, this, [this](bool state) { sets->minMode = state; QiJson::SaveJson(); });
+#ifdef Q_RAWINPUT
+	connect(ui.rawInput_check, &QCheckBox::toggled, this, [this](bool state) { sets->rawInput = state; if (state && !Qi::rawInput.isInit()) QiFn::InitRawInput(); QiJson::SaveJson(); });
+#endif
 	connect(ui.pad_check, &QCheckBox::toggled, this, [this](bool state) { sets->pad = state; Qi::widget.keyEditReload(); QiJson::SaveJson(); });
 	connect(ui.start_check, &QCheckBox::toggled, this, [this] {
 		if (Task::Find(L"QuickInput"))
@@ -197,6 +215,7 @@ void SettingsUi::StyleGroup()
 	ui.showState_check->setProperty("group", "check");
 	ui.sound_check->setProperty("group", "check");
 	ui.hideDefault_check->setProperty("group", "check");
+	ui.rawInput_check->setProperty("group", "check");
 	ui.pad_check->setProperty("group", "check");
 	ui.start_check->setProperty("group", "check");
 	ui.ocr_lang_combo->setProperty("group", "combo");
@@ -210,6 +229,7 @@ void SettingsUi::StyleGroup()
 	ui.theme_combo->view()->setProperty("group", "combo_body");
 	ui.stateKey_keyedit->setProperty("group", "line_edit");
 	ui.recordKey_keyedit->setProperty("group", "line_edit");
+	ui.scrollArea->setStyleSheet("QScrollArea,QScrollBar,QScrollBar::sub-line,QScrollBar::add-line{background-color:rgba(0,0,0,0);border:none}QScrollBar::handle{background-color:rgba(128,128,128,0.3);border:none}");
 }
 
 bool SettingsUi::event(QEvent* e)
@@ -232,9 +252,11 @@ void SettingsUi::closeEvent(QCloseEvent* e)
 }
 void SettingsUi::customEvent(QEvent* e)
 {
+#ifdef Q_KEYEDIT_PAD_ENABLED
 	if (e->type() == static_cast<int>(QiEvent::key_reset))
 	{
 		ui.stateKey_keyedit->setPadEnabled(Qi::set.pad);
 		ui.recordKey_keyedit->setPadEnabled(Qi::set.pad);
 	}
+#endif
 }

@@ -36,7 +36,7 @@ namespace QiFn
 
 	POINT P_RTA(const POINT& rel, const SIZE& size) { POINT point = Clamp(rel, size); return { I_RTA(point.x, size.cx), I_RTA(point.y, size.cy) }; }
 	POINT P_ATR(const POINT& abs, const SIZE& size) { return Clamp(POINT({ I_ATR(abs.x, size.cx), I_ATR(abs.y, size.cy) }), size); }
-	POINTF PF_RTA(const POINT& rel, const SIZE& size) { POINT point = Clamp(rel, size); return { IF_RTA(point.x, size.cx), IF_RTA(point.y, size.cy)}; }
+	POINTF PF_RTA(const POINT& rel, const SIZE& size) { POINT point = Clamp(rel, size); return { IF_RTA(point.x, size.cx), IF_RTA(point.y, size.cy) }; }
 	POINT PF_ATR(const POINTF& abs, const SIZE& size) { return Clamp(POINT({ IF_ATR(abs.x, size.cx), IF_ATR(abs.y, size.cy) }), size); }
 	RECT R_RTA(const RECT& rel, const SIZE& size) { RECT rect = Clamp(rel, size); return { I_RTA(rect.left, size.cx), I_RTA(rect.top, size.cy), I_RTA(rect.right, size.cx), I_RTA(rect.bottom, size.cy) }; }
 	RECT R_ATR(const RECT& abs, const SIZE& size) { return Clamp(RECT({ I_ATR(abs.left, size.cx), I_ATR(abs.top, size.cy), I_ATR(abs.right, size.cx), I_ATR(abs.bottom, size.cy) }), size); }
@@ -60,6 +60,60 @@ namespace QiFn
 	RECT R_WATR(const RECT& abs, const HWND& wnd) { return R_ATR(abs, Window::size(wnd)); }
 	RECTF RF_WRTA(const RECT& rel, const HWND& wnd) { return RF_RTA(rel, Window::size(wnd)); }
 	RECT RF_WATR(const RECTF& abs, const HWND& wnd) { return RF_ATR(abs, Window::size(wnd)); }
+
+	void Key(char key, bool press)
+	{
+#ifdef Q_RAWINPUT
+		if (Qi::set.rawInput && Qi::rawInput.isInit())
+		{
+			press ? Qi::rawInput.key_down(key, Qi::key_info) : Qi::rawInput.key_up(key, Qi::key_info);
+		}
+		else
+#endif
+		{
+			Input::State(key, press, Qi::key_info);
+		}
+	}
+	void Move(int x, int y)
+	{
+#ifdef Q_RAWINPUT
+		if (Qi::set.rawInput && Qi::rawInput.isInit())
+		{
+			Qi::rawInput.move(x, y, Qi::key_info);
+		}
+		else
+#endif
+		{
+			Input::Move(x, y, Qi::key_info);
+		}
+	}
+	void MoveTo(int x, int y)
+	{
+#ifdef Q_RAWINPUT
+		if (Qi::set.rawInput && Qi::rawInput.isInit())
+		{
+			Qi::rawInput.move_to(x, y, Qi::key_info);
+		}
+		else
+#endif
+		{
+			Input::MoveTo(x, y, Qi::key_info);
+		}
+	}
+	void MoveToA(int x, int y)
+	{
+#ifdef Q_RAWINPUT
+		if (Qi::set.rawInput && Qi::rawInput.isInit())
+		{
+			POINT pt = P_SATR({ x, y });
+			Qi::rawInput.move_to(pt.x, pt.y, Qi::key_info);
+		}
+		else
+#endif
+		{
+			Input::MoveToA(x * 6.5535f, y * 6.5535f, Qi::key_info);
+		}
+	}
 
 	QString FoldText(QString str, int len, bool back)
 	{
@@ -340,32 +394,68 @@ namespace QiFn
 	void InitOcr(bool warning)
 	{
 		std::wstring dll = L"OCR\\qiocr.dll";
-		if (File::PathState(dll))
+		if (!File::PathState(dll))
 		{
-			Qi::ocr_ver = QiOcrInterfaceVersion(dll);
-			if (Qi::ocr_ver > 2)
-			{
-				std::wstring rec = L"ppocr.onnx";
-				std::wstring keys = L"ppocr.keys";
-				std::wstring det = L"OCR\\ppdet.onnx";
-				if (Qi::set.ocr_current.isEmpty())
-				{
-					rec = std::wstring(L"OCR\\") + rec;
-					keys = std::wstring(L"OCR\\") + keys;
-				}
-				else
-				{
-					std::wstring lang = Qi::set.ocr_current.toStdWString() + L"\\";
-					rec = std::wstring(L"OCR\\") + lang + rec;
-					keys = std::wstring(L"OCR\\") + lang + keys;
-				}
-				Qi::ocr = QiOcrInterfaceInit(dll, rec, keys, det, Qi::set.ocr_thread);
-				if (!Qi::ocr.valid()) MsgBox::Error(L"文字识别加载失败");
-			}
-			else MsgBox::Warning(L"文字识别版本低于2，需要更新");
+			if (warning) MsgBox::Warning(L"没有安装文字识别功能");
+			return;
 		}
-		else if (warning) MsgBox::Warning(L"没有安装文字识别功能");
+		Qi::ocr_ver = QiOcrInterfaceVersion(dll);
+		if (Qi::ocr_ver < 3)
+		{
+			MsgBox::Warning(L"文字识别版本低于3，需要更新");
+			return;
+		}
+		std::wstring rec = L"ppocr.onnx";
+		std::wstring keys = L"ppocr.keys";
+		std::wstring det = L"OCR\\ppdet.onnx";
+		if (Qi::set.ocr_current.isEmpty())
+		{
+			rec = std::wstring(L"OCR\\") + rec;
+			keys = std::wstring(L"OCR\\") + keys;
+		}
+		else
+		{
+			std::wstring lang = Qi::set.ocr_current.toStdWString() + L"\\";
+			rec = std::wstring(L"OCR\\") + lang + rec;
+			keys = std::wstring(L"OCR\\") + lang + keys;
+		}
+		Qi::ocr = QiOcrInterfaceInit(dll, rec, keys, det, Qi::set.ocr_thread);
+		if (!Qi::ocr.valid()) MsgBox::Error(L"文字识别加载失败");
 	}
+#ifdef Q_RAWINPUT
+	void InitRawInput(bool warning)
+	{
+		std::wstring dll = L"RAWIN\\QiRawInput.dll";
+		if (!File::PathState(dll))
+		{
+			if (warning) MsgBox::Warning(L"没有安装驱动");
+			return;
+		}
+		QiRawInputInfo info;
+		if (!QiRawInputInfoQuery(dll, info))
+		{
+			MsgBox::Error(L"加载驱动失败");
+			return;
+		}
+		if (info.version < 1)
+		{
+			MsgBox::Error(L"驱动信息错误");
+			return;
+		}
+		Qi::rawInput = QiRawInputInit(dll);
+		if (!Qi::rawInput.valid())
+		{
+			MsgBox::Error(L"驱动无效");
+			return;
+		}
+		if (!Qi::rawInput.init(L"RAWIN"))
+		{
+			MsgBox::Error(L"初始化驱动错误");
+			return;
+		}
+		if (!Qi::rawInput.isInit()) MsgBox::Error(L"初始化驱动失败");
+	}
+#endif
 
 	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, std::function<void(int x, int y, int stepx, int stepy)> CallBack)
 	{
