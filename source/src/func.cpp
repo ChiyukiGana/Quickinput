@@ -3,7 +3,7 @@
 namespace QiFn
 {
 	// Pos convert
-	int I_RTA(int rel, int size) { return static_cast<int>(((static_cast<float>(rel) / static_cast<float>(size)) * 10000.0f)); }
+	int I_RTA(int rel, int size) { return static_cast<int>(((static_cast<float>(rel) / static_cast<float>(size - 1)) * 10000.0f)); }
 	int I_ATR(int abs, int size) { return static_cast<int>(static_cast<float>(size) / 10000.0f * static_cast<float>(abs)); }
 	float IF_RTA(int rel, int size) { return static_cast<float>(rel) / static_cast<float>(size); }
 	int IF_ATR(float abs, int size) { return static_cast<float>(abs) * static_cast<float>(size); }
@@ -18,11 +18,7 @@ namespace QiFn
 	}
 	RECT Clamp(const RECT& rect, const SIZE& size)
 	{
-		RECT r;
-		if (rect.left < rect.right) r.left = rect.left, r.right = rect.right;
-		else r.left = rect.right, r.right = rect.left;
-		if (rect.top < rect.bottom) r.top = rect.top, r.bottom = rect.bottom;
-		else r.top = rect.bottom, r.bottom = rect.top;
+		RECT r({ (std::min)(rect.left, rect.right), (std::min)(rect.top, rect.bottom), (std::max)(rect.left, rect.right), (std::max)(rect.top, rect.bottom) });
 		if ((rect.left < 0) || (rect.top < 0) || (size.cx <= 0) || (size.cy <= 0) || (rect.right - rect.left <= 0) || (rect.bottom - rect.top <= 0)) return { 0,0,0,0 };
 		if (r.left >= size.cx) r.left = size.cx - 1, r.right = size.cx;
 		else if (r.right > size.cx) r.right = size.cx;
@@ -334,7 +330,9 @@ namespace QiFn
 #ifndef DEBUG
 				if (!InputHook::Start()) MsgBox::Error(L"创建输入Hook失败，检查是否管理员身份运行 或 是否被安全软件拦截。");
 #endif
+#ifdef Q_KEYEDIT_PAD_ENABLED
 				if (Qi::set.pad) Qi::xboxpad.setStateEvent(XBoxPadProc, true);
+#endif
 			}
 		}
 		else
@@ -343,7 +341,9 @@ namespace QiFn
 			{
 				timeEndPeriod(1); // reset clock accuracy
 				InputHook::Close();
+#ifdef Q_KEYEDIT_PAD_ENABLED
 				if (Qi::set.pad) Qi::xboxpad.closeStateEvent();
+#endif
 			}
 		}
 	}

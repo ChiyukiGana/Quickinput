@@ -7,7 +7,7 @@ namespace QiTools
 	{
 	public:
 		template<typename Ty>
-		static int Message(Ty text = L"MessageBox", std::wstring title = L"Message", LONG style = MB_OK)
+		static int Message(Ty text = L"MessageBox", std::wstring title = L"Message", LONG style = MB_OK | MB_TOPMOST)
 		{
 			return MessageBoxW(0, String::toWString(text).c_str(), title.c_str(), style);
 		}

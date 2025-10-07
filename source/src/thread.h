@@ -50,9 +50,9 @@ protected:
 
 public:
 	QiThreadManager() noexcept {};
-	QiThreadManager(QiThreadManager&& right) noexcept { stop(); }
+	QiThreadManager(QiThreadManager&&) noexcept { stop(); }
 	QiThreadManager(const QiThreadManager&) noexcept { stop(); }
-	QiThreadManager& operator=(QiThreadManager&& right) noexcept { stop(); return *this; }
+	QiThreadManager& operator=(QiThreadManager&&) noexcept { stop(); return *this; }
 	QiThreadManager& operator=(const QiThreadManager&) noexcept { stop(); return *this; }
 
 	void lock() { m_mutex.lock(); }
@@ -79,7 +79,6 @@ public:
 			exist = false;
 			for (auto i = m_worker_list.begin(); i != m_worker_list.end(); i++)
 			{
-				std::unique_lock<std::mutex> lock((*i)->m_mutex);
 				if ((*i)->m_stop)
 				{
 					m_worker_list.erase(i);

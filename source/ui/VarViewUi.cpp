@@ -65,7 +65,7 @@ void VarViewUi::TableUpdate(QTableWidget* table, const QiVarMap varMap)
 void VarViewUi::TableUpdate()
 {
 	updating = true;
-	QiVector<Macro*> macros;
+	MacroPointers macros;
 	for (auto& i : Qi::macroGroups) for (auto& im : i.macros) macros.append(&im);
 
 	size_t count = macros.size() + 2;
@@ -114,7 +114,7 @@ void VarViewUi::TableUpdate()
 			if (updating) return;
 			if (column == tableColumn_value) table->editItem(table->item(row, tableColumn_value));
 			});
-		connect(table, &QTableWidget::cellChanged, this, [this, table, varMap, macro](int row, int column) {
+		connect(table, &QTableWidget::cellChanged, this, [this, table, varMap, macro](int row, int) {
 			if (updating) return;
 			QString name = table->item(row, tableColumn_name)->text();
 			QString text = table->item(row, tableColumn_value)->text();

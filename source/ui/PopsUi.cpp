@@ -108,8 +108,8 @@ void PopsUi::Event()
 	connect(ui.up_on_button, &QPushButton::clicked, this, [this](bool) { SelectColor(Qi::ui.pop.upe); Update(); });
 	connect(ui.up_off_button, &QPushButton::clicked, this, [this](bool) { SelectColor(Qi::ui.pop.upd); Update(); });
 	// slider
-	connect(ui.disply_x_slider, &QSlider::valueChanged, this, [this](int value) { Qi::ui.pop.p.x = value; Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y); Qi::popText->Show("提示框位置"); });
-	connect(ui.disply_y_slider, &QSlider::valueChanged, this, [this](int value) { Qi::ui.pop.p.y = value; Qi::popText->setPosition(Qi::ui.pop.p.x, Qi::ui.pop.p.y); Qi::popText->Show("提示框位置"); });
+	connect(ui.disply_x_slider, &QSlider::valueChanged, this, [this](int value) { Qi::ui.pop.x = value; Qi::popText->setPosition(Qi::ui.pop.x, Qi::ui.pop.y); Qi::popText->Show("提示框位置"); });
+	connect(ui.disply_y_slider, &QSlider::valueChanged, this, [this](int value) { Qi::ui.pop.y = value; Qi::popText->setPosition(Qi::ui.pop.x, Qi::ui.pop.y); Qi::popText->Show("提示框位置"); });
 	connect(ui.disply_size_slider, &QSlider::valueChanged, this, [this](int value) { Qi::ui.pop.size = value; Qi::popText->setSize(Qi::ui.pop.size); Qi::popText->Show("提示框大小"); });
 	connect(ui.disply_time_slider, &QSlider::valueChanged, this, [this](int value) { Qi::ui.pop.time = value; Qi::popText->Popup(Qi::ui.pop.time, "提示框时间"); });
 }
@@ -201,8 +201,8 @@ void PopsUi::Update()
 	SetColor(Qi::ui.pop.upe.c, ui.up_on_button);
 	SetColor(Qi::ui.pop.upd.c, ui.up_off_button);
 
-	ui.disply_x_slider->setValue(Qi::ui.pop.p.x);
-	ui.disply_y_slider->setValue(Qi::ui.pop.p.y);
+	ui.disply_x_slider->setValue(Qi::ui.pop.x);
+	ui.disply_y_slider->setValue(Qi::ui.pop.y);
 	ui.disply_size_slider->setValue(Qi::ui.pop.size);
 	ui.disply_time_slider->setValue(Qi::ui.pop.time);
 }

@@ -75,7 +75,7 @@ public:
 protected:
 	void paintEvent(QPaintEvent*) { QPainter pa(this); pa.fillRect(0, 0, vrect.width(), vrect.height(), QColor(0, 0, 0, 50)); }
 	void mousePressEvent(QMouseEvent* e) { ClipCursor(&mrect); GetCursorPos(&amsAfter); amsBefore = amsAfter; msBefore = e->pos(); }
-	void mouseReleaseEvent(QMouseEvent* e) { ClipCursor(0); releaseMouse(); close(); }
+	void mouseReleaseEvent(QMouseEvent*) { ClipCursor(0); releaseMouse(); close(); }
 	void mouseMoveEvent(QMouseEvent* e)
 	{
 		ClipCursor(&mrect);

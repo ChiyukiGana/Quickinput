@@ -10,7 +10,7 @@ class FuncUi : public QWidget
 	FuncData* func = &Qi::fun;
 
 public:
-	FuncUi(QWidget* paren);
+	FuncUi(QWidget* parent = nullptr);
 
 private:
 	void Init();

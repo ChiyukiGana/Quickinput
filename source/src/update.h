@@ -1,16 +1,15 @@
 ﻿#pragma once
-#include <src/tools/msgbox.h>
 #include <qapplication.h>
 #include <qwidget.h>
 #include <qevent.h>
-#include <curl/ccurl.h>
-#include <sstream>
-#include <regex>
-#include <thread>
 #include <qjsondocument.h>
 #include <qjsonobject.h>
 #include <qjsonarray.h>
 #include <qjsonvalue.h>
+#include <regex>
+#include <thread>
+#include <sstream>
+#include <curl/ccurl.h>
 class QiUpdate
 {
     // format: YYYY-MM-DD_N  2024-1-11_1

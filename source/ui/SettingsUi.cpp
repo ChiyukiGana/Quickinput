@@ -39,10 +39,10 @@ void SettingsUi::Init()
 		ui.ocr_thread_combo->lineEdit()->setReadOnly(true);
 		ui.ocr_thread_combo->lineEdit()->setAlignment(Qt::AlignCenter);
 		ui.ocr_thread_combo->addItem("最高速度");
-		for (size_t i = 0; i < 16; i++) ui.ocr_thread_combo->addItem(QString::number(i + 1));
+		for (size_t i = 0; i < Qi::ocr_thread_max; i++) ui.ocr_thread_combo->addItem(QString::number(i + 1));
 		QStandardItemModel* model = (QStandardItemModel*)ui.ocr_thread_combo->view()->model();
 		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
-		ui.ocr_thread_combo->setCurrentIndex(std::clamp(Qi::set.ocr_thread, 0, 16));
+		ui.ocr_thread_combo->setCurrentIndex(std::clamp(Qi::set.ocr_thread, 0, Qi::ocr_thread_max));
 	}
 	if ("ocr lang")
 	{
@@ -157,6 +157,7 @@ void SettingsUi::Event()
 		}});
 	connect(ui.stateKey_keyedit, &QKeyEdit::changed, this, [this] {
 		QKeyEditKeys keys = ui.stateKey_keyedit->keys();
+		Qi::set.key1 = Qi::set.key2 = 0;
 		if (!keys.isEmpty()) Qi::set.key1 = keys.at(0);
 		if (keys.size() > 1) Qi::set.key2 = keys.at(1);
 		if (keys.size() == 1 && keys.at(0) == VK_LBUTTON)
@@ -229,6 +230,7 @@ void SettingsUi::StyleGroup()
 	ui.theme_combo->view()->setProperty("group", "combo_body");
 	ui.stateKey_keyedit->setProperty("group", "line_edit");
 	ui.recordKey_keyedit->setProperty("group", "line_edit");
+	ui.scrollArea_widget->setStyleSheet(QString("#") + ui.scrollArea_widget->objectName() + "{background-color:rgba(0,0,0,0)}");
 	ui.scrollArea->setStyleSheet("QScrollArea,QScrollBar,QScrollBar::sub-line,QScrollBar::add-line{background-color:rgba(0,0,0,0);border:none}QScrollBar::handle{background-color:rgba(128,128,128,0.3);border:none}");
 }
 
@@ -246,7 +248,7 @@ bool SettingsUi::eventFilter(QObject* obj, QEvent* e)
 	if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease)) return true;
 	return QWidget::eventFilter(obj, e);
 }
-void SettingsUi::closeEvent(QCloseEvent* e)
+void SettingsUi::closeEvent(QCloseEvent*)
 {
 	more.close();
 }

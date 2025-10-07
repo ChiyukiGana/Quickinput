@@ -87,7 +87,7 @@ private:
 			show();
 		}
 	}
-	void paintEvent(QPaintEvent* e)
+	void paintEvent(QPaintEvent*)
 	{
 		QPainter painter(this);
 		int font_size = width() >> 3; if (font_size > 72) font_size = 72; else if (font_size < 10) font_size = 10;

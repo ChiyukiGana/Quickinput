@@ -7,12 +7,12 @@ class MacroUi : public QWidget
 	using This = MacroUi;
 	Ui::MacroUiClass ui;
 	MacroGroups* groups = &Qi::macroGroups;
-	MacroGroup* currentGroup = &groups->front();
-	QList<Macro*> currentMacros;
+	MacroGroup* currentGroup = nullptr;
+	MacroPointers currentMacros;
 	bool updating = false;
 
 public:
-	MacroUi(QWidget* parent);
+	MacroUi(QWidget* parent = nullptr);
 
 private:
 	void Init();
@@ -24,6 +24,7 @@ private:
 	void TableUpdate();
 	void RecStart(bool);
 	void CurrentChanged(int);
+	bool SelectGroup();
 
 	bool isSold();
 	bool isMult();

@@ -144,7 +144,7 @@ private:
 			else if (size > 72) size = 72;
 		}
 	}
-	void paintEvent(QPaintEvent* e)
+	void paintEvent(QPaintEvent*)
 	{
 		QPainter painter(this);
 		QFont font("Microsoft YaHei"); font.setPixelSize(size); font.setBold(true);

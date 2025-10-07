@@ -12,7 +12,7 @@ class SettingsUi : public QWidget
 	SettingsData* sets = &Qi::set;
 
 public:
-	SettingsUi(QWidget* parent);
+	SettingsUi(QWidget* parent = nullptr);
 
 private:
 	void Init();

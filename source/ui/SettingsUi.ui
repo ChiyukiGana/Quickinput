@@ -55,7 +55,7 @@
      <property name="widgetResizable">
       <bool>true</bool>
      </property>
-     <widget class="QWidget" name="content_widget">
+     <widget class="QWidget" name="scrollArea_widget">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -96,9 +96,6 @@
            <family>Microsoft YaHei</family>
            <bold>true</bold>
           </font>
-         </property>
-         <property name="toolTip">
-          <string/>
          </property>
          <property name="text">
           <string>录制鼠标准确位置</string>
@@ -159,9 +156,6 @@
            <bold>true</bold>
           </font>
          </property>
-         <property name="toolTip">
-          <string/>
-         </property>
          <property name="text">
           <string>默认隐藏（点击任务栏右侧图标显示）</string>
          </property>
@@ -186,9 +180,6 @@
            <family>Microsoft YaHei</family>
            <bold>true</bold>
           </font>
-         </property>
-         <property name="toolTip">
-          <string/>
          </property>
          <property name="text">
           <string>提示框设置</string>
@@ -325,9 +316,6 @@
            <bold>true</bold>
           </font>
          </property>
-         <property name="toolTip">
-          <string/>
-         </property>
          <property name="text">
           <string>默认启用</string>
          </property>
@@ -352,9 +340,6 @@
            <family>Microsoft YaHei</family>
            <bold>true</bold>
           </font>
-         </property>
-         <property name="toolTip">
-          <string/>
          </property>
          <property name="text">
           <string>录制快捷键</string>
@@ -381,9 +366,6 @@
            <bold>true</bold>
           </font>
          </property>
-         <property name="toolTip">
-          <string/>
-         </property>
          <property name="text">
           <string>开启/停止键</string>
          </property>
@@ -408,9 +390,6 @@
            <family>Microsoft YaHei</family>
            <bold>true</bold>
           </font>
-         </property>
-         <property name="toolTip">
-          <string/>
          </property>
          <property name="text">
           <string>查看说明</string>
@@ -498,9 +477,6 @@
            <family>Microsoft YaHei</family>
            <bold>true</bold>
           </font>
-         </property>
-         <property name="toolTip">
-          <string/>
          </property>
          <property name="text">
           <string>显示触发状态提示</string>
@@ -628,9 +604,6 @@
            <bold>true</bold>
           </font>
          </property>
-         <property name="toolTip">
-          <string/>
-         </property>
          <property name="text">
           <string>主题</string>
          </property>
@@ -655,9 +628,6 @@
            <family>Microsoft YaHei</family>
            <bold>true</bold>
           </font>
-         </property>
-         <property name="toolTip">
-          <string/>
          </property>
          <property name="text">
           <string>文字识别语言</string>
@@ -731,11 +701,8 @@
            <bold>true</bold>
           </font>
          </property>
-         <property name="toolTip">
-          <string/>
-         </property>
          <property name="text">
-          <string>文字识别线程（过高可能更慢）</string>
+          <string>文字识别线程（CPU占用高可减少）</string>
          </property>
         </widget>
        </item>
@@ -787,9 +754,6 @@
            <bold>true</bold>
           </font>
          </property>
-         <property name="toolTip">
-          <string/>
-         </property>
          <property name="text">
           <string>启用音效</string>
          </property>
@@ -814,9 +778,6 @@
            <family>Microsoft YaHei</family>
            <bold>true</bold>
           </font>
-         </property>
-         <property name="toolTip">
-          <string/>
          </property>
          <property name="text">
           <string>使用驱动输入</string>

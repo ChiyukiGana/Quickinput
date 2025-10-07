@@ -144,7 +144,7 @@ public:
 				setReSelection(i);
 				itemChanged(i, row, column);
 				});
-			connect(table->verticalHeader(), &QHeaderView::sectionClicked, this, [this, i, table](int index) {
+			connect(table->verticalHeader(), &QHeaderView::sectionClicked, this, [this, i, table](int) {
 				if (selfAction) return;
 				setReSelection(i);
 				int row = currentRow();

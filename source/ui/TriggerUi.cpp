@@ -7,7 +7,6 @@ TriggerUi::TriggerUi(QWidget* parent) : QWidget(parent)
 	Init();
 	Event();
 	StyleGroup();
-	TableUpdate();
 }
 
 void TriggerUi::Init()
@@ -57,14 +56,12 @@ void TriggerUi::Init()
 }
 void TriggerUi::Event()
 {
-	std::function currentChanged = [this](int table_index, int row = -1, int column = -1) {
-		currentGroup = &groups->front();
+	std::function currentChanged = [this](int table_index) {
+		currentGroup = &groups->at(table_index);
 		currentTable = nullptr;
 		currentRow = -1;
 		currentMacro = nullptr;
 		ui.scrollArea->setDisabled(true);
-
-		currentGroup = &groups->at(table_index);
 
 		currentTable = ui.macroGroup_table->table(table_index);
 		if (!currentTable) return;
@@ -103,7 +100,7 @@ void TriggerUi::Event()
 		ui.scrollArea->setEnabled(true);
 		};
 	connect(ui.macroGroup_table, &QMacroTable::itemClicked, this, [this, currentChanged](int table_index, int row, int column) {
-		currentChanged(table_index, row, column);
+		currentChanged(table_index);
 		if (!ItemCurrented() || column != 3) return;
 		currentMacro->state = !currentMacro->state;
 		TableState();
@@ -112,7 +109,7 @@ void TriggerUi::Event()
 		});
 	connect(ui.macroGroup_table, &QMacroTable::currentChanged, this, currentChanged);
 	connect(ui.macroGroup_table, &QMacroTable::headerClicked, this, [this, currentChanged](int table_index, int column) {
-		currentChanged(table_index, -1, column);
+		currentChanged(table_index);
 		if (!TableCurrented() || column != 3) return;
 		bool state = false; for (auto& i : currentGroup->macros) { if (i.state) { state = true; break; } }
 		for (size_t i = 0; i < currentGroup->macros.size(); i++)
@@ -151,6 +148,7 @@ void TriggerUi::Event()
 	connect(ui.key_keyedit, &QKeyEdit::changed, this, [this] {
 		if (!ItemCurrented()) return;
 		QKeyEditKeys keys = ui.key_keyedit->keys();
+		currentMacro->key1 = currentMacro->key2 = 0;
 		if (!keys.isEmpty()) currentMacro->key1 = keys.at(0);
 		if (keys.size() > 1) currentMacro->key2 = keys.at(1);
 		QiJson::SaveMacro(*currentMacro);
@@ -328,7 +326,7 @@ void TriggerUi::SetTableItem(QTableWidget* table, int index, const Macro& macro)
 
 void TriggerUi::TableUpdate()
 {
-	currentGroup = &groups->front();
+	currentGroup = nullptr;
 	currentMacro = nullptr;
 	if (ui.macroGroup_table->rowCount() != groups->size()) ui.macroGroup_table->setRowCount(groups->size());
 	for (size_t mgPos = 0; mgPos < groups->size(); mgPos++)
@@ -347,7 +345,6 @@ void TriggerUi::TableUpdate()
 		table->setColumnWidth(3, 60);
 		table->setSelectionBehavior(QAbstractItemView::SelectRows);
 		table->setSelectionMode(QAbstractItemView::SingleSelection);
-		bool state = false;
 		for (size_t mPos = 0; mPos < mg.macros.size(); mPos++)
 		{
 			Macro& m = mg.macros[mPos];

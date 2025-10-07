@@ -7,7 +7,6 @@
 #include "window.h"
 #include "msgbox.h"
 #include "system.h"
-#include "xboxpad.h"
 #include "input.h"
 #include "ihook.h"
 #include "sound.h"

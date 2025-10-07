@@ -10,6 +10,13 @@ AboutUi::AboutUi(QWidget* parent) : QWidget(parent)
 	update = new QiUpdate(this, version_res);
 	if (update->good()) update->getlatest();
 #endif
+#ifdef Q_URL_HIDE
+	ui.url_label->setHidden(true);
+#endif
+#ifdef Q_COPYRIGHT_HIDE
+	ui.copyright_dec_label->setHidden(true);
+	ui.copyright_widget->setHidden(true);
+#endif
 }
 QString AboutUi::Version() const
 {
@@ -91,7 +98,7 @@ bool AboutUi::eventFilter(QObject* obj, QEvent* e)
 	}
 	return QWidget::eventFilter(obj, e);
 }
-void AboutUi::customEvent(QEvent* e)
+void AboutUi::customEvent(QEvent*)
 {
 #ifdef Q_UPDATE
 	if (update->check(version, content))

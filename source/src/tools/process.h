@@ -96,7 +96,7 @@ namespace QiTools
 						HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, 0, pe.th32ProcessID);
 						if (process && process != INVALID_HANDLE_VALUE)
 						{
-							count += TerminateProcess(process, -1) == TRUE;
+							count += TerminateProcess(process, 0) == TRUE;
 							CloseHandle(process);
 						}
 					}

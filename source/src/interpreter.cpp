@@ -2,6 +2,8 @@
 #include "interpreter.h"
 #include <QTextDialog.h>
 
+constexpr int interpreter_max_stack = 256;
+
 QiInterpreter::QiInterpreter(Macro& macro, bool isRunning, QiWorker& worker) :
 	worker(worker),
 	macro(macro),
@@ -93,6 +95,11 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 		if (&current == &actions) Sleep(1);
 		return InterpreterResult::r_continue;
 	}
+	else if (path.size() > interpreter_max_stack)
+	{
+		MsgBox::Error(std::wstring(L"宏：\"") + macro.name.toStdWString() + std::wstring(L"\"\n\n栈深度超过") + std::to_wstring(interpreter_max_stack) + L"\n\n为防止崩溃已停止运行", L"Quickinput Interpreter");
+		return InterpreterResult::r_exit;
+	}
 	else
 	{
 		struct PathObject { QiVector<QString>& path; PathObject(QiVector<QString>& path) : path(path) { path.append(QString()); } ~PathObject() { path.remove(); } } patho(path);
@@ -140,23 +147,23 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			case QiType::end: return InterpreterResult::r_exit;
 			case QiType::delay:
 			{
-				const QiDelay& ref = std::get<QiDelay>(action);
+				const QiDelay& ref = action.to<QiDelay>();
 				const int min = ref.v_min.isEmpty() ? ref.min : macro.script_interpreter.value(ref.v_min.toStdString()).toInteger();
 				const int max = ref.v_max.isEmpty() ? ref.max : macro.script_interpreter.value(ref.v_max.toStdString()).toInteger();
 				if (PeekSleep(rand(max, min))) return InterpreterResult::r_exit;
 			} break;
 			case QiType::key:
 			{
-				const QiKey& ref = std::get<QiKey>(action);
+				const QiKey& ref = action.to<QiKey>();
 				if (wndInput)
 				{
 					POINT pt;
-					HWND current = wndInput->find(wndInput->pt, pt, wndInput->child);
-					if (current)
+					HWND current_wnd = wndInput->find(wndInput->pt, pt);
+					if (current_wnd)
 					{
 						if (ref.state == QiKey::up)
 						{
-							Input::State(current, ref.vk, pt, false);
+							Input::State(current_wnd, ref.vk, pt, false);
 							if (ref.vk == VK_LBUTTON) wndInput->mk &= ~MK_LBUTTON;
 							else if (ref.vk == VK_RBUTTON) wndInput->mk &= ~MK_RBUTTON;
 							else if (ref.vk == VK_MBUTTON) wndInput->mk &= ~MK_MBUTTON;
@@ -167,7 +174,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 						}
 						else if (ref.state == QiKey::down)
 						{
-							Input::State(current, ref.vk, pt, true);
+							Input::State(current_wnd, ref.vk, pt, true);
 							if (ref.vk == VK_LBUTTON) wndInput->mk |= MK_LBUTTON;
 							else if (ref.vk == VK_RBUTTON) wndInput->mk |= MK_RBUTTON;
 							else if (ref.vk == VK_MBUTTON) wndInput->mk |= MK_MBUTTON;
@@ -178,9 +185,9 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 						}
 						else if (ref.state == QiKey::click)
 						{
-							Input::State(current, ref.vk, pt, true);
+							Input::State(current_wnd, ref.vk, pt, true);
 							Sleep(Rand(20, 10));
-							Input::State(current, ref.vk, pt, false);
+							Input::State(current_wnd, ref.vk, pt, false);
 							Sleep(Rand(20, 10));
 							if (ref.vk == VK_LBUTTON) wndInput->mk &= ~MK_LBUTTON;
 							else if (ref.vk == VK_RBUTTON) wndInput->mk &= ~MK_RBUTTON;
@@ -207,7 +214,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::mouse:
 			{
-				const QiMouse& ref = std::get<QiMouse>(action);
+				const QiMouse& ref = action.to<QiMouse>();
 				const int x = (ref.v_x.isEmpty() ? ref.x : macro.script_interpreter.value(ref.v_x.toStdString()).toInteger()) + Rand(ref.ex, (~ref.ex) + 1);
 				const int y = (ref.v_y.isEmpty() ? ref.y : macro.script_interpreter.value(ref.v_y.toStdString()).toInteger()) + Rand(ref.ex, (~ref.ex) + 1);
 
@@ -220,7 +227,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 					wndInput->pt = { pt.x + scale.x, pt.y + scale.y };
 					if (ref.track)
 					{
-						QiFn::SmoothMove(wndInput->pt.x, wndInput->pt.y, wndInput->pt.x, wndInput->pt.y, ref.speed, [this](int x, int y, int stepx, int stepy) {
+						QiFn::SmoothMove(wndInput->pt.x, wndInput->pt.y, wndInput->pt.x, wndInput->pt.y, ref.speed, [this](int, int, int stepx, int stepy) {
 							Input::MoveTo(wndInput->wnd, stepx, stepy, wndInput->mk);
 							PeekSleep(10);
 							});
@@ -233,7 +240,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 					{
 						if (ref.track)
 						{
-							QiFn::SmoothMove(0, 0, x * moveScaleX, y * moveScaleY, ref.speed, [this](int x, int y, int stepx, int stepy) {
+							QiFn::SmoothMove(0, 0, x * moveScaleX, y * moveScaleY, ref.speed, [this](int, int, int stepx, int stepy) {
 								QiFn::Move(stepx, stepy);
 								PeekSleep(10);
 								});
@@ -246,7 +253,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 						if (ref.track)
 						{
 							POINT spt = QiFn::P_SRTA(Input::pos());
-							QiFn::SmoothMove(spt.x, spt.y, x + scale.x, y + scale.y, ref.speed, [this](int x, int y, int stepx, int stepy) {
+							QiFn::SmoothMove(spt.x, spt.y, x + scale.x, y + scale.y, ref.speed, [this](int x, int y, int, int) {
 								QiFn::MoveToA(x, y);
 								PeekSleep(10);
 								});
@@ -257,7 +264,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::copyText:
 			{
-				const QiCopyText& ref = std::get<QiCopyText>(action);
+				const QiCopyText& ref = action.to<QiCopyText>();
 				try
 				{
 					std::string text = macro.script_interpreter.execute(macro.script_interpreter.makeString(ref.text.toStdString())).toString();
@@ -267,7 +274,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::color:
 			{
-				const QiColor& ref = std::get<QiColor>(action);
+				const QiColor& ref = action.to<QiColor>();
 				RECT rect = {
 					ref.v_left.isEmpty() ? ref.rect.left : macro.script_interpreter.value(ref.v_left.toStdString()).toInteger(),
 					ref.v_top.isEmpty() ? ref.rect.top : macro.script_interpreter.value(ref.v_top.toStdString()).toInteger(),
@@ -281,7 +288,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				HDC hdc;
 				if (wndInput)
 				{
-					hdc = GetDC(wndInput->wnd);
+					hdc = GetWindowDC(wndInput->wnd);
 					rect = QiFn::R_WATR(rect, wndInput->wnd);
 					Image::toRgbMap(hdc, rgbMap, rect);
 					ReleaseDC(wndInput->wnd, hdc);
@@ -315,13 +322,12 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::loop:
 			{
-				const QiLoop& ref = std::get<QiLoop>(action);
+				const QiLoop& ref = action.to<QiLoop>();
 				int min = ref.v_min.isEmpty() ? ref.min : macro.script_interpreter.value(ref.v_min.toStdString()).toInteger();
 				int max = ref.v_max.isEmpty() ? ref.max : macro.script_interpreter.value(ref.v_max.toStdString()).toInteger();
 
 				bool infinite = (min < 1) && (max < 1);
 				int count = rand(max, min);
-				int i = 0;
 
 				for (size_t i = 0; !isInvalid() && (infinite || i < count); infinite ? true : i++)
 				{
@@ -337,7 +343,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			case QiType::loopEnd: return InterpreterResult::r_break;
 			case QiType::keyState:
 			{
-				const QiKeyState& ref = std::get<QiKeyState>(action);
+				const QiKeyState& ref = action.to<QiKeyState>();
 				if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
 				else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 				if (Input::stateEx(ref.vk)) r_result = ActionInterpreter(ref.next);
@@ -346,7 +352,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			case QiType::resetPos: QiFn::MoveTo(cursor.x, cursor.y); break;
 			case QiType::image:
 			{
-				const QiImage& ref = std::get<QiImage>(action);
+				const QiImage& ref = action.to<QiImage>();
 				RECT rect = {
 					ref.v_left.isEmpty() ? ref.rect.left : macro.script_interpreter.value(ref.v_left.toStdString()).toInteger(),
 					ref.v_top.isEmpty() ? ref.rect.top : macro.script_interpreter.value(ref.v_top.toStdString()).toInteger(),
@@ -359,7 +365,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				HDC hdc;
 				if (wndInput)
 				{
-					hdc = GetDC(wndInput->wnd);
+					hdc = GetWindowDC(wndInput->wnd);
 					rect = QiFn::R_WATR(rect, wndInput->wnd);
 					Image::toRgbMap(hdc, rgbMap, rect);
 					ReleaseDC(wndInput->wnd, hdc);
@@ -393,7 +399,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::popText:
 			{
-				const QiPopText& ref = std::get<QiPopText>(action);
+				const QiPopText& ref = action.to<QiPopText>();
 				try
 				{
 					std::string text = macro.script_interpreter.execute(macro.script_interpreter.makeString(ref.text.toStdString())).toString();
@@ -409,7 +415,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			case QiType::savePos: cursor = Input::pos(); break;
 			case QiType::timer:
 			{
-				const QiTimer& ref = std::get<QiTimer>(action);
+				const QiTimer& ref = action.to<QiTimer>();
 				clock_t min = ref.v_min.isEmpty() ? ref.min : macro.script_interpreter.value(ref.v_min.toStdString()).toInteger();
 				clock_t max = ref.v_max.isEmpty() ? ref.max : macro.script_interpreter.value(ref.v_max.toStdString()).toInteger();
 				clock_t time = rand(max, min);
@@ -432,7 +438,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::jump:
 			{
-				const QiJump& ref = std::get<QiJump>(action);
+				const QiJump& ref = action.to<QiJump>();
 				if (ref.id > 0)
 				{
 					const Action* jumpPoint = actions.find(QiType::jumpPoint, ref.id);
@@ -446,7 +452,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::dialog:
 			{
-				const QiDialog& ref = std::get<QiDialog>(action);
+				const QiDialog& ref = action.to<QiDialog>();
 				if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
 				else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 				try
@@ -463,22 +469,22 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::blockExec:
 			{
-				const QiBlockExec& ref = std::get<QiBlockExec>(action);
+				const QiBlockExec& ref = action.to<QiBlockExec>();
 				const Action* block = actions.find(QiType::block, ref.id);
 				if (block) r_result = ActionInterpreter(block->base().next);
 			} break;
 			case QiType::quickInput:
 			{
-				const QiQuickInput& ref = std::get<QiQuickInput>(action);
+				const QiQuickInput& ref = action.to<QiQuickInput>();
 				for (auto& i : ref.chars)
 				{
 					if (wndInput)
 					{
 						POINT pt;
-						HWND current = wndInput->find(wndInput->pt, pt, wndInput->child);
-						if (current)
+						HWND current_wnd = wndInput->find(wndInput->pt, pt);
+						if (current_wnd)
 						{
-							Input::Click(current, i, pt, 10);
+							Input::Click(current_wnd, i, pt, 10);
 							if (i == VK_LBUTTON) wndInput->mk |= MK_LBUTTON;
 							else if (i == VK_RBUTTON) wndInput->mk |= MK_RBUTTON;
 							else if (i == VK_MBUTTON) wndInput->mk |= MK_MBUTTON;
@@ -499,12 +505,12 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::keyBlock:
 			{
-				const QiKeyBlock& ref = std::get<QiKeyBlock>(action);
+				const QiKeyBlock& ref = action.to<QiKeyBlock>();
 				Qi::keyBlock[ref.vk] = ref.block;
 			} break;
 			case QiType::clock:
 			{
-				const QiClock& ref = std::get<QiClock>(action);
+				const QiClock& ref = action.to<QiClock>();
 				if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
 				else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 				if (QiTime::compare(ref.time) < 0) r_result = ActionInterpreter(ref.next);
@@ -512,7 +518,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::ocr:
 			{
-				const QiOcr& ref = std::get<QiOcr>(action);
+				const QiOcr& ref = action.to<QiOcr>();
 				RECT rect = {
 					ref.v_left.isEmpty() ? ref.rect.left : macro.script_interpreter.value(ref.v_left.toStdString()).toInteger(),
 					ref.v_top.isEmpty() ? ref.rect.top : macro.script_interpreter.value(ref.v_top.toStdString()).toInteger(),
@@ -530,7 +536,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 						HDC hdc;
 						if (wndInput)
 						{
-							hdc = GetDC(wndInput->wnd);
+							hdc = GetWindowDC(wndInput->wnd);
 							rect = QiFn::R_WATR(rect, wndInput->wnd);
 							image = Image::toCImage32(hdc, rect);
 							ReleaseDC(wndInput->wnd, hdc);
@@ -583,7 +589,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 													}
 													else QiFn::MoveTo(pt.x, pt.y);
 												}
-												else MsgBox::Warning(std::wstring(L"文字识别版本低于2，不支持找到并移动，需要更新"));
+												else MsgBox::Warning(std::wstring(L"文字识别版本低于2，不支持找到并移动，需要更新"), L"Quickinput Interpreter");
 											}
 											break;
 										}
@@ -600,14 +606,14 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 					}
 					else
 					{
-						MsgBox::Error(std::wstring(L"未安装OCR组件") + werrPath()); return InterpreterResult::r_exit;
+						MsgBox::Error(std::wstring(L"未安装OCR组件") + werrPath(), L"Quickinput Interpreter"); return InterpreterResult::r_exit;
 					}
 				}
 				catch (std::exception e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return InterpreterResult::r_exit; }
 			} break;
 			case QiType::varOperator:
 			{
-				const QiVarOperator& ref = std::get<QiVarOperator>(action);
+				const QiVarOperator& ref = action.to<QiVarOperator>();
 				try
 				{
 					macro.script_interpreter.interpretAll(ref.script.toStdString());
@@ -617,7 +623,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::varCondition:
 			{
-				const QiVarCondition& ref = std::get<QiVarCondition>(action);
+				const QiVarCondition& ref = action.to<QiVarCondition>();
 				if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
 				else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 				try
@@ -631,7 +637,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::mouseTrack:
 			{
-				const QiMouseTrack& ref = std::get<QiMouseTrack>(action);
+				const QiMouseTrack& ref = action.to<QiMouseTrack>();
 				const clock_t begin = clock();
 				if (wndInput)
 				{
@@ -668,10 +674,10 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 					}
 				}
 			} break;
-			case QiType::open: ShellExecuteW(nullptr, L"open", (const wchar_t*)std::get<QiOpen>(action).url.utf16(), nullptr, nullptr, SW_SHOW); break;
+			case QiType::open: ShellExecuteW(nullptr, L"open", (const wchar_t*)action.to<QiOpen>().url.utf16(), nullptr, nullptr, SW_SHOW); break;
 			case QiType::editDialog:
 			{
-				const QiEditDialog& ref = std::get<QiEditDialog>(action);
+				const QiEditDialog& ref = action.to<QiEditDialog>();
 				try
 				{
 					std::string title = macro.script_interpreter.execute(macro.script_interpreter.makeString(ref.title.toStdString())).toString();
@@ -683,7 +689,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::volume:
 			{
-				const QiVolume& ref = std::get<QiVolume>(action);
+				const QiVolume& ref = action.to<QiVolume>();
 				if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
 				else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 				if (Sound::SpeakerVolume(ref.time > 5 ? ref.time : 5, ref.max) > ref.volume) r_result = ActionInterpreter(ref.next);
@@ -691,7 +697,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::soundPlay:
 			{
-				const QiSoundPlay& ref = std::get<QiSoundPlay>(action);
+				const QiSoundPlay& ref = action.to<QiSoundPlay>();
 				if (ref.state == QiSoundPlay::play)
 				{
 					QiFn::SoundPlay(ref.file, ref.sync);
@@ -713,7 +719,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::msgView:
 			{
-				const QiMsgView& ref = std::get<QiMsgView>(action);
+				const QiMsgView& ref = action.to<QiMsgView>();
 				try
 				{
 					std::string text = macro.script_interpreter.execute(macro.script_interpreter.makeString(ref.text.toStdString())).toString();

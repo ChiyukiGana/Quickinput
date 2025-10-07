@@ -5,10 +5,10 @@ MainUi::MainUi(int tab)
 	Qi::widget.varView = &varView;
 	Qi::widget.msgView = &msgView;
 	ui.setupUi(this);
-	Qi::widget.macro = ui.macro;
-	Qi::widget.trigger = ui.trigger;
-	Qi::widget.func = ui.func;
-	Qi::widget.settings = ui.settings;
+	Qi::widget.macro = ui.tab_macro;
+	Qi::widget.trigger = ui.tab_trigger;
+	Qi::widget.func = ui.tab_func;
+	Qi::widget.settings = ui.tab_settings;
 	Init();
 	Event();
 	StyleGroup();
@@ -23,7 +23,7 @@ MainUi::MainUi(int tab)
 }
 QString MainUi::Version() const
 {
-	return ui.about->Version();
+	return ui.tab_about->Version();
 }
 
 void MainUi::Init()
@@ -116,7 +116,7 @@ bool MainUi::eventFilter(QObject* obj, QEvent* e)
 	if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease)) return true;
 	return QMainWindowFrameless::eventFilter(obj, e);
 }
-void MainUi::showEvent(QShowEvent* e)
+void MainUi::showEvent(QShowEvent*)
 {
 	SetForegroundWindow((HWND)QWidget::winId());
 }

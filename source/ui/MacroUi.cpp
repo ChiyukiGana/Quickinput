@@ -44,7 +44,7 @@ void MacroUi::Event()
 	connect(ui.macroGroup_table, &QMacroTable::currentChanged, this, &This::CurrentChanged);
 	connect(ui.macroGroup_table, &QMacroTable::itemClicked, this, &This::CurrentChanged);
 	connect(ui.macroGroup_table, &QMacroTable::headerClicked, this, &This::CurrentChanged);
-	connect(ui.macroGroup_table, &QMacroTable::headerDoubleClicked, this, [this](int index, int column) {
+	connect(ui.macroGroup_table, &QMacroTable::headerDoubleClicked, this, [this](int index, int) {
 		if (index <= 0) return;
 		QTableWidget* table = ui.macroGroup_table->table(index);
 		if (!table) return;
@@ -106,7 +106,7 @@ void MacroUi::Event()
 		DisableWidget();
 		});
 	connect(ui.add_button, &QPushButton::clicked, this, [this] {
-		if (!currentGroup) return;
+		if (!SelectGroup()) return;
 		Macro macro;
 		macro.mode = Macro::down;
 		macro.count = 1;
@@ -122,11 +122,11 @@ void MacroUi::Event()
 	connect(ui.export_button, &QPushButton::clicked, this, [this] {
 		if (!isSold()) return;
 		Qi::widget.dialogActive = true;
-		Macro& macro = *currentMacros.first();
+		Macro& macro = *currentMacros.front();
 		QString des = QFileDialog::getSaveFileName(this, "导出", macro.name + Qi::macroType, QString("Quickinput macro (*") + Qi::macroType + QString(")"));
 		if (des.size())
 		{
-			if (QFile::remove(des));
+			QFile::remove(des);
 			if (!QFile::copy(macro.makePath(), des))
 			{
 				MsgBox::Error(L"导出宏失败");
@@ -138,7 +138,7 @@ void MacroUi::Event()
 		Qi::widget.dialogActive = false;
 		});
 	connect(ui.import_button, &QPushButton::clicked, this, [this] {
-		if (!currentGroup) return;
+		if (!SelectGroup()) return;
 		Qi::widget.dialogActive = true;
 		QString src = QFileDialog::getOpenFileName(this, "导入", QString(), QString("Quickinput macro (*") + Qi::macroType + QString(")"));
 		if (src.size())
@@ -168,7 +168,7 @@ void MacroUi::Event()
 		}
 
 		if (!QDir(path).exists() && !QDir(path).mkdir(path)) MsgBox::Error(L"创建分组目录失败");
-		currentGroup = &groups->front();
+		SelectGroup();
 		TableUpdate();
 		ResetWidget();
 		DisableWidget();
@@ -178,7 +178,7 @@ void MacroUi::Event()
 		if (currentGroup->macros.not_empty() && MsgBox::Warning(L"确认删除分组的全部宏？", L"Warning", MB_ICONWARNING | MB_YESNO) != IDYES) return;
 		if (!QFile::moveToTrash(currentGroup->makePath())) MsgBox::Error(L"删除分组失败");
 		QiJson::LoadMacro();
-		currentGroup = &groups->front();
+		SelectGroup();
 		TableUpdate();
 		ResetWidget();
 		DisableWidget();
@@ -265,7 +265,7 @@ void MacroUi::TableUpdate()
 }
 void MacroUi::RecStart(bool wnd)
 {
-	if (!currentGroup) return;
+	if (!SelectGroup()) return;
 	Qi::widget.dialogActive = true;
 	Qi::widget.main->hide();
 	WndInfo wndInfo;
@@ -310,7 +310,8 @@ void MacroUi::RecStart(bool wnd)
 void MacroUi::CurrentChanged(int table_index)
 {
 	currentMacros.clear();
-	currentGroup = &groups->front();
+	currentGroup = nullptr;
+	if (!SelectGroup()) return;
 	if (table_index < 0) return;
 	currentGroup = &groups->at(table_index);
 	for (auto& i : ui.macroGroup_table->currentIndex(table_index)) currentMacros.append(&currentGroup->macros[i]);
@@ -328,6 +329,11 @@ void MacroUi::CurrentChanged(int table_index)
 	}
 	if (!currentGroup->base) ui.delete_group_button->setEnabled(true);
 }
+bool MacroUi::SelectGroup()
+{
+	if (!currentGroup && groups->not_empty()) currentGroup = &groups->front();
+	return currentGroup;
+}
 
 bool MacroUi::isSold() { return (currentGroup && currentMacros.size() == 1); }
 bool MacroUi::isMult() { return (currentGroup && currentMacros.size()); }
@@ -344,9 +350,9 @@ void MacroUi::customEvent(QEvent* e)
 	if (e->type() == static_cast<int>(QiEvent::mac_edit_enter))
 	{
 		if (!isSold()) return;
-		edit = currentMacros.first();
+		edit = currentMacros.front();
 		Qi::widget.editMacro = edit->copy();
-		Qi::widget.edit = new EditUi(&Qi::widget.editMacro, &Qi::widget.editMacro.acRun);
+		Qi::widget.edit = new EditUi(&Qi::widget.editMacro);
 		Qi::widget.dialogActive = Qi::debug = true;
 		Qi::widget.main->hide();
 		Qi::widget.main->setDisabled(true);
@@ -459,11 +465,7 @@ bool MacroUi::eventFilter(QObject* sender, QEvent* event)
 	}
 	else if (event->type() == QEvent::DragLeave)
 	{
-		QDragLeaveEvent* dragLeave = (QDragLeaveEvent*)event;
-		if (tableType == table_groups)
-		{
-			enter = nullptr;
-		}
+		if (tableType == table_groups) enter = nullptr;
 	}
 	else if (event->type() == QEvent::Drop)
 	{

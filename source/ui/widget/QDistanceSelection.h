@@ -113,7 +113,7 @@ protected:
         lb.show();
         update();
     }
-    void mouseReleaseEvent(QMouseEvent* e)
+    void mouseReleaseEvent(QMouseEvent*)
     {
         ClipCursor(0);
         releaseMouse();

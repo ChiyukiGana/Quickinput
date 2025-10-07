@@ -1,3 +1,3 @@
 #pragma once
 #include "integrity_verify.h"
-const char* integrity_verify_textSha256 = "a130efd7358e53feebbc668866dd0a25e49f1912c6aa34f29b2cf51e0d2358a9";
+const char* integrity_verify_textSha256 = "74316910e5500b6c5bdb7ce50c1e4e6195081680b927ed6c6c74946e6250d9c5";

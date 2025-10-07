@@ -16,7 +16,7 @@ class AboutUi : public QWidget
 	std::string version, content;
 
 public:
-	AboutUi(QWidget* parent);
+	AboutUi(QWidget* parent = nullptr);
 	QString Version() const;
 
 private:

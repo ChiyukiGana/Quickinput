@@ -56,7 +56,7 @@ namespace QiTools
 		using SearchCallBack = std::function<bool(std::wstring name, LPWSTR name_res)>;
 		static bool search(const std::wstring& type, SearchCallBack call, HMODULE hModule = GetModuleHandleW(nullptr))
 		{
-			return EnumResourceNamesW(hModule, type.c_str(), [](HMODULE hModule, LPCWSTR type, LPWSTR name, LONG_PTR param) -> BOOL {
+			return EnumResourceNamesW(hModule, type.c_str(), [](HMODULE, LPCWSTR, LPWSTR name, LONG_PTR param) -> BOOL {
 				return (*reinterpret_cast<SearchCallBack*>(param))(IS_INTRESOURCE(name) ? std::to_wstring((size_t)name) : name, name);
 				}, (LONG_PTR)(&call));
 		}
@@ -136,7 +136,7 @@ namespace QiTools
 		}
 		static bool release_all(const std::wstring& type, std::function<bool(const std::wstring res_name, std::wstring& file_name, bool& skip)> rename, HMODULE hModule = GetModuleHandleW(nullptr))
 		{
-			return find(type, [&](std::wstring name, LPCWSTR name_res, char* data, size_t size) -> bool {
+			return find(type, [&](std::wstring name, LPCWSTR, char* data, size_t size) -> bool {
 				if (!data || !size) return true;
 
 				std::wstring file_name = name;
@@ -149,7 +149,7 @@ namespace QiTools
 				if (!hFile || hFile == INVALID_HANDLE_VALUE) return true;
 
 				DWORD writeSize = 0;
-				BOOL bWriteFile = WriteFile(hFile, data, size, &writeSize, NULL);
+				WriteFile(hFile, data, size, &writeSize, NULL);
 				CloseHandle(hFile);
 				return true;
 				}, hModule);
@@ -193,7 +193,6 @@ namespace QiTools
 				wsprintfW(subBlockName, L"\\StringFileInfo\\%04x%04x\\", lpTranslate[i].wLanguage, lpTranslate[i].wCodePage);
 
 				auto queryString = [&](const wchar_t* name, std::wstring& output) {
-					WCHAR value[256];
 					WCHAR fullPath[512];
 					wsprintfW(fullPath, L"%s%s", subBlockName, name);
 

@@ -16,13 +16,13 @@ class TriggerUi : public QWidget
 
 	Ui::TriggerUiClass ui;
 	MacroGroups* groups = &Qi::macroGroups;
-	MacroGroup* currentGroup = &groups->front();
+	MacroGroup* currentGroup = nullptr;
 	Macro* currentMacro = nullptr;
 	QTableWidget* currentTable = nullptr;
 	int currentRow = -1;
 
 public:
-	TriggerUi(QWidget* parent);
+	TriggerUi(QWidget* parent = nullptr);
 
 private:
 	void Init();

@@ -1386,7 +1386,7 @@ public:
 			}
 		}
 		try { executeStatementList(parseTopLevel(lines, 0).first, local); }
-		catch (const ReturnException& e) {}
+		catch (const ReturnException&) {}
 	}
 
 	QiVar value(const std::string& var, const QiVarMap* local = nullptr)

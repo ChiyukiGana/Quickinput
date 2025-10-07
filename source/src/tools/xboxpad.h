@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <string>
-#include <Xinput.h>
+#include <windows.h>
+#include <xinput.h>
 #pragma comment(lib,"xinput.lib")
 namespace QiTools {
 	class XBoxPad

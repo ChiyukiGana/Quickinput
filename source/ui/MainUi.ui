@@ -29,7 +29,7 @@
    </size>
   </property>
   <property name="contextMenuPolicy">
-   <enum>Qt::NoContextMenu</enum>
+   <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
   </property>
   <property name="windowTitle">
    <string>Quickinput</string>
@@ -144,7 +144,7 @@
        <item>
         <spacer name="title_spacer">
          <property name="orientation">
-          <enum>Qt::Horizontal</enum>
+          <enum>Qt::Orientation::Horizontal</enum>
          </property>
          <property name="sizeHint" stdset="0">
           <size>
@@ -175,7 +175,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::ClickFocus</enum>
+          <enum>Qt::FocusPolicy::ClickFocus</enum>
          </property>
          <property name="toolTip">
           <string>关闭</string>
@@ -209,7 +209,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::ClickFocus</enum>
+          <enum>Qt::FocusPolicy::ClickFocus</enum>
          </property>
          <property name="toolTip">
           <string>隐藏</string>
@@ -243,7 +243,7 @@
           </size>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::ClickFocus</enum>
+          <enum>Qt::FocusPolicy::ClickFocus</enum>
          </property>
          <property name="toolTip">
           <string>最小化</string>
@@ -282,27 +282,26 @@
          <property name="font">
           <font>
            <family>Microsoft YaHei</family>
-           <weight>75</weight>
            <bold>true</bold>
           </font>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::ClickFocus</enum>
+          <enum>Qt::FocusPolicy::ClickFocus</enum>
          </property>
          <property name="styleSheet">
           <string notr="true">QTabBar::tab,QTabBar::tab::first,QTabBar::tab::last{width:128px;height:40px;padding:0px;font-size:18px}</string>
          </property>
          <property name="tabPosition">
-          <enum>QTabWidget::North</enum>
+          <enum>QTabWidget::TabPosition::North</enum>
          </property>
          <property name="tabShape">
-          <enum>QTabWidget::Rounded</enum>
+          <enum>QTabWidget::TabShape::Rounded</enum>
          </property>
          <property name="currentIndex">
           <number>0</number>
          </property>
          <property name="elideMode">
-          <enum>Qt::ElideNone</enum>
+          <enum>Qt::TextElideMode::ElideNone</enum>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -310,130 +309,30 @@
          <property name="documentMode">
           <bool>true</bool>
          </property>
-         <widget class="QWidget" name="tab_macro">
+         <widget class="MacroUi" name="tab_macro">
           <attribute name="title">
            <string>宏</string>
           </attribute>
-          <layout class="QVBoxLayout" name="tabMacroBox">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="MacroUi" name="macro" native="true"/>
-           </item>
-          </layout>
          </widget>
-         <widget class="QWidget" name="tab_trigger">
+         <widget class="TriggerUi" name="tab_trigger">
           <attribute name="title">
            <string>触发</string>
           </attribute>
-          <layout class="QVBoxLayout" name="tabTriggerBox">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="TriggerUi" name="trigger" native="true"/>
-           </item>
-          </layout>
          </widget>
-         <widget class="QWidget" name="tab_func">
+         <widget class="FuncUi" name="tab_func">
           <attribute name="title">
            <string>功能</string>
           </attribute>
-          <layout class="QVBoxLayout" name="tabFuncBox">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="FuncUi" name="func" native="true"/>
-           </item>
-          </layout>
          </widget>
-         <widget class="QWidget" name="tab_settings">
+         <widget class="SettingsUi" name="tab_settings">
           <attribute name="title">
            <string>设置</string>
           </attribute>
-          <layout class="QVBoxLayout" name="tabSettingsBox">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="SettingsUi" name="settings" native="true"/>
-           </item>
-          </layout>
          </widget>
-         <widget class="QWidget" name="tab_about">
+         <widget class="AboutUi" name="tab_about">
           <attribute name="title">
            <string>关于</string>
           </attribute>
-          <layout class="QVBoxLayout" name="tabAboutBox">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="leftMargin">
-            <number>0</number>
-           </property>
-           <property name="topMargin">
-            <number>0</number>
-           </property>
-           <property name="rightMargin">
-            <number>0</number>
-           </property>
-           <property name="bottomMargin">
-            <number>0</number>
-           </property>
-           <item>
-            <widget class="AboutUi" name="about" native="true"/>
-           </item>
-          </layout>
          </widget>
         </widget>
        </item>

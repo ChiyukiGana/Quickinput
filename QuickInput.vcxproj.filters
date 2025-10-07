@@ -1,305 +1,371 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>qml;cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
+    <Filter Include="1_Resource">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>qrc;rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Form Files">
+    <Filter Include="3_HeaderOnly">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="4_SourceOnly">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>qml;cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="2_Widget">
       <UniqueIdentifier>{99349809-55BA-4b9d-BF79-8FDBB0286EB3}</UniqueIdentifier>
       <Extensions>ui</Extensions>
     </Filter>
-    <Filter Include="Form Files\header">
+    <Filter Include="2_Widget\header">
       <UniqueIdentifier>{c18b58fb-a778-44b0-a271-a5de3c79d64a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Form Files\ui">
+    <Filter Include="2_Widget\ui">
       <UniqueIdentifier>{069f5678-413d-4678-94f0-50bb13964560}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Form Files\widget">
+    <Filter Include="2_Widget\widget">
       <UniqueIdentifier>{2f54c584-a276-4bde-ab07-fa7e634f80da}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\1">
-      <UniqueIdentifier>{f5be9460-16d3-4d9d-ae42-8eb1201d2761}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\1">
-      <UniqueIdentifier>{a4e3fbc3-e4f3-4d6d-a68c-c1ed4271ab84}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\2">
-      <UniqueIdentifier>{801c417b-df40-44d0-93d8-ce591b9d991d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Header Files\0">
-      <UniqueIdentifier>{823ba9de-41d5-41ca-abc9-b40b6361e999}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Form Files\source">
+    <Filter Include="2_Widget\source">
       <UniqueIdentifier>{6c402766-1b4f-43d2-b8ef-2901ed0d039c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\0">
-      <UniqueIdentifier>{6922deab-0f82-4578-9627-c4b7baf22454}</UniqueIdentifier>
+    <Filter Include="5_Module">
+      <UniqueIdentifier>{fc26a8b3-85c0-4a3e-86f4-c0d3cd8b0602}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\2">
-      <UniqueIdentifier>{eee36ec8-d6cc-44c4-a34c-96d21e79557f}</UniqueIdentifier>
+    <Filter Include="5_Module\interpreter">
+      <UniqueIdentifier>{e488b1f0-c0d1-4040-9032-bdea9ef5e038}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="5_Module\type">
+      <UniqueIdentifier>{e9a105c9-0aad-4790-9fad-e2ff9445e376}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_Resource\image">
+      <UniqueIdentifier>{5614ccf3-40b4-4277-b7ce-b812c021d450}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_Resource\icon">
+      <UniqueIdentifier>{f7d47665-6b25-4f0e-b09d-5ebadd8a33e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="1_Resource\sound">
+      <UniqueIdentifier>{60f03d24-dbd9-402d-b510-b7d9b718b78f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="5_Module\proc">
+      <UniqueIdentifier>{4a6c4394-461f-4d02-87f1-e545628421a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="5_Module\verify">
+      <UniqueIdentifier>{47acb2d0-dcb8-4048-9909-d05e1d88fb70}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="source\main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="source\src\func.cpp">
-      <Filter>Source Files\1</Filter>
-    </ClCompile>
-    <ClCompile Include="source\src\input.cpp">
-      <Filter>Source Files\1</Filter>
-    </ClCompile>
-    <ClCompile Include="source\src\json.cpp">
-      <Filter>Source Files\1</Filter>
-    </ClCompile>
-    <ClCompile Include="source\src\interpreter.cpp">
-      <Filter>Source Files\1</Filter>
-    </ClCompile>
     <ClCompile Include="source\ui\EditUi.cpp">
-      <Filter>Form Files\source</Filter>
+      <Filter>2_Widget\source</Filter>
     </ClCompile>
     <ClCompile Include="source\ui\AboutUi.cpp">
-      <Filter>Form Files\source</Filter>
+      <Filter>2_Widget\source</Filter>
     </ClCompile>
     <ClCompile Include="source\ui\FuncUi.cpp">
-      <Filter>Form Files\source</Filter>
+      <Filter>2_Widget\source</Filter>
     </ClCompile>
     <ClCompile Include="source\ui\MacroUi.cpp">
-      <Filter>Form Files\source</Filter>
+      <Filter>2_Widget\source</Filter>
     </ClCompile>
     <ClCompile Include="source\ui\MainUi.cpp">
-      <Filter>Form Files\source</Filter>
+      <Filter>2_Widget\source</Filter>
     </ClCompile>
     <ClCompile Include="source\ui\MoreUi.cpp">
-      <Filter>Form Files\source</Filter>
+      <Filter>2_Widget\source</Filter>
     </ClCompile>
     <ClCompile Include="source\ui\PopsUi.cpp">
-      <Filter>Form Files\source</Filter>
+      <Filter>2_Widget\source</Filter>
     </ClCompile>
     <ClCompile Include="source\ui\RecordUi.cpp">
-      <Filter>Form Files\source</Filter>
+      <Filter>2_Widget\source</Filter>
     </ClCompile>
     <ClCompile Include="source\ui\SettingsUi.cpp">
-      <Filter>Form Files\source</Filter>
+      <Filter>2_Widget\source</Filter>
     </ClCompile>
     <ClCompile Include="source\ui\TriggerUi.cpp">
-      <Filter>Form Files\source</Filter>
+      <Filter>2_Widget\source</Filter>
     </ClCompile>
     <ClCompile Include="source\ui\UpdateUi.cpp">
-      <Filter>Form Files\source</Filter>
+      <Filter>2_Widget\source</Filter>
     </ClCompile>
     <ClCompile Include="source\ui\VarViewUi.cpp">
-      <Filter>Form Files\source</Filter>
-    </ClCompile>
-    <ClCompile Include="source\src\type.cpp">
-      <Filter>Source Files\0</Filter>
+      <Filter>2_Widget\source</Filter>
     </ClCompile>
     <ClCompile Include="source\ui\MsgViewUi.cpp">
-      <Filter>Form Files\source</Filter>
+      <Filter>2_Widget\source</Filter>
     </ClCompile>
-    <ClCompile Include="source\src\thread.cpp">
-      <Filter>Source Files\0</Filter>
+    <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\src\input.cpp">
+      <Filter>4_SourceOnly</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\action.cpp">
+      <Filter>5_Module\type</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\macro.cpp">
+      <Filter>5_Module\type</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\type.cpp">
+      <Filter>5_Module\type</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\interpreter.cpp">
+      <Filter>5_Module\interpreter</Filter>
     </ClCompile>
     <ClCompile Include="source\src\scriptinterpreter.cpp">
-      <Filter>Source Files\2</Filter>
+      <Filter>5_Module\interpreter</Filter>
     </ClCompile>
-    <ClCompile Include="source\src\sha256.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="source\src\func.cpp">
+      <Filter>5_Module\proc</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\json.cpp">
+      <Filter>5_Module\proc</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\thread.cpp">
+      <Filter>5_Module\proc</Filter>
     </ClCompile>
     <ClCompile Include="source\src\integrity_verify.cpp">
-      <Filter>Source Files\2</Filter>
+      <Filter>5_Module\verify</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\sha256.cpp">
+      <Filter>5_Module\verify</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\init.cpp">
+      <Filter>4_SourceOnly</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\src\inc_external.h">
-      <Filter>Header Files</Filter>
+      <Filter>3_HeaderOnly</Filter>
     </ClInclude>
     <ClInclude Include="source\src\inc_project.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="source\src\func.h">
-      <Filter>Header Files\1</Filter>
-    </ClInclude>
-    <ClInclude Include="source\src\interpreter.h">
-      <Filter>Header Files\1</Filter>
-    </ClInclude>
-    <ClInclude Include="source\src\json.h">
-      <Filter>Header Files\1</Filter>
+      <Filter>3_HeaderOnly</Filter>
     </ClInclude>
     <ClInclude Include="source\src\inc_header.h">
-      <Filter>Header Files</Filter>
+      <Filter>3_HeaderOnly</Filter>
     </ClInclude>
-    <ClInclude Include="source\src\integrity_verify.h">
-      <Filter>Header Files\2</Filter>
+    <ClInclude Include="source\src\action.h">
+      <Filter>5_Module\type</Filter>
     </ClInclude>
-    <ClInclude Include="source\src\scriptinterpreter.h">
-      <Filter>Header Files\2</Filter>
-    </ClInclude>
-    <ClInclude Include="source\src\update.h">
-      <Filter>Header Files\2</Filter>
-    </ClInclude>
-    <ClInclude Include="source\src\range.h">
-      <Filter>Header Files\0</Filter>
+    <ClInclude Include="source\src\macro.h">
+      <Filter>5_Module\type</Filter>
     </ClInclude>
     <ClInclude Include="source\src\type.h">
-      <Filter>Header Files\0</Filter>
+      <Filter>5_Module\type</Filter>
     </ClInclude>
-    <ClInclude Include="source\src\ui.h">
-      <Filter>Header Files\0</Filter>
+    <ClInclude Include="source\src\interpreter.h">
+      <Filter>5_Module\interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\scriptinterpreter.h">
+      <Filter>5_Module\interpreter</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\func.h">
+      <Filter>5_Module\proc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\json.h">
+      <Filter>5_Module\proc</Filter>
     </ClInclude>
     <ClInclude Include="source\src\thread.h">
-      <Filter>Header Files\0</Filter>
+      <Filter>5_Module\proc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\range.h">
+      <Filter>3_HeaderOnly</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\ui.h">
+      <Filter>3_HeaderOnly</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\update.h">
+      <Filter>3_HeaderOnly</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\integrity_verify.h">
+      <Filter>5_Module\verify</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="source\ui\AboutUi.ui">
-      <Filter>Form Files\ui</Filter>
+      <Filter>2_Widget\ui</Filter>
     </QtUic>
     <QtUic Include="source\ui\EditUi.ui">
-      <Filter>Form Files\ui</Filter>
+      <Filter>2_Widget\ui</Filter>
     </QtUic>
     <QtUic Include="source\ui\FuncUi.ui">
-      <Filter>Form Files\ui</Filter>
+      <Filter>2_Widget\ui</Filter>
     </QtUic>
     <QtUic Include="source\ui\MacroUi.ui">
-      <Filter>Form Files\ui</Filter>
+      <Filter>2_Widget\ui</Filter>
     </QtUic>
     <QtUic Include="source\ui\MainUi.ui">
-      <Filter>Form Files\ui</Filter>
+      <Filter>2_Widget\ui</Filter>
     </QtUic>
     <QtUic Include="source\ui\MoreUi.ui">
-      <Filter>Form Files\ui</Filter>
+      <Filter>2_Widget\ui</Filter>
     </QtUic>
     <QtUic Include="source\ui\RecordUi.ui">
-      <Filter>Form Files\ui</Filter>
+      <Filter>2_Widget\ui</Filter>
     </QtUic>
     <QtUic Include="source\ui\SettingsUi.ui">
-      <Filter>Form Files\ui</Filter>
+      <Filter>2_Widget\ui</Filter>
     </QtUic>
     <QtUic Include="source\ui\PopsUi.ui">
-      <Filter>Form Files\ui</Filter>
+      <Filter>2_Widget\ui</Filter>
     </QtUic>
     <QtUic Include="source\ui\TriggerUi.ui">
-      <Filter>Form Files\ui</Filter>
+      <Filter>2_Widget\ui</Filter>
     </QtUic>
     <QtUic Include="source\ui\UpdateUi.ui">
-      <Filter>Form Files\ui</Filter>
+      <Filter>2_Widget\ui</Filter>
     </QtUic>
     <QtUic Include="source\ui\VarViewUi.ui">
-      <Filter>Form Files\ui</Filter>
+      <Filter>2_Widget\ui</Filter>
     </QtUic>
     <QtUic Include="source\ui\MsgViewUi.ui">
-      <Filter>Form Files\ui</Filter>
+      <Filter>2_Widget\ui</Filter>
     </QtUic>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="source\ui\AboutUi.h">
-      <Filter>Form Files\header</Filter>
+      <Filter>2_Widget\header</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\EditUi.h">
-      <Filter>Form Files\header</Filter>
+      <Filter>2_Widget\header</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\FuncUi.h">
-      <Filter>Form Files\header</Filter>
+      <Filter>2_Widget\header</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\MacroUi.h">
-      <Filter>Form Files\header</Filter>
+      <Filter>2_Widget\header</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\MainUi.h">
-      <Filter>Form Files\header</Filter>
+      <Filter>2_Widget\header</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\MoreUi.h">
-      <Filter>Form Files\header</Filter>
+      <Filter>2_Widget\header</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\RecordUi.h">
-      <Filter>Form Files\header</Filter>
+      <Filter>2_Widget\header</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\SettingsUi.h">
-      <Filter>Form Files\header</Filter>
+      <Filter>2_Widget\header</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\TriggerUi.h">
-      <Filter>Form Files\header</Filter>
+      <Filter>2_Widget\header</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QColorSelection.h">
-      <Filter>Form Files\widget</Filter>
+      <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QPointSelection.h">
-      <Filter>Form Files\widget</Filter>
+      <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QPointView.h">
-      <Filter>Form Files\widget</Filter>
+      <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QRectSelection.h">
-      <Filter>Form Files\widget</Filter>
+      <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QRectView.h">
-      <Filter>Form Files\widget</Filter>
+      <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\PopsUi.h">
-      <Filter>Form Files\header</Filter>
+      <Filter>2_Widget\header</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QKeyEdit.h">
-      <Filter>Form Files\widget</Filter>
+      <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QPopText.h">
-      <Filter>Form Files\widget</Filter>
+      <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QWindowSelection.h">
-      <Filter>Form Files\widget</Filter>
+      <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\UpdateUi.h">
-      <Filter>Form Files\header</Filter>
+      <Filter>2_Widget\header</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QMacroTable.h">
-      <Filter>Form Files\widget</Filter>
+      <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QEditDialog.h">
-      <Filter>Form Files\widget</Filter>
+      <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\VarViewUi.h">
-      <Filter>Form Files\header</Filter>
+      <Filter>2_Widget\header</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QTextDialog.h">
-      <Filter>Form Files\widget</Filter>
+      <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QDistanceSelection.h">
-      <Filter>Form Files\widget</Filter>
+      <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QFileEdit.h">
-      <Filter>Form Files\widget</Filter>
+      <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QFrameless.h">
-      <Filter>Form Files\widget</Filter>
+      <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\MsgViewUi.h">
-      <Filter>Form Files\header</Filter>
+      <Filter>2_Widget\header</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="source\res\QuickInput.rc">
-      <Filter>Resource Files</Filter>
+      <Filter>1_Resource</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="source\res\QuickInput.qrc">
-      <Filter>Resource Files</Filter>
+      <Filter>1_Resource</Filter>
     </QtRcc>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="versions.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
+    <None Include="config.props" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="config.props" />
+    <Text Include="versions.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="source\res\arrow.png">
+      <Filter>1_Resource\image</Filter>
+    </Image>
+    <Image Include="source\res\blade.png">
+      <Filter>1_Resource\image</Filter>
+    </Image>
+    <Image Include="source\res\candy.png">
+      <Filter>1_Resource\image</Filter>
+    </Image>
+    <Image Include="source\res\checked.png">
+      <Filter>1_Resource\image</Filter>
+    </Image>
+    <Image Include="source\res\close.png">
+      <Filter>1_Resource\image</Filter>
+    </Image>
+    <Image Include="source\res\hide.png">
+      <Filter>1_Resource\image</Filter>
+    </Image>
+    <Image Include="source\res\min.png">
+      <Filter>1_Resource\image</Filter>
+    </Image>
+    <Image Include="source\res\neko.png">
+      <Filter>1_Resource\image</Filter>
+    </Image>
+    <Image Include="source\res\icon.ico">
+      <Filter>1_Resource\icon</Filter>
+    </Image>
+    <Image Include="source\res\icon.png">
+      <Filter>1_Resource\icon</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="source\res\sound\notify.wav">
+      <Filter>1_Resource\sound</Filter>
+    </Media>
+    <Media Include="source\res\sound\off.wav">
+      <Filter>1_Resource\sound</Filter>
+    </Media>
+    <Media Include="source\res\sound\on.wav">
+      <Filter>1_Resource\sound</Filter>
+    </Media>
+    <Media Include="source\res\sound\run.wav">
+      <Filter>1_Resource\sound</Filter>
+    </Media>
+    <Media Include="source\res\sound\stop.wav">
+      <Filter>1_Resource\sound</Filter>
+    </Media>
   </ItemGroup>
 </Project>

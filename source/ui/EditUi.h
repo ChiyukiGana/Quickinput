@@ -157,7 +157,7 @@ class EditUi : public QDialogFrameless
 	IDChecker idChecker;
 
 public:
-	EditUi(Macro* macro, Actions* actions);
+	EditUi(Macro* macro);
 
 private:
 	void Init();

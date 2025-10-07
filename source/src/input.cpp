@@ -7,7 +7,7 @@ class RecordTimer
 	clock_t t = 0;
 	clock_t load()
 	{
-		clock() - t;
+		return clock() - t;
 	}
 	void reset()
 	{
@@ -104,7 +104,7 @@ struct KeyState
 	bool state[Qi::key_size];
 	KeyState(bool* keyState)
 	{
-		memcpy(state, Qi::keyState, Qi::key_size);
+		memcpy(state, keyState, Qi::key_size);
 	}
 };
 void InputTask(BYTE key, bool press, POINT cursor, KeyState keyState)

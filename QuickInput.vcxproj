@@ -66,16 +66,16 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>QIOCR_SHARED;$(QiPreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <Link />
     <Manifest>
       <AdditionalManifestFiles>manifest.xml %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <IgnoreSpecificDefaultLibraries>LIBCMT.LIB</IgnoreSpecificDefaultLibraries>
     </Link>
@@ -86,9 +86,9 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <WarningLevel>TurnOffAllWarnings</WarningLevel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <PreprocessorDefinitions>QIOCR_SHARED;$(QiPreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>false</GenerateDebugInformation>
@@ -108,11 +108,14 @@
   </ImportGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp" />
+    <ClCompile Include="source\src\action.cpp" />
     <ClCompile Include="source\src\func.cpp" />
+    <ClCompile Include="source\src\init.cpp" />
     <ClCompile Include="source\src\input.cpp" />
     <ClCompile Include="source\src\integrity_verify.cpp" />
     <ClCompile Include="source\src\interpreter.cpp" />
     <ClCompile Include="source\src\json.cpp" />
+    <ClCompile Include="source\src\macro.cpp" />
     <ClCompile Include="source\src\scriptinterpreter.cpp" />
     <ClCompile Include="source\src\sha256.cpp" />
     <ClCompile Include="source\src\thread.cpp" />
@@ -192,6 +195,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="source\src\action.h" />
     <ClInclude Include="source\src\func.h" />
     <ClInclude Include="source\src\inc_external.h" />
     <ClInclude Include="source\src\inc_header.h" />
@@ -199,6 +203,7 @@
     <ClInclude Include="source\src\integrity_verify.h" />
     <ClInclude Include="source\src\interpreter.h" />
     <ClInclude Include="source\src\json.h" />
+    <ClInclude Include="source\src\macro.h" />
     <ClInclude Include="source\src\range.h" />
     <ClInclude Include="source\src\scriptinterpreter.h" />
     <ClInclude Include="source\src\thread.h" />
@@ -259,5 +264,24 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="config.props" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="source\res\arrow.png" />
+    <Image Include="source\res\blade.png" />
+    <Image Include="source\res\candy.png" />
+    <Image Include="source\res\checked.png" />
+    <Image Include="source\res\close.png" />
+    <Image Include="source\res\hide.png" />
+    <Image Include="source\res\icon.ico" />
+    <Image Include="source\res\icon.png" />
+    <Image Include="source\res\min.png" />
+    <Image Include="source\res\neko.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="source\res\sound\notify.wav" />
+    <Media Include="source\res\sound\off.wav" />
+    <Media Include="source\res\sound\on.wav" />
+    <Media Include="source\res\sound\run.wav" />
+    <Media Include="source\res\sound\stop.wav" />
   </ItemGroup>
 </Project>

@@ -55,7 +55,7 @@ std::string integrity_verify_Sha256TextSection(std::wstring filePath = std::wstr
 
 		if (result.empty()) throw std::runtime_error("未找到.text段");
 	}
-	catch (const std::exception& e)
+	catch (...)
 	{
 		MessageBoxW(nullptr, L"程序已损坏", L"Error", MB_ICONERROR);
 		exit(0);

@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <windows.h>
+#ifdef Q_KEYEDIT_PAD_ENABLED
 #include "xboxpad.h"
+#endif
 #ifndef VK_WHEELUP
 #define VK_WHEELUP 0x0A
 #endif
@@ -263,11 +265,21 @@ namespace QiTools {
 			return L"";
 		}
 		// support xboxpad
-		static bool isPad(int keyCode) { return ((keyCode >= XBoxPad::key_begin) && (keyCode <= XBoxPad::key_end)); }
+		static bool isPad(int keyCode)
+		{
+#ifdef Q_KEYEDIT_PAD_ENABLED
+			return ((keyCode >= XBoxPad::key_begin) && (keyCode <= XBoxPad::key_end));
+#endif
+			return false;
+		}
 		static bool stateEx(SHORT vk)
 		{
+#ifdef Q_KEYEDIT_PAD_ENABLED
 			if (isPad(vk)) return XBoxPad::state(vk);
-			else return state(vk);
+			else
+#endif
+			if (vk < 256) return state(vk);
+			return false;
 		}
 	};
 }

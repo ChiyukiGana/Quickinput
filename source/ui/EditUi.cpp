@@ -1,6 +1,6 @@
 ﻿#include <EditUi.h>
 #include <RecordUi.h>
-EditUi::EditUi(Macro* macro, Actions* actions) : macro(macro), actionsRoot(&macro->acRun), actionsHistory(30), idChecker(jumpIds, blockIds)
+EditUi::EditUi(Macro* macro) : macro(macro), actionsRoot(&macro->acRun), actionsHistory(30), idChecker(jumpIds, blockIds)
 {
 	ui.setupUi(this);
 
@@ -77,10 +77,10 @@ void EditUi::Init()
 		if ("clear shortcut")
 		{
 			// action add
-			BindSafeIter(bind_add_button, [this](QPushButton* p, size_t i) { p->installEventFilter(this); });
-			BindSafeIter(bind_chg_button, [this](QPushButton* p, size_t i) { p->installEventFilter(this); });
-			BindSafeIter(bind_edt_button, [this](QPushButton* p, size_t i) { p->installEventFilter(this); });
-			BindSafeIter(bind_edt2_button, [this](QPushButton* p, size_t i) { p->installEventFilter(this); });
+			BindSafeIter(bind_add_button, [this](QPushButton* p, size_t) { p->installEventFilter(this); });
+			BindSafeIter(bind_chg_button, [this](QPushButton* p, size_t) { p->installEventFilter(this); });
+			BindSafeIter(bind_edt_button, [this](QPushButton* p, size_t) { p->installEventFilter(this); });
+			BindSafeIter(bind_edt2_button, [this](QPushButton* p, size_t) { p->installEventFilter(this); });
 
 			ui.jump_add_button->installEventFilter(this);
 			ui.blockExec_add_button->installEventFilter(this);
@@ -483,7 +483,7 @@ void EditUi::Event()
 			}
 			});
 		// value
-		connect(ui.action_table, &QTableWidget::cellDoubleClicked, this, [this](int row, int column) { if (row < 0) return; ItemSet(row); });
+		connect(ui.action_table, &QTableWidget::cellDoubleClicked, this, [this](int row, int) { if (row < 0) return; ItemSet(row); });
 		// context menu
 		connect(ui.action_table, &QTableWidget::customContextMenuRequested, this, [this] {
 			if ("set menu item state")
@@ -575,10 +575,10 @@ void EditUi::Event()
 void EditUi::Event_Action_Widget()
 {
 	// buttons
-	BindSafeIter(bind_add_button, [this](QPushButton* p, size_t i) { connect(bind_add_button[i], &QPushButton::clicked, this, [this, i] { ItemAdd(static_cast<QiType>(i)); }); });
-	BindSafeIter(bind_chg_button, [this](QPushButton* p, size_t i) { connect(bind_chg_button[i], &QPushButton::clicked, this, [this, i] { ItemChange(static_cast<QiType>(i)); }); });
-	BindSafeIter(bind_edt_button, [this](QPushButton* p, size_t i) { connect(bind_edt_button[i], &QPushButton::clicked, this, [this, i] { NextEdit(false); }); });
-	BindSafeIter(bind_edt2_button, [this](QPushButton* p, size_t i) { connect(bind_edt2_button[i], &QPushButton::clicked, this, [this, i] { NextEdit(true); }); });
+	BindSafeIter(bind_add_button, [this](QPushButton*, size_t i) { connect(bind_add_button[i], &QPushButton::clicked, this, [this, i] { ItemAdd(static_cast<QiType>(i)); }); });
+	BindSafeIter(bind_chg_button, [this](QPushButton*, size_t i) { connect(bind_chg_button[i], &QPushButton::clicked, this, [this, i] { ItemChange(static_cast<QiType>(i)); }); });
+	BindSafeIter(bind_edt_button, [this](QPushButton*, size_t i) { connect(bind_edt_button[i], &QPushButton::clicked, this, [this, i] { NextEdit(false); }); });
+	BindSafeIter(bind_edt2_button, [this](QPushButton*, size_t i) { connect(bind_edt2_button[i], &QPushButton::clicked, this, [this, i] { NextEdit(true); }); });
 	// check
 	connect(ui.tab_lock_check, &QCheckBox::toggled, this, [this](bool state) {
 		Qi::set.tabLock = state;
@@ -718,13 +718,16 @@ void EditUi::Event_Action_Widget()
 		});
 	connect(ui.color_rgb_button, &QPushButton::clicked, this, [this] {
 		QColorSelection cs;
-		QColorDialog cd(cs.Start(), this);
+		QColor c = cs.Start();
+		POINT p = QiFn::P_SRTA(Input::pos());
+		QColorDialog cd(c, this);
 		cd.setStyleSheet(QiUi::color_dialog_style);
 		cd.exec();
 		QiColor color(WidgetGetColor());
 		color.rgbe.r = cd.currentColor().red();
 		color.rgbe.g = cd.currentColor().green();
 		color.rgbe.b = cd.currentColor().blue();
+		if (!(color.rect.left || color.rect.top || color.rect.right || color.rect.bottom)) color.rect = { p.x, p.y, p.x, p.y };
 		WidgetSet(color);
 		});
 	// image
@@ -757,7 +760,7 @@ void EditUi::Event_Action_Widget()
 		Image::ScreenRgbMap(imageMap, rect);
 		image.map = imageMap;
 		RECT before = QiFn::R_SATR(image.rect);
-		if ((!image.rect.left && !image.rect.top && !image.rect.right && !image.rect.bottom) || rect.left < before.left || rect.top < before.top || rect.right > before.right || rect.bottom > before.bottom) image.rect = QiFn::R_SRTA(rect);
+		if (!(image.rect.left || image.rect.top || image.rect.right || image.rect.bottom) || !InRect(image.rect, rect)) image.rect = QiFn::R_SRTA(rect);
 		WidgetSet(image);
 		});
 	// ocr
@@ -823,9 +826,9 @@ void EditUi::Event_Action_Widget()
 			});
 		});
 	// msgWindow
-	connect(ui.msgView_level_msg_radio, &QRadioButton::toggled, [this] { ui.msgView_type_add_radio->setChecked(true); });
-	connect(ui.msgView_level_war_radio, &QRadioButton::toggled, [this] { ui.msgView_type_add_radio->setChecked(true); });
-	connect(ui.msgView_level_err_radio, &QRadioButton::toggled, [this] { ui.msgView_type_add_radio->setChecked(true); });
+	connect(ui.msgView_level_msg_radio, &QRadioButton::clicked, [this] { ui.msgView_type_add_radio->setChecked(true); });
+	connect(ui.msgView_level_war_radio, &QRadioButton::clicked, [this] { ui.msgView_type_add_radio->setChecked(true); });
+	connect(ui.msgView_level_err_radio, &QRadioButton::clicked, [this] { ui.msgView_type_add_radio->setChecked(true); });
 }
 // TODO: new action's preview
 void EditUi::Event_Table_Selection()
@@ -856,7 +859,7 @@ void EditUi::Event_Table_Selection()
 			{
 			case QiType::mouse:
 			{
-				const QiMouse& ref = std::get<QiMouse>(var);
+				const QiMouse& ref = var.to<QiMouse>();
 				if (!ref.move)
 				{
 					POINT pt;
@@ -873,7 +876,7 @@ void EditUi::Event_Table_Selection()
 			} break;
 			case QiType::color:
 			{
-				const QiColor& ref = std::get<QiColor>(var);
+				const QiColor& ref = var.to<QiColor>();
 				RECT rect;
 				if (macro->wndState)
 				{
@@ -887,7 +890,7 @@ void EditUi::Event_Table_Selection()
 			} break;
 			case QiType::image:
 			{
-				const QiImage& ref = std::get<QiImage>(var);
+				const QiImage& ref = var.to<QiImage>();
 				RECT rect;
 				if (macro->wndState)
 				{
@@ -902,7 +905,7 @@ void EditUi::Event_Table_Selection()
 			} break;
 			case QiType::ocr:
 			{
-				const QiOcr& ref = std::get<QiOcr>(var);
+				const QiOcr& ref = var.to<QiOcr>();
 				RECT rect;
 				if (macro->wndState)
 				{
@@ -916,7 +919,7 @@ void EditUi::Event_Table_Selection()
 			} break;
 			case QiType::textPad:
 			{
-				const QiTextPad& ref = std::get<QiTextPad>(var);
+				const QiTextPad& ref = var.to<QiTextPad>();
 				widget_td.edit()->setPlainText(ref.text);
 				widget_td.show();
 			} break;
@@ -956,11 +959,11 @@ void EditUi::StyleGroup()
 	if ("buttons")
 	{
 
-		BindSafeIter(bind_add_button, [this](QPushButton* p, size_t i) { p->setProperty("group", "edit-add_button"); });
-		BindSafeIter(bind_chg_button, [this](QPushButton* p, size_t i) { p->setProperty("group", "edit-add_button"); });
-		BindSafeIter(bind_edt_button, [this](QPushButton* p, size_t i) { p->setProperty("group", "edit-edit_button"); });
-		BindSafeIter(bind_edt2_button, [this](QPushButton* p, size_t i) { p->setProperty("group", "edit-edit_button"); });
-		BindSafeIter(bind_tab_button, [this](QPushButton* p, size_t i) { p->setProperty("group", "edit-tab_button"); });
+		BindSafeIter(bind_add_button, [this](QPushButton* p, size_t) { p->setProperty("group", "edit-add_button"); });
+		BindSafeIter(bind_chg_button, [this](QPushButton* p, size_t) { p->setProperty("group", "edit-add_button"); });
+		BindSafeIter(bind_edt_button, [this](QPushButton* p, size_t) { p->setProperty("group", "edit-edit_button"); });
+		BindSafeIter(bind_edt2_button, [this](QPushButton* p, size_t) { p->setProperty("group", "edit-edit_button"); });
+		BindSafeIter(bind_tab_button, [this](QPushButton* p, size_t) { p->setProperty("group", "edit-tab_button"); });
 		ui.rec_button->setProperty("group", "edit-add_button");
 		ui.rec_window_button->setProperty("group", "edit-add_button");
 		ui.ocr_test_button->setProperty("group", "edit-edit_button");
@@ -1131,7 +1134,7 @@ void EditUi::Disable(bool disable)
 }
 void EditUi::DisableTip(bool disable)
 {
-	BindSafeIter(bind_type_group, [this, disable](QGroupBox* p, size_t i) {p->setToolTipDuration(disable ? 1 : 0); });
+	BindSafeIter(bind_type_group, [this, disable](QGroupBox* p, size_t) {p->setToolTipDuration(disable ? 1 : 0); });
 }
 void EditUi::DisableMenus()
 {
@@ -1143,7 +1146,7 @@ void EditUi::DisableMenus()
 }
 void EditUi::DisableChangeButtons(bool disable)
 {
-	BindSafeIter(bind_chg_button, [this, disable](QPushButton* p, size_t i) { p->setDisabled(disable); });
+	BindSafeIter(bind_chg_button, [this, disable](QPushButton* p, size_t) { p->setDisabled(disable); });
 }
 
 
@@ -1253,7 +1256,7 @@ void EditUi::NextEdit(bool edit2)
 	{
 	case QiType::color:
 	{
-		QiColor& color = std::get<QiColor>(var);
+		QiColor& color = var.to<QiColor>();
 		if (edit2)
 		{
 			next = &color.next2;
@@ -1267,13 +1270,13 @@ void EditUi::NextEdit(bool edit2)
 	} break;
 	case QiType::loop:
 	{
-		QiLoop& loop = std::get<QiLoop>(var);
+		QiLoop& loop = var.to<QiLoop>();
 		next = &loop.next;
 		title = "编辑 - 循环";
 	} break;
 	case QiType::keyState:
 	{
-		QiKeyState& keyState = std::get<QiKeyState>(var);
+		QiKeyState& keyState = var.to<QiKeyState>();
 		if (edit2)
 		{
 			next = &keyState.next2;
@@ -1287,7 +1290,7 @@ void EditUi::NextEdit(bool edit2)
 	} break;
 	case QiType::image:
 	{
-		QiImage& image = std::get<QiImage>(var);
+		QiImage& image = var.to<QiImage>();
 		if (edit2)
 		{
 			next = &image.next2;
@@ -1301,7 +1304,7 @@ void EditUi::NextEdit(bool edit2)
 	} break;
 	case QiType::timer:
 	{
-		QiTimer& timer = std::get<QiTimer>(var);
+		QiTimer& timer = var.to<QiTimer>();
 		if (edit2)
 		{
 			next = &timer.next2;
@@ -1313,17 +1316,9 @@ void EditUi::NextEdit(bool edit2)
 			title = "编辑 - 定时（循环）";
 		}
 	} break;
-	case QiType::jump:
-	{
-		QiJump& jump = std::get<QiJump>(var);
-	} break;
-	case QiType::jumpPoint:
-	{
-		QiJumpPoint& jumpPoint = std::get<QiJumpPoint>(var);
-	} break;
 	case QiType::dialog:
 	{
-		QiDialog& dialog = std::get<QiDialog>(var);
+		QiDialog& dialog = var.to<QiDialog>();
 		if (edit2)
 		{
 			next = &dialog.next2;
@@ -1337,13 +1332,13 @@ void EditUi::NextEdit(bool edit2)
 	} break;
 	case QiType::block:
 	{
-		QiBlock& block = std::get<QiBlock>(var);
+		QiBlock& block = var.to<QiBlock>();
 		next = &block.next;
 		title = "编辑 - 块";
 	} break;
 	case QiType::clock:
 	{
-		QiClock& clock = std::get<QiClock>(var);
+		QiClock& clock = var.to<QiClock>();
 		if (edit2)
 		{
 			next = &clock.next2;
@@ -1357,7 +1352,7 @@ void EditUi::NextEdit(bool edit2)
 	} break;
 	case QiType::ocr:
 	{
-		QiOcr& ocr = std::get<QiOcr>(var);
+		QiOcr& ocr = var.to<QiOcr>();
 		if (edit2)
 		{
 			next = &ocr.next2;
@@ -1371,7 +1366,7 @@ void EditUi::NextEdit(bool edit2)
 	} break;
 	case QiType::varCondition:
 	{
-		QiVarCondition& varCondition = std::get<QiVarCondition>(var);
+		QiVarCondition& varCondition = var.to<QiVarCondition>();
 		if (edit2)
 		{
 			next = &varCondition.next2;
@@ -1385,7 +1380,7 @@ void EditUi::NextEdit(bool edit2)
 	} break;
 	case QiType::volume:
 	{
-		QiVolume& volume = std::get<QiVolume>(var);
+		QiVolume& volume = var.to<QiVolume>();
 		if (edit2)
 		{
 			next = &volume.next2;
@@ -1418,7 +1413,7 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::delay:
 	{
-		const QiDelay& ref = std::get<QiDelay>(var);
+		const QiDelay& ref = var.to<QiDelay>();
 		type = QiUi::Text::acWait;
 		QString min = ref.v_min.isEmpty() ? QString::number(ref.min) : ref.v_min;
 		QString max = ref.v_max.isEmpty() ? QString::number(ref.max) : ref.v_max;
@@ -1427,7 +1422,7 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::key:
 	{
-		const QiKey& ref = std::get<QiKey>(var);
+		const QiKey& ref = var.to<QiKey>();
 		if (ref.state == QiKey::up) type = QiUi::Text::acUp;
 		else if (ref.state == QiKey::down) type = QiUi::Text::acDown;
 		else if (ref.state == QiKey::click) type = QiUi::Text::acClick;
@@ -1435,7 +1430,7 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::mouse:
 	{
-		const QiMouse& ref = std::get<QiMouse>(var);
+		const QiMouse& ref = var.to<QiMouse>();
 		if (ref.move) type = QiUi::Text::acMove;
 		else type = QiUi::Text::acPos;
 		param = (ref.v_x.isEmpty() ? QString::number(ref.x) : ref.v_x)
@@ -1453,13 +1448,13 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::copyText:
 	{
-		const QiCopyText& ref = std::get<QiCopyText>(var);
+		const QiCopyText& ref = var.to<QiCopyText>();
 		type = QiUi::Text::acCopyText;
 		param = QiFn::FoldText(ref.text);
 	} break;
 	case QiType::color:
 	{
-		const QiColor& ref = std::get<QiColor>(var);
+		const QiColor& ref = var.to<QiColor>();
 		type = QiUi::Text::acColor;
 		param = (ref.v_left.isEmpty() ? QString::number(ref.rect.left) : ref.v_left)
 			+ "," + (ref.v_top.isEmpty() ? QString::number(ref.rect.top) : ref.v_top)
@@ -1474,7 +1469,7 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::loop:
 	{
-		const QiLoop& ref = std::get<QiLoop>(var);
+		const QiLoop& ref = var.to<QiLoop>();
 		type = QiUi::Text::acLoop;
 
 		QString min = ref.v_min.isEmpty() ? QString::number(ref.min) : ref.v_min;
@@ -1490,7 +1485,7 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::keyState:
 	{
-		const QiKeyState& ref = std::get<QiKeyState>(var);
+		const QiKeyState& ref = var.to<QiKeyState>();
 		type = QiUi::Text::acKeyState;
 
 		param += QKeyEdit::keyName(ref.vk);
@@ -1501,7 +1496,7 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::image:
 	{
-		const QiImage& ref = std::get<QiImage>(var);
+		const QiImage& ref = var.to<QiImage>();
 		type = QiUi::Text::acImage;
 		param = (ref.v_left.isEmpty() ? QString::number(ref.rect.left) : ref.v_left)
 			+ "," + (ref.v_top.isEmpty() ? QString::number(ref.rect.top) : ref.v_top)
@@ -1514,7 +1509,7 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::popText:
 	{
-		const QiPopText& ref = std::get<QiPopText>(var);
+		const QiPopText& ref = var.to<QiPopText>();
 		type = QiUi::Text::acPopText;
 		param = QiFn::FoldText(ref.text, 16);
 		param += " |　时长：";
@@ -1527,7 +1522,7 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::timer:
 	{
-		const QiTimer& ref = std::get<QiTimer>(var);
+		const QiTimer& ref = var.to<QiTimer>();
 		type = QiUi::Text::acTimer;
 
 		QString min = ref.v_min.isEmpty() ? QString::number(ref.min) : ref.v_min;
@@ -1538,7 +1533,7 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::jump:
 	{
-		const QiJump& ref = std::get<QiJump>(var);
+		const QiJump& ref = var.to<QiJump>();
 		type = QiUi::Text::acJump;
 
 		if (ref.id < 1)
@@ -1563,7 +1558,7 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::jumpPoint:
 	{
-		const QiJumpPoint& ref = std::get<QiJumpPoint>(var);
+		const QiJumpPoint& ref = var.to<QiJumpPoint>();
 		type = QiUi::Text::acJumpPoint;
 
 		param = "id：";
@@ -1571,7 +1566,7 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::dialog:
 	{
-		const QiDialog& ref = std::get<QiDialog>(var);
+		const QiDialog& ref = var.to<QiDialog>();
 		type = QiUi::Text::acDialog;
 		param = QiFn::FoldText(ref.title, 8);
 		param += " | ";
@@ -1579,7 +1574,7 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::block:
 	{
-		const QiBlock& ref = std::get<QiBlock>(var);
+		const QiBlock& ref = var.to<QiBlock>();
 		type = QiUi::Text::acBlock;
 
 		param = "id：";
@@ -1587,7 +1582,7 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::blockExec:
 	{
-		const QiBlockExec& ref = std::get<QiBlockExec>(var);
+		const QiBlockExec& ref = var.to<QiBlockExec>();
 		type = QiUi::Text::acBlockExec;
 
 		if (ref.id < 1)
@@ -1612,13 +1607,13 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::quickInput:
 	{
-		const QiQuickInput& ref = std::get<QiQuickInput>(var);
+		const QiQuickInput& ref = var.to<QiQuickInput>();
 		type = QiUi::Text::acQuickInput;
 		param = QiFn::FoldText(KeyToString(ref.chars));
 	} break;
 	case QiType::keyBlock:
 	{
-		const QiKeyBlock& ref = std::get<QiKeyBlock>(var);
+		const QiKeyBlock& ref = var.to<QiKeyBlock>();
 		type = QiUi::Text::acKeyBlock;
 
 		if (ref.block) param = "屏蔽：";
@@ -1629,14 +1624,14 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::clock:
 	{
-		const QiClock& ref = std::get<QiClock>(var);
+		const QiClock& ref = var.to<QiClock>();
 		type = QiUi::Text::acClock;
 
 		param = QString::fromStdString(QiTime::toString(ref.time));
 	} break;
 	case QiType::ocr:
 	{
-		const QiOcr& ref = std::get<QiOcr>(var);
+		const QiOcr& ref = var.to<QiOcr>();
 		type = QiUi::Text::acOcr;
 		param = (ref.v_left.isEmpty() ? QString::number(ref.rect.left) : ref.v_left)
 			+ "," + (ref.v_top.isEmpty() ? QString::number(ref.rect.top) : ref.v_top)
@@ -1647,38 +1642,38 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::varOperator:
 	{
-		const QiVarOperator& ref = std::get<QiVarOperator>(var);
+		const QiVarOperator& ref = var.to<QiVarOperator>();
 		type = QiUi::Text::acVarOperator;
 		param = QiFn::FoldText(ref.script);
 	} break;
 	case QiType::varCondition:
 	{
-		const QiVarCondition& ref = std::get<QiVarCondition>(var);
+		const QiVarCondition& ref = var.to<QiVarCondition>();
 		type = QiUi::Text::acVarCondition;
 		param = QiFn::FoldText(ref.script);
 	} break;
 	case QiType::mouseTrack:
 	{
-		const QiMouseTrack& ref = std::get<QiMouseTrack>(var);
+		const QiMouseTrack& ref = var.to<QiMouseTrack>();
 		type = QiUi::Text::acMouseTrack;
 
 		param = QString::number(ref.s.size());
 	} break;
 	case QiType::open:
 	{
-		const QiOpen& ref = std::get<QiOpen>(var);
+		const QiOpen& ref = var.to<QiOpen>();
 		type = QiUi::Text::acOpen;
 		param = QiFn::FoldText(ref.url, 20, true);
 	} break;
 	case QiType::textPad:
 	{
-		const QiTextPad& ref = std::get<QiTextPad>(var);
+		const QiTextPad& ref = var.to<QiTextPad>();
 		type = QiUi::Text::acTextPad;
 		param = QiFn::FoldText(ref.text);
 	} break;
 	case QiType::editDialog:
 	{
-		const QiEditDialog& ref = std::get<QiEditDialog>(var);
+		const QiEditDialog& ref = var.to<QiEditDialog>();
 		type = QiUi::Text::acEditDialog;
 		param = QiFn::FoldText(ref.title, 4);
 		param += " | ";
@@ -1688,7 +1683,7 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::volume:
 	{
-		const QiVolume& ref = std::get<QiVolume>(var);
+		const QiVolume& ref = var.to<QiVolume>();
 		type = QiUi::Text::acVolume;
 		param = ref.max ? "最大：" : "平均：";
 		param += QString::number(ref.volume);
@@ -1697,7 +1692,7 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::soundPlay:
 	{
-		const QiSoundPlay& ref = std::get<QiSoundPlay>(var);
+		const QiSoundPlay& ref = var.to<QiSoundPlay>();
 		type = QiUi::Text::acSoundPlay;
 		if (ref.state == QiSoundPlay::play)
 		{
@@ -1710,7 +1705,7 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::msgView:
 	{
-		const QiMsgView& ref = std::get<QiMsgView>(var);
+		const QiMsgView& ref = var.to<QiMsgView>();
 		type = QiUi::Text::acMsgView;
 		if (ref.option == QiMsgView::set) param = QString("设置：") + QiFn::FoldText(ref.text, 16, true);
 		else if (ref.option == QiMsgView::add) param = QString("添加：") + QiFn::FoldText(ref.text, 16, true);
@@ -1850,29 +1845,29 @@ void EditUi::ItemSet(int p)
 	const Action& var = actions->at(p);
 	switch (var.type())
 	{
-	case QiType::delay: WidgetSet(std::get<QiDelay>(var)); break;
-	case QiType::key: WidgetSet(std::get<QiKey>(var)); break;
-	case QiType::mouse: WidgetSet(std::get<QiMouse>(var)); break;
-	case QiType::copyText: WidgetSet(std::get<QiCopyText>(var)); break;
-	case QiType::color: WidgetSet(std::get<QiColor>(var)); break;
-	case QiType::loop: WidgetSet(std::get<QiLoop>(var)); break;
-	case QiType::keyState: WidgetSet(std::get<QiKeyState>(var)); break;
-	case QiType::image: WidgetSet(std::get<QiImage>(var)); break;
-	case QiType::popText: WidgetSet(std::get<QiPopText>(var)); break;
-	case QiType::timer: WidgetSet(std::get<QiTimer>(var)); break;
-	case QiType::dialog: WidgetSet(std::get<QiDialog>(var)); break;
-	case QiType::quickInput: WidgetSet(std::get<QiQuickInput>(var)); break;
-	case QiType::keyBlock: WidgetSet(std::get<QiKeyBlock>(var)); break;
-	case QiType::clock: WidgetSet(std::get<QiClock>(var)); break;
-	case QiType::ocr: WidgetSet(std::get<QiOcr>(var)); break;
-	case QiType::varOperator: WidgetSet(std::get<QiVarOperator>(var)); break;
-	case QiType::varCondition: WidgetSet(std::get<QiVarCondition>(var)); break;
-	case QiType::open: WidgetSet(std::get<QiOpen>(var)); break;
-	case QiType::textPad: WidgetSet(std::get<QiTextPad>(var)); break;
-	case QiType::editDialog: WidgetSet(std::get<QiEditDialog>(var)); break;
-	case QiType::volume: WidgetSet(std::get<QiVolume>(var)); break;
-	case QiType::soundPlay: WidgetSet(std::get<QiSoundPlay>(var)); break;
-	case QiType::msgView: WidgetSet(std::get<QiMsgView>(var)); break;
+	case QiType::delay: WidgetSet(var.to<QiDelay>()); break;
+	case QiType::key: WidgetSet(var.to<QiKey>()); break;
+	case QiType::mouse: WidgetSet(var.to<QiMouse>()); break;
+	case QiType::copyText: WidgetSet(var.to<QiCopyText>()); break;
+	case QiType::color: WidgetSet(var.to<QiColor>()); break;
+	case QiType::loop: WidgetSet(var.to<QiLoop>()); break;
+	case QiType::keyState: WidgetSet(var.to<QiKeyState>()); break;
+	case QiType::image: WidgetSet(var.to<QiImage>()); break;
+	case QiType::popText: WidgetSet(var.to<QiPopText>()); break;
+	case QiType::timer: WidgetSet(var.to<QiTimer>()); break;
+	case QiType::dialog: WidgetSet(var.to<QiDialog>()); break;
+	case QiType::quickInput: WidgetSet(var.to<QiQuickInput>()); break;
+	case QiType::keyBlock: WidgetSet(var.to<QiKeyBlock>()); break;
+	case QiType::clock: WidgetSet(var.to<QiClock>()); break;
+	case QiType::ocr: WidgetSet(var.to<QiOcr>()); break;
+	case QiType::varOperator: WidgetSet(var.to<QiVarOperator>()); break;
+	case QiType::varCondition: WidgetSet(var.to<QiVarCondition>()); break;
+	case QiType::open: WidgetSet(var.to<QiOpen>()); break;
+	case QiType::textPad: WidgetSet(var.to<QiTextPad>()); break;
+	case QiType::editDialog: WidgetSet(var.to<QiEditDialog>()); break;
+	case QiType::volume: WidgetSet(var.to<QiVolume>()); break;
+	case QiType::soundPlay: WidgetSet(var.to<QiSoundPlay>()); break;
+	case QiType::msgView: WidgetSet(var.to<QiMsgView>()); break;
 	}
 }
 void EditUi::ItemMove(bool up, int len)
@@ -2040,9 +2035,6 @@ void EditUi::Undo()
 {
 	if (actionsHistory.canUndo())
 	{
-		bool jump = false;
-		bool block = false;
-
 		idChecker.check(*actions);
 
 		actionsHistory.undo();

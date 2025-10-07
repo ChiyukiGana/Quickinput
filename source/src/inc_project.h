@@ -29,8 +29,12 @@
 namespace Qi
 {
 	constexpr int key_info = 214;
+#ifdef Q_KEYEDIT_PAD_ENABLED
 	constexpr int key_size = XBoxPad::end;
-	constexpr int msg_exit = (WM_USER + 0xFF);
+#else
+	constexpr int key_size = 255;
+#endif
+	constexpr int ocr_thread_max = 8;
 	inline bool run = false;
 	inline bool debug = false;
 	inline const QString dir = QDir::fromNativeSeparators(QString::fromWCharArray(Path::RemoveFile(Process::exePath()).c_str()));
