@@ -69,7 +69,7 @@
       <string notr="true">font-size:20px</string>
      </property>
      <property name="text">
-      <string>2025-10-7</string>
+      <string>2025-10-13</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
@@ -85,9 +85,8 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>修复按键编辑无法取消两个按键
-修复窗口模式子窗口选择错误
-修复未选择分组无法添加宏</string>
+      <string>增加时间修改函数
+优化结束时线程的启动</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>

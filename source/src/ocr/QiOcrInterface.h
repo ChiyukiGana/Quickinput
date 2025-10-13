@@ -45,6 +45,7 @@ public:
 		other.ocr = nullptr;
 		return *this;
 	}
+	// 当前版本在DLL外部释放了内存，如果使用调试库可能出现异常
 	void release()
 	{
 		if (ocr)

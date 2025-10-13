@@ -2,6 +2,7 @@
 #include <qdialog.h>
 #include <qlineedit.h>
 #include <qlayout.h>
+#include <qtimer.h>
 class QEditDialog : public QDialog
 {
 	Q_OBJECT;
@@ -10,9 +11,11 @@ public:
 	QEditDialog(QWidget* parent = nullptr) : QDialog(parent)
 	{
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint);
+		setFocusPolicy(Qt::StrongFocus);
 		lineEdit = new QLineEdit(this);
 		lineEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		lineEdit->setAlignment(Qt::AlignCenter);
+		lineEdit->setFocusPolicy(Qt::StrongFocus);
 		QHBoxLayout* layout = new QHBoxLayout(this);
 		layout->addWidget(lineEdit);
 		layout->setContentsMargins(0, 0, 0, 0);
@@ -24,10 +27,12 @@ public:
 	}
 	QString Start(const QString& text)
 	{
-		setFocus();
 		lineEdit->setText(text);
-		lineEdit->setFocus();
 		lineEdit->selectAll();
+		QTimer::singleShot(50, this, [this]() {
+			lineEdit->setFocus();
+			activateWindow();
+		});
 		exec();
 		return lineEdit->text();
 	}

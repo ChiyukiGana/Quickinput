@@ -1,5 +1,43 @@
 #include "scriptinterpreter.h"
 
+time_t sys_last_time = 0;
+time_t sys_last_clock = 0;
+std::mutex sys_last_mutex;
+
+bool SetSystemTime_UnixMs(time_t msec)
+{
+	ULONGLONG totalTicks = 0x019DB1DED53E8000ULL + msec * 10000;
+	FILETIME ft = {};
+	ft.dwLowDateTime = (DWORD)(totalTicks & 0xFFFFFFFF);
+	ft.dwHighDateTime = (DWORD)(totalTicks >> 32);
+	SYSTEMTIME st;
+	if (FileTimeToSystemTime(&ft, &st)) return SetSystemTime(&st);
+	return false;
+}
+
+time_t TimeToS(time_t hour, time_t min, time_t sec, time_t msec)
+{
+	return (hour * 3600) + (min * 60) + sec + (msec / 1000);
+}
+
+time_t TimeToMs(time_t hour, time_t min, time_t sec, time_t msec)
+{
+	return (hour * 3600000) + (min * 60000) + (sec * 1000) + msec;
+}
+
+time_t DateTimeToUnixMs(time_t hour, time_t min, time_t sec, time_t msec, time_t year, time_t mon, time_t day)
+{
+	std::time_t now = std::time(nullptr);
+	std::tm* timeinfo = std::localtime(&now);
+	timeinfo->tm_hour = hour;
+	timeinfo->tm_min = min;
+	timeinfo->tm_sec = sec;
+	if (year != 0) timeinfo->tm_year = year - 1900;
+	if (mon != 0) timeinfo->tm_mon = mon - 1;
+	if (day != 0) timeinfo->tm_mday = day;
+	return std::mktime(timeinfo) * 1000 + msec;
+}
+
 struct QiFunc_date : public QiFunc
 {
 	QiFunc_date() : QiFunc(0, 1) {}
@@ -33,16 +71,62 @@ struct QiFunc_datetime : public QiFunc
 		return QiVar::toString(m.tm_year + 1900) + std::string("-") + QiVar::toString(m.tm_mon + 1) + std::string("-") + QiVar::toString(m.tm_mday) + std::string(" ") + QiVar::toString(m.tm_hour) + std::string(":") + QiVar::toString(m.tm_min) + std::string(":") + QiVar::toString(m.tm_sec);
 	}
 };
+struct QiFunc_hourtime : public QiFunc
+{
+	QiFunc_hourtime() : QiFunc(0, 1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		if (args.empty())
+		{
+			time_t s = time(nullptr);
+			tm m;
+			localtime_s(&m, &s);
+			return QiVar::toString(m.tm_hour) + std::string(":") + QiVar::toString(m.tm_min) + std::string(":") + QiVar::toString(m.tm_sec);
+		}
+		time_t s = args[0].toInteger();
+		return QiVar::toString(s / 3600) + std::string(":") + QiVar::toString((s % 3600) / 60) + std::string(":") + QiVar::toString(s % 60);
+	}
+};
+struct QiFunc_mintime : public QiFunc
+{
+	QiFunc_mintime() : QiFunc(0, 1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		if (args.empty())
+		{
+			time_t s = time(nullptr);
+			tm m;
+			localtime_s(&m, &s);
+			return QiVar::toString(m.tm_min) + std::string(":") + QiVar::toString(m.tm_sec);
+		}
+		time_t s = args[0].toInteger();
+		return QiVar::toString(s / 60) + std::string(":") + QiVar::toString(s % 60);
+	}
+};
 struct QiFunc_time_s : public QiFunc
 {
-	QiFunc_time_s() : QiFunc(0, 3) {}
+	QiFunc_time_s() : QiFunc(0, 4) {}
 	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
 	{
 		if (args.empty()) return time(nullptr);
-		time_t hour = args.size() > 0 ? args[0].toInteger() : 0;
-		time_t min = args.size() > 1 ? args[1].toInteger() : 0;
-		time_t sec = args.size() > 2 ? args[2].toInteger() : 0;
-		return hour * 60 * 60 + min * 60 + sec;
+		return TimeToS(args[0].toInteger(),
+			args.size() > 1 ? args[1].toInteger() : 0,
+			args.size() > 2 ? args[2].toInteger() : 0,
+			args.size() > 3 ? args[3].toInteger() : 0
+		);
+	}
+};
+struct QiFunc_time_ms : public QiFunc
+{
+	QiFunc_time_ms() : QiFunc(0, 4) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		if (args.empty()) return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+		return TimeToMs(args[0].toInteger(),
+			args.size() > 1 ? args[1].toInteger() : 0,
+			args.size() > 2 ? args[2].toInteger() : 0,
+			args.size() > 3 ? args[3].toInteger() : 0
+		);
 	}
 };
 struct QiFunc_time_y : public QiFunc
@@ -134,12 +218,80 @@ struct QiFunc_time_ds : public QiFunc
 		return m.tm_sec;
 	}
 };
-struct QiFunc_time_ms : public QiFunc
+struct QiFunc_time_rms : public QiFunc
 {
-	QiFunc_time_ms() : QiFunc(0) {}
+	QiFunc_time_rms() : QiFunc(0) {}
 	QiVar exec(const std::vector<QiVar>&, QiVarMap*, QiVarMap*, QiWorker*) const override
 	{
 		return clock();
+	}
+};
+struct QiFunc_time_set_s : public QiFunc
+{
+	QiFunc_time_set_s() : QiFunc(0, 6) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		std::unique_lock<std::mutex> lock(sys_last_mutex);
+		time_t msec;
+		if (args.empty())
+		{
+			if (sys_last_time) msec = sys_last_time + clock() - sys_last_clock;
+			else return true;
+		}
+		else
+		{
+			if (args.size() > 1)
+			{
+				msec = DateTimeToUnixMs(args[0].toInteger(),
+					args.size() > 1 ? args[1].toInteger() : 0,
+					args.size() > 2 ? args[2].toInteger() : 0,
+					0,
+					args.size() > 3 ? args[3].toInteger() : 0,
+					args.size() > 4 ? args[4].toInteger() : 0,
+					args.size() > 5 ? args[5].toInteger() : 0
+				);
+			}
+			else
+			{
+				msec = args[0].toInteger() * 1000;
+			}
+			if (!sys_last_time) sys_last_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count(), sys_last_clock = clock();
+		}
+		return SetSystemTime_UnixMs(msec);
+	}
+};
+struct QiFunc_time_set_ms : public QiFunc
+{
+	QiFunc_time_set_ms() : QiFunc(0, 7) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		std::unique_lock<std::mutex> lock(sys_last_mutex);
+		time_t msec;
+		if (args.empty())
+		{
+			if (sys_last_time) msec = sys_last_time + clock() - sys_last_clock;
+			else return true;
+		}
+		else
+		{
+			if (args.size() > 1)
+			{
+				msec = DateTimeToUnixMs(args[0].toInteger(),
+					args.size() > 1 ? args[1].toInteger() : 0,
+					args.size() > 2 ? args[2].toInteger() : 0,
+					args.size() > 3 ? args[3].toInteger() : 0,
+					args.size() > 4 ? args[4].toInteger() : 0,
+					args.size() > 5 ? args[5].toInteger() : 0,
+					args.size() > 6 ? args[6].toInteger() : 0
+				);
+			}
+			else
+			{
+				msec = args[0].toInteger();
+			}
+			if (!sys_last_time) sys_last_time = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count(), sys_last_clock = clock();
+		}
+		return SetSystemTime_UnixMs(msec);
 	}
 };
 struct QiFunc_exist : public QiFunc
@@ -551,7 +703,7 @@ struct QiFunc_power : public QiFunc
 		if (op > lock && op <= reboot)
 		{
 			HANDLE hToken;
-			TOKEN_PRIVILEGES tkp;
+			TOKEN_PRIVILEGES tkp = {};
 
 			if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken)) return QiVar(false);
 
@@ -779,7 +931,7 @@ struct QiFunc_wnd_open : public QiFunc
 		HWND wnd = (HWND)args[0].toInteger();
 		if (!IsWindow(wnd)) return QiVar(false);
 
-		ShowWindow(wnd, SW_SHOW);
+		ShowWindow(wnd, SW_SHOWNORMAL);
 		SetWindowPos(wnd, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 		SetWindowPos(wnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
 		SetWindowPos(wnd, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
@@ -974,7 +1126,10 @@ QiFuncMap::QiFuncMap()
 	insert({ "date", std::make_unique<QiFunc_date>() });
 	insert({ "time", std::make_unique<QiFunc_time>() });
 	insert({ "datetime", std::make_unique<QiFunc_datetime>() });
+	insert({ "hourtime", std::make_unique<QiFunc_hourtime>() });
+	insert({ "mintime", std::make_unique<QiFunc_mintime>() });
 	insert({ "time_s", std::make_unique<QiFunc_time_s>() });
+	insert({ "time_ms", std::make_unique<QiFunc_time_ms>() });
 	insert({ "time_ys", std::make_unique<QiFunc_time_s>() });
 	insert({ "time_y", std::make_unique<QiFunc_time_y>() });
 	insert({ "time_yd", std::make_unique<QiFunc_time_yd>() });
@@ -984,7 +1139,9 @@ QiFuncMap::QiFuncMap()
 	insert({ "time_dh", std::make_unique<QiFunc_time_dh>() });
 	insert({ "time_dm", std::make_unique<QiFunc_time_dm>() });
 	insert({ "time_ds", std::make_unique<QiFunc_time_ds>() });
-	insert({ "time_ms", std::make_unique<QiFunc_time_ms>() });
+	insert({ "time_rms", std::make_unique<QiFunc_time_rms>() });
+	insert({ "time_set_s", std::make_unique<QiFunc_time_set_s>() });
+	insert({ "time_set_ms", std::make_unique<QiFunc_time_set_ms>() });
 	insert({ "exist", std::make_unique<QiFunc_exist>() });
 	insert({ "str", std::make_unique<QiFunc_str>() });
 	insert({ "num", std::make_unique<QiFunc_num>() });
