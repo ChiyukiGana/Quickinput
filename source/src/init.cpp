@@ -890,6 +890,8 @@ void Init()
 
     QiJson::LoadJson();
 
+    Init_Sound();
+
     Init_Style();
     if (Qi::set.theme >= Qi::ui.themes.size()) Qi::set.theme = 0;
 

@@ -294,6 +294,7 @@ struct QiFunc_time_set_ms : public QiFunc
 		return SetSystemTime_UnixMs(msec);
 	}
 };
+
 struct QiFunc_exist : public QiFunc
 {
 	QiFunc_exist() : QiFunc(1) {}
@@ -336,6 +337,23 @@ struct QiFunc_int : public QiFunc
 		return args[0].toInteger();
 	}
 };
+struct QiFunc_len : public QiFunc
+{
+	QiFunc_len() : QiFunc(1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		return args[0].len();
+	}
+};
+
+struct QiFunc_char : public QiFunc
+{
+	QiFunc_char() : QiFunc(2) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		return QiVar::ch(args[0].toString(), args[1].toInteger());
+	}
+};
 struct QiFunc_rmn : public QiFunc
 {
 	QiFunc_rmn() : QiFunc(1) {}
@@ -364,14 +382,40 @@ struct QiFunc_rms : public QiFunc
 		return result;
 	}
 };
-struct QiFunc_len : public QiFunc
+struct QiFunc_sub : public QiFunc
 {
-	QiFunc_len() : QiFunc(1) {}
+	QiFunc_sub() : QiFunc(2, 3) {}
 	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
 	{
-		return args[0].len();
+		return QiVar::sub(args[0].toString(), args[1].toInteger(), args.size() > 2 ? args[2].toInteger() : ~size_t(0));
 	}
 };
+struct QiFunc_subx : public QiFunc
+{
+	QiFunc_subx() : QiFunc(2, 3) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		return QiVar::subx(args[0].toString(), args[1].toInteger(), args.size() > 2 ? args[2].toInteger() : ~size_t(0));
+	}
+};
+struct QiFunc_find : public QiFunc
+{
+	QiFunc_find() : QiFunc(2, 3) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		size_t i = args[0].toString().find(args[1].toString(), args.size() > 2 ? args[2].toInteger() : 0);
+		return i == std::string::npos ? -1ll : static_cast<long long>(i);
+	}
+};
+struct QiFunc_replace : public QiFunc
+{
+	QiFunc_replace() : QiFunc(2, 3) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		return QiVar::replace_u8(args[0].toString(), args[1].toString(), args.size() > 2 ? args[2].toString() : std::string(""));
+	}
+};
+
 struct QiFunc_sleep : public QiFunc
 {
 	QiFunc_sleep() : QiFunc(1) {}
@@ -389,17 +433,6 @@ struct QiFunc_exit : public QiFunc
 	{
 		if (worker) worker->m_stop = true;
 		return bool(worker);
-	}
-};
-struct QiFunc_pop : public QiFunc
-{
-	QiFunc_pop() : QiFunc(1, 3) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
-	{
-		Qi::interpreter_pop(args[0].toString(), args.size() > 1 ? args[1].toInteger() : 1000);
-		if (args.size() > 2 && args[2].toBool()) Sleep(args[1].toInteger());
-		else Sleep(1);
-		return args[0];
 	}
 };
 struct QiFunc_rand : public QiFunc
@@ -423,6 +456,7 @@ struct QiFunc_rand_last : public QiFunc
 		return (*local)[QiScriptInterpreter::var_rand_last];
 	}
 };
+
 struct QiFunc_cur_to : public QiFunc
 {
 	QiFunc_cur_to() : QiFunc(2) {}
@@ -516,45 +550,33 @@ struct QiFunc_cur_last_ay : public QiFunc
 		return (*local)[QiScriptInterpreter::var_cur_last_ay];
 	}
 };
-struct QiFunc_char : public QiFunc
+
+struct QiFunc_scr_cx : public QiFunc
 {
-	QiFunc_char() : QiFunc(2) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	QiFunc_scr_cx() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>&, QiVarMap*, QiVarMap*, QiWorker*) const override
 	{
-		return QiVar::ch(args[0].toString(), args[1].toInteger());
+		return QiVar(static_cast<long long>(System::screenSize().cx));
 	}
 };
-struct QiFunc_sub : public QiFunc
+struct QiFunc_scr_cy : public QiFunc
 {
-	QiFunc_sub() : QiFunc(2, 3) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	QiFunc_scr_cy() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>&, QiVarMap*, QiVarMap*, QiWorker*) const override
 	{
-		return QiVar::sub(args[0].toString(), args[1].toInteger(), args.size() > 2 ? args[2].toInteger() : ~size_t(0));
+		return QiVar(static_cast<long long>(System::screenSize().cy));
 	}
 };
-struct QiFunc_subx : public QiFunc
+
+struct QiFunc_pop : public QiFunc
 {
-	QiFunc_subx() : QiFunc(2, 3) {}
+	QiFunc_pop() : QiFunc(1, 3) {}
 	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
 	{
-		return QiVar::subx(args[0].toString(), args[1].toInteger(), args.size() > 2 ? args[2].toInteger() : ~size_t(0));
-	}
-};
-struct QiFunc_find : public QiFunc
-{
-	QiFunc_find() : QiFunc(2, 3) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
-	{
-		size_t i = args[0].toString().find(args[1].toString(), args.size() > 2 ? args[2].toInteger() : 0);
-		return i == std::string::npos ? -1ll : static_cast<long long>(i);
-	}
-};
-struct QiFunc_replace : public QiFunc
-{
-	QiFunc_replace() : QiFunc(2, 3) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
-	{
-		return QiVar::replace_u8(args[0].toString(), args[1].toString(), args.size() > 2 ? args[2].toString() : std::string(""));
+		Qi::interpreter_pop(args[0].toString(), args.size() > 1 ? args[1].toInteger() : 1000);
+		if (args.size() > 2 && args[2].toBool()) Sleep(args[1].toInteger());
+		else Sleep(1);
+		return args[0];
 	}
 };
 struct QiFunc_text_box : public QiFunc
@@ -590,153 +612,7 @@ struct QiFunc_edit_box : public QiFunc
 		return TextEditBox(nullptr, String::toWString(title).c_str(), String::toWString(text).c_str(), args.size() > 2 ? args[2].toBool() : false, WS_EX_TOPMOST, Qi::ico);
 	}
 };
-struct QiFunc_volume : public QiFunc
-{
-	QiFunc_volume() : QiFunc(0, 2) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
-	{
-		return (double)Sound::SpeakerVolume(args.size() > 0 ? args[0].toInteger() : 10, args.size() > 1 ? args[1].toBool() : false);
-	}
-};
-struct QiFunc_file_read : public QiFunc
-{
-	QiFunc_file_read() : QiFunc(1) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
-	{
-		QByteArray data;
-		if (File::LoadText(args[0].toString().c_str(), data)) return QiVar(QString::fromUtf8(data).toStdString());
-		return QiVar();
-	}
-};
-struct QiFunc_file_write : public QiFunc
-{
-	QiFunc_file_write() : QiFunc(2) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
-	{
-		return File::SaveText(args[0].toString().c_str(), args[1].toString().c_str());
-	}
-};
-struct QiFunc_file_exist : public QiFunc
-{
-	QiFunc_file_exist() : QiFunc(1) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
-	{
-		return File::PathState(String::toWString(args[0].toString()));
-	}
-};
-struct QiFunc_file_remove : public QiFunc
-{
-	QiFunc_file_remove() : QiFunc(1) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
-	{
-		return bool(DeleteFileW(String::toWString(args[0].toString()).c_str()));
-	}
-};
-struct QiFunc_file_open : public QiFunc
-{
-	QiFunc_file_open() : QiFunc(1) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
-	{
-		return Process::open(String::toWString(args[0].toString()));
-	}
-};
-struct QiFunc_csv_rows : public QiFunc
-{
-	QiFunc_csv_rows() : QiFunc(1) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
-	{
-		return (long long)CsvTool::rows(args[0].toString());
-	}
-};
-struct QiFunc_csv_cols : public QiFunc
-{
-	QiFunc_csv_cols() : QiFunc(1) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
-	{
-		return (long long)CsvTool::cols(args[0].toString());
-	}
-};
-struct QiFunc_csv_read : public QiFunc
-{
-	QiFunc_csv_read() : QiFunc(3) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
-	{
-		return CsvTool::read(args[0].toString(), args[1].toInteger(), args[2].toInteger());
-	}
-};
-struct QiFunc_csv_write : public QiFunc
-{
-	QiFunc_csv_write() : QiFunc(4) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
-	{
-		long long row = args[1].toInteger();
-		long long col = args[2].toInteger();
-		if (row < 0 || col < 0) return std::string();
-		return CsvTool::write(args[0].toString(), row, col, args[3].toString());
-	}
-};
-struct QiFunc_power : public QiFunc
-{
-	enum
-	{
-		lock,
-		signout,
-		shutdown,
-		reboot,
-	};
 
-	QiFunc_power() : QiFunc(0, 1) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
-	{
-		BOOL result = FALSE;
-		int op = lock;
-		if (args.empty());
-		else if (args[0].isInteger()) op = args[0].toInteger();
-		else
-		{
-			if (args[0].toString() == "lock") op = lock;
-			else if (args[0].toString() == "sign") op = signout;
-			else if (args[0].toString() == "shutdown") op = shutdown;
-			else if (args[0].toString() == "reboot") op = reboot;
-		}
-
-		if (op > lock && op <= reboot)
-		{
-			HANDLE hToken;
-			TOKEN_PRIVILEGES tkp = {};
-
-			if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken)) return QiVar(false);
-
-			LookupPrivilegeValueW(NULL, SE_SHUTDOWN_NAME, &tkp.Privileges[0].Luid);
-
-			tkp.PrivilegeCount = 1;
-			tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-
-			AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
-
-			if (GetLastError() != ERROR_SUCCESS) return QiVar(false);
-		}
-
-		switch (op)
-		{
-		case lock: result = LockWorkStation(); break;
-		case signout: result = ExitWindowsEx(EWX_LOGOFF, SHTDN_REASON_MAJOR_APPLICATION); break;
-		case shutdown: result = ExitWindowsEx(EWX_POWEROFF, SHTDN_REASON_MAJOR_APPLICATION); break;
-		case reboot: result = ExitWindowsEx(EWX_REBOOT, SHTDN_REASON_MAJOR_APPLICATION); break;
-		}
-		return result;
-	}
-};
-struct QiFunc_cmd : public QiFunc
-{
-	QiFunc_cmd() : QiFunc(1) {}
-	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
-	{
-		std::wstring output;
-		System::ExecuteCmd(String::toWString(args[0].toString()), output);
-		return output;
-	}
-};
 struct QiFunc_wnd_find : public QiFunc
 {
 	QiFunc_wnd_find() : QiFunc(1, 3) {}
@@ -1039,22 +915,86 @@ struct QiFunc_wnd_visible : public QiFunc
 		return QiVar((bool)IsWindowVisible(wnd));
 	}
 };
-struct QiFunc_scr_cx : public QiFunc
+
+struct QiFunc_file_read : public QiFunc
 {
-	QiFunc_scr_cx() : QiFunc(0) {}
-	QiVar exec(const std::vector<QiVar>&, QiVarMap*, QiVarMap*, QiWorker*) const override
+	QiFunc_file_read() : QiFunc(1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
 	{
-		return QiVar(static_cast<long long>(System::screenSize().cx));
+		QByteArray data;
+		if (File::LoadText(args[0].toString().c_str(), data)) return QiVar(QString::fromUtf8(data).toStdString());
+		return QiVar();
 	}
 };
-struct QiFunc_scr_cy : public QiFunc
+struct QiFunc_file_write : public QiFunc
 {
-	QiFunc_scr_cy() : QiFunc(0) {}
-	QiVar exec(const std::vector<QiVar>&, QiVarMap*, QiVarMap*, QiWorker*) const override
+	QiFunc_file_write() : QiFunc(2) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
 	{
-		return QiVar(static_cast<long long>(System::screenSize().cy));
+		return File::SaveText(args[0].toString().c_str(), args[1].toString().c_str());
 	}
 };
+struct QiFunc_file_exist : public QiFunc
+{
+	QiFunc_file_exist() : QiFunc(1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		return File::PathState(String::toWString(args[0].toString()));
+	}
+};
+struct QiFunc_file_remove : public QiFunc
+{
+	QiFunc_file_remove() : QiFunc(1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		return bool(DeleteFileW(String::toWString(args[0].toString()).c_str()));
+	}
+};
+struct QiFunc_file_open : public QiFunc
+{
+	QiFunc_file_open() : QiFunc(1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		return Process::open(String::toWString(args[0].toString()));
+	}
+};
+
+struct QiFunc_csv_rows : public QiFunc
+{
+	QiFunc_csv_rows() : QiFunc(1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		return (long long)CsvTool::rows(args[0].toString());
+	}
+};
+struct QiFunc_csv_cols : public QiFunc
+{
+	QiFunc_csv_cols() : QiFunc(1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		return (long long)CsvTool::cols(args[0].toString());
+	}
+};
+struct QiFunc_csv_read : public QiFunc
+{
+	QiFunc_csv_read() : QiFunc(3) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		return CsvTool::read(args[0].toString(), args[1].toInteger(), args[2].toInteger());
+	}
+};
+struct QiFunc_csv_write : public QiFunc
+{
+	QiFunc_csv_write() : QiFunc(4) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		long long row = args[1].toInteger();
+		long long col = args[2].toInteger();
+		if (row < 0 || col < 0) return std::string();
+		return CsvTool::write(args[0].toString(), row, col, args[3].toString());
+	}
+};
+
 struct QiFunc_clip_read : public QiFunc
 {
 	QiFunc_clip_read() : QiFunc(0) {}
@@ -1071,6 +1011,7 @@ struct QiFunc_clip_write : public QiFunc
 		return QiVar(System::ClipBoardText(String::toWString(args[0].toString()).c_str()));
 	}
 };
+
 struct QiFunc_macro_name : public QiFunc
 {
 	QiFunc_macro_name() : QiFunc(0) {}
@@ -1103,6 +1044,7 @@ struct QiFunc_macro_stop : public QiFunc
 		return Qi::interpreter_macro_stop(args[0].toString());
 	}
 };
+
 struct QiFunc_proc_find : public QiFunc
 {
 	QiFunc_proc_find() : QiFunc(1) {}
@@ -1118,6 +1060,77 @@ struct QiFunc_proc_close : public QiFunc
 	{
 		if (args.empty()) ExitProcess(0);
 		return static_cast<long long>(Process::close(args[0].toWString()));
+	}
+};
+
+struct QiFunc_volume : public QiFunc
+{
+	QiFunc_volume() : QiFunc(0, 2) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		return (double)Sound::SpeakerVolume(args.size() > 0 ? args[0].toInteger() : 10, args.size() > 1 ? args[1].toBool() : false);
+	}
+};
+struct QiFunc_power : public QiFunc
+{
+	enum
+	{
+		lock,
+		signout,
+		shutdown,
+		reboot,
+	};
+
+	QiFunc_power() : QiFunc(0, 1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		BOOL result = FALSE;
+		int op = lock;
+		if (args.empty());
+		else if (args[0].isInteger()) op = args[0].toInteger();
+		else
+		{
+			if (args[0].toString() == "lock") op = lock;
+			else if (args[0].toString() == "sign") op = signout;
+			else if (args[0].toString() == "shutdown") op = shutdown;
+			else if (args[0].toString() == "reboot") op = reboot;
+		}
+
+		if (op > lock && op <= reboot)
+		{
+			HANDLE hToken;
+			TOKEN_PRIVILEGES tkp = {};
+
+			if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken)) return QiVar(false);
+
+			LookupPrivilegeValueW(NULL, SE_SHUTDOWN_NAME, &tkp.Privileges[0].Luid);
+
+			tkp.PrivilegeCount = 1;
+			tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+			AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
+
+			if (GetLastError() != ERROR_SUCCESS) return QiVar(false);
+		}
+
+		switch (op)
+		{
+		case lock: result = LockWorkStation(); break;
+		case signout: result = ExitWindowsEx(EWX_LOGOFF, SHTDN_REASON_MAJOR_APPLICATION); break;
+		case shutdown: result = ExitWindowsEx(EWX_POWEROFF, SHTDN_REASON_MAJOR_APPLICATION); break;
+		case reboot: result = ExitWindowsEx(EWX_REBOOT, SHTDN_REASON_MAJOR_APPLICATION); break;
+		}
+		return result;
+	}
+};
+struct QiFunc_cmd : public QiFunc
+{
+	QiFunc_cmd() : QiFunc(1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		std::wstring output;
+		System::ExecuteCmd(String::toWString(args[0].toString()), output);
+		return output;
 	}
 };
 
@@ -1142,20 +1155,28 @@ QiFuncMap::QiFuncMap()
 	insert({ "time_rms", std::make_unique<QiFunc_time_rms>() });
 	insert({ "time_set_s", std::make_unique<QiFunc_time_set_s>() });
 	insert({ "time_set_ms", std::make_unique<QiFunc_time_set_ms>() });
+
 	insert({ "exist", std::make_unique<QiFunc_exist>() });
 	insert({ "str", std::make_unique<QiFunc_str>() });
 	insert({ "num", std::make_unique<QiFunc_num>() });
 	insert({ "int", std::make_unique<QiFunc_int>() });
+	insert({ "len", std::make_unique<QiFunc_len>() });
+
+	insert({ "char", std::make_unique<QiFunc_char>() });
 	insert({ "rmn", std::make_unique<QiFunc_rmn>() });
 	insert({ "rmc", std::make_unique<QiFunc_rmc>() });
 	insert({ "rms", std::make_unique<QiFunc_rms>() });
-	insert({ "len", std::make_unique<QiFunc_len>() });
-	insert({ "pop", std::make_unique<QiFunc_pop>() });
+	insert({ "sub", std::make_unique<QiFunc_sub>() });
+	insert({ "subx", std::make_unique<QiFunc_subx>() });
+	insert({ "find", std::make_unique<QiFunc_find>() });
+	insert({ "replace", std::make_unique<QiFunc_replace>() });
+
 	insert({ "sleep", std::make_unique<QiFunc_sleep>() });
 	insert({ "exit", std::make_unique<QiFunc_exit>() });
 	insert({ "close", std::make_unique<QiFunc_proc_close>() });
 	insert({ "rand", std::make_unique<QiFunc_rand>() });
 	insert({ "rand_last", std::make_unique<QiFunc_rand_last>() });
+
 	insert({ "cur_to", std::make_unique<QiFunc_cur_to>() });
 	insert({ "cur_move", std::make_unique<QiFunc_cur_move>() });
 	insert({ "cur_x", std::make_unique<QiFunc_cur_x>() });
@@ -1164,25 +1185,14 @@ QiFuncMap::QiFuncMap()
 	insert({ "cur_last_y", std::make_unique<QiFunc_cur_last_y>() });
 	insert({ "cur_last_ax", std::make_unique<QiFunc_cur_last_ax>() });
 	insert({ "cur_last_ay", std::make_unique<QiFunc_cur_last_ay>() });
-	insert({ "char", std::make_unique<QiFunc_char>() });
-	insert({ "sub", std::make_unique<QiFunc_sub>() });
-	insert({ "subx", std::make_unique<QiFunc_subx>() });
-	insert({ "find", std::make_unique<QiFunc_find>() });
-	insert({ "replace", std::make_unique<QiFunc_replace>() });
+
+	insert({ "scr_cx", std::make_unique<QiFunc_scr_cx>() });
+	insert({ "scr_cy", std::make_unique<QiFunc_scr_cy>() });
+
+	insert({ "pop", std::make_unique<QiFunc_pop>() });
 	insert({ "text_box", std::make_unique<QiFunc_text_box>() });
 	insert({ "edit_box", std::make_unique<QiFunc_edit_box>() });
-	insert({ "volume", std::make_unique<QiFunc_volume>() });
-	insert({ "file_read", std::make_unique<QiFunc_file_read>() });
-	insert({ "file_write", std::make_unique<QiFunc_file_write>() });
-	insert({ "file_exist", std::make_unique<QiFunc_file_exist>() });
-	insert({ "file_remove", std::make_unique<QiFunc_file_remove>() });
-	insert({ "file_open", std::make_unique<QiFunc_file_open>() });
-	insert({ "csv_rows", std::make_unique<QiFunc_csv_rows>() });
-	insert({ "csv_cols", std::make_unique<QiFunc_csv_cols>() });
-	insert({ "csv_read", std::make_unique<QiFunc_csv_read>() });
-	insert({ "csv_write", std::make_unique<QiFunc_csv_write>() });
-	insert({ "power", std::make_unique<QiFunc_power>() });
-	insert({ "cmd", std::make_unique<QiFunc_cmd>() });
+
 	insert({ "wnd_find", std::make_unique<QiFunc_wnd_find>() });
 	insert({ "wnd_find_other", std::make_unique<QiFunc_wnd_find_other>() });
 	insert({ "wnd_search", std::make_unique<QiFunc_wnd_search>() });
@@ -1199,14 +1209,30 @@ QiFuncMap::QiFuncMap()
 	insert({ "wnd_exist", std::make_unique<QiFunc_wnd_exist>() });
 	insert({ "wnd_current", std::make_unique<QiFunc_wnd_current>() });
 	insert({ "wnd_visible", std::make_unique<QiFunc_wnd_visible>() });
-	insert({ "scr_cx", std::make_unique<QiFunc_scr_cx>() });
-	insert({ "scr_cy", std::make_unique<QiFunc_scr_cy>() });
+
+	insert({ "file_read", std::make_unique<QiFunc_file_read>() });
+	insert({ "file_write", std::make_unique<QiFunc_file_write>() });
+	insert({ "file_exist", std::make_unique<QiFunc_file_exist>() });
+	insert({ "file_remove", std::make_unique<QiFunc_file_remove>() });
+	insert({ "file_open", std::make_unique<QiFunc_file_open>() });
+
+	insert({ "csv_rows", std::make_unique<QiFunc_csv_rows>() });
+	insert({ "csv_cols", std::make_unique<QiFunc_csv_cols>() });
+	insert({ "csv_read", std::make_unique<QiFunc_csv_read>() });
+	insert({ "csv_write", std::make_unique<QiFunc_csv_write>() });
+
 	insert({ "clip_read", std::make_unique<QiFunc_clip_read>() });
 	insert({ "clip_write", std::make_unique<QiFunc_clip_write>() });
+
 	insert({ "macro_name", std::make_unique<QiFunc_macro_name>() });
 	insert({ "macro_active", std::make_unique<QiFunc_macro_active>() });
 	insert({ "macro_start", std::make_unique<QiFunc_macro_start>() });
 	insert({ "macro_stop", std::make_unique<QiFunc_macro_stop>() });
+
 	insert({ "proc_find", std::make_unique<QiFunc_proc_find>() });
 	insert({ "proc_close", std::make_unique<QiFunc_proc_close>() });
+
+	insert({ "volume", std::make_unique<QiFunc_volume>() });
+	insert({ "power", std::make_unique<QiFunc_power>() });
+	insert({ "cmd", std::make_unique<QiFunc_cmd>() });
 }

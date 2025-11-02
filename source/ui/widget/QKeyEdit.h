@@ -228,7 +228,7 @@ public: /* propertys */
 Q_SIGNALS:
 	void changed();
 private:
-	bool isPressed(short key)
+	bool isPressed(QKeyEditKey key)
 	{
 		for (auto i : m_keys) if (i == key) return true;
 		return false;
@@ -269,7 +269,7 @@ private:
 		}
 		QLineEdit::setText(text);
 	}
-	void press(short key)
+	void press(QKeyEditKey key)
 	{
 		if (m_editable)
 		{
@@ -296,7 +296,7 @@ private:
 			}
 		}
 	}
-	void release(short key)
+	void release(QKeyEditKey key)
 	{
 		if (m_editable)
 		{
@@ -491,21 +491,21 @@ private Q_SLOTS:
 	}
 #endif
 public:
-	static bool isMouse(short keyCode)
+	static bool isMouse(QKeyEditKey keyCode)
 	{
 		return ((keyCode >= VK_LBUTTON && keyCode <= VK_XBUTTON2) || keyCode == VK_WHEELUP || keyCode == VK_WHEELDOWN);
 	}
-	static bool isKeyboard(short keyCode)
+	static bool isKeyboard(QKeyEditKey keyCode)
 	{
 		return ((keyCode >= VK_CLEAR && keyCode <= VK_OEM_CLEAR) || keyCode == VK_BACK || keyCode == VK_TAB);
 	}
 #ifdef Q_KEYEDIT_PAD_ENABLED
-	static bool isPad(short keyCode)
+	static bool isPad(QKeyEditKey keyCode)
 	{
 		return ((keyCode >= XBoxPadButton::start) && (keyCode <= XBoxPadButton::r_bottom));
 	}
 #endif
-	static short toKeyCode(Qt::MouseButton key)
+	static QKeyEditKey toKeyCode(Qt::MouseButton key)
 	{
 		switch (key)
 		{
@@ -518,7 +518,7 @@ public:
 		return 0;
 	}
 #ifdef Q_KEYEDIT_PAD_ENABLED
-	static QString padName(short keyCode)
+	static QString padName(QKeyEditKey keyCode)
 	{
 		switch (keyCode)
 		{
@@ -548,7 +548,7 @@ public:
 		return u8"none";
 	}
 #endif
-	static QString keyName(short keyCode)
+	static QString keyName(QKeyEditKey keyCode)
 	{
 #ifdef Q_KEYEDIT_PAD_ENABLED
 		if (isPad(keyCode)) return padName(keyCode);
@@ -731,5 +731,20 @@ public:
 			}
 		}
 		return u8"none";
+	}
+	static QString keyText(QKeyEditKeys keyCodes)
+	{
+		QString text;
+		for (auto& k : keyCodes) text += keyName(k) + " ";
+		if (!text.isEmpty()) text.removeLast();
+		return text;
+	}
+	static QString keyText(QKeyEditCombinationKey combinationKey)
+	{
+		QString text;
+		if (combinationKey.mod & MOD_CONTROL) text += keyName(VK_CONTROL);
+		else if (combinationKey.mod & MOD_SHIFT) text += keyName(VK_SHIFT);
+		else if (combinationKey.mod & MOD_ALT) text += keyName(VK_MENU);
+		text += keyName(combinationKey.key);
 	}
 };

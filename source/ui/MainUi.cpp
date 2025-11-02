@@ -9,6 +9,8 @@ MainUi::MainUi(int tab)
 	Qi::widget.trigger = ui.tab_trigger;
 	Qi::widget.func = ui.tab_func;
 	Qi::widget.settings = ui.tab_settings;
+	setWindowTitle(Qi::title);
+	ui.title_label->setText(Qi::title);
 	Init();
 	Event();
 	StyleGroup();

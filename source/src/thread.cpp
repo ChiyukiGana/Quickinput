@@ -110,6 +110,7 @@ void QiMacroThread::run_start(Macro* macro)
 void QiMacroThread::end_start(Macro* macro)
 {
 	if (macro->acEnd.not_empty()) start(macro, false);
+	else stop();
 }
 bool QiMacroThread::run_active()
 {

@@ -144,15 +144,17 @@ struct QiDelay : QiBase
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		v_min.isEmpty() ? json.insert("ms", (int)min) : json.insert("v_min", (QString)v_min);
-		v_max.isEmpty() ? json.insert("ex", (int)max) : json.insert("v_max", (QString)v_max);
+		v_min.isEmpty() ? json.insert("min", (int)min) : json.insert("v_min", (QString)v_min);
+		v_max.isEmpty() ? json.insert("max", (int)max) : json.insert("v_max", (QString)v_max);
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
-		min = json.value("ms").toInt(), v_min = json.value("v_min").toString();
-		max = json.value("ex").toInt(), v_max = json.value("v_max").toString();
+		min = json.value("min").toInt(), v_min = json.value("v_min").toString();
+		max = json.value("max").toInt(), v_max = json.value("v_max").toString();
+		if (!min) min = json.value("ms").toInt();
+		if (!max) max = json.value("ex").toInt();
 	}
 };
 struct QiKey : QiBase
@@ -273,16 +275,18 @@ struct QiLoop : QiBase
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		v_min.isEmpty() ? json.insert("count", (int)min) : json.insert("v_min", (QString)v_min);
-		v_max.isEmpty() ? json.insert("rand", (int)max) : json.insert("v_max", (QString)v_max);
+		v_min.isEmpty() ? json.insert("min", (int)min) : json.insert("v_min", (QString)v_min);
+		v_max.isEmpty() ? json.insert("max", (int)max) : json.insert("v_max", (QString)v_max);
 		if (next) json.insert("next", next.toJson());
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
-		min = json.value("count").toInt(), v_min = json.value("v_min").toString();
-		max = json.value("rand").toInt(), v_max = json.value("v_max").toString();
+		min = json.value("min").toInt(), v_min = json.value("v_min").toString();
+		max = json.value("max").toInt(), v_max = json.value("v_max").toString();
+		if (!min) min = json.value("count").toInt();
+		if (!max) max = json.value("rand").toInt();
 		next.fromJson(json.value("next").toArray());
 	}
 };
@@ -417,8 +421,8 @@ struct QiTimer : QiBase
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		v_min.isEmpty() ? json.insert("count", (int)min) : json.insert("v_min", (QString)v_min);
-		v_max.isEmpty() ? json.insert("rand", (int)max) : json.insert("v_max", (QString)v_max);
+		v_min.isEmpty() ? json.insert("min", (int)min) : json.insert("v_min", (QString)v_min);
+		v_max.isEmpty() ? json.insert("max", (int)max) : json.insert("v_max", (QString)v_max);
 		if (next) json.insert("next", next.toJson());
 		if (next2) json.insert("next2", next2.toJson());
 		return json;
@@ -426,8 +430,10 @@ struct QiTimer : QiBase
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
-		min = json.value("count").toInt(), v_min = json.value("v_min").toString();
-		max = json.value("rand").toInt(), v_max = json.value("v_max").toString();
+		min = json.value("min").toInt(), v_min = json.value("v_min").toString();
+		max = json.value("max").toInt(), v_max = json.value("v_max").toString();
+		if (!min) min = json.value("count").toInt();
+		if (!max) max = json.value("rand").toInt();
 		next.fromJson(json.value("next").toArray());
 		next2.fromJson(json.value("next2").toArray());
 	}
