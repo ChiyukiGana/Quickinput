@@ -25,6 +25,9 @@ class QiInterpreter
 public:
 	QiInterpreter(Macro& macro, bool isRunning, QiWorker& worker);
 	int rand(int max, int min = 0);
+	void setValue(const std::string& var, const QiVar& val);
+	void setCount(int i);
+	void setIndex(int i);
 	void setLastPos(int x, int y);
 	bool isInvalid();
 	void DebugContinue();

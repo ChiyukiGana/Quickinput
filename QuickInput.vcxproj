@@ -196,6 +196,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\src\action.h" />
+    <ClInclude Include="source\src\cvt.h" />
     <ClInclude Include="source\src\func.h" />
     <ClInclude Include="source\src\inc_external.h" />
     <ClInclude Include="source\src\inc_header.h" />

@@ -88,6 +88,7 @@ class EditUi : public QDialogFrameless
 	QPointView widget_pv;
 	QPointView widget_mkpv;
 	QRectView widget_rv;
+	QRectView range_rv;
 	QTextDialog widget_td;
 
 	// for image viewer
@@ -237,31 +238,33 @@ private:
 	QiVolume WidgetGetVolume();
 	QiSoundPlay WidgetGetSoundPlay();
 	QiMsgView WidgetGetMsgView();
+	QiRangeSet WidgetGetRange();
 
 	// load params to widget
-	void WidgetSet(const QiKey& key);
-	void WidgetSet(const QiKeyState& keyState);
-	void WidgetSet(const QiMouse& mouse);
-	void WidgetSet(const QiDelay& delay);
-	void WidgetSet(const QiCopyText& text);
-	void WidgetSet(const QiColor& color);
-	void WidgetSet(const QiLoop& loop);
-	void WidgetSet(const QiImage& image);
-	void WidgetSet(const QiPopText& popText);
-	void WidgetSet(const QiTimer& timer);
-	void WidgetSet(const QiDialog& dialog);
-	void WidgetSet(const QiQuickInput& quickInput);
-	void WidgetSet(const QiKeyBlock& keyBlock);
-	void WidgetSet(const QiClock& clock);
-	void WidgetSet(const QiOcr& ocr);
-	void WidgetSet(const QiVarOperator& varOperator);
-	void WidgetSet(const QiVarCondition& varCondition);
-	void WidgetSet(const QiOpen& open);
-	void WidgetSet(const QiTextPad& textPad);
-	void WidgetSet(const QiEditDialog& editDialog);
-	void WidgetSet(const QiVolume& volume);
-	void WidgetSet(const QiSoundPlay& soundPlay);
-	void WidgetSet(const QiMsgView& msgView);
+	void WidgetSet(const QiKey&);
+	void WidgetSet(const QiKeyState&);
+	void WidgetSet(const QiMouse&);
+	void WidgetSet(const QiDelay&);
+	void WidgetSet(const QiCopyText&);
+	void WidgetSet(const QiColor&);
+	void WidgetSet(const QiLoop&);
+	void WidgetSet(const QiImage&);
+	void WidgetSet(const QiPopText&);
+	void WidgetSet(const QiTimer&);
+	void WidgetSet(const QiDialog&);
+	void WidgetSet(const QiQuickInput&);
+	void WidgetSet(const QiKeyBlock&);
+	void WidgetSet(const QiClock&);
+	void WidgetSet(const QiOcr&);
+	void WidgetSet(const QiVarOperator&);
+	void WidgetSet(const QiVarCondition&);
+	void WidgetSet(const QiOpen&);
+	void WidgetSet(const QiTextPad&);
+	void WidgetSet(const QiEditDialog&);
+	void WidgetSet(const QiVolume&);
+	void WidgetSet(const QiSoundPlay&);
+	void WidgetSet(const QiMsgView&);
+	void WidgetSet(const QiRangeSet&);
 
 
 	// iter binds
@@ -274,10 +277,6 @@ private:
 	void ListJumpPointReload();
 	void ListBlockReload();
 
-
-	// quickinput
-	QiVector<unsigned char> StringToKey(const QString str);
-	QString KeyToString(const QiVector<unsigned char >& keys);
 
 	void Forward(const QString& title, Actions* next);
 	void Back();

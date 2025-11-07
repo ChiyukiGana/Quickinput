@@ -249,6 +249,7 @@ void EditUi::Init_Bind()
 		bind_type_group.at(static_cast<size_t>(QiType::volume)) = ui.grp_volume;
 		bind_type_group.at(static_cast<size_t>(QiType::soundPlay)) = ui.grp_soundPlay;
 		bind_type_group.at(static_cast<size_t>(QiType::msgView)) = ui.grp_msgView;
+		bind_type_group.at(static_cast<size_t>(QiType::range)) = ui.grp_range;
 	}
 	if ("buttons")
 	{
@@ -609,12 +610,12 @@ void EditUi::Event_Action_Widget()
 			}
 			RECT wrect = Window::rect(macro->wndInfo.wnd);
 			pt = ps.Start(wrect);
-			pt = QiFn::P_WRTA({ pt.x, pt.y }, macro->wndInfo.wnd);
+			pt = QiCvt::WP_RtA({ pt.x, pt.y }, macro->wndInfo.wnd, macro->range);
 		}
 		else
 		{
 			pt = ps.Start();
-			pt = QiFn::P_SRTA({ pt.x, pt.y });
+			pt = QiCvt::SP_RtA({ pt.x, pt.y }, macro->range);
 		}
 		QiMouse mouse(WidgetGetMouse());
 		mouse.x = pt.x;
@@ -692,7 +693,7 @@ void EditUi::Event_Action_Widget()
 				rgba.a = 1;
 				ReleaseDC(nullptr, hdc);
 			}
-			rect = QiFn::R_WRTA(rect, macro->wndInfo.wnd);
+			rect = QiCvt::WR_RtA(rect, macro->wndInfo.wnd, macro->range);
 		}
 		else
 		{
@@ -704,7 +705,7 @@ void EditUi::Event_Action_Widget()
 				rgba.a = 1;
 				ReleaseDC(nullptr, hdc);
 			}
-			rect = QiFn::R_SRTA(rect);
+			rect = QiCvt::SR_RtA(rect, macro->range);
 		}
 		QiColor color(WidgetGetColor());
 		color.rect = rect;
@@ -719,7 +720,6 @@ void EditUi::Event_Action_Widget()
 	connect(ui.color_rgb_button, &QPushButton::clicked, this, [this] {
 		QColorSelection cs;
 		QColor c = cs.Start();
-		POINT p = QiFn::P_SRTA(Input::pos());
 		QColorDialog cd(c, this);
 		cd.setStyleSheet(QiUi::color_dialog_style);
 		cd.exec();
@@ -727,7 +727,6 @@ void EditUi::Event_Action_Widget()
 		color.rgbe.r = cd.currentColor().red();
 		color.rgbe.g = cd.currentColor().green();
 		color.rgbe.b = cd.currentColor().blue();
-		if (!(color.rect.left || color.rect.top || color.rect.right || color.rect.bottom)) color.rect = { p.x, p.y, p.x, p.y };
 		WidgetSet(color);
 		});
 	// image
@@ -742,12 +741,12 @@ void EditUi::Event_Action_Widget()
 			}
 			RECT wrect = Window::rect(macro->wndInfo.wnd);
 			rect = rs.Start(wrect);
-			rect = QiFn::R_WRTA(rect, macro->wndInfo.wnd);
+			rect = QiCvt::WR_RtA(rect, macro->wndInfo.wnd, macro->range);
 		}
 		else
 		{
 			rect = rs.Start();
-			rect = QiFn::R_SRTA(rect);
+			rect = QiCvt::SR_RtA(rect, macro->range);
 		}
 		QiImage image(WidgetGetImage());
 		image.rect = rect;
@@ -756,12 +755,12 @@ void EditUi::Event_Action_Widget()
 	connect(ui.image_shot_button, &QPushButton::clicked, this, [this] {
 		QRectSelection rs;
 		RECT rect = rs.Start();
-		QiImage image(WidgetGetImage());
-		Image::ScreenRgbMap(imageMap, rect);
-		image.map = imageMap;
-		RECT before = QiFn::R_SATR(image.rect);
-		if (!(image.rect.left || image.rect.top || image.rect.right || image.rect.bottom) || !InRect(image.rect, rect)) image.rect = QiFn::R_SRTA(rect);
-		WidgetSet(image);
+		if (rect.left && rect.top && rect.right && rect.bottom)
+		{
+			QiImage image(WidgetGetImage());
+			image.map = imageMap = Image::ScreenRgbMap(rect);
+			WidgetSet(image);
+		}
 		});
 	// ocr
 	connect(ui.ocr_rect_button, &QPushButton::clicked, this, [this] {
@@ -775,12 +774,12 @@ void EditUi::Event_Action_Widget()
 			}
 			RECT wrect = Window::rect(macro->wndInfo.wnd);
 			rect = rs.Start(wrect);
-			rect = QiFn::R_WRTA(rect, macro->wndInfo.wnd);
+			rect = QiCvt::WR_RtA(rect, macro->wndInfo.wnd, macro->range);
 		}
 		else
 		{
 			rect = rs.Start();
-			rect = QiFn::R_SRTA(rect);
+			rect = QiCvt::SR_RtA(rect, macro->range);
 		}
 		QiOcr ocr(WidgetGetOcr());
 		ocr.rect = rect;
@@ -793,7 +792,7 @@ void EditUi::Event_Action_Widget()
 			return;
 		}
 		const QiOcr& ocr = WidgetGetOcr();
-		std::string text = Qi::ocr.scan(QiFn::R_SATR(ocr.rect), ocr.row);
+		std::string text = Qi::ocr.scan(QiCvt::SR_AtR(ocr.rect, macro->range), ocr.row);
 		if (text.empty())
 		{
 			Qi::popText->Popup("没有识别到内容");
@@ -829,6 +828,44 @@ void EditUi::Event_Action_Widget()
 	connect(ui.msgView_level_msg_radio, &QRadioButton::clicked, [this] { ui.msgView_type_add_radio->setChecked(true); });
 	connect(ui.msgView_level_war_radio, &QRadioButton::clicked, [this] { ui.msgView_type_add_radio->setChecked(true); });
 	connect(ui.msgView_level_err_radio, &QRadioButton::clicked, [this] { ui.msgView_type_add_radio->setChecked(true); });
+	// range
+	connect(ui.range_rect_button, &QPushButton::clicked, this, [this] {
+		QRectSelection rs;
+		RECT rect;
+		Rgba rgba;
+		if (macro->wndState)
+		{
+			if (!macro->wndInfo.update())
+			{
+				SelectWindow();
+			}
+			RECT wrect = Window::rect(macro->wndInfo.wnd);
+			rect = rs.Start(wrect);
+			if ((rect.right - rect.left == 0) && (rect.bottom - rect.top == 0))
+			{
+				HDC hdc = GetDC(nullptr);
+				rgba = Rgba(GetPixel(hdc, rect.left, rect.top));
+				rgba.a = 1;
+				ReleaseDC(nullptr, hdc);
+			}
+			rect = QiCvt::WR_RtA(rect, macro->wndInfo.wnd);
+		}
+		else
+		{
+			rect = rs.Start();
+			if ((rect.right - rect.left == 0) && (rect.bottom - rect.top == 0))
+			{
+				HDC hdc = GetDC(nullptr);
+				rgba = Rgba(GetPixel(hdc, rect.left, rect.top));
+				rgba.a = 1;
+				ReleaseDC(nullptr, hdc);
+			}
+			rect = QiCvt::SR_RtA(rect);
+		}
+		QiRangeSet range;
+		range.rect = rect;
+		WidgetSet(range);
+		});
 }
 // TODO: new action's preview
 void EditUi::Event_Table_Selection()
@@ -846,6 +883,7 @@ void EditUi::Event_Table_Selection()
 		widget_pv.hide();
 		widget_rv.hide();
 		widget_td.hide();
+		if (!ui.tab_range_check->isChecked()) range_rv.hide();
 
 		if (tableCurrent.size() == 1)
 		{
@@ -866,11 +904,11 @@ void EditUi::Event_Table_Selection()
 					if (macro->wndState)
 					{
 						if (!macro->wndInfo.update()) SelectWindow();
-						POINT rpt = QiFn::P_WATR({ ref.x, ref.y }, macro->wndInfo.wnd);
+						POINT rpt = QiCvt::WP_AtR({ ref.x, ref.y }, macro->wndInfo.wnd, macro->range);
 						pt = Window::pos(macro->wndInfo.wnd);
 						pt.x += rpt.x, pt.y += rpt.y;
 					}
-					else pt = QiFn::P_SATR({ ref.x, ref.y });
+					else pt = QiCvt::SP_AtR({ ref.x, ref.y }, macro->range);
 					widget_pv.Show(pt);
 				}
 			} break;
@@ -881,11 +919,11 @@ void EditUi::Event_Table_Selection()
 				if (macro->wndState)
 				{
 					if (!macro->wndInfo.update()) SelectWindow();
-					rect = QiFn::R_WATR(ref.rect, macro->wndInfo.wnd);
+					rect = QiCvt::WR_AtR(ref.rect, macro->wndInfo.wnd, macro->range);
 					POINT pt = Window::pos(macro->wndInfo.wnd);
 					rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 				}
-				else rect = QiFn::R_SATR(ref.rect);
+				else rect = QiCvt::SR_AtR(ref.rect, macro->range);
 				widget_rv.Show(rect);
 			} break;
 			case QiType::image:
@@ -895,11 +933,11 @@ void EditUi::Event_Table_Selection()
 				if (macro->wndState)
 				{
 					if (!macro->wndInfo.update()) SelectWindow();
-					rect = QiFn::R_WATR(ref.rect, macro->wndInfo.wnd);
+					rect = QiCvt::WR_AtR(ref.rect, macro->wndInfo.wnd, macro->range);
 					POINT pt = Window::pos(macro->wndInfo.wnd);
 					rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 				}
-				else rect = QiFn::R_SATR(ref.rect);
+				else rect = QiCvt::SR_AtR(ref.rect, macro->range);
 				widget_rv.Show(rect);
 				WidgetSet(ref);
 			} break;
@@ -910,11 +948,11 @@ void EditUi::Event_Table_Selection()
 				if (macro->wndState)
 				{
 					if (!macro->wndInfo.update()) SelectWindow();
-					rect = QiFn::R_WATR(ref.rect, macro->wndInfo.wnd);
+					rect = QiCvt::WR_AtR(ref.rect, macro->wndInfo.wnd, macro->range);
 					POINT pt = Window::pos(macro->wndInfo.wnd);
 					rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 				}
-				else rect = QiFn::R_SATR(ref.rect);
+				else rect = QiCvt::SR_AtR(ref.rect, macro->range);
 				widget_rv.Show(rect);
 			} break;
 			case QiType::textPad:
@@ -922,6 +960,21 @@ void EditUi::Event_Table_Selection()
 				const QiTextPad& ref = var.to<QiTextPad>();
 				widget_td.edit()->setPlainText(ref.text);
 				widget_td.show();
+			} break;
+			case QiType::range:
+			{
+				const QiRangeSet& ref = var.to<QiRangeSet>();
+				macro->range = ref.rect;
+				RECT rect;
+				if (macro->wndState)
+				{
+					if (!macro->wndInfo.update()) SelectWindow();
+					rect = QiCvt::WR_AtR(ref.rect, macro->wndInfo.wnd);
+					POINT pt = Window::pos(macro->wndInfo.wnd);
+					rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
+				}
+				else rect = QiCvt::SR_AtR(ref.rect);
+				range_rv.Show(rect, 2, QColor(0,127,192));
 			} break;
 			}
 		}
@@ -955,6 +1008,7 @@ void EditUi::StyleGroup()
 		ui.image_shot_button->setProperty("group", "get_button");
 		ui.ocr_rect_button->setProperty("group", "get_button");
 		ui.textPad_button->setProperty("group", "get_button");
+		ui.range_rect_button->setProperty("group", "get_button");
 	}
 	if ("buttons")
 	{
@@ -974,9 +1028,11 @@ void EditUi::StyleGroup()
 		ui.tab_lock_check->setProperty("group", "check");
 		ui.tab_hideTip_check->setProperty("group", "check");
 		ui.tab_markPoint_check->setProperty("group", "check");
+		ui.tab_range_check->setProperty("group", "check");
 		ui.mouse_track_check->setProperty("group", "check");
 		ui.color_move_check->setProperty("group", "check");
 		ui.image_move_check->setProperty("group", "check");
+		ui.image_mult_check->setProperty("group", "check");
 		ui.popText_wait_check->setProperty("group", "check");
 		ui.window_state_check->setProperty("group", "check");
 		ui.window_child_check->setProperty("group", "check");
@@ -984,6 +1040,7 @@ void EditUi::StyleGroup()
 		ui.ocr_match_check->setProperty("group", "check");
 		ui.ocr_row_check->setProperty("group", "check");
 		ui.ocr_move_check->setProperty("group", "check");
+		ui.ocr_mult_check->setProperty("group", "check");
 		ui.editDialog_mult_check->setProperty("group", "check");
 		ui.volume_max_check->setProperty("group", "check");
 		ui.soundPlay_sync_check->setProperty("group", "check");
@@ -1062,6 +1119,10 @@ void EditUi::StyleGroup()
 		ui.volume_edit->setProperty("group", "line_edit");
 		ui.volume_time_edit->setProperty("group", "line_edit");
 		ui.soundPlay_edit->setProperty("group", "line_edit");
+		ui.range_left_edit->setProperty("group", "line_edit");
+		ui.range_top_edit->setProperty("group", "line_edit");
+		ui.range_right_edit->setProperty("group", "line_edit");
+		ui.range_bottom_edit->setProperty("group", "line_edit");
 	}
 	if ("text edit")
 	{
@@ -1402,19 +1463,19 @@ void EditUi::TableUpdate(int index)
 {
 	updating = true;
 	const Action& var = actions->at(index);
-	QString type;
+	QString type = var.base().name();
 	QString param;
 	QColor color(0, 0, 0, 0);
 	switch (var.type())
 	{
 	case QiType::end:
 	{
-		type = QiUi::Text::acEnd;
+		type += QiUi::Symbol::Stop;
 	} break;
 	case QiType::delay:
 	{
 		const QiDelay& ref = var.to<QiDelay>();
-		type = QiUi::Text::acWait;
+		type += QiUi::Symbol::Time;
 		QString min = ref.v_min.isEmpty() ? QString::number(ref.min) : ref.v_min;
 		QString max = ref.v_max.isEmpty() ? QString::number(ref.max) : ref.v_max;
 		if (min == max) param = min;
@@ -1423,16 +1484,16 @@ void EditUi::TableUpdate(int index)
 	case QiType::key:
 	{
 		const QiKey& ref = var.to<QiKey>();
-		if (ref.state == QiKey::up) type = QiUi::Text::acUp;
-		else if (ref.state == QiKey::down) type = QiUi::Text::acDown;
-		else if (ref.state == QiKey::click) type = QiUi::Text::acClick;
+		if (ref.state == QiKey::up) type += QiUi::Symbol::Up;
+		else if (ref.state == QiKey::down) type += QiUi::Symbol::Down;
+		else if (ref.state == QiKey::click) type += QiUi::Symbol::Turn;
 		param = QKeyEdit::keyName(ref.vk);
 	} break;
 	case QiType::mouse:
 	{
 		const QiMouse& ref = var.to<QiMouse>();
-		if (ref.move) type = QiUi::Text::acMove;
-		else type = QiUi::Text::acPos;
+		if (ref.move) type += QiUi::Symbol::Move;
+		else type += QiUi::Symbol::Left;
 		param = (ref.v_x.isEmpty() ? QString::number(ref.x) : ref.v_x)
 			+ " , " + (ref.v_y.isEmpty() ? QString::number(ref.y) : ref.v_y);
 		if (ref.ex)
@@ -1449,13 +1510,13 @@ void EditUi::TableUpdate(int index)
 	case QiType::copyText:
 	{
 		const QiCopyText& ref = var.to<QiCopyText>();
-		type = QiUi::Text::acCopyText;
+		type += QiUi::Symbol::Text;
 		param = QiFn::FoldText(ref.text);
 	} break;
 	case QiType::color:
 	{
 		const QiColor& ref = var.to<QiColor>();
-		type = QiUi::Text::acColor;
+		type += QiUi::Symbol::Color;
 		param = (ref.v_left.isEmpty() ? QString::number(ref.rect.left) : ref.v_left)
 			+ "," + (ref.v_top.isEmpty() ? QString::number(ref.rect.top) : ref.v_top)
 			+ "," + (ref.v_right.isEmpty() ? QString::number(ref.rect.right) : ref.v_right)
@@ -1470,7 +1531,7 @@ void EditUi::TableUpdate(int index)
 	case QiType::loop:
 	{
 		const QiLoop& ref = var.to<QiLoop>();
-		type = QiUi::Text::acLoop;
+		type += QiUi::Symbol::Loop;
 
 		QString min = ref.v_min.isEmpty() ? QString::number(ref.min) : ref.v_min;
 		QString max = ref.v_max.isEmpty() ? QString::number(ref.max) : ref.v_max;
@@ -1481,23 +1542,23 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::loopEnd:
 	{
-		type = QiUi::Text::acEndLoop;
+		type += QiUi::Symbol::Stop;
 	} break;
 	case QiType::keyState:
 	{
 		const QiKeyState& ref = var.to<QiKeyState>();
-		type = QiUi::Text::acKeyState;
+		type += QiUi::Symbol::Stop;
 
 		param += QKeyEdit::keyName(ref.vk);
 	} break;
 	case QiType::resetPos:
 	{
-		type = QiUi::Text::acResetPos;
+		type += QiUi::Symbol::Turn;
 	} break;
 	case QiType::image:
 	{
 		const QiImage& ref = var.to<QiImage>();
-		type = QiUi::Text::acImage;
+		type += QiUi::Symbol::Image;
 		param = (ref.v_left.isEmpty() ? QString::number(ref.rect.left) : ref.v_left)
 			+ "," + (ref.v_top.isEmpty() ? QString::number(ref.rect.top) : ref.v_top)
 			+ "," + (ref.v_right.isEmpty() ? QString::number(ref.rect.right) : ref.v_right)
@@ -1510,7 +1571,7 @@ void EditUi::TableUpdate(int index)
 	case QiType::popText:
 	{
 		const QiPopText& ref = var.to<QiPopText>();
-		type = QiUi::Text::acPopText;
+		type += QiUi::Symbol::Text;
 		param = QiFn::FoldText(ref.text, 16);
 		param += " |　时长：";
 		param += QString::number(ref.time);
@@ -1518,12 +1579,12 @@ void EditUi::TableUpdate(int index)
 	} break;
 	case QiType::savePos:
 	{
-		type = QiUi::Text::acSavePos;
+		type += QiUi::Symbol::Turn;
 	} break;
 	case QiType::timer:
 	{
 		const QiTimer& ref = var.to<QiTimer>();
-		type = QiUi::Text::acTimer;
+		type += QiUi::Symbol::Loop;
 
 		QString min = ref.v_min.isEmpty() ? QString::number(ref.min) : ref.v_min;
 		QString max = ref.v_max.isEmpty() ? QString::number(ref.max) : ref.v_max;
@@ -1534,7 +1595,7 @@ void EditUi::TableUpdate(int index)
 	case QiType::jump:
 	{
 		const QiJump& ref = var.to<QiJump>();
-		type = QiUi::Text::acJump;
+		type += QiUi::Symbol::Jump;
 
 		if (ref.id < 1)
 		{
@@ -1559,7 +1620,7 @@ void EditUi::TableUpdate(int index)
 	case QiType::jumpPoint:
 	{
 		const QiJumpPoint& ref = var.to<QiJumpPoint>();
-		type = QiUi::Text::acJumpPoint;
+		type += QiUi::Symbol::Point;
 
 		param = "id：";
 		param += QString::number(ref.id);
@@ -1567,7 +1628,7 @@ void EditUi::TableUpdate(int index)
 	case QiType::dialog:
 	{
 		const QiDialog& ref = var.to<QiDialog>();
-		type = QiUi::Text::acDialog;
+		type += QiUi::Symbol::Text;
 		param = QiFn::FoldText(ref.title, 8);
 		param += " | ";
 		param += QiFn::FoldText(ref.text, 12);
@@ -1575,7 +1636,7 @@ void EditUi::TableUpdate(int index)
 	case QiType::block:
 	{
 		const QiBlock& ref = var.to<QiBlock>();
-		type = QiUi::Text::acBlock;
+		type += ref.name();
 
 		param = "id：";
 		param += QString::number(ref.id);
@@ -1583,7 +1644,7 @@ void EditUi::TableUpdate(int index)
 	case QiType::blockExec:
 	{
 		const QiBlockExec& ref = var.to<QiBlockExec>();
-		type = QiUi::Text::acBlockExec;
+		type += QiUi::Symbol::BlockExec;
 
 		if (ref.id < 1)
 		{
@@ -1608,13 +1669,13 @@ void EditUi::TableUpdate(int index)
 	case QiType::quickInput:
 	{
 		const QiQuickInput& ref = var.to<QiQuickInput>();
-		type = QiUi::Text::acQuickInput;
-		param = QiFn::FoldText(KeyToString(ref.chars));
+		type += QiUi::Symbol::Text;
+		param = QiFn::FoldText(ref.text);
 	} break;
 	case QiType::keyBlock:
 	{
 		const QiKeyBlock& ref = var.to<QiKeyBlock>();
-		type = QiUi::Text::acKeyBlock;
+		type += QiUi::Symbol::Stop;
 
 		if (ref.block) param = "屏蔽：";
 		else param = "解除：";
@@ -1625,14 +1686,14 @@ void EditUi::TableUpdate(int index)
 	case QiType::clock:
 	{
 		const QiClock& ref = var.to<QiClock>();
-		type = QiUi::Text::acClock;
+		type += QiUi::Symbol::Time;
 
 		param = QString::fromStdString(QiTime::toString(ref.time));
 	} break;
 	case QiType::ocr:
 	{
 		const QiOcr& ref = var.to<QiOcr>();
-		type = QiUi::Text::acOcr;
+		type += QiUi::Symbol::Text;
 		param = (ref.v_left.isEmpty() ? QString::number(ref.rect.left) : ref.v_left)
 			+ "," + (ref.v_top.isEmpty() ? QString::number(ref.rect.top) : ref.v_top)
 			+ "," + (ref.v_right.isEmpty() ? QString::number(ref.rect.right) : ref.v_right)
@@ -1643,38 +1704,38 @@ void EditUi::TableUpdate(int index)
 	case QiType::varOperator:
 	{
 		const QiVarOperator& ref = var.to<QiVarOperator>();
-		type = QiUi::Text::acVarOperator;
+		type += QiUi::Symbol::Equal;
 		param = QiFn::FoldText(ref.script);
 	} break;
 	case QiType::varCondition:
 	{
 		const QiVarCondition& ref = var.to<QiVarCondition>();
-		type = QiUi::Text::acVarCondition;
+		type += QiUi::Symbol::Var;
 		param = QiFn::FoldText(ref.script);
 	} break;
 	case QiType::mouseTrack:
 	{
 		const QiMouseTrack& ref = var.to<QiMouseTrack>();
-		type = QiUi::Text::acMouseTrack;
+		type += QiUi::Symbol::Track;
 
 		param = QString::number(ref.s.size());
 	} break;
 	case QiType::open:
 	{
 		const QiOpen& ref = var.to<QiOpen>();
-		type = QiUi::Text::acOpen;
+		type += QiUi::Symbol::Link;
 		param = QiFn::FoldText(ref.url, 20, true);
 	} break;
 	case QiType::textPad:
 	{
 		const QiTextPad& ref = var.to<QiTextPad>();
-		type = QiUi::Text::acTextPad;
+		type += QiUi::Symbol::Text;
 		param = QiFn::FoldText(ref.text);
 	} break;
 	case QiType::editDialog:
 	{
 		const QiEditDialog& ref = var.to<QiEditDialog>();
-		type = QiUi::Text::acEditDialog;
+		type += QiUi::Symbol::Text;
 		param = QiFn::FoldText(ref.title, 4);
 		param += " | ";
 		param += QiFn::FoldText(ref.text, 8);
@@ -1684,7 +1745,7 @@ void EditUi::TableUpdate(int index)
 	case QiType::volume:
 	{
 		const QiVolume& ref = var.to<QiVolume>();
-		type = QiUi::Text::acVolume;
+		type += QiUi::Symbol::Speaker;
 		param = ref.max ? "最大：" : "平均：";
 		param += QString::number(ref.volume);
 		param += ", ";
@@ -1693,7 +1754,7 @@ void EditUi::TableUpdate(int index)
 	case QiType::soundPlay:
 	{
 		const QiSoundPlay& ref = var.to<QiSoundPlay>();
-		type = QiUi::Text::acSoundPlay;
+		type += QiUi::Symbol::Speaker;
 		if (ref.state == QiSoundPlay::play)
 		{
 			param = QiFn::FoldText(ref.file, 18, true);
@@ -1706,12 +1767,21 @@ void EditUi::TableUpdate(int index)
 	case QiType::msgView:
 	{
 		const QiMsgView& ref = var.to<QiMsgView>();
-		type = QiUi::Text::acMsgView;
+		type += QiUi::Symbol::Text;
 		if (ref.option == QiMsgView::set) param = QString("设置：") + QiFn::FoldText(ref.text, 16, true);
 		else if (ref.option == QiMsgView::add) param = QString("添加：") + QiFn::FoldText(ref.text, 16, true);
 		else if (ref.option == QiMsgView::clear) param = "清空";
 		else if (ref.option == QiMsgView::show) param = "显示";
 		else if (ref.option == QiMsgView::hide) param = "隐藏";
+	} break;
+	case QiType::range:
+	{
+		const QiRangeSet& ref = var.to<QiRangeSet>();
+		type += QiUi::Symbol::Range;
+		param = QString::number(ref.rect.left)
+			+ "," + QString::number(ref.rect.top)
+			+ "," + QString::number(ref.rect.right)
+			+ "," + QString::number(ref.rect.bottom);
 	} break;
 	}
 
@@ -1836,6 +1906,7 @@ Action EditUi::ItemGet(QiType type)
 	case QiType::volume: return WidgetGetVolume();
 	case QiType::soundPlay: return WidgetGetSoundPlay();
 	case QiType::msgView: return WidgetGetMsgView();
+	case QiType::range: return WidgetGetRange();
 	}
 	return Action();
 }
@@ -1868,6 +1939,7 @@ void EditUi::ItemSet(int p)
 	case QiType::volume: WidgetSet(var.to<QiVolume>()); break;
 	case QiType::soundPlay: WidgetSet(var.to<QiSoundPlay>()); break;
 	case QiType::msgView: WidgetSet(var.to<QiMsgView>()); break;
+	case QiType::range: WidgetSet(var.to<QiRangeSet>()); break;
 	}
 }
 void EditUi::ItemMove(bool up, int len)
@@ -2186,6 +2258,7 @@ QiImage EditUi::WidgetGetImage()
 	image.sim = ui.image_sim_edit->text().isEmpty() ? 80 : QiRange::Restricted(ui.image_sim_edit->text().toInt(), QiImage::range_sim);
 	image.map = imageMap;
 	image.move = ui.image_move_check->isChecked();
+	image.mult = ui.image_mult_check->isChecked();
 	return image;
 }
 QiPopText EditUi::WidgetGetPopText()
@@ -2252,7 +2325,7 @@ QiBlockExec EditUi::WidgetGetBlockExec()
 QiQuickInput EditUi::WidgetGetQuickInput()
 {
 	QiQuickInput quickInput;
-	quickInput.chars = StringToKey(ui.quickInput_text_edit->text());
+	quickInput.text = ui.quickInput_text_edit->text();
 	return quickInput;
 }
 QiKeyBlock EditUi::WidgetGetKeyBlock()
@@ -2302,6 +2375,7 @@ QiOcr EditUi::WidgetGetOcr()
 	ocr.row = ui.ocr_row_check->isChecked();
 	ocr.match = ui.ocr_match_check->isChecked();
 	ocr.move = ui.ocr_move_check->isChecked();
+	ocr.mult = ui.ocr_mult_check->isChecked();
 	return ocr;
 }
 QiVarOperator EditUi::WidgetGetVarOperator()
@@ -2370,6 +2444,16 @@ QiMsgView EditUi::WidgetGetMsgView()
 	else if (ui.msgView_level_err_radio->isChecked()) msgView.level = MsgViewInfo::_err;
 	return msgView;
 }
+QiRangeSet EditUi::WidgetGetRange()
+{
+	QiRangeSet range;
+	range.rect.left = QiRange::Restricted(ui.range_left_edit->text().toInt(), QiRangeSet::range_rect);
+	range.rect.top = QiRange::Restricted(ui.range_top_edit->text().toInt(), QiRangeSet::range_rect);
+	range.rect.right = QiRange::Restricted(ui.range_right_edit->text().toInt(), QiRangeSet::range_rect);
+	range.rect.bottom = QiRange::Restricted(ui.range_bottom_edit->text().toInt(), QiRangeSet::range_rect);
+	return range;
+}
+
 
 // TODO: new action's widget set
 void EditUi::WidgetSet(const QiKey& key)
@@ -2432,6 +2516,7 @@ void EditUi::WidgetSet(const QiImage& image) {
 	ui.image_bottom_edit->setText(image.v_bottom.isEmpty() ? QString::number(image.rect.bottom) : image.v_bottom);
 	ui.image_sim_edit->setText(QString::number(image.sim));
 	ui.image_move_check->setChecked(image.move);
+	ui.image_mult_check->setChecked(image.mult);
 	imageMap = image.map;
 	HBITMAP hbmp = Image::toBmp32(imageMap);
 	if (hbmp) ui.image_view_label->setPixmap(QPixmap::fromImage(QImage::fromHBITMAP(hbmp)));
@@ -2457,7 +2542,7 @@ void EditUi::WidgetSet(const QiDialog& dialog)
 }
 void EditUi::WidgetSet(const QiQuickInput& quickInput)
 {
-	ui.quickInput_text_edit->setText(KeyToString(quickInput.chars));
+	ui.quickInput_text_edit->setText(quickInput.text);
 }
 void EditUi::WidgetSet(const QiKeyBlock& keyBlock)
 {
@@ -2480,6 +2565,7 @@ void EditUi::WidgetSet(const QiOcr& ocr)
 	ui.ocr_row_check->setChecked(ocr.row);
 	ui.ocr_match_check->setChecked(ocr.match);
 	ui.ocr_move_check->setChecked(ocr.move);
+	ui.ocr_mult_check->setChecked(ocr.mult);
 }
 void EditUi::WidgetSet(const QiVarOperator& varOperator)
 {
@@ -2530,6 +2616,14 @@ void EditUi::WidgetSet(const QiMsgView& msgView)
 	if (msgView.level == MsgViewInfo::_msg) ui.msgView_level_msg_radio->setChecked(true);
 	else if (msgView.level == MsgViewInfo::_war) ui.msgView_level_war_radio->setChecked(true);
 	else if (msgView.level == MsgViewInfo::_err) ui.msgView_level_err_radio->setChecked(true);
+}
+void EditUi::WidgetSet(const QiRangeSet& range)
+{
+	ui.range_left_edit->setText(QString::number(range.rect.left));
+	ui.range_top_edit->setText(QString::number(range.rect.top));
+	ui.range_right_edit->setText(QString::number(range.rect.right));
+	ui.range_bottom_edit->setText(QString::number(range.rect.bottom));
+	macro->range = range.rect;
 }
 
 
@@ -2593,78 +2687,6 @@ void EditUi::ListBlockReload()
 		}
 	}
 	ui.blockExec_add_button->setDisabled(true);
-}
-
-
-// quickinput
-QiVector<unsigned char> EditUi::StringToKey(const QString str)
-{
-	QiVector<unsigned char> keys;
-	for (auto& i : str)
-	{
-		unsigned char c = i.toLatin1();
-		unsigned char converted = 0;
-		if (InRange(char(c), '0', '9', char()) || InRange(char(c), 'A', 'Z', char())) converted = c;
-		else if (InRange(char(c), 'a', 'z', char()))  converted = toupper(c);
-		else
-		{
-			switch (c)
-			{
-			case '`': converted = VK_OEM_3; break;
-			case '~': converted = VK_OEM_3; break;
-			case '-': converted = VK_OEM_MINUS; break;
-			case '_': converted = VK_OEM_MINUS; break;
-			case '=': converted = VK_OEM_PLUS; break;
-			case '+': converted = VK_OEM_PLUS; break;
-			case '[': converted = VK_OEM_4; break;
-			case '{': converted = VK_OEM_4; break;
-			case ']': converted = VK_OEM_6; break;
-			case '}': converted = VK_OEM_6; break;
-			case ';': converted = VK_OEM_1; break;
-			case ':': converted = VK_OEM_1; break;
-			case '\'': converted = VK_OEM_7; break;
-			case '\"': converted = VK_OEM_7; break;
-			case ',': converted = VK_OEM_COMMA; break;
-			case '<': converted = VK_OEM_COMMA; break;
-			case '.': converted = VK_OEM_PERIOD; break;
-			case '>': converted = VK_OEM_PERIOD; break;
-			case '/': converted = VK_OEM_2; break;
-			case '?': converted = VK_OEM_2; break;
-			case '\\': converted = VK_OEM_5; break;
-			case '|': converted = VK_OEM_5; break;
-			}
-		}
-		if (converted) keys.append(converted);
-	}
-	return keys;
-}
-QString EditUi::KeyToString(const QiVector<unsigned char>& keys)
-{
-	QString str;
-	for (auto& i : keys)
-	{
-		unsigned char c = 0;
-		if (InRange(char(i), '0', '9', char()) || InRange(char(i), 'A', 'Z', char())) c = i;
-		else
-		{
-			switch (i)
-			{
-			case VK_OEM_3: c = '`'; break;
-			case VK_OEM_MINUS: c = '-'; break;
-			case VK_OEM_PLUS: c = '='; break;
-			case VK_OEM_4: c = '['; break;
-			case VK_OEM_6: c = ']'; break;
-			case VK_OEM_1:c = ';'; break;
-			case VK_OEM_7: c = '\''; break;
-			case VK_OEM_COMMA: c = ','; break;
-			case VK_OEM_PERIOD: c = '.'; break;
-			case VK_OEM_2: c = '/'; break;
-			case VK_OEM_5: c = '\\'; break;
-			}
-		}
-		if (c) str += QChar(c);
-	}
-	return str;
 }
 
 

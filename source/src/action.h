@@ -40,6 +40,7 @@ enum class QiType
 	volume,
 	soundPlay,
 	msgView,
+	range,
 	count
 };
 enum class QiTypeNext
@@ -162,7 +163,13 @@ struct QiKey : QiBase
 	enum { up, down, click };
 	int vk = 0, state = down;
 	QiKey() : QiBase(QiType::key, QiTypeNext::none) {}
-	QString name() const override { return "按键"; }
+	QString name() const override
+	{
+		if (state == up) return "松开";
+		if (state == down) return "按下";
+		if (state == click) return "点击";
+		return "按键";
+	}
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -188,7 +195,11 @@ struct QiMouse : QiBase
 	bool move = false, track = false;
 	QString v_x, v_y;
 	QiMouse() : QiBase(QiType::mouse, QiTypeNext::none) {}
-	QString name() const override { return "鼠标"; }
+	QString name() const override
+	{
+		if (move) return "移动";
+		return "位置";
+	}
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
@@ -330,6 +341,7 @@ struct QiImage : QiBase
 	int sim = 0;
 	RECT rect = {};
 	bool move = false;
+	bool mult = false;
 	QString v_left, v_top, v_right, v_bottom;
 	QiImage() : QiBase(QiType::image, QiTypeNext::nextAll) {}
 	QString name() const override { return "找图"; }
@@ -342,6 +354,7 @@ struct QiImage : QiBase
 		v_right.isEmpty() ? json.insert("right", (int)rect.right) : json.insert("v_r", (QString)v_right);
 		v_bottom.isEmpty() ? json.insert("bottom", (int)rect.bottom) : json.insert("v_b", (QString)v_bottom);
 		if (move) json.insert("move", (bool)move);
+		if (mult) json.insert("mult", (bool)mult);
 		if (map) json.insert("width", (int)map.width()), json.insert("height", (int)map.height()), json.insert("data", (QString)toBase64());
 		if (next) json.insert("next", next.toJson());
 		if (next2) json.insert("next2", next2.toJson());
@@ -356,6 +369,7 @@ struct QiImage : QiBase
 		rect.right = json.value("right").toInt(), v_right = json.value("v_r").toString();
 		rect.bottom = json.value("bottom").toInt(), v_bottom = json.value("v_b").toString();
 		move = json.value("move").toBool();
+		mult = json.value("mult").toBool();
 		{
 			int width = json.value("width").toInt();
 			int height = json.value("height").toInt();
@@ -370,7 +384,7 @@ struct QiImage : QiBase
 		if (width && height && base64.size())
 		{
 			QByteArray data = QByteArray::fromBase64(base64.toUtf8());
-			map.create(width, height);
+			map.assign(width, height);
 			memcpy_s(map.data(), map.bytes(), data.data(), data.size());
 		}
 	}
@@ -541,24 +555,131 @@ struct QiBlockExec : QiBase
 };
 struct QiQuickInput : QiBase
 {
+	QString text;
 	QiVector<unsigned char> chars;
 	QiQuickInput() : QiBase(QiType::quickInput, QiTypeNext::none) {}
 	QString name() const override { return "输入字符"; }
 	QJsonObject toJson() const override
 	{
 		QJsonObject json = QiBase::toJson();
-		if (chars)
-		{
-			QJsonArray array;
-			for (const auto& i : chars) array.append((int)i);
-			json.insert("c", array);
-		}
+		json.insert("s", text);
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
+		text = json.value("s").toString();
 		for (const auto& c : json.value("c").toArray()) chars.append(c.toInt());
+	}
+	static QiVector<unsigned char> toKey(const std::string& str)
+	{
+		QiVector<unsigned char> keys;
+		for (auto i : str)
+		{
+			unsigned char c = i;
+			unsigned char converted = 0;
+			if (InRange(char(c), '0', '9', char(0)) || InRange(char(c), 'A', 'Z', char(0))) converted = c;
+			else if (InRange(char(c), 'a', 'z', char(0)))  converted = toupper(c);
+			else
+			{
+				switch (c)
+				{
+				case '`': converted = VK_OEM_3; break;
+				case '~': converted = VK_OEM_3; break;
+				case '-': converted = VK_OEM_MINUS; break;
+				case '_': converted = VK_OEM_MINUS; break;
+				case '=': converted = VK_OEM_PLUS; break;
+				case '+': converted = VK_OEM_PLUS; break;
+				case '[': converted = VK_OEM_4; break;
+				case '{': converted = VK_OEM_4; break;
+				case ']': converted = VK_OEM_6; break;
+				case '}': converted = VK_OEM_6; break;
+				case ';': converted = VK_OEM_1; break;
+				case ':': converted = VK_OEM_1; break;
+				case '\'': converted = VK_OEM_7; break;
+				case '\"': converted = VK_OEM_7; break;
+				case ',': converted = VK_OEM_COMMA; break;
+				case '<': converted = VK_OEM_COMMA; break;
+				case '.': converted = VK_OEM_PERIOD; break;
+				case '>': converted = VK_OEM_PERIOD; break;
+				case '/': converted = VK_OEM_2; break;
+				case '?': converted = VK_OEM_2; break;
+				case '\\': converted = VK_OEM_5; break;
+				case '|': converted = VK_OEM_5; break;
+				}
+			}
+			if (converted) keys.append(converted);
+		}
+		return keys;
+	}
+	static QiVector<unsigned char> toKey(const QString& str)
+	{
+		QiVector<unsigned char> keys;
+		for (auto i : str)
+		{
+			unsigned char c = i.toLatin1();
+			unsigned char converted = 0;
+			if (InRange(char(c), '0', '9', char(0)) || InRange(char(c), 'A', 'Z', char(0))) converted = c;
+			else if (InRange(char(c), 'a', 'z', char(0)))  converted = toupper(c);
+			else
+			{
+				switch (c)
+				{
+				case '`': converted = VK_OEM_3; break;
+				case '~': converted = VK_OEM_3; break;
+				case '-': converted = VK_OEM_MINUS; break;
+				case '_': converted = VK_OEM_MINUS; break;
+				case '=': converted = VK_OEM_PLUS; break;
+				case '+': converted = VK_OEM_PLUS; break;
+				case '[': converted = VK_OEM_4; break;
+				case '{': converted = VK_OEM_4; break;
+				case ']': converted = VK_OEM_6; break;
+				case '}': converted = VK_OEM_6; break;
+				case ';': converted = VK_OEM_1; break;
+				case ':': converted = VK_OEM_1; break;
+				case '\'': converted = VK_OEM_7; break;
+				case '\"': converted = VK_OEM_7; break;
+				case ',': converted = VK_OEM_COMMA; break;
+				case '<': converted = VK_OEM_COMMA; break;
+				case '.': converted = VK_OEM_PERIOD; break;
+				case '>': converted = VK_OEM_PERIOD; break;
+				case '/': converted = VK_OEM_2; break;
+				case '?': converted = VK_OEM_2; break;
+				case '\\': converted = VK_OEM_5; break;
+				case '|': converted = VK_OEM_5; break;
+				}
+			}
+			if (converted) keys.append(converted);
+		}
+		return keys;
+	}
+	static QString toString(const QiVector<unsigned char>& keys)
+	{
+		QString str;
+		for (auto& i : keys)
+		{
+			unsigned char c = 0;
+			if (InRange(char(i), '0', '9', char()) || InRange(char(i), 'A', 'Z', char())) c = i;
+			else
+			{
+				switch (i)
+				{
+				case VK_OEM_3: c = '`'; break;
+				case VK_OEM_MINUS: c = '-'; break;
+				case VK_OEM_PLUS: c = '='; break;
+				case VK_OEM_4: c = '['; break;
+				case VK_OEM_6: c = ']'; break;
+				case VK_OEM_1:c = ';'; break;
+				case VK_OEM_7: c = '\''; break;
+				case VK_OEM_COMMA: c = ','; break;
+				case VK_OEM_PERIOD: c = '.'; break;
+				case VK_OEM_2: c = '/'; break;
+				case VK_OEM_5: c = '\\'; break;
+				}
+			}
+			if (c) str += QChar(c);
+		}
+		return str;
 	}
 };
 struct QiKeyBlock : QiBase
@@ -608,7 +729,7 @@ struct QiOcr : QiBase
 {
 	static constexpr QiIntRange range_rect = { 0, 10000 };
 
-	bool match = false, row = false, move = false;
+	bool match = false, row = false, move = false, mult = false;
 	RECT rect = {};
 	QString text, var;
 	QString v_left, v_top, v_right, v_bottom;
@@ -626,6 +747,7 @@ struct QiOcr : QiBase
 		if (match) json.insert("match", (bool)match);
 		if (row) json.insert("row", (bool)row);
 		if (move) json.insert("move", (bool)move);
+		if (mult) json.insert("mult", (bool)mult);
 		if (next) json.insert("next", next.toJson());
 		if (next2) json.insert("next2", next2.toJson());
 		return json;
@@ -642,6 +764,7 @@ struct QiOcr : QiBase
 		match = json.value("match").toBool();
 		row = json.value("row").toBool();
 		move = json.value("move").toBool();
+		mult = json.value("mult").toBool();
 		next.fromJson(json.value("next").toArray());
 		next2.fromJson(json.value("next2").toArray());
 	}
@@ -882,6 +1005,31 @@ struct QiMsgView : QiBase
 		text = json.value("text").toString();
 	}
 };
+struct QiRangeSet: QiBase
+{
+	static constexpr QiIntRange range_rect = { 0, 10000 };
+
+	RECT rect = {};
+	QiRangeSet() : QiBase(QiType::range, QiTypeNext::none) {}
+	QString name() const override { return "操作区域"; }
+	QJsonObject toJson() const override
+	{
+		QJsonObject json = QiBase::toJson();
+		json.insert("left", (int)rect.left);
+		json.insert("top", (int)rect.top);
+		json.insert("right", (int)rect.right);
+		json.insert("bottom", (int)rect.bottom);
+		return json;
+	}
+	void fromJson(const QJsonObject& json) override
+	{
+		QiBase::fromJson(json);
+		rect.left = json.value("left").toInt();
+		rect.top = json.value("top").toInt();
+		rect.right = json.value("right").toInt();
+		rect.bottom = json.value("bottom").toInt();
+	}
+};
 using ActionVariant = std::variant
 <
 	QiBase,
@@ -916,7 +1064,8 @@ using ActionVariant = std::variant
 	QiEditDialog,
 	QiVolume,
 	QiSoundPlay,
-	QiMsgView
+	QiMsgView,
+	QiRangeSet
 > ;
 struct Action : public ActionVariant
 {

@@ -119,6 +119,7 @@ struct Widget
 	bool dialogActive = false;
 	bool mainActive = false;
 	bool moreActive = false;
+	bool onload = false;
 	QWidget* main = nullptr;
 	QWidget* macro = nullptr;
 	QWidget* trigger = nullptr;
@@ -131,7 +132,7 @@ struct Widget
 	Macro editMacro;
 	bool active() const
 	{
-		return !(mainActive || dialogActive || moreActive);
+		return mainActive || dialogActive || moreActive;
 	}
 	void recordStart() const
 	{

@@ -2,7 +2,14 @@
 #include <windows.h>
 #include <atlimage.h>
 #include "base.h"
+#include "map2d.h"
 namespace QiTools {
+	struct _RGB_ { byte r; byte g; byte b; };
+	struct _BGR_ { byte b; byte g; byte r; };
+	struct _ARGB_ { byte a; byte r; byte g; byte b; };
+	struct _RGBA_ { byte r; byte g; byte b; byte a; };
+	struct _ABGR_ { byte a; byte b; byte g; byte r; };
+	struct _BGRA_ { byte b; byte g; byte r; byte a; };
 	struct Rgb
 	{
 		byte r = 0;
@@ -35,53 +42,12 @@ namespace QiTools {
 		Rgb toRgb() const { return Rgb(r, g, b); }
 		COLORREF toCOLORREF() const { return RGBA(r, g, b, a); }
 	};
-	template<class Ty>
-	class XMap
-	{
-		Ty* _map = nullptr;
-		size_t _positon = 0;
-		size_t _width = 0;
-		size_t _height = 0;
-		size_t _count = 0;
-	public:
-		XMap() {}
-		XMap(const XMap& xMap) { copy(xMap); }
-		XMap(XMap&& xMap_r) { move(std::move(xMap_r)); }
-		XMap(int width, int height) { create(width, height); }
-		~XMap() { release(); }
-		operator bool() const { return not_empty(); }
-		void operator=(const XMap& xMap) { copy(xMap); }
-		void operator=(XMap&& xMap_r) { move(std::move(xMap_r)); }
-		Ty* operator[](int row) { return _map + (_width * row); }
-		const Ty* operator[](int row) const { return _map + (_width * row); }
-		void* data() { return _map; }
-		const void* data() const { return _map; }
-		Ty& map(int positon = 0) { return _map[positon]; }
-		const Ty& map(int positon = 0) const { return _map[positon]; }
-		Ty& point(int row, int col) { return _map[((_width * row) + col)]; }
-		const Ty& point(int row, int col) const { return _map[((_width * row) + col)]; }
-		Ty& Iterate() { if (_count) { if (_positon < _count) { _positon++; return *(_map + _positon - 1); } IterateReset(), Iterate(); } return _map[0]; }
-		void IterateReset() { _positon = 0; }
-		bool empty() const { return !_width && !_height; }
-		bool not_empty() const { return _width || _height; }
-		size_t width() const { return _width; }
-		size_t height() const { return _height; }
-		size_t count() const { return _count; }
-		size_t bytes() const { return (_count * sizeof(Ty)); }
-		void create(int width, int height) { if (width != _width || _height != height) { release(); if (width && height) { _width = width; _height = height; _count = width * height; _map = new Ty[_count]; } } }
-		void move(XMap&& xMap_r) { release(); _map = xMap_r._map; _positon = xMap_r._positon; _width = xMap_r._width; _height = xMap_r._height; _count = xMap_r._count; xMap_r._map = nullptr; }
-		void copy(const XMap& xMap) { release(); create(xMap._width, xMap._height); memcpy_s(_map, bytes(), xMap._map, xMap.bytes()); }
-		void copy_s(const XMap& xMap) { release(); create(xMap._width, xMap._height); for (int u = 0; u < _count; u++) _map[u] = xMap._map[u]; }
-		void fill(const Ty& point) { for (int u = 0; u < (_count); u++) _map[u] = point; }
-		void clear() { memset(_map, 0, _count * sizeof(Ty)); }
-		void release() { if (_map) { delete[] _map; _map = nullptr; } _width = 0; _height = 0; _count = 0; }
-	};
-	typedef XMap<Rgb> RgbMap;
-	typedef XMap<Rgba> RgbaMap;
+	using RgbMap = map2d<Rgb>;
+	using RgbaMap = map2d<Rgba>;
 	class Color
 	{
 	public:
-		struct FindResult { bool find = 0; POINT pt = { 0 }; };
+		using Result = std::optional<POINT>;
 		static bool Equal(const Rgb& rgb1, const Rgb& rgb2, byte extend) { return (InRange(rgb1.r, rgb2.r, extend) && InRange(rgb1.g, rgb2.g, extend) && InRange(rgb1.b, rgb2.b, extend)); }
 		static bool Equal(const Rgb& rgba1, const Rgb& min, const Rgb& max) { return (InRange(rgba1.r, min.r, max.r, (byte)0) && InRange(rgba1.g, min.g, max.g, (byte)0) && InRange(rgba1.b, min.b, max.b, (byte)0)); }
 		static bool Equal(const Rgba& rgb1, const Rgba& rgba2, byte extend) { return (InRange(rgb1.r, rgba2.r, extend) && InRange(rgb1.g, rgba2.g, extend) && InRange(rgb1.b, rgba2.b, extend)); }
@@ -89,85 +55,85 @@ namespace QiTools {
 		static bool Equal(COLORREF rgb, COLORREF refer, byte extend) { return (InRange(GetRValue(rgb), GetRValue(refer), extend) && InRange(GetGValue(rgb), GetGValue(refer), extend) && InRange(GetBValue(rgb), GetBValue(refer), extend)); }
 		static bool Equal(COLORREF rgb, COLORREF _min, COLORREF _max) { return (InRange(GetRValue(rgb), GetRValue(_min), GetRValue(_max), (BYTE)0) && InRange(GetGValue(rgb), GetGValue(_min), GetGValue(_max), (BYTE)0) && InRange(GetBValue(rgb), GetBValue(_min), GetBValue(_max), (BYTE)0)); }
 		// POINT: x/y >= 0;
-		static bool Find(const RgbMap& map, POINT pt, const Rgb& rgb, byte extend = 10) { if (pt.x < 0 || pt.y < 0) return 0; if (pt.x >= map.width()) pt.x = map.width() - 1; if (pt.y >= map.width()) pt.y = map.width() - 1; return Equal(map[pt.y][pt.x], rgb, extend); }
+		static bool Find(const RgbMap& map, POINT pt, const Rgb& rgb, byte extend = 10) { if (pt.x < 0 || pt.y < 0) return 0; if (pt.x >= map.width()) pt.x = map.width() - 1; if (pt.y >= map.width()) pt.y = map.width() - 1; return Equal(map.at(pt.y, pt.x), rgb, extend); }
 		// POINT: x/y >= 0;
 		static bool Find(HDC hdc, POINT pt, COLORREF color, byte extend = 10) { if (pt.x < 0 || pt.y < 0) return 0; return Equal(color, GetPixel(hdc, pt.x, pt.y), extend); }
-		static FindResult FindOr(const RgbMap& rgbMap, Rgb rgb, byte extend = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX }) {
-			if (!rgbMap.count()) return {};
-			if (rect.left < 0) rect.left = 0;
-			if (rect.right < 0) rect.right = 0;
-			if (rect.right > rgbMap.width()) rect.right = rgbMap.width();
-			if (rect.bottom > rgbMap.height()) rect.bottom = rgbMap.height();
-			for (int x = 0, y = 0, xmax = rect.right - rect.left, ymax = rect.bottom - rect.top; y < ymax; y++) for (x = 0; x < xmax; x++) if (Equal(rgbMap[rect.top + y][rect.left + x], rgb, extend)) return { true, rect.left + (LONG)x, rect.top + (LONG)y };
-			return {};
-		}
-		static FindResult FindOr(const RgbMap& rgbMap, Rgb min, Rgb max, RECT rect = { 0, 0, LONG_MAX, LONG_MAX }) {
-			if (!rgbMap.count()) return {};
-			if (rect.left < 0) rect.left = 0;
-			if (rect.right < 0) rect.right = 0;
-			if (rect.right > rgbMap.width()) rect.right = rgbMap.width();
-			if (rect.bottom > rgbMap.height()) rect.bottom = rgbMap.height();
-			for (int x = 0, y = 0, xmax = rect.right - rect.left, ymax = rect.bottom - rect.top; y < ymax; y++) for (x = 0; x < xmax; x++) if (Equal(rgbMap[rect.top + y][rect.left + x], min, max)) return { true, rect.left + (LONG)x, rect.top + (LONG)y };
-			return {};
-		}
-		static FindResult FindOr(const RgbaMap& rgbaMap, Rgba rgb, byte extend = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX }) {
-			if (!rgbaMap.count()) return {};
-			if (rect.left < 0) rect.left = 0;
-			if (rect.right < 0) rect.right = 0;
-			if (rect.right > rgbaMap.width()) rect.right = rgbaMap.width();
-			if (rect.bottom > rgbaMap.height()) rect.bottom = rgbaMap.height();
-			for (int x = 0, y = 0, xmax = rect.right - rect.left, ymax = rect.bottom - rect.top; y < ymax; y++) for (x = 0; x < xmax; x++) if (Equal(rgbaMap[rect.top + y][rect.left + x], rgb, extend)) return { true, rect.left + (LONG)x, rect.top + (LONG)y };
-			return {};
-		}
-		static FindResult FindOr(const RgbaMap& rgbaMap, Rgba min, Rgba max, RECT rect = { 0, 0, LONG_MAX, LONG_MAX }) {
-			if (!rgbaMap.count()) return {};
-			if (rect.left < 0) rect.left = 0;
-			if (rect.right < 0) rect.right = 0;
-			if (rect.right > rgbaMap.width()) rect.right = rgbaMap.width();
-			if (rect.bottom > rgbaMap.height()) rect.bottom = rgbaMap.height();
-			for (int x = 0, y = 0, xmax = rect.right - rect.left, ymax = rect.bottom - rect.top; y < ymax; y++) for (x = 0; x < xmax; x++) if (Equal(rgbaMap[rect.top + y][rect.left + x], min, max)) return { true, rect.left + (LONG)x, rect.top + (LONG)y };
-			return {};
-		}
 
-		static bool FindAnd(const RgbMap& rgbMap, Rgb rgb, byte extend = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
-		{
-			if (!rgbMap.count()) return {};
-			if (rect.left < 0) rect.left = 0;
-			if (rect.right < 0) rect.right = 0;
-			if (rect.right > rgbMap.width()) rect.right = rgbMap.width();
-			if (rect.bottom > rgbMap.height()) rect.bottom = rgbMap.height();
-			for (int x = 0, y = 0, xmax = rect.right - rect.left, ymax = rect.bottom - rect.top; y < ymax; y++) for (x = 0; x < xmax; x++) if (!Equal(rgbMap[rect.top + y][rect.left + x], rgb, extend)) return { 0 };
-			return 1;
+		static Result FindOr(const RgbMap& map, Rgb rgb, byte extend = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX }) {
+			if (map.empty()) return {};
+			rect.left = std::clamp((int)rect.left, 0, (int)map.width());
+			rect.right = std::clamp((int)rect.right, 0, (int)map.width());
+			rect.top = std::clamp((int)rect.top, 0, (int)map.height());
+			rect.bottom = std::clamp((int)rect.bottom, 0, (int)map.height());
+			for (size_t y = rect.left; y < rect.bottom; y++) for (size_t x = rect.left; x < rect.right; x++) if (Equal(map.at(x, y), rgb, extend)) return POINT{ (LONG)x, (LONG)y };
+			return {};
 		}
-		static bool FindAnd(const RgbMap& rgbMap, Rgb min, Rgb max, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
+		static Result FindOr(const RgbMap& map, Rgb min, Rgb max, RECT rect = { 0, 0, LONG_MAX, LONG_MAX }) {
+			if (map.empty()) return {};
+			rect.left = std::clamp((int)rect.left, 0, (int)map.width());
+			rect.right = std::clamp((int)rect.right, 0, (int)map.width());
+			rect.top = std::clamp((int)rect.top, 0, (int)map.height());
+			rect.bottom = std::clamp((int)rect.bottom, 0, (int)map.height());
+			for (size_t y = rect.left; y < rect.bottom; y++) for (size_t x = rect.left; x < rect.right; x++) if (Equal(map.at(x, y), min, max)) return POINT{ (LONG)x, (LONG)y };
+			return {};
+		}
+		static Result FindOr(const RgbaMap& rgbaMap, Rgba rgb, byte extend = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX }) {
+			if (rgbaMap.empty()) return {};
+			rect.left = std::clamp((int)rect.left, 0, (int)rgbaMap.width() - 1);
+			rect.right = std::clamp((int)rect.right, 0, (int)rgbaMap.width() - 1);
+			rect.top = std::clamp((int)rect.top, 0, (int)rgbaMap.height() - 1);
+			rect.bottom = std::clamp((int)rect.bottom, 0, (int)rgbaMap.height() - 1);
+			for (size_t y = rect.left; y < rect.bottom; y++) for (size_t x = rect.left; x < rect.right; x++) if (Equal(rgbaMap.at(x, y), rgb, extend)) return POINT{ (LONG)x, (LONG)y };
+			return {};
+		}
+		static Result FindOr(const RgbaMap& rgbaMap, Rgba min, Rgba max, RECT rect = { 0, 0, LONG_MAX, LONG_MAX }) {
+			if (rgbaMap.empty()) return {};
+			rect.left = std::clamp((int)rect.left, 0, (int)rgbaMap.width());
+			rect.right = std::clamp((int)rect.right, 0, (int)rgbaMap.width());
+			rect.top = std::clamp((int)rect.top, 0, (int)rgbaMap.height());
+			rect.bottom = std::clamp((int)rect.bottom, 0, (int)rgbaMap.height());
+			for (size_t y = rect.left; y < rect.bottom; y++) for (size_t x = rect.left; x < rect.right; x++) if (Equal(rgbaMap.at(x, y), min, max)) return POINT{ (LONG)x, (LONG)y };
+			return {};
+		}
+		static bool FindAnd(const RgbMap& map, Rgb rgb, byte extend = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
 		{
-			if (!rgbMap.count()) return {};
-			if (rect.left < 0) rect.left = 0;
-			if (rect.right < 0) rect.right = 0;
-			if (rect.right > rgbMap.width()) rect.right = rgbMap.width();
-			if (rect.bottom > rgbMap.height()) rect.bottom = rgbMap.height();
-			for (int x = 0, y = 0, xmax = rect.right - rect.left, ymax = rect.bottom - rect.top; y < ymax; y++) for (x = 0; x < xmax; x++) if (!Equal(rgbMap[rect.top + y][rect.left + x], min, max)) return { 0 };
-			return 1;
+			if (map.empty()) return false;
+			rect.left = std::clamp((int)rect.left, 0, (int)map.width());
+			rect.right = std::clamp((int)rect.right, 0, (int)map.width());
+			rect.top = std::clamp((int)rect.top, 0, (int)map.height());
+			rect.bottom = std::clamp((int)rect.bottom, 0, (int)map.height());
+			for (size_t y = rect.left; y < rect.bottom; y++) for (size_t x = rect.left; x < rect.right; x++) if (!Equal(map.at(x, y), rgb, extend)) return { 0 };
+			return true;
+		}
+		static bool FindAnd(const RgbMap& map, Rgb min, Rgb max, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
+		{
+			if (map.empty()) return false;
+			rect.left = std::clamp((int)rect.left, 0, (int)map.width());
+			rect.right = std::clamp((int)rect.right, 0, (int)map.width());
+			rect.top = std::clamp((int)rect.top, 0, (int)map.height());
+			rect.bottom = std::clamp((int)rect.bottom, 0, (int)map.height());
+			for (size_t y = rect.left; y < rect.bottom; y++) for (size_t x = rect.left; x < rect.right; x++) if (!Equal(map.at(x, y), min, max)) return { 0 };
+			return true;
 		}
 		static bool FindAnd(const RgbaMap& rgbaMap, Rgba rgb, byte extend = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
 		{
-			if (!rgbaMap.count()) return {};
-			if (rect.left < 0) rect.left = 0;
-			if (rect.right < 0) rect.right = 0;
-			if (rect.right > rgbaMap.width()) rect.right = rgbaMap.width();
-			if (rect.bottom > rgbaMap.height()) rect.bottom = rgbaMap.height();
-			for (int x = 0, y = 0, xmax = rect.right - rect.left, ymax = rect.bottom - rect.top; y < ymax; y++) for (x = 0; x < xmax; x++) if (!Equal(rgbaMap[rect.top + y][rect.left + x], rgb, extend)) return { 0 };
-			return 1;
+			if (rgbaMap.empty()) return false;
+			rect.left = std::clamp((int)rect.left, 0, (int)rgbaMap.width());
+			rect.right = std::clamp((int)rect.right, 0, (int)rgbaMap.width());
+			rect.top = std::clamp((int)rect.top, 0, (int)rgbaMap.height());
+			rect.bottom = std::clamp((int)rect.bottom, 0, (int)rgbaMap.height());
+			for (size_t y = rect.left; y < rect.bottom; y++) for (size_t x = rect.left; x < rect.right; x++) if (!Equal(rgbaMap.at(x, y), rgb, extend)) return { 0 };
+			return true;
 		}
 		static bool FindAnd(const RgbaMap& rgbaMap, Rgba min, Rgba max, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
 		{
-			if (!rgbaMap.count()) return {};
-			if (rect.left < 0) rect.left = 0;
-			if (rect.right < 0) rect.right = 0;
-			if (rect.right > rgbaMap.width()) rect.right = rgbaMap.width();
-			if (rect.bottom > rgbaMap.height()) rect.bottom = rgbaMap.height();
-			for (int x = 0, y = 0, xmax = rect.right - rect.left, ymax = rect.bottom - rect.top; y < ymax; y++) for (x = 0; x < xmax; x++) if (!Equal(rgbaMap[rect.top + y][rect.left + x], min, max)) return { 0 };
-			return 1;
+			if (rgbaMap.empty()) return false;
+			rect.left = std::clamp((int)rect.left, 0, (int)rgbaMap.width());
+			rect.right = std::clamp((int)rect.right, 0, (int)rgbaMap.width());
+			rect.top = std::clamp((int)rect.top, 0, (int)rgbaMap.height());
+			rect.bottom = std::clamp((int)rect.bottom, 0, (int)rgbaMap.height());
+			for (size_t y = rect.left; y < rect.bottom; y++) for (size_t x = rect.left; x < rect.right; x++) if (!Equal(rgbaMap.at(x, y), min, max)) return { 0 };
+			return true;
 		}
 	};
 }

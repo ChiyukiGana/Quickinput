@@ -293,6 +293,12 @@ void Action::fromJson(const QJsonObject& json)
 		a.fromJson(json);
 		emplace<QiMsgView>(a);
 	} break;
+	case QiType::range:
+	{
+		QiRangeSet a;
+		a.fromJson(json);
+		emplace<QiRangeSet>(a);
+	} break;
 	default:
 	{
 		QiBase a;

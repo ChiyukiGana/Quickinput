@@ -26,7 +26,7 @@ bool MoreUi::event(QEvent* e)
 	else if (e->type() == QEvent::WindowDeactivate)
 	{
 		Qi::widget.moreActive = false;
-		if (Qi::widget.active())
+		if (!Qi::widget.active())
 		{
 			if (Qi::set.defOn) QiFn::QiState(true);
 			QiFn::QiHook(true);

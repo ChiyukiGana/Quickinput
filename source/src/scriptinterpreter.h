@@ -500,6 +500,8 @@ class QiFuncMap : public std::map<std::string, std::unique_ptr<QiFunc>> { public
 class QiScriptInterpreter
 {
 public:
+	static inline const std::string var_count = "_count";
+	static inline const std::string var_index = "_index";
 	static inline const std::string var_macro_name = "_macro_name";
 	static inline const std::string var_rand_last = "_rand_last";
 	static inline const std::string var_cur_last_x = "_cur_last_x";

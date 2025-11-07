@@ -103,12 +103,13 @@ struct Macro
 	static constexpr QiFloatRange range_moveScale = { 0.1f, 10.0f };
 	static constexpr QiFloatRange range_posScale = { -1.0f, 1.0f };
 
-	bool state = false; // enable | disable
-	bool keyBlock = false; // block this trigger key
-	bool curBlock = false; // block cursor move
-	bool wndState = false; // window mode enable | disable
-	bool active = false; // state of release trigger
+	bool state = false;
+	bool keyBlock = false;
+	bool curBlock = false;
+	bool wndState = false;
+	bool active = false; // release triggered flag
 	bool timer = false;
+	bool groupBase = false;
 	short key1 = 0;
 	short key2 = 0;
 	int mode = 0;
@@ -120,13 +121,13 @@ struct Macro
 	float moveScaleY = 1.0f;
 	float posScaleX = 0.0f;
 	float posScaleY = 0.0f;
+	POINT cursor = {};
+	RECT range = { 0, 0, 10000, 10000 };
 	QString script;
 	QString name;
 	QString groupName;
-	bool groupBase = false;
 	Actions acRun;
 	Actions acEnd;
-	POINT cursor = {};
 	WndInfo wndInfo;
 	WndInput wndInput;
 	QiInterpreter* interpreter;
@@ -148,6 +149,7 @@ struct Macro
 		macro.wndState = wndState;
 		macro.active = active;
 		macro.timer = timer;
+		macro.groupBase = groupBase;
 		macro.key1 = key1;
 		macro.key2 = key2;
 		macro.mode = mode;
@@ -159,13 +161,13 @@ struct Macro
 		macro.moveScaleY = moveScaleY;
 		macro.posScaleX = posScaleX;
 		macro.posScaleY = posScaleY;
+		macro.cursor = cursor;
+		macro.range = range;
 		macro.script = script;
 		macro.name = name;
 		macro.groupName = groupName;
-		macro.groupBase = groupBase;
 		macro.acRun = acRun;
 		macro.acEnd = acEnd;
-		macro.cursor = cursor;
 		macro.wndInfo = wndInfo;
 		macro.wndInput = wndInput;
 		macro.interpreter = interpreter;

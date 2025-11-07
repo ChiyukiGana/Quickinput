@@ -2,61 +2,6 @@
 
 namespace QiFn
 {
-	// Pos convert
-	int I_RTA(int rel, int size) { return static_cast<int>(((static_cast<float>(rel) / static_cast<float>(size - 1)) * 10000.0f)); }
-	int I_ATR(int abs, int size) { return static_cast<int>(static_cast<float>(size) / 10000.0f * static_cast<float>(abs)); }
-	float IF_RTA(int rel, int size) { return static_cast<float>(rel) / static_cast<float>(size); }
-	int IF_ATR(float abs, int size) { return static_cast<float>(abs) * static_cast<float>(size); }
-
-	POINT Clamp(const POINT& point, const SIZE& size)
-	{
-		POINT p(point);
-		if (p.x < 0 || p.y < 0 || (size.cx < 0) || (size.cy < 0)) return { 0,0 };
-		if (p.x > size.cx) p.x = size.cx;
-		if (p.y > size.cy) p.x = size.cy;
-		return p;
-	}
-	RECT Clamp(const RECT& rect, const SIZE& size)
-	{
-		RECT r({ (std::min)(rect.left, rect.right), (std::min)(rect.top, rect.bottom), (std::max)(rect.left, rect.right), (std::max)(rect.top, rect.bottom) });
-		if ((rect.left < 0) || (rect.top < 0) || (size.cx <= 0) || (size.cy <= 0) || (rect.right - rect.left <= 0) || (rect.bottom - rect.top <= 0)) return { 0,0,0,0 };
-		if (r.left >= size.cx) r.left = size.cx - 1, r.right = size.cx;
-		else if (r.right > size.cx) r.right = size.cx;
-		if (r.top >= size.cy) r.top = size.cy - 1, r.bottom = size.cy;
-		else if (r.bottom > size.cx) r.bottom = size.cy;
-		return r;
-	}
-
-	POINT P_ATA(const POINTF& abs) { return { static_cast<int>(abs.x * 10000.0f), static_cast<int>(abs.y * 10000.0f) }; }
-	POINTF P_ATA(const POINT& abs) { return { static_cast<float>(abs.x) / 10000.0f, static_cast<float>(abs.y) / 10000.0f }; }
-
-	POINT P_RTA(const POINT& rel, const SIZE& size) { POINT point = Clamp(rel, size); return { I_RTA(point.x, size.cx), I_RTA(point.y, size.cy) }; }
-	POINT P_ATR(const POINT& abs, const SIZE& size) { return Clamp(POINT({ I_ATR(abs.x, size.cx), I_ATR(abs.y, size.cy) }), size); }
-	POINTF PF_RTA(const POINT& rel, const SIZE& size) { POINT point = Clamp(rel, size); return { IF_RTA(point.x, size.cx), IF_RTA(point.y, size.cy) }; }
-	POINT PF_ATR(const POINTF& abs, const SIZE& size) { return Clamp(POINT({ IF_ATR(abs.x, size.cx), IF_ATR(abs.y, size.cy) }), size); }
-	RECT R_RTA(const RECT& rel, const SIZE& size) { RECT rect = Clamp(rel, size); return { I_RTA(rect.left, size.cx), I_RTA(rect.top, size.cy), I_RTA(rect.right, size.cx), I_RTA(rect.bottom, size.cy) }; }
-	RECT R_ATR(const RECT& abs, const SIZE& size) { return Clamp(RECT({ I_ATR(abs.left, size.cx), I_ATR(abs.top, size.cy), I_ATR(abs.right, size.cx), I_ATR(abs.bottom, size.cy) }), size); }
-	RECTF RF_RTA(const RECT& rel, const SIZE& size) { RECT rect = Clamp(rel, size); return { IF_RTA(rect.left, size.cx), IF_RTA(rect.top, size.cy), IF_RTA(rect.right, size.cx), IF_RTA(rect.bottom, size.cy) }; }
-	RECT RF_ATR(const RECTF& abs, const SIZE& size) { return Clamp(RECT({ IF_ATR(abs.left, size.cx), IF_ATR(abs.top, size.cy), IF_ATR(abs.right, size.cx), IF_ATR(abs.bottom, size.cy) }), size); }
-
-	POINT P_SRTA(const POINT& rel) { return P_RTA(rel, Qi::screen); }
-	POINT P_SATR(const POINT& abs) { return P_ATR(abs, Qi::screen); }
-	POINTF PF_SRTA(const POINT& abs) { return PF_RTA(abs, Qi::screen); }
-	POINT PF_SATR(const POINTF& abs) { return PF_ATR(abs, Qi::screen); }
-	RECT R_SRTA(const RECT& rel) { return R_RTA(rel, Qi::screen); }
-	RECT R_SATR(const RECT& abs) { return R_ATR(abs, Qi::screen); }
-	RECTF RF_SRTA(const RECT& rel) { return RF_RTA(rel, Qi::screen); }
-	RECT RF_SATR(const RECTF& abs) { return RF_ATR(abs, Qi::screen); }
-
-	POINT P_WRTA(const POINT& rel, const HWND& wnd) { return P_RTA(rel, Window::size(wnd)); }
-	POINT P_WATR(const POINT& abs, const HWND& wnd) { return P_ATR(abs, Window::size(wnd)); }
-	POINTF PF_WATR(const POINT& rel, const HWND& wnd) { return PF_RTA(rel, Window::size(wnd)); }
-	POINT PF_WATR(const POINTF& abs, const HWND& wnd) { return PF_ATR(abs, Window::size(wnd)); }
-	RECT R_WRTA(const RECT& rel, const HWND& wnd) { return R_RTA(rel, Window::size(wnd)); }
-	RECT R_WATR(const RECT& abs, const HWND& wnd) { return R_ATR(abs, Window::size(wnd)); }
-	RECTF RF_WRTA(const RECT& rel, const HWND& wnd) { return RF_RTA(rel, Window::size(wnd)); }
-	RECT RF_WATR(const RECTF& abs, const HWND& wnd) { return RF_ATR(abs, Window::size(wnd)); }
-
 	void Key(char key, bool press)
 	{
 #ifdef Q_RAWINPUT
@@ -101,7 +46,7 @@ namespace QiFn
 #ifdef Q_RAWINPUT
 		if (Qi::set.rawInput && Qi::rawInput.isInit())
 		{
-			POINT pt = P_SATR({ x, y });
+			POINT pt = QiCvt::SP_AtR({ x, y });
 			Qi::rawInput.move_to(pt.x, pt.y, Qi::key_info);
 		}
 		else
@@ -327,7 +272,7 @@ namespace QiFn
 			if (!InputHook::State())
 			{
 				timeBeginPeriod(1); // set clock accuracy
-#ifndef DEBUG
+#ifndef DEBUGx
 				if (!InputHook::Start()) MsgBox::Error(L"创建输入Hook失败，检查是否管理员身份运行 或 是否被安全软件拦截。");
 #endif
 #ifdef Q_KEYEDIT_PAD_ENABLED
@@ -366,6 +311,8 @@ namespace QiFn
 							if (m.key1) Qi::keyBlock[m.key1] = true;
 							if (m.key2) Qi::keyBlock[m.key2] = true;
 						}
+						m.active = false;
+						m.range = { 0,0,10000,10000 };
 						Qi::macroActive.append(&m);
 					}
 				}

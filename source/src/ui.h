@@ -42,44 +42,10 @@ namespace QiUi
 		inline QString Var = "💠";
 		inline QString Track = "➰";
 		inline QString Speaker = "🔈️";
+		inline QString Range = "🔁";
 	};
 	namespace Text
 	{
-		inline QString acDown = QString("按下") + Symbol::Down;
-		inline QString acUp = QString("松开") + Symbol::Up;
-		inline QString acClick = QString("点击") + Symbol::Turn;
-		inline QString acPos = QString("位置") + Symbol::Left;
-		inline QString acMove = QString("移动") + Symbol::Move;
-		inline QString acWait = QString("等待") + Symbol::Time;
-		inline QString acCopyText = QString("复制") + Symbol::Text;
-		inline QString acLoop = QString("循环") + Symbol::Loop;
-		inline QString acColor = QString("找色") + Symbol::Color;
-		inline QString acEnd = QString("结束") + Symbol::Stop;
-		inline QString acEndLoop = QString("结束循环") + Symbol::Stop;
-		inline QString acKeyState = QString("按键状态") + Symbol::Stop;
-		inline QString acResetPos = QString("恢复位置") + Symbol::Turn;
-		inline QString acImage = QString("找图") + Symbol::Image;
-		inline QString acPopText = QString("弹出") + Symbol::Text;
-		inline QString acSavePos = QString("记录位置") + Symbol::Turn;
-		inline QString acTimer = QString("定时") + Symbol::Loop;
-		inline QString acJump = QString("跳转") + Symbol::Jump;
-		inline QString acJumpPoint = QString("锚点") + Symbol::Point;
-		inline QString acDialog = QString("对话框") + Symbol::Text;
-		inline QString acBlock = QString("块") + Symbol::Block;
-		inline QString acBlockExec = QString("执行") + Symbol::BlockExec;
-		inline QString acQuickInput = QString("输入字符") + Symbol::Text;
-		inline QString acKeyBlock = QString("屏蔽按键") + Symbol::Stop;
-		inline QString acClock = QString("时钟") + Symbol::Time;
-		inline QString acOcr = QString("文字识别") + Symbol::Text;
-		inline QString acVarOperator = QString("变量运算") + Symbol::Equal;
-		inline QString acVarCondition = QString("变量判断") + Symbol::Var;
-		inline QString acMouseTrack = QString("鼠标轨迹") + Symbol::Track;
-		inline QString acOpen = QString("打开") + Symbol::Link;
-		inline QString acTextPad = QString("文本") + Symbol::Text;
-		inline QString acEditDialog = QString("编辑框") + Symbol::Text;
-		inline QString acVolume = QString("音量检测") + Symbol::Speaker;
-		inline QString acSoundPlay = QString("播放音频") + Symbol::Speaker;
-		inline QString acMsgView = QString("消息窗口") + Symbol::Text;
 		// state
 		inline QString trOn = QString("启用") + Symbol::On;
 		inline QString trOff = QString("禁用") + Symbol::Off;

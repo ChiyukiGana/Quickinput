@@ -125,7 +125,7 @@ namespace QiTools {
 		}
 
 		template<typename... Args>
-		static std::wstring connectW(Args&&... args) {
+		static std::wstring connectw(Args&&... args) {
 			std::wstring result;
 			(result += ... += toWString(std::forward<Args>(args)));
 			return result;

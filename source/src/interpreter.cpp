@@ -34,16 +34,33 @@ int QiInterpreter::rand(int max, int min)
 {
 	min = Rand(max, min);
 	macro.script_interpreter.setValue(QiScriptInterpreter::var_rand_last, min);
+	Qi::widget.varViewReload();
 	return min;
 }
 
+void QiInterpreter::setValue(const std::string& var, const QiVar& val)
+{
+	macro.script_interpreter.setValue(var, val);
+	Qi::widget.varViewReload();
+}
+void QiInterpreter::setCount(int i)
+{
+	macro.script_interpreter.setValue(QiScriptInterpreter::var_count, i);
+	Qi::widget.varViewReload();
+}
+void QiInterpreter::setIndex(int i)
+{
+	macro.script_interpreter.setValue(QiScriptInterpreter::var_index, i);
+	Qi::widget.varViewReload();
+}
 void QiInterpreter::setLastPos(int x, int y)
 {
 	macro.script_interpreter.setValue(QiScriptInterpreter::var_cur_last_x, x);
 	macro.script_interpreter.setValue(QiScriptInterpreter::var_cur_last_y, y);
-	POINT p = wndInput ? QiFn::P_WRTA(POINT({ x, y }), wndInput->wnd) : QiFn::P_SRTA(POINT({ x,y }));
+	POINT p = wndInput ? QiCvt::WP_RtA(POINT({ x, y }), wndInput->wnd, macro.range) : QiCvt::SP_RtA(POINT({ x, y }), macro.range);
 	macro.script_interpreter.setValue(QiScriptInterpreter::var_cur_last_ax, p.x);
 	macro.script_interpreter.setValue(QiScriptInterpreter::var_cur_last_ay, p.y);
+	Qi::widget.varViewReload();
 }
 
 bool QiInterpreter::isInvalid()
@@ -222,8 +239,8 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				{
 					POINT pt = { x, y };
 					if (ref.move) pt.x += wndInput->pt.x * moveScaleX, pt.y += wndInput->pt.y * moveScaleY;
-					else pt = QiFn::P_WATR(pt, wndInput->wnd);
-					POINT scale = QiFn::PF_WATR(POINTF({ posScaleX, posScaleY }), wndInput->wnd);
+					else pt = QiCvt::WP_AtR(pt, wndInput->wnd, macro.range);
+					POINT scale = QiCvt::WPF_AtR(POINTF({ posScaleX, posScaleY }), wndInput->wnd, macro.range);
 					wndInput->pt = { pt.x + scale.x, pt.y + scale.y };
 					if (ref.track)
 					{
@@ -249,16 +266,17 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 					}
 					else
 					{
-						POINT scale = QiFn::P_ATA(POINTF({ posScaleX, posScaleY }));
+						POINT scale = QiCvt::P_FtI(POINTF({ posScaleX, posScaleY }));
+						POINT dpt = QiCvt::Clamp(POINT({ x + scale.x, y + scale.y }), macro.range);
 						if (ref.track)
 						{
-							POINT spt = QiFn::P_SRTA(Input::pos());
-							QiFn::SmoothMove(spt.x, spt.y, x + scale.x, y + scale.y, ref.speed, [this](int x, int y, int, int) {
+							POINT spt = QiCvt::SP_RtA(Input::pos());
+							QiFn::SmoothMove(spt.x, spt.y, dpt.x, dpt.y, ref.speed, [this](int x, int y, int, int) {
 								QiFn::MoveToA(x, y);
 								PeekSleep(10);
 								});
 						}
-						else QiFn::MoveToA(x + scale.x, y + scale.y);
+						else QiFn::MoveToA(dpt.x, dpt.y);
 					}
 				}
 			} break;
@@ -289,29 +307,29 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				if (wndInput)
 				{
 					hdc = GetWindowDC(wndInput->wnd);
-					rect = QiFn::R_WATR(rect, wndInput->wnd);
-					Image::toRgbMap(hdc, rgbMap, rect);
+					rect = QiCvt::WR_AtR(rect, wndInput->wnd, macro.range);
+					rgbMap = Image::toRgbMap(hdc, rect);
 					ReleaseDC(wndInput->wnd, hdc);
 				}
 				else
 				{
 					hdc = GetDC(nullptr);
-					rect = QiFn::R_SATR(rect);
-					Image::toRgbMap(hdc, rgbMap, rect);
+					rect = QiCvt::SR_AtR(rect, macro.range);
+					rgbMap = Image::toRgbMap(hdc, rect);
 					ReleaseDC(nullptr, hdc);
 				}
-				Color::FindResult findResult = Color::FindOr(rgbMap, ref.rgbe.toRgb(), ref.rgbe.a);
-				if (findResult.find)
+				Color::Result findResult = Color::FindOr(rgbMap, ref.rgbe.toRgb(), ref.rgbe.a);
+				if (findResult)
 				{
-					setLastPos(findResult.pt.x += rect.left, findResult.pt.y += rect.top);
+					setLastPos(findResult->x += rect.left, findResult->y += rect.top);
 					if (ref.move)
 					{
 						if (wndInput)
 						{
-							wndInput->pt = findResult.pt;
+							wndInput->pt = *findResult;
 							Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
 						}
-						else QiFn::MoveTo(findResult.pt.x, findResult.pt.y);
+						else QiFn::MoveTo(findResult->x, findResult->y);
 					}
 					r_result = ActionInterpreter(ref.next);
 				}
@@ -325,12 +343,12 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				const QiLoop& ref = action.to<QiLoop>();
 				int min = ref.v_min.isEmpty() ? ref.min : macro.script_interpreter.value(ref.v_min.toStdString()).toInteger();
 				int max = ref.v_max.isEmpty() ? ref.max : macro.script_interpreter.value(ref.v_max.toStdString()).toInteger();
-
-				bool infinite = (min < 1) && (max < 1);
 				int count = rand(max, min);
-
+				bool infinite = count < 1;
+				setCount(count);
 				for (size_t i = 0; !isInvalid() && (infinite || i < count); infinite ? true : i++)
 				{
+					setIndex(i);
 					r_result = ActionInterpreter(ref.next);
 					if (debug_entry || jumpId) break;
 					if (r_result != InterpreterResult::r_continue)
@@ -366,35 +384,44 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				if (wndInput)
 				{
 					hdc = GetWindowDC(wndInput->wnd);
-					rect = QiFn::R_WATR(rect, wndInput->wnd);
-					Image::toRgbMap(hdc, rgbMap, rect);
+					rect = QiCvt::WR_AtR(rect, wndInput->wnd, macro.range);
+					rgbMap = Image::toRgbMap(hdc, rect);
 					ReleaseDC(wndInput->wnd, hdc);
 				}
 				else
 				{
 					hdc = GetDC(nullptr);
-					rect = QiFn::R_SATR(rect);
-					Image::toRgbMap(hdc, rgbMap, rect);
+					rect = QiCvt::SR_AtR(rect, macro.range);
+					rgbMap = Image::toRgbMap(hdc, rect);
 					ReleaseDC(nullptr, hdc);
 				}
-				POINT pt = Image::Find(rgbMap, ref.map, ref.sim, 10);
-				if (pt.x != Image::npos)
-				{
-					setLastPos(pt.x += rect.left + (ref.map.width() >> 1), pt.y += rect.top + (ref.map.height() >> 1));
-					if (ref.move)
-					{
-						if (wndInput)
-						{
-							wndInput->pt = pt;
-							Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
-						}
-						else QiFn::MoveTo(pt.x, pt.y);
-					}
-					r_result = ActionInterpreter(ref.next);
-				}
+				Image::Results findResults;
+				if (ref.mult) findResults = Image::FindAll(rgbMap, ref.map, ref.sim, 10);
 				else
 				{
-					r_result = ActionInterpreter(ref.next2);
+					Image::Result findResult = Image::Find(rgbMap, ref.map, ref.sim, 10);
+					if (findResult) findResults.push_back(*findResult);
+				}
+				setCount(findResults.size());
+				if (findResults.empty()) r_result = ActionInterpreter(ref.next2);
+				else
+				{
+					for (size_t i = 0; i < findResults.size(); i++)
+					{
+						POINT& pos = findResults[i];
+						setIndex(i);
+						setLastPos(pos.x += rect.left + (ref.map.width() >> 1), pos.y += rect.top + (ref.map.height() >> 1));
+						if (ref.move)
+						{
+							if (wndInput)
+							{
+								wndInput->pt = pos;
+								Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
+							}
+							else QiFn::MoveTo(pos.x, pos.y);
+						}
+						r_result = ActionInterpreter(ref.next);
+					}
 				}
 			} break;
 			case QiType::popText:
@@ -476,32 +503,42 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			case QiType::quickInput:
 			{
 				const QiQuickInput& ref = action.to<QiQuickInput>();
-				for (auto& i : ref.chars)
+				try
 				{
-					if (wndInput)
+					QiVector<unsigned char> chars = ref.chars;
+					if (ref.chars.empty())
 					{
-						POINT pt;
-						HWND current_wnd = wndInput->find(wndInput->pt, pt);
-						if (current_wnd)
+						std::string text = macro.script_interpreter.execute(macro.script_interpreter.makeString(ref.text.toStdString())).toString();
+						chars = QiQuickInput::toKey(text);
+					}
+					for (auto& i : chars)
+					{
+						if (wndInput)
 						{
-							Input::Click(current_wnd, i, pt, 10);
-							if (i == VK_LBUTTON) wndInput->mk |= MK_LBUTTON;
-							else if (i == VK_RBUTTON) wndInput->mk |= MK_RBUTTON;
-							else if (i == VK_MBUTTON) wndInput->mk |= MK_MBUTTON;
-							else if (i == VK_XBUTTON1) wndInput->mk |= MK_XBUTTON1;
-							else if (i == VK_XBUTTON2) wndInput->mk |= MK_XBUTTON2;
-							else if (i == VK_CONTROL) wndInput->mk |= MK_CONTROL;
-							else if (i == VK_SHIFT) wndInput->mk |= MK_SHIFT;
+							POINT pt;
+							HWND current_wnd = wndInput->find(wndInput->pt, pt);
+							if (current_wnd)
+							{
+								Input::Click(current_wnd, i, pt, 10);
+								if (i == VK_LBUTTON) wndInput->mk |= MK_LBUTTON;
+								else if (i == VK_RBUTTON) wndInput->mk |= MK_RBUTTON;
+								else if (i == VK_MBUTTON) wndInput->mk |= MK_MBUTTON;
+								else if (i == VK_XBUTTON1) wndInput->mk |= MK_XBUTTON1;
+								else if (i == VK_XBUTTON2) wndInput->mk |= MK_XBUTTON2;
+								else if (i == VK_CONTROL) wndInput->mk |= MK_CONTROL;
+								else if (i == VK_SHIFT) wndInput->mk |= MK_SHIFT;
+							}
+						}
+						else
+						{
+							QiFn::Key(i, true);
+							Sleep(Rand(20, 10));
+							QiFn::Key(i, false);
+							Sleep(Rand(20, 10));
 						}
 					}
-					else
-					{
-						QiFn::Key(i, true);
-						Sleep(Rand(20, 10));
-						QiFn::Key(i, false);
-						Sleep(Rand(20, 10));
-					}
 				}
+				catch (std::exception e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return InterpreterResult::r_exit; }
 			} break;
 			case QiType::keyBlock:
 			{
@@ -537,72 +574,95 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 						if (wndInput)
 						{
 							hdc = GetWindowDC(wndInput->wnd);
-							rect = QiFn::R_WATR(rect, wndInput->wnd);
+							rect = QiCvt::WR_AtR(rect, wndInput->wnd, macro.range);
 							image = Image::toCImage32(hdc, rect);
 							ReleaseDC(wndInput->wnd, hdc);
 						}
 						else
 						{
 							hdc = GetDC(nullptr);
-							rect = QiFn::R_SATR(rect);
+							rect = QiCvt::SR_AtR(rect, macro.range);
 							image = Image::toCImage32(hdc, rect);
 							ReleaseDC(nullptr, hdc);
 						}
 
-						if (!image.IsNull())
+						if (image.IsNull()) r_result = ActionInterpreter(ref.next2);
+						else
 						{
 							std::vector<POINT> centers;
 							std::vector<std::string> text = Qi::ocr.scan_list(image, ref.row, &centers);
 							image.ReleaseDC();
-							if (!ref.var.isEmpty())
+							if (text.empty()) r_result = ActionInterpreter(ref.next2);
+							else
 							{
-								std::string str;
-								for (const auto& s : text)
+								if (ref.mult)
 								{
-									if (str.empty()) str += s;
-									else str += std::string(" ") + s;
-								}
-								macro.script_interpreter.setValue(ref.var.toStdString(), str);
-								Qi::widget.varViewReload();
-							}
-							if (!text.empty())
-							{
-								bool condition = false;
-								if (ref.match) condition = text.size() == 1 && ref.text == text.front().c_str();
-								else
-								{
+									std::vector<size_t> matchs;
 									for (size_t i = 0; i < text.size(); i++)
 									{
-										if (text[i].find(ref.text.toStdString()) != std::string::npos)
+										const std::string& str = text[i];
+										if (ref.match ? str == ref.text : str.find(ref.text.toStdString()) != std::string::npos) matchs.push_back(i);
+									}
+									setCount(matchs.size());
+									if (matchs.empty()) r_result = ActionInterpreter(ref.next2);
+									else
+									{
+										for (size_t i = 0; i < matchs.size(); i++)
 										{
-											condition = true;
-											POINT pt = centers.size() > i ? centers[i] : POINT();
-											setLastPos(pt.x += rect.left, pt.y += rect.top);
+											setIndex(i);
+											const size_t index = matchs[i];
+
+											if (!ref.var.isEmpty()) setValue(ref.var.toStdString(), text[index]);
+
+											POINT pos = centers.size() > index ? centers[index] : POINT{ 0, 0 };
+											setLastPos(pos.x += rect.left, pos.y += rect.top);
+
 											if (ref.move)
 											{
-												if (Qi::ocr_ver > 1)
+												if (wndInput)
 												{
-													if (wndInput)
-													{
-														wndInput->pt = pt;
-														Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
-													}
-													else QiFn::MoveTo(pt.x, pt.y);
+													wndInput->pt = pos;
+													Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
 												}
-												else MsgBox::Warning(std::wstring(L"文字识别版本低于2，不支持找到并移动，需要更新"), L"Quickinput Interpreter");
+												else QiFn::MoveTo(pos.x, pos.y);
 											}
-											break;
+
+											r_result = ActionInterpreter(ref.next);
 										}
 									}
+
 								}
-								if (condition)
+								else
 								{
-									r_result = ActionInterpreter(ref.next);
-									break;
+									std::string str;
+									for (const auto& s : text)
+									{
+										if (str.empty()) str += s;
+										else str += std::string(" ") + s;
+									}
+									if (!ref.var.isEmpty()) setValue(ref.var.toStdString(), str);
+
+									if (ref.match ? str == ref.text : str.find(ref.text.toStdString()) != std::string::npos)
+									{
+										POINT pos = centers.empty() ? POINT{ 0, 0 } : centers.front();
+										setLastPos(pos.x += rect.left, pos.y += rect.top);
+
+										if (ref.move)
+										{
+											if (wndInput)
+											{
+												wndInput->pt = pos;
+												Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
+											}
+											else QiFn::MoveTo(pos.x, pos.y);
+										}
+
+										r_result = ActionInterpreter(ref.next);
+									}
+									else r_result = ActionInterpreter(ref.next2);
 								}
 							}
 						}
-						r_result = ActionInterpreter(ref.next2);
 					}
 					else
 					{
@@ -614,10 +674,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			case QiType::varOperator:
 			{
 				const QiVarOperator& ref = action.to<QiVarOperator>();
-				try
-				{
-					macro.script_interpreter.interpretAll(ref.script.toStdString());
-				}
+				try { macro.script_interpreter.interpretAll(ref.script.toStdString()); }
 				catch (std::runtime_error e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return InterpreterResult::r_exit; }
 				Qi::widget.varViewReload();
 			} break;
@@ -641,14 +698,14 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				const clock_t begin = clock();
 				if (wndInput)
 				{
-					POINT scale = QiFn::PF_WATR(POINTF({ posScaleX, posScaleY }), wndInput->wnd);
+					POINT scale = QiCvt::WPF_AtR(POINTF({ posScaleX, posScaleY }), wndInput->wnd, macro.range);
 					for (const auto& i : ref.s)
 					{
 						while (!isInvalid())
 						{
 							if ((i.t / speed) <= (clock() - begin))
 							{
-								POINT pt = QiFn::P_WATR({ i.x, i.y }, wndInput->wnd);
+								POINT pt = QiCvt::WP_AtR({ i.x, i.y }, wndInput->wnd, macro.range);
 								wndInput->pt = { pt.x + scale.x, pt.y + scale.y };
 								Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
 								break;
@@ -659,7 +716,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				}
 				else
 				{
-					POINT scale = QiFn::P_ATA(POINTF({ posScaleX, posScaleY }));
+					POINT scale = QiCvt::P_FtI(POINTF({ posScaleX, posScaleY }));
 					for (const auto& i : ref.s)
 					{
 						while (!isInvalid())
@@ -683,7 +740,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 					std::string title = macro.script_interpreter.execute(macro.script_interpreter.makeString(ref.title.toStdString())).toString();
 					std::string text = macro.script_interpreter.execute(macro.script_interpreter.makeString(ref.text.toStdString())).toString();
 					text = String::toString(TextEditBox(nullptr, String::toWString(title).c_str(), String::toWString(text).c_str(), ref.mult, WS_EX_TOPMOST, Qi::ico));
-					if (!text.empty()) macro.script_interpreter.setValue(ref.var.toStdString(), text);
+					if (!text.empty()) setValue(ref.var.toStdString(), text);
 				}
 				catch (std::exception e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return InterpreterResult::r_exit; }
 			} break;
@@ -738,6 +795,11 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 					else if (ref.option == QiMsgView::hide) Qi::widget.msgViewHide();
 				}
 				catch (std::exception e) { QiFn::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return InterpreterResult::r_exit; }
+			} break;
+			case QiType::range:
+			{
+				const QiRangeSet& ref = action.to<QiRangeSet>();
+				macro.range = ref.rect;
 			} break;
 			}
 			if (r_result != InterpreterResult::r_continue) break;

@@ -17,11 +17,7 @@ MainUi::MainUi(int tab)
 	ui.tabWidget->setCurrentIndex(tab);
 	Qi::application->setStyleSheet(Qi::ui.themes[Qi::set.theme].style);
 	show();
-	if (Qi::set.minMode)
-	{
-		QApplication::sendEvent(this, new QEvent(QEvent::WindowDeactivate));
-		hide();
-	}
+	if (Qi::set.minMode) hide();
 }
 QString MainUi::Version() const
 {
@@ -61,16 +57,11 @@ void MainUi::Init()
 }
 void MainUi::Event()
 {
-	connect(tray, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason) {
-		if (Qi::widget.active())
-		{
-			if (reason == QSystemTrayIcon::ActivationReason::Trigger) setWindowState(Qt::WindowNoState), show();
-		}
-		});
+	connect(tray, &QSystemTrayIcon::activated, this, [this](QSystemTrayIcon::ActivationReason reason) { if (!Qi::widget.active() && reason == QSystemTrayIcon::ActivationReason::Trigger) setWindowState(Qt::WindowNoState), show(); });
 	connect(ui.title_close_button, &QPushButton::clicked, this, [] { ExitProcess(0); });
 	connect(ui.title_min_button, &QPushButton::clicked, this, [this] { setWindowState(Qt::WindowMinimized); });
 	connect(ui.title_hide_button, &QPushButton::clicked, this, [this] { hide(); });
-	connect(ac_on, &QAction::triggered, this, [] { if (Qi::widget.active()) QiFn::QiState(true), QiFn::QiHook(true); });
+	connect(ac_on, &QAction::triggered, this, [] { if (!Qi::widget.active()) QiFn::QiState(true), QiFn::QiHook(true); });
 	connect(ac_off, &QAction::triggered, this, [] { QiFn::QiState(false); QiFn::QiHook(false); });
 	connect(ac_show, &QAction::triggered, this, [this] { setWindowState(Qt::WindowNoState), show(); });
 	connect(ac_hide, &QAction::triggered, this, [this] { hide(); });
@@ -94,13 +85,16 @@ bool MainUi::event(QEvent* e)
 	if (e->type() == QEvent::WindowActivate)
 	{
 		Qi::widget.mainActive = true;
-		if (Qi::state) QiFn::QiState(false);
-		QiFn::QiHook(false);
+		if (Qi::widget.onload)
+		{
+			if (Qi::state) QiFn::QiState(false);
+			QiFn::QiHook(false);
+		}
 	}
 	else if (e->type() == QEvent::WindowDeactivate)
 	{
 		Qi::widget.mainActive = false;
-		if (Qi::widget.active())
+		if (Qi::widget.onload && !Qi::widget.active())
 		{
 			QiFn::QiHook(true);
 			if (Qi::set.defOn) QiFn::QiState(true);

@@ -1,15 +1,27 @@
 ﻿#pragma once
-#include <windows.h>
+#include <functional>
 #include <cmath>
-#define AlignmentSize(num, size) ((num%size)?(num+(size-(num%size))):(num))
-#define forxy(xmax, ymax) for (int y = 0, ym = ymax; y < ym; y++) for (int x = 0, xm = xmax; x < xm; x++)
-#define forxyx(xnam, ynam, xmin, ymin, xmax, ymax) for (int ynam = ymin, ym = ymax; ynam < ym; ynam++) for (int xnam = xmin, xm = xmax; xnam < xm; xnam++)
-#define forlt(xmax, ymax) for (int x = 0, y = 0, xs = 0, ys = 0, xm = xmax, ym = ymax; x <= xm && y <= ym; xs < xm -1?xs++:ys++) for (x = xs, y = ys; x >= 0 && x < xm && y < ym; x--, y++)
-#define forltx(xnam, ynam, xmin, ymin, xmax, ymax) for (int xnam = 0, ynam = 0, xs = xmin, ys = ymin, xm = xmax, ym = ymax; xnam <= xm && ynam <= ym; xs < xm -1?xs++:ys++) for (xnam = xs, ynam = ys; xnam >= 0 && xnam < xm && ynam < ym; xnam--, ynam++)
-#define RGBA(r,g,b,a) ((COLORREF)((BYTE)(r)|((BYTE)(g)<<8)|((BYTE)(b)<<16)|((BYTE)(a)<<24)))
-#define GetAValue(rgba) ((BYTE)((rgba)>>24))
+#include <windows.h>
 namespace QiTools
 {
+#define AlignmentSize(num, size) ((num%size)?(num+(size-(num%size))):(num))
+#define RGBA(r,g,b,a) ((COLORREF)((BYTE)(r)|((BYTE)(g)<<8)|((BYTE)(b)<<16)|((BYTE)(a)<<24)))
+#define GetAValue(rgba) ((BYTE)((rgba)>>24))
+#define forlt(xnam, ynam, xmin, ymin, xmax, ymax) for (long long xnam = 0, ynam = 0, xs = xmin, ys = ymin, xm = xmax, ym = ymax; xnam <= xm && ynam <= ym; xs < xm -1?xs++:ys++) for (xnam = xs, ynam = ys; xnam >= 0 && xnam < xm && ynam < ym; xnam--, ynam++)
+	class for_continue : std::exception {};
+	class for_break : std::exception {};
+	inline void forLT(long long xmin, long long ymin, long long xmax, long long ymax, std::function<void(long long x, long long y)> call)
+	{
+		for (long long x = 0, y = 0, xs = xmin, ys = ymin, xm = xmax, ym = ymax; x <= xm && y <= ym; xs < xm - 1 ? xs++ : ys++)
+		{
+			for (x = xs, y = ys; x >= 0 && x < xm && y < ym; x--, y++)
+			{
+				try { call(x, y); }
+				catch (const for_continue&) { continue; }
+				catch (const for_break&) { return; }
+			}
+		}
+	}
 	template <class num>
 	static num Distance(num left, num right)
 	{

@@ -178,6 +178,9 @@
     <ClInclude Include="source\src\integrity_verify.h">
       <Filter>5_Module\verify</Filter>
     </ClInclude>
+    <ClInclude Include="source\src\cvt.h">
+      <Filter>3_HeaderOnly</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="source\ui\AboutUi.ui">

@@ -366,6 +366,11 @@ void MacroUi::customEvent(QEvent* e)
 		ResetWidget();
 		DisableWidget();
 		Qi::popText->Hide();
+		if (!Qi::widget.onload)
+		{
+			Qi::widget.onload = true;
+			if (Qi::set.minMode && Qi::set.defOn) QApplication::sendEvent(Qi::widget.main, new QEvent(QEvent::WindowDeactivate));
+		}
 	}
 	else if (e->type() == static_cast<int>(QiEvent::mac_edit_exit))
 	{

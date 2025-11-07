@@ -10,6 +10,7 @@
 #include "input.h"
 #include "ihook.h"
 #include "sound.h"
+#include "map2d.h"
 #include "color.h"
 #include "image.h"
 #include "process.h"

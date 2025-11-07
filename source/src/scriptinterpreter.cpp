@@ -456,6 +456,22 @@ struct QiFunc_rand_last : public QiFunc
 		return (*local)[QiScriptInterpreter::var_rand_last];
 	}
 };
+struct QiFunc_count : public QiFunc
+{
+	QiFunc_count() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>&, QiVarMap*, QiVarMap* local, QiWorker*) const override
+	{
+		return (*local)[QiScriptInterpreter::var_count];
+	}
+};
+struct QiFunc_index : public QiFunc
+{
+	QiFunc_index() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>&, QiVarMap*, QiVarMap* local, QiWorker*) const override
+	{
+		return (*local)[QiScriptInterpreter::var_index];
+	}
+};
 
 struct QiFunc_cur_to : public QiFunc
 {
@@ -1176,6 +1192,8 @@ QiFuncMap::QiFuncMap()
 	insert({ "close", std::make_unique<QiFunc_proc_close>() });
 	insert({ "rand", std::make_unique<QiFunc_rand>() });
 	insert({ "rand_last", std::make_unique<QiFunc_rand_last>() });
+	insert({ "count", std::make_unique<QiFunc_count>() });
+	insert({ "index", std::make_unique<QiFunc_index>() });
 
 	insert({ "cur_to", std::make_unique<QiFunc_cur_to>() });
 	insert({ "cur_move", std::make_unique<QiFunc_cur_move>() });
