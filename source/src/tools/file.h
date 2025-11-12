@@ -9,60 +9,17 @@ namespace QiTools
 	class File
 	{
 	public:
-		static bool FileIsHide(const std::wstring& path)
-		{
-			DWORD file = GetFileAttributesW(path.c_str());
-			if ((file != INVALID_FILE_ATTRIBUTES) && (file != FILE_ATTRIBUTE_DIRECTORY) && (file == FILE_ATTRIBUTE_HIDDEN)) return true;
-			return false;
-		}
-		static bool FolderIsHide(const std::wstring& path)
-		{
-			DWORD file = GetFileAttributesW(path.c_str());
-			if ((file != INVALID_FILE_ATTRIBUTES) && (file == FILE_ATTRIBUTE_DIRECTORY) && (file == FILE_ATTRIBUTE_HIDDEN)) return true;
-			return false;
-		}
-		static bool PathIsHide(const std::wstring& path)
-		{
-			DWORD file = GetFileAttributesW(path.c_str());
-			if ((file != INVALID_FILE_ATTRIBUTES) && (file == FILE_ATTRIBUTE_HIDDEN)) return true;
-			return false;
-		}
-		static bool FileIsSystem(const std::wstring& path)
-		{
-			DWORD file = GetFileAttributesW(path.c_str());
-			if ((file != INVALID_FILE_ATTRIBUTES) && (file != FILE_ATTRIBUTE_DIRECTORY) && (file == FILE_ATTRIBUTE_SYSTEM)) return true;
-			return false;
-		}
-		static bool FolderIsSystem(const std::wstring& path)
-		{
-			DWORD file = GetFileAttributesW(path.c_str());
-			if ((file != INVALID_FILE_ATTRIBUTES) && (file == FILE_ATTRIBUTE_DIRECTORY) && (file == FILE_ATTRIBUTE_SYSTEM)) return true;
-			return false;
-		}
-		static bool PathIsSystem(const std::wstring& path)
-		{
-			DWORD file = GetFileAttributesW(path.c_str());
-			if ((file != INVALID_FILE_ATTRIBUTES) && (file == FILE_ATTRIBUTE_SYSTEM)) return true;
-			return false;
-		}
-		static bool FileState(const std::wstring& path)
-		{
-			DWORD file = GetFileAttributesW(path.c_str());
-			if ((file != INVALID_FILE_ATTRIBUTES) && (file != FILE_ATTRIBUTE_DIRECTORY)) return true;
-			return false;
-		}
-		static bool FolderState(const std::wstring& path)
-		{
-			DWORD file = GetFileAttributesW(path.c_str());
-			if ((file != INVALID_FILE_ATTRIBUTES) && (file == FILE_ATTRIBUTE_DIRECTORY)) return true;
-			return false;
-		}
-		static bool PathState(const std::wstring& path)
-		{
-			DWORD file = GetFileAttributesW(path.c_str());
-			if (file != INVALID_FILE_ATTRIBUTES) return true;
-			return false;
-		}
+		static bool IsAttributes(const std::wstring& path, DWORD include, DWORD exclude = 0) { DWORD a = GetFileAttributesW(path.c_str()); return a != 0 && a != INVALID_FILE_ATTRIBUTES && (a & include) == include && (a & exclude) == 0; }
+		static bool FileIsHide(const std::wstring& path) { return IsAttributes(path, FILE_ATTRIBUTE_HIDDEN, FILE_ATTRIBUTE_DIRECTORY); }
+		static bool FolderIsHide(const std::wstring& path) { return IsAttributes(path, FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_DIRECTORY); }
+		static bool PathIsHide(const std::wstring& path) { return IsAttributes(path, FILE_ATTRIBUTE_HIDDEN); }
+		static bool FileIsSystem(const std::wstring& path) { return IsAttributes(path, FILE_ATTRIBUTE_SYSTEM, FILE_ATTRIBUTE_DIRECTORY); }
+		static bool FolderIsSystem(const std::wstring& path) { return IsAttributes(path, FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_DIRECTORY); }
+		static bool PathIsSystem(const std::wstring& path) { return IsAttributes(path, FILE_ATTRIBUTE_SYSTEM); }
+		static bool FileState(const std::wstring& path) { return IsAttributes(path, 0, FILE_ATTRIBUTE_DIRECTORY); }
+		static bool FolderState(const std::wstring& path) { return IsAttributes(path, FILE_ATTRIBUTE_DIRECTORY); }
+		static bool PathState(const std::wstring& path) { return IsAttributes(path, 0); }
+
 		static DWORD FileSize(const std::wstring& path)
 		{
 			HANDLE handle = CreateFileW(path.c_str(), FILE_READ_EA, FILE_SHARE_WRITE | FILE_SHARE_DELETE, 0, OPEN_EXISTING, 0, 0);

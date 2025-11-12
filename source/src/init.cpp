@@ -1,33 +1,4 @@
 #include "inc_header.h"
-void Init_ScriptInterpreter()
-{
-    Qi::interpreter_pop = [](const std::string& text, int time) {
-        Qi::popText->Popup(time, text.c_str(), RGB(223, 223, 223));
-    };
-    Qi::interpreter_macro_active = [](const std::string& text) {
-        Macro* macro = QiFn::FindMacro(text.c_str());
-        if (macro) return macro->thread.active();
-        return false;
-    };
-    Qi::interpreter_macro_start = [](const std::string& text) {
-        Macro* macro = QiFn::FindMacro(text.c_str());
-        if (macro)
-        {
-            macro->thread.run_start(macro);
-            return true;
-        }
-        return false;
-    };
-    Qi::interpreter_macro_stop = [](const std::string& text) {
-        Macro* macro = QiFn::FindMacro(text.c_str());
-        if (macro)
-        {
-            macro->thread.stop();
-            return true;
-        }
-        return false;
-    };
-}
 void Init_Sound()
 {
     ResourceTool::search(L"WAVE", [](std::wstring name, LPCWSTR) {
@@ -899,6 +870,4 @@ void Init()
 #ifdef Q_RAWINPUT
     if (Qi::set.rawInput) QiFn::InitRawInput(false);
 #endif
-
-    Init_ScriptInterpreter();
 }

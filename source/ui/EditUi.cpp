@@ -758,7 +758,8 @@ void EditUi::Event_Action_Widget()
 		if (rect.left && rect.top && rect.right && rect.bottom)
 		{
 			QiImage image(WidgetGetImage());
-			image.map = imageMap = Image::ScreenRgbMap(rect);
+			Image::ScreenRgbMap(imageMap, rect);
+			image.map = imageMap;
 			WidgetSet(image);
 		}
 		});
@@ -1636,7 +1637,7 @@ void EditUi::TableUpdate(int index)
 	case QiType::block:
 	{
 		const QiBlock& ref = var.to<QiBlock>();
-		type += ref.name();
+		type += QiUi::Symbol::Block;
 
 		param = "id：";
 		param += QString::number(ref.id);

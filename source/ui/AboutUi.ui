@@ -69,7 +69,7 @@
       <string notr="true">font-size:20px</string>
      </property>
      <property name="text">
-      <string>2025-11-6</string>
+      <string>2025-11-12</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
@@ -85,9 +85,8 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>增加操作区域功能
-增加输入字符变量
-增加图像和文字多目标处理</string>
+      <string>修复函数内if无法访问变量
+增加通过名称设置变量函数</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>

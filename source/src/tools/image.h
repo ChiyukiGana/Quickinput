@@ -8,6 +8,8 @@ namespace QiTools {
 	public:
 		using Result = std::optional<POINT>;
 		using Results = std::vector<POINT>;
+		static constexpr LONG npos = LONG_MAX;
+		static constexpr RECT full = { 0, 0, npos, npos };
 
 		static HBITMAP toBmp24(HDC hdc, const RECT& rect)
 		{
@@ -133,14 +135,14 @@ namespace QiTools {
 			return CImage();
 		}
 
-		static RgbMap toRgbMap(const HBITMAP& hBitmap)
+		static bool toRgbMap(const HBITMAP& hBitmap, RgbMap& map)
 		{
 			BITMAP bmp; GetObjectW(hBitmap, sizeof(BITMAP), &bmp);
-			if (!(bmp.bmWidth && bmp.bmHeight)) return {};
+			if (!(bmp.bmWidth && bmp.bmHeight)) return false;
 
 			if (bmp.bmBitsPixel == 24)
 			{
-				RgbMap map(bmp.bmWidth, bmp.bmHeight);
+				map.assign(bmp.bmWidth, bmp.bmHeight);
 				auto iter = map.begin();
 				for (size_t y = 0; y < bmp.bmHeight; y++)
 				{
@@ -152,11 +154,11 @@ namespace QiTools {
 						iter++;
 					}
 				}
-				return map;
+				return true;
 			}
 			else if (bmp.bmBitsPixel == 32)
 			{
-				RgbMap map(bmp.bmWidth, bmp.bmHeight);
+				map.assign(bmp.bmWidth, bmp.bmHeight);
 				auto iter = map.begin();
 				for (size_t y = 0; y < bmp.bmHeight; y++)
 				{
@@ -168,18 +170,18 @@ namespace QiTools {
 						iter++;
 					}
 				}
-				return map;
+				return true;
 			}
-			return {};
+			return false;
 		}
-		static RgbaMap toRgbaMap(const HBITMAP& hBitmap)
+		static bool toRgbaMap(const HBITMAP& hBitmap, RgbaMap& map)
 		{
 			BITMAP bmp; GetObjectW(hBitmap, sizeof(BITMAP), &bmp);
-			if (!(bmp.bmWidth && bmp.bmHeight)) return {};
+			if (!(bmp.bmWidth && bmp.bmHeight)) return false;
 
 			if (bmp.bmBitsPixel == 24)
 			{
-				RgbaMap map(bmp.bmWidth, bmp.bmHeight);
+				map.assign(bmp.bmWidth, bmp.bmHeight);
 				auto iter = map.begin();
 				for (size_t y = 0; y < bmp.bmHeight; y++)
 				{
@@ -187,15 +189,15 @@ namespace QiTools {
 					for (size_t x = 0; x < bmp.bmWidth; x++)
 					{
 						const _BGR_* ptr = py + x;
-						iter->r = ptr->r, iter->g = ptr->g, iter->b = ptr->b;
+						iter->r = ptr->r, iter->g = ptr->g, iter->b = ptr->b, iter->a = 255;
 						iter++;
 					}
 				}
-				return map;
+				return true;
 			}
 			else if (bmp.bmBitsPixel == 32)
 			{
-				RgbaMap map(bmp.bmWidth, bmp.bmHeight);
+				map.assign(bmp.bmWidth, bmp.bmHeight);
 				auto iter = map.begin();
 				for (size_t y = 0; y < bmp.bmHeight; y++)
 				{
@@ -203,36 +205,34 @@ namespace QiTools {
 					for (size_t x = 0; x < bmp.bmWidth; x++)
 					{
 						const _ABGR_* ptr = py + x;
-						iter->r = ptr->r, iter->g = ptr->g, iter->b = ptr->b;
+						iter->r = ptr->r, iter->g = ptr->g, iter->b = ptr->b, iter->a = ptr->a;;
 						iter++;
 					}
 				}
-				return map;
+				return true;
 			}
-			return {};
+			return false;
 		}
-		static RgbMap toRgbMap(const HDC& hdc, const RECT& rect)
+		static bool toRgbMap(const HDC& hdc, const RECT& rect, RgbMap& map)
 		{
 			HBITMAP hbmp = toBmp24(hdc, rect);
 			if (hbmp)
 			{
-				RgbMap map = toRgbMap(hbmp);
-				if (map)
+				if (toRgbMap(hbmp, map))
 				{
 					DeleteObject(hbmp);
-					return map;
+					return true;
 				}
 				DeleteObject(hbmp);
 			}
-			return {};
+			return false;
 		}
-		static RgbaMap toRgbaMap(const HDC& hdc, const RECT& rect)
+		static bool toRgbaMap(const HDC& hdc, const RECT& rect, RgbaMap& map)
 		{
 			HBITMAP hbmp = toBmp32(hdc, rect);
 			if (hbmp)
 			{
-				RgbaMap map = toRgbaMap(hbmp);
-				if (map)
+				if (toRgbaMap(hbmp, map))
 				{
 					DeleteObject(hbmp);
 					return map;
@@ -242,7 +242,7 @@ namespace QiTools {
 			return {};
 		}
 
-		static HBITMAP ScreenBmp24(RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
+		static HBITMAP ScreenBmp24(RECT rect = full)
 		{
 			HDC hdc = GetDC(0);
 			SIZE size = System::screenSize();
@@ -254,7 +254,7 @@ namespace QiTools {
 			ReleaseDC(0, hdc);
 			return hbmp;
 		}
-		static HBITMAP ScreenBmp32(RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
+		static HBITMAP ScreenBmp32(RECT rect = full)
 		{
 			HDC hdc = GetDC(0);
 			SIZE size = System::screenSize();
@@ -266,7 +266,7 @@ namespace QiTools {
 			ReleaseDC(0, hdc);
 			return hbmp;
 		}
-		static CImage ScreenCImage24(RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
+		static CImage ScreenCImage24(RECT rect = full)
 		{
 			HDC hdc = GetDC(0);
 			SIZE size = System::screenSize();
@@ -278,7 +278,7 @@ namespace QiTools {
 			ReleaseDC(0, hdc);
 			return image;
 		}
-		static CImage ScreenCImage32(RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
+		static CImage ScreenCImage32(RECT rect = full)
 		{
 			HDC hdc = GetDC(0);
 			SIZE size = System::screenSize();
@@ -290,38 +290,36 @@ namespace QiTools {
 			ReleaseDC(0, hdc);
 			return image;
 		}
-		static RgbMap ScreenRgbMap(const RECT& rect = { 0, 0, LONG_MAX, LONG_MAX })
+		static bool ScreenRgbMap(RgbMap& map, const RECT& rect = full)
 		{
 			HBITMAP hbmp = ScreenBmp24(rect);
 			if (hbmp)
 			{
-				RgbMap map = toRgbMap(hbmp);
-				if (map)
+				if (toRgbMap(hbmp, map))
 				{
 					DeleteObject(hbmp);
-					return map;
+					return true;
 				}
 				DeleteObject(hbmp);
 			}
-			return {};
+			return false;
 		}
-		static RgbaMap ScreenRgbaMap(const RECT& rect = { 0, 0, LONG_MAX, LONG_MAX })
+		static bool ScreenRgbaMap(RgbaMap& map, const RECT& rect = full)
 		{
 			HBITMAP hbmp = ScreenBmp32(rect);
 			if (hbmp)
 			{
-				RgbaMap map = toRgbaMap(hbmp);
-				if (map)
+				if (toRgbaMap(hbmp, map))
 				{
 					DeleteObject(hbmp);
-					return map;
+					return true;
 				}
 				DeleteObject(hbmp);
 			}
-			return {};
+			return false;
 		}
 
-		static Result Find(const RgbMap& map, const RgbMap& srcMap, byte similar = 80, byte sampleRote = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
+		static Result Find(const RgbMap& map, const RgbMap& srcMap, byte similar = 80, byte sampleRote = 10, RECT rect = full)
 		{
 			if (map.empty() || srcMap.empty()) return {};
 			if (rect.left < 0) rect.left = 0;
@@ -373,7 +371,7 @@ namespace QiTools {
 			}
 			return {};
 		}
-		static Result Find(const RgbaMap& map, const RgbaMap& srcMap, byte similar = 80, byte sampleRote = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
+		static Result Find(const RgbaMap& map, const RgbaMap& srcMap, byte similar = 80, byte sampleRote = 10, RECT rect = full)
 		{
 			if (map.empty() || srcMap.empty()) return {};
 			if (rect.left < 0) rect.left = 0;
@@ -425,7 +423,7 @@ namespace QiTools {
 			}
 			return {};
 		}
-		static Results FindAll(const RgbMap& map, const RgbMap& srcMap, byte similar = 80, byte sampleRote = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
+		static Results FindAll(const RgbMap& map, const RgbMap& srcMap, byte similar = 80, byte sampleRote = 10, RECT rect = full)
 		{
 			if (map.empty() || srcMap.empty()) return {};
 			if (rect.left < 0) rect.left = 0;
@@ -503,7 +501,7 @@ namespace QiTools {
 			}
 			return results;
 		}
-		static Results FindAll(const RgbaMap& map, const RgbaMap& srcMap, byte similar = 80, byte sampleRote = 10, RECT rect = { 0, 0, LONG_MAX, LONG_MAX })
+		static Results FindAll(const RgbaMap& map, const RgbaMap& srcMap, byte similar = 80, byte sampleRote = 10, RECT rect = full)
 		{
 			if (map.empty() || srcMap.empty()) return {};
 			if (rect.left < 0) rect.left = 0;

@@ -16,14 +16,6 @@
 #include <src/thread.h>
 #include <src/inc_project.h>
 
-namespace Qi
-{
-	inline std::function<void(const std::string&, int)> interpreter_pop;
-	inline std::function<bool(const std::string&)> interpreter_macro_active;
-	inline std::function<bool(const std::string&)> interpreter_macro_start;
-	inline std::function<bool(const std::string&)> interpreter_macro_stop;
-}
-
 class QiVar
 {
 public:
@@ -51,10 +43,17 @@ public:
 	QiVar(void* ptr) : var(reinterpret_cast<long long>(ptr)) {}
 
 	Type type() const {
-		if (std::holds_alternative<std::nullopt_t>(var)) return t_int;
+		if (std::holds_alternative<std::nullopt_t>(var)) return t_nul;
 		if (std::holds_alternative<long long>(var)) return t_int;
 		if (std::holds_alternative<double>(var)) return t_num;
 		return t_str;
+	}
+
+	std::string type_name() const {
+		if (std::holds_alternative<std::nullopt_t>(var)) return "null";
+		if (std::holds_alternative<long long>(var)) return "int";
+		if (std::holds_alternative<double>(var)) return "num";
+		return "str";
 	}
 
 	bool isNull() const { return var.index() == t_nul; }
@@ -486,6 +485,7 @@ public:
 };
 using QiVarMap = std::map<std::string, QiVar>;
 
+class QiScriptInterpreter;
 struct QiFunc
 {
 	const size_t m_args;
@@ -493,7 +493,7 @@ struct QiFunc
 	QiFunc() = delete;
 	QiFunc(size_t args, size_t args_max = 0) : m_args(args), m_args_max(args_max ? args_max : args) {}
 	bool valid(size_t args) const { return args >= m_args && args <= m_args_max; }
-	virtual QiVar exec(const std::vector<QiVar>& args, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const = 0;
+	virtual QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter* interpreter = nullptr, QiVarMap* global = nullptr, QiVarMap* local = nullptr, QiWorker* worker = nullptr) const = 0;
 };
 class QiFuncMap : public std::map<std::string, std::unique_ptr<QiFunc>> { public: QiFuncMap(); };
 
@@ -994,7 +994,7 @@ private:
 
 					if (func->valid(args.size()))
 					{
-						QiVar result = func->exec(args, &globalVariables, &localVariables, workerPtr);
+						QiVar result = func->exec(args, this, &globalVariables, &localVariables, workerPtr);
 						stack.push_back(result);
 					}
 					else throw std::runtime_error(error_functions_parameter_invalid + std::string(": ") + token.value);
@@ -1202,13 +1202,13 @@ private:
 			}
 			else if (std::holds_alternative<If>(stmt)) {
 				const If& ifStmt = std::get<If>(stmt);
-				if (execute(ifStmt.condition).toBool()) executeStatementList(ifStmt.trueBlock, local);
+				if (execute(ifStmt.condition, local).toBool()) executeStatementList(ifStmt.trueBlock, local);
 				else executeStatementList(ifStmt.falseBlock, local);
 			}
 			else if (std::holds_alternative<Loop>(stmt)) {
 				const Loop& loopStmt = std::get<Loop>(stmt);
 				while (workerPtr ? (!workerPtr->m_stop) : true) {
-					if (!execute(loopStmt.condition).toBool()) break;
+					if (!execute(loopStmt.condition).toBool(), local) break;
 					executeStatementList(loopStmt.body, local);
 				}
 			}
@@ -1391,30 +1391,39 @@ public:
 		catch (const ReturnException&) {}
 	}
 
+	bool exist(const std::string& var, const QiVarMap* local = nullptr)
+	{
+		if (isValidVariableName(var))
+		{
+			if (isGlobalVariable(var)) return globalExist(var);
+			else return localExist(var, local);
+		}
+		return false;
+	}
+	bool globalExist(const std::string& var)
+	{
+		std::unique_lock<std::mutex> lock(globalVariablesMutex);
+		return globalVariables.find(var) != globalVariables.end();
+	}
+	bool localExist(const std::string& var, const QiVarMap* local = nullptr)
+	{
+		if (local)
+		{
+			return local->find(var) != local->end();
+		}
+		else
+		{
+			std::unique_lock<std::mutex> lock(localVariablesMutex);
+			return localVariables.find(var) != localVariables.end();
+		}
+	}
+
 	QiVar value(const std::string& var, const QiVarMap* local = nullptr)
 	{
 		if (isValidVariableName(var))
 		{
-			if (isGlobalVariable(var))
-			{
-				std::unique_lock<std::mutex> lock(globalVariablesMutex);
-				const auto& i = globalVariables.find(var);
-				if (i != globalVariables.end()) return i->second;
-			}
-			else
-			{
-				if (local)
-				{
-					const auto& i = local->find(var);
-					if (i != local->end()) return i->second;
-				}
-				else
-				{
-					std::unique_lock<std::mutex> lock(localVariablesMutex);
-					const auto& i = localVariables.find(var);
-					if (i != localVariables.end()) return i->second;
-				}
-			}
+			if (isGlobalVariable(var)) return globalValue(var);
+			else return localValue(var, local);
 		}
 		return QiVar();
 	}

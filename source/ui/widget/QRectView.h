@@ -41,6 +41,7 @@ public:
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setAttribute(Qt::WA_TranslucentBackground);
 		scale = (float)(screenSize().cx) / (float)(QGuiApplication::primaryScreen()->geometry().width());
+		Move();
 	}
 
 	void ARect(RECT arect) { this->arect = arect; rect.setLeft(arect.left / scale), rect.setTop(arect.top / scale), rect.setRight(arect.right / scale), rect.setBottom(arect.bottom / scale); }

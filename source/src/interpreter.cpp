@@ -308,14 +308,14 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				{
 					hdc = GetWindowDC(wndInput->wnd);
 					rect = QiCvt::WR_AtR(rect, wndInput->wnd, macro.range);
-					rgbMap = Image::toRgbMap(hdc, rect);
+					Image::toRgbMap(hdc, rect, rgbMap);
 					ReleaseDC(wndInput->wnd, hdc);
 				}
 				else
 				{
 					hdc = GetDC(nullptr);
 					rect = QiCvt::SR_AtR(rect, macro.range);
-					rgbMap = Image::toRgbMap(hdc, rect);
+					Image::toRgbMap(hdc, rect, rgbMap);
 					ReleaseDC(nullptr, hdc);
 				}
 				Color::Result findResult = Color::FindOr(rgbMap, ref.rgbe.toRgb(), ref.rgbe.a);
@@ -385,14 +385,14 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 				{
 					hdc = GetWindowDC(wndInput->wnd);
 					rect = QiCvt::WR_AtR(rect, wndInput->wnd, macro.range);
-					rgbMap = Image::toRgbMap(hdc, rect);
+					Image::toRgbMap(hdc, rect, rgbMap);
 					ReleaseDC(wndInput->wnd, hdc);
 				}
 				else
 				{
 					hdc = GetDC(nullptr);
 					rect = QiCvt::SR_AtR(rect, macro.range);
-					rgbMap = Image::toRgbMap(hdc, rect);
+					Image::toRgbMap(hdc, rect, rgbMap);
 					ReleaseDC(nullptr, hdc);
 				}
 				Image::Results findResults;

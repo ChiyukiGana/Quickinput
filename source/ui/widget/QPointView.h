@@ -41,6 +41,7 @@ public:
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setAttribute(Qt::WA_TranslucentBackground);
 		scale = (float)(screenSize().cx) / (float)(QGuiApplication::primaryScreen()->geometry().width());
+		Move();
 	}
 
 	void APoint(POINT apt) { pt.setX(apt.x / scale), pt.setY(apt.y / scale); }
