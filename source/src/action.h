@@ -1005,11 +1005,14 @@ struct QiMsgView : QiBase
 		text = json.value("text").toString();
 	}
 };
-struct QiRangeSet: QiBase
+struct QiRangeSet : QiBase
 {
 	static constexpr QiIntRange range_rect = { 0, 10000 };
 
+	HWND w = nullptr;
 	RECT rect = {};
+	QString wnd;
+	QString var;
 	QiRangeSet() : QiBase(QiType::range, QiTypeNext::none) {}
 	QString name() const override { return "操作区域"; }
 	QJsonObject toJson() const override
@@ -1019,6 +1022,8 @@ struct QiRangeSet: QiBase
 		json.insert("top", (int)rect.top);
 		json.insert("right", (int)rect.right);
 		json.insert("bottom", (int)rect.bottom);
+		if (!wnd.isEmpty()) json.insert("wnd", wnd);
+		if (!var.isEmpty()) json.insert("var", var);
 		return json;
 	}
 	void fromJson(const QJsonObject& json) override
@@ -1028,6 +1033,8 @@ struct QiRangeSet: QiBase
 		rect.top = json.value("top").toInt();
 		rect.right = json.value("right").toInt();
 		rect.bottom = json.value("bottom").toInt();
+		wnd = json.value("wnd").toString();
+		var = json.value("var").toString();
 	}
 };
 using ActionVariant = std::variant

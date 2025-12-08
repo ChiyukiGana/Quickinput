@@ -2,6 +2,7 @@
 #include "macro.h"
 #include "ui.h"
 
+struct SIZEF { float cx; float cy; };
 struct RECTF { float left; float top; float right; float bottom; };
 
 enum class InterpreterResult

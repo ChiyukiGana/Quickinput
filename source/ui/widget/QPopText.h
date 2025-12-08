@@ -60,7 +60,7 @@ public:
 
 		setAttribute(Qt::WA_TransparentForMouseEvents, true);
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
-		setPosition(5000, 5000);
+		setPosition(5000, 0);
 		setWindowOpacity(0.0);
 		setStyleSheet("color:black");
 		show();

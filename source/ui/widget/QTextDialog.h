@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include <qapplication.h>
 #include <qdialog.h>
 #include <qplaintextedit.h>
 #include <qpushbutton.h>
@@ -15,12 +16,11 @@ class QTextDialog : public QDialog
 	QString text;
 	bool save = false;
 public:
-	QTextDialog(bool editable = false) : editable(editable)
+	QTextDialog(bool editable = false, const QString& title = QString(), const QIcon& icon = QIcon()) : editable(editable)
 	{
 		setWindowFlags(Qt::WindowCloseButtonHint);
-		setWindowIcon(QIcon(":/icon.png"));
+		setWindowIcon(icon.isNull() ? QApplication::windowIcon() : icon);
 		setGeometry(QRect(100, 100, 500, 380));
-		setStyleSheet("color:black");
 
 		textEdit = new QPlainTextEdit(this);
 		textEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -31,7 +31,6 @@ public:
 		saveButton->setMinimumSize(QSize(60, 24));
 		saveButton->setMaximumSize(QSize(60, 24));
 		saveButton->setText("保存");
-		saveButton->setStyleSheet("background-color:white;border:1px solid gray;border-radius:4px");
 
 		layout = new QVBoxLayout(this);
 		layout->setContentsMargins(8, 8, 8, 8);
@@ -47,13 +46,13 @@ public:
 
 		if (editable)
 		{
-			setWindowTitle("QuickInput - TextEdit");
+			setWindowTitle(title.isEmpty() ? QString("TextEdit") : title);
 			textEdit->setReadOnly(false);
 			saveButton->setHidden(false);
 		}
 		else
 		{
-			setWindowTitle("QuickInput - TextView");
+			setWindowTitle(title.isEmpty() ? QString("TextView") : title);
 			textEdit->setReadOnly(true);
 			saveButton->setHidden(true);
 		}
@@ -61,6 +60,10 @@ public:
 	QPlainTextEdit* edit()
 	{
 		return textEdit;
+	}
+	QPushButton* button()
+	{
+		return saveButton;
 	}
 	QString Start(const QString& text)
 	{

@@ -84,35 +84,12 @@ void integrity_verify()
 	std::wstring exeName = QiTools::Process::exeName();
 	std::wstring exePath = QiTools::Process::exePath();
 	std::wstring runPath = QiTools::Process::runPath();
-	// 从内存创建
-	if (true)
-	{
-		if (!QiTools::File::PathState(exePath) || !QiTools::File::PathState(runPath) || !QiTools::Process::find(exeName))
-		{
-			error();
-		}
-	}
-	// 释放到隐藏目录
-	if (true)
-	{
-		DWORD file = GetFileAttributesW(exePath.c_str());
-		DWORD folder = GetFileAttributesW(runPath.c_str());
-		if ((file == FILE_ATTRIBUTE_HIDDEN) || (file == FILE_ATTRIBUTE_SYSTEM) || (folder == FILE_ATTRIBUTE_HIDDEN))
-		{
-			error();
-		}
-	}
-	// 植入了代码段
-	if (true)
-	{
-		std::string sha256 = integrity_verify_Sha256TextSection();
-		if (sha256.empty())
-		{
-			error();
-		}
-		if (sha256 != integrity_verify_textSha256)
-		{
-			error();
-		}
-	}
+
+	if (exePath.size() < 4 || exePath.substr(exePath.size() - 4) != L".exe") error();
+
+	if (!QiTools::File::FileState(exePath) || !QiTools::File::PathState(runPath) || !QiTools::Process::find(exeName)) error();
+	if (QiTools::File::FolderIsSystem(runPath) || QiTools::File::FileIsHide(exePath) || QiTools::File::FileIsSystem(exePath)) error();
+
+	std::string sha256 = integrity_verify_Sha256TextSection(exePath);
+	if (sha256.empty() || sha256 != integrity_verify_textSha256) error();
 }

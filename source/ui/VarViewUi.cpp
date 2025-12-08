@@ -36,27 +36,30 @@ void VarViewUi::TableUpdate(QTableWidget* table, const QiVarMap varMap)
 		const QString& name = ((*iter).first).c_str();
 		const QiVar& var = (*iter).second;
 
-		QTableWidgetItem* item = new QTableWidgetItem(name);
-		if (var.isString()) item->setForeground(QColor(255, 128, 0));
-		else item->setForeground(QColor(0, 192, 0));
-		item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);		table->setItem(i, tableColumn_name, item);
+		QColor color;
+		switch (var.type())
+		{
+		case QiVar::t_nul: color = QColor(0, 0, 0); break;
+		case QiVar::t_int: color = QColor(0, 127, 0); break;
+		case QiVar::t_num: color = QColor(0, 192, 0); break;
+		case QiVar::t_str: color = QColor(255, 127, 0); break;
+		case QiVar::t_ptr: color = QColor(255, 0, 0); break;
+		case QiVar::t_bool: color = QColor(0, 127, 192); break;
+		}
 
-		if (var.isString())
-		{
-			item = new QTableWidgetItem("str");
-			item->setForeground(QColor(255, 128, 0));
-		}
-		else
-		{
-			item = new QTableWidgetItem("num");
-			item->setForeground(QColor(0, 192, 0));
-		}
+		QTableWidgetItem* item = new QTableWidgetItem(name);
+		item->setForeground(color);
+		item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+		table->setItem(i, tableColumn_name, item);
+
+
+		item = new QTableWidgetItem(QString::fromStdString(var.type_name()));
+		item->setForeground(color);
 		item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		table->setItem(i, tableColumn_type, item);
 
-		item = new QTableWidgetItem(var.toString().c_str());
-		if (var.isString()) item->setForeground(QColor(255, 128, 0));
-		else item->setForeground(QColor(0, 192, 0));
+		item = new QTableWidgetItem(QString::fromStdString(var.toString()));
+		item->setForeground(color);
 		item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		table->setItem(i, tableColumn_value, item);
 	}

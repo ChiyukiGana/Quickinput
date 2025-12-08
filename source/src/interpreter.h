@@ -6,7 +6,7 @@ class QiInterpreter
 	QiWorker& worker;
 	Macro& macro;
 	POINT& cursor;
-	const Actions& actions;
+	Actions& actions;
 	const bool timer;
 	const time_t timerStart;
 	const time_t timerEnd;
@@ -32,7 +32,7 @@ public:
 	bool isInvalid();
 	void DebugContinue();
 	bool PeekSleep(clock_t ms);
-	InterpreterResult ActionInterpreter(const Actions& current);
+	InterpreterResult ActionInterpreter(Actions& current);
 	QString makePath();
 	std::string errPath();
 	std::wstring werrPath();

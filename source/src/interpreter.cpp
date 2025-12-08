@@ -105,7 +105,7 @@ std::wstring QiInterpreter::werrPath()
 	return std::wstring(L"\n\n路径：") + makePath().toStdWString();
 }
 
-InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
+InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 {
 	if (current.empty())
 	{
@@ -124,7 +124,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 	r_top_entry:
 		for (size_t i = 0; i < current.size(); i++)
 		{
-			const Action& action = current[i];
+			Action& action = current[i];
 			if (isInvalid()) return InterpreterResult::r_exit;
 			if (wndInput && !IsWindow(wndInput->wnd)) { Qi::popText->Popup("窗口失效"); return InterpreterResult::r_exit; }
 
@@ -267,7 +267,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 					else
 					{
 						POINT scale = QiCvt::P_FtI(POINTF({ posScaleX, posScaleY }));
-						POINT dpt = QiCvt::Clamp(POINT({ x + scale.x, y + scale.y }), macro.range);
+						POINT dpt = QiCvt::Clip(POINT({ x + scale.x, y + scale.y }), macro.range);
 						if (ref.track)
 						{
 							POINT spt = QiCvt::SP_RtA(Input::pos());
@@ -292,7 +292,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::color:
 			{
-				const QiColor& ref = action.to<QiColor>();
+				QiColor& ref = action.to<QiColor>();
 				RECT rect = {
 					ref.v_left.isEmpty() ? ref.rect.left : macro.script_interpreter.value(ref.v_left.toStdString()).toInteger(),
 					ref.v_top.isEmpty() ? ref.rect.top : macro.script_interpreter.value(ref.v_top.toStdString()).toInteger(),
@@ -340,7 +340,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::loop:
 			{
-				const QiLoop& ref = action.to<QiLoop>();
+				QiLoop& ref = action.to<QiLoop>();
 				int min = ref.v_min.isEmpty() ? ref.min : macro.script_interpreter.value(ref.v_min.toStdString()).toInteger();
 				int max = ref.v_max.isEmpty() ? ref.max : macro.script_interpreter.value(ref.v_max.toStdString()).toInteger();
 				int count = rand(max, min);
@@ -361,7 +361,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			case QiType::loopEnd: return InterpreterResult::r_break;
 			case QiType::keyState:
 			{
-				const QiKeyState& ref = action.to<QiKeyState>();
+				QiKeyState& ref = action.to<QiKeyState>();
 				if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
 				else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 				if (Input::stateEx(ref.vk)) r_result = ActionInterpreter(ref.next);
@@ -370,7 +370,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			case QiType::resetPos: QiFn::MoveTo(cursor.x, cursor.y); break;
 			case QiType::image:
 			{
-				const QiImage& ref = action.to<QiImage>();
+				QiImage& ref = action.to<QiImage>();
 				RECT rect = {
 					ref.v_left.isEmpty() ? ref.rect.left : macro.script_interpreter.value(ref.v_left.toStdString()).toInteger(),
 					ref.v_top.isEmpty() ? ref.rect.top : macro.script_interpreter.value(ref.v_top.toStdString()).toInteger(),
@@ -442,7 +442,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			case QiType::savePos: cursor = Input::pos(); break;
 			case QiType::timer:
 			{
-				const QiTimer& ref = action.to<QiTimer>();
+				QiTimer& ref = action.to<QiTimer>();
 				clock_t min = ref.v_min.isEmpty() ? ref.min : macro.script_interpreter.value(ref.v_min.toStdString()).toInteger();
 				clock_t max = ref.v_max.isEmpty() ? ref.max : macro.script_interpreter.value(ref.v_max.toStdString()).toInteger();
 				clock_t time = rand(max, min);
@@ -479,7 +479,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::dialog:
 			{
-				const QiDialog& ref = action.to<QiDialog>();
+				QiDialog& ref = action.to<QiDialog>();
 				if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
 				else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 				try
@@ -496,8 +496,8 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::blockExec:
 			{
-				const QiBlockExec& ref = action.to<QiBlockExec>();
-				const Action* block = actions.find(QiType::block, ref.id);
+				QiBlockExec& ref = action.to<QiBlockExec>();
+				Action* block = actions.find(QiType::block, ref.id);
 				if (block) r_result = ActionInterpreter(block->base().next);
 			} break;
 			case QiType::quickInput:
@@ -547,7 +547,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::clock:
 			{
-				const QiClock& ref = action.to<QiClock>();
+				QiClock& ref = action.to<QiClock>();
 				if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
 				else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 				if (QiTime::compare(ref.time) < 0) r_result = ActionInterpreter(ref.next);
@@ -555,7 +555,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::ocr:
 			{
-				const QiOcr& ref = action.to<QiOcr>();
+				QiOcr& ref = action.to<QiOcr>();
 				RECT rect = {
 					ref.v_left.isEmpty() ? ref.rect.left : macro.script_interpreter.value(ref.v_left.toStdString()).toInteger(),
 					ref.v_top.isEmpty() ? ref.rect.top : macro.script_interpreter.value(ref.v_top.toStdString()).toInteger(),
@@ -680,7 +680,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::varCondition:
 			{
-				const QiVarCondition& ref = action.to<QiVarCondition>();
+				QiVarCondition& ref = action.to<QiVarCondition>();
 				if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
 				else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 				try
@@ -746,7 +746,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::volume:
 			{
-				const QiVolume& ref = action.to<QiVolume>();
+				QiVolume& ref = action.to<QiVolume>();
 				if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
 				else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 				if (Sound::SpeakerVolume(ref.time > 5 ? ref.time : 5, ref.max) > ref.volume) r_result = ActionInterpreter(ref.next);
@@ -798,8 +798,25 @@ InterpreterResult QiInterpreter::ActionInterpreter(const Actions& current)
 			} break;
 			case QiType::range:
 			{
-				const QiRangeSet& ref = action.to<QiRangeSet>();
-				macro.range = ref.rect;
+				QiRangeSet& ref = action.to<QiRangeSet>();
+
+				if (ref.wnd.isEmpty() && ref.var.isEmpty()) macro.range = ref.rect;
+				else
+				{
+					ref.w = nullptr;
+					if (!ref.var.isEmpty())
+					{
+						ref.w = reinterpret_cast<HWND>(macro.script_interpreter.value(ref.var.toStdString()).toPointer());
+						if (!IsWindow(ref.w)) ref.w = nullptr;
+					}
+					if (!ref.w && !ref.wnd.isEmpty()) ref.w = FindWindowW(nullptr, (LPCWSTR)ref.wnd.utf16());
+
+					if (ref.w) macro.range = QiCvt::SR_RtAnClip(Window::rect(ref.w));
+					else
+					{
+						MsgBox::Error(std::wstring(L"窗口不存在，无法设置范围") + werrPath(), L"Quickinput Interpreter"); return InterpreterResult::r_exit;
+					}
+				}
 			} break;
 			}
 			if (r_result != InterpreterResult::r_continue) break;

@@ -92,6 +92,7 @@ int main(int argc, char* argv[])
 
     qputenv("QT_QPA_PLATFORM", "windows:darkmode=0");
 	QApplication application(argc, argv);
+	QApplication::setWindowIcon(QIcon(":/icon.png"));
 	Qi::application = &application;
 	Qi::popText = new QPopText;
 	Qi::popText->setPosition(Qi::ui.pop.x, Qi::ui.pop.y);

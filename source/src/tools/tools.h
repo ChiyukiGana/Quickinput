@@ -22,4 +22,5 @@
 #include "texteditbox.h"
 #include "csvtool.h"
 #include "restool.h"
+#include "ntp.h"
 using namespace QiTools;

@@ -808,6 +808,7 @@ void EditUi::Event_Action_Widget()
 	// textPad
 	connect(ui.textPad_button, &QPushButton::clicked, this, [this] {
 		QTextDialog td(true);
+		td.button()->setStyleSheet("background-color:white;border:1px solid gray;border-radius:4px");
 		ui.textPad_edit->setText(td.Start(ui.textPad_edit->text()));
 		});
 	// varOperator
@@ -866,6 +867,17 @@ void EditUi::Event_Action_Widget()
 		QiRangeSet range;
 		range.rect = rect;
 		WidgetSet(range);
+		});
+	connect(ui.range_wnd_button, &QPushButton::clicked, this, [this] {
+		WndInfo w = QiFn::WindowSelection();
+		if (w.wnd)
+		{
+			QiRangeSet range;
+			range.rect = QiCvt::SR_RtA(Window::rect(w.wnd));
+			range.wnd = w.wndName;
+			range.var = ui.range_id_edit->text();
+			WidgetSet(range);
+		}
 		});
 }
 // TODO: new action's preview
@@ -1023,6 +1035,7 @@ void EditUi::StyleGroup()
 		ui.rec_window_button->setProperty("group", "edit-add_button");
 		ui.ocr_test_button->setProperty("group", "edit-edit_button");
 		ui.varOperator_test_button->setProperty("group", "edit-edit_button");
+		ui.range_wnd_button->setProperty("group", "edit-edit_button");
 	}
 	if ("check box")
 	{
@@ -1124,6 +1137,8 @@ void EditUi::StyleGroup()
 		ui.range_top_edit->setProperty("group", "line_edit");
 		ui.range_right_edit->setProperty("group", "line_edit");
 		ui.range_bottom_edit->setProperty("group", "line_edit");
+		ui.range_name_edit->setProperty("group", "line_edit");
+		ui.range_id_edit->setProperty("group", "line_edit");
 	}
 	if ("text edit")
 	{
@@ -1698,9 +1713,8 @@ void EditUi::TableUpdate(int index)
 		param = (ref.v_left.isEmpty() ? QString::number(ref.rect.left) : ref.v_left)
 			+ "," + (ref.v_top.isEmpty() ? QString::number(ref.rect.top) : ref.v_top)
 			+ "," + (ref.v_right.isEmpty() ? QString::number(ref.rect.right) : ref.v_right)
-			+ "," + (ref.v_bottom.isEmpty() ? QString::number(ref.rect.bottom) : ref.v_bottom)
-			+ (ref.match ? " 匹配：" : " 搜索：")
-			+ QiFn::FoldText(ref.text, 12);
+			+ "," + (ref.v_bottom.isEmpty() ? QString::number(ref.rect.bottom) : ref.v_bottom);
+		if (!ref.text.isEmpty()) param += (ref.match ? " 匹配：" : " 搜索：") + QiFn::FoldText(ref.text, 12);
 	} break;
 	case QiType::varOperator:
 	{
@@ -1779,7 +1793,9 @@ void EditUi::TableUpdate(int index)
 	{
 		const QiRangeSet& ref = var.to<QiRangeSet>();
 		type += QiUi::Symbol::Range;
-		param = QString::number(ref.rect.left)
+		if (!ref.var.isEmpty()) param = ref.var;
+		else if (!ref.wnd.isEmpty()) param = ref.wnd;
+		else param = QString::number(ref.rect.left)
 			+ "," + QString::number(ref.rect.top)
 			+ "," + QString::number(ref.rect.right)
 			+ "," + QString::number(ref.rect.bottom);
@@ -2452,6 +2468,8 @@ QiRangeSet EditUi::WidgetGetRange()
 	range.rect.top = QiRange::Restricted(ui.range_top_edit->text().toInt(), QiRangeSet::range_rect);
 	range.rect.right = QiRange::Restricted(ui.range_right_edit->text().toInt(), QiRangeSet::range_rect);
 	range.rect.bottom = QiRange::Restricted(ui.range_bottom_edit->text().toInt(), QiRangeSet::range_rect);
+	range.wnd = ui.range_name_edit->text();
+	range.var = ui.range_id_edit->text();
 	return range;
 }
 
@@ -2624,6 +2642,8 @@ void EditUi::WidgetSet(const QiRangeSet& range)
 	ui.range_top_edit->setText(QString::number(range.rect.top));
 	ui.range_right_edit->setText(QString::number(range.rect.right));
 	ui.range_bottom_edit->setText(QString::number(range.rect.bottom));
+	ui.range_name_edit->setText(range.wnd);
+	ui.range_id_edit->setText(range.var);
 	macro->range = range.rect;
 }
 

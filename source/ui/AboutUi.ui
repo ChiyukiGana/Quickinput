@@ -69,7 +69,7 @@
       <string notr="true">font-size:20px</string>
      </property>
      <property name="text">
-      <string>2025-11-12</string>
+      <string>2025-12-8</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
@@ -85,8 +85,11 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>修复函数内if无法访问变量
-增加通过名称设置变量函数</string>
+      <string>增加ntp时间函数
+增加操作范围窗口绑定
+增加变量窗口显示类型
+修复变量循环无法停止
+修复变量负数表示</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>

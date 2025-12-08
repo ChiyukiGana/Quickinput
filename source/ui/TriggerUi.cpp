@@ -170,6 +170,7 @@ void TriggerUi::Event()
 	connect(ui.var_button, &QPushButton::clicked, this, [this] {
 		if (!ItemCurrented()) return;
 		QTextDialog edit(true);
+		edit.button()->setStyleSheet("background-color:white;border:1px solid gray;border-radius:4px");
 		ui.var_edit->setText(edit.Start(ui.var_edit->text()));
 		});
 	connect(ui.var_edit, &QLineEdit::textChanged, this, [this](const QString& text) {

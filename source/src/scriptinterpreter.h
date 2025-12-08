@@ -19,7 +19,13 @@
 class QiVar
 {
 public:
-	using VariantType = std::variant<std::nullopt_t, long long, double, std::string>;
+	using nul_t = std::nullopt_t;
+	using int_t = long long;
+	using num_t = double;
+	using str_t = std::string;
+	using ptr_t = void*;
+
+	using VariantType = std::variant<nul_t, int_t, num_t, str_t, ptr_t, bool>;
 	VariantType var;
 
 	static inline const std::string error_invalid_character = "QiVar: type is invalid";
@@ -28,87 +34,120 @@ public:
 		t_nul,
 		t_int,
 		t_num,
-		t_str
+		t_str,
+		t_ptr,
+		t_bool
 	};
 
 	QiVar() : var(std::nullopt) {}
-	QiVar(bool val) : var(long long(val)) {}
-	QiVar(int val) : var(long long(val)) {}
-	QiVar(long val) : var(long long(val)) {}
-	QiVar(long long val) : var(val) {}
-	QiVar(double val) : var(val) {}
-	QiVar(const char* str) : var(std::string(str)) {}
-	QiVar(const std::string& str) : var(str) {}
-	QiVar(const std::wstring& str) : var(String::toString(str)) {}
-	QiVar(void* ptr) : var(reinterpret_cast<long long>(ptr)) {}
+	QiVar(int val) : var(int_t(val)) {}
+	QiVar(long val) : var(int_t(val)) {}
+	QiVar(long long val) : var(int_t(val)) {}
+	QiVar(double val) : var(num_t(val)) {}
+	QiVar(const char* str) : var(str_t(str)) {}
+	QiVar(const std::string& str) : var(str_t(str)) {}
+	QiVar(const std::wstring& str) : var(str_t(String::toString(str))) {}
+	QiVar(void* ptr) : var(ptr_t(ptr)) {}
+	QiVar(bool val) : var(bool(val)) {}
 
-	Type type() const {
-		if (std::holds_alternative<std::nullopt_t>(var)) return t_nul;
-		if (std::holds_alternative<long long>(var)) return t_int;
-		if (std::holds_alternative<double>(var)) return t_num;
-		return t_str;
+	Type type() const { return static_cast<Type>(var.index()); }
+
+	str_t type_name() const
+	{
+		switch (type())
+		{
+		case t_nul: return "null";
+		case t_int: return "int";
+		case t_num: return "num";
+		case t_str: return "str";
+		case t_ptr: return "ptr";
+		case t_bool: return "bool";
+		}
+		return "null";
 	}
 
-	std::string type_name() const {
-		if (std::holds_alternative<std::nullopt_t>(var)) return "null";
-		if (std::holds_alternative<long long>(var)) return "int";
-		if (std::holds_alternative<double>(var)) return "num";
-		return "str";
-	}
-
-	bool isNull() const { return var.index() == t_nul; }
-	bool isInteger() const {
-		if (var.index() == t_int) return true;
-		if (var.index() == t_num) return isInteger(std::get<double>(var));
-		if (var.index() == t_str) return isInteger(std::get<std::string>(var));
+	bool isNull() const { return type() == t_nul; }
+	bool isInteger() const
+	{
+		if (type() == t_int) return true;
+		if (type() == t_num) return isInteger(get<num_t>(var));
+		if (type() == t_str) return isInteger(get<str_t>(var));
 		return false;
 	}
-	bool isNumber() const {
-		if (var.index() == t_int) return true;
-		if (var.index() == t_num) return true;
-		if (var.index() == t_str) return isNumber(std::get<std::string>(var));
+	bool isNumber() const
+	{
+		if (type() == t_int) return true;
+		if (type() == t_num) return true;
+		if (type() == t_str) return isNumber(get<str_t>(var));
 		return false;
 	}
-	bool isString() const { return var.index() == t_str; }
+	bool isString() const { return type() == t_str; }
+	bool isPointer() const { return type() == t_ptr; }
+	bool isBool() const { return type() == t_bool; }
 
 	bool toBool() const
 	{
-		if (var.index() == t_int) return std::get<long long>(var);
-		if (var.index() == t_num) return std::get<double>(var);
-		if (var.index() == t_str) return toBool(std::get<std::string>(var));
+		if (type() == t_nul) return false;
+		if (type() == t_int) return std::get<int_t>(var);
+		if (type() == t_num) return std::get<num_t>(var);
+		if (type() == t_str) return toBool(std::get<str_t>(var));
+		if (type() == t_ptr) return std::get<ptr_t>(var);
+		if (type() == t_bool) return std::get<bool>(var);
 		return false;
 	}
-	long long toInteger() const
+	int_t toInteger() const
 	{
-		if (var.index() == t_int) return std::get<long long>(var);
-		if (var.index() == t_num) return std::get<double>(var);
-		if (var.index() == t_str) return toInteger(std::get<std::string>(var));
+		if (type() == t_nul) return 0LL;
+		if (type() == t_int) return std::get<int_t>(var);
+		if (type() == t_num) return get<num_t>(var);
+		if (type() == t_str) return toInteger(get<str_t>(var));
+		if (type() == t_ptr) return reinterpret_cast<int_t>(get<ptr_t>(var));
+		if (type() == t_bool) return std::get<bool>(var);
 		return 0LL;
 	}
-	double toNumber() const
+	num_t toNumber() const
 	{
-		if (var.index() == t_int) return std::get<long long>(var);
-		if (var.index() == t_num) return std::get<double>(var);
-		if (var.index() == t_str) return toNumber(std::get<std::string>(var));
+		if (type() == t_nul) return 0.0;
+		if (type() == t_int) return std::get<int_t>(var);
+		if (type() == t_num) return get<num_t>(var);
+		if (type() == t_str) return toNumber(get<str_t>(var));
+		if (type() == t_ptr) return reinterpret_cast<int_t>(get<ptr_t>(var));
+		if (type() == t_bool) return std::get<bool>(var);
 		return 0.0;
 	}
-	std::string toString() const
+	str_t toString() const
 	{
-		if (var.index() == t_int) return toString(std::get<long long>(var));
-		if (var.index() == t_num) return toString(std::get<double>(var));
-		if (var.index() == t_str) return std::get<std::string>(var);
-		return std::string();
+		if (type() == t_nul) return str_t();
+		if (type() == t_int) return toString(std::get<int_t>(var));
+		if (type() == t_num) return toString(get<num_t>(var));
+		if (type() == t_str) return get<str_t>(var);
+		if (type() == t_ptr) return toString(get<ptr_t>(var));
+		if (type() == t_bool) return toString(std::get<bool>(var));
+		return str_t();
+	}
+	ptr_t toPointer() const
+	{
+		if (type() == t_nul) return nullptr;
+		if (type() == t_int) return reinterpret_cast<ptr_t>(std::get<int_t>(var));
+		if (type() == t_num) return nullptr;
+		if (type() == t_str) return nullptr;
+		if (type() == t_ptr) return get<ptr_t>(var);
+		if (type() == t_bool) return nullptr;
+		return nullptr;
 	}
 	std::wstring toWString() const
 	{
 		return String::toWString(toString());
 	}
 
-	long long len() const
+	int_t len() const
 	{
-		if (var.index() == t_int) return toString(std::get<long long>(var)).length();
-		if (var.index() == t_num) return toString(std::get<double>(var)).length();
-		if (var.index() == t_str) return std::get<std::string>(var).length();
+		if (type() == t_nul) return 0LL;
+		if (type() == t_int) return toString(std::get<int_t>(var)).length();
+		if (type() == t_num) return toString(get<num_t>(var)).length();
+		if (type() == t_str) return get<str_t>(var).length();
+		if (type() == t_ptr) return toString(get<ptr_t>(var)).length();
+		if (type() == t_bool) return toString(get<bool>(var)).length();
 		return 0LL;
 	}
 
@@ -118,25 +157,31 @@ public:
 	}
 	QiVar operator+(const QiVar& other) const
 	{
-		return (this->isInteger() && other.isInteger()) ? this->toInteger() + other.toInteger() : this->toNumber() + other.toNumber();
+		if (isPointer() && (other.isInteger() || other.isPointer())) return reinterpret_cast<ptr_t>(toInteger() + other.toInteger());
+		if (isInteger() && (other.isInteger() || other.isPointer())) return toInteger() + other.toInteger();
+		return toNumber() + other.toNumber();
 	}
 	QiVar operator-(const QiVar& other) const
 	{
-		return (this->isInteger() && other.isInteger()) ? this->toInteger() - other.toInteger() : this->toNumber() - other.toNumber();
+		if (isPointer() && (other.isInteger() || other.isPointer())) return reinterpret_cast<ptr_t>(toInteger() - other.toInteger());
+		if (isInteger() && (other.isInteger() || other.isPointer())) return toInteger() - other.toInteger();
+		return toNumber() - other.toNumber();
 	}
 	QiVar operator*(const QiVar& other) const
 	{
-		return (this->isInteger() && other.isInteger()) ? this->toInteger() * other.toInteger() : this->toNumber() * other.toNumber();
+		if ((isPointer() || isInteger()) && (other.isInteger() || other.isPointer())) return toInteger() * other.toInteger();
+		return toNumber() * other.toNumber();
 	}
 	QiVar operator/(const QiVar& other) const
 	{
-		double b = other.toNumber();
-		return b == 0.0 ? 0.0 : this->toNumber() / b;
+		if (other.toNumber() == 0.0) return 0.0;
+		if ((isPointer() || isInteger()) && (other.isInteger() || other.isPointer())) return toInteger() / other.toInteger();
+		return toNumber() / other.toNumber();
 	}
 	QiVar operator%(const QiVar& other) const
 	{
-		long long b = other.toInteger();
-		return b == 0LL ? 0LL : this->toInteger() % b;
+		int_t i = other.toInteger();
+		return i == 0LL ? 0LL : this->toInteger() % i;
 	}
 
 	QiVar operator~() const
@@ -389,7 +434,7 @@ public:
 	{
 		return str != "0" && stricmp(str.c_str(), "false") != 0;
 	}
-	static long long toInteger(const std::string& str)
+	static int toInteger(const std::string& str)
 	{
 		try
 		{
@@ -417,28 +462,19 @@ public:
 			return 0.0;
 		}
 	}
-	static std::string toString(bool num)
+
+	static std::string toString(int val) { return std::to_string(val); }
+	static std::string toString(long long val) { return std::to_string(val); }
+	static std::string toString(double val)
 	{
-		return num ? std::string("true") : std::string("false");
-	}
-	static std::string toString(int num)
-	{
-		return std::to_string(num);
-	}
-	static std::string toString(long long num)
-	{
-		return std::to_string(num);
-	}
-	static std::string toString(double num)
-	{
-		std::string str = std::to_string(num);
-		if (std::fmod(num, 1.0) == 0.0)
-			return std::to_string((long long)(num));
+		std::string str = std::to_string(val);
+		if (std::fmod(val, 1.0) == 0.0) return std::to_string((long long)(val));
 		str.erase(str.find_last_not_of('0') + 1, std::string::npos);
-		if (!str.empty() && str.back() == '.')
-			str.pop_back();
+		if (!str.empty() && str.back() == '.') str.pop_back();
 		return str;
 	}
+	static std::string toString(void* val) { return std::to_string(reinterpret_cast<unsigned long long>(val)); }
+	static std::string toString(bool val) { return val ? std::string("true") : std::string("false"); }
 	static std::string replace(const std::string& str, const std::string& str_rp, const std::string& str_new)
 	{
 		std::string result(str);
@@ -561,6 +597,8 @@ private:
 		NULLOPT,
 		NUMBER,
 		STRING,
+		TRUE_,
+		FALSE_,
 		OPERATOR,
 		PAREN,
 		FUNCTION,
@@ -667,10 +705,11 @@ private:
 				while (pos < expr.length() && isValidVariableChar(expr[pos])) pos++;
 				std::string identifier = expr.substr(start, pos - start);
 				// key words
-				if (identifier[0] != '$') {
+				if (identifier[0] != '$')
+				{
 					if (identifier == "null") { tokens.emplace_back(NULLOPT); continue; }
-					else if (identifier == "true") { tokens.emplace_back(NUMBER, "1"); continue; }
-					else if (identifier == "false") { tokens.emplace_back(NUMBER, "0"); continue; }
+					else if (identifier == "true") { tokens.emplace_back(TRUE_, "true"); continue; }
+					else if (identifier == "false") { tokens.emplace_back(FALSE_, "false"); continue; }
 					else if (identifier == "return") { tokens.emplace_back(OPERATOR, "return", 4); continue; }
 				}
 				// Functions
@@ -710,10 +749,7 @@ private:
 					else tokens.emplace_back(VARIABLE, identifier);
 				}
 				// Variables
-				else
-				{
-					tokens.emplace_back(VARIABLE, identifier);
-				}
+				else tokens.emplace_back(VARIABLE, identifier);
 			}
 			// Numbers
 			else if (isdigit(c) || c == '.')
@@ -739,6 +775,14 @@ private:
 			// Operators
 			else if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '>' || c == '<' || c == '=' || c == '%' || c == '~' || c == '&' || c == '|' || c == '!')
 			{
+				bool isUnaryMinus = (c == '-') && (tokens.empty() || tokens.back().type == OPERATOR || tokens.back().value == "(" || tokens.back().type == ARG_SEPARATOR);
+				if (isUnaryMinus)
+				{
+					tokens.emplace_back(OPERATOR, "_-", 4);
+					pos++;
+					continue;
+				}
+
 				std::string op(1, c);
 				int prec = 0;
 				bool dual_char = false;
@@ -786,10 +830,7 @@ private:
 				tokens.emplace_back(ARG_SEPARATOR, ",");
 				pos++;
 			}
-			else
-			{
-				throw std::runtime_error(error_invalid_character + std::string(": ") + std::string(1, c) + std::string("\n\nat: ") + expr);
-			}
+			else throw std::runtime_error(error_invalid_character + std::string(": ") + std::string(1, c) + std::string("\n\nat: ") + expr);
 		}
 		return tokens;
 	}
@@ -800,7 +841,7 @@ private:
 
 		for (const auto& token : tokens)
 		{
-			if (token.type == VARIABLE || token.type == NULLOPT || token.type == NUMBER || token.type == STRING)
+			if (token.type == VARIABLE || token.type == NULLOPT || token.type == NUMBER || token.type == STRING || token.type == TRUE_ || token.type == FALSE_)
 			{
 				output.push_back(token);
 			}
@@ -890,29 +931,16 @@ private:
 		std::vector<QiVar> stack;
 		for (const auto& token : postfix)
 		{
-			if (token.type == VARIABLE)
-			{
-				stack.push_back(value(token.value, local));
-			}
-			else if (token.type == NULLOPT)
-			{
-				stack.push_back(QiVar());
-			}
+			if (token.type == VARIABLE) stack.push_back(value(token.value, local));
+			else if (token.type == NULLOPT) stack.push_back(QiVar());
 			else if (token.type == NUMBER)
 			{
-				if (QiVar::isInteger(token.value, false))
-				{
-					stack.push_back(QiVar(QiVar::toInteger(token.value)));
-				}
-				else
-				{
-					stack.push_back(QiVar(QiVar::toNumber(token.value)));
-				}
+				if (QiVar::isInteger(token.value, false)) stack.push_back(QiVar(QiVar::toInteger(token.value)));
+				else stack.push_back(QiVar(QiVar::toNumber(token.value)));
 			}
-			else if (token.type == STRING)
-			{
-				stack.push_back(QiVar(processInterpolation(token.value, local)));
-			}
+			else if (token.type == STRING) stack.push_back(QiVar(processInterpolation(token.value, local)));
+			else if (token.type == TRUE_) stack.push_back(QiVar(true));
+			else if (token.type == FALSE_) stack.push_back(QiVar(false));
 			else if (token.type == OPERATOR)
 			{
 				QiVar result;
@@ -928,7 +956,7 @@ private:
 						}
 						throw ReturnException(right);
 					}
-					else if (token.value == "!" || token.value == "~")
+					else if (token.value == "!" || token.value == "~" || token.value == "_-")
 					{
 						if (stack.size() < 1) throw std::runtime_error(error_not_enough_operands + std::string(": ") + token.value);
 						QiVar right = stack.back();
@@ -936,6 +964,7 @@ private:
 
 						if (token.value == "!") result = !right;
 						else if (token.value == "~") result = ~right;
+						else if (token.value == "_-") result = (right.type() == QiVar::t_num) ? QiVar(0.0) - right : QiVar(0) - right;
 					}
 					else
 					{
@@ -1207,10 +1236,7 @@ private:
 			}
 			else if (std::holds_alternative<Loop>(stmt)) {
 				const Loop& loopStmt = std::get<Loop>(stmt);
-				while (workerPtr ? (!workerPtr->m_stop) : true) {
-					if (!execute(loopStmt.condition).toBool(), local) break;
-					executeStatementList(loopStmt.body, local);
-				}
+				while ((workerPtr ? (!workerPtr->m_stop) : true) && execute(loopStmt.condition).toBool()) executeStatementList(loopStmt.body, local);
 			}
 			else if (std::holds_alternative<FunctionDef>(stmt)) {
 				const FunctionDef& funcDef = std::get<FunctionDef>(stmt);
