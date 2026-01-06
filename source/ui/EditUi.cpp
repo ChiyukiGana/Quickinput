@@ -668,11 +668,11 @@ void EditUi::Event_Action_Widget()
 		}
 		});
 	// delay
-	connect(ui.delay_min_edit, &QLineEdit::textChanged, this, [this](const QString& text) { ui.delay_max_edit->setText(text); });
+	connect(ui.delay_min_edit, &QLineEdit::textEdited, this, [this](const QString& text) { ui.delay_max_edit->setText(text); });
 	// loop
-	connect(ui.loop_min_edit, &QLineEdit::textChanged, this, [this](const QString& text) { ui.loop_max_edit->setText(text); });
+	connect(ui.loop_min_edit, &QLineEdit::textEdited, this, [this](const QString& text) { ui.loop_max_edit->setText(text); });
 	// timer
-	connect(ui.timer_min_edit, &QLineEdit::textChanged, this, [this](const QString& text) { ui.timer_max_edit->setText(text); });
+	connect(ui.timer_min_edit, &QLineEdit::textEdited, this, [this](const QString& text) { ui.timer_max_edit->setText(text); });
 	// color
 	connect(ui.color_rect_button, &QPushButton::clicked, this, [this] {
 		QRectSelection rs;
@@ -1006,7 +1006,7 @@ void EditUi::StyleGroup()
 	{
 		setProperty("group", "frame");
 		ui.title_widget->setProperty("group", "title");
-		ui.content_widget->setProperty("group", "client");
+		ui.content_widget->setProperty("group", "edit-client");
 		ui.title_run_button->setProperty("group", "title-title_run_button");
 		ui.title_back_button->setProperty("group", "title-back_button");
 		ui.title_close_button->setProperty("group", "title-close_button");

@@ -28,7 +28,7 @@ namespace QiJson
 		}
 		path += macro.name + Qi::macroType;
 
-		if (!File::SaveText(path, json.toJson())) MsgBox::Error((const wchar_t*)macro.name.utf16(), L"保存宏失败");
+		if (!File::SaveText(path, json.toJson(QJsonDocument::JsonFormat::Compact))) MsgBox::Error((const wchar_t*)macro.name.utf16(), L"保存宏失败");
 	}
 	bool LoadMacro(Macro& macro, const QString path, const QString name)
 	{
@@ -112,7 +112,7 @@ namespace QiJson
 	void SaveJson()
 	{
 		QJsonDocument json(Qi::toJson());
-		if (!File::SaveText(Qi::configFile, json.toJson())) MsgBox::Error(L"保存配置失败");
+		if (!File::SaveText(Qi::configFile, json.toJson(QJsonDocument::JsonFormat::Compact))) MsgBox::Error(L"保存配置失败");
 	}
 	void LoadJson()
 	{

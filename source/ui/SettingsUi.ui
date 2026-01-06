@@ -60,7 +60,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>626</width>
+        <width>624</width>
         <height>514</height>
        </rect>
       </property>
@@ -479,7 +479,7 @@
           </font>
          </property>
          <property name="text">
-          <string>显示触发状态提示</string>
+          <string>显示状态提示</string>
          </property>
         </widget>
        </item>

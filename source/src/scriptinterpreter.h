@@ -153,7 +153,7 @@ public:
 
 	QiVar merge(const QiVar& other) const
 	{
-		return this->toString() + other.toString();
+		return toString() + other.toString();
 	}
 	QiVar operator+(const QiVar& other) const
 	{
@@ -181,74 +181,72 @@ public:
 	QiVar operator%(const QiVar& other) const
 	{
 		int_t i = other.toInteger();
-		return i == 0LL ? 0LL : this->toInteger() % i;
+		return i == 0LL ? 0LL : toInteger() % i;
 	}
 
 	QiVar operator~() const
 	{
-		return ~this->toInteger();
+		return ~toInteger();
 	}
 	QiVar operator&(const QiVar& other) const
 	{
-		return this->toInteger() & other.toInteger();
+		return toInteger() & other.toInteger();
 	}
 	QiVar operator|(const QiVar& other) const
 	{
-		return this->toInteger() | other.toInteger();
+		return toInteger() | other.toInteger();
 	}
 	QiVar operator^(const QiVar& other) const
 	{
-		return this->toInteger() ^ other.toInteger();
+		return toInteger() ^ other.toInteger();
 	}
 	QiVar operator<<(const QiVar& other) const
 	{
-		return this->toInteger() << other.toInteger();
+		return toInteger() << other.toInteger();
 	}
 	QiVar operator>>(const QiVar& other) const
 	{
-		return this->toInteger() >> other.toInteger();
+		return toInteger() >> other.toInteger();
 	}
 
 	bool operator>(const QiVar& other) const
 	{
-		return (this->isInteger() && other.isInteger()) ? this->toInteger() > other.toInteger() : this->toNumber() > other.toNumber();
+		return toNumber() > other.toNumber();
 	}
 	bool operator>=(const QiVar& other) const
 	{
-		return (this->isInteger() && other.isInteger()) ? this->toInteger() >= other.toInteger() : this->toNumber() >= other.toNumber();
+		return toNumber() >= other.toNumber();
 	}
 	bool operator<(const QiVar& other) const
 	{
-		return (this->isInteger() && other.isInteger()) ? this->toInteger() < other.toInteger() : this->toNumber() < other.toNumber();
+		return toNumber() < other.toNumber();
 	}
 	bool operator<=(const QiVar& other) const
 	{
-		return (this->isInteger() && other.isInteger()) ? this->toInteger() <= other.toInteger() : this->toNumber() <= other.toNumber();
+		return toNumber() <= other.toNumber();
 	}
 	bool operator==(const QiVar& other) const
 	{
-		if (this->isInteger() && other.isInteger()) return this->toInteger() == other.toInteger();
-		if (this->isNumber() && other.isNumber()) return this->toNumber() == other.toNumber();
-		return this->toString() == other.toString();
+		if (isString() || other.isString()) return toString() == other.toString();
+		return toNumber() == other.toNumber();
 	}
 	bool operator!=(const QiVar& other) const
 	{
-		if (this->isInteger() && other.isInteger()) return this->toInteger() != other.toInteger();
-		if (this->isNumber() && other.isNumber()) return this->toNumber() != other.toNumber();
-		return this->toString() != other.toString();
+		if (isString() || other.isString()) return toString() != other.toString();
+		return toNumber() != other.toNumber();
 	}
 
 	bool operator!() const
 	{
-		return !this->toBool();
+		return !toBool();
 	}
 	bool operator&&(const QiVar& other) const
 	{
-		return this->toBool() && other.toBool();
+		return toBool() && other.toBool();
 	}
 	bool operator||(const QiVar& other) const
 	{
-		return this->toBool() || other.toBool();
+		return toBool() || other.toBool();
 	}
 
 	QiVar& operator+=(const QiVar& other)

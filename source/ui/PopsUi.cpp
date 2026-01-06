@@ -67,32 +67,32 @@ void PopsUi::Event()
 {
 	connect(ui.title_close_button, &QPushButton::clicked, this, &This::close);
 	// text line edit
-	connect(ui.enable_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.qe.t = text; });
-	connect(ui.disable_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.qd.t = text; });
-	connect(ui.window_on_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.we.t = text; });
-	connect(ui.window_off_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.wd.t = text; });
-	connect(ui.click_on_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.qce.t = text; });
-	connect(ui.click_off_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.qcd.t = text; });
-	connect(ui.switch_on_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.swe.t = text; });
-	connect(ui.switch_off_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.swd.t = text; });
-	connect(ui.down_on_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.dwe.t = text; });
-	connect(ui.down_off_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.dwd.t = text; });
-	connect(ui.up_on_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.upe.t = text; });
-	connect(ui.up_off_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.upd.t = text; });
+	connect(ui.enable_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.qe.t = text; });
+	connect(ui.disable_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.qd.t = text; });
+	connect(ui.window_on_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.we.t = text; });
+	connect(ui.window_off_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.wd.t = text; });
+	connect(ui.click_on_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.qce.t = text; });
+	connect(ui.click_off_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.qcd.t = text; });
+	connect(ui.switch_on_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.swe.t = text; });
+	connect(ui.switch_off_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.swd.t = text; });
+	connect(ui.down_on_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.dwe.t = text; });
+	connect(ui.down_off_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.dwd.t = text; });
+	connect(ui.up_on_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.upe.t = text; });
+	connect(ui.up_off_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.upd.t = text; });
 
 	// sound line edit
-	connect(ui.enable_sound_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.qe.s = text; });
-	connect(ui.disable_sound_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.qd.s = text; });
-	connect(ui.window_on_sound_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.we.s = text; });
-	connect(ui.window_off_sound_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.wd.s = text; });
-	connect(ui.click_on_sound_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.qce.s = text; });
-	connect(ui.click_off_sound_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.qcd.s = text; });
-	connect(ui.switch_on_sound_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.swe.s = text; });
-	connect(ui.switch_off_sound_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.swd.s = text; });
-	connect(ui.down_on_sound_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.dwe.s = text; });
-	connect(ui.down_off_sound_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.dwd.s = text; });
-	connect(ui.up_on_sound_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.upe.s = text; });
-	connect(ui.up_off_sound_edit, &QLineEdit::textChanged, this, [](const QString& text) { Qi::ui.pop.upd.s = text; });
+	connect(ui.enable_sound_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.qe.s = text; });
+	connect(ui.disable_sound_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.qd.s = text; });
+	connect(ui.window_on_sound_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.we.s = text; });
+	connect(ui.window_off_sound_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.wd.s = text; });
+	connect(ui.click_on_sound_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.qce.s = text; });
+	connect(ui.click_off_sound_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.qcd.s = text; });
+	connect(ui.switch_on_sound_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.swe.s = text; });
+	connect(ui.switch_off_sound_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.swd.s = text; });
+	connect(ui.down_on_sound_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.dwe.s = text; });
+	connect(ui.down_off_sound_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.dwd.s = text; });
+	connect(ui.up_on_sound_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.upe.s = text; });
+	connect(ui.up_off_sound_edit, &QLineEdit::textEdited, this, [](const QString& text) { Qi::ui.pop.upd.s = text; });
 
 	// button
 	connect(ui.enable_button, &QPushButton::clicked, this, [this](bool) { SelectColor(Qi::ui.pop.qe); Update(); });

@@ -87,7 +87,7 @@ void TriggerUi::Event()
 		}
 		// edit
 		{
-			ui.var_edit->setText(macro.script);
+			VarEditUpdate(&macro);
 			ui.count_edit->setValue(macro.count);
 			ui.speed_edit->setValue(macro.speed);
 			ui.timer_start_edit->setTime(QTime(QiTime::h(macro.timerStart), QiTime::m(macro.timerStart), QiTime::s(macro.timerStart)));
@@ -171,9 +171,15 @@ void TriggerUi::Event()
 		if (!ItemCurrented()) return;
 		QTextDialog edit(true);
 		edit.button()->setStyleSheet("background-color:white;border:1px solid gray;border-radius:4px");
-		ui.var_edit->setText(edit.Start(ui.var_edit->text()));
+		QString text = edit.Start(currentMacro->script);
+		if (text != currentMacro->script)
+		{
+			currentMacro->script = text;
+			VarEditUpdate(currentMacro);
+			QiJson::SaveMacro(*currentMacro);
+		}
 		});
-	connect(ui.var_edit, &QLineEdit::textChanged, this, [this](const QString& text) {
+	connect(ui.var_edit, &QLineEdit::textEdited, this, [this](const QString& text) {
 		if (!ItemCurrented()) return;
 		currentMacro->script = text;
 		QiJson::SaveMacro(*currentMacro);
@@ -358,6 +364,21 @@ void TriggerUi::TableUpdate()
 		table->setHorizontalHeaderItem(tableColumn_state, new QTableWidgetItem("全部" + QiUi::Symbol::Any));
 		TableState(mgPos);
 		ui.macroGroup_table->setFold(table, Qi::group.fold[mg.name]);
+	}
+}
+
+void TriggerUi::VarEditUpdate(const Macro* macro)
+{
+	if (!ItemCurrented()) return;
+	if (macro->script.size() > 32)
+	{
+		ui.var_edit->setText(QiFn::FoldText(macro->script, 32));
+		ui.var_edit->setDisabled(true);
+	}
+	else
+	{
+		ui.var_edit->setText(macro->script);
+		ui.var_edit->setEnabled(true);
 	}
 }
 

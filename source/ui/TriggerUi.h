@@ -37,6 +37,7 @@ private:
 	void TableState(int macroGroup = -1);
 	void SetTableItem(QTableWidget*, int, const Macro&);
 	void TableUpdate();
+	void VarEditUpdate(const Macro*);
 
 	bool event(QEvent*);
 	bool eventFilter(QObject*, QEvent*);
