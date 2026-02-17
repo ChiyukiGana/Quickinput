@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <sstream>
 #include <regex>
+#include <filesystem>
 #include <windows.h>
 #include <src/thread.h>
 #include <src/inc_project.h>
@@ -41,8 +42,11 @@ public:
 
 	QiVar() : var(std::nullopt) {}
 	QiVar(int val) : var(int_t(val)) {}
+	QiVar(unsigned int val) : var(int_t(val)) {}
 	QiVar(long val) : var(int_t(val)) {}
+	QiVar(unsigned long val) : var(int_t(val)) {}
 	QiVar(long long val) : var(int_t(val)) {}
+	QiVar(unsigned long long val) : var(int_t(val)) {}
 	QiVar(double val) : var(num_t(val)) {}
 	QiVar(const char* str) : var(str_t(str)) {}
 	QiVar(const std::string& str) : var(str_t(str)) {}

@@ -30,6 +30,8 @@ namespace QiJson
 
 		if (!File::SaveText(path, json.toJson(QJsonDocument::JsonFormat::Compact))) MsgBox::Error((const wchar_t*)macro.name.utf16(), L"保存宏失败");
 	}
+#endif
+#if !defined(Q_ENCRYPT) || defined(Q_ENCRYPT_CVT)
 	bool LoadMacro(Macro& macro, const QString path, const QString name)
 	{
 		QByteArray text;
@@ -78,13 +80,33 @@ namespace QiJson
 				group->name = i;
 				path += i;
 			}
-			for (const QFileInfo& file : File::Find(path, QString("*") + Qi::macroType))
+#ifdef Q_ENCRYPT
+			for (const QFileInfo& file : File::Find(path, QString("*") + Qi::emacroType))
 			{
+				if (file.fileName().compare(Qi::configFile, Qt::CaseInsensitive) == 0) continue;
 				Macro macro;
 				macro.groupName = group->name;
 				macro.groupBase = group->base;
-				if (LoadMacro(macro, file.filePath(), file.baseName())) group->macros.append(std::move(macro));
+				if (LoadEMacro(macro, file.filePath(), file.baseName())) group->macros.append(std::move(macro));
 			}
+#endif
+#if !defined(Q_ENCRYPT) || defined(Q_ENCRYPT_CVT)
+			for (const QFileInfo& file : File::Find(path, QString("*") + Qi::macroType))
+			{
+				if (file.fileName().compare(Qi::configFile, Qt::CaseInsensitive) == 0) continue;
+				Macro macro;
+				macro.groupName = group->name;
+				macro.groupBase = group->base;
+				if (LoadMacro(macro, file.filePath(), file.baseName()))
+				{
+#if defined(Q_ENCRYPT) && defined(Q_ENCRYPT_CVT)
+					SaveMacro(macro);
+					DeleteFileW(reinterpret_cast<const wchar_t*>(file.filePath().utf16()));
+#endif
+					group->macros.append(std::move(macro));
+				}
+			}
+#endif
 		}
 
 		if (Qi::macroGroups)

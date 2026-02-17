@@ -171,9 +171,9 @@ void EditUi::Init()
 	}
 	if ("text edit")
 	{
-		ui.copyText_text->setTabStopDistance(QFontMetrics(QFont("Microsoft YaHei")).horizontalAdvance("    "));
-		ui.varOperator_edit->setTabStopDistance(QFontMetrics(QFont("Microsoft YaHei")).horizontalAdvance("    "));
-		ui.msgView_edit->setTabStopDistance(QFontMetrics(QFont("Microsoft YaHei")).horizontalAdvance("    "));
+		ui.copyText_textedit->setTabStopDistance(QFontMetrics(QFont("Microsoft YaHei")).horizontalAdvance("    "));
+		ui.varOperator_textedit->setTabStopDistance(QFontMetrics(QFont("Microsoft YaHei")).horizontalAdvance("    "));
+		ui.msgView_textedit->setTabStopDistance(QFontMetrics(QFont("Microsoft YaHei")).horizontalAdvance("    "));
 	}
 	if ("key edit")
 	{
@@ -251,32 +251,31 @@ void EditUi::Init_Bind()
 		bind_type_group.at(static_cast<size_t>(QiType::msgView)) = ui.grp_msgView;
 		bind_type_group.at(static_cast<size_t>(QiType::range)) = ui.grp_range;
 	}
-	if ("buttons")
+	if ("operation button")
 	{
-		BindSafeIter(bind_type_group, [this](QGroupBox* p, size_t i)
+		BindSafeIter(bind_type_group, [this](QGroupBox* p, size_t i) {
+			for (auto& object : p->children())
 			{
-				for (auto& object : p->children())
-				{
-					if (object->objectName().indexOf("_add_button") != -1) bind_add_button.at(i) = (QPushButton*)object;
-					else if (object->objectName().indexOf("_change_button") != -1) bind_chg_button.at(i) = (QPushButton*)object;
-					else if (object->objectName().indexOf("_edit_button") != -1) bind_edt_button.at(i) = (QPushButton*)object;
-					else if (object->objectName().indexOf("_edit2_button") != -1) bind_edt2_button.at(i) = (QPushButton*)object;
-				}
+				const QString name = object->objectName();
+				if (name.indexOf("_add_button") != -1) bind_add_button.at(i) = reinterpret_cast<QPushButton*>(object);
+				else if (name.indexOf("_change_button") != -1) bind_chg_button.at(i) = reinterpret_cast<QPushButton*>(object);
+				else if (name.indexOf("_edit_button") != -1) bind_edt_button.at(i) = reinterpret_cast<QPushButton*>(object);
+				else if (name.indexOf("_edit2_button") != -1) bind_edt2_button.at(i) = reinterpret_cast<QPushButton*>(object);
+			}
 			});
 	}
 	if ("group of tab index")
 	{
-		BindSafeIter(bind_type_group, [this](QGroupBox* p, size_t i)
+		BindSafeIter(bind_type_group, [this](QGroupBox* p, size_t i) {
+			auto& tab = bind_type_tab[i];
+			for (size_t si = 0; si < ui.tab_stacked_widget->count(); si++)
 			{
-				auto& tab = bind_type_tab[i];
-				for (size_t si = 0; si < ui.tab_stacked_widget->count(); si++)
+				if (ui.tab_stacked_widget->widget(si)->children().indexOf(p) > -1)
 				{
-					if (ui.tab_stacked_widget->widget(si)->children().indexOf(p) > -1)
-					{
-						tab = si;
-						break;
-					}
+					tab = si;
+					break;
 				}
+			}
 			});
 	}
 	if ("button of tab index")
@@ -673,6 +672,9 @@ void EditUi::Event_Action_Widget()
 	connect(ui.loop_min_edit, &QLineEdit::textEdited, this, [this](const QString& text) { ui.loop_max_edit->setText(text); });
 	// timer
 	connect(ui.timer_min_edit, &QLineEdit::textEdited, this, [this](const QString& text) { ui.timer_max_edit->setText(text); });
+	// keyBlock
+	connect(ui.keyBlock_move_check, &QCheckBox::toggled, this, [this](bool check) { if (check)ui.keyBlock_all_check->setChecked(false); });
+	connect(ui.keyBlock_all_check, &QCheckBox::toggled, this, [this](bool check) { if (check)ui.keyBlock_move_check->setChecked(false); });
 	// color
 	connect(ui.color_rect_button, &QPushButton::clicked, this, [this] {
 		QRectSelection rs;
@@ -814,7 +816,7 @@ void EditUi::Event_Action_Widget()
 	// varOperator
 	connect(ui.varOperator_test_button, &QPushButton::clicked, this, [this] {
 		setDisabled(true);
-		varop = std::async([code = ui.varOperator_edit->toPlainText().toStdString(), pMacro = macro]() {
+		varop = std::async([code = ui.varOperator_textedit->toPlainText().toStdString(), pMacro = macro]() {
 			try
 			{
 				pMacro->script_interpreter.interpretAll(code);
@@ -987,7 +989,7 @@ void EditUi::Event_Table_Selection()
 					rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 				}
 				else rect = QiCvt::SR_AtR(ref.rect);
-				range_rv.Show(rect, 2, QColor(0,127,192));
+				range_rv.Show(rect, 2, QColor(0, 127, 192));
 			} break;
 			}
 		}
@@ -1011,19 +1013,11 @@ void EditUi::StyleGroup()
 		ui.title_back_button->setProperty("group", "title-back_button");
 		ui.title_close_button->setProperty("group", "title-close_button");
 	}
-	if ("action widget button")
+	if ("tool button")
 	{
 		ui.window_select_button->setProperty("group", "get_button");
-		ui.mouse_position_button->setProperty("group", "get_button");
-		ui.mouse_move_button->setProperty("group", "get_button");
-		ui.color_rect_button->setProperty("group", "get_button");
-		ui.image_rect_button->setProperty("group", "get_button");
-		ui.image_shot_button->setProperty("group", "get_button");
-		ui.ocr_rect_button->setProperty("group", "get_button");
-		ui.textPad_button->setProperty("group", "get_button");
-		ui.range_rect_button->setProperty("group", "get_button");
 	}
-	if ("buttons")
+	if ("operation button")
 	{
 
 		BindSafeIter(bind_add_button, [this](QPushButton* p, size_t) { p->setProperty("group", "edit-add_button"); });
@@ -1033,9 +1027,9 @@ void EditUi::StyleGroup()
 		BindSafeIter(bind_tab_button, [this](QPushButton* p, size_t) { p->setProperty("group", "edit-tab_button"); });
 		ui.rec_button->setProperty("group", "edit-add_button");
 		ui.rec_window_button->setProperty("group", "edit-add_button");
-		ui.ocr_test_button->setProperty("group", "edit-edit_button");
-		ui.varOperator_test_button->setProperty("group", "edit-edit_button");
-		ui.range_wnd_button->setProperty("group", "edit-edit_button");
+		ui.ocr_test_button->setProperty("group", "edit-add_button");
+		ui.varOperator_test_button->setProperty("group", "edit-add_button");
+		ui.range_wnd_button->setProperty("group", "edit-add_button");
 	}
 	if ("check box")
 	{
@@ -1043,125 +1037,25 @@ void EditUi::StyleGroup()
 		ui.tab_hideTip_check->setProperty("group", "check");
 		ui.tab_markPoint_check->setProperty("group", "check");
 		ui.tab_range_check->setProperty("group", "check");
-		ui.mouse_track_check->setProperty("group", "check");
-		ui.color_move_check->setProperty("group", "check");
-		ui.image_move_check->setProperty("group", "check");
-		ui.image_mult_check->setProperty("group", "check");
-		ui.popText_wait_check->setProperty("group", "check");
+
 		ui.window_state_check->setProperty("group", "check");
 		ui.window_child_check->setProperty("group", "check");
-		ui.keyBlock_move_check->setProperty("group", "check");
-		ui.ocr_match_check->setProperty("group", "check");
-		ui.ocr_row_check->setProperty("group", "check");
-		ui.ocr_move_check->setProperty("group", "check");
-		ui.ocr_mult_check->setProperty("group", "check");
-		ui.editDialog_mult_check->setProperty("group", "check");
-		ui.volume_max_check->setProperty("group", "check");
-		ui.soundPlay_sync_check->setProperty("group", "check");
 	}
 	if ("radio button")
 	{
 		ui.action_running_radio->setProperty("group", "radio");
 		ui.action_ending_radio->setProperty("group", "radio");
-		ui.key_click_radio->setProperty("group", "radio");
-		ui.key_down_radio->setProperty("group", "radio");
-		ui.key_up_radio->setProperty("group", "radio");
-		ui.mouse_position_radio->setProperty("group", "radio");
-		ui.mouse_move_radio->setProperty("group", "radio");
-		ui.dialog_style_none_radio->setProperty("group", "radio");
-		ui.dialog_style_warning_radio->setProperty("group", "radio");
-		ui.dialog_style_error_radio->setProperty("group", "radio");
-		ui.keyBlock_on_radio->setProperty("group", "radio");
-		ui.keyBlock_off_radio->setProperty("group", "radio");
-		ui.soundPlay_play_radio->setProperty("group", "radio");
-		ui.soundPlay_pause_radio->setProperty("group", "radio");
-		ui.soundPlay_resume_radio->setProperty("group", "radio");
-		ui.soundPlay_stop_radio->setProperty("group", "radio");
-		ui.msgView_type_set_radio->setProperty("group", "radio");
-		ui.msgView_type_add_radio->setProperty("group", "radio");
-		ui.msgView_type_clear_radio->setProperty("group", "radio");
-		ui.msgView_type_show_radio->setProperty("group", "radio");
-		ui.msgView_type_hide_radio->setProperty("group", "radio");
-		ui.msgView_level_msg_radio->setProperty("group", "radio");
-		ui.msgView_level_war_radio->setProperty("group", "radio");
-		ui.msgView_level_err_radio->setProperty("group", "radio");
 	}
-	if ("line edit")
-	{
-		ui.window_name_edit->setProperty("group", "line_edit");
-		ui.quickInput_text_edit->setProperty("group", "line_edit");
-		ui.mouse_x_edit->setProperty("group", "line_edit");
-		ui.mouse_y_edit->setProperty("group", "line_edit");
-		ui.mouse_speed_edit->setProperty("group", "line_edit");
-		ui.mouse_rand_edit->setProperty("group", "line_edit");
-		ui.delay_min_edit->setProperty("group", "line_edit");
-		ui.delay_max_edit->setProperty("group", "line_edit");
-		ui.loop_min_edit->setProperty("group", "line_edit");
-		ui.loop_max_edit->setProperty("group", "line_edit");
-		ui.timer_min_edit->setProperty("group", "line_edit");
-		ui.timer_max_edit->setProperty("group", "line_edit");
-		ui.color_left_edit->setProperty("group", "line_edit");
-		ui.color_top_edit->setProperty("group", "line_edit");
-		ui.color_right_edit->setProperty("group", "line_edit");
-		ui.color_bottom_edit->setProperty("group", "line_edit");
-		ui.color_red_edit->setProperty("group", "line_edit");
-		ui.color_green_edit->setProperty("group", "line_edit");
-		ui.color_blue_edit->setProperty("group", "line_edit");
-		ui.color_sim_edit->setProperty("group", "line_edit");
-		ui.image_left_edit->setProperty("group", "line_edit");
-		ui.image_top_edit->setProperty("group", "line_edit");
-		ui.image_right_edit->setProperty("group", "line_edit");
-		ui.image_bottom_edit->setProperty("group", "line_edit");
-		ui.image_sim_edit->setProperty("group", "line_edit");
-		ui.popText_text_edit->setProperty("group", "line_edit");
-		ui.popText_time_edit->setProperty("group", "line_edit");
-		ui.dialog_title_edit->setProperty("group", "line_edit");
-		ui.dialog_text_edit->setProperty("group", "line_edit");
-		ui.clock_time_edit->setProperty("group", "line_edit");
-		ui.ocr_left_edit->setProperty("group", "line_edit");
-		ui.ocr_top_edit->setProperty("group", "line_edit");
-		ui.ocr_right_edit->setProperty("group", "line_edit");
-		ui.ocr_bottom_edit->setProperty("group", "line_edit");
-		ui.ocr_text_edit->setProperty("group", "line_edit");
-		ui.ocr_var_edit->setProperty("group", "line_edit");
-		ui.varCondition_edit->setProperty("group", "line_edit");
-		ui.open_edit->setProperty("group", "line_edit");
-		ui.textPad_edit->setProperty("group", "line_edit");
-		ui.editDialog_title_edit->setProperty("group", "line_edit");
-		ui.editDialog_text_edit->setProperty("group", "line_edit");
-		ui.editDialog_var_edit->setProperty("group", "line_edit");
-		ui.volume_edit->setProperty("group", "line_edit");
-		ui.volume_time_edit->setProperty("group", "line_edit");
-		ui.soundPlay_edit->setProperty("group", "line_edit");
-		ui.range_left_edit->setProperty("group", "line_edit");
-		ui.range_top_edit->setProperty("group", "line_edit");
-		ui.range_right_edit->setProperty("group", "line_edit");
-		ui.range_bottom_edit->setProperty("group", "line_edit");
-		ui.range_name_edit->setProperty("group", "line_edit");
-		ui.range_id_edit->setProperty("group", "line_edit");
-	}
-	if ("text edit")
-	{
-		ui.copyText_text->setProperty("group", "text_edit");
-		ui.varOperator_edit->setProperty("group", "text_edit");
-		ui.msgView_edit->setProperty("group", "text_edit");
-	}
-	if ("hotkey edit")
-	{
-		ui.key_keyedit->setProperty("group", "key_edit");
-		ui.keyState_keyedit->setProperty("group", "key_edit");
-		ui.keyBlock_keyedit->setProperty("group", "key_edit");
-	}
-	if ("action tab widget")
+	if ("tab widget")
 	{
 		ui.tab_stacked_widget->setProperty("group", "tab_widget");
 	}
-	if ("action list")
+	if ("list")
 	{
 		ui.jumpPoint_list->setProperty("group", "action_table_header");
 		ui.block_list->setProperty("group", "action_table_header");
 	}
-	if ("action table")
+	if ("table")
 	{
 		ui.action_table->setProperty("group", "action_table");
 		ui.action_table->horizontalHeader()->setProperty("group", "action_table_header");
@@ -1197,6 +1091,23 @@ void EditUi::StyleGroup()
 				lineEdit->setProperty("group", "action_table_header");
 			}
 		}
+	}
+
+	if ("all other widget in GroupBox")
+	{
+		BindSafeIter(bind_type_group, [this](QGroupBox* p, size_t i) {
+			for (auto& object : p->children())
+			{
+				if (!object->property("group").isNull()) continue;
+				const QString name = object->objectName();
+				if (name.indexOf("_check") != -1) object->setProperty("group", "check");
+				else if (name.indexOf("_radio") != -1) object->setProperty("group", "radio");
+				else if (name.indexOf("_edit") != -1) object->setProperty("group", "line_edit");
+				else if (name.indexOf("_textedit") != -1) object->setProperty("group", "text_edit");
+				else if (name.indexOf("_keyedit") != -1) object->setProperty("group", "key_edit");
+				else if (name.indexOf("_button") != -1) object->setProperty("group", "get_button");
+			}
+			});
 	}
 }
 
@@ -1695,8 +1606,9 @@ void EditUi::TableUpdate(int index)
 
 		if (ref.block) param = "屏蔽：";
 		else param = "解除：";
-		if (ref.vk) param += QKeyEdit::keyName(ref.vk);
-		else param += "鼠标移动";
+		if (ref.vk == QiKeyBlock::all) param += "全部输入";
+		else if (ref.vk == QiKeyBlock::move) param += "鼠标移动";
+		else param += QKeyEdit::keyName(ref.vk);
 
 	} break;
 	case QiType::clock:
@@ -2190,7 +2102,7 @@ QiDelay EditUi::WidgetGetDelay() {
 }
 QiCopyText EditUi::WidgetGetText() {
 	QiCopyText text;
-	text.text = ui.copyText_text->toPlainText();
+	text.text = ui.copyText_textedit->toPlainText();
 	return text;
 }
 QiColor EditUi::WidgetGetColor() {
@@ -2348,7 +2260,8 @@ QiQuickInput EditUi::WidgetGetQuickInput()
 QiKeyBlock EditUi::WidgetGetKeyBlock()
 {
 	QiKeyBlock keyBlock;
-	if (ui.keyBlock_move_check->isChecked()) keyBlock.vk = 0;
+	if (ui.keyBlock_all_check->isChecked()) keyBlock.vk = QiKeyBlock::all;
+	else if (ui.keyBlock_move_check->isChecked()) keyBlock.vk = QiKeyBlock::move;
 	else keyBlock.vk = ui.keyBlock_keyedit->key();
 	keyBlock.block = ui.keyBlock_on_radio->isChecked();
 	return keyBlock;
@@ -2398,7 +2311,7 @@ QiOcr EditUi::WidgetGetOcr()
 QiVarOperator EditUi::WidgetGetVarOperator()
 {
 	QiVarOperator varOperator;
-	varOperator.script = ui.varOperator_edit->toPlainText();
+	varOperator.script = ui.varOperator_textedit->toPlainText();
 	return varOperator;
 }
 QiVarCondition EditUi::WidgetGetVarCondition()
@@ -2450,7 +2363,7 @@ QiSoundPlay EditUi::WidgetGetSoundPlay()
 QiMsgView EditUi::WidgetGetMsgView()
 {
 	QiMsgView msgView;
-	msgView.text = ui.msgView_edit->toPlainText();
+	msgView.text = ui.msgView_textedit->toPlainText();
 	if (ui.msgView_type_set_radio->isChecked()) msgView.option = QiMsgView::set;
 	else if (ui.msgView_type_add_radio->isChecked()) msgView.option = QiMsgView::add;
 	else if (ui.msgView_type_clear_radio->isChecked()) msgView.option = QiMsgView::clear;
@@ -2502,7 +2415,7 @@ void EditUi::WidgetSet(const QiDelay& delay)
 }
 void EditUi::WidgetSet(const QiCopyText& text)
 {
-	ui.copyText_text->setPlainText(text.text);
+	ui.copyText_textedit->setPlainText(text.text);
 }
 void EditUi::WidgetSet(const QiColor& color) {
 	ui.color_move_check->setChecked(color.move);
@@ -2565,8 +2478,10 @@ void EditUi::WidgetSet(const QiQuickInput& quickInput)
 }
 void EditUi::WidgetSet(const QiKeyBlock& keyBlock)
 {
-	if (keyBlock.vk) ui.keyBlock_keyedit->setKey(keyBlock.vk);
-	ui.keyBlock_move_check->setChecked(!keyBlock.vk);
+	ui.keyBlock_all_check->setChecked(keyBlock.vk == QiKeyBlock::all);
+	ui.keyBlock_move_check->setChecked(keyBlock.vk == QiKeyBlock::move);
+	if (keyBlock.vk > QiKeyBlock::move) ui.keyBlock_keyedit->setKey(keyBlock.vk);
+	else ui.keyBlock_keyedit->clear();
 	keyBlock.block ? ui.keyBlock_on_radio->setChecked(true) : ui.keyBlock_off_radio->setChecked(true);
 }
 void EditUi::WidgetSet(const QiClock& clock)
@@ -2588,7 +2503,7 @@ void EditUi::WidgetSet(const QiOcr& ocr)
 }
 void EditUi::WidgetSet(const QiVarOperator& varOperator)
 {
-	ui.varOperator_edit->setPlainText(varOperator.script);
+	ui.varOperator_textedit->setPlainText(varOperator.script);
 }
 void EditUi::WidgetSet(const QiVarCondition& varCondition)
 {
@@ -2626,7 +2541,7 @@ void EditUi::WidgetSet(const QiSoundPlay& soundPlay)
 }
 void EditUi::WidgetSet(const QiMsgView& msgView)
 {
-	ui.msgView_edit->setPlainText(msgView.text);
+	ui.msgView_textedit->setPlainText(msgView.text);
 	if (msgView.option == QiMsgView::set) ui.msgView_type_set_radio->setChecked(true);
 	else if (msgView.option == QiMsgView::add) ui.msgView_type_add_radio->setChecked(true);
 	else if (msgView.option == QiMsgView::clear) ui.msgView_type_clear_radio->setChecked(true);

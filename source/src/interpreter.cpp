@@ -543,7 +543,8 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 			case QiType::keyBlock:
 			{
 				const QiKeyBlock& ref = action.to<QiKeyBlock>();
-				Qi::keyBlock[ref.vk] = ref.block;
+				if (QiKeyBlock::all) memset(Qi::keyBlock, ref.block, sizeof(Qi::keyBlock));
+				else Qi::keyBlock[ref.vk] = ref.block;
 			} break;
 			case QiType::clock:
 			{

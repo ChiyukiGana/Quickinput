@@ -4,6 +4,8 @@
 		<!--
 			Q_COPYRIGHT_HIDE 隐藏版权信息
 			Q_URL_HIDE 隐藏网址
+			Q_EDIT_HIDE 隐藏编辑
+			Q_MACRO_HIDE 隐藏宏
 			
 			Q_KEYEDIT_PAD_ENABLED	启用XBox手柄
 			Q_INTEGRITY_VERIFY	程序修改验证
@@ -11,6 +13,7 @@
 			
 			Q_RAWINPUT	驱动输入（未公开）
 			Q_ENCRYPT	文件加密（未公开）
+			Q_ENCRYPT_CVT	文件加密格式转换（未公开）
 			Q_VERIFY	网络验证（未公开）
 		-->
 			<QiPreprocessorDefinitions>Q_KEYEDIT_PAD_ENABLED;Q_INTEGRITY_VERIFY;Q_UPDATE</QiPreprocessorDefinitions>

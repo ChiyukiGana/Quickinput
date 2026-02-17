@@ -1024,6 +1024,31 @@ struct QiFunc_wnd_visible : public QiFunc
 	}
 };
 
+struct QiFunc_dir_create : public QiFunc
+{
+	QiFunc_dir_create() : QiFunc(1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		return CreateDirectoryW(args[0].toWString().c_str(), NULL) != FALSE;
+	}
+};
+struct QiFunc_dir_remove : public QiFunc
+{
+	QiFunc_dir_remove() : QiFunc(1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		return std::filesystem::remove_all(args[0].toString());
+	}
+};
+struct QiFunc_dir_exist : public QiFunc
+{
+	QiFunc_dir_exist() : QiFunc(1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		return File::FolderState(String::toWString(args[0].toString()));
+	}
+};
+
 struct QiFunc_file_read : public QiFunc
 {
 	QiFunc_file_read() : QiFunc(1) {}
@@ -1047,7 +1072,7 @@ struct QiFunc_file_exist : public QiFunc
 	QiFunc_file_exist() : QiFunc(1) {}
 	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*, QiVarMap*, QiVarMap*, QiWorker*) const override
 	{
-		return File::PathState(String::toWString(args[0].toString()));
+		return File::FileState(String::toWString(args[0].toString()));
 	}
 };
 struct QiFunc_file_remove : public QiFunc
@@ -1256,6 +1281,45 @@ struct QiFunc_cmd : public QiFunc
 	}
 };
 
+/*
+0: use time file name
+1: 1: use file path
+2: 1: file(use time file name for null), 2: folder
+*/
+struct QiFunc_capture_screen : public QiFunc
+{
+	QiFunc_capture_screen() : QiFunc(0, 2) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*, QiVarMap*, QiVarMap*, QiWorker*) const override
+	{
+		std::wstring file;
+		if (args.empty())
+		{
+			file = File::Unique("capture", QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss"), ".png").toStdWString();
+			CreateDirectoryW(L"capture", NULL);
+		}
+		else if (args.size() == 1)
+		{
+			file = args[0].toWString();
+		}
+		else if (args.size() == 2)
+		{
+			if (args[0].isNull()) file = File::Unique(QString::fromStdString(args[1].toString()), QDateTime::currentDateTime().toString("yyyy-MM-dd_HH-mm-ss"), ".png").toStdWString();
+			else file = args[1].toWString() + L"\\" + args[0].toWString();
+		}
+
+		if (file.empty()) return false;
+
+		CImage image = Image::ScreenCImage24();
+		if (SUCCEEDED(image.Save(file.c_str())))
+		{
+			image.ReleaseDC();
+			return true;
+		}
+		image.ReleaseDC();
+		return false;
+	}
+};
+
 QiFuncMap::QiFuncMap()
 {
 	insert({ "date", std::make_unique<QiFunc_date>() });
@@ -1344,6 +1408,10 @@ QiFuncMap::QiFuncMap()
 	insert({ "wnd_current", std::make_unique<QiFunc_wnd_current>() });
 	insert({ "wnd_visible", std::make_unique<QiFunc_wnd_visible>() });
 
+	insert({ "dir_create", std::make_unique<QiFunc_dir_create>() });
+	insert({ "dir_remove", std::make_unique<QiFunc_dir_remove>() });
+	insert({ "dir_exist", std::make_unique<QiFunc_dir_remove>() });
+
 	insert({ "file_read", std::make_unique<QiFunc_file_read>() });
 	insert({ "file_write", std::make_unique<QiFunc_file_write>() });
 	insert({ "file_exist", std::make_unique<QiFunc_file_exist>() });
@@ -1369,4 +1437,6 @@ QiFuncMap::QiFuncMap()
 	insert({ "volume", std::make_unique<QiFunc_volume>() });
 	insert({ "power", std::make_unique<QiFunc_power>() });
 	insert({ "cmd", std::make_unique<QiFunc_cmd>() });
+
+	insert({ "capture_screen", std::make_unique<QiFunc_capture_screen>() });
 }

@@ -69,7 +69,7 @@
       <string notr="true">font-size:20px</string>
      </property>
      <property name="text">
-      <string>2026-1-6</string>
+      <string>2026-2-17</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
@@ -85,7 +85,8 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>清空状态文字可隐藏提示</string>
+      <string>增加屏蔽全部输入功能
+增加截图函数</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>

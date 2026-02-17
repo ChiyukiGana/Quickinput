@@ -67,9 +67,20 @@ namespace QiTools
 		}
 		static QString Unique(const QString& dir, const QString& name, const QString& extension, QString left = " (", QString right = ")", int begin = 1)
 		{
-			for (int i = begin;; i++)
+			bool first = true;
+			for (int i = begin;; first ? first = false : i++)
 			{
-				QString path = dir + "/" + name + left + QString::number(i) + right + extension;
+				QString path;
+				if (dir.isEmpty())
+				{
+					if (first) path = name + extension;
+					else path = name + left + QString::number(i) + right + extension;
+				}
+				else
+				{
+					if (first) path = dir + "\\" + name + extension;
+					else path = dir + "\\" + name + left + QString::number(i) + right + extension;
+				}
 				if (!QFile::exists(path)) return path;
 			}
 			return QString();
