@@ -3141,7 +3141,7 @@
                   <item>
                    <widget class="QCheckBox" name="keyBlock_move_check">
                     <property name="sizePolicy">
-                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                       <horstretch>0</horstretch>
                       <verstretch>0</verstretch>
                      </sizepolicy>
@@ -3162,12 +3162,29 @@
                      <enum>Qt::LayoutDirection::RightToLeft</enum>
                     </property>
                     <property name="text">
-                     <string>移动</string>
+                     <string>鼠标移动</string>
                     </property>
                    </widget>
                   </item>
                   <item>
-                   <spacer name="keyBlock_spacer">
+                   <widget class="QCheckBox" name="keyBlock_all_check">
+                    <property name="layoutDirection">
+                     <enum>Qt::LayoutDirection::RightToLeft</enum>
+                    </property>
+                    <property name="text">
+                     <string>全部输入</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="keyBlock_option_box">
+                  <property name="topMargin">
+                   <number>12</number>
+                  </property>
+                  <item>
+                   <spacer name="keyBlock_option_spacer">
                     <property name="orientation">
                      <enum>Qt::Orientation::Horizontal</enum>
                     </property>
@@ -4876,7 +4893,7 @@
                  <number>5</number>
                 </property>
                 <item>
-                 <widget class="QPlainTextEdit" name="copyText_text">
+                 <widget class="QPlainTextEdit" name="copyText_textedit">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -8944,7 +8961,7 @@
                  </layout>
                 </item>
                 <item>
-                 <widget class="QPlainTextEdit" name="msgView_edit">
+                 <widget class="QPlainTextEdit" name="msgView_textedit">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -9120,7 +9137,7 @@
                  <number>5</number>
                 </property>
                 <item>
-                 <widget class="QPlainTextEdit" name="varOperator_edit">
+                 <widget class="QPlainTextEdit" name="varOperator_textedit">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>

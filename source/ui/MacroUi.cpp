@@ -11,6 +11,18 @@ MacroUi::MacroUi(QWidget* parent) : QWidget(parent)
 	StyleGroup();
 	Qi::popText->Show("正在加载宏");
 	QTimer::singleShot(32, [] { Qi::widget.macroLoad(); });
+
+#ifdef Q_EDIT_HIDE
+	ui.record_button->setHidden(true);
+	ui.record_window_button->setHidden(true);
+	ui.add_button->setHidden(true);
+	ui.edit_button->setHidden(true);
+	ui.export_button->setHidden(true);
+	ui.import_button->setHidden(true);
+	ui.add_group_button->setHidden(true);
+	ui.delete_group_button->setHidden(true);
+	ui.delete_button->setHidden(true);
+#endif
 }
 
 enum

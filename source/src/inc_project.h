@@ -40,11 +40,8 @@ namespace Qi
 	inline const QString dir = QDir::fromNativeSeparators(QString::fromWCharArray(Path::RemoveFile(Process::exePath()).c_str()));
 	inline const QString folder = dir.mid(dir.lastIndexOf('/') + 1);
 	inline const QString macroDir = dir + "/macro/";
-#ifdef Q_ENCRYPT
-	inline const QString macroType = ".emacro";
-#else
 	inline const QString macroType = ".json";
-#endif
+	inline const QString emacroType = ".emacro";
 	inline const QString configFile = "QuickInput.json";
 	inline QString version;
 	inline HICON ico = LoadIconW(GetModuleHandleW(nullptr), L"ICOAPP");

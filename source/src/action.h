@@ -684,6 +684,7 @@ struct QiQuickInput : QiBase
 };
 struct QiKeyBlock : QiBase
 {
+	enum { all = -1, move = 0 };
 	int vk = 0;
 	bool block = false;
 	QiKeyBlock() : QiBase(QiType::keyBlock, QiTypeNext::none) {}

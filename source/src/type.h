@@ -207,7 +207,8 @@ struct Widget
 
 namespace Qi
 {
-	inline QString title = "Quickinput";
+	inline QString title;
+	inline QString about;
 	inline size_t ocr_ver = 0;
 	inline QiOcrModule ocr;
 #ifdef Q_RAWINPUT

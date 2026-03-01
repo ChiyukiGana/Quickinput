@@ -3,6 +3,7 @@ AboutUi::AboutUi(QWidget* parent) : QWidget(parent)
 {
 	ui.setupUi(this);
 	setWindowFlags(Qt::FramelessWindowHint);
+	if (!Qi::about.isEmpty()) ui.update_label->setText(Qi::about);
 	version_res = ui.version_label->text();
 	ui.url_label->installEventFilter(this);
 	ui.license_label->installEventFilter(this);
