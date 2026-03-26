@@ -43,8 +43,8 @@ namespace QiTools
 			DEVMODEW dm = { sizeof(DEVMODEW) }; EnumDisplaySettingsW(mti.szDevice, ENUM_CURRENT_SETTINGS, &dm);
 			return (float)(dm.dmPelsHeight) / (float)(mti.rcMonitor.bottom - mti.rcMonitor.top);
 		}
-		static std::wstring environmentVariable(LPCWSTR name) { wchar_t str[MAX_PATH]; GetEnvironmentVariableW(name, str, MAX_PATH); return str; }
-		static std::wstring folderPath(int csidl = CSIDL_DESKTOP) { wchar_t s[MAX_PATH]; SHGetFolderPathW(0, csidl, 0, SHGFP_TYPE_CURRENT, s); return s; }
+		static std::wstring environmentVariable(LPCWSTR name) { PATH_BUFFERW(str); GetEnvironmentVariableW(name, str, PATH_BUFFER_SIZE); return str; }
+		static std::wstring folderPath(int csidl = CSIDL_DESKTOP) { PATH_BUFFERW(str); SHGetFolderPathW(0, csidl, 0, SHGFP_TYPE_CURRENT, str); return str; }
 		static bool ClipBoardText(LPCWSTR str) {
 			size_t size = (wcslen(str) + 1) * sizeof(wchar_t);
 			HANDLE hGlobalMemory = GlobalAlloc(GMEM_MOVEABLE, size);

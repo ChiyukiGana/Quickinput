@@ -118,8 +118,7 @@
          <font>
           <family>Microsoft YaHei</family>
           <pointsize>-1</pointsize>
-          <weight>63</weight>
-          <bold>true</bold>
+          <fontweight>Medium</fontweight>
          </font>
         </property>
         <property name="mouseTracking">
@@ -136,7 +135,7 @@
       <item>
        <spacer name="title_spacer">
         <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+         <enum>Qt::Orientation::Horizontal</enum>
         </property>
         <property name="sizeHint" stdset="0">
          <size>
@@ -167,7 +166,7 @@
          </size>
         </property>
         <property name="focusPolicy">
-         <enum>Qt::ClickFocus</enum>
+         <enum>Qt::FocusPolicy::ClickFocus</enum>
         </property>
         <property name="toolTip">
          <string>关闭</string>
@@ -217,8 +216,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>778</width>
-           <height>453</height>
+           <width>764</width>
+           <height>512</height>
           </rect>
          </property>
          <attribute name="label">
@@ -246,7 +245,7 @@
              <string>&lt;a href=&quot;http://help_qinput.cyk.moe&quot;&gt;详细说明：http://help_qinput.cyk.moe&lt;/a&gt;</string>
             </property>
             <property name="textFormat">
-             <enum>Qt::RichText</enum>
+             <enum>Qt::TextFormat::RichText</enum>
             </property>
             <property name="openExternalLinks">
              <bool>true</bool>
@@ -300,7 +299,7 @@ Quickinput的使用流程：
           <item>
            <spacer name="verticalSpacer_10">
             <property name="orientation">
-             <enum>Qt::Vertical</enum>
+             <enum>Qt::Orientation::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -318,7 +317,7 @@ Quickinput的使用流程：
            <x>0</x>
            <y>0</y>
            <width>778</width>
-           <height>453</height>
+           <height>438</height>
           </rect>
          </property>
          <attribute name="label">
@@ -354,7 +353,7 @@ Quickinput的使用流程：
           <item>
            <spacer name="verticalSpacer">
             <property name="orientation">
-             <enum>Qt::Vertical</enum>
+             <enum>Qt::Orientation::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -371,8 +370,8 @@ Quickinput的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>460</width>
-           <height>267</height>
+           <width>764</width>
+           <height>500</height>
           </rect>
          </property>
          <attribute name="label">
@@ -399,30 +398,41 @@ Quickinput的使用流程：
             <property name="text">
              <string>通过触发来设置宏的运行方式和条件
 
+
 启用/禁用：
-　点击列表的状态一列来启用或禁用宏
+点击列表的状态一列来启用或禁用宏
 
-触发按键：
-　点击一次方框，按下所需按键
-
-触发模式：
-　切换：点击一次按键运行，再点击一次停止
-　按下：按住按键运行，松开按键停止
-　松开：松开按键运行，按住按键停止
-
-触发次数：
-　切换模式：触发的宏将会无限运行
-　按下/松开模式：触发的宏直到完成对应的次数时停止，当次数设置为0或空，宏将无限运行
 
 屏蔽触发键：
-　在Quickinput设置启用时，当前按键不会被系统识别，只会被Quickinput处理</string>
+在Quickinput设置启用时，当前按键不会被系统识别，只会被Quickinput处理
+
+
+触发按键：
+点击一次方框，按下所需按键
+
+
+触发模式：
+切换：点击一次按键运行，再点击一次停止
+按下：按住按键运行，松开按键停止
+松开：松开按键运行，按住按键停止
+
+
+触发次数：
+切换模式：触发的宏将会无限运行
+按下/松开模式：触发的宏直到完成对应的次数时停止，当次数设置为0或空，宏将无限运行
+
+
+绑定窗口（切换到对应窗口才能触发宏）：
+点击+可以获取一个窗口信息，然后需要判断窗口名是否会发生变化，如果会则通过
+匹配符号来模糊匹配窗口名，*表示多个未知文字，?表示一个未知文字，例如
+（XXX页面 - 浏览器）可以使用（* - 浏览器）来表示</string>
             </property>
            </widget>
           </item>
           <item>
            <spacer name="verticalSpacer_7">
             <property name="orientation">
-             <enum>Qt::Vertical</enum>
+             <enum>Qt::Orientation::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -439,8 +449,8 @@ Quickinput的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>335</width>
-           <height>228</height>
+           <width>778</width>
+           <height>438</height>
           </rect>
          </property>
          <attribute name="label">
@@ -467,27 +477,31 @@ Quickinput的使用流程：
             <property name="text">
              <string>勾选对应功能右侧的框来启用
 
+
 快捷连点（设置一个按键的连点）：
-　1：点击按键右侧方框，按下所需按键
-　2：选择模式：
-　　按下：按下当前按键开始连点
-　　切换：点击当前按键开始连点，再点击当前按键暂停
-　　间隔：每次点击的间隔（1秒=1000）
+1：点击按键右侧方框，按下所需按键
+2：选择模式：
+按下：按下当前按键开始连点
+切换：点击当前按键开始连点，再点击当前按键暂停
+间隔：每次点击的间隔（1秒=1000）
+
 
 窗口控制状态（切换到对应窗口才能触发宏）：
-　点击窗口最右的框，切换到需要控制的窗口，按两次回车
-　当切换到设置的窗口才能触发宏（需要先启用Quickinput）
+　点击+可以获取一个窗口信息，然后需要判断窗口名是否会发生变化，如果会则通过
+　匹配符号来模糊匹配窗口名，*表示多个未知文字，?表示一个未知文字，例如
+　（XXX页面 - 浏览器）可以使用（* - 浏览器）来表示
+
 
 显示当前时间：
-　点击按键右侧方框，按下所需按键
-　当按下当前按键将会在屏幕中显示时间，无论Quickinput是否启用</string>
+点击按键右侧方框，按下所需按键
+当按下当前按键将会在屏幕中显示时间，无论Quickinput是否启用</string>
             </property>
            </widget>
           </item>
           <item>
            <spacer name="verticalSpacer_8">
             <property name="orientation">
-             <enum>Qt::Vertical</enum>
+             <enum>Qt::Orientation::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -504,8 +518,8 @@ Quickinput的使用流程：
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>274</width>
-           <height>267</height>
+           <width>778</width>
+           <height>438</height>
           </rect>
          </property>
          <attribute name="label">
@@ -555,7 +569,7 @@ Quickinput的使用流程：
           <item>
            <spacer name="verticalSpacer_9">
             <property name="orientation">
-             <enum>Qt::Vertical</enum>
+             <enum>Qt::Orientation::Vertical</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>

@@ -136,7 +136,7 @@ public:
 				});
 			connect(table, &QTableWidget::cellClicked, this, [this, i](int row, int column) {
 				if (selfAction) return;
-				setReSelection(i);
+				setReSelection(i, true);
 				itemClicked(i, row, column);
 				});
 			connect(table, &QTableWidget::cellChanged, this, [this, i](int row, int column) {
@@ -144,17 +144,17 @@ public:
 				setReSelection(i);
 				itemChanged(i, row, column);
 				});
+			connect(table->horizontalHeader(), &QHeaderView::sectionClicked, this, [this, i, table](int index) {
+				if (selfAction) return;
+				setReSelection(i, true);
+				int row = currentRow();
+				headerClicked(i, index);
+				if (i != row) currentChanged(i, table->currentRow(), table->currentColumn());
+				});
 			connect(table->verticalHeader(), &QHeaderView::sectionClicked, this, [this, i, table](int) {
 				if (selfAction) return;
 				setReSelection(i);
 				int row = currentRow();
-				if (i != row) currentChanged(i, table->currentRow(), table->currentColumn());
-				});
-			connect(table->horizontalHeader(), &QHeaderView::sectionClicked, this, [this, i, table](int index) {
-				if (selfAction) return;
-				setReSelection(i);
-				int row = currentRow();
-				headerClicked(i, index);
 				if (i != row) currentChanged(i, table->currentRow(), table->currentColumn());
 				});
 			connect(table->horizontalHeader(), &QHeaderView::sectionDoubleClicked, this, [this, i](int index) {
@@ -256,11 +256,22 @@ private:
 		selfAction = false;
 	}
 
-	void setReSelection(int table_index)
+	void setReSelection(int table_index, bool reBold = false)
 	{
 		selfAction = true;
 		setCurrentCell(table_index, 0);
-		for (size_t i = 0; i < rowCount(); i++) if (i != table_index) table(i)->clearSelection();
+		QTableWidget* current_table = table(table_index);
+		if (reBold) current_table->horizontalHeader()->setStyleSheet("font-weight:900");
+		for (size_t i = 0; i < rowCount(); i++) if (i != table_index)
+		{
+			QTableWidget* t = table(i);
+			t->clearSelection();
+			if (reBold && !t->horizontalHeader()->styleSheet().isEmpty())
+			{
+				t->horizontalHeader()->setStyleSheet("font-weight:500");
+				t->horizontalHeader()->setStyleSheet(QString());
+			}
+		}
 		selfAction = false;
 	}
 

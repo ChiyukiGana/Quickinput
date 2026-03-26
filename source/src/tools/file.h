@@ -16,9 +16,9 @@ namespace QiTools
 		static bool FileIsSystem(const std::wstring& path) { return IsAttributes(path, FILE_ATTRIBUTE_SYSTEM, FILE_ATTRIBUTE_DIRECTORY); }
 		static bool FolderIsSystem(const std::wstring& path) { return IsAttributes(path, FILE_ATTRIBUTE_SYSTEM | FILE_ATTRIBUTE_DIRECTORY); }
 		static bool PathIsSystem(const std::wstring& path) { return IsAttributes(path, FILE_ATTRIBUTE_SYSTEM); }
-		static bool FileState(const std::wstring& path) { return IsAttributes(path, 0, FILE_ATTRIBUTE_DIRECTORY); }
-		static bool FolderState(const std::wstring& path) { return IsAttributes(path, FILE_ATTRIBUTE_DIRECTORY); }
-		static bool PathState(const std::wstring& path) { return IsAttributes(path, 0); }
+		static bool FileExist(const std::wstring& path) { return IsAttributes(path, 0, FILE_ATTRIBUTE_DIRECTORY); }
+		static bool FolderExist(const std::wstring& path) { return IsAttributes(path, FILE_ATTRIBUTE_DIRECTORY); }
+		static bool PathExist(const std::wstring& path) { return IsAttributes(path, 0); }
 
 		static DWORD FileSize(const std::wstring& path)
 		{

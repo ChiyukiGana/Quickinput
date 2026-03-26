@@ -30,7 +30,7 @@ Macro RecordUi::Start()
 {
 	Qi::widget.record = this;
 	Qi::recordState = true;
-	QiFn::QiHook(true);
+	QiTr::QiHook(true);
 	if (Qi::set.recKey)
 	{
 		QString text("按下");
@@ -57,7 +57,7 @@ Macro RecordUi::Start()
 		macro.name = "录制";
 		exec();
 	}
-	QiFn::QiHook(false);
+	QiTr::QiHook(false);
 	Qi::recordState = false;
 	Qi::widget.record = nullptr;
 	return std::move(macro);

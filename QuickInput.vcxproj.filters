@@ -131,6 +131,9 @@
     <ClCompile Include="source\src\init.cpp">
       <Filter>4_SourceOnly</Filter>
     </ClCompile>
+    <ClCompile Include="source\src\trigger.cpp">
+      <Filter>5_Module\proc</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\src\inc_external.h">
@@ -180,6 +183,9 @@
     </ClInclude>
     <ClInclude Include="source\src\cvt.h">
       <Filter>3_HeaderOnly</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\trigger.h">
+      <Filter>5_Module\proc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

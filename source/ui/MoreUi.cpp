@@ -20,16 +20,16 @@ bool MoreUi::event(QEvent* e)
 	if (e->type() == QEvent::WindowActivate)
 	{
 		Qi::widget.moreActive = true;
-		if (Qi::state) QiFn::QiState(false);
-		QiFn::QiHook(false);
+		if (Qi::state) QiTr::QiState(false);
+		QiTr::QiHook(false);
 	}
 	else if (e->type() == QEvent::WindowDeactivate)
 	{
 		Qi::widget.moreActive = false;
 		if (!Qi::widget.active())
 		{
-			if (Qi::set.defOn) QiFn::QiState(true);
-			QiFn::QiHook(true);
+			if (Qi::set.defOn) QiTr::QiState(true);
+			QiTr::QiHook(true);
 		}
 	}
 	if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))

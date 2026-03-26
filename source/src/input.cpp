@@ -115,7 +115,7 @@ void InputTask(BYTE key, bool press, POINT cursor, KeyState keyState)
 	}
 	else
 	{
-		QiFn::Trigger(key, keyState.state);
+		QiTr::Trigger(key, keyState.state);
 	}
 }
 

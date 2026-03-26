@@ -60,7 +60,7 @@ void SettingsUi::Init()
 				std::wstring lang = i.fileName().toStdWString() + L"\\";
 				std::wstring rec = std::wstring(L"OCR\\") + lang + L"ppocr.onnx";
 				std::wstring keys = std::wstring(L"OCR\\") + lang + L"ppocr.keys";
-				if (File::PathState(rec) && File::PathState(keys))
+				if (File::FileExist(rec) && File::FileExist(keys))
 				{
 					ui.ocr_lang_combo->addItem(i.fileName());
 					if (i.fileName() == Qi::set.ocr_current) ui.ocr_lang_combo->setCurrentIndex(ui.ocr_lang_combo->count() - 1);

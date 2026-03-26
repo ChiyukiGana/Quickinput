@@ -72,7 +72,7 @@ struct QiMacroWorker : public QiWorkerWithArgs<bool,Macro*,std::condition_variab
 				Qi::curBlock -= macro->curBlock;
 			}
 		}
-		catch (std::runtime_error e) { QiFn::UnBlock(); macro->script_interpreter.showError(e.what(), std::string("位于初始化脚本")); }
+		catch (std::runtime_error e) { QiTr::UnBlock(); macro->script_interpreter.showError(e.what(), std::string("位于初始化脚本")); }
 
 		{
 			std::unique_lock<std::mutex> lock(worker_mutex);
@@ -88,7 +88,7 @@ void QiMacroThread::start(Macro* macro, bool running)
 		macro->wndInput.child = macro->wndInfo.child;
 		if (!macro->wndInput.active())
 		{
-			macro->wndInput.wnd = macro->wndInfo.wnd = FindWindowW((LPCWSTR)(macro->wndInfo.wndClass.utf16()), (LPCWSTR)(macro->wndInfo.wndName.utf16()));
+			macro->wndInput.wnd = macro->wndInfo.wnd = FindWindowW((LPCWSTR)(macro->wndInfo.clas.utf16()), (LPCWSTR)(macro->wndInfo.name.utf16()));
 			if (!macro->wndInput.wnd) macro->wndInput.wnd = (macro->wndInfo = QiFn::WindowSelection()).wnd;
 			if (!macro->wndInput.wnd)
 			{
@@ -158,32 +158,25 @@ struct QiWindowBindWorker : QiWorker
 {
 	void run() override
 	{
+		WndMatch wm;
 		while (Qi::state)
 		{
-			Qi::fun.wndActive.wndInfo.update();
-			if (Qi::fun.wndActive.wndInfo.wnd)
+			wm.update();
+			bool match = wm.match(Qi::fun.wndActive.wndInfo.name, Qi::fun.wndActive.wndInfo.clas, Qi::fun.wndActive.wndInfo.proc);
+
+			if (!Qi::run && match)
 			{
-				bool active = (GetForegroundWindow() == Qi::fun.wndActive.wndInfo.wnd);
-				if (!Qi::run && active)
-				{
-					Qi::run = true;
-					if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wndInfo.wndName, true);
-					if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.we.s, false);
-				}
-				else if (Qi::run && !active)
-				{
-					Qi::run = false;
-					if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wndInfo.wndName, false);
-					if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.wd.s, false);
-				}
+				Qi::run = true;
+				if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wndInfo.name, true);
+				if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.we.s, false);
 			}
-			else if (Qi::run)
+			else if (Qi::run && !match)
 			{
 				Qi::run = false;
-				if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wndInfo.wndName, false);
+				if (Qi::set.showTips) QiFn::WindowPop(Qi::fun.wndActive.wndInfo.name, false);
 				if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.wd.s, false);
 			}
-			Sleep(100);
+			Sleep(128);
 		}
 	}
 };

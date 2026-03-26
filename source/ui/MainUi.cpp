@@ -65,8 +65,8 @@ void MainUi::Event()
 	connect(ui.title_close_button, &QPushButton::clicked, this, [] { ExitProcess(0); });
 	connect(ui.title_min_button, &QPushButton::clicked, this, [this] { setWindowState(Qt::WindowMinimized); });
 	connect(ui.title_hide_button, &QPushButton::clicked, this, [this] { hide(); });
-	connect(ac_on, &QAction::triggered, this, [] { if (!Qi::widget.active()) QiFn::QiState(true), QiFn::QiHook(true); });
-	connect(ac_off, &QAction::triggered, this, [] { QiFn::QiState(false); QiFn::QiHook(false); });
+	connect(ac_on, &QAction::triggered, this, [] { if (!Qi::widget.active()) QiTr::QiState(true), QiTr::QiHook(true); });
+	connect(ac_off, &QAction::triggered, this, [] { QiTr::QiState(false); QiTr::QiHook(false); });
 	connect(ac_show, &QAction::triggered, this, [this] { setWindowState(Qt::WindowNoState), show(); });
 	connect(ac_hide, &QAction::triggered, this, [this] { hide(); });
 	connect(ac_exit, &QAction::triggered, this, [] { ExitProcess(0); });
@@ -91,8 +91,8 @@ bool MainUi::event(QEvent* e)
 		Qi::widget.mainActive = true;
 		if (Qi::widget.onload)
 		{
-			if (Qi::state) QiFn::QiState(false);
-			QiFn::QiHook(false);
+			if (Qi::state) QiTr::QiState(false);
+			QiTr::QiHook(false);
 		}
 	}
 	else if (e->type() == QEvent::WindowDeactivate)
@@ -100,8 +100,8 @@ bool MainUi::event(QEvent* e)
 		Qi::widget.mainActive = false;
 		if (Qi::widget.onload && !Qi::widget.active())
 		{
-			QiFn::QiHook(true);
-			if (Qi::set.defOn) QiFn::QiState(true);
+			QiTr::QiHook(true);
+			if (Qi::set.defOn) QiTr::QiState(true);
 		}
 	}
 	else if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease))

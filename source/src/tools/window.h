@@ -36,20 +36,17 @@ namespace QiTools {
 		}
 		static QString text(HWND wnd)
 		{
-			int length = GetWindowTextLengthW(wnd) + 1;
-			LPWSTR name = new WCHAR[length];
-			GetWindowTextW(wnd, name, length);
-			QString result(QString::fromWCharArray(name));
-			delete[] name;
-			return result;
+			int size = GetWindowTextLengthW(wnd) + 1;
+			std::wstring str(size, 0);
+			GetWindowTextW(wnd, str.data(), size);
+			str.pop_back();
+			return QString::fromStdWString(str);
 		}
 		static QString className(HWND wnd)
 		{
-			LPWSTR name = new WCHAR[256];
-			GetClassNameW(wnd, name, 256);
-			QString result(QString::fromWCharArray(name));
-			delete[] name;
-			return result;
+			wchar_t buf[1024];
+			GetClassNameW(wnd, buf, 1024);
+			return QString::fromWCharArray(buf);
 		}
 		static POINT pos(HWND wnd) { RECT rect = {}; GetWindowRect(wnd, &rect); return { rect.left, rect.top }; }
 		static SIZE size(HWND wnd) { RECT rect = {}; GetWindowRect(wnd, &rect); return { rect.right - rect.left, rect.bottom - rect.top }; }

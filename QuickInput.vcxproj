@@ -119,6 +119,7 @@
     <ClCompile Include="source\src\scriptinterpreter.cpp" />
     <ClCompile Include="source\src\sha256.cpp" />
     <ClCompile Include="source\src\thread.cpp" />
+    <ClCompile Include="source\src\trigger.cpp" />
     <ClCompile Include="source\src\type.cpp" />
     <ClCompile Include="source\ui\MsgViewUi.cpp" />
     <ClCompile Include="source\ui\VarViewUi.cpp">
@@ -208,6 +209,7 @@
     <ClInclude Include="source\src\range.h" />
     <ClInclude Include="source\src\scriptinterpreter.h" />
     <ClInclude Include="source\src\thread.h" />
+    <ClInclude Include="source\src\trigger.h" />
     <ClInclude Include="source\src\type.h" />
     <ClInclude Include="source\src\ui.h" />
     <ClInclude Include="source\src\update.h" />

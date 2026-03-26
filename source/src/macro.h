@@ -47,14 +47,29 @@ struct WndInfo
 {
 	HWND wnd = nullptr;
 	bool child = false;
-	QString wndName;
-	QString wndClass;
-	bool update() {
+	QString name;
+	QString clas;
+	QString proc;
+	bool update_fromName()
+	{
 		if (!IsWindow(wnd))
 		{
-			return wnd = FindWindowW((LPCWSTR)(wndClass.utf16()), (LPCWSTR)(wndName.utf16()));
+			return wnd = FindWindowW((LPCWSTR)(clas.utf16()), (LPCWSTR)(name.utf16()));
 		}
 		return true;
+	}
+	bool update_fromHwnd()
+	{
+		if (IsWindow(wnd))
+		{
+			name = Window::text(wnd);
+			clas = Window::className(wnd);
+			DWORD pid;
+			GetWindowThreadProcessId(wnd, &pid);
+			proc = QString::fromStdWString(Process::path(pid));
+			return true;
+		}
+		return false;
 	}
 };
 struct WndLock
@@ -85,15 +100,30 @@ struct WndLock
 		ClipCursor(0);
 	}
 };
+struct WndMatch
+{
+	HWND wnd = nullptr;
+	DWORD pid = 0;
+	QString name;
+	QString clas;
+	QString proc;
+	void update()
+	{
+		wnd = GetForegroundWindow();
+		name = Window::text(wnd);
+		clas = Window::className(wnd);
+		GetWindowThreadProcessId(wnd, &pid);
+		proc = QString::fromStdWString(Process::path(pid));
+	}
+	bool match(const QString& name_pattern, const QString& clas_pattern, const QString& proc_pattern)
+	{
+		return String::match(name.toStdWString(), name_pattern.toStdWString()) && String::match(clas.toStdWString(), clas_pattern.toStdWString()) && String::match(proc.toStdWString(), proc_pattern.toStdWString());
+	}
+};
 
 class QiInterpreter;
 struct Macro
 {
-	Macro() {};
-	Macro(Macro&&) = default;
-	Macro(const Macro&) = delete;
-	Macro& operator=(Macro&&) = default;
-	Macro& operator=(const Macro&) = delete;
 	enum { sw, down, up };
 
 	static constexpr QiIntRange range_count = { 0, 9999 };
@@ -107,6 +137,7 @@ struct Macro
 	bool keyBlock = false;
 	bool curBlock = false;
 	bool wndState = false;
+	bool matchState = false;
 	bool active = false; // release triggered flag
 	bool timer = false;
 	bool groupBase = false;
@@ -128,8 +159,9 @@ struct Macro
 	QString groupName;
 	Actions acRun;
 	Actions acEnd;
-	WndInfo wndInfo;
-	WndInput wndInput;
+	WndInfo wndInfo; // window input data info
+	WndInfo wndMatch; // window match for trigger
+	WndInput wndInput; // window input status info, use for macro running
 	QiInterpreter* interpreter;
 	QiScriptInterpreter script_interpreter;
 	QiMacroThread thread;
@@ -139,41 +171,6 @@ struct Macro
 	{
 		if (groupBase) return Qi::macroDir + name + Qi::macroType;
 		return Qi::macroDir + groupName + QString('/') + name + Qi::macroType;
-	}
-	Macro copy() const
-	{
-		Macro macro;
-		macro.state = state;
-		macro.keyBlock = keyBlock;
-		macro.curBlock = curBlock;
-		macro.wndState = wndState;
-		macro.active = active;
-		macro.timer = timer;
-		macro.groupBase = groupBase;
-		macro.key1 = key1;
-		macro.key2 = key2;
-		macro.mode = mode;
-		macro.count = count;
-		macro.timerStart = timerStart;
-		macro.timerEnd = timerEnd;
-		macro.speed = speed;
-		macro.moveScaleX = moveScaleX;
-		macro.moveScaleY = moveScaleY;
-		macro.posScaleX = posScaleX;
-		macro.posScaleY = posScaleY;
-		macro.cursor = cursor;
-		macro.range = range;
-		macro.script = script;
-		macro.name = name;
-		macro.groupName = groupName;
-		macro.acRun = acRun;
-		macro.acEnd = acEnd;
-		macro.wndInfo = wndInfo;
-		macro.wndInput = wndInput;
-		macro.interpreter = interpreter;
-		macro.script_interpreter;
-		macro.thread;
-		return macro;
 	}
 };
 using Macros = QiVector<Macro>;

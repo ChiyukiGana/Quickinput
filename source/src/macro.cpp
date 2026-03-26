@@ -9,8 +9,13 @@ QJsonObject Macro::toJson() const
 	json.insert("name", (QString)name);
 	json.insert("wndState", (bool)wndState);
 	json.insert("wndChild", (bool)wndInfo.child);
-	json.insert("wndName", (QString)wndInfo.wndName);
-	json.insert("wndClass", (QString)wndInfo.wndClass);
+	json.insert("wndName", (QString)wndInfo.name);
+	json.insert("wndClass", (QString)wndInfo.clas);
+	json.insert("wndProc", (QString)wndInfo.proc);
+	json.insert("wndMatch", (bool)matchState);
+	json.insert("wndMatchName", (QString)wndMatch.name);
+	json.insert("wndMatchClass", (QString)wndMatch.clas);
+	json.insert("wndMatchProc", (QString)wndMatch.proc);
 	json.insert("script", (QString)script);
 	json.insert("state", (bool)state);
 	json.insert("keyBlock", (bool)keyBlock);
@@ -38,8 +43,15 @@ void Macro::fromJson(const QJsonObject& json)
 
 	wndState = json.value("wndState").toBool();
 	wndInfo.child = json.value("wndChild").toBool();
-	wndInfo.wndName = json.value("wndName").toString();
-	wndInfo.wndClass = json.value("wndClass").toString();
+	wndInfo.name = json.value("wndName").toString();
+	wndInfo.clas = json.value("wndClass").toString();
+	wndInfo.proc = json.value("wndProc").toString();
+
+	matchState = json.value("wndMatch").toBool();
+	wndMatch.name = json.value("wndMatchName").toString();
+	wndMatch.clas = json.value("wndMatchClass").toString();
+	wndMatch.proc = json.value("wndMatchProc").toString();
+
 	script = json.value("script").toString();
 
 	state = json.value("state").toBool();

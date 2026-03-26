@@ -4,6 +4,9 @@
 #include <windows.h>
 namespace QiTools
 {
+#define PATH_BUFFER_SIZE 1024
+#define PATH_BUFFER(name) char name[PATH_BUFFER_SIZE]
+#define PATH_BUFFERW(name) wchar_t name[PATH_BUFFER_SIZE]
 #define AlignmentSize(num, size) ((num%size)?(num+(size-(num%size))):(num))
 #define RGBA(r,g,b,a) ((COLORREF)((BYTE)(r)|((BYTE)(g)<<8)|((BYTE)(b)<<16)|((BYTE)(a)<<24)))
 #define GetAValue(rgba) ((BYTE)((rgba)>>24))

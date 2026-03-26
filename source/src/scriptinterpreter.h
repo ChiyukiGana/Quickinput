@@ -1261,7 +1261,7 @@ public:
 		workerPtr = right.workerPtr;
 		workerPtr = nullptr;
 	}
-	QiScriptInterpreter(const QiScriptInterpreter&) = delete;
+	QiScriptInterpreter(const QiScriptInterpreter&) {};
 	QiScriptInterpreter& operator=(QiScriptInterpreter&& right)
 	{
 		std::unique_lock<std::mutex> lock(localVariablesMutex);
@@ -1270,7 +1270,7 @@ public:
 		workerPtr = nullptr;
 		return *this;
 	}
-	QiScriptInterpreter& operator=(const QiScriptInterpreter&) = delete;
+	QiScriptInterpreter& operator=(const QiScriptInterpreter&) { return *this; };
 
 	auto execute(const std::string& code, QiVarMap* local = nullptr) -> QiVar
 	{

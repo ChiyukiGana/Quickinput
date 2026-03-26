@@ -87,7 +87,7 @@ void integrity_verify()
 
 	if (exePath.size() < 4 || exePath.substr(exePath.size() - 4) != L".exe") error();
 
-	if (!QiTools::File::FileState(exePath) || !QiTools::File::PathState(runPath) || !QiTools::Process::find(exeName)) error();
+	if (!QiTools::File::FileExist(exePath) || !QiTools::File::FolderExist(runPath) || !QiTools::Process::find(exeName)) error();
 	if (QiTools::File::FolderIsSystem(runPath) || QiTools::File::FileIsHide(exePath) || QiTools::File::FileIsSystem(exePath)) error();
 
 	std::string sha256 = integrity_verify_Sha256TextSection(exePath);

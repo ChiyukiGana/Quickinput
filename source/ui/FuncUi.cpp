@@ -19,8 +19,7 @@ void FuncUi::Init()
 		ui.click_keyedit->setPadEnabled(Qi::set.pad);
 #endif
 		ui.click_keyedit->setKey(func->quickClick.key);
-		ui.click_delay_edit->setValidator(new QIntValidator(0, 99999, this));
-		ui.click_delay_edit->setText(QString::number(func->quickClick.delay));
+		ui.click_delay_spin->setValue(func->quickClick.delay);
 		ui.click_mode_combo->setEditable(true);
 		ui.click_mode_combo->lineEdit()->setReadOnly(true);
 		ui.click_mode_combo->lineEdit()->setAlignment(Qt::AlignCenter);
@@ -43,14 +42,15 @@ void FuncUi::Init()
 	if ("window")
 	{
 		ui.window_check->setChecked(func->wndActive.state);
-		ui.window_name_edit->setText(func->wndActive.wndInfo.wndName);
+		ui.window_name_edit->setText(func->wndActive.wndInfo.name);
+		ui.window_class_edit->setText(func->wndActive.wndInfo.clas);
+		ui.window_proc_edit->setText(func->wndActive.wndInfo.proc);
 	}
 	if ("clear shortcut")
 	{
 		ui.window_select_button->installEventFilter(this);
 		ui.click_check->installEventFilter(this);
 		ui.window_check->installEventFilter(this);
-		ui.window_select_button->installEventFilter(this);
 		ui.clock_check->installEventFilter(this);
 		ui.varView_button->installEventFilter(this);
 		ui.msgView_button->installEventFilter(this);
@@ -60,14 +60,39 @@ void FuncUi::Event()
 {
 	connect(ui.click_check, &QCheckBox::toggled, this, [this](bool state) { func->quickClick.state = state; QiJson::SaveJson(); });
 	connect(ui.click_keyedit, &QKeyEdit::changed, this, [this] { func->quickClick.key = ui.click_keyedit->key(); QiJson::SaveJson(); });
-	connect(ui.click_delay_edit, &QLineEdit::textEdited, this, [this](const QString& text) { func->quickClick.delay = text.toInt(); QiJson::SaveJson(); });
+	connect(ui.click_delay_spin, &QSpinBox::valueChanged, this, [this](int value) { func->quickClick.delay = value; QiJson::SaveJson(); });
 	connect(ui.click_mode_combo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) { func->quickClick.mode = index; QiJson::SaveJson(); });
 	connect(ui.window_check, &QCheckBox::toggled, this, [this](bool state) { func->wndActive.state = state; QiJson::SaveJson(); });
+	connect(ui.window_name_edit, &QLineEdit::textEdited, this, [this](const QString& text) {
+		func->wndActive.wndInfo.name = text;
+		QiJson::SaveJson();
+		});
+	connect(ui.window_class_edit, &QLineEdit::textEdited, this, [this](const QString& text) {
+		func->wndActive.wndInfo.clas = text;
+		QiJson::SaveJson();
+		});
+	connect(ui.window_proc_edit, &QLineEdit::textEdited, this, [this](const QString& text) {
+		func->wndActive.wndInfo.proc = text;
+		QiJson::SaveJson();
+		});
 	connect(ui.window_select_button, &QPushButton::clicked, this, [this] {
 		Qi::widget.dialogActive = true;
 		Qi::widget.main->hide();
 		func->wndActive.wndInfo = QiFn::WindowSelection();
-		ui.window_name_edit->setText(func->wndActive.wndInfo.wndName);
+		func->wndActive.wndInfo.update_fromHwnd();
+
+		ui.window_name_edit->blockSignals(true);
+		ui.window_class_edit->blockSignals(true);
+		ui.window_proc_edit->blockSignals(true);
+
+		ui.window_name_edit->setText(func->wndActive.wndInfo.name);
+		ui.window_class_edit->setText(func->wndActive.wndInfo.clas);
+		ui.window_proc_edit->setText(func->wndActive.wndInfo.proc);
+
+		ui.window_name_edit->blockSignals(false);
+		ui.window_class_edit->blockSignals(false);
+		ui.window_proc_edit->blockSignals(false);
+
 		Qi::widget.dialogActive = false;
 		Qi::widget.main->show();
 		QiJson::SaveJson();
@@ -86,8 +111,10 @@ void FuncUi::StyleGroup()
 	ui.click_mode_combo->setView(new QListView());
 	ui.click_mode_combo->setProperty("group", "combo");
 	ui.click_mode_combo->view()->setProperty("group", "combo_body");
-	ui.click_delay_edit->setProperty("group", "line_edit");
+	ui.click_delay_spin->setProperty("group", "line_edit");
 	ui.window_name_edit->setProperty("group", "line_edit");
+	ui.window_class_edit->setProperty("group", "line_edit");
+	ui.window_proc_edit->setProperty("group", "line_edit");
 	ui.click_keyedit->setProperty("group", "line_edit");
 	ui.clock_keyedit->setProperty("group", "line_edit");
 	ui.varView_button->setProperty("group", "get_button");

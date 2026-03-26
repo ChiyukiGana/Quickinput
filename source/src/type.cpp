@@ -55,8 +55,9 @@ namespace Qi
 			json.insert("showClockKey", (int)fun.showClock.key);
 			json.insert("showClockState", (bool)fun.showClock.state);
 			json.insert("wndActiveState", (bool)fun.wndActive.state);
-			json.insert("wndActiveName", (QString)fun.wndActive.wndInfo.wndName);
-			json.insert("wndActiveClass", (QString)fun.wndActive.wndInfo.wndClass);
+			json.insert("wndActiveName", (QString)fun.wndActive.wndInfo.name);
+			json.insert("wndActiveClass", (QString)fun.wndActive.wndInfo.clas);
+			json.insert("wndActiveProc", (QString)fun.wndActive.wndInfo.proc);
 		}
 		if ("pop config")
 		{
@@ -131,7 +132,6 @@ namespace Qi
 			fun.showClock.state = false;
 			fun.showClock.key = VK_MENU;
 			fun.wndActive.state = false;
-			fun.wndActive.wndInfo.wndName = "";
 			};
 		std::function<void()> DefaultPop = [] {
 			ui.pop.qe.t = "@ 启用";
@@ -220,8 +220,9 @@ namespace Qi
 				fun.showClock.state = json.value("showClockState").toBool();
 				fun.showClock.key = json.value("showClockKey").toInt();
 				fun.wndActive.state = json.value("wndActiveState").toBool();
-				fun.wndActive.wndInfo.wndName = json.value("wndActiveName").toString();
-				fun.wndActive.wndInfo.wndClass = json.value("wndActiveClass").toString();
+				fun.wndActive.wndInfo.name = json.value("wndActiveName").toString();
+				fun.wndActive.wndInfo.clas = json.value("wndActiveClass").toString();
+				fun.wndActive.wndInfo.proc = json.value("wndActiveProc").toString();
 			}
 			if ("pop config")
 			{

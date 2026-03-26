@@ -7,9 +7,19 @@ namespace QiTools
 	class Process
 	{
 	public:
-		static std::wstring runPath() { WCHAR path[0x7FFF]; GetCurrentDirectoryW(0x7FFF, path); return path; }
+		static std::wstring runPath()
+		{
+			size_t size = GetCurrentDirectoryW(0, nullptr);
+			if (size)
+			{
+				std::wstring result(size, 0);
+				GetCurrentDirectoryW(size, &result.front());
+				return result.c_str();
+			}
+			return std::wstring();
+		}
 		static bool RunPath(std::wstring path = L"") { if (path.size()) return SetCurrentDirectoryW(path.c_str()); else return SetCurrentDirectoryW(Path::RemoveFile(exePath()).c_str()); }
-		static std::wstring exePath() { WCHAR path[0x7FFF]; GetModuleFileNameW(0, path, 0x7FFF); return path; }
+		static std::wstring exePath() { PATH_BUFFERW(path); GetModuleFileNameW(0, path, PATH_BUFFER_SIZE); return path; }
 		static std::wstring exeName() { return Path::GetFile(exePath()); }
 		static bool isRunning(LPCWSTR mutexName) { HANDLE handle = CreateMutexW(0, 0, mutexName); if (GetLastError() == ERROR_ALREADY_EXISTS) { CloseHandle(handle); return true; } CloseHandle(handle); return false; }
 		static void RunOnce(LPCWSTR mutexName) { HANDLE handle = CreateMutexW(0, 0, mutexName); if (GetLastError() == ERROR_ALREADY_EXISTS) { CloseHandle(handle); exit(0); } }
@@ -38,8 +48,8 @@ namespace QiTools
 			std::wstring fullPath;
 			if (process && process != INVALID_HANDLE_VALUE)
 			{
-				DWORD len = MAX_PATH;
-				wchar_t buf[MAX_PATH];
+				DWORD len = PATH_BUFFER_SIZE;
+				PATH_BUFFERW(buf);
 				if (QueryFullProcessImageNameW(process, 0, buf, &len)) fullPath = buf;
 			}
 			return fullPath;

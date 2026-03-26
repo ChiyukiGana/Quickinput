@@ -1045,7 +1045,7 @@ struct QiFunc_dir_exist : public QiFunc
 	QiFunc_dir_exist() : QiFunc(1) {}
 	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*, QiVarMap*, QiVarMap*, QiWorker*) const override
 	{
-		return File::FolderState(String::toWString(args[0].toString()));
+		return File::FolderExist(String::toWString(args[0].toString()));
 	}
 };
 
@@ -1072,7 +1072,7 @@ struct QiFunc_file_exist : public QiFunc
 	QiFunc_file_exist() : QiFunc(1) {}
 	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*, QiVarMap*, QiVarMap*, QiWorker*) const override
 	{
-		return File::FileState(String::toWString(args[0].toString()));
+		return File::FileExist(String::toWString(args[0].toString()));
 	}
 };
 struct QiFunc_file_remove : public QiFunc
@@ -1256,7 +1256,7 @@ struct QiFunc_power : public QiFunc
 			tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
 
 			AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
-
+			CloseHandle(hToken);
 			if (GetLastError() != ERROR_SUCCESS) return QiVar(false);
 		}
 

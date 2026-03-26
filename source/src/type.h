@@ -66,7 +66,6 @@ public:
 	MsgViewInfo info() const { return _info; }
 };
 
-////////////////// Datas
 struct FuncData
 {
 	struct QuickClick

@@ -363,7 +363,7 @@ void MacroUi::customEvent(QEvent* e)
 	{
 		if (!isSold()) return;
 		edit = currentMacros.front();
-		Qi::widget.editMacro = edit->copy();
+		Qi::widget.editMacro = *edit;
 		Qi::widget.edit = new EditUi(&Qi::widget.editMacro);
 		Qi::widget.dialogActive = Qi::debug = true;
 		Qi::widget.main->hide();

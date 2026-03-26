@@ -210,7 +210,7 @@ void EditUi::Init()
 	// enable qlable scale
 	ui.image_view_label->setScaledContents(true);
 	// load Window mode
-	if (macro->wndState) macro->wndInfo.update(), SetWindowMode();
+	if (macro->wndState) macro->wndInfo.update_fromName(), SetWindowMode();
 }
 void EditUi::Init_Bind()
 {
@@ -603,7 +603,7 @@ void EditUi::Event_Action_Widget()
 		POINT pt;
 		if (macro->wndState)
 		{
-			if (!macro->wndInfo.update())
+			if (!macro->wndInfo.update_fromName())
 			{
 				SelectWindow();
 			}
@@ -626,7 +626,7 @@ void EditUi::Event_Action_Widget()
 		RECT rect;
 		if (macro->wndState)
 		{
-			if (!macro->wndInfo.update())
+			if (!macro->wndInfo.update_fromName())
 			{
 				SelectWindow();
 			}
@@ -682,7 +682,7 @@ void EditUi::Event_Action_Widget()
 		Rgba rgba;
 		if (macro->wndState)
 		{
-			if (!macro->wndInfo.update())
+			if (!macro->wndInfo.update_fromName())
 			{
 				SelectWindow();
 			}
@@ -737,7 +737,7 @@ void EditUi::Event_Action_Widget()
 		RECT rect;
 		if (macro->wndState)
 		{
-			if (!macro->wndInfo.update())
+			if (!macro->wndInfo.update_fromName())
 			{
 				SelectWindow();
 			}
@@ -771,7 +771,7 @@ void EditUi::Event_Action_Widget()
 		RECT rect;
 		if (macro->wndState)
 		{
-			if (!macro->wndInfo.update())
+			if (!macro->wndInfo.update_fromName())
 			{
 				SelectWindow();
 			}
@@ -839,7 +839,7 @@ void EditUi::Event_Action_Widget()
 		Rgba rgba;
 		if (macro->wndState)
 		{
-			if (!macro->wndInfo.update())
+			if (!macro->wndInfo.update_fromName())
 			{
 				SelectWindow();
 			}
@@ -876,7 +876,7 @@ void EditUi::Event_Action_Widget()
 		{
 			QiRangeSet range;
 			range.rect = QiCvt::SR_RtA(Window::rect(w.wnd));
-			range.wnd = w.wndName;
+			range.wnd = w.name;
 			range.var = ui.range_id_edit->text();
 			WidgetSet(range);
 		}
@@ -918,7 +918,7 @@ void EditUi::Event_Table_Selection()
 					POINT pt;
 					if (macro->wndState)
 					{
-						if (!macro->wndInfo.update()) SelectWindow();
+						if (!macro->wndInfo.update_fromName()) SelectWindow();
 						POINT rpt = QiCvt::WP_AtR({ ref.x, ref.y }, macro->wndInfo.wnd, macro->range);
 						pt = Window::pos(macro->wndInfo.wnd);
 						pt.x += rpt.x, pt.y += rpt.y;
@@ -933,7 +933,7 @@ void EditUi::Event_Table_Selection()
 				RECT rect;
 				if (macro->wndState)
 				{
-					if (!macro->wndInfo.update()) SelectWindow();
+					if (!macro->wndInfo.update_fromName()) SelectWindow();
 					rect = QiCvt::WR_AtR(ref.rect, macro->wndInfo.wnd, macro->range);
 					POINT pt = Window::pos(macro->wndInfo.wnd);
 					rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
@@ -947,7 +947,7 @@ void EditUi::Event_Table_Selection()
 				RECT rect;
 				if (macro->wndState)
 				{
-					if (!macro->wndInfo.update()) SelectWindow();
+					if (!macro->wndInfo.update_fromName()) SelectWindow();
 					rect = QiCvt::WR_AtR(ref.rect, macro->wndInfo.wnd, macro->range);
 					POINT pt = Window::pos(macro->wndInfo.wnd);
 					rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
@@ -962,7 +962,7 @@ void EditUi::Event_Table_Selection()
 				RECT rect;
 				if (macro->wndState)
 				{
-					if (!macro->wndInfo.update()) SelectWindow();
+					if (!macro->wndInfo.update_fromName()) SelectWindow();
 					rect = QiCvt::WR_AtR(ref.rect, macro->wndInfo.wnd, macro->range);
 					POINT pt = Window::pos(macro->wndInfo.wnd);
 					rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
@@ -983,7 +983,7 @@ void EditUi::Event_Table_Selection()
 				RECT rect;
 				if (macro->wndState)
 				{
-					if (!macro->wndInfo.update()) SelectWindow();
+					if (!macro->wndInfo.update_fromName()) SelectWindow();
 					rect = QiCvt::WR_AtR(ref.rect, macro->wndInfo.wnd);
 					POINT pt = Window::pos(macro->wndInfo.wnd);
 					rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
@@ -1193,7 +1193,7 @@ void EditUi::SetWindowMode()
 {
 	ui.window_state_check->setChecked(macro->wndState);
 	ui.window_child_check->setChecked(macro->wndInfo.child);
-	ui.window_name_edit->setText(macro->wndInfo.wndName);
+	ui.window_name_edit->setText(macro->wndInfo.name);
 }
 
 void EditUi::SelectWindow()

@@ -1,8 +1,13 @@
 #pragma once
-#include "shlwapi.h"
+#ifndef CG_PATH_H
+#define CG_PATH_H
+
+#include <shlwapi.h>
+#include "base.h"
 #include "string.h"
 #define EnvUser L"%UserProFile%"
 #define EnvProgram L"%ProgramFiles%"
+#define EnvWindows L"%WinDir%"
 
 namespace QiTools
 {
@@ -11,7 +16,9 @@ namespace QiTools
 		std::wstring _dir;
 		std::wstring _file;
 		std::wstring _args;
+
 	public:
+
 		typedef enum Type
 		{
 			e_cmd,
@@ -19,10 +26,12 @@ namespace QiTools
 			e_dir,
 			e_args
 		} Type;
-		Path() { }
+
+		Path() {}
 		Path(const wchar_t* path, const Type type = e_dir) { parse(path, type); }
 		Path(std::wstring path, const Type type = e_dir) { parse(path, type); }
 		Path(const Path& path) { parse(path); }
+
 		// overload operator
 	public:
 		// copy
@@ -39,27 +48,52 @@ namespace QiTools
 		Path operator-(const std::wstring& path) { remove(path, Type::e_dir); return *this; }
 		Path operator-(const Path& path) { remove(path); return *this; }
 		Path operator-(unsigned int step) { back(step); return *this; }
+
 		// external opertor
 	public:
+
+		static std::wstring toFullPath(const std::wstring& path)
+		{
+			PATH_BUFFERW(buf);
+			DWORD len = GetFullPathNameW(path.c_str(), PATH_BUFFER_SIZE, buf, nullptr);
+			if (len > 0 && len < PATH_BUFFER_SIZE) return buf;
+			return std::wstring();
+		}
+
+		static std::wstring toAbs(const std::wstring& path)
+		{
+			size_t size = GetCurrentDirectoryW(0, nullptr);
+			if (size)
+			{
+				std::wstring current(size, 0);
+				GetCurrentDirectoryW(size, &current.front());
+				return Append(current.c_str(), path);
+			}
+			return path;
+		}
+
 		/* %ProgramFiles%  >  C:\Program Files */
 		static std::wstring ExpandEnvironment(std::wstring envString = L"%ProgramFiles%")
 		{
 			std::wstring str(ExpandEnvironmentStringsW(envString.c_str(), 0, 0), '\0'); // alloc
 			ExpandEnvironmentStringsW(envString.c_str(), &str[0], str.size()); // write
+			str.pop_back();
 			return str;
 		}
+
 		/* slash of args will be change */
 		static std::wstring toBackslash(std::wstring path)
 		{
-			for (size_t p = 0; p < path.length(); p++) if (path[p] == L'/') path[p] = L'\\';
+			for (auto& i : path) if (i == L'/') i = L'\\';
 			return path;
 		}
 		/* backslash of args will be change */
 		static std::wstring toSlash(std::wstring path)
 		{
-			for (size_t p = 0; p < path.length(); p++) if (path[p] == L'\\') path[p] = L'/';
+			for (auto& i : path) if (i == L'\\') i = L'/';
 			return path;
 		}
+
 		/* Dir  to  Dir/File.exe */
 		static std::wstring Append(std::wstring path, std::wstring path2, bool backSlash = true, bool mark = false)
 		{
@@ -70,6 +104,7 @@ namespace QiTools
 			if (mark) return AppendMark(path + path2);
 			return path + path2;
 		}
+
 		/* backSpace: 'Dir/File.exe' to 'Dir/File.exe ' */
 		static std::wstring AppendSpace(std::wstring path, bool backSpace = true, bool removeElse = true)
 		{
@@ -81,20 +116,21 @@ namespace QiTools
 		static std::wstring RemoveSpace(std::wstring path)
 		{
 			size_t c = 0;
-			for (size_t p = 0; p < path.length(); p++) if (path[p] == L' ') c++; else break;
+			for (const auto& i : path) if (i == L' ') c++; else break;
 			path = path.substr(c); // '  Dir/File.exe  '  to  'Dir/File.exe  '
 			c = 0;
-			for (int p = path.length() - 1; p > -1; p--) if (path[p] == L' ') c++; else break;
+			for (auto i = path.rbegin(); i != path.rend(); i++) if (*i == L' ') c++; else break;
 			path = path.substr(0, path.length() - c);	// 'Dir/File.exe  '  to  'Dir/File.exe'
 			return path;
 		}
-		static bool haveMark(std::wstring path)
+
+		static bool hasMark(std::wstring path)
 		{
 			path = RemoveSpace(path);
 			if (!path.size()) return false;
 
-			if (path[0] == L'\"' && path.find_first_of(L'\"', 1) != std::wstring::npos) return true; // have left mark and right mark
-			else if (path[0] == L'\'' && path.find_first_of(L'\'', 1) != std::wstring::npos) return true; // have left mark and right mark
+			if (path[0] == L'\"' && path.find_first_of(L'\"', 1) != std::wstring::npos) return true; // has left mark and right mark
+			else if (path[0] == L'\'' && path.find_first_of(L'\'', 1) != std::wstring::npos) return true; // has left mark and right mark
 			return false; // no mark or no right mark
 		}
 		/* Dir/File.exe  to  "Dir/File.exe" */
@@ -103,7 +139,7 @@ namespace QiTools
 			path = RemoveSpace(path);
 			if (!path.size()) return path;
 
-			if (haveMark(path)) return path;
+			if (hasMark(path)) return path;
 			return mark + path + mark;
 		}
 		/* "Dir/File.exe" args  to  Dir/File.exe args */
@@ -113,17 +149,18 @@ namespace QiTools
 			if (!path.size()) return path;
 
 			size_t p = 0;
-			if (path[0] == L'\"') p = path.find_first_of(L'\"', 1); // have left mark
-			else if (path[0] == L'\'') p = path.find_first_of(L'\'', 1); // have left mark
+			if (path[0] == L'\"') p = path.find_first_of(L'\"', 1); // has left mark
+			else if (path[0] == L'\'') p = path.find_first_of(L'\'', 1); // has left mark
 			else return path; // no mark
 
 			if (p == std::wstring::npos) return path.substr(1); // no right mark
 
 			std::wstring str = path.substr(1, p - 1); // no args
-			if (keepArgs && (p + 1 < path.length())) str += path.substr(p + 1); // have args
+			if (keepArgs && (p + 1 < path.length())) str += path.substr(p + 1); // has args
 
 			return RemoveSpace(str);
 		}
+
 		/* "Dir/"  to  Dir */
 		static std::wstring RemoveDirMark(std::wstring path, bool mark = false)
 		{
@@ -135,6 +172,7 @@ namespace QiTools
 			if (mark) return AppendMark(path);
 			return path;
 		}
+
 		/* Dir/File.exe  to  Dir */
 		static std::wstring GetDir(std::wstring path, bool mark = false)
 		{
@@ -168,6 +206,7 @@ namespace QiTools
 			if (mark) return AppendMark(path, L"\"");
 			return path;
 		}
+
 		/* Dir/File.exe  to  File.exe */
 		static std::wstring GetFile(std::wstring path, bool mark = false)
 		{
@@ -201,6 +240,8 @@ namespace QiTools
 			if (mark) return AppendMark(path, L"\"");
 			return path;
 		}
+
+
 		/* Dir/File.exe  to  .exe */
 		static std::wstring GetExtension(std::wstring path, bool mark = false)
 		{
@@ -230,38 +271,39 @@ namespace QiTools
 			if (mark) return AppendMark(path);
 			return path;
 		}
+
 		/* Dir/File.exe args  to  args */
 		static std::wstring GetArgs(std::wstring path)
 		{
 			path = RemoveSpace(path);
 			if (!path.size()) return path;
 
-			if (haveMark(path))
+			if (hasMark(path))
 			{
 				size_t p = 0;
-				if (path[0] == L'\"') p = path.find_first_of(L'\"', 1); // have left mark
-				else if (path[0] == L'\'') p = path.find_first_of(L'\'', 1); // have left mark
+				if (path[0] == L'\"') p = path.find_first_of(L'\"', 1); // has left mark
+				else if (path[0] == L'\'') p = path.find_first_of(L'\'', 1); // has left mark
 				else return L"";
 
 				if (p == std::wstring::npos) return L""; // no right mark
-				if (p + 1 < path.length()) return RemoveSpace(path.substr(p + 1)); // have args
+				if (p + 1 < path.length()) return RemoveSpace(path.substr(p + 1)); // has args
 				return L""; // no length
 			}
 			else
 			{
 				size_t p = path.find_first_of(L' ');
 				if (p == std::wstring::npos) return L""; // no args
-				if (p + 1 < path.length()) return RemoveSpace(path.substr(p + 1)); // have args
+				if (p + 1 < path.length()) return RemoveSpace(path.substr(p + 1)); // has args
 				return L""; // no length
 			}
 		}
-		/* Dir/File.exe args  to  Dir/File.exe args */
+		/* Dir/File.exe args  to  Dir/File.exe */
 		static std::wstring RemoveArgs(std::wstring path, bool mark = true)
 		{
 			path = RemoveSpace(path);
 			if (!path.size()) return path;
 
-			if (haveMark(path))
+			if (hasMark(path))
 			{
 				if (mark) return AppendMark(RemoveMark(path, false));
 				else return RemoveMark(path, false);
@@ -270,10 +312,12 @@ namespace QiTools
 			{
 				size_t p = path.find_first_of(L' ');
 				if (p == std::wstring::npos) return path; // no args
-				return RemoveSpace(path.substr(0, p)); // have args
+				return RemoveSpace(path.substr(0, p)); // has args
 			}
 		}
+
 		static bool PathState(std::wstring path) { if (_waccess(path.c_str(), 0)) return false; return true; }
+
 		/* "1/2/3"  to  "3" */
 		static std::wstring Last(std::wstring path) {
 			size_t p = path.find_last_of(L"\\");
@@ -286,8 +330,10 @@ namespace QiTools
 			if (p != std::wstring::npos) return path.substr(0, p);
 			return path;
 		}
+
 		// internal operator
 	public:
+
 		void parse(std::wstring path, const Type type = Type::e_dir)
 		{
 			switch (type)
@@ -322,6 +368,7 @@ namespace QiTools
 			_file = path._file;
 			_args = path._args;
 		}
+
 		void append(std::wstring path, const Type type = Type::e_dir)
 		{
 			switch (type)
@@ -357,6 +404,7 @@ namespace QiTools
 			_file = path._file;
 			_args = path._args;
 		}
+
 		void remove(std::wstring path, const Type type = Type::e_dir)
 		{
 			switch (type)
@@ -461,6 +509,7 @@ namespace QiTools
 				_args.replace(p, p + path._args.size() - 1, L"");
 			}
 		}
+
 		void back(unsigned int step = 1)
 		{
 			if (_file.size()) _file = L"", step--;
@@ -477,11 +526,14 @@ namespace QiTools
 				step--;
 			}
 		}
+
 		void dropDir() { _dir.resize(0); }
 		void dropFile() { _file.resize(0); }
 		void dropArgs() { _args.resize(0); }
+
 		// output
 	public:
+
 		/* mark: "Dir" , backSlash: Dir\1.exe */
 		std::wstring s_cmd(bool mark = true, bool backSlash = true) const
 		{
@@ -489,8 +541,8 @@ namespace QiTools
 
 			if (mark) path += L"\"";							// "
 
-			if (backSlash) path += toBackslash(_dir) + L'\\';	// "Dir\¡¡
-			else path += _dir + L"/";							// "Dir/
+			if (backSlash) path += toBackslash(_dir) + L'\\';	// "Dir\ã€€
+						else path += _dir + L"/";							// "Dir/
 
 			path += _file;										// "Dir/File.exe
 
@@ -507,8 +559,8 @@ namespace QiTools
 
 			if (mark) path += L"\"";							// "
 
-			if (backSlash) path += toBackslash(_dir) + L'\\';	// "Dir\¡¡
-			else path += _dir + L"/";							// "Dir/
+			if (backSlash) path += toBackslash(_dir) + L'\\';	// "Dir\ã€€
+						else path += _dir + L"/";							// "Dir/
 
 			path += _file;										// "Dir/File.exe
 
@@ -549,3 +601,4 @@ namespace QiTools
 		}
 	};
 }
+#endif
