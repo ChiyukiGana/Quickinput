@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <qjsondocument.h>
 #include <qjsonobject.h>
 #include <qjsonarray.h>
@@ -1012,7 +1012,9 @@ struct QiRangeSet : QiBase
 
 	HWND w = nullptr;
 	RECT rect = {};
-	QString wnd;
+	QString title;
+	QString clas;
+	QString proc;
 	QString var;
 	QiRangeSet() : QiBase(QiType::range, QiTypeNext::none) {}
 	QString name() const override { return "操作区域"; }
@@ -1023,7 +1025,9 @@ struct QiRangeSet : QiBase
 		json.insert("top", (int)rect.top);
 		json.insert("right", (int)rect.right);
 		json.insert("bottom", (int)rect.bottom);
-		if (!wnd.isEmpty()) json.insert("wnd", wnd);
+		if (!title.isEmpty()) json.insert("name", title);
+		if (!clas.isEmpty()) json.insert("class", clas);
+		if (!proc.isEmpty()) json.insert("proc", proc);
 		if (!var.isEmpty()) json.insert("var", var);
 		return json;
 	}
@@ -1034,7 +1038,9 @@ struct QiRangeSet : QiBase
 		rect.top = json.value("top").toInt();
 		rect.right = json.value("right").toInt();
 		rect.bottom = json.value("bottom").toInt();
-		wnd = json.value("wnd").toString();
+		title = json.value("name").toString();
+		clas = json.value("class").toString();
+		proc = json.value("proc").toString();
 		var = json.value("var").toString();
 	}
 };

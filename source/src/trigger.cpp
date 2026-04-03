@@ -197,6 +197,7 @@ namespace QiTr
 			if (Qi::fun.wndActive.state) { if (Qi::fun.wndActive.thread.active()) Qi::fun.wndActive.thread.stop(); }
 			if (Qi::set.showTips && !Qi::ui.pop.qd.t.isEmpty()) QiFn::StatePop(false);
 			if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.qd.s, false);
+			QiScriptInterpreter::clearMutex();
 		}
 	}
 	void UnBlock()

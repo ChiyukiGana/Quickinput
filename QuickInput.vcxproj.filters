@@ -187,6 +187,12 @@
     <ClInclude Include="source\src\trigger.h">
       <Filter>5_Module\proc</Filter>
     </ClInclude>
+    <ClInclude Include="source\src\var.h">
+      <Filter>3_HeaderOnly</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\mutex.h">
+      <Filter>3_HeaderOnly</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="source\ui\AboutUi.ui">

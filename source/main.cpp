@@ -71,6 +71,7 @@ int main(int argc, char* argv[])
 {
     puts("QUICKINPUT_(C)CHIYUKIGANA");
 	std::locale::global(std::locale(".UTF8")); // set utf8 for all std streams
+
 	Process::RunPath(); // reset work path to exe path
 
 	std::wstring mutex = Path::toSlash(Process::runPath()); // mutex name, the current directory is only running one

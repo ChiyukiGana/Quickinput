@@ -206,6 +206,7 @@
     <ClInclude Include="source\src\interpreter.h" />
     <ClInclude Include="source\src\json.h" />
     <ClInclude Include="source\src\macro.h" />
+    <ClInclude Include="source\src\mutex.h" />
     <ClInclude Include="source\src\range.h" />
     <ClInclude Include="source\src\scriptinterpreter.h" />
     <ClInclude Include="source\src\thread.h" />
@@ -213,6 +214,7 @@
     <ClInclude Include="source\src\type.h" />
     <ClInclude Include="source\src\ui.h" />
     <ClInclude Include="source\src\update.h" />
+    <ClInclude Include="source\src\var.h" />
     <QtMoc Include="source\ui\MsgViewUi.h" />
     <QtMoc Include="source\ui\widget\QFrameless.h" />
     <QtMoc Include="source\ui\widget\QFileEdit.h" />

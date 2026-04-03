@@ -9573,7 +9573,7 @@
                <property name="toolTip">
                 <string>限制移动坐标和识别范围
 
-无窗口名和变量：按照设置的范围
+优先级：变量 &gt; 窗口类，窗口名，进程 &gt; 范围
 
 窗口名：需绑定的窗口名，如果没有则使用变量
 
@@ -9826,7 +9826,7 @@
                      </sizepolicy>
                     </property>
                     <property name="text">
-                     <string>窗口名</string>
+                     <string>标题</string>
                     </property>
                    </widget>
                   </item>
@@ -9862,6 +9862,9 @@
                     <property name="maxLength">
                      <number>64</number>
                     </property>
+                    <property name="placeholderText">
+                     <string>*匹配多个文字</string>
+                    </property>
                    </widget>
                   </item>
                   <item>
@@ -9895,6 +9898,114 @@
                     </property>
                     <property name="autoDefault">
                      <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="range_class_box">
+                  <item>
+                   <widget class="QLabel" name="range_class_label">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>类名</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="range_class_edit">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>24</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Microsoft YaHei</family>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="focusPolicy">
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
+                    </property>
+                    <property name="statusTip">
+                     <string/>
+                    </property>
+                    <property name="inputMask">
+                     <string/>
+                    </property>
+                    <property name="maxLength">
+                     <number>64</number>
+                    </property>
+                    <property name="placeholderText">
+                     <string>?匹配单个文字</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="range_proc_box">
+                  <item>
+                   <widget class="QLabel" name="range_proc_label">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="text">
+                     <string>进程</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLineEdit" name="range_proc_edit">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>24</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Microsoft YaHei</family>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="focusPolicy">
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
+                    </property>
+                    <property name="statusTip">
+                     <string/>
+                    </property>
+                    <property name="inputMask">
+                     <string/>
+                    </property>
+                    <property name="maxLength">
+                     <number>64</number>
+                    </property>
+                    <property name="placeholderText">
+                     <string>进程名或路径</string>
                     </property>
                    </widget>
                   </item>

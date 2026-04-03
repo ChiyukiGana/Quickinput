@@ -83,7 +83,7 @@ bool QiInterpreter::PeekSleep(clock_t ms)
 	}
 	else
 	{
-		while (!worker.m_stop && (clock() < end)) std::this_thread::yield();;
+		while (!worker.m_stop && (clock() < end)) std::this_thread::yield();
 	}
 	return worker.m_stop;
 }
@@ -435,7 +435,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 					{
 						if (ref.sync && PeekSleep(ref.time)) r_result = InterpreterResult::r_exit;
 					}
-					else Sleep(1);
+					Sleep(1);
 				}
 				catch (std::exception e) { QiTr::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return InterpreterResult::r_exit; }
 			} break;
@@ -794,6 +794,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 					else if (ref.option == QiMsgView::clear) Qi::widget.msgViewClear();
 					else if (ref.option == QiMsgView::show) Qi::widget.msgViewShow();
 					else if (ref.option == QiMsgView::hide) Qi::widget.msgViewHide();
+					Sleep(1);
 				}
 				catch (std::exception e) { QiTr::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return InterpreterResult::r_exit; }
 			} break;
@@ -801,22 +802,32 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 			{
 				QiRangeSet& ref = action.to<QiRangeSet>();
 
-				if (ref.wnd.isEmpty() && ref.var.isEmpty()) macro.range = ref.rect;
+				bool h = false;
+				bool ok = false;
+				if (!ref.var.isEmpty())
+				{
+					h = true;
+					if (IsWindow(ref.w)) ok = true;
+					else ok = ref.w = reinterpret_cast<HWND>(macro.script_interpreter.value(ref.var.toStdString()).toPointer());
+					
+				}
+				if (!ok && (!ref.title.isEmpty() || !ref.clas.isEmpty() || !ref.proc.isEmpty()))
+				{
+					h = true;
+					if (IsWindow(ref.w)) ok = true;
+					else ok = ref.w = WndMatch::find(ref.title, ref.clas, ref.proc);
+				}
+				if (ok)
+				{
+					macro.range = QiCvt::SR_RtAnClip(Window::rect(ref.w));
+				}
+				else if (h)
+				{
+					MsgBox::Error(std::wstring(L"窗口不存在，无法设置范围") + werrPath(), L"Quickinput Interpreter"); return InterpreterResult::r_exit;
+				}
 				else
 				{
-					ref.w = nullptr;
-					if (!ref.var.isEmpty())
-					{
-						ref.w = reinterpret_cast<HWND>(macro.script_interpreter.value(ref.var.toStdString()).toPointer());
-						if (!IsWindow(ref.w)) ref.w = nullptr;
-					}
-					if (!ref.w && !ref.wnd.isEmpty()) ref.w = FindWindowW(nullptr, (LPCWSTR)ref.wnd.utf16());
-
-					if (ref.w) macro.range = QiCvt::SR_RtAnClip(Window::rect(ref.w));
-					else
-					{
-						MsgBox::Error(std::wstring(L"窗口不存在，无法设置范围") + werrPath(), L"Quickinput Interpreter"); return InterpreterResult::r_exit;
-					}
+					macro.range = ref.rect;
 				}
 			} break;
 			}

@@ -21,6 +21,7 @@ public:
 		setWindowFlags(Qt::WindowCloseButtonHint);
 		setWindowIcon(icon.isNull() ? QApplication::windowIcon() : icon);
 		setGeometry(QRect(100, 100, 500, 380));
+		setStyleSheet("color:black");
 
 		textEdit = new QPlainTextEdit(this);
 		textEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);

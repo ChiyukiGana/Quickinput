@@ -876,7 +876,9 @@ void EditUi::Event_Action_Widget()
 		{
 			QiRangeSet range;
 			range.rect = QiCvt::SR_RtA(Window::rect(w.wnd));
-			range.wnd = w.name;
+			range.title = w.name;
+			range.clas = w.clas;
+			range.proc = w.proc;
 			range.var = ui.range_id_edit->text();
 			WidgetSet(range);
 		}
@@ -1708,7 +1710,7 @@ void EditUi::TableUpdate(int index)
 		const QiRangeSet& ref = var.to<QiRangeSet>();
 		type += QiUi::Symbol::Range;
 		if (!ref.var.isEmpty()) param = ref.var;
-		else if (!ref.wnd.isEmpty()) param = ref.wnd;
+		else if (!ref.title.isEmpty()) param = ref.title;
 		else param = QString::number(ref.rect.left)
 			+ "," + QString::number(ref.rect.top)
 			+ "," + QString::number(ref.rect.right)
@@ -2383,7 +2385,9 @@ QiRangeSet EditUi::WidgetGetRange()
 	range.rect.top = QiRange::Restricted(ui.range_top_edit->text().toInt(), QiRangeSet::range_rect);
 	range.rect.right = QiRange::Restricted(ui.range_right_edit->text().toInt(), QiRangeSet::range_rect);
 	range.rect.bottom = QiRange::Restricted(ui.range_bottom_edit->text().toInt(), QiRangeSet::range_rect);
-	range.wnd = ui.range_name_edit->text();
+	range.title = ui.range_name_edit->text();
+	range.clas = ui.range_class_edit->text();
+	range.proc = ui.range_proc_edit->text();
 	range.var = ui.range_id_edit->text();
 	return range;
 }
@@ -2559,7 +2563,9 @@ void EditUi::WidgetSet(const QiRangeSet& range)
 	ui.range_top_edit->setText(QString::number(range.rect.top));
 	ui.range_right_edit->setText(QString::number(range.rect.right));
 	ui.range_bottom_edit->setText(QString::number(range.rect.bottom));
-	ui.range_name_edit->setText(range.wnd);
+	ui.range_name_edit->setText(range.title);
+	ui.range_class_edit->setText(range.clas);
+	ui.range_proc_edit->setText(range.proc);
 	ui.range_id_edit->setText(range.var);
 	macro->range = range.rect;
 }

@@ -107,17 +107,90 @@ struct WndMatch
 	QString name;
 	QString clas;
 	QString proc;
-	void update()
+	void update(HWND hwnd = nullptr)
 	{
-		wnd = GetForegroundWindow();
+		IsWindow(hwnd) ? wnd = hwnd : wnd = GetForegroundWindow();
 		name = Window::text(wnd);
 		clas = Window::className(wnd);
 		GetWindowThreadProcessId(wnd, &pid);
 		proc = QString::fromStdWString(Process::path(pid));
 	}
-	bool match(const QString& name_pattern, const QString& clas_pattern, const QString& proc_pattern)
+	bool match(const QString& name_pattern, const QString& clas_pattern = {}, const QString& proc_pattern = {})
 	{
 		return String::match(name.toStdWString(), name_pattern.toStdWString()) && String::match(clas.toStdWString(), clas_pattern.toStdWString()) && String::match(proc.toStdWString(), proc_pattern.toStdWString());
+	}
+	static HWND find(const QString& name_pattern, const QString& clas_pattern = {}, const QString& proc_pattern = {}, const HWND exclude = nullptr)
+	{
+		struct Param
+		{
+			Param(
+				WndMatch& window_match,
+				const QString& name_pattern,
+				const QString& clas_pattern,
+				const QString& proc_pattern,
+				const HWND& exclude) :
+				window_match(window_match),
+				name_pattern(name_pattern),
+				clas_pattern(clas_pattern),
+				proc_pattern(proc_pattern),
+				exclude(exclude) {}
+			WndMatch& window_match;
+			const QString& name_pattern;
+			const QString& clas_pattern;
+			const QString& proc_pattern;
+			const HWND& exclude;
+		};
+		WndMatch wm;
+		Param p(wm, name_pattern, clas_pattern, proc_pattern, exclude);
+		if (FALSE == EnumWindows([](HWND wnd, LPARAM lp) {
+			auto p = reinterpret_cast<Param*>(lp);
+			if (wnd != p->exclude)
+			{
+				p->window_match.update(wnd);
+				return p->window_match.match(p->name_pattern, p->clas_pattern, p->proc_pattern) ? FALSE : TRUE;
+			}
+			return TRUE;
+		}, reinterpret_cast<LPARAM>(&p))) return p.window_match.wnd;
+		return nullptr;
+	}
+	static QiVector<HWND> finds(const QString& name_pattern, const QString& clas_pattern = {}, const QString& proc_pattern = {}, const HWND exclude = nullptr)
+	{
+		struct Param
+		{
+			Param(
+				WndMatch& window_match,
+				const QString& name_pattern,
+				const QString& clas_pattern,
+				const QString& proc_pattern,
+				const HWND& exclude,
+				QiVector<HWND>& wnds) :
+				window_match(window_match),
+				name_pattern(name_pattern),
+				clas_pattern(clas_pattern),
+				proc_pattern(proc_pattern),
+				exclude(exclude),
+				wnds(wnds) {
+			}
+			WndMatch& window_match;
+			const QString& name_pattern;
+			const QString& clas_pattern;
+			const QString& proc_pattern;
+			const HWND& exclude;
+			QiVector<HWND>& wnds;
+		};
+		WndMatch wm;
+		QiVector<HWND> wnds;
+		Param p(wm, name_pattern, clas_pattern, proc_pattern, exclude, wnds);
+		EnumWindows([](HWND wnd, LPARAM lp) {
+			auto p = reinterpret_cast<Param*>(lp);
+			if (wnd != p->exclude)
+			{
+				p->window_match.update(wnd);
+				if (p->window_match.match(p->name_pattern, p->clas_pattern, p->proc_pattern)) p->wnds.append(wnd);
+			}
+			return TRUE;
+		}, reinterpret_cast<LPARAM>(&p));
+		return wnds;
 	}
 };
 
