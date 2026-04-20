@@ -1,4 +1,6 @@
 ﻿#pragma once
+#ifndef QIOCR_H
+#define QIOCR_H
 #include <vector>
 #include <string>
 #include <windows.h>
@@ -25,13 +27,18 @@ using PFQiOcrInterfaceVersion = size_t(*)();
 using PFQiOcrInterfaceInit = QiOcrInterface * (*)(const std::wstring&, const std::wstring&, const std::wstring&, size_t);
 using PFQiOcrInterfaceInitFromMemory = QiOcrInterface * (*)(void*, size_t, void*, size_t, void*, size_t, size_t);
 
-#ifdef QIOCR_SHARED
 class QiOcrModule
 {
+#ifdef QIOCR_SHARED
 	HMODULE dll = nullptr;
+#endif
 	QiOcrInterface* ocr = nullptr;
 public:
+#ifdef QIOCR_SHARED
 	QiOcrModule(HMODULE dll = nullptr, QiOcrInterface* ocr = nullptr) : dll(dll), ocr(ocr) {}
+#else
+	QiOcrModule(QiOcrInterface* ocr = nullptr) : ocr(ocr) {}
+#endif
 	QiOcrModule(const QiOcrModule&) = delete;
 	QiOcrModule(QiOcrModule&& other) { operator=(std::move(other)); }
 	~QiOcrModule() { release(); }
@@ -39,11 +46,22 @@ public:
 	QiOcrModule& operator=(QiOcrModule&& other)
 	{
 		release();
+#ifdef QIOCR_SHARED
 		dll = other.dll;
-		ocr = other.ocr;
 		other.dll = nullptr;
+#endif
+		ocr = other.ocr;
 		other.ocr = nullptr;
 		return *this;
+	}
+	operator bool() const { return valid(); }
+	bool valid() const
+	{
+		return ocr
+#ifdef QIOCR_SHARED
+			&& dll
+#endif
+			;
 	}
 	void release()
 	{
@@ -52,15 +70,13 @@ public:
 			ocr->release();
 			ocr = nullptr;
 		}
+#ifdef QIOCR_SHARED
 		if (dll)
 		{
 			FreeLibrary(dll);
 			dll = nullptr;
 		}
-	}
-	bool valid() const
-	{
-		return dll && ocr;
+#endif
 	}
 	std::vector<std::string> scan_list(const CImage& image, bool skipDet = false, std::vector<POINT>* centers = nullptr)
 	{
@@ -83,7 +99,9 @@ public:
 		return ocr->scan(rect_screen, skipDet);
 	}
 };
-inline size_t QiOcrInterfaceVersion(const std::wstring dll)
+
+#ifdef QIOCR_SHARED
+inline size_t QiOcrVersion(const std::wstring dll)
 {
 	HMODULE hModule = LoadLibraryW(dll.c_str());
 	if (hModule)
@@ -96,7 +114,7 @@ inline size_t QiOcrInterfaceVersion(const std::wstring dll)
 	}
 	return 0;
 }
-inline QiOcrModule QiOcrInterfaceInit(const std::wstring dll, const std::wstring& recFile, const std::wstring& keyFile, const std::wstring& detFile, size_t threads)
+inline QiOcrModule QiOcrInit(const std::wstring dll, const std::wstring& recFile, const std::wstring& keyFile, const std::wstring& detFile, size_t threads)
 {
 	HMODULE hModule = LoadLibraryW(dll.c_str());
 	if (hModule)
@@ -111,7 +129,7 @@ inline QiOcrModule QiOcrInterfaceInit(const std::wstring dll, const std::wstring
 	}
 	return QiOcrModule();
 }
-inline QiOcrModule QiOcrInterfaceInit(const std::wstring dll, void* recData, size_t recSize, void* keysData, size_t keysSize, void* detData, size_t detSize, size_t threads)
+inline QiOcrModule QiOcrInit(const std::wstring dll, void* recData, size_t recSize, void* keysData, size_t keysSize, void* detData, size_t detSize, size_t threads)
 {
 	HMODULE hModule = LoadLibraryW(dll.c_str());
 	if (hModule)
@@ -127,7 +145,20 @@ inline QiOcrModule QiOcrInterfaceInit(const std::wstring dll, void* recData, siz
 	return QiOcrModule();
 }
 #else
-size_t QiOcrInterfaceVersion();
-QiOcrInterface* QiOcrInterfaceInit(const std::string& recFile, const std::string& keyFile, const std::string& detFile, size_t threads);
-QiOcrInterface* QiOcrInterfaceInit(void* recData, size_t recSize, void* keysData, size_t keysSize, void* detData, size_t detSize, size_t threads);
+extern "C" size_t _stdcall QiOcrInterfaceVersion();
+extern "C" QiOcrInterface* _stdcall QiOcrInterfaceInit(const std::wstring& recFile, const std::wstring& keyFile, const std::wstring& detFile, size_t threads);
+extern "C" QiOcrInterface* _stdcall QiOcrInterfaceInitFromMemory(void* recData, size_t recSize, void* keysData, size_t keysSize, void* detData, size_t detSize, size_t threads);
+inline QiOcrModule _stdcall QiOcrInit(const std::wstring& recFile, const std::wstring& keyFile, const std::wstring& detFile, size_t threads)
+{
+	QiOcrInterface* pInterface = QiOcrInterfaceInit(recFile, keyFile, detFile, threads);
+	if (pInterface) return QiOcrModule(pInterface);
+	return QiOcrModule();
+}
+inline QiOcrModule _stdcall QiOcrInit(void* recData, size_t recSize, void* keysData, size_t keysSize, void* detData, size_t detSize, size_t threads)
+{
+	QiOcrInterface* pInterface = QiOcrInterfaceInitFromMemory(recData, recSize, keysData, keysSize, detData, detSize, threads);
+	if (pInterface) return QiOcrModule(pInterface);
+	return QiOcrModule();
+}
+#endif
 #endif

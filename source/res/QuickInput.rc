@@ -5,3 +5,9 @@ SND_OFF WAVE "sound\\off.wav"
 SND_RUN WAVE "sound\\run.wav"
 SND_STOP WAVE "sound\\stop.wav"
 SND_TIP WAVE "sound\\notify.wav"
+
+#ifdef QIOCR_INTERNAL
+OCR_REC OCR "ocr\\ppocr.onnx"
+OCR_KEY OCR "ocr\\ppocr.keys"
+OCR_DET OCR "ocr\\ppdet.onnx"
+#endif

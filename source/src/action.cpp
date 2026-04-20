@@ -1,4 +1,6 @@
 #include "action.h"
+#include "typepack/typepack.cpp"
+
 bool find_index(const Actions& actions, QiIndex& index, QiType type, int id)
 {
 	for (size_t i = 0; i < actions.size(); i++)
@@ -307,6 +309,220 @@ void Action::fromJson(const QJsonObject& json)
 	}
 	}
 }
+typepack::object Action::toPack() const
+{
+	return base().toPack();
+}
+void Action::fromPack(const typepack::object& pack)
+{
+	switch (static_cast<QiType>(pack.get("t").toInt()))
+	{
+	case QiType::end:
+	{
+		QiEnd a;
+		a.fromPack(pack);
+		emplace<QiEnd>(a);
+	} break;
+	case QiType::delay:
+	{
+		QiDelay a;
+		a.fromPack(pack);
+		emplace<QiDelay>(a);
+	} break;
+	case QiType::key:
+	{
+		QiKey a;
+		a.fromPack(pack);
+		emplace<QiKey>(a);
+	} break;
+	case QiType::mouse:
+	{
+		QiMouse a;
+		a.fromPack(pack);
+		emplace<QiMouse>(a);
+	} break;
+	case QiType::copyText:
+	{
+		QiCopyText a;
+		a.fromPack(pack);
+		emplace<QiCopyText>(a);
+	} break;
+	case QiType::color:
+	{
+		QiColor a;
+		a.fromPack(pack);
+		emplace<QiColor>(a);
+	} break;
+	case QiType::loop:
+	{
+		QiLoop a;
+		a.fromPack(pack);
+		emplace<QiLoop>(a);
+	} break;
+	case QiType::loopEnd:
+	{
+		QiLoopEnd a;
+		a.fromPack(pack);
+		emplace<QiLoopEnd>(a);
+	} break;
+	case QiType::keyState:
+	{
+		QiKeyState a;
+		a.fromPack(pack);
+		emplace<QiKeyState>(a);
+	} break;
+	case QiType::resetPos:
+	{
+		QiResetPos a;
+		a.fromPack(pack);
+		emplace<QiResetPos>(a);
+	} break;
+	case QiType::image:
+	{
+		QiImage a;
+		a.fromPack(pack);
+		emplace<QiImage>(a);
+	} break;
+	case QiType::popText:
+	{
+		QiPopText a;
+		a.fromPack(pack);
+		emplace<QiPopText>(a);
+	} break;
+	case QiType::savePos:
+	{
+		QiSavePos a;
+		a.fromPack(pack);
+		emplace<QiSavePos>(a);
+	} break;
+	case QiType::timer:
+	{
+		QiTimer a;
+		a.fromPack(pack);
+		emplace<QiTimer>(a);
+	} break;
+	case QiType::jump:
+	{
+		QiJump a;
+		a.fromPack(pack);
+		emplace<QiJump>(a);
+	} break;
+	case QiType::jumpPoint:
+	{
+		QiJumpPoint a;
+		a.fromPack(pack);
+		emplace<QiJumpPoint>(a);
+	} break;
+	case QiType::dialog:
+	{
+		QiDialog a;
+		a.fromPack(pack);
+		emplace<QiDialog>(a);
+	} break;
+	case QiType::block:
+	{
+		QiBlock a;
+		a.fromPack(pack);
+		emplace<QiBlock>(a);
+	} break;
+	case QiType::blockExec:
+	{
+		QiBlockExec a;
+		a.fromPack(pack);
+		emplace<QiBlockExec>(a);
+	} break;
+	case QiType::quickInput:
+	{
+		QiQuickInput a;
+		a.fromPack(pack);
+		emplace<QiQuickInput>(a);
+	} break;
+	case QiType::keyBlock:
+	{
+		QiKeyBlock a;
+		a.fromPack(pack);
+		emplace<QiKeyBlock>(a);
+	} break;
+	case QiType::clock:
+	{
+		QiClock a;
+		a.fromPack(pack);
+		emplace<QiClock>(a);
+	} break;
+	case QiType::ocr:
+	{
+		QiOcr a;
+		a.fromPack(pack);
+		emplace<QiOcr>(a);
+	} break;
+	case QiType::varOperator:
+	{
+		QiVarOperator a;
+		a.fromPack(pack);
+		emplace<QiVarOperator>(a);
+	} break;
+	case QiType::varCondition:
+	{
+		QiVarCondition a;
+		a.fromPack(pack);
+		emplace<QiVarCondition>(a);
+	} break;
+	case QiType::mouseTrack:
+	{
+		QiMouseTrack a;
+		a.fromPack(pack);
+		emplace<QiMouseTrack>(a);
+	} break;
+	case QiType::open:
+	{
+		QiOpen a;
+		a.fromPack(pack);
+		emplace<QiOpen>(a);
+	} break;
+	case QiType::textPad:
+	{
+		QiTextPad a;
+		a.fromPack(pack);
+		emplace<QiTextPad>(a);
+	} break;
+	case QiType::editDialog:
+	{
+		QiEditDialog a;
+		a.fromPack(pack);
+		emplace<QiEditDialog>(a);
+	} break;
+	case QiType::volume:
+	{
+		QiVolume a;
+		a.fromPack(pack);
+		emplace<QiVolume>(a);
+	} break;
+	case QiType::soundPlay:
+	{
+		QiSoundPlay a;
+		a.fromPack(pack);
+		emplace<QiSoundPlay>(a);
+	} break;
+	case QiType::msgView:
+	{
+		QiMsgView a;
+		a.fromPack(pack);
+		emplace<QiMsgView>(a);
+	} break;
+	case QiType::range:
+	{
+		QiRangeSet a;
+		a.fromPack(pack);
+		emplace<QiRangeSet>(a);
+	} break;
+	default:
+	{
+		QiBase a;
+		a.fromPack(pack);
+		emplace<QiBase>(a);
+	}
+	}
+}
 Action* Action::iter(std::function<bool(Action&)> callBack, QiType type)
 {
 	Action* r = nullptr;
@@ -359,6 +575,23 @@ void Actions::fromJson(const QJsonArray& json)
 	{
 		Action a;
 		a.fromJson(i.toObject());
+		append(std::move(a));
+	}
+}
+typepack::array Actions::toPack() const
+{
+	typepack::array array;
+	array.resize(size());
+	for (size_t i = 0; i < array.size(); i++) array[i] = operator[](i).toPack();
+	return array;
+}
+void Actions::fromPack(const typepack::array& pack)
+{
+	clear();
+	for (const auto& i : pack)
+	{
+		Action a;
+		a.fromPack(i.toObject());
 		append(std::move(a));
 	}
 }

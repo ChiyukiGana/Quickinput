@@ -43,13 +43,13 @@
     <OutDir>$(ProjectDir).app_d\</OutDir>
     <IntDir>$(ProjectDir).build_d\</IntDir>
     <IncludePath>$(ProjectDir);$(ProjectDir)source;$(ProjectDir)source\src\libcurl\include;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget;$(ProjectDir)source\src\ignore</IncludePath>
-    <LibraryPath>$(ProjectDir)source\src\libcurl\x64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)source\src\libcurl\x64;$(ProjectDir)source\src\ignore\ocr;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir).app\</OutDir>
     <IntDir>$(ProjectDir).build\</IntDir>
     <IncludePath>$(ProjectDir);$(ProjectDir)source;$(ProjectDir)source\src\libcurl\include;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget;$(ProjectDir)source\src\ignore</IncludePath>
-    <LibraryPath>$(ProjectDir)source\src\libcurl\x64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)source\src\libcurl\x64;$(ProjectDir)source\src\ignore\ocr;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtModules>core;widgets</QtModules>
@@ -65,7 +65,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>_WINSOCKAPI_;QIOCR_SHARED;$(QiPreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINSOCKAPI_;QIOCR_SHARED;QIOCR_INTERNALx;$(QiPreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
@@ -77,7 +77,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <IgnoreSpecificDefaultLibraries>LIBCMT.LIB</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>LIBCMTD.LIB</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -87,7 +87,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>_WINSOCKAPI_;QIOCR_SHARED;$(QiPreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINSOCKAPI_;QIOCR_SHARED;QIOCR_INTERNALx;$(QiPreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <Link>

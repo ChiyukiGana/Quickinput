@@ -124,7 +124,7 @@ void TriggerUi::Event()
 		if (!ItemCurrented() || column != 3) return;
 		currentMacro->state = !currentMacro->state;
 		TableState();
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		SetTableItem(currentTable, row, *currentMacro);
 		});
 	connect(ui.macroGroup_table, &QMacroTable::currentChanged, this, currentChanged);
@@ -136,7 +136,7 @@ void TriggerUi::Event()
 		{
 			auto& macro = currentGroup->macros[i];
 			macro.state = !state;
-			QiJson::SaveMacro(macro);
+			macro.save();
 			SetTableItem(currentTable, i, macro);
 		}
 		TableState();
@@ -149,18 +149,18 @@ void TriggerUi::Event()
 	connect(ui.block_check, &QCheckBox::toggled, this, [this](bool state) {
 		if (!ItemCurrented()) return;
 		currentMacro->keyBlock = state;
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		});
 	connect(ui.block_cur_check, &QCheckBox::toggled, this, [this](bool state) {
 		if (!ItemCurrented()) return;
 		currentMacro->curBlock = state;
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		});
-	connect(ui.mode_combo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) {
+	connect(ui.mode_combo, &QComboBox::currentIndexChanged, this, [this](int index) {
 		if (!ItemCurrented()) return;
 		if (currentMacro->mode == index) return;
 		currentMacro->mode = index;
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		SetTableItem(currentTable, currentRow, *currentMacro);
 		});
 	connect(ui.key_keyedit, &QKeyEdit::changed, this, [this] {
@@ -169,18 +169,18 @@ void TriggerUi::Event()
 		currentMacro->key1 = currentMacro->key2 = 0;
 		if (!keys.isEmpty()) currentMacro->key1 = keys.at(0);
 		if (keys.size() > 1) currentMacro->key2 = keys.at(1);
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		SetTableItem(currentTable, currentRow, *currentMacro);
 		});
 	connect(ui.count_edit, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) {
 		if (!ItemCurrented()) return;
 		currentMacro->count = QiRange::Restricted(value, Macro::range_count);
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		});
 	connect(ui.speed_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 		if (!ItemCurrented()) return;
 		currentMacro->speed = QiRange::Restricted(value, Macro::range_speed);
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		});
 
 	connect(ui.var_button, &QPushButton::clicked, this, [this] {
@@ -192,41 +192,41 @@ void TriggerUi::Event()
 		{
 			currentMacro->script = text;
 			VarEditUpdate(currentMacro);
-			QiJson::SaveMacro(*currentMacro);
+			(*currentMacro).save();
 		}
 		});
 	connect(ui.var_edit, &QLineEdit::textEdited, this, [this](const QString& text) {
 		if (!ItemCurrented()) return;
 		currentMacro->script = text;
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		});
 
 	connect(ui.moveScale_x_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 		if (!ItemCurrented()) return;
 		currentMacro->moveScaleX = QiRange::Restricted(value, Macro::range_moveScale);
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		});
 	connect(ui.moveScale_y_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 		if (!ItemCurrented()) return;
 		currentMacro->moveScaleY = QiRange::Restricted(value, Macro::range_moveScale);
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		});
 
 	connect(ui.posScale_x_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 		if (!ItemCurrented()) return;
 		currentMacro->posScaleX = QiRange::Restricted(value, Macro::range_posScale);
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		});
 	connect(ui.posScale_y_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 		if (!ItemCurrented()) return;
 		currentMacro->posScaleY = QiRange::Restricted(value, Macro::range_posScale);
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		});
 
 	connect(ui.match_check, &QCheckBox::toggled, this, [this](bool state) {
 		if (!ItemCurrented()) return;
 		currentMacro->matchState = state;
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		});
 	connect(ui.match_button, &QPushButton::clicked, this, [this] {
 		currentMacro->wndMatch = QiFn::WindowSelection();
@@ -243,38 +243,38 @@ void TriggerUi::Event()
 		ui.match_name_edit->blockSignals(false);
 		ui.match_class_edit->blockSignals(false);
 		ui.match_proc_edit->blockSignals(false);
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		});
 	connect(ui.match_name_edit, &QLineEdit::textEdited, this, [this](const QString& text) {
 		if (!ItemCurrented()) return;
 		currentMacro->wndMatch.name = text;
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		});
 	connect(ui.match_class_edit, &QLineEdit::textEdited, this, [this](const QString& text) {
 		if (!ItemCurrented()) return;
 		currentMacro->wndMatch.clas = text;
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		});
 	connect(ui.match_proc_edit, &QLineEdit::textEdited, this, [this](const QString& text) {
 		if (!ItemCurrented()) return;
 		currentMacro->wndMatch.proc = text;
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		});
 
 	connect(ui.timer_start_edit, &QTimeEdit::userTimeChanged, this, [this](const QTime& time) {
 		if (!ItemCurrented()) return;
 		currentMacro->timerStart = QiRange::Restricted((int)QiTime::toTimeStamp(time.hour(), time.minute(), time.second()), Macro::range_timer);
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		});
 	connect(ui.timer_end_edit, &QTimeEdit::userTimeChanged, this, [this](const QTime& time) {
 		if (!ItemCurrented()) return;
 		currentMacro->timerEnd = QiRange::Restricted((int)QiTime::toTimeStamp(time.hour(), time.minute(), time.second()), Macro::range_timer);
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		});
 	connect(ui.timer_check, &QCheckBox::toggled, this, [this](bool state) {
 		if (!ItemCurrented()) return;
 		currentMacro->timer = state;
-		QiJson::SaveMacro(*currentMacro);
+		(*currentMacro).save();
 		});
 	connect(ui.timer_start_button, &QPushButton::clicked, this, [this] {
 		time_t current = QiTime::current();

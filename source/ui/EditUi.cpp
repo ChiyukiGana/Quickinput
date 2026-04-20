@@ -757,7 +757,7 @@ void EditUi::Event_Action_Widget()
 	connect(ui.image_shot_button, &QPushButton::clicked, this, [this] {
 		QRectSelection rs;
 		RECT rect = rs.Start();
-		if (rect.left && rect.top && rect.right && rect.bottom)
+		if (rect.right && rect.bottom)
 		{
 			QiImage image(WidgetGetImage());
 			Image::ScreenRgbMap(imageMap, rect);
@@ -789,7 +789,7 @@ void EditUi::Event_Action_Widget()
 		WidgetSet(ocr);
 		});
 	connect(ui.ocr_test_button, &QPushButton::clicked, this, [this] {
-		if (!Qi::ocr.valid())
+		if (!Qi::ocr)
 		{
 			MsgBox::Warning(L"没有安装OCR组件，无法使用文字识别功能");
 			return;

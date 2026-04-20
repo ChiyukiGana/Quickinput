@@ -568,7 +568,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 				else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
 				try
 				{
-					if (Qi::ocr.valid())
+					if (Qi::ocr)
 					{
 						CImage image;
 						HDC hdc;

@@ -14,6 +14,12 @@ MainUi::MainUi(int tab)
 #ifdef Q_MACRO_HIDE
 	ui.tabWidget->removeTab(0);
 #endif
+#ifdef Q_FUNC_HIDE
+	ui.tabWidget->removeTab(2);
+#endif
+#ifdef Q_ABOUT_HIDE
+	ui.tabWidget->removeTab(4);
+#endif
 
 	Init();
 	Event();

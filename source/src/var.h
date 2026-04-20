@@ -149,9 +149,20 @@ public:
 		if (type() == t_nul) return 0LL;
 		if (type() == t_int) return toString(std::get<int_t>(var)).length();
 		if (type() == t_num) return toString(get<num_t>(var)).length();
-		if (type() == t_str) return get<str_t>(var).length();
+		if (type() == t_str) return len(get<str_t>(var));
 		if (type() == t_ptr) return toString(get<ptr_t>(var)).length();
 		if (type() == t_bool) return toString(get<bool>(var)).length();
+		return 0LL;
+	}
+
+	int_t size() const
+	{
+		if (type() == t_nul) return 0LL;
+		if (type() == t_int) return sizeof(int_t);
+		if (type() == t_num) return sizeof(num_t);
+		if (type() == t_str) return get<str_t>(var).size();
+		if (type() == t_ptr) return sizeof(ptr_t);
+		if (type() == t_bool) return sizeof(bool);
 		return 0LL;
 	}
 
@@ -270,6 +281,27 @@ public:
 		*this = operator/(other); return *this;
 	}
 
+	static size_t len(const std::string& str)
+	{
+		size_t count = 0;
+		for (size_t i = 0; i < str.size(); )
+		{
+			const unsigned char& c = str[i];
+			size_t charLen = 0;
+			if (c < 0x80) charLen = 1;
+			else if ((c & 0xE0) == 0xC0) charLen = 2;
+			else if ((c & 0xF0) == 0xE0) charLen = 3;
+			else if ((c & 0xF8) == 0xF0) charLen = 4;
+			else
+			{
+				i++;
+				continue;
+			}
+			count++;
+			i += charLen;
+		}
+		return count;
+	}
 	static std::string ch(const std::string& str, size_t where)
 	{
 		if (str.empty()) return std::string();

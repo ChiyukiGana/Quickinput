@@ -217,6 +217,11 @@ namespace QiTools
 			}
 			return result;
 		}
+		size_t indexOf(const Ty* element) const
+		{
+			for (size_t i = 0; i < base_vector::size(); i++) if (element == &base_vector::at(i)) return i;
+			return end_pos;
+		}
 		void sort(std::function<bool(const Ty&, const Ty&)> compareCallback)
 		{
 			std::sort(base_vector::begin(), base_vector::end(), compareCallback);

@@ -110,6 +110,24 @@ namespace QiTools
 			}
 			return false;
 		}
+		static std::vector<char> FileReadAll(const std::wstring& path)
+		{
+			HANDLE hFile = CreateFileW(path.c_str(), GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+			if (hFile && hFile != INVALID_HANDLE_VALUE)
+			{
+				DWORD bytes = GetFileSize(hFile, NULL);
+				if (bytes)
+				{
+					std::vector<char> data(bytes, 0);
+					DWORD bytesReaded;
+					BOOL b = ReadFile(hFile, data.data(), bytes, &bytesReaded, 0);
+					CloseHandle(hFile);
+					if (b) return data;
+				}
+				CloseHandle(hFile);
+			}
+			return {};
+		}
 		static bool LoadText(const QString& path, QByteArray& text)
 		{
 			QFile file(path);

@@ -138,18 +138,22 @@ namespace QiFn
 
 	void InitOcr(bool warning)
 	{
+#ifndef DEBUG
+#ifdef QIOCR_SHARED
 		std::wstring dll = L"OCR\\qiocr.dll";
 		if (!File::FileExist(dll))
 		{
 			if (warning) MsgBox::Warning(L"没有安装文字识别功能");
 			return;
 		}
-		Qi::ocr_ver = QiOcrInterfaceVersion(dll);
+		Qi::ocr_ver = QiOcrVersion(dll);
 		if (Qi::ocr_ver < 3)
 		{
 			MsgBox::Warning(L"文字识别版本低于3，需要更新");
 			return;
 		}
+#endif
+#ifndef QIOCR_INTERNAL
 		std::wstring rec = L"ppocr.onnx";
 		std::wstring keys = L"ppocr.keys";
 		std::wstring det = L"OCR\\ppdet.onnx";
@@ -164,9 +168,29 @@ namespace QiFn
 			rec = std::wstring(L"OCR\\") + lang + rec;
 			keys = std::wstring(L"OCR\\") + lang + keys;
 		}
-		Qi::ocr = QiOcrInterfaceInit(dll, rec, keys, det, Qi::set.ocr_thread);
-		if (!Qi::ocr.valid()) MsgBox::Error(L"文字识别加载失败");
+
+#ifdef QIOCR_SHARED
+		Qi::ocr = QiOcrInit(dll, rec, keys, det, Qi::set.ocr_thread);
+#else
+		Qi::ocr = QiOcrInit(rec, keys, det, Qi::set.ocr_thread);
+#endif
+
+#else // QIOCR_INTERNAL
+		auto rec = ResourceTool::find(L"OCR", L"OCR_REC");
+		auto key = ResourceTool::find(L"OCR", L"OCR_KEY");
+		auto det = ResourceTool::find(L"OCR", L"OCR_DET");
+
+#ifdef QIOCR_SHARED
+		Qi::ocr = QiOcrInit(dll, rec.data(), rec.size(), key.data(), key.size(), det.data(), det.size(), Qi::set.ocr_thread);
+#else
+		Qi::ocr = QiOcrInit(rec.data(), rec.size(), key.data(), key.size(), det.data(), det.size(), Qi::set.ocr_thread);
+#endif
+
+#endif // QIOCR_INTERNAL
+		if (!Qi::ocr) MsgBox::Error(L"文字识别加载失败");
+#endif // DEBUG
 	}
+
 #ifdef Q_RAWINPUT
 	void InitRawInput(bool warning)
 	{

@@ -37,10 +37,11 @@ namespace Qi
 	constexpr int ocr_thread_max = 8;
 	inline bool run = false;
 	inline bool debug = false;
-	inline const QString dir = QDir::fromNativeSeparators(QString::fromWCharArray(Path::RemoveFile(Process::exePath()).c_str()));
+	inline const QString dir = QDir::fromNativeSeparators(QString::fromStdWString(Path::RemoveFile(Process::exePath())));
 	inline const QString folder = dir.mid(dir.lastIndexOf('/') + 1);
 	inline const QString macroDir = dir + "/macro/";
 	inline const QString macroType = ".json";
+	inline const QString macroQimType = ".qim";
 	inline const QString emacroType = ".emacro";
 	inline const QString configFile = "QuickInput.json";
 	inline QString version;

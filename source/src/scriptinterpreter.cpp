@@ -580,6 +580,14 @@ struct QiFunc_len : public QiFunc
 		return args[0].len();
 	}
 };
+struct QiFunc_size : public QiFunc
+{
+	QiFunc_size() : QiFunc(1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		return args[0].size();
+	}
+};
 
 /*
 any value
@@ -1552,6 +1560,7 @@ QiFuncMap::QiFuncMap()
 	insert({ "num", std::make_unique<QiFunc_num>() });
 	insert({ "int", std::make_unique<QiFunc_int>() });
 	insert({ "len", std::make_unique<QiFunc_len>() });
+	insert({ "size", std::make_unique<QiFunc_size>() });
 
 	insert({ "char", std::make_unique<QiFunc_char>() });
 	insert({ "rmn", std::make_unique<QiFunc_rmn>() });

@@ -33,6 +33,7 @@ namespace Qi
 #ifdef Q_RAWINPUT
 			json.insert("rawInput", (bool)Qi::set.rawInput);
 #endif
+			json.insert("saveType", (int)Qi::set.save_type);
 			json.insert("key", (int)(static_cast<int>(set.key1) | (static_cast<int>(set.key2) << 16)));
 			json.insert("key1", (int)set.key1);
 			json.insert("key2", (int)set.key2);
@@ -115,6 +116,7 @@ namespace Qi
 		std::function<void()> DefaultConfig = [] {
 			set.theme = 0;
 			set.ocr_thread = 0;
+			set.save_type = Macro::StorageType::JSON;
 			set.key1 = VK_F8;
 			set.key2 = 0;
 			set.recKey = VK_F8;
@@ -190,6 +192,8 @@ namespace Qi
 #ifdef Q_RAWINPUT
 				Qi::set.rawInput = json.value("rawInput").toBool();
 #endif
+				set.save_type = json.value("saveType").toInt();
+
 				if (json.contains("key1"))
 				{
 					set.key1 = json.value("key1").toInt();

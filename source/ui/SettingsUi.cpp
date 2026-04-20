@@ -15,6 +15,14 @@ SettingsUi::SettingsUi(QWidget* parent) : QWidget(parent)
 	ui.rawInput_label->setHidden(true);
 	ui.rawInput_check->setHidden(true);
 #endif
+#ifdef QIOCR_INTERNAL
+	ui.ocr_lang_label->setHidden(true);
+	ui.ocr_lang_combo->setHidden(true);
+#endif
+#ifdef Q_ENCRYPT
+	ui.macro_save_label->setHidden(true);
+	ui.macro_save_combo->setHidden(true);
+#endif
 }
 
 void SettingsUi::Init()
@@ -81,6 +89,16 @@ void SettingsUi::Init()
 		if (Qi::set.theme >= Qi::ui.themes.size()) Qi::set.theme = 0;
 		ui.theme_combo->setCurrentIndex(Qi::set.theme);
 	}
+	if ("macro save type")
+	{
+		ui.macro_save_combo->setEditable(true);
+		ui.macro_save_combo->lineEdit()->setReadOnly(true);
+		ui.macro_save_combo->lineEdit()->setAlignment(Qt::AlignCenter);
+		ui.macro_save_combo->addItem("Json可读");
+		ui.macro_save_combo->addItem("Qim体积小");
+		if (Qi::set.save_type > Macro::StorageType::QIM) ui.macro_save_combo->setCurrentIndex(Macro::StorageType::JSON);
+		else ui.macro_save_combo->setCurrentIndex(Qi::set.save_type);
+	}
 	if ("key edit")
 	{
 		QKeyEditKeys keys;
@@ -122,7 +140,7 @@ void SettingsUi::Event()
 		Qi::widget.main->show();
 		Qi::widget.dialogActive = false;
 		QiJson::SaveJson(); });
-	connect(ui.ocr_lang_combo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) {
+	connect(ui.ocr_lang_combo, &QComboBox::currentIndexChanged, this, [this](int index) {
 		if (index >= 0)
 		{
 			QString lang;
@@ -136,7 +154,7 @@ void SettingsUi::Event()
 				});
 		}
 		});
-	connect(ui.ocr_thread_combo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) {
+	connect(ui.ocr_thread_combo, &QComboBox::currentIndexChanged, this, [this](int index) {
 		if (index >= 0 && index != Qi::set.ocr_thread)
 		{
 			Qi::popText->Show("正在切换");
@@ -148,13 +166,20 @@ void SettingsUi::Event()
 				});
 		}
 		});
-	connect(ui.theme_combo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) {
-		if (index >= 0 && Qi::set.theme != index)
+	connect(ui.theme_combo, &QComboBox::currentIndexChanged, this, [this](int index) {
+		if (index >= 0 && index != Qi::set.theme)
 		{
 			Qi::set.theme = index;
 			Qi::application->setStyleSheet(Qi::ui.themes[Qi::set.theme].style);
 			QiJson::SaveJson();
 		}});
+	connect(ui.macro_save_combo, &QComboBox::currentIndexChanged, this, [this](int index) {
+		if (index >= 0 && index != Qi::set.save_type)
+		{
+			Qi::set.save_type = index;
+			QiJson::SaveJson();
+		}
+		});
 	connect(ui.stateKey_keyedit, &QKeyEdit::changed, this, [this] {
 		QKeyEditKeys keys = ui.stateKey_keyedit->keys();
 		Qi::set.key1 = Qi::set.key2 = 0;
@@ -228,6 +253,9 @@ void SettingsUi::StyleGroup()
 	ui.theme_combo->setProperty("group", "combo");
 	ui.theme_combo->setView(new QListView());
 	ui.theme_combo->view()->setProperty("group", "combo_body");
+	ui.macro_save_combo->setProperty("group", "combo");
+	ui.macro_save_combo->setView(new QListView());
+	ui.macro_save_combo->view()->setProperty("group", "combo_body");
 	ui.stateKey_keyedit->setProperty("group", "line_edit");
 	ui.recordKey_keyedit->setProperty("group", "line_edit");
 	ui.scrollArea_widget->setStyleSheet(QString("#") + ui.scrollArea_widget->objectName() + "{background-color:rgba(0,0,0,0)}");

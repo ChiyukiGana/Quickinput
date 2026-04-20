@@ -59,7 +59,7 @@
 #include <src/integrity_verify.h>
 #endif
 
-#ifdef Q_VERIFY
+#ifdef Q_VERIFYd
 #define VERIFY_EXEC
 #include <verify/verify.h>
 #endif

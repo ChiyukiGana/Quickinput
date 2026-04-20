@@ -71,18 +71,21 @@ namespace QiTools
 
 			PROCESSENTRY32W pe = { 0 };
 			pe.dwSize = sizeof(PROCESSENTRY32W);
-			HANDLE hProcess = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 			size_t count = 0;
-
-			Process32FirstW(hProcess, &pe);
-			do {
-				std::wstring name = String::toUpper(pe.szExeFile);
-				if (exePath.find(name) != std::wstring::npos)
-				{
-					if (exePath.find('\\') == std::wstring::npos) count += exePath == name;
-					else count += exePath == String::toUpper(path(pe.th32ProcessID));
-				}
-			} while (Process32NextW(hProcess, &pe));
+			HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+			if (!hSnapshot || hSnapshot == INVALID_HANDLE_VALUE) return 0;
+			if (Process32FirstW(hSnapshot, &pe))
+			{
+				do {
+					std::wstring name = String::toUpper(pe.szExeFile);
+					if (exePath.find(name) != std::wstring::npos)
+					{
+						if (exePath.find('\\') == std::wstring::npos) count += exePath == name;
+						else count += exePath == String::toUpper(path(pe.th32ProcessID));
+					}
+				} while (Process32NextW(hSnapshot, &pe));
+			}
+			CloseHandle(hSnapshot);
 			return count;
 		}
 		static size_t close(const std::wstring& exe) {
@@ -90,28 +93,31 @@ namespace QiTools
 			size_t pos = 0; while ((pos = exePath.find('/', pos)) != std::string::npos) { exePath.replace(pos, 1, L"\\"); pos += 1; }
 
 			PROCESSENTRY32W pe = { 0 }; pe.dwSize = sizeof(PROCESSENTRY32W);
-			HANDLE hProcShot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 			size_t count = 0;
-
-			Process32FirstW(hProcShot, &pe);
-			do {
-				std::wstring name = String::toUpper(pe.szExeFile);
-				if (exePath.find(name) != std::wstring::npos)
-				{
-					bool find = false;
-					if (exePath.find('\\') == std::wstring::npos) find = exePath == name;
-					else find = exePath == String::toUpper(path(pe.th32ProcessID));
-					if (find)
+			HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+			if (!hSnapshot || hSnapshot == INVALID_HANDLE_VALUE) return 0;
+			if (Process32FirstW(hSnapshot, &pe))
+			{
+				do {
+					std::wstring name = String::toUpper(pe.szExeFile);
+					if (exePath.find(name) != std::wstring::npos)
 					{
-						HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, 0, pe.th32ProcessID);
-						if (process && process != INVALID_HANDLE_VALUE)
+						bool find = false;
+						if (exePath.find('\\') == std::wstring::npos) find = exePath == name;
+						else find = exePath == String::toUpper(path(pe.th32ProcessID));
+						if (find)
 						{
-							count += TerminateProcess(process, 0) == TRUE;
-							CloseHandle(process);
+							HANDLE process = OpenProcess(PROCESS_ALL_ACCESS, 0, pe.th32ProcessID);
+							if (process && process != INVALID_HANDLE_VALUE)
+							{
+								count += TerminateProcess(process, 0) == TRUE;
+								CloseHandle(process);
+							}
 						}
 					}
-				}
-			} while (Process32NextW(hProcShot, &pe));
+				} while (Process32NextW(hSnapshot, &pe));
+			}
+			CloseHandle(hSnapshot);
 			return count;
 		}
 	};

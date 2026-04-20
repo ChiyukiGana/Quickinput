@@ -61,7 +61,7 @@ void FuncUi::Event()
 	connect(ui.click_check, &QCheckBox::toggled, this, [this](bool state) { func->quickClick.state = state; QiJson::SaveJson(); });
 	connect(ui.click_keyedit, &QKeyEdit::changed, this, [this] { func->quickClick.key = ui.click_keyedit->key(); QiJson::SaveJson(); });
 	connect(ui.click_delay_spin, &QSpinBox::valueChanged, this, [this](int value) { func->quickClick.delay = value; QiJson::SaveJson(); });
-	connect(ui.click_mode_combo, QOverload<int>::of(&QComboBox::activated), this, [this](int index) { func->quickClick.mode = index; QiJson::SaveJson(); });
+	connect(ui.click_mode_combo, &QComboBox::currentIndexChanged, this, [this](int index) { func->quickClick.mode = index; QiJson::SaveJson(); });
 	connect(ui.window_check, &QCheckBox::toggled, this, [this](bool state) { func->wndActive.state = state; QiJson::SaveJson(); });
 	connect(ui.window_name_edit, &QLineEdit::textEdited, this, [this](const QString& text) {
 		func->wndActive.wndInfo.name = text;

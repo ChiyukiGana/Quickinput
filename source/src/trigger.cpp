@@ -65,12 +65,12 @@ namespace QiTr
 				if (!wm.match(macro.wndMatch.name, macro.wndMatch.clas, macro.wndMatch.proc)) continue;
 			}
 
-			const bool k1 = macro.key1 ? state[macro.key1] : true;
-			const bool k2 = macro.key2 ? state[macro.key2] : true;
 			switch (macro.mode)
 			{
 			case Macro::sw:
 			{
+				const bool k1 = macro.key1 ? state[macro.key1] : true;
+				const bool k2 = macro.key2 ? state[macro.key2] : true;
 				if (k1 && k2)
 				{
 					if (macro.thread.run_active())
@@ -89,6 +89,8 @@ namespace QiTr
 			} break;
 			case Macro::down:
 			{
+				const bool k1 = macro.key1 ? state[macro.key1] : true;
+				const bool k2 = macro.key2 ? state[macro.key2] : true;
 				if (k1 && k2)
 				{
 					macro.thread.run_start(&macro);
@@ -107,9 +109,10 @@ namespace QiTr
 			} break;
 			case Macro::up:
 			{
-				if (k1 && k2)
+				const bool k1 = macro.key1 ? state[macro.key1] : false;
+				const bool k2 = macro.key2 ? state[macro.key2] : false;
+				if (k1 || k2)
 				{
-					macro.active = true;
 					if (macro.count == 0 && macro.thread.run_active())
 					{
 						macro.thread.end_start(&macro);
@@ -119,13 +122,9 @@ namespace QiTr
 				}
 				else
 				{
-					if (macro.active)
-					{
-						macro.active = false;
-						macro.thread.run_start(&macro);
-						if (Qi::set.showTips && !Qi::ui.pop.upe.t.isEmpty()) QiFn::MacroPop(&macro, true);
-						if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.upe.s, false);
-					}
+					macro.thread.run_start(&macro);
+					if (Qi::set.showTips && !Qi::ui.pop.upe.t.isEmpty()) QiFn::MacroPop(&macro, true);
+					if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.upe.s, false);
 				}
 			} break;
 			}
@@ -178,7 +177,6 @@ namespace QiTr
 							if (m.key1) Qi::keyBlock[m.key1] = true;
 							if (m.key2) Qi::keyBlock[m.key2] = true;
 						}
-						m.active = false;
 						m.range = { 0,0,10000,10000 };
 						Qi::macroActive.append(&m);
 					}

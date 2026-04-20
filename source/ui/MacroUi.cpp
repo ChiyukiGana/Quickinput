@@ -2,6 +2,10 @@
 #include <QEditDialog.h>
 #include "RecordUi.h"
 #include "EditUi.h"
+
+const QString exportFilter = QString("Json文本宏(*") + Qi::macroType + ");;" + "Qim二进制宏(*" + Qi::macroQimType + ")";
+const QString importFilter = QString("Quickinput宏(*") + Qi::macroType + " *" + Qi::macroQimType + ");;" + "Json文本宏(*" + Qi::macroType + ");;" + "Qim二进制宏(*" + Qi::macroQimType + ")";
+
 MacroUi::MacroUi(QWidget* parent) : QWidget(parent)
 {
 	ui.setupUi(this);
@@ -125,7 +129,8 @@ void MacroUi::Event()
 		macro.name = currentGroup->makeName("宏");
 		macro.groupName = currentGroup->name;
 		macro.groupBase = currentGroup->base;
-		QiJson::SaveMacro(currentGroup->macros.append(std::move(macro)));
+		macro.storageType = Qi::set.save_type;
+		currentGroup->macros.append(std::move(macro)).save();
 		TableUpdate();
 		ResetWidget();
 		DisableWidget();
@@ -135,34 +140,36 @@ void MacroUi::Event()
 		if (!isSold()) return;
 		Qi::widget.dialogActive = true;
 		Macro& macro = *currentMacros.front();
-		QString des = QFileDialog::getSaveFileName(this, "导出", macro.name + Qi::macroType, QString("Quickinput macro (*") + Qi::macroType + QString(")"));
-		if (des.size())
+		QString des = QFileDialog::getSaveFileName(this, "导出", macro.name, exportFilter);
+		if (des.size() > 4)
 		{
-			QFile::remove(des);
-			if (!QFile::copy(macro.makePath(), des))
-			{
-				MsgBox::Error(L"导出宏失败");
-				return;
-			}
-			ResetWidget();
-			DisableWidget();
+			const QString back = des.mid(des.size() - 5);
+			bool r = false;
+			if (back.indexOf(Qi::macroQimType) != -1) r = macro.saveTo(des, Macro::StorageType::QIM);
+			else if (back.indexOf(Qi::macroType) != -1) r = macro.saveTo(des, Macro::StorageType::JSON);
+			else r = macro.saveTo(des, Macro::StorageType::CURRENT);
+			if (!r) MsgBox::Error(L"导出宏失败");
 		}
 		Qi::widget.dialogActive = false;
 		});
 	connect(ui.import_button, &QPushButton::clicked, this, [this] {
 		if (!SelectGroup()) return;
 		Qi::widget.dialogActive = true;
-		QString src = QFileDialog::getOpenFileName(this, "导入", QString(), QString("Quickinput macro (*") + Qi::macroType + QString(")"));
-		if (src.size())
+		QString src = QFileDialog::getOpenFileName(this, "导入", {}, importFilter);
+		if (src.size() > 4)
 		{
+			Macro::StorageType type = Macro::StorageType::JSON;
+			const QString back = src.mid(src.size() - 5);
+			if (back.indexOf(Qi::macroQimType) != -1) type = Macro::StorageType::QIM;
+
 			QFileInfo info(src);
 			if (!QDir(Qi::macroDir).exists() && !QDir(Qi::macroDir).mkdir(Qi::macroDir)) MsgBox::Error(L"创建宏目录失败");
-			if (!QFile::copy(src, currentGroup->makePath(info.baseName())))
+			if (!QFile::copy(src, currentGroup->makePath(info.baseName(), type)))
 			{
 				MsgBox::Error(L"导入宏失败");
 				return;
 			}
-			QiJson::LoadMacro();
+			Macro::loadAll();
 			TableUpdate();
 			ResetWidget();
 			DisableWidget();
@@ -188,8 +195,12 @@ void MacroUi::Event()
 	connect(ui.delete_group_button, &QPushButton::clicked, this, [this] {
 		if (!currentGroup) return;
 		if (currentGroup->macros.not_empty() && MsgBox::Warning(L"确认删除分组的全部宏？", L"Warning", MB_ICONWARNING | MB_YESNO) != IDYES) return;
-		if (!QFile::moveToTrash(currentGroup->makePath())) MsgBox::Error(L"删除分组失败");
-		QiJson::LoadMacro();
+		if (!currentGroup->remove())
+		{
+			MsgBox::Error(L"删除分组失败");
+			return;
+		}
+		groups->remove_of_find(currentGroup);
 		SelectGroup();
 		TableUpdate();
 		ResetWidget();
@@ -197,9 +208,15 @@ void MacroUi::Event()
 		});
 	connect(ui.delete_button, &QPushButton::clicked, this, [this] {
 		if (!isMult()) return;
-		for (auto& i : currentMacros) if (!QFile::moveToTrash(i->makePath())) MsgBox::Error(L"删除宏失败");
+		QiVectorIndex index;
+		for (auto& i : currentMacros)
+		{
+			size_t pos = currentGroup->macros.indexOf(i);
+			if (pos != Macros::end_pos) index.push_back(pos);
+			if (!QFile::moveToTrash(i->makePath())) MsgBox::Error(L"删除宏文件失败");
+		}
+		currentGroup->macros.remove(index);
 
-		QiJson::LoadMacro();
 		TableUpdate();
 		ResetWidget();
 		DisableWidget();
@@ -297,9 +314,10 @@ void MacroUi::RecStart(bool wnd)
 		macro.groupName = currentGroup->name;
 		macro.groupBase = currentGroup->base;
 		macro.name = currentGroup->makeName("窗口录制");
+		macro.storageType = Qi::set.save_type;
 		if (macro.acRun)
 		{
-			QiJson::SaveMacro(currentGroup->macros.append(std::move(macro)));
+			currentGroup->macros.append(std::move(macro)).save();
 			TableUpdate();
 		}
 	}
@@ -310,9 +328,10 @@ void MacroUi::RecStart(bool wnd)
 		macro.groupName = currentGroup->name;
 		macro.groupBase = currentGroup->base;
 		macro.name = currentGroup->makeName("录制");
+		macro.storageType = Qi::set.save_type;
 		if (macro.acRun)
 		{
-			QiJson::SaveMacro(currentGroup->macros.append(std::move(macro)));
+			currentGroup->macros.append(std::move(macro)).save();
 			TableUpdate();
 		}
 	}
@@ -373,7 +392,7 @@ void MacroUi::customEvent(QEvent* e)
 	}
 	else if (e->type() == static_cast<int>(QiEvent::mac_load))
 	{
-		QiJson::LoadMacro();
+		Macro::loadAll();
 		TableUpdate();
 		ResetWidget();
 		DisableWidget();
@@ -392,7 +411,7 @@ void MacroUi::customEvent(QEvent* e)
 		if (Qi::widget.edit) delete Qi::widget.edit;
 		Qi::widget.edit = nullptr;
 		*edit = std::move(Qi::widget.editMacro);
-		QiJson::SaveMacro(*edit);
+		(*edit).save();
 		Qi::popText->Hide();
 		ResetWidget();
 		DisableWidget();
@@ -491,24 +510,35 @@ bool MacroUi::eventFilter(QObject* sender, QEvent* event)
 		{
 			QStandardItemModel model;
 			model.dropMimeData(dropEvent->mimeData(), Qt::CopyAction, 0, 0, QModelIndex());
+
+			if (tableIndex >= groups->size()) return true;
+			QiVectorIndex moveIndex;
+			int selected_groupIndex = -1;
 			for (size_t i = 0; i < model.rowCount(); i++)
 			{
 				QStandardItem* item = model.item(i);
-				int groupIndex = item->data(static_cast<int>(DataRole::group)).toInt();
-				int macroIndex = item->data(static_cast<int>(DataRole::macro)).toInt();
-				if (tableIndex >= groups->size() || groupIndex >= groups->size() || tableIndex == groupIndex) break;
+				const int groupIndex = item->data(static_cast<int>(DataRole::group)).toInt();
+				const int macroIndex = item->data(static_cast<int>(DataRole::macro)).toInt();
+				if (groupIndex >= groups->size() || tableIndex == groupIndex) break;
 
-				const MacroGroup& group = groups->at(tableIndex);
-				const Macros& macros = groups->at(groupIndex).macros;
-				if (macroIndex >= macros.size()) break;
-				const Macro& macro = macros.at(macroIndex);
-
-				if (!QFile::rename(macro.makePath(), group.makePath() + group.makeName(macro.name) + Qi::macroType)) MsgBox::Error(std::wstring(L"移动失败：") + (const wchar_t*)macro.name.utf16());
+				if (selected_groupIndex == -1) selected_groupIndex = groupIndex;
+				else if (selected_groupIndex != groupIndex)
+				{
+					selected_groupIndex = -1;
+					break;
+				}
+				moveIndex.push_back(macroIndex);
 			}
-			QiJson::LoadMacro();
-			TableUpdate();
-			ResetWidget();
-			DisableWidget();
+
+			if (selected_groupIndex != -1)
+			{
+				MacroGroup& old_group = groups->at(selected_groupIndex);
+				MacroGroup& new_group = groups->at(tableIndex);
+				new_group.moveIn(old_group, moveIndex);
+				TableUpdate();
+				ResetWidget();
+				DisableWidget();
+			}
 		}
 		return true;
 	}

@@ -133,7 +133,8 @@ struct WndMatch
 				name_pattern(name_pattern),
 				clas_pattern(clas_pattern),
 				proc_pattern(proc_pattern),
-				exclude(exclude) {}
+				exclude(exclude) {
+			}
 			WndMatch& window_match;
 			const QString& name_pattern;
 			const QString& clas_pattern;
@@ -150,7 +151,7 @@ struct WndMatch
 				return p->window_match.match(p->name_pattern, p->clas_pattern, p->proc_pattern) ? FALSE : TRUE;
 			}
 			return TRUE;
-		}, reinterpret_cast<LPARAM>(&p))) return p.window_match.wnd;
+			}, reinterpret_cast<LPARAM>(&p))) return p.window_match.wnd;
 		return nullptr;
 	}
 	static QiVector<HWND> finds(const QString& name_pattern, const QString& clas_pattern = {}, const QString& proc_pattern = {}, const HWND exclude = nullptr)
@@ -189,7 +190,7 @@ struct WndMatch
 				if (p->window_match.match(p->name_pattern, p->clas_pattern, p->proc_pattern)) p->wnds.append(wnd);
 			}
 			return TRUE;
-		}, reinterpret_cast<LPARAM>(&p));
+			}, reinterpret_cast<LPARAM>(&p));
 		return wnds;
 	}
 };
@@ -197,7 +198,8 @@ struct WndMatch
 class QiInterpreter;
 struct Macro
 {
-	enum { sw, down, up };
+	enum TriggerMode { sw, down, up };
+	enum StorageType { CURRENT = -1, JSON, QIM };
 
 	static constexpr QiIntRange range_count = { 0, 9999 };
 	static constexpr QiIntRange range_mode = { sw, up };
@@ -211,11 +213,11 @@ struct Macro
 	bool curBlock = false;
 	bool wndState = false;
 	bool matchState = false;
-	bool active = false; // release triggered flag
 	bool timer = false;
 	bool groupBase = false;
 	short key1 = 0;
 	short key2 = 0;
+	int storageType = 0;
 	int mode = 0;
 	int count = 0;
 	time_t timerStart = 0;
@@ -240,11 +242,71 @@ struct Macro
 	QiMacroThread thread;
 	QJsonObject toJson() const;
 	void fromJson(const QJsonObject& json);
+	typepack::object toPack() const;
+	void fromPack(const typepack::object& pack);
+	QString fileType() const { return storageType == StorageType::QIM ? Qi::macroQimType : Qi::macroType; }
+	QString makeFile() const
+	{
+		return name + fileType();
+	}
+	QString makeDir() const
+	{
+		if (groupBase) return Qi::macroDir;
+		return Qi::macroDir + groupName + QString('/');
+	}
 	QString makePath() const
 	{
-		if (groupBase) return Qi::macroDir + name + Qi::macroType;
-		return Qi::macroDir + groupName + QString('/') + name + Qi::macroType;
+		return makeDir() + makeFile();
 	}
+	bool createPath() const
+	{
+		if (!QDir(Qi::macroDir).exists() && !QDir(Qi::macroDir).mkdir(Qi::macroDir))
+		{
+			MsgBox::Error(L"创建宏目录失败");
+			return false;
+		}
+		const QString dir = makeDir();
+		if (!QDir(dir).exists() && !QDir(dir).mkdir(dir))
+		{
+			MsgBox::Error(L"创建分组目录失败");
+			return false;
+		}
+		return true;
+	}
+	bool exist() const { return QFile::exists(makePath()); }
+	bool remove() const { return QFile::moveToTrash(makePath()); }
+#ifdef Q_ENCRYPT
+	bool save(StorageType type = StorageType::CURRENT) const;
+#else
+	bool save(StorageType type = StorageType::CURRENT)
+	{
+		if (!createPath()) return false;
+		remove();
+
+		if (type != StorageType::CURRENT) storageType = static_cast<int>(type);
+
+		if (storageType == Macro::StorageType::QIM)
+		{
+			typepack::binary data = toPack().toBinary();
+			return File::FileSave(makePath().toStdWString(), data.data(), data.size());
+		}
+		QJsonDocument json(toJson());
+		return File::SaveText(makePath(), json.toJson(QJsonDocument::JsonFormat::Compact));
+	}
+#endif
+	bool saveTo(QString path, StorageType type = StorageType::CURRENT) const
+	{
+		if (type == StorageType::CURRENT) type = static_cast<StorageType>(storageType);
+
+		if (type == Macro::StorageType::QIM)
+		{
+			typepack::binary data = toPack().toBinary();
+			return File::FileSave(path.toStdWString(), data.data(), data.size());
+		}
+		QJsonDocument json(toJson());
+		return File::SaveText(path, json.toJson(QJsonDocument::JsonFormat::Compact));
+	}
+	static void loadAll();
 };
 using Macros = QiVector<Macro>;
 using MacroPointers = QiVector<Macro*>;
@@ -288,15 +350,76 @@ struct MacroGroup
 		}
 		return alloc;
 	}
-	QString makePath(const QString& macroName) const
+	QString makePath(const QString& macroName, Macro::StorageType type = Macro::StorageType::JSON) const
 	{
-		if (base) return Qi::macroDir + makeName(macroName) + Qi::macroType;
-		return Qi::macroDir + name + QString("/") + makeName(macroName) + Qi::macroType;
+		const QString file_type = type == Macro::StorageType::QIM ? Qi::macroQimType : Qi::macroType;
+		if (base) return Qi::macroDir + makeName(macroName) + file_type;
+		return Qi::macroDir + name + QString("/") + makeName(macroName) + file_type;
 	}
 	QString makePath() const
 	{
 		if (base) return Qi::macroDir;
 		return Qi::macroDir + name + QString("/");
+	}
+	bool createPath() const
+	{
+		QString path = Qi::macroDir;
+		if (!QDir(path).exists() && !QDir(path).mkdir(path))
+		{
+			MsgBox::Error(L"创建宏目录失败");
+			return false;
+		}
+		if (!base)
+		{
+			path += name + QString("/");
+			if (!QDir(path).exists() && !QDir(path).mkdir(path))
+			{
+				MsgBox::Error(L"创建分组目录失败");
+				return false;
+			}
+		}
+		return true;
+	}
+	bool remove() const { return QFile::moveToTrash(makePath(), nullptr); }
+	bool moveIn(MacroGroup& other_group, Macro& other_macro)
+	{
+		if (&other_group == this) return true;
+
+		const QString new_name = makeName(other_macro.name);
+		const QString old_path = other_macro.makePath();
+		const QString new_path = makePath(new_name, static_cast<Macro::StorageType>(other_macro.storageType));
+
+		if (!QFile::rename(old_path, new_path)) return false;
+		other_macro.name = new_name;
+		other_macro.groupBase = base;
+		other_macro.groupName = name;
+		macros.append(std::move(other_macro));
+		other_group.macros.remove_of_find(&other_macro);
+		return true;
+	}
+	void moveIn(MacroGroup& other_group, const QiVectorIndex& other_index)
+	{
+		if (&other_group == this) return;
+		QiVectorIndex moved;
+		for (const auto& i : other_index)
+		{
+			Macros& other_macros = other_group.macros;
+			if (i >= other_macros.size()) continue;
+			Macro& other_macro = other_macros[i];
+
+			const QString new_name = makeName(other_macro.name);
+			const QString old_path = other_macro.makePath();
+			const QString new_path = makePath(new_name, static_cast<Macro::StorageType>(other_macro.storageType));
+
+			if (!QFile::rename(old_path, new_path)) continue;
+			other_macro.name = new_name;
+			other_macro.groupBase = base;
+			other_macro.groupName = name;
+			moved.push_back(i);
+			macros.append(std::move(other_macro));
+		}
+		other_group.macros.remove(moved);
+		return;
 	}
 };
 struct MacroGroups : public QiVector<MacroGroup>
