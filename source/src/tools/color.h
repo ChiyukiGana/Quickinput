@@ -18,6 +18,7 @@ namespace QiTools {
 		Rgb() {}
 		Rgb(const byte& red, const byte& green, const byte& blue) { set(red, green, blue); }
 		Rgb(const COLORREF& rgb) { set(rgb); }
+		bool operator==(const Rgb& other) const { return r == other.r && g == other.g && b == other.b; }
 		void set(const byte& red, const byte& green, const byte& blue) { r = red, g = green, b = blue; }
 		void set(const COLORREF& rgb) { r = GetRValue(rgb), g = GetGValue(rgb), b = GetBValue(rgb); }
 		bool equal(const Rgb& rgb, const byte& extend = 10) const { return (InRange<short>(r, rgb.r, extend) && InRange<short>(g, rgb.g, extend) && InRange<short>(b, rgb.b, extend)); }
@@ -26,6 +27,7 @@ namespace QiTools {
 		bool equal(const COLORREF& rgb_min, const COLORREF& rgb_max, const byte& extend = 10) const { return (InRange<short>(r, GetRValue(rgb_min), GetRValue(rgb_max), extend) && InRange<short>(g, GetGValue(rgb_min), GetGValue(rgb_max), extend) && InRange<short>(b, GetBValue(rgb_min), GetBValue(rgb_max), extend)); }
 		COLORREF toCOLORREF() const { return RGB(r, g, b); }
 	};
+
 	struct Rgba
 	{
 		byte r = 0;
@@ -34,8 +36,9 @@ namespace QiTools {
 		byte a = 0;
 		Rgba() {}
 		Rgba(const Rgb& rgb) { set(rgb); }
-		Rgba(const byte& red, const byte& green, const byte& blue, const byte& alpha) { set(red, green, blue, alpha); }
+		Rgba(const byte& red, const byte& green, const byte& blue, const byte& alpha = 255) { set(red, green, blue, alpha); }
 		Rgba(const COLORREF& rgba) { set(rgba); }
+		bool operator==(const Rgba& other) const { return r == other.r && g == other.g && b == other.b && a == other.a; }
 		void set(const Rgb& rgb) { r = rgb.r, g = rgb.g, b = rgb.b, a = 0; }
 		void set(const byte& red, const byte& green, const byte& blue, const byte& alpha) { r = red, g = green, b = blue, a = alpha; }
 		void set(const COLORREF& rgba) { r = GetRValue(rgba), g = GetGValue(rgba), b = GetBValue(rgba), a = GetAValue(rgba); }

@@ -95,6 +95,90 @@ bool find_index(const Actions& actions, QiIndex& index, QiTypeProperty property)
 	return false;
 }
 
+bool Action::fullEquals(const Action& other) const
+{
+	if (type() != other.type()) return false;
+	switch (other.type())
+	{
+	case QiType::none: return true;
+	case QiType::end: return to<QiEnd>().fullEquals(other.to<QiEnd>());
+	case QiType::delay: return to<QiDelay>().fullEquals(other.to<QiDelay>());
+	case QiType::key: return to<QiKey>().fullEquals(other.to<QiKey>());
+	case QiType::mouse: return to<QiMouse>().fullEquals(other.to<QiMouse>());
+	case QiType::copyText: return to<QiCopyText>().fullEquals(other.to<QiCopyText>());
+	case QiType::color: return to<QiColor>().fullEquals(other.to<QiColor>());
+	case QiType::loop: return to<QiLoop>().fullEquals(other.to<QiLoop>());
+	case QiType::loopEnd: return to<QiLoopEnd>().fullEquals(other.to<QiLoopEnd>());
+	case QiType::keyState: return to<QiKeyState>().fullEquals(other.to<QiKeyState>());
+	case QiType::resetPos: return to<QiResetPos>().fullEquals(other.to<QiResetPos>());
+	case QiType::image: return to<QiImage>().fullEquals(other.to<QiImage>());
+	case QiType::popText: return to<QiPopText>().fullEquals(other.to<QiPopText>());
+	case QiType::savePos: return to<QiSavePos>().fullEquals(other.to<QiSavePos>());
+	case QiType::timer: return to<QiTimer>().fullEquals(other.to<QiTimer>());
+	case QiType::jump: return to<QiJump>().fullEquals(other.to<QiJump>());
+	case QiType::jumpPoint: return to<QiJumpPoint>().fullEquals(other.to<QiJumpPoint>());
+	case QiType::dialog: return to<QiDialog>().fullEquals(other.to<QiDialog>());
+	case QiType::block: return to<QiBlock>().fullEquals(other.to<QiBlock>());
+	case QiType::blockExec: return to<QiBlockExec>().fullEquals(other.to<QiBlockExec>());
+	case QiType::quickInput: return to<QiQuickInput>().fullEquals(other.to<QiQuickInput>());
+	case QiType::keyBlock: return to<QiKeyBlock>().fullEquals(other.to<QiKeyBlock>());
+	case QiType::clock: return to<QiClock>().fullEquals(other.to<QiClock>());
+	case QiType::ocr: return to<QiOcr>().fullEquals(other.to<QiOcr>());
+	case QiType::varOperator: return to<QiVarOperator>().fullEquals(other.to<QiVarOperator>());
+	case QiType::varCondition: return to<QiVarCondition>().fullEquals(other.to<QiVarCondition>());
+	case QiType::mouseTrack: return to<QiMouseTrack>().fullEquals(other.to<QiMouseTrack>());
+	case QiType::open: return to<QiOpen>().fullEquals(other.to<QiOpen>());
+	case QiType::textPad: return to<QiTextPad>().fullEquals(other.to<QiTextPad>());
+	case QiType::editDialog: return to<QiEditDialog>().fullEquals(other.to<QiEditDialog>());
+	case QiType::volume: return to<QiVolume>().fullEquals(other.to<QiVolume>());
+	case QiType::soundPlay: return to<QiSoundPlay>().fullEquals(other.to<QiSoundPlay>());
+	case QiType::msgView: return to<QiMsgView>().fullEquals(other.to<QiMsgView>());
+	case QiType::range: return to<QiRangeSet>().fullEquals(other.to<QiRangeSet>());
+	}
+	return false;
+}
+bool Action::paramEquals(const Action& other) const
+{
+	if (type() != other.type()) return false;
+	switch (other.type())
+	{
+	case QiType::none: return true;
+	case QiType::end: return to<QiEnd>().paramEquals(other.to<QiEnd>());
+	case QiType::delay: return to<QiDelay>().paramEquals(other.to<QiDelay>());
+	case QiType::key: return to<QiKey>().paramEquals(other.to<QiKey>());
+	case QiType::mouse: return to<QiMouse>().paramEquals(other.to<QiMouse>());
+	case QiType::copyText: return to<QiCopyText>().paramEquals(other.to<QiCopyText>());
+	case QiType::color: return to<QiColor>().paramEquals(other.to<QiColor>());
+	case QiType::loop: return to<QiLoop>().paramEquals(other.to<QiLoop>());
+	case QiType::loopEnd: return to<QiLoopEnd>().paramEquals(other.to<QiLoopEnd>());
+	case QiType::keyState: return to<QiKeyState>().paramEquals(other.to<QiKeyState>());
+	case QiType::resetPos: return to<QiResetPos>().paramEquals(other.to<QiResetPos>());
+	case QiType::image: return to<QiImage>().paramEquals(other.to<QiImage>());
+	case QiType::popText: return to<QiPopText>().paramEquals(other.to<QiPopText>());
+	case QiType::savePos: return to<QiSavePos>().paramEquals(other.to<QiSavePos>());
+	case QiType::timer: return to<QiTimer>().paramEquals(other.to<QiTimer>());
+	case QiType::jump: return to<QiJump>().paramEquals(other.to<QiJump>());
+	case QiType::jumpPoint: return to<QiJumpPoint>().paramEquals(other.to<QiJumpPoint>());
+	case QiType::dialog: return to<QiDialog>().paramEquals(other.to<QiDialog>());
+	case QiType::block: return to<QiBlock>().paramEquals(other.to<QiBlock>());
+	case QiType::blockExec: return to<QiBlockExec>().paramEquals(other.to<QiBlockExec>());
+	case QiType::quickInput: return to<QiQuickInput>().paramEquals(other.to<QiQuickInput>());
+	case QiType::keyBlock: return to<QiKeyBlock>().paramEquals(other.to<QiKeyBlock>());
+	case QiType::clock: return to<QiClock>().paramEquals(other.to<QiClock>());
+	case QiType::ocr: return to<QiOcr>().paramEquals(other.to<QiOcr>());
+	case QiType::varOperator: return to<QiVarOperator>().paramEquals(other.to<QiVarOperator>());
+	case QiType::varCondition: return to<QiVarCondition>().paramEquals(other.to<QiVarCondition>());
+	case QiType::mouseTrack: return to<QiMouseTrack>().paramEquals(other.to<QiMouseTrack>());
+	case QiType::open: return to<QiOpen>().paramEquals(other.to<QiOpen>());
+	case QiType::textPad: return to<QiTextPad>().paramEquals(other.to<QiTextPad>());
+	case QiType::editDialog: return to<QiEditDialog>().paramEquals(other.to<QiEditDialog>());
+	case QiType::volume: return to<QiVolume>().paramEquals(other.to<QiVolume>());
+	case QiType::soundPlay: return to<QiSoundPlay>().paramEquals(other.to<QiSoundPlay>());
+	case QiType::msgView: return to<QiMsgView>().paramEquals(other.to<QiMsgView>());
+	case QiType::range: return to<QiRangeSet>().paramEquals(other.to<QiRangeSet>());
+	}
+	return false;
+}
 QJsonObject Action::toJson() const
 {
 	return base().toJson();
@@ -562,6 +646,12 @@ QiIdList Action::loadId(QiType type) const
 	return id;
 }
 
+bool Actions::equals(const Actions& other) const
+{
+	if (size() != other.size()) return false;
+	for (size_t i = 0; i < size(); i++) if (!at(i).fullEquals(other.at(i))) return false;
+	return true;
+}
 QJsonArray Actions::toJson() const
 {
 	QJsonArray array;

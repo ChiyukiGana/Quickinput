@@ -90,6 +90,7 @@ struct Actions : public QiVector<Action>
 	using base_actions = QiVector<Action>;
 	using base_actions::base_actions;
 	using base_actions::operator=;
+	bool equals(const Actions& other) const;
 	QJsonArray toJson() const;
 	void fromJson(const QJsonArray& json);
 	typepack::array toPack() const;
@@ -147,6 +148,15 @@ struct QiBase
 		disable = pack.get("d").toBool();
 		mark = QString::fromStdString(pack.get("m").toString());
 	}
+	bool paramEquals(const QiBase& other) const
+	{
+		return
+			type == other.type &&
+			typeNext == other.typeNext &&
+			id == other.id &&
+			disable == other.disable;
+	}
+	bool fullEquals(const QiBase& other) const { return paramEquals(other) && next.equals(other.next) && next2.equals(other.next2); }
 
 	static RECT RectUnjson(const QJsonArray& json)
 	{
@@ -207,6 +217,7 @@ struct QiEnd : QiBase
 {
 	QiEnd() : QiBase(QiType::end, QiTypeNext::none) {}
 	QString name() const override { return "结束"; }
+	bool fullEquals(const QiEnd& other) const { return paramEquals(other); }
 };
 struct QiDelay : QiBase
 {
@@ -244,6 +255,15 @@ struct QiDelay : QiBase
 		min = pack.get("mn").toInt(), v_min = QString::fromStdString(pack.get("_mn").toString());
 		min = pack.get("mx").toInt(), v_min = QString::fromStdString(pack.get("_mx").toString());
 	}
+	bool paramEquals(const QiDelay& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			min == other.min &&
+			max == other.max &&
+			v_min == other.v_min &&
+			v_max == other.v_max;
+	}
+	bool fullEquals(const QiDelay& other) const { return paramEquals(other); }
 };
 struct QiKey : QiBase
 {
@@ -283,6 +303,13 @@ struct QiKey : QiBase
 		vk = pack.get("vk").toInt();
 		state = pack.get("st").toInt();
 	}
+	bool paramEquals(const QiKey& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			vk == other.vk &&
+			state == other.state;
+	}
+	bool fullEquals(const QiKey& other) const { return paramEquals(other); }
 };
 struct QiMouse : QiBase
 {
@@ -340,6 +367,19 @@ struct QiMouse : QiBase
 		track = pack.get("tr").toBool();
 		move = pack.get("mv").toBool();
 	}
+	bool paramEquals(const QiMouse& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			x == other.x &&
+			y == other.y &&
+			ex == other.ex &&
+			speed == other.speed &&
+			move == other.move &&
+			track == other.track &&
+			v_x == other.v_x &&
+			v_y == other.v_y;
+	}
+	bool fullEquals(const QiMouse& other) const { return paramEquals(other); }
 };
 struct QiCopyText : QiBase
 {
@@ -368,6 +408,12 @@ struct QiCopyText : QiBase
 		QiBase::fromPack(pack);
 		text = QString::fromStdString(pack.get("tx").toString());
 	}
+	bool paramEquals(const QiCopyText& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			text == other.text;
+	}
+	bool fullEquals(const QiCopyText& other) const { return paramEquals(other); }
 };
 struct QiColor : QiBase
 {
@@ -431,6 +477,22 @@ struct QiColor : QiBase
 		next.fromPack(pack.get("n1").toArray());
 		next2.fromPack(pack.get("n2").toArray());
 	}
+	bool paramEquals(const QiColor& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			rgbe == other.rgbe &&
+			rect.left == other.rect.left &&
+			rect.top == other.rect.top &&
+			rect.right == other.rect.right &&
+			rect.bottom == other.rect.bottom &&
+			move == other.move &&
+			v_left == other.v_left &&
+			v_top == other.v_top &&
+			v_right == other.v_right &&
+			v_bottom == other.v_bottom;
+
+	}
+	bool fullEquals(const QiColor& other) const { return paramEquals(other) && next.equals(other.next) && next2.equals(other.next2); }
 };
 struct QiLoop : QiBase
 {
@@ -478,11 +540,22 @@ struct QiLoop : QiBase
 		min = pack.get("mx").toInt(), v_min = QString::fromStdString(pack.get("_mx").toString());
 		next.fromPack(pack.get("n1").toArray());
 	}
+	bool paramEquals(const QiLoop& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			min == other.min &&
+			max == other.max &&
+			v_min == other.v_min &&
+			v_max == other.v_max;
+
+	}
+	bool fullEquals(const QiLoop& other) const { return paramEquals(other) && next.equals(other.next); }
 };
 struct QiLoopEnd : QiBase
 {
 	QiLoopEnd() : QiBase(QiType::loopEnd, QiTypeNext::none) {}
 	QString name() const override { return "结束循环"; }
+	bool fullEquals(const QiLoopEnd& other) const { return paramEquals(other); }
 };
 struct QiKeyState : QiBase
 {
@@ -519,11 +592,19 @@ struct QiKeyState : QiBase
 		next.fromPack(pack.get("n1").toArray());
 		next2.fromPack(pack.get("n2").toArray());
 	}
+	bool paramEquals(const QiKeyState& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			vk == other.vk;
+
+	}
+	bool fullEquals(const QiKeyState& other) const { return paramEquals(other) && next.equals(other.next) && next2.equals(other.next2); }
 };
 struct QiResetPos : QiBase
 {
 	QiResetPos() : QiBase(QiType::resetPos, QiTypeNext::none) {}
 	QString name() const override { return "恢复位置"; }
+	bool fullEquals(const QiResetPos& other) const { return paramEquals(other); }
 };
 struct QiImage : QiBase
 {
@@ -605,6 +686,25 @@ struct QiImage : QiBase
 		next.fromPack(pack.get("n1").toArray());
 		next2.fromPack(pack.get("n2").toArray());
 	}
+	bool paramEquals(const QiImage& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			map.width() == other.map.width() &&
+			map.height() == other.map.height() &&
+			sim == other.sim &&
+			rect.left == other.rect.left &&
+			rect.top == other.rect.top &&
+			rect.right == other.rect.right &&
+			rect.bottom == other.rect.bottom &&
+			move == other.move &&
+			mult == other.mult &&
+			v_left == other.v_left &&
+			v_top == other.v_top &&
+			v_right == other.v_right &&
+			v_bottom == other.v_bottom;
+
+	}
+	bool fullEquals(const QiImage& other) const { return paramEquals(other) && next.equals(other.next) && next2.equals(other.next2); }
 
 	static RgbMap fromBase64_v1(const QString& base64, size_t width, size_t height)
 	{
@@ -740,11 +840,21 @@ struct QiPopText : QiBase
 		time = pack.get("tm").toInt();
 		sync = pack.get("sy").toBool();
 	}
+	bool paramEquals(const QiPopText& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			text == other.text &&
+			time == other.time &&
+			sync == other.sync;
+
+	}
+	bool fullEquals(const QiPopText& other) const { return paramEquals(other); }
 };
 struct QiSavePos : QiBase
 {
 	QiSavePos() : QiBase(QiType::savePos, QiTypeNext::none) {}
 	QString name() const override { return "记录位置"; }
+	bool fullEquals(const QiSavePos& other) const { return paramEquals(other); }
 };
 struct QiTimer : QiBase
 {
@@ -796,6 +906,16 @@ struct QiTimer : QiBase
 		next.fromPack(pack.get("n1").toArray());
 		next2.fromPack(pack.get("n2").toArray());
 	}
+	bool paramEquals(const QiTimer& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			min == other.min &&
+			max == other.max &&
+			v_min == other.v_min &&
+			v_max == other.v_max;
+
+	}
+	bool fullEquals(const QiTimer& other) const { return paramEquals(other) && next.equals(other.next) && next2.equals(other.next2); }
 };
 struct QiJump : QiBase
 {
@@ -823,6 +943,7 @@ struct QiJump : QiBase
 		QiBase::fromPack(pack);
 		id = pack.get("id").toInt();
 	}
+	bool fullEquals(const QiJump& other) const { return paramEquals(other); }
 };
 struct QiJumpPoint : QiBase
 {
@@ -850,6 +971,7 @@ struct QiJumpPoint : QiBase
 		QiBase::fromPack(pack);
 		id = pack.get("id").toInt();
 	}
+	bool fullEquals(const QiJumpPoint& other) const { return paramEquals(other); }
 };
 struct QiDialog : QiBase
 {
@@ -904,6 +1026,15 @@ struct QiDialog : QiBase
 		next.fromPack(pack.get("n1").toArray());
 		next2.fromPack(pack.get("n2").toArray());
 	}
+	bool paramEquals(const QiDialog& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			style == other.style &&
+			title == other.title &&
+			text == other.text;
+
+	}
+	bool fullEquals(const QiDialog& other) const { return paramEquals(other) && next.equals(other.next) && next2.equals(other.next2); }
 };
 struct QiBlock : QiBase
 {
@@ -935,6 +1066,7 @@ struct QiBlock : QiBase
 		id = pack.get("id").toInt();
 		next.fromPack(pack.get("n1").toArray());
 	}
+	bool fullEquals(const QiBlock& other) const { return paramEquals(other) && next.equals(other.next); }
 };
 struct QiBlockExec : QiBase
 {
@@ -962,6 +1094,7 @@ struct QiBlockExec : QiBase
 		QiBase::fromPack(pack);
 		id = pack.get("id").toInt();
 	}
+	bool fullEquals(const QiBlockExec& other) const { return paramEquals(other); }
 };
 struct QiQuickInput : QiBase
 {
@@ -978,7 +1111,7 @@ struct QiQuickInput : QiBase
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
-		if (json.contains("c")) for (const auto& c : json.value("c").toArray()) chars.append(c.toInt());
+		if (json.contains("c")) for (const auto& c : json.value("c").toArray()) text += static_cast<char>(c.toInt());
 		else text = json.value("s").toString();
 	}
 	typepack::object toPack() const override
@@ -1102,6 +1235,12 @@ struct QiQuickInput : QiBase
 		}
 		return str;
 	}
+	bool paramEquals(const QiQuickInput& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			text == other.text;
+	}
+	bool fullEquals(const QiQuickInput& other) const { return paramEquals(other); }
 };
 struct QiKeyBlock : QiBase
 {
@@ -1136,6 +1275,13 @@ struct QiKeyBlock : QiBase
 		vk = pack.get("vk").toInt();
 		block = pack.get("bk").toBool();
 	}
+	bool paramEquals(const QiKeyBlock& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			vk == other.vk &&
+			block == other.block;
+	}
+	bool fullEquals(const QiKeyBlock& other) const { return paramEquals(other); }
 };
 struct QiClock : QiBase
 {
@@ -1174,6 +1320,13 @@ struct QiClock : QiBase
 		next.fromPack(pack.get("n1").toArray());
 		next2.fromPack(pack.get("n2").toArray());
 	}
+	bool paramEquals(const QiClock& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			time == other.time;
+
+	}
+	bool fullEquals(const QiClock& other) const { return paramEquals(other) && next.equals(other.next) && next2.equals(other.next2); }
 };
 struct QiOcr : QiBase
 {
@@ -1253,6 +1406,25 @@ struct QiOcr : QiBase
 		next.fromPack(pack.get("n1").toArray());
 		next2.fromPack(pack.get("n2").toArray());
 	}
+	bool paramEquals(const QiOcr& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			match == other.match &&
+			row == other.row &&
+			move == other.move &&
+			mult == other.mult &&
+			rect.left == other.rect.left &&
+			rect.top == other.rect.top &&
+			rect.right == other.rect.right &&
+			rect.bottom == other.rect.bottom &&
+			text == other.text &&
+			var == other.var &&
+			v_left == other.v_left &&
+			v_top == other.v_top &&
+			v_right == other.v_right &&
+			v_bottom == other.v_bottom;
+	}
+	bool fullEquals(const QiOcr& other) const { return paramEquals(other) && next.equals(other.next) && next2.equals(other.next2); }
 };
 struct QiVarOperator : QiBase
 {
@@ -1281,6 +1453,12 @@ struct QiVarOperator : QiBase
 		QiBase::fromPack(pack);
 		script = QString::fromStdString(pack.get("sc").toString());
 	}
+	bool paramEquals(const QiVarOperator& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			script == other.script;
+	}
+	bool fullEquals(const QiVarOperator& other) const { return paramEquals(other); }
 };
 struct QiVarCondition : QiBase
 {
@@ -1317,6 +1495,13 @@ struct QiVarCondition : QiBase
 		next.fromPack(pack.get("n1").toArray());
 		next2.fromPack(pack.get("n2").toArray());
 	}
+	bool paramEquals(const QiVarCondition& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			script == other.script;
+
+	}
+	bool fullEquals(const QiVarCondition& other) const { return paramEquals(other) && next.equals(other.next) && next2.equals(other.next2); }
 };
 struct QiMouseTrack : QiBase
 {
@@ -1414,6 +1599,18 @@ struct QiMouseTrack : QiBase
 		QByteArray data((const char*)s.data(), s.size() * sizeof(MovePart));
 		return data.toBase64();
 	}
+	bool paramEquals(const QiMouseTrack& other) const
+	{
+		if (s.size() != other.s.size()) return false;
+		for (size_t i = 0; i < s.size(); i++)
+		{
+			const MovePart& a = s.at(i);
+			const MovePart& b = other.s.at(i);
+			if (a.x != b.x || a.y != b.y || a.t != b.t) return false;
+		}
+		return QiBase::paramEquals(other);
+	}
+	bool fullEquals(const QiMouseTrack& other) const { return paramEquals(other); }
 };
 struct QiOpen : QiBase
 {
@@ -1442,6 +1639,12 @@ struct QiOpen : QiBase
 		QiBase::fromPack(pack);
 		url = QString::fromStdString(pack.get("ul").toString());
 	}
+	bool paramEquals(const QiOpen& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			url == other.url;
+	}
+	bool fullEquals(const QiOpen& other) const { return paramEquals(other); }
 };
 struct QiTextPad : QiBase
 {
@@ -1470,6 +1673,12 @@ struct QiTextPad : QiBase
 		QiBase::fromPack(pack);
 		text = QString::fromStdString(pack.get("tx").toString());
 	}
+	bool paramEquals(const QiTextPad& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			text == other.text;
+	}
+	bool fullEquals(const QiTextPad& other) const { return paramEquals(other); }
 };
 struct QiEditDialog : QiBase
 {
@@ -1513,6 +1722,15 @@ struct QiEditDialog : QiBase
 		var = QString::fromStdString(pack.get("va").toString());
 		mult = pack.get("mt").toBool();
 	}
+	bool paramEquals(const QiEditDialog& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			mult == other.mult &&
+			title == other.title &&
+			text == other.text &&
+			var == other.var;
+	}
+	bool fullEquals(const QiEditDialog& other) const { return paramEquals(other); }
 };
 struct QiVolume : QiBase
 {
@@ -1562,6 +1780,15 @@ struct QiVolume : QiBase
 		next.fromPack(pack.get("n1").toArray());
 		next2.fromPack(pack.get("n2").toArray());
 	}
+	bool paramEquals(const QiVolume& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			max == other.max &&
+			time == other.time &&
+			volume == other.volume;
+
+	}
+	bool fullEquals(const QiVolume& other) const { return paramEquals(other) && next.equals(other.next) && next2.equals(other.next2); }
 };
 struct QiSoundPlay : QiBase
 {
@@ -1601,6 +1828,14 @@ struct QiSoundPlay : QiBase
 		state = pack.get("ac").toInt();
 		sync = pack.get("sy").toBool();
 	}
+	bool paramEquals(const QiSoundPlay& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			sync == other.sync &&
+			state == other.state &&
+			file == other.file;
+	}
+	bool fullEquals(const QiSoundPlay& other) const { return paramEquals(other); }
 };
 struct QiMsgView : QiBase
 {
@@ -1640,6 +1875,14 @@ struct QiMsgView : QiBase
 		option = pack.get("op").toInt();
 		level = pack.get("lv").toInt();
 	}
+	bool paramEquals(const QiMsgView& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			option == other.option &&
+			level == other.level &&
+			text == other.text;
+	}
+	bool fullEquals(const QiMsgView& other) const { return paramEquals(other); }
 };
 struct QiRangeSet : QiBase
 {
@@ -1698,6 +1941,19 @@ struct QiRangeSet : QiBase
 		proc = QString::fromStdString(pack.get("pc").toString());
 		var = QString::fromStdString(pack.get("va").toString());
 	}
+	bool paramEquals(const QiRangeSet& other) const
+	{
+		return QiBase::paramEquals(other) &&
+			rect.left == other.rect.left &&
+			rect.top == other.rect.top &&
+			rect.right == other.rect.right &&
+			rect.bottom == other.rect.bottom &&
+			title == other.title &&
+			clas == other.clas &&
+			proc == other.proc &&
+			var == other.var;
+	}
+	bool fullEquals(const QiRangeSet& other) const { return paramEquals(other); }
 };
 using ActionVariant = std::variant
 <
@@ -1740,6 +1996,8 @@ struct Action : public ActionVariant
 {
 	using ActionVariant::ActionVariant;
 	Action() : ActionVariant(QiBase()) {}
+	bool fullEquals(const Action& other) const;
+	bool paramEquals(const Action& other) const;
 	QiType type() const { return static_cast<QiType>(index()); }
 	QiTypeNext typeNext() const { return base().typeNext; }
 	QiBase& base() { QiBase* base; std::visit([&base](auto&& var) { base = &var; }, *this); return *base; }

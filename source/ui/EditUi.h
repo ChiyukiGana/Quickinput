@@ -60,20 +60,78 @@ class EditUi : public QDialogFrameless
 	std::future<void> varop;
 
 	// context menu
-	QMenu* menu;
-	QAction* muDel;
-	QAction* muCut;
-	QAction* muCopy;
-	QAction* muPaste;
-	QAction* muRedo;
-	QAction* muUndo;
-	QAction* muEdit;
-	QAction* muEdit2;
-
-	QMenu* titleMenu;
-	QAction* muBack;
-	QAction* muSave;
-	QAction* muDiscard;
+	class TitleMenu : public QMenu
+	{
+	public:
+		QAction* back;
+		QAction* save;
+		QAction* discard;
+		TitleMenu(QWidget* parent = nullptr) : QMenu(parent)
+		{
+			back = addAction("返回");
+			save = addAction("保存更改");
+			discard = addAction("放弃更改");
+		}
+	};
+	class ListMenu : public QMenu
+	{
+		class PasteMenu : public QMenu
+		{
+		public:
+			QAction* front;
+			QAction* back;
+			QAction* replace;
+			PasteMenu(QWidget* parent = nullptr) : QMenu(parent)
+			{
+				front = addAction("每项前");
+				back = addAction("每项后");
+				replace = addAction("覆盖所选");
+			}
+		};
+		class SelectMenu : public QMenu
+		{
+		public:
+			QAction* all;
+			QAction* similar;
+			QAction* identical_param;
+			QAction* identical_full;
+			SelectMenu(QWidget* parent = nullptr) : QMenu(parent)
+			{
+				all = addAction("全选");
+				similar = addAction("相似-同类型");
+				identical_param = addAction("相同-仅参数");
+				identical_full = addAction("相同-包括内容");
+			}
+		};
+		public:
+		QAction* del;
+		QAction* cut;
+		QAction* copy;
+		QAction* paste;
+		QAction* redo;
+		QAction* undo;
+		QAction* edit;
+		QAction* edit2;
+		PasteMenu* adv_paste;
+		SelectMenu* select;
+		ListMenu(QWidget* parent = nullptr) : QMenu(parent)
+		{
+			del = addAction("删除");
+			cut = addAction("剪切");
+			copy = addAction("复制");
+			paste = addAction("粘贴");
+			redo = addAction("还原");
+			undo = addAction("撤销");
+			edit = addAction("编辑");
+			edit2 = addAction("编辑2");
+			adv_paste = new PasteMenu(this);
+			select = new SelectMenu(this);
+			addMenu(adv_paste)->setText("高级粘贴");
+			addMenu(select)->setText("选择");
+		}
+	};
+	TitleMenu* titleMenu;
+	ListMenu* listMenu;
 
 	// widget bind
 	QiVector<size_t> bind_type_tab = QiVector<size_t>(static_cast<size_t>(QiType::count), 0);
@@ -110,32 +168,35 @@ class EditUi : public QDialogFrameless
 		QiIdList& jumpIds;
 		QiIdList& blockIds;
 		IDChecker(QiIdList& jump_ids, QiIdList& block_ids) : jump(false), block(false), jumpIds(jump_ids), blockIds(block_ids) {}
-		void check(const Action& action)
-		{
-			if (jump && block) return;
-			if (!jump && action.type() == QiType::jumpPoint) jump = true;
-			if (!block && action.type() == QiType::block) block = true;
-			if (jump && block) return;
-			action.iter([this](const Action& a) {
-				if (!jump && a.type() == QiType::jumpPoint) jump = true;
-				if (!block && a.type() == QiType::block) block = true;
-				return jump && block;
-				});
-		}
-		void check(const Actions& actions)
-		{
-			if (jump && block) return;
-			actions.iter([this](const Action& a) {
-				if (!jump && a.index() == static_cast<size_t>(QiType::jumpPoint)) jump = true;
-				if (!block && a.index() == static_cast<size_t>(QiType::block)) block = true;
-				return jump && block;
-				});
-		}
 		void load(const Actions& actions)
 		{
 			jumpIds = actions.loadId(QiType::jumpPoint);
 			blockIds = actions.loadId(QiType::block);
 		}
+		bool check(const Action& action)
+		{
+			if (jump && block) return true;
+			if (!jump && action.type() == QiType::jumpPoint) jump = true;
+			if (!block && action.type() == QiType::block) block = true;
+			if (jump && block) return true;
+			action.iter([this](const Action& a) {
+				if (!jump && a.type() == QiType::jumpPoint) jump = true;
+				if (!block && a.type() == QiType::block) block = true;
+				return jump && block;
+				});
+			return jump || block;
+		}
+		bool check(const Actions& actions)
+		{
+			if (jump && block) return true;
+			actions.iter([this](const Action& a) {
+				if (!jump && a.index() == static_cast<size_t>(QiType::jumpPoint)) jump = true;
+				if (!block && a.index() == static_cast<size_t>(QiType::block)) block = true;
+				return jump && block;
+				});
+			return jump || block;
+		}
+		// update ids and reset state
 		bool reset(const Actions& actions)
 		{
 			bool result = jump || block;
@@ -145,11 +206,11 @@ class EditUi : public QDialogFrameless
 			block = false;
 			return result;
 		}
-		bool jump_exist() const
+		bool has_jump() const
 		{
 			return jump;
 		}
-		bool block_exist() const
+		bool has_block() const
 		{
 			return block;
 		}
@@ -173,7 +234,6 @@ private:
 
 	void Disable(bool disable);
 	void DisableTip(bool disable);
-	void DisableMenus();
 	void DisableChangeButtons(bool disable);
 
 
@@ -195,7 +255,6 @@ private:
 	void TableReload();
 	void TableInsert(int index);
 	void TableRemove(int index);
-	void TableSelection(const QiVector<int> selection);
 
 
 	void ItemSet(int p);
@@ -207,6 +266,14 @@ private:
 	void ItemCut();
 	void ItemCopy();
 	void ItemPaste();
+	void ItemPasteFront();
+	void ItemPasteBack();
+	void ItemPasteReplace();
+	void ItemSelect(int index);
+	void ItemSelect(const QiVector<int>& index);
+	void ItemSelectSimilar();
+	void ItemSelectIdenticalParam();
+	void ItemSelectIdenticalFull();
 	void Redo();
 	void Undo();
 

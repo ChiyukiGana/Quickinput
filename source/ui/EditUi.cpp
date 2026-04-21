@@ -57,20 +57,8 @@ void EditUi::Init()
 	}
 	if ("context menu")
 	{
-		menu = new QMenu(this);
-		muDel = menu->addAction("删除");
-		muCut = menu->addAction("剪切");
-		muCopy = menu->addAction("复制");
-		muPaste = menu->addAction("粘贴");
-		muEdit = menu->addAction("编辑");
-		muEdit2 = menu->addAction("编辑2");
-		muRedo = menu->addAction("恢复");
-		muUndo = menu->addAction("撤销");
-
-		titleMenu = new QMenu(this);
-		muBack = titleMenu->addAction("返回");
-		muSave = titleMenu->addAction("保存更改");
-		muDiscard = titleMenu->addAction("放弃更改");
+		titleMenu = new TitleMenu(this);
+		listMenu = new ListMenu(this);
 	}
 	if ("button")
 	{
@@ -401,10 +389,14 @@ void EditUi::Event()
 			if (updating) return;
 			if (row < 0) return;
 			if (column != tableColumn_mark) return;
-			QiBase& base = actions->at(row).base();
-			base.mark = ui.action_table->item(row, tableColumn_mark)->text();
-			if (base.type == QiType::jumpPoint) ListJumpPointReload();
-			else if (base.type == QiType::block) ListBlockReload();
+
+			Action a = actions->at(row);
+			QiType t = a.base().type;
+			a.base().mark = ui.action_table->item(row, tableColumn_mark)->text();
+			actionsHistory.set(row, std::move(a));
+
+			if (t == QiType::jumpPoint) ListJumpPointReload();
+			else if (t == QiType::block) ListBlockReload();
 			});
 		// mark, disable, debug
 		connect(ui.action_table, &QTableWidget::cellClicked, this, [this](int row, int column) {
@@ -440,7 +432,7 @@ void EditUi::Event()
 							QiBase& base = actions->at(i).base();
 							base.disable = !base.disable;
 							TableUpdate(i);
-							TableSelection(selection);
+							ItemSelect(selection);
 						}
 					}
 					else
@@ -484,43 +476,75 @@ void EditUi::Event()
 			});
 		// value
 		connect(ui.action_table, &QTableWidget::cellDoubleClicked, this, [this](int row, int) { if (row < 0) return; ItemSet(row); });
-		// context menu
-		connect(ui.action_table, &QTableWidget::customContextMenuRequested, this, [this] {
-			if ("set menu item state")
-			{
-				muPaste->setEnabled(Qi::clipboard.not_empty());
-				muRedo->setEnabled(actionsHistory.canRedo());
-				muUndo->setEnabled(actionsHistory.canUndo());
-				if (!tableCurrent.empty())
-				{
-					muDel->setEnabled(true);
-					muCut->setEnabled(true);
-					muCopy->setEnabled(true);
-					if (tableCurrent.size() == 1)
-					{
-						const Action& var = actions->at(tableCurrent.front());
-						muEdit->setEnabled(bind_edt_button.at(var.index()));
-						muEdit2->setEnabled(bind_edt2_button.at(var.index()));
-					}
-				}
-				menu->exec(QCursor::pos());
-			}
-			});
 	}
 	if ("context menu")
 	{
-		connect(muDel, &QAction::triggered, this, [this] { ItemDel(); });
-		connect(muCut, &QAction::triggered, this, [this] { ItemCut(); });
-		connect(muCopy, &QAction::triggered, this, [this] { ItemCopy(); });
-		connect(muPaste, &QAction::triggered, this, [this] { ItemPaste(); });
-		connect(muEdit, &QAction::triggered, this, [this] { NextEdit(false); });
-		connect(muEdit2, &QAction::triggered, this, [this] { NextEdit(true); });
-		connect(muRedo, &QAction::triggered, this, [this] { Redo(); });
-		connect(muUndo, &QAction::triggered, this, [this] { Undo(); });
+		connect(ui.action_table, &QTableWidget::customContextMenuRequested, this, [this] {
+			listMenu->paste->setEnabled(Qi::clipboard.not_empty());
+			listMenu->redo->setEnabled(actionsHistory.canRedo());
+			listMenu->undo->setEnabled(actionsHistory.canUndo());
+			listMenu->select->setEnabled(ui.action_table->rowCount() > 0);
+			if (!tableCurrent.empty())
+			{
+				listMenu->del->setEnabled(true);
+				listMenu->cut->setEnabled(true);
+				listMenu->copy->setEnabled(true);
+				listMenu->adv_paste->setEnabled(Qi::clipboard.not_empty());
+				if (tableCurrent.size() == 1)
+				{
+					const Action& var = actions->at(tableCurrent.front());
+					listMenu->edit->setEnabled(bind_edt_button.at(var.index()));
+					listMenu->edit2->setEnabled(bind_edt2_button.at(var.index()));
+					listMenu->select->similar->setEnabled(true);
+					listMenu->select->identical_param->setEnabled(true);
+					listMenu->select->identical_full->setEnabled(true);
+				}
+				else
+				{
+					listMenu->edit->setDisabled(true);
+					listMenu->edit2->setDisabled(true);
+					listMenu->select->similar->setDisabled(true);
+					listMenu->select->identical_param->setDisabled(true);
+					listMenu->select->identical_full->setDisabled(true);
+				}
+			}
+			else
+			{
+				listMenu->del->setDisabled(true);
+				listMenu->cut->setDisabled(true);
+				listMenu->copy->setDisabled(true);
+				listMenu->adv_paste->setDisabled(true);
 
-		connect(muBack, &QAction::triggered, this, [this]() { Back(); });
-		connect(muSave, &QAction::triggered, this, [this]() { Qi::popText->Show("正在保存宏"); QTimer::singleShot(32, [] { Qi::widget.editClose(); }); });
-		connect(muDiscard, &QAction::triggered, this, [this]() { Exit(false); });
+				listMenu->edit->setDisabled(true);
+				listMenu->edit2->setDisabled(true);
+				listMenu->select->similar->setDisabled(true);
+				listMenu->select->identical_param->setDisabled(true);
+				listMenu->select->identical_full->setDisabled(true);
+			}
+			listMenu->exec(QCursor::pos());
+			});
+
+		connect(listMenu->del, &QAction::triggered, this, [this] { ItemDel(); });
+		connect(listMenu->cut, &QAction::triggered, this, [this] { ItemCut(); });
+		connect(listMenu->copy, &QAction::triggered, this, [this] { ItemCopy(); });
+		connect(listMenu->paste, &QAction::triggered, this, [this] { ItemPaste(); });
+		connect(listMenu->edit, &QAction::triggered, this, [this] { NextEdit(false); });
+		connect(listMenu->edit2, &QAction::triggered, this, [this] { NextEdit(true); });
+		connect(listMenu->redo, &QAction::triggered, this, [this] { Redo(); });
+		connect(listMenu->undo, &QAction::triggered, this, [this] { Undo(); });
+
+		connect(listMenu->select->all, &QAction::triggered, this, [this] { ui.action_table->selectAll(); });
+		connect(listMenu->select->similar, &QAction::triggered, this, [this] { ItemSelectSimilar(); });
+		connect(listMenu->select->identical_param, &QAction::triggered, this, [this] { ItemSelectIdenticalParam(); });
+		connect(listMenu->select->identical_full, &QAction::triggered, this, [this] { ItemSelectIdenticalFull(); });
+
+		connect(listMenu->adv_paste->front, &QAction::triggered, this, [this] { ItemPasteFront(); });
+		connect(listMenu->adv_paste->back, &QAction::triggered, this, [this] { ItemPasteBack(); });
+		connect(listMenu->adv_paste->replace, &QAction::triggered, this, [this] { ItemPasteReplace(); });
+
+		connect(titleMenu->back, &QAction::triggered, this, [this]() { Back(); });
+		connect(titleMenu->save, &QAction::triggered, this, [this]() { Qi::popText->Show("正在保存宏"); QTimer::singleShot(32, [] { Qi::widget.editClose(); }); });
+		connect(titleMenu->discard, &QAction::triggered, this, [this]() { Exit(false); });
 	}
 	if ("action list")
 	{
@@ -895,7 +919,6 @@ void EditUi::Event_Table_Selection()
 		for (auto& i : items) if (i->column() == 0) tableCurrent.append(i->row());
 		tableCurrent.sort([](const int& v1, const int& v2) { return v1 < v2; });
 
-		DisableMenus();
 		DisableChangeButtons(tableCurrent.empty());
 		widget_pv.hide();
 		widget_rv.hide();
@@ -1069,8 +1092,10 @@ void EditUi::StyleGroup()
 	}
 	if ("menu")
 	{
-		menu->setProperty("group", "context_menu");
 		titleMenu->setProperty("group", "context_menu");
+		listMenu->setProperty("group", "context_menu");
+		listMenu->select->setProperty("group", "context_menu");
+		listMenu->adv_paste->setProperty("group", "context_menu");
 	}
 	if ("table corner button")
 	{
@@ -1127,14 +1152,6 @@ void EditUi::Disable(bool disable)
 void EditUi::DisableTip(bool disable)
 {
 	BindSafeIter(bind_type_group, [this, disable](QGroupBox* p, size_t) {p->setToolTipDuration(disable ? 1 : 0); });
-}
-void EditUi::DisableMenus()
-{
-	muDel->setDisabled(true);
-	muCut->setDisabled(true);
-	muCopy->setDisabled(true);
-	muEdit->setDisabled(true);
-	muEdit2->setDisabled(true);
 }
 void EditUi::DisableChangeButtons(bool disable)
 {
@@ -1230,7 +1247,6 @@ void EditUi::WidgetReload()
 {
 	tableCurrent.clear();
 	tableCurrentPrev.clear();
-	DisableMenus();
 	DisableChangeButtons(true);
 	SetGroupCurrent();
 	SetEditCurrent();
@@ -1753,6 +1769,7 @@ void EditUi::TableUpdate(int index)
 
 		ui.action_table->item(index, tableColumn_param)->setText(param);
 		if (color.alpha() == 255) ui.action_table->item(index, tableColumn_param)->setForeground(color);
+		else ui.action_table->item(index, tableColumn_param)->setForeground(QBrush());
 
 		ui.action_table->item(index, tableColumn_mark)->setText(var.base().mark);
 	}
@@ -1777,29 +1794,6 @@ void EditUi::TableInsert(int index)
 void EditUi::TableRemove(int index)
 {
 	ui.action_table->removeRow(index);
-}
-void EditUi::TableSelection(const QiVector<int> selection)
-{
-	if (selection.empty()) return;
-	if (selection.size() == 1)
-	{
-		ui.action_table->setCurrentCell(selection.front(), 0);
-		return;
-	}
-	QItemSelectionModel* selectionModel = ui.action_table->selectionModel();
-	QItemSelection itemSelection;
-	for (auto& row : selection)
-	{
-		if (row >= 0 && row < ui.action_table->rowCount())
-		{
-			for (int col = 0; col < ui.action_table->columnCount(); col++)
-			{
-				QModelIndex index = ui.action_table->model()->index(row, col);
-				itemSelection.select(index, index);
-			}
-		}
-	}
-	selectionModel->select(itemSelection, QItemSelectionModel::Select);
 }
 
 
@@ -1919,7 +1913,7 @@ void EditUi::ItemMove(bool up, int len)
 		TableUpdate(begin, end);
 		WidgetReload();
 		ui.action_table->clearSelection();
-		TableSelection(after);
+		ItemSelect(after);
 	}
 }
 void EditUi::ItemAdd(QiType type)
@@ -1970,22 +1964,19 @@ void EditUi::ItemChange(QiType type)
 void EditUi::ItemDel()
 {
 	if (tableCurrent.empty()) return;
-
-	while (tableCurrent.not_empty())
+	const QiVector<int> index = tableCurrent;
+	for (auto i = index.rbegin(); i != index.rend(); i++)
 	{
-		int i = tableCurrent.back();
-		tableCurrent.pop_back();
-		if (actions->valid(i))
-		{
-			idChecker.check(actions->at(i));
-			TableRemove(i);
-			actions->remove(i);
-			actionsHistory.remove(i);
-		}
+		idChecker.check(actions->at(*i));
+		TableRemove(*i);
 	}
+	QiVectorIndex uindex(index.begin(), index.end());
+	actions->remove(uindex);
+	actionsHistory.remove(uindex);
+	tableCurrent.clear();
 	if (idChecker.reset(*actionsRoot)) TableReload();
 	WidgetReload();
-	ui.action_table->setCurrentItem(0);
+	ui.action_table->setCurrentItem(nullptr);
 }
 void EditUi::ItemCut()
 {
@@ -2005,20 +1996,125 @@ void EditUi::ItemPaste()
 	if (p < 0) p = actions->size();
 	else p++;
 
-	// reset jump id
 	UniqueActionsId(actionsRoot->loadId(QiType::jumpPoint), Qi::clipboard, QiType::jumpPoint, QiType::jump);
-	// reset block id
 	UniqueActionsId(actionsRoot->loadId(QiType::block), Qi::clipboard, QiType::block, QiType::blockExec);
 
 	actions->insert(p, Qi::clipboard);
 	actionsHistory.insert(p, Qi::clipboard);
 
 	idChecker.check(Qi::clipboard);
-	idChecker.reset(*actionsRoot);
-
 	if (idChecker.reset(*actionsRoot)) TableReload();
 	else for (size_t i = 0; i < Qi::clipboard.size(); i++) TableInsert(p + i);
 	WidgetReload();
+}
+void EditUi::ItemPasteFront()
+{
+	if (Qi::clipboard.empty() || tableCurrent.empty()) return;
+	bool has_id = idChecker.check(Qi::clipboard);
+	const QiVector<int> index = tableCurrent;
+	for (size_t i = 0; i < index.size(); i++)
+	{
+		UniqueActionsId(actionsRoot->loadId(QiType::jumpPoint), Qi::clipboard, QiType::jumpPoint, QiType::jump);
+		UniqueActionsId(actionsRoot->loadId(QiType::block), Qi::clipboard, QiType::block, QiType::blockExec);
+		size_t p = i * Qi::clipboard.size() + index[i];
+		actions->insert(p, Qi::clipboard);
+		actionsHistory.insert(p, Qi::clipboard);
+		if (!has_id) for (size_t t = 0; t < Qi::clipboard.size(); t++) TableInsert(p + t);
+	}
+	if (idChecker.reset(*actionsRoot)) TableReload();
+	WidgetReload();
+}
+void EditUi::ItemPasteBack()
+{
+	if (Qi::clipboard.empty() || tableCurrent.empty()) return;
+	bool has_id = idChecker.check(Qi::clipboard);
+	const QiVector<int> index = tableCurrent;
+	for (size_t i = 0; i < index.size(); i++)
+	{
+		UniqueActionsId(actionsRoot->loadId(QiType::jumpPoint), Qi::clipboard, QiType::jumpPoint, QiType::jump);
+		UniqueActionsId(actionsRoot->loadId(QiType::block), Qi::clipboard, QiType::block, QiType::blockExec);
+		size_t p = i * Qi::clipboard.size() + index[i] + 1;
+		actions->insert(p, Qi::clipboard);
+		actionsHistory.insert(p, Qi::clipboard);
+		if (!has_id) for (size_t t = 0; t < Qi::clipboard.size(); t++) TableInsert(p + t);
+	}
+	if (idChecker.reset(*actionsRoot)) TableReload();
+	WidgetReload();
+}
+void EditUi::ItemPasteReplace()
+{
+	if (Qi::clipboard.empty() || tableCurrent.empty()) return;
+	bool has_id = idChecker.check(Qi::clipboard);
+	const QiVector<int> index = tableCurrent;
+	for (size_t i = 0; i < index.size(); i++)
+	{
+		UniqueActionsId(actionsRoot->loadId(QiType::jumpPoint), Qi::clipboard, QiType::jumpPoint, QiType::jump);
+		UniqueActionsId(actionsRoot->loadId(QiType::block), Qi::clipboard, QiType::block, QiType::blockExec);
+		size_t p = i * (Qi::clipboard.size() - 1) + index[i];
+		actions->remove(p);
+		actionsHistory.remove(p);
+		actions->insert(p, Qi::clipboard);
+		actionsHistory.insert(p, Qi::clipboard);
+		if (!has_id)
+		{
+			TableRemove(p);
+			for (size_t t = 0; t < Qi::clipboard.size(); t++) TableInsert(p + t);
+		}
+	}
+	if (idChecker.reset(*actionsRoot)) TableReload();
+	WidgetReload();
+}
+void EditUi::ItemSelect(int index)
+{
+	if (index >= 0 && index < ui.action_table->rowCount())
+	ui.action_table->setCurrentCell(index, 0);
+}
+void EditUi::ItemSelect(const QiVector<int>& index)
+{
+	if (index.empty()) return;
+	if (index.size() == 1)
+	{
+		ui.action_table->setCurrentCell(index.front(), 0);
+		return;
+	}
+	QItemSelectionModel* selectionModel = ui.action_table->selectionModel();
+	QItemSelection itemSelection;
+	for (auto& i : index)
+	{
+		if (i >= 0 && i < ui.action_table->rowCount())
+		{
+			for (int col = 0; col < ui.action_table->columnCount(); col++)
+			{
+				QModelIndex index = ui.action_table->model()->index(i, col);
+				itemSelection.select(index, index);
+			}
+		}
+	}
+	selectionModel->select(itemSelection, QItemSelectionModel::Select);
+}
+void EditUi::ItemSelectSimilar()
+{
+	if (tableCurrent.size() != 1) return;
+	const Action& current = actions->at(tableCurrent.front());
+	QiVector<int> index;
+	for (size_t i = 0; i < actions->size(); i++) if (actions->at(i).type() == current.type()) index.append(i);
+	ItemSelect(index);
+}
+void EditUi::ItemSelectIdenticalParam()
+{
+	if (tableCurrent.size() != 1) return;
+	const Action& current = actions->at(tableCurrent.front());
+	QiVector<int> index;
+	for (size_t i = 0; i < actions->size(); i++) if (actions->at(i).paramEquals(current)) index.append(i);
+	ItemSelect(index);
+}
+void EditUi::ItemSelectIdenticalFull()
+{
+	if (tableCurrent.size() != 1) return;
+	const Action& current = actions->at(tableCurrent.front());
+	QiVector<int> index;
+	for (size_t i = 0; i < actions->size(); i++) if (actions->at(i).fullEquals(current)) index.append(i);
+	ItemSelect(index);
 }
 void EditUi::Redo()
 {
@@ -2648,7 +2744,7 @@ void EditUi::Back()
 		actionsHistory = *actions;
 		setWindowTitle(layers.last().title);
 		Reload();
-		TableSelection(layers.last().items);
+		ItemSelect(layers.last().items);
 	}
 }
 void EditUi::Forward(const QString& title, Actions* next)

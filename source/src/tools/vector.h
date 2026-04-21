@@ -333,7 +333,11 @@ namespace QiTools
 				}
 				break;
 			case OperationType::RemoveRange:
-				if (!record.elements.empty() && record.position <= this->size()) {
+				if (!record.positions.empty()) {
+					size_t e = record.elements.size() - 1;
+					for (auto i = record.positions.rbegin(); i != record.positions.rend(); i++, e--) base_vector::insert(*i, record.elements[e]);
+				}
+				else if (!record.elements.empty() && record.position <= this->size()) {
 					base_vector::insert(base_vector::begin() + record.position, record.elements.begin(), record.elements.end());
 				}
 				break;
@@ -391,7 +395,10 @@ namespace QiTools
 				}
 				break;
 			case OperationType::RemoveRange:
-				if (record.position < this->size()) {
+				if (!record.positions.empty()) {
+					base_vector::remove(record.positions);
+				}
+				else if (record.position < this->size()) {
 					base_vector::remove_of_front(record.count, record.position);
 				}
 				break;

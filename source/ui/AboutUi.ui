@@ -69,7 +69,7 @@
       <string notr="true">font-size:20px</string>
      </property>
      <property name="text">
-      <string>2026-4-20</string>
+      <string>2026-4-22</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
@@ -85,10 +85,8 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>增加图像查找压缩
-增加Qim格式宏
-增加size函数获取占用内存大小
-优化len函数获取中文长度问题</string>
+      <string>增加编辑选择菜单
+增加编辑高级粘贴菜单</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
