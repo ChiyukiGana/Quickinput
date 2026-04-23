@@ -387,16 +387,8 @@ void EditUi::Event()
 		// mark
 		connect(ui.action_table, &QTableWidget::cellChanged, this, [this](int row, int column) {
 			if (updating) return;
-			if (row < 0) return;
-			if (column != tableColumn_mark) return;
-
-			Action a = actions->at(row);
-			QiType t = a.base().type;
-			a.base().mark = ui.action_table->item(row, tableColumn_mark)->text();
-			actionsHistory.set(row, std::move(a));
-
-			if (t == QiType::jumpPoint) ListJumpPointReload();
-			else if (t == QiType::block) ListBlockReload();
+			if (row < 0 || column != tableColumn_mark) return;
+			ItemSetMark(row, ui.action_table->item(row, tableColumn_mark)->text());
 			});
 		// mark, disable, debug
 		connect(ui.action_table, &QTableWidget::cellClicked, this, [this](int row, int column) {
@@ -1838,9 +1830,9 @@ Action EditUi::ItemGet(QiType type)
 	return Action();
 }
 // TODO: new action's widget set
-void EditUi::ItemSet(int p)
+void EditUi::ItemSet(int index)
 {
-	const Action& var = actions->at(p);
+	const Action& var = actions->at(index);
 	switch (var.type())
 	{
 	case QiType::delay: WidgetSet(var.to<QiDelay>()); break;
@@ -1868,6 +1860,16 @@ void EditUi::ItemSet(int p)
 	case QiType::msgView: WidgetSet(var.to<QiMsgView>()); break;
 	case QiType::range: WidgetSet(var.to<QiRangeSet>()); break;
 	}
+}
+void EditUi::ItemSetMark(int index, const QString& mark)
+{
+	Action& action = actions->at(index);
+	QiBase& base = action.base();
+	if (mark == base.mark) return;
+	base.mark = mark;
+	actionsHistory.set(index, action);
+	if (base.type == QiType::jumpPoint) ListJumpPointReload();
+	else if (base.type == QiType::block) ListBlockReload();
 }
 void EditUi::ItemMove(bool up, int len)
 {

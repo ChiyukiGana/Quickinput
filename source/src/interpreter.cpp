@@ -750,7 +750,16 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 				QiVolume& ref = action.to<QiVolume>();
 				if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
 				else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
-				if (Sound::SpeakerVolume(ref.time > 5 ? ref.time : 5, ref.max) > ref.volume) r_result = ActionInterpreter(ref.next);
+				float vol = 0.0f;
+				AudioDevice ad;
+				AudioDeviceInfo i = ad.getOutputDefault();
+				if (i.ok)
+				{
+					const int time = ref.time > -1 ? ref.time : 0;
+					if (ref.max) ad.getPeakVolume(i.id, time, vol);
+					else ad.getAverageVolume(i.id, time, vol);
+				}
+				if (vol > ref.volume) r_result = ActionInterpreter(ref.next);
 				else r_result = ActionInterpreter(ref.next2);
 			} break;
 			case QiType::soundPlay:

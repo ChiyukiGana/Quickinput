@@ -1358,14 +1358,131 @@ struct QiFunc_proc_close : public QiFunc
 int sample time
 int mode: false=avg, true=max
 
-bool return
+num return
 */
 struct QiFunc_volume : public QiFunc
 {
 	QiFunc_volume() : QiFunc(0, 2) {}
 	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
 	{
-		return Sound::SpeakerVolume(args.size() > 0 ? args[0].toInteger() : 10, args.size() > 1 ? args[1].toBool() : false);
+		AudioDevice ad;
+		if (ad)
+		{
+			AudioDeviceInfo i = ad.getOutputDefault();
+			if (i.ok)
+			{
+				QiVar::int_t time = args.size() > 0 ? args[0].toInteger() : 100;
+				if (time < 0) time = 0;
+				if (args.size() > 1 ? args[1].toBool() : false)
+				{
+					float v;
+					if (ad.getPeakVolume(i.id, time, v)) return v;
+				}
+				else
+				{
+					float v;
+					if (ad.getAverageVolume(i.id, time, v)) return v;
+				}
+			}
+		}
+		return 0.0f;
+	}
+};
+/*
+str deviceName
+
+num return
+*/
+struct QiFunc_volume_get : public QiFunc
+{
+	QiFunc_volume_get() : QiFunc(0, 1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		AudioDevice ad;
+		if (ad)
+		{
+			std::wstring deviceId;
+			if (args.size() > 0)
+			{
+				const std::wstring deviceName = args[0].toWString();
+				AudioDeviceInfos infos = ad.findDevice(AudioDeviceInfo::OUTPUT, AudioDeviceInfo::ACTIVATED);
+				for (const auto& i : infos) if (i.name == deviceName) deviceId = i.id;
+			}
+			else
+			{
+				AudioDeviceInfo info = ad.getOutputDefault();
+				if (info.ok) deviceId = info.id;
+			}
+			if (!deviceId.empty())
+			{
+				float vol = 0.0f;
+				if (ad.getVolume(deviceId, vol)) return vol;
+			}
+		}
+		return false;
+	}
+};
+/*
+num volume: set volume
+str deviceName
+
+num return
+*/
+struct QiFunc_volume_set : public QiFunc
+{
+	QiFunc_volume_set() : QiFunc(1, 2) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		AudioDevice ad;
+		if (ad)
+		{
+			std::wstring deviceId;
+			if (args.size() > 1)
+			{
+				const std::wstring deviceName = args[1].toWString();
+				AudioDeviceInfos infos = ad.findDevice(AudioDeviceInfo::OUTPUT, AudioDeviceInfo::ACTIVATED);
+				for (const auto& i : infos) if (i.name == deviceName) deviceId = i.id;
+			}
+			else
+			{
+				AudioDeviceInfo info = ad.getOutputDefault();
+				if (info.ok) deviceId = info.id;
+			}
+			if (!deviceId.empty())
+			{
+				return ad.setVolume(deviceId, args[0].toNumber());
+			}
+		}
+		return false;
+	}
+};
+/*
+str deviceName
+
+bool return: set device
+str return: get device name
+*/
+struct QiFunc_sound_output: public QiFunc
+{
+	QiFunc_sound_output() : QiFunc(0, 1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		AudioDevice ad;
+		if (ad)
+		{
+			if (args.size() > 0)
+			{
+				const std::wstring deviceName = args[0].toWString();
+				AudioDeviceInfos infos = ad.findDevice(AudioDeviceInfo::OUTPUT, AudioDeviceInfo::ACTIVATED);
+				for (const auto& i : infos) if (i.name == deviceName) return ad.setOutputAttributes(i.id, AudioDeviceInfo::DEFAULT);
+			}
+			else
+			{
+				AudioDeviceInfo info = ad.getOutputDefault();
+				if (info.ok) return info.name;
+			}
+		}
+		return false;
 	}
 };
 
@@ -1644,6 +1761,9 @@ QiFuncMap::QiFuncMap()
 	insert({ "mutex_unlock", std::make_unique<QiFunc_mutex_unlock>() });
 
 	insert({ "volume", std::make_unique<QiFunc_volume>() });
+	insert({ "volume_get", std::make_unique<QiFunc_volume_get>() });
+	insert({ "volume_set", std::make_unique<QiFunc_volume_set>() });
+	insert({ "sound_output", std::make_unique<QiFunc_sound_output>() });
 	insert({ "power", std::make_unique<QiFunc_power>() });
 	insert({ "cmd", std::make_unique<QiFunc_cmd>() });
 

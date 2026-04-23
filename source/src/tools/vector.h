@@ -314,7 +314,6 @@ namespace QiTools
 				{
 					Ty currentValue = std::move(base_vector::operator[](record.position));
 					base_vector::operator[](record.position) = std::move(record.elements[0]);
-					record.elements[0] = std::move(currentValue);
 				}
 				break;
 			case OperationType::Append:
@@ -375,8 +374,7 @@ namespace QiTools
 				if (record.elements.size() >= 2 && record.position < this->size())
 				{
 					Ty currentValue = std::move(base_vector::operator[](record.position));
-					base_vector::operator[](record.position) = std::move(record.elements[0]);
-					record.elements[0] = std::move(currentValue);
+					base_vector::operator[](record.position) = std::move(record.elements[1]);
 				}
 				break;
 			case OperationType::Append:

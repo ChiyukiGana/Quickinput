@@ -257,8 +257,9 @@ private:
 	void TableRemove(int index);
 
 
-	void ItemSet(int p);
 	Action ItemGet(QiType type);
+	void ItemSet(int index);
+	void ItemSetMark(int index, const QString& mark);
 	void ItemMove(bool up, int len);
 	void ItemAdd(QiType type);
 	void ItemChange(QiType type);

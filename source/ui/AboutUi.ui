@@ -69,7 +69,7 @@
       <string notr="true">font-size:20px</string>
      </property>
      <property name="text">
-      <string>2026-4-22</string>
+      <string>2026-4-23</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
@@ -85,8 +85,8 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>增加编辑选择菜单
-增加编辑高级粘贴菜单</string>
+      <string>增加声音设置函数
+修复修改或备注历史记录不能还原</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
