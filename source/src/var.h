@@ -71,20 +71,8 @@ public:
 	}
 
 	bool isNull() const { return type() == t_nul; }
-	bool isInteger() const
-	{
-		if (type() == t_int) return true;
-		if (type() == t_num) return isInteger(get<num_t>(var));
-		if (type() == t_str) return isInteger(get<str_t>(var));
-		return false;
-	}
-	bool isNumber() const
-	{
-		if (type() == t_int) return true;
-		if (type() == t_num) return true;
-		if (type() == t_str) return isNumber(get<str_t>(var));
-		return false;
-	}
+	bool isInteger() const { return type() == t_int; }
+	bool isNumber() const { return type() == t_int; }
 	bool isString() const { return type() == t_str; }
 	bool isPointer() const { return type() == t_ptr; }
 	bool isBool() const { return type() == t_bool; }

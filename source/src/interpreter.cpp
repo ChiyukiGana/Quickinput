@@ -306,10 +306,26 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 				HDC hdc;
 				if (wndInput)
 				{
-					hdc = GetWindowDC(wndInput->wnd);
 					rect = QiCvt::WR_AtR(rect, wndInput->wnd, macro.range);
-					Image::toRgbMap(hdc, rect, rgbMap);
-					ReleaseDC(wndInput->wnd, hdc);
+#if defined(Q_WINRT) && defined(Q_GRAPHICS_CAPTURE)
+					bool capture = false;
+					if (QiGraphicsCapture::IsSupported() && Qi::capture.isInit())
+					{
+						do
+						{
+							if (Qi::capture.window() != wndInput->wnd) if (!Qi::capture.setTarget(wndInput->wnd)) break;
+							if (!Qi::capture.setup(1)) break;
+							if (!Qi::capture.captureRgbMap(rgbMap, rect)) break;
+							capture = true;
+						} while (false);
+					}
+					if (!capture)
+#endif
+					{
+						hdc = GetWindowDC(wndInput->wnd);
+						Image::toRgbMap(hdc, rect, rgbMap);
+						ReleaseDC(wndInput->wnd, hdc);
+					}
 				}
 				else
 				{
@@ -383,10 +399,26 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 				HDC hdc;
 				if (wndInput)
 				{
-					hdc = GetWindowDC(wndInput->wnd);
 					rect = QiCvt::WR_AtR(rect, wndInput->wnd, macro.range);
-					Image::toRgbMap(hdc, rect, rgbMap);
-					ReleaseDC(wndInput->wnd, hdc);
+#if defined(Q_WINRT) && defined(Q_GRAPHICS_CAPTURE)
+					bool capture = false;
+					if (QiGraphicsCapture::IsSupported() && Qi::capture.isInit())
+					{
+						do
+						{
+							if (Qi::capture.window() != wndInput->wnd) if (!Qi::capture.setTarget(wndInput->wnd)) break;
+							if (!Qi::capture.setup(1)) break;
+							if (!Qi::capture.captureRgbMap(rgbMap, rect)) break;
+							capture = true;
+						} while (false);
+					}
+					if (!capture)
+#endif
+					{
+						hdc = GetWindowDC(wndInput->wnd);
+						Image::toRgbMap(hdc, rect, rgbMap);
+						ReleaseDC(wndInput->wnd, hdc);
+					}
 				}
 				else
 				{
@@ -574,10 +606,26 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 						HDC hdc;
 						if (wndInput)
 						{
-							hdc = GetWindowDC(wndInput->wnd);
 							rect = QiCvt::WR_AtR(rect, wndInput->wnd, macro.range);
-							image = Image::toCImage32(hdc, rect);
-							ReleaseDC(wndInput->wnd, hdc);
+#if defined(Q_WINRT) && defined(Q_GRAPHICS_CAPTURE)
+							bool capture = false;
+							if (QiGraphicsCapture::IsSupported() && Qi::capture.isInit())
+							{
+								do
+								{
+									if (Qi::capture.window() != wndInput->wnd) if (!Qi::capture.setTarget(wndInput->wnd)) break;
+									if (!Qi::capture.setup(1)) break;
+									if (!Qi::capture.captureCImage(image, rect)) break;
+									capture = true;
+								} while (false);
+							}
+							if (!capture)
+#endif
+							{
+								hdc = GetWindowDC(wndInput->wnd);
+								image = Image::toCImage32(hdc, rect);
+								ReleaseDC(wndInput->wnd, hdc);
+							}
 						}
 						else
 						{

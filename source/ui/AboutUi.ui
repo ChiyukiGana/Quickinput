@@ -69,7 +69,7 @@
       <string notr="true">font-size:20px</string>
      </property>
      <property name="text">
-      <string>2026-4-23</string>
+      <string>2026-4-28</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
@@ -85,8 +85,11 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>增加声音设置函数
-修复修改或备注历史记录不能还原</string>
+      <string>增加性能监视器函数
+增加OSC函数
+修复自定义函数内调用自定义函数错误
+修复Qim保存等待最大值丢失
+优化后台截图</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>

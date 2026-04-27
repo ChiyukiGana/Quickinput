@@ -193,6 +193,9 @@
     <ClInclude Include="source\src\mutex.h">
       <Filter>3_HeaderOnly</Filter>
     </ClInclude>
+    <ClInclude Include="source\src\capture.h">
+      <Filter>3_HeaderOnly</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="source\ui\AboutUi.ui">

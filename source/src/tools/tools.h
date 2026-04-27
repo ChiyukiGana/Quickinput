@@ -14,6 +14,10 @@
 #include "map2d.h"
 #include "color.h"
 #include "image.h"
+#ifdef Q_WINRT
+#include "graphicscapture.h"
+#endif
+#include "resmonitor.h"
 #include "process.h"
 #include "thread.h"
 #include "threadqueue.h"

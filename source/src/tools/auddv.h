@@ -97,7 +97,7 @@ namespace QiTools
 			ACTIVATED = 1,
 			DISABLED = 2,
 			DISCONNECTED = 4,
-			ALL = ACTIVATED | DISABLED | DISCONNECTED
+			ALL_STATE = ACTIVATED | DISABLED | DISCONNECTED
 		};
 
 		enum Attribute
@@ -105,6 +105,7 @@ namespace QiTools
 			NONE = 1,
 			DEFAULT = 2,
 			COMMUNICATION = 4,
+			ALL_ATTRIBUTE = NONE | DEFAULT | COMMUNICATION
 		};
 
 		bool ok = false;
@@ -174,13 +175,13 @@ namespace QiTools
 		}
 		AudioDeviceInfo getOutputDefault()
 		{
-			return getDevice(AudioDeviceInfo::Type::OUTPUT, AudioDeviceInfo::Attribute::COMMUNICATION);
+			return getDevice(AudioDeviceInfo::Type::OUTPUT, AudioDeviceInfo::Attribute::DEFAULT);
 		}
 		AudioDeviceInfo getOutputCommunication()
 		{
 			return getDevice(AudioDeviceInfo::Type::OUTPUT, AudioDeviceInfo::Attribute::COMMUNICATION);
 		}
-		AudioDeviceInfos findDevice(AudioDeviceInfo::Type deviceType = AudioDeviceInfo::Type::OUTPUT, AudioDeviceInfo::State deviceState = AudioDeviceInfo::State::ALL)
+		AudioDeviceInfos findDevice(AudioDeviceInfo::Type deviceType = AudioDeviceInfo::Type::OUTPUT, AudioDeviceInfo::State deviceState = AudioDeviceInfo::State::ALL_STATE)
 		{
 			if (!dvEnum) return {};
 
@@ -372,7 +373,7 @@ namespace QiTools
 		static AudioDeviceInfo GetInputCommunication() { return AudioDevice().getInputCommunication(); }
 		static AudioDeviceInfo GetOutputDefault() { return AudioDevice().getOutputDefault(); }
 		static AudioDeviceInfo GetOutputCommunication() { return AudioDevice().getOutputCommunication(); }
-		static AudioDeviceInfos FindDevice(AudioDeviceInfo::Type deviceType = AudioDeviceInfo::Type::OUTPUT, AudioDeviceInfo::State deviceState = AudioDeviceInfo::State::ALL) { return AudioDevice().findDevice(deviceType, deviceState); }
+		static AudioDeviceInfos FindDevice(AudioDeviceInfo::Type deviceType = AudioDeviceInfo::Type::OUTPUT, AudioDeviceInfo::State deviceState = AudioDeviceInfo::State::ALL_STATE) { return AudioDevice().findDevice(deviceType, deviceState); }
 		static bool SetOutputAttributes(const std::wstring& deviceId, AudioDeviceInfo::Attribute attribute) { return AudioDevice().setOutputAttributes(deviceId, attribute); }
 		static bool SetVolume(const std::wstring& deviceId, float volume) { return AudioDevice().setVolume(deviceId, volume); }
 		static bool GetVolume(const std::wstring& deviceId, float& volume) { return AudioDevice().getVolume(deviceId, volume); }

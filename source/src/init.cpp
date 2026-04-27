@@ -42,22 +42,30 @@ void Init_Style()
 }
 
 *[group="check"]::indicator,
-*[group="radio"]::indicator,
-*[group="get_button"] {
+*[group="radio"]::indicator {
     background-color: white;
     width: 20px;
     height: 20px
 }
 
 *[group="check"]::indicator:hover,
-*[group="radio"]::indicator:hover,
-*[group="get_button"]:hover {
+*[group="radio"]::indicator:hover {
     background-color: #ACF
 }
 
 *[group="check"]::indicator:checked,
 *[group="radio"]::indicator:checked {
     image: url(:/checked.png)
+}
+
+*[group="get_button"] {
+    background-color: white;
+    width: 20px;
+    height: 20px
+}
+
+*[group="get_button"]:hover {
+    background-color: #ACF
 }
 
 QToolTip,
@@ -90,27 +98,31 @@ QToolTip,
     background-color: #ACF
 }
 
-*[group="tab_widget_bar"]::tab:first,
-*[group="tab_widget_bar"]::tab,
-*[group="tab_widget_bar"]::tab:last,
-*[group="ltab_widget"]::tab,
 *[group="edit-tab_button"] {
     background-color: #ADE
 }
 
-*[group="tab_widget_bar"]::tab:first:hover,
-*[group="tab_widget_bar"]::tab:hover,
-*[group="tab_widget_bar"]::tab:last:hover,
-*[group="ltab_widget"]::tab:hover,
 *[group="edit-tab_button"]:hover {
     background-color: #ADE
 }
 
-*[group="tab_widget_bar"]::tab:first:selected,
-*[group="tab_widget_bar"]::tab:selected,
-*[group="tab_widget_bar"]::tab:last:selected,
-*[group="ltab_widget"]::tab:selected,
 *[group="edit-tab_button"]:disabled {
+    background-color: #CEF;
+    color: black
+}
+
+*[group="tab_widget_bar"]::tab,
+*[group="ltab_widget"]::tab {
+    background-color: #ADE
+}
+
+*[group="tab_widget_bar"]::tab:hover,
+*[group="ltab_widget"]::tab:hover {
+    background-color: #ADE
+}
+
+*[group="tab_widget_bar"]::tab:selected,
+*[group="ltab_widget"]::tab:selected {
     background-color: #CEF;
     color: black
 }
@@ -159,9 +171,7 @@ QToolTip,
 *[group="edit-add_button"]:disabled,
 *[group="edit-edit_button"]:disabled,
 *[group="record-button"]:disabled,
-*[group="tab_widget_bar"]::tab:first:disabled,
 *[group="tab_widget_bar"]::tab:disabled,
-*[group="tab_widget_bar"]::tab:last:disabled,
 *[group="ltab_widget"]::tab:disabled,
 *[group="group_table"]:disabled,
 *[group="macro_table"]:disabled,
@@ -208,22 +218,30 @@ QToolTip,
 }
 
 *[group="check"]::indicator,
-*[group="radio"]::indicator,
-*[group="get_button"] {
+*[group="radio"]::indicator {
     background-color: #FFF5FF;
     width: 20px;
     height: 20px
 }
 
 *[group="check"]::indicator:hover,
-*[group="radio"]::indicator:hover,
-*[group="get_button"]:hover {
+*[group="radio"]::indicator:hover {
     background-color: #FBE
 }
 
 *[group="check"]::indicator:checked,
 *[group="radio"]::indicator:checked {
     image: url(:/checked.png)
+}
+
+*[group="get_button"] {
+    background-color: #FFF5FF;
+    width: 20px;
+    height: 20px
+}
+
+*[group="get_button"]:hover {
+    background-color: #FBE
 }
 
 QToolTip,
@@ -256,27 +274,31 @@ QToolTip,
     background-color: #FBE
 }
 
-*[group="tab_widget_bar"]::tab:first,
-*[group="tab_widget_bar"]::tab,
-*[group="tab_widget_bar"]::tab:last,
-*[group="ltab_widget"]::tab,
 *[group="edit-tab_button"] {
     background-color: #FCE
 }
 
-*[group="tab_widget_bar"]::tab:first:hover,
-*[group="tab_widget_bar"]::tab:hover,
-*[group="tab_widget_bar"]::tab:last:hover,
-*[group="ltab_widget"]::tab:hover,
 *[group="edit-tab_button"]:hover {
     background-color: #FBE
 }
 
-*[group="tab_widget_bar"]::tab:first:selected,
-*[group="tab_widget_bar"]::tab:selected,
-*[group="tab_widget_bar"]::tab:last:selected,
-*[group="ltab_widget"]::tab:selected,
 *[group="edit-tab_button"]:disabled {
+    background-color: #FDF;
+    color: black
+}
+
+*[group="tab_widget_bar"]::tab,
+*[group="ltab_widget"]::tab {
+    background-color: #FCE
+}
+
+*[group="tab_widget_bar"]::tab:hover,
+*[group="ltab_widget"]::tab:hover {
+    background-color: #FBE
+}
+
+*[group="tab_widget_bar"]::tab:selected,
+*[group="ltab_widget"]::tab:selected {
     background-color: #FDF;
     color: black
 }
@@ -325,9 +347,7 @@ QToolTip,
 *[group="edit-add_button"]:disabled,
 *[group="edit-edit_button"]:disabled,
 *[group="record-button"]:disabled,
-*[group="tab_widget_bar"]::tab:first:disabled,
 *[group="tab_widget_bar"]::tab:disabled,
-*[group="tab_widget_bar"]::tab:last:disabled,
 *[group="ltab_widget"]::tab:disabled,
 *[group="group_table"]:disabled,
 *[group="macro_table"]:disabled,
@@ -374,22 +394,30 @@ QToolTip,
 }
 
 *[group="check"]::indicator,
-*[group="radio"]::indicator,
-*[group="get_button"] {
+*[group="radio"]::indicator {
     background-color: #FFFFF5;
     width: 20px;
     height: 20px
 }
 
 *[group="check"]::indicator:hover,
-*[group="radio"]::indicator:hover,
-*[group="get_button"]:hover {
+*[group="radio"]::indicator:hover {
     background-color: #FFD0B0
 }
 
 *[group="check"]::indicator:checked,
 *[group="radio"]::indicator:checked {
     image: url(:/checked.png)
+}
+
+*[group="get_button"] {
+    background-color: #FFFFF5;
+    width: 20px;
+    height: 20px
+}
+
+*[group="get_button"]:hover {
+    background-color: #FFD0B0
 }
 
 QToolTip,
@@ -422,27 +450,31 @@ QToolTip,
     background-color: #FFD0B0
 }
 
-*[group="tab_widget_bar"]::tab:first,
-*[group="tab_widget_bar"]::tab,
-*[group="tab_widget_bar"]::tab:last,
-*[group="ltab_widget"]::tab,
 *[group="edit-tab_button"] {
     background-color: #FDA
 }
 
-*[group="tab_widget_bar"]::tab:first:hover,
-*[group="tab_widget_bar"]::tab:hover,
-*[group="tab_widget_bar"]::tab:last:hover,
-*[group="ltab_widget"]::tab:hover,
 *[group="edit-tab_button"]:hover {
     background-color: #FFD0B0
 }
 
-*[group="tab_widget_bar"]::tab:first:selected,
-*[group="tab_widget_bar"]::tab:selected,
-*[group="tab_widget_bar"]::tab:last:selected,
-*[group="ltab_widget"]::tab:selected,
 *[group="edit-tab_button"]:disabled {
+    background-color: #FEC;
+    color: black
+}
+
+*[group="tab_widget_bar"]::tab,
+*[group="ltab_widget"]::tab {
+    background-color: #FDA
+}
+
+*[group="tab_widget_bar"]::tab:hover,
+*[group="ltab_widget"]::tab:hover {
+    background-color: #FFD0B0
+}
+
+*[group="tab_widget_bar"]::tab:selected,
+*[group="ltab_widget"]::tab:selected {
     background-color: #FEC;
     color: black
 }
@@ -491,9 +523,7 @@ QToolTip,
 *[group="edit-add_button"]:disabled,
 *[group="edit-edit_button"]:disabled,
 *[group="record-button"]:disabled,
-*[group="tab_widget_bar"]::tab:first:disabled,
 *[group="tab_widget_bar"]::tab:disabled,
-*[group="tab_widget_bar"]::tab:last:disabled,
 *[group="ltab_widget"]::tab:disabled,
 *[group="group_table"]:disabled,
 *[group="macro_table"]:disabled,
@@ -540,22 +570,30 @@ QToolTip,
 }
 
 *[group="check"]::indicator,
-*[group="radio"]::indicator,
-*[group="get_button"] {
+*[group="radio"]::indicator {
     background-color: #F5FFFF;
     width: 20px;
     height: 20px
 }
 
 *[group="check"]::indicator:hover,
-*[group="radio"]::indicator:hover,
-*[group="get_button"]:hover {
+*[group="radio"]::indicator:hover {
     background-color: #8EB
 }
 
 *[group="check"]::indicator:checked,
 *[group="radio"]::indicator:checked {
     image: url(:/checked.png)
+}
+
+*[group="get_button"] {
+    background-color: #F5FFFF;
+    width: 20px;
+    height: 20px
+}
+
+*[group="get_button"]:hover {
+    background-color: #8EB
 }
 
 QToolTip,
@@ -588,27 +626,31 @@ QToolTip,
     background-color: #8EB
 }
 
-*[group="tab_widget_bar"]::tab:first,
-*[group="tab_widget_bar"]::tab,
-*[group="tab_widget_bar"]::tab:last,
-*[group="ltab_widget"]::tab,
 *[group="edit-tab_button"] {
     background-color: #9DC
 }
 
-*[group="tab_widget_bar"]::tab:first:hover,
-*[group="tab_widget_bar"]::tab:hover,
-*[group="tab_widget_bar"]::tab:last:hover,
-*[group="ltab_widget"]::tab:hover,
 *[group="edit-tab_button"]:hover {
     background-color: #8EB
 }
 
-*[group="tab_widget_bar"]::tab:first:selected,
-*[group="tab_widget_bar"]::tab:selected,
-*[group="tab_widget_bar"]::tab:last:selected,
-*[group="ltab_widget"]::tab:selected,
 *[group="edit-tab_button"]:disabled {
+    background-color: #AED;
+    color: black
+}
+
+*[group="tab_widget_bar"]::tab,
+*[group="ltab_widget"]::tab {
+    background-color: #9DC
+}
+
+*[group="tab_widget_bar"]::tab:hover,
+*[group="ltab_widget"]::tab:hover {
+    background-color: #8EB
+}
+
+*[group="tab_widget_bar"]::tab:selected,
+*[group="ltab_widget"]::tab:selected {
     background-color: #AED;
     color: black
 }
@@ -657,9 +699,7 @@ QToolTip,
 *[group="edit-add_button"]:disabled,
 *[group="edit-edit_button"]:disabled,
 *[group="record-button"]:disabled,
-*[group="tab_widget_bar"]::tab:first:disabled,
 *[group="tab_widget_bar"]::tab:disabled,
-*[group="tab_widget_bar"]::tab:last:disabled,
 *[group="ltab_widget"]::tab:disabled,
 *[group="group_table"]:disabled,
 *[group="macro_table"]:disabled,
@@ -705,22 +745,30 @@ QToolTip,
 }
 
 *[group="check"]::indicator,
-*[group="radio"]::indicator,
-*[group="get_button"] {
+*[group="radio"]::indicator {
     background-color: #555;
     width: 20px;
     height: 20px
 }
 
 *[group="check"]::indicator:hover,
-*[group="radio"]::indicator:hover,
-*[group="get_button"]:hover {
+*[group="radio"]::indicator:hover {
     background-color: #777
 }
 
 *[group="check"]::indicator:checked,
 *[group="radio"]::indicator:checked {
     image: url(:/checked.png)
+}
+
+*[group="get_button"] {
+    background-color: #555;
+    width: 20px;
+    height: 20px
+}
+
+*[group="get_button"]:hover {
+    background-color: #777
 }
 
 QToolTip,
@@ -753,27 +801,31 @@ QToolTip,
     background-color: #777
 }
 
-*[group="tab_widget_bar"]::tab:first,
-*[group="tab_widget_bar"]::tab,
-*[group="tab_widget_bar"]::tab:last,
-*[group="ltab_widget"]::tab,
 *[group="edit-tab_button"] {
     background-color: #666
 }
 
-*[group="tab_widget_bar"]::tab:first:hover,
-*[group="tab_widget_bar"]::tab:hover,
-*[group="tab_widget_bar"]::tab:last:hover,
-*[group="ltab_widget"]::tab:hover,
 *[group="edit-tab_button"]:hover {
     background-color: #777
 }
 
-*[group="tab_widget_bar"]::tab:first:selected,
-*[group="tab_widget_bar"]::tab:selected,
-*[group="tab_widget_bar"]::tab:last:selected,
-*[group="ltab_widget"]::tab:selected,
 *[group="edit-tab_button"]:disabled {
+    background-color: #333;
+    color: white
+}
+
+*[group="tab_widget_bar"]::tab,
+*[group="ltab_widget"]::tab {
+    background-color: #666
+}
+
+*[group="tab_widget_bar"]::tab:hover,
+*[group="ltab_widget"]::tab:hover {
+    background-color: #777
+}
+
+*[group="tab_widget_bar"]::tab:selected,
+*[group="ltab_widget"]::tab:selected {
     background-color: #333;
     color: white
 }
@@ -822,9 +874,7 @@ QToolTip,
 *[group="edit-add_button"]:disabled,
 *[group="edit-edit_button"]:disabled,
 *[group="record-button"]:disabled,
-*[group="tab_widget_bar"]::tab:first:disabled,
 *[group="tab_widget_bar"]::tab:disabled,
-*[group="tab_widget_bar"]::tab:last:disabled,
 *[group="ltab_widget"]::tab:disabled,
 *[group="group_table"]:disabled,
 *[group="macro_table"]:disabled,

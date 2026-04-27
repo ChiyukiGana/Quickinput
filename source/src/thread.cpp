@@ -2,7 +2,6 @@
 
 struct QiMacroWorker : public QiWorkerWithArgs<bool,Macro*,std::condition_variable&>
 {
-	static inline std::mutex worker_mutex;
 	bool running = true;
 	Macro* macro = nullptr;
 	using QiWorkerWithArgs::QiWorkerWithArgs;
@@ -18,11 +17,9 @@ struct QiMacroWorker : public QiWorkerWithArgs<bool,Macro*,std::condition_variab
 		this->macro = macro;
 		ready.notify_all();
 
-		{
-			std::unique_lock<std::mutex> lock(worker_mutex);
-			macro->script_interpreter.setWorker(this);
-			macro->script_interpreter.setValue(QiScriptInterpreter::var_macro_name, macro->name.toStdString());
-		}
+		macro->script_interpreter.clear();
+		macro->script_interpreter.setWorker(this);
+		macro->script_interpreter.setValue(QiScriptInterpreter::var_macro_name, macro->name.toStdString());
 
 		srand(clock());
 		try {
@@ -74,10 +71,8 @@ struct QiMacroWorker : public QiWorkerWithArgs<bool,Macro*,std::condition_variab
 		}
 		catch (std::runtime_error e) { QiTr::UnBlock(); macro->script_interpreter.showError(e.what(), std::string("位于初始化脚本")); }
 
-		{
-			std::unique_lock<std::mutex> lock(worker_mutex);
-			if (macro->script_interpreter.worker() == this) macro->script_interpreter.setWorker(nullptr);
-		}
+		macro->script_interpreter.clearProperty();
+		macro->script_interpreter.setWorker(nullptr);
 	}
 };
 void QiMacroThread::start(Macro* macro, bool running)
@@ -88,7 +83,8 @@ void QiMacroThread::start(Macro* macro, bool running)
 		macro->wndInput.child = macro->wndInfo.child;
 		if (!macro->wndInput.active())
 		{
-			macro->wndInput.wnd = macro->wndInfo.wnd = FindWindowW((LPCWSTR)(macro->wndInfo.clas.utf16()), (LPCWSTR)(macro->wndInfo.name.utf16()));
+			macro->wndInfo.update_fromName();
+			macro->wndInput.wnd = macro->wndInfo.wnd;
 			if (!macro->wndInput.wnd) macro->wndInput.wnd = (macro->wndInfo = QiFn::WindowSelection()).wnd;
 			if (!macro->wndInput.wnd)
 			{

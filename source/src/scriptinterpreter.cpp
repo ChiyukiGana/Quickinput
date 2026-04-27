@@ -1,5 +1,18 @@
 #include "scriptinterpreter.h"
 #include "inc_header.h"
+#ifdef Q_OSC
+#include <src/osc/ip/UdpSocket.h>
+#include <src/osc/ip/IpEndpointName.h>
+#include <src/osc/osc/OscPacketListener.h>
+#include <src/osc/osc/OscOutboundPacketStream.h>
+#include <src/osc/ip/UdpSocket.cpp>
+#include <src/osc/ip/IpEndpointName.cpp>
+#include <src/osc/ip/NetworkingUtils.cpp>
+#include <src/osc/osc/OscTypes.cpp>
+#include <src/osc/osc/OscReceivedElements.cpp>
+#include <src/osc/osc/OscPrintReceivedElements.cpp>
+#include <src/osc/osc/OscOutboundPacketStream.cpp>
+#endif
 
 time_t sys_last_time = 0;
 time_t sys_last_clock = 0;
@@ -716,8 +729,10 @@ struct QiFunc_sleep : public QiFunc
 	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter* inter) const override
 	{
 		long long ms = args[0].toInteger();
+		inter->thisMutex()->lock();
 		QiWorker* worker = inter->worker();
 		worker ? worker->sleep(ms) : Sleep(ms);
+		inter->thisMutex()->unlock();
 		return {};
 	}
 };
@@ -726,8 +741,10 @@ struct QiFunc_exit : public QiFunc
 	QiFunc_exit() : QiFunc(0) {}
 	QiVar exec(const std::vector<QiVar>&, QiScriptInterpreter* inter) const override
 	{
+		inter->thisMutex()->lock();
 		QiWorker* worker = inter->worker();
 		if (worker) worker->m_stop = true;
+		inter->thisMutex()->unlock();
 		return static_cast<bool>(worker);
 	}
 };
@@ -986,7 +1003,7 @@ struct QiFunc_wnd_find : public QiFunc
 		const auto index = args.size() > 3 ? args[3].toInteger() : 0;
 
 		if (index == 0) return WndMatch::find(QString::fromStdString(name), QString::fromStdString(clas), QString::fromStdString(proc));
-		
+
 		auto wnds = WndMatch::finds(QString::fromStdString(name), QString::fromStdString(clas), QString::fromStdString(proc));
 		if (wnds.empty() || index < 0 || index >= wnds.size()) return nullptr;
 
@@ -1457,12 +1474,15 @@ struct QiFunc_volume_set : public QiFunc
 	}
 };
 /*
+[0] get default output
+str return: device name
+
+[1] set default output
 str deviceName
 
-bool return: set device
-str return: get device name
+bool return
 */
-struct QiFunc_sound_output: public QiFunc
+struct QiFunc_sound_output : public QiFunc
 {
 	QiFunc_sound_output() : QiFunc(0, 1) {}
 	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
@@ -1474,7 +1494,7 @@ struct QiFunc_sound_output: public QiFunc
 			{
 				const std::wstring deviceName = args[0].toWString();
 				AudioDeviceInfos infos = ad.findDevice(AudioDeviceInfo::OUTPUT, AudioDeviceInfo::ACTIVATED);
-				for (const auto& i : infos) if (i.name == deviceName) return ad.setOutputAttributes(i.id, AudioDeviceInfo::DEFAULT);
+				for (const auto& i : infos) if (i.name == deviceName) return ad.setOutputAttributes(i.id, AudioDeviceInfo::ALL_ATTRIBUTE);
 			}
 			else
 			{
@@ -1495,7 +1515,6 @@ struct QiFunc_mutex_lock : public QiFunc
 		return {};
 	}
 };
-
 struct QiFunc_mutex_try_lock : public QiFunc
 {
 	QiFunc_mutex_try_lock() : QiFunc(1) {}
@@ -1504,7 +1523,6 @@ struct QiFunc_mutex_try_lock : public QiFunc
 		return QiScriptInterpreter::mutex_map()->try_lock(args[0].toString());
 	}
 };
-
 struct QiFunc_mutex_is_lock : public QiFunc
 {
 	QiFunc_mutex_is_lock() : QiFunc(1) {}
@@ -1513,7 +1531,6 @@ struct QiFunc_mutex_is_lock : public QiFunc
 		return QiScriptInterpreter::mutex_map()->is_lock(args[0].toString());
 	}
 };
-
 struct QiFunc_mutex_unlock : public QiFunc
 {
 	QiFunc_mutex_unlock() : QiFunc(1) {}
@@ -1639,6 +1656,302 @@ struct QiFunc_capture_screen : public QiFunc
 		return false;
 	}
 };
+
+ResMonitor resMonitor;
+bool resMonitorStart()
+{
+	if (resMonitor.running()) return true;
+	resMonitor.setCpuUsage(true);
+	resMonitor.setCpuClock(true);
+	resMonitor.setCpuBaseClock(true);
+	resMonitor.setGpuUsage(true);
+	resMonitor.setGpuMemoryUsage(true);
+	resMonitor.setDisk(true);
+	resMonitor.setNetwork(true);
+	resMonitor.setInterval(1000);
+	return resMonitor.start();
+}
+bool resMonitorStop()
+{
+	return resMonitor.stop();
+}
+struct QiFunc_perf_start : public QiFunc
+{
+	QiFunc_perf_start() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		return resMonitorStart();
+	}
+};
+struct QiFunc_perf_stop : public QiFunc
+{
+	QiFunc_perf_stop() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		return resMonitorStop();
+	}
+};
+struct QiFunc_perf_cpu_usage : public QiFunc
+{
+	QiFunc_perf_cpu_usage() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		return std::to_string(static_cast<long long>(resMonitor.cpuUsage())) + "%";
+	}
+};
+struct QiFunc_perf_cpu_clock : public QiFunc
+{
+	QiFunc_perf_cpu_clock() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		return ResMonitor::toString(resMonitor.cpuClock() / 1000.0, 1) + "Ghz";
+	}
+};
+struct QiFunc_perf_cpu_base_clock : public QiFunc
+{
+	QiFunc_perf_cpu_base_clock() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		return ResMonitor::toString(resMonitor.cpuBaseClock() / 1000.0, 1) + "Ghz";
+	}
+};
+struct QiFunc_perf_mem_total : public QiFunc
+{
+	QiFunc_perf_mem_total() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		return ResMonitor::toSize(resMonitor.memoryTotal(), 1);
+	}
+};
+struct QiFunc_perf_mem_usage : public QiFunc
+{
+	QiFunc_perf_mem_usage() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		return ResMonitor::toSize(resMonitor.memoryUsage(), 1);
+	}
+};
+struct QiFunc_perf_gpu_usage : public QiFunc
+{
+	QiFunc_perf_gpu_usage() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		return std::to_string(static_cast<long long>(resMonitor.gpuUsage())) + "%";
+	}
+};
+struct QiFunc_perf_gpu_mem_total : public QiFunc
+{
+	QiFunc_perf_gpu_mem_total() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		return ResMonitor::toSize(resMonitor.gpuMemoryTotal(), 1);
+	}
+};
+struct QiFunc_perf_gpu_mem_usage : public QiFunc
+{
+	QiFunc_perf_gpu_mem_usage() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		return ResMonitor::toSize(resMonitor.gpuMemoryUsage(), 1);
+	}
+};
+struct QiFunc_perf_disk_read : public QiFunc
+{
+	QiFunc_perf_disk_read() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		return ResMonitor::toSize(resMonitor.diskRead(), 0);
+	}
+};
+struct QiFunc_perf_disk_write : public QiFunc
+{
+	QiFunc_perf_disk_write() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		return ResMonitor::toSize(resMonitor.diskWrite(), 0);
+	}
+};
+struct QiFunc_perf_net_recv : public QiFunc
+{
+	QiFunc_perf_net_recv() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		return ResMonitor::toSize(resMonitor.networkReceive(), 0);
+	}
+};
+struct QiFunc_perf_net_send : public QiFunc
+{
+	QiFunc_perf_net_send() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		return ResMonitor::toSize(resMonitor.networkSend(), 0);
+	}
+};
+
+#ifdef Q_OSC
+/*
+str host
+int port
+str osc address
+any args...
+
+bool return
+*/
+struct QiFunc_osc_send : public QiFunc
+{
+	QiFunc_osc_send() : QiFunc(3, ~size_t(0)) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		try
+		{
+			constexpr size_t MTU_SIZE = 1536;
+			UdpTransmitSocket socket(IpEndpointName(args[0].toString().c_str(), args[1].toInteger()));
+			char buffer[MTU_SIZE];
+			osc::OutboundPacketStream output(buffer, MTU_SIZE);
+			output << osc::BeginMessage(args[2].toString().c_str());
+			for (size_t i = 3; i < args.size(); i++)
+			{
+				const QiVar& val = args[i];
+				if (val.type() == QiVar::Type::t_bool) output << val.toBool();
+				else if (val.type() == QiVar::Type::t_int) output << static_cast<osc::int32>(val.toInteger());
+				else if (val.type() == QiVar::Type::t_num) output << static_cast<float>(val.toNumber());
+				else { const std::string str = val.toString(); if (!str.empty()) output << str.c_str(); }
+			}
+			output << osc::EndMessage;
+			socket.Send(output.Data(), output.Size());
+			return true;
+		}
+		catch (...) {}
+		return false;
+	}
+};
+/*
+str host
+int port
+
+bool return
+*/
+struct OscListen
+{
+	static constexpr const char* property_name = "osc_listen";
+	using Ptr = std::shared_ptr<OscListen>;
+	class Listener : public osc::OscPacketListener
+	{
+		OscListen& listen;
+	protected:
+		void ProcessMessage(const osc::ReceivedMessage& m, const IpEndpointName& remoteEndpoint) override
+		{
+			std::unique_lock<std::mutex> lock(listen.mutex);
+			auto i = m.ArgumentsBegin();
+			if (i != m.ArgumentsEnd())
+			{
+				QiVar value;
+				switch (i->TypeTag())
+				{
+				case osc::TRUE_TYPE_TAG: value = true; break;
+				case osc::FALSE_TYPE_TAG: value = false; break;
+				case osc::INT32_TYPE_TAG: value = i->AsInt32(); break;
+				case osc::FLOAT_TYPE_TAG: value = i->AsFloat(); break;
+				case osc::CHAR_TYPE_TAG: value = i->AsChar(); break;
+				case osc::RGBA_COLOR_TYPE_TAG: i->AsRgbaColor(); break;
+				case osc::INT64_TYPE_TAG: value = i->AsInt64(); break;
+				case osc::TIME_TAG_TYPE_TAG: value = i->AsTimeTag(); break;
+				case osc::DOUBLE_TYPE_TAG: value = i->AsDouble(); break;
+				case osc::STRING_TYPE_TAG: value = i->AsString(); break;
+				case osc::SYMBOL_TYPE_TAG: value = i->AsSymbol(); break;
+				default: return;
+				}
+				const std::string key = m.AddressPattern();
+				auto iter = listen.data.find(key);
+				if (iter != listen.data.end()) iter->second = value;
+				else listen.data.insert(std::make_pair(key, value));
+			}
+		}
+	public:
+		Listener(OscListen& listen) : listen(listen) {}
+	};
+
+	std::unordered_map<std::string, QiVar> data;
+	std::unique_ptr<Listener> listener;
+	SocketReceiveMultiplexer receive;
+	std::thread thread;
+	std::mutex mutex;
+	bool Start(const std::string& host, int port)
+	{
+		bool state = false;
+		std::condition_variable cv;
+		thread = std::thread([&]() {
+			Sleep(1);
+			try
+			{
+				UdpReceiveSocket receiveSocket(IpEndpointName(host.c_str(), port));
+				listener = std::make_unique<OscListen::Listener>(*this);
+				receive.AttachSocketListener(&receiveSocket, listener.get());
+				state = true;
+				cv.notify_all();
+				receive.Run();
+			}
+			catch (...)
+			{
+				cv.notify_all();
+			}
+		});
+		std::mutex m;
+		std::unique_lock<std::mutex> wait_lock(m);
+		cv.wait(wait_lock);
+		return state;
+	}
+	~OscListen()
+	{
+		if (thread.joinable())
+		{
+			receive.AsynchronousBreak();
+			thread.join();
+		}
+	}
+};
+struct QiFunc_osc_listen_start : public QiFunc
+{
+	QiFunc_osc_listen_start() : QiFunc(2) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter* inter) const override
+	{
+		std::unique_lock<std::mutex> lock(*inter->thisMutex());
+		auto iter = inter->property()->find(OscListen::property_name);
+		if (iter != inter->property()->end()) iter->second = std::make_shared<OscListen>();
+		else iter = inter->property()->insert(std::make_pair(OscListen::property_name, std::make_shared<OscListen>())).first;
+		auto& listen = std::any_cast<OscListen::Ptr&>(iter->second);
+		return listen->Start(args[0].toString(), args[1].toInteger());
+	}
+};
+struct QiFunc_osc_listen_stop : public QiFunc
+{
+	QiFunc_osc_listen_stop() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter* inter) const override
+	{
+		std::unique_lock<std::mutex> lock(*inter->thisMutex());
+		inter->property()->erase(OscListen::property_name);
+		return {};
+	}
+};
+struct QiFunc_osc_value : public QiFunc
+{
+	QiFunc_osc_value() : QiFunc(1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter* inter) const override
+	{
+		std::unique_lock<std::mutex> lock(*inter->thisMutex());
+		auto& property = *inter->property();
+		auto listen_iter = property.find(OscListen::property_name);
+		if (listen_iter != property.end())
+		{
+			auto& listen = std::any_cast<OscListen::Ptr&>(listen_iter->second);
+			std::unique_lock<std::mutex> lock(listen->mutex);
+			auto data_iter = listen->data.find(args[0].toString());
+			if (data_iter != listen->data.end()) return data_iter->second;
+		}
+		return {};
+	}
+};
+#endif
 
 QiFuncMap::QiFuncMap()
 {
@@ -1768,4 +2081,26 @@ QiFuncMap::QiFuncMap()
 	insert({ "cmd", std::make_unique<QiFunc_cmd>() });
 
 	insert({ "capture_screen", std::make_unique<QiFunc_capture_screen>() });
+
+	insert({ "perf_start", std::make_unique<QiFunc_perf_start>() });
+	insert({ "perf_stop", std::make_unique<QiFunc_perf_stop>() });
+	insert({ "perf_cpu_usage", std::make_unique<QiFunc_perf_cpu_usage>() });
+	insert({ "perf_cpu_clock", std::make_unique<QiFunc_perf_cpu_clock>() });
+	insert({ "perf_cpu_base_clock", std::make_unique<QiFunc_perf_cpu_base_clock>() });
+	insert({ "perf_mem_total", std::make_unique<QiFunc_perf_mem_total>() });
+	insert({ "perf_mem_usage", std::make_unique<QiFunc_perf_mem_usage>() });
+	insert({ "perf_gpu_usage", std::make_unique<QiFunc_perf_gpu_usage>() });
+	insert({ "perf_gpu_mem_total", std::make_unique<QiFunc_perf_gpu_mem_total>() });
+	insert({ "perf_gpu_mem_usage", std::make_unique<QiFunc_perf_gpu_mem_usage>() });
+	insert({ "perf_disk_read", std::make_unique<QiFunc_perf_disk_read>() });
+	insert({ "perf_disk_write", std::make_unique<QiFunc_perf_disk_write>() });
+	insert({ "perf_net_recv", std::make_unique<QiFunc_perf_net_recv>() });
+	insert({ "perf_net_send", std::make_unique<QiFunc_perf_net_send>() });
+
+#ifdef Q_OSC
+	insert({ "osc_send", std::make_unique<QiFunc_osc_send>() });
+	insert({ "osc_listen_start", std::make_unique<QiFunc_osc_listen_start>() });
+	insert({ "osc_listen_stop", std::make_unique<QiFunc_osc_listen_stop>() });
+	insert({ "osc_value", std::make_unique<QiFunc_osc_value>() });
+#endif
 }

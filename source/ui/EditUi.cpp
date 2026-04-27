@@ -313,6 +313,7 @@ void EditUi::Event()
 			});
 		connect(ui.title_var_button, &QPushButton::clicked, this, [this] { Qi::widget.varView->show(); });
 		connect(ui.window_select_button, &QPushButton::clicked, this, [this] { SelectWindow(); });
+		connect(ui.window_name_edit, &QLineEdit::textEdited, this, [this](const QString& name) { macro->wndInfo.name = name; });
 		connect(ui.window_state_check, &QCheckBox::toggled, this, [this](bool state) {
 			if (state)
 			{

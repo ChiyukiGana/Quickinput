@@ -253,7 +253,7 @@ struct QiDelay : QiBase
 	{
 		QiBase::fromPack(pack);
 		min = pack.get("mn").toInt(), v_min = QString::fromStdString(pack.get("_mn").toString());
-		min = pack.get("mx").toInt(), v_min = QString::fromStdString(pack.get("_mx").toString());
+		max = pack.get("mx").toInt(), v_max = QString::fromStdString(pack.get("_mx").toString());
 	}
 	bool paramEquals(const QiDelay& other) const
 	{
@@ -537,7 +537,7 @@ struct QiLoop : QiBase
 	{
 		QiBase::fromPack(pack);
 		min = pack.get("mn").toInt(), v_min = QString::fromStdString(pack.get("_mn").toString());
-		min = pack.get("mx").toInt(), v_min = QString::fromStdString(pack.get("_mx").toString());
+		max = pack.get("mx").toInt(), v_max = QString::fromStdString(pack.get("_mx").toString());
 		next.fromPack(pack.get("n1").toArray());
 	}
 	bool paramEquals(const QiLoop& other) const
@@ -902,7 +902,7 @@ struct QiTimer : QiBase
 	{
 		QiBase::fromPack(pack);
 		min = pack.get("mn").toInt(), v_min = QString::fromStdString(pack.get("_mn").toString());
-		min = pack.get("mx").toInt(), v_min = QString::fromStdString(pack.get("_mx").toString());
+		max = pack.get("mx").toInt(), v_max = QString::fromStdString(pack.get("_mx").toString());
 		next.fromPack(pack.get("n1").toArray());
 		next2.fromPack(pack.get("n2").toArray());
 	}

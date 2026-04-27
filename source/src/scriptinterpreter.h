@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include <variant>
+#include <any>
 #include <mutex>
 #include <thread>
 #include <functional>
@@ -51,6 +52,8 @@ public:
 	static inline const std::string error_unknown_functions = "error_unknown_functions";
 
 private:
+	using Property = std::map<std::string, std::any>;
+
 	struct StatementType
 	{
 		enum
@@ -141,8 +144,10 @@ private:
 	static inline std::mutex customFunctionsMutex;
 	static inline QiMutex mutex;
 
+	std::mutex this_mutex;
 	QiVarMap localVariables;
 	std::mutex localVariablesMutex;
+	Property propertys;
 	QiWorker* workerPtr = nullptr;
 
 	auto trim(const std::string& s) -> std::string
@@ -529,22 +534,23 @@ private:
 				}
 				else
 				{
-					std::unique_lock<std::mutex> lock(customFunctionsMutex);
+					customFunctionsMutex.lock();
 					auto customIt = customFunctions.find(token.value);
 					if (customIt != customFunctions.end())
 					{
-						const std::unique_ptr<QiCustomFunc>& func = customIt->second;
-						if (stack.size() >= func->parameters.size())
+						QiCustomFunc func = *customIt->second;
+						customFunctionsMutex.unlock();
+						if (stack.size() >= func.parameters.size())
 						{
 							QiVarMap funcLocal;
-							for (int i = func->parameters.size() - 1; i >= 0; i--) {
-								funcLocal[func->parameters[i]] = stack.back();
+							for (int i = func.parameters.size() - 1; i >= 0; i--) {
+								funcLocal[func.parameters[i]] = stack.back();
 								stack.pop_back();
 							}
 
 							try
 							{
-								executeStatementList(func->statementList, &funcLocal);
+								executeStatementList(func.statementList, &funcLocal);
 								stack.push_back(QiVar(0));
 							}
 							catch (const ReturnException& e)
@@ -554,7 +560,11 @@ private:
 						}
 						else throw std::runtime_error(error_functions_parameter_invalid + std::string(": ") + token.value);
 					}
-					else throw std::runtime_error(error_unknown_functions + std::string(": ") + token.value);
+					else
+					{
+						customFunctionsMutex.unlock();
+						throw std::runtime_error(error_unknown_functions + std::string(": ") + token.value);
+					}
 				}
 			}
 		}
@@ -768,6 +778,15 @@ public:
 		return *this;
 	}
 	QiScriptInterpreter& operator=(const QiScriptInterpreter&) { return *this; };
+
+	void clear()
+	{
+		this_mutex.lock();
+		localVariables.clear();
+		propertys.clear();
+		workerPtr = nullptr;
+		this_mutex.unlock();
+	}
 
 	auto execute(const std::string& code, QiVarMap* local = nullptr) -> QiVar
 	{
@@ -1012,18 +1031,21 @@ public:
 	}
 
 	QiWorker* worker() { return workerPtr; }
-	void setWorker(QiWorker* worker) { workerPtr = worker; }
+	void setWorker(QiWorker* worker) { std::unique_lock<std::mutex> lock(this_mutex); workerPtr = worker; }
 
 	static QiVarMap* global() { return &globalVariables; }
 	QiVarMap* local() { return &localVariables; }
+	Property* property() { return &propertys; }
 
 	static std::mutex* globalMutex() { return &globalVariablesMutex; }
 	std::mutex* localMutex() { return &localVariablesMutex; }
+	std::mutex* thisMutex() { return &this_mutex; }
 
 	static QiMutex* mutex_map() { return &mutex; }
 
 	static void clearGlobal() { std::unique_lock<std::mutex> lock(globalVariablesMutex); globalVariables.clear(); }
 	void clearLocal() { std::unique_lock<std::mutex> lock(localVariablesMutex); localVariables.clear(); }
+	void clearProperty() { std::unique_lock<std::mutex> lock(this_mutex); propertys.clear(); }
 	static void clearMutex() { mutex.clean_up(); }
 
 	static auto makeString(const std::string str) -> std::string

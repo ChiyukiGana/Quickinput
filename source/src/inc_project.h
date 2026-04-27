@@ -19,10 +19,9 @@
 #include <rawin/QiRawInput.h>
 #endif
 
+// for curl release
 #ifdef DEBUG
 #pragma comment(lib,"msvcrtd.lib")
-#else
-#pragma comment(lib,"msvcrt.lib")
 #endif
 
 // quickinput

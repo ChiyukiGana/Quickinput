@@ -4,102 +4,6 @@
 #include "scriptinterpreter.h"
 #include "inc_project.h"
 
-struct WndInput
-{
-	HWND wnd = nullptr; // parent
-	bool child = false; // select child
-	POINT pt = {}; // prev point
-	WORD mk = 0; // prev key
-	bool active() { return IsWindow(wnd); }
-	HWND find(const POINT& pt, POINT& ptrel)
-	{
-		if (!active()) return nullptr;
-		if (child)
-		{
-			QList<HWND> children = Window::FindChild(wnd);
-			int minArea = INT_MAX;
-			RECT minRect = {};
-			HWND minWnd = nullptr;
-			for (auto i = children.rbegin(); i != children.rend(); i++)
-			{
-				minRect = Window::childRect(wnd, *i);
-				if (InRect(minRect, pt))
-				{
-					int area = RectArea(minRect);
-					if (area < minArea)
-					{
-						minArea = area;
-						minWnd = *i;
-					}
-				}
-			}
-			if (minWnd)
-			{
-				ptrel = InRectPos(minRect, pt);
-				return minWnd;
-			}
-		}
-		ptrel = InRectPos(Window::sizeRect(wnd), pt);
-		return wnd;
-	}
-};
-struct WndInfo
-{
-	HWND wnd = nullptr;
-	bool child = false;
-	QString name;
-	QString clas;
-	QString proc;
-	bool update_fromName()
-	{
-		if (!IsWindow(wnd))
-		{
-			return wnd = FindWindowW((LPCWSTR)(clas.utf16()), (LPCWSTR)(name.utf16()));
-		}
-		return true;
-	}
-	bool update_fromHwnd()
-	{
-		if (IsWindow(wnd))
-		{
-			name = Window::text(wnd);
-			clas = Window::className(wnd);
-			DWORD pid;
-			GetWindowThreadProcessId(wnd, &pid);
-			proc = QString::fromStdWString(Process::path(pid));
-			return true;
-		}
-		return false;
-	}
-};
-struct WndLock
-{
-	inline static HANDLE thread;
-	static DWORD _stdcall LockThread(PVOID wnd)
-	{
-		while (IsWindowVisible((HWND)wnd)) {
-			RECT rect = Window::rect((HWND)wnd);
-			ClipCursor(&rect);
-			Sleep(10);
-		}
-		thread = 0;
-		return 0;
-	}
-	static void Lock(HWND wnd)
-	{
-		UnLock();
-		thread = Thread::Start(LockThread, wnd);
-	}
-	static void UnLock()
-	{
-		if (thread)
-		{
-			TerminateThread(thread, 0);
-			thread = 0;
-		}
-		ClipCursor(0);
-	}
-};
 struct WndMatch
 {
 	HWND wnd = nullptr;
@@ -192,6 +96,102 @@ struct WndMatch
 			return TRUE;
 			}, reinterpret_cast<LPARAM>(&p));
 		return wnds;
+	}
+};
+struct WndInput
+{
+	HWND wnd = nullptr; // parent
+	bool child = false; // select child
+	POINT pt = {}; // prev point
+	WORD mk = 0; // prev key
+	bool active() { return IsWindow(wnd); }
+	HWND find(const POINT& pt, POINT& ptrel)
+	{
+		if (!active()) return nullptr;
+		if (child)
+		{
+			QList<HWND> children = Window::FindChild(wnd);
+			int minArea = INT_MAX;
+			RECT minRect = {};
+			HWND minWnd = nullptr;
+			for (auto i = children.rbegin(); i != children.rend(); i++)
+			{
+				minRect = Window::childRect(wnd, *i);
+				if (InRect(minRect, pt))
+				{
+					int area = RectArea(minRect);
+					if (area < minArea)
+					{
+						minArea = area;
+						minWnd = *i;
+					}
+				}
+			}
+			if (minWnd)
+			{
+				ptrel = InRectPos(minRect, pt);
+				return minWnd;
+			}
+		}
+		ptrel = InRectPos(Window::sizeRect(wnd), pt);
+		return wnd;
+	}
+};
+struct WndInfo
+{
+	HWND wnd = nullptr;
+	bool child = false;
+	QString name;
+	QString clas;
+	QString proc;
+	bool update_fromName()
+	{
+		if (!IsWindow(wnd))
+		{
+			return wnd = WndMatch::find(name, clas, proc);
+		}
+		return true;
+	}
+	bool update_fromHwnd()
+	{
+		if (IsWindow(wnd))
+		{
+			name = Window::text(wnd);
+			clas = Window::className(wnd);
+			DWORD pid;
+			GetWindowThreadProcessId(wnd, &pid);
+			proc = QString::fromStdWString(Process::path(pid));
+			return true;
+		}
+		return false;
+	}
+};
+struct WndLock
+{
+	inline static HANDLE thread;
+	static DWORD _stdcall LockThread(PVOID wnd)
+	{
+		while (IsWindowVisible((HWND)wnd)) {
+			RECT rect = Window::rect((HWND)wnd);
+			ClipCursor(&rect);
+			Sleep(10);
+		}
+		thread = 0;
+		return 0;
+	}
+	static void Lock(HWND wnd)
+	{
+		UnLock();
+		thread = Thread::Start(LockThread, wnd);
+	}
+	static void UnLock()
+	{
+		if (thread)
+		{
+			TerminateThread(thread, 0);
+			thread = 0;
+		}
+		ClipCursor(0);
 	}
 };
 
