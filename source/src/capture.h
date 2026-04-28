@@ -6,6 +6,11 @@ class QiGraphicsCapture : public GraphicsCapture
 public:
 	static constexpr LONG npos = LONG_MAX;
 	static constexpr RECT full = { 0, 0, npos, npos };
+	QiGraphicsCapture() {}
+	QiGraphicsCapture(const QiGraphicsCapture&) {}
+	QiGraphicsCapture& operator=(const QiGraphicsCapture&) {}
+	QiGraphicsCapture(QiGraphicsCapture&&) {}
+	QiGraphicsCapture& operator=(QiGraphicsCapture&&) {}
 	bool capture(std::function<bool(size_t w, size_t h, size_t wb, void* d)> proc, RECT rect = full, clock_t timeout = 1000)
 	{
 		GraphicsCapture::Direct3D11CaptureFrame frame = GraphicsCapture::capture(timeout);

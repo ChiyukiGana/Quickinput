@@ -112,7 +112,7 @@ public:
 	std::optional<double> queryCpuUsage()
 	{
 		PDH_FMT_COUNTERVALUE value;
-		if (queryCounter(m_count_cpu_usage, PDH_FMT_DOUBLE, value)) return value.doubleValue;
+		if (queryCounter(m_count_cpu_usage, PDH_FMT_DOUBLE, value)) return std::clamp(value.doubleValue, 0.0, 100.0);
 		return std::nullopt;
 	}
 	std::optional<double> queryCpuClock()
@@ -130,13 +130,13 @@ public:
 	std::optional<double> queryGpuUsage()
 	{
 		PDH_FMT_COUNTERVALUE value;
-		if (queryCounter(m_count_gpu_usage, PDH_FMT_DOUBLE, value)) return value.doubleValue * 100.0;
+		if (queryCounter(m_count_gpu_usage, PDH_FMT_DOUBLE, value)) return std::clamp(value.doubleValue * 100.0, 0.0, 100.0);
 		return std::nullopt;
 	}
 	std::optional<double> queryGpuMemoryUsage()
 	{
 		PDH_FMT_COUNTERVALUE value;
-		if (queryCounter(m_count_gpu_mem_usage, PDH_FMT_DOUBLE, value)) return value.doubleValue;
+		if (queryCounter(m_count_gpu_mem_usage, PDH_FMT_DOUBLE, value)) return value.doubleValue * 2.0;
 		return std::nullopt;
 	}
 	std::optional<double> queryDiskRead()

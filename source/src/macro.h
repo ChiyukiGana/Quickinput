@@ -1,6 +1,7 @@
 #pragma once
 #include "action.h"
 #include "thread.h"
+#include "capture.h"
 #include "scriptinterpreter.h"
 #include "inc_project.h"
 
@@ -237,6 +238,7 @@ struct Macro
 	WndInfo wndInfo; // window input data info
 	WndInfo wndMatch; // window match for trigger
 	WndInput wndInput; // window input status info, use for macro running
+	std::shared_ptr<QiGraphicsCapture> capture;
 	QiInterpreter* interpreter;
 	QiScriptInterpreter script_interpreter;
 	QiMacroThread thread;

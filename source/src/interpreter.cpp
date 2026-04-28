@@ -309,13 +309,14 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 					rect = QiCvt::WR_AtR(rect, wndInput->wnd, macro.range);
 #if defined(Q_WINRT) && defined(Q_GRAPHICS_CAPTURE)
 					bool capture = false;
-					if (QiGraphicsCapture::IsSupported() && Qi::capture.isInit())
+					if (!macro.capture) macro.capture = std::make_shared<QiGraphicsCapture>();
+					if (macro.capture->isInit())
 					{
 						do
 						{
-							if (Qi::capture.window() != wndInput->wnd) if (!Qi::capture.setTarget(wndInput->wnd)) break;
-							if (!Qi::capture.setup(1)) break;
-							if (!Qi::capture.captureRgbMap(rgbMap, rect)) break;
+							if (macro.capture->window() != wndInput->wnd) if (!macro.capture->setTarget(wndInput->wnd)) break;
+							if (!macro.capture->setup(1)) break;
+							if (!macro.capture->captureRgbMap(rgbMap, rect)) break;
 							capture = true;
 						} while (false);
 					}
@@ -402,13 +403,14 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 					rect = QiCvt::WR_AtR(rect, wndInput->wnd, macro.range);
 #if defined(Q_WINRT) && defined(Q_GRAPHICS_CAPTURE)
 					bool capture = false;
-					if (QiGraphicsCapture::IsSupported() && Qi::capture.isInit())
+					if (!macro.capture) macro.capture = std::make_shared<QiGraphicsCapture>();
+					if (macro.capture->isInit())
 					{
 						do
 						{
-							if (Qi::capture.window() != wndInput->wnd) if (!Qi::capture.setTarget(wndInput->wnd)) break;
-							if (!Qi::capture.setup(1)) break;
-							if (!Qi::capture.captureRgbMap(rgbMap, rect)) break;
+							if (macro.capture->window() != wndInput->wnd) if (!macro.capture->setTarget(wndInput->wnd)) break;
+							if (!macro.capture->setup(1)) break;
+							if (!macro.capture->captureRgbMap(rgbMap, rect)) break;
 							capture = true;
 						} while (false);
 					}
@@ -609,13 +611,14 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 							rect = QiCvt::WR_AtR(rect, wndInput->wnd, macro.range);
 #if defined(Q_WINRT) && defined(Q_GRAPHICS_CAPTURE)
 							bool capture = false;
-							if (QiGraphicsCapture::IsSupported() && Qi::capture.isInit())
+							if (!macro.capture) macro.capture = std::make_shared<QiGraphicsCapture>();
+							if (macro.capture->isInit())
 							{
 								do
 								{
-									if (Qi::capture.window() != wndInput->wnd) if (!Qi::capture.setTarget(wndInput->wnd)) break;
-									if (!Qi::capture.setup(1)) break;
-									if (!Qi::capture.captureCImage(image, rect)) break;
+									if (macro.capture->window() != wndInput->wnd) if (!macro.capture->setTarget(wndInput->wnd)) break;
+									if (!macro.capture->setup(1)) break;
+									if (!macro.capture->captureCImage(image, rect)) break;
 									capture = true;
 								} while (false);
 							}

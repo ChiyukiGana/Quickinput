@@ -1177,6 +1177,16 @@ struct QiFunc_wnd_visible : public QiFunc
 		return static_cast<bool>(IsWindowVisible(wnd));
 	}
 };
+struct QiFunc_wnd_text : public QiFunc
+{
+	QiFunc_wnd_text() : QiFunc(1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		auto wnd = reinterpret_cast<HWND>(args[0].toPointer());
+		if (!IsWindow(wnd)) return false;
+		return Window::text(wnd).toStdString();
+	}
+};
 
 struct QiFunc_dir_create : public QiFunc
 {
@@ -2041,6 +2051,7 @@ QiFuncMap::QiFuncMap()
 	insert({ "wnd_exist", std::make_unique<QiFunc_wnd_exist>() });
 	insert({ "wnd_current", std::make_unique<QiFunc_wnd_current>() });
 	insert({ "wnd_visible", std::make_unique<QiFunc_wnd_visible>() });
+	insert({ "wnd_text", std::make_unique<QiFunc_wnd_text>() });
 
 	insert({ "dir_create", std::make_unique<QiFunc_dir_create>() });
 	insert({ "dir_remove", std::make_unique<QiFunc_dir_remove>() });

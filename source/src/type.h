@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "macro.h"
 #include "ui.h"
-#include "capture.h"
 
 struct SIZEF { float cx; float cy; };
 struct RECTF { float left; float top; float right; float bottom; };
@@ -212,7 +211,6 @@ namespace Qi
 	inline QString about;
 	inline size_t ocr_ver = 0;
 	inline QiOcrModule ocr;
-	inline QiGraphicsCapture capture;
 #ifdef Q_RAWINPUT
 	inline QiRawInputModule rawInput;
 #endif

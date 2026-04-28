@@ -308,18 +308,27 @@ public:
 	}
 	static std::string sub(const std::string& str, size_t where, size_t length = ~size_t(0))
 	{
-		if (str.empty()) return std::string();
-		if (where > str.size()) where = str.size() - 1;
-		return str.substr(where, length);
+		if (str.empty() || !length) return {};
+		size_t p = 0;
+		const size_t e = length == ~size_t(0) ? ~size_t(0) : where + length;
+		std::string s;
+		iterateStrX(str, [&p, &e, &s, where, length](const std::string& ch) -> bool {
+			if (p >= e) return true;;
+			if (p >= where) s += ch;
+			p++;
+			return true;
+		});
+		return s;
 	}
 	static std::string subx(const std::string& str, size_t where, size_t length = ~size_t(0))
 	{
-		if (str.empty() || (!where && !length)) return std::string();
-		size_t end = str.size() - where - 1;
-		if (end >= str.size()) return std::string();
+		if (str.empty() || !length) return {};
+		const size_t size = len(str);
+		size_t end = size - where - 1;
+		if (end >= size) return std::string();
 		size_t begin = end - length + 1;
-		if (begin >= str.size()) begin = 0;
-		return str.substr(begin, end - begin + 1);
+		if (begin >= size) begin = 0;
+		return sub(str, begin, end - begin + 1);
 	}
 	static void iterateStr(const std::string& str, std::function<void(const std::string& ch)> call) {
 		for (size_t i = 0; i < str.size(); )
@@ -339,6 +348,7 @@ public:
 			i += charLen;
 		}
 	}
+	// return false to break;
 	static bool iterateStrX(const std::string& str, std::function<bool(const std::string& ch)> call) {
 		for (size_t i = 0; i < str.size(); )
 		{

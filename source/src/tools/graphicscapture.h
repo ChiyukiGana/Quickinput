@@ -57,7 +57,17 @@ public:
 
 	static bool IsSupported()
 	{
-		return winrt::Windows::Graphics::Capture::GraphicsCaptureSession::IsSupported();
+		try
+		{
+			if (!winrt::Windows::Foundation::Metadata::ApiInformation::IsTypePresent(L"Windows.Graphics.Capture.GraphicsCaptureSession")) return false;
+			if (!winrt::Windows::Foundation::Metadata::ApiInformation::IsTypePresent(L"Windows.Graphics.Capture.GraphicsCaptureItem")) return false;
+			if (!winrt::Windows::Foundation::Metadata::ApiInformation::IsMethodPresent(L"Windows.Graphics.Capture.GraphicsCaptureSession", L"IsSupported")) return false;
+			if (!winrt::Windows::Foundation::Metadata::ApiInformation::IsMethodPresent(L"Windows.Graphics.Capture.GraphicsCaptureItem", L"TryCreateFromWindowId")) return false;
+			if (!winrt::Windows::Foundation::Metadata::ApiInformation::IsMethodPresent(L"Windows.Graphics.Capture.GraphicsCaptureItem", L"TryCreateFromWindowId")) return false;
+			return winrt::Windows::Graphics::Capture::GraphicsCaptureSession::IsSupported();
+		}
+		catch (const winrt::hresult_error& e) {}
+		return false;
 	}
 	static bool IsCursorCaptureSupported()
 	{
@@ -109,9 +119,11 @@ private:
 	}
 
 public:
+	GraphicsCapture(const GraphicsCapture&) = delete;
+	GraphicsCapture& operator=(const GraphicsCapture&) = delete;
 	GraphicsCapture(GraphicsCapture&&) = delete;
 	GraphicsCapture& operator=(GraphicsCapture&&) = delete;
-	GraphicsCapture() : m_support(IsSupported()), m_curosr_capture_support(IsCursorCaptureSupported()), m_min_update_interval_support(IsMinUpdateIntervalSupported()) { m_init = CreateDevice(m_device, m_context, m_gi, m_rtdevice); }
+	GraphicsCapture() : m_support(IsSupported()), m_curosr_capture_support(IsCursorCaptureSupported()), m_min_update_interval_support(IsMinUpdateIntervalSupported()) { if (m_support) m_init = CreateDevice(m_device, m_context, m_gi, m_rtdevice); }
 	~GraphicsCapture() { close(); }
 
 	bool isInit() const { return m_init; }
@@ -127,12 +139,14 @@ public:
 	void setTarget(const GraphicsCaptureItem& target) { m_target = target; }
 	bool setTarget(HWND window)
 	{
+		if (!m_support) return false;
 		m_window = window;
 		m_target = GraphicsCaptureItem::TryCreateFromWindowId(winrt::Windows::UI::WindowId{ reinterpret_cast<uint64_t>(window) });
 		return m_target.operator bool();
 	}
 	bool setTarget(HMONITOR monitor)
 	{
+		if (!m_support) return false;
 		m_monitor = monitor;
 		m_target = GraphicsCaptureItem::TryCreateFromDisplayId(winrt::Windows::Graphics::DisplayId{ reinterpret_cast<uint64_t>(monitor) });
 		return m_target.operator bool();
