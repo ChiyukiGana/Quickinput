@@ -69,8 +69,17 @@
 void Init();
 int main(int argc, char* argv[])
 {
-    puts("QUICKINPUT_(C)CHIYUKIGANA");
+	puts("QUICKINPUT_(C)CHIYUKIGANA");
 	std::locale::global(std::locale(".UTF8")); // set utf8 for all std streams
+
+	// recode ascii to unicode
+	auto u_argv = new char*[argc];
+	for (size_t i{};i < argc; i++)
+	{
+		auto s = String::recode(argv[i], String::systemCode(), CP_UTF8);
+		u_argv[i] = new char[s.size() + 1];
+		strcpy_s(u_argv[i], s.size() + 1, s.c_str());
+	}
 
 	Process::RunPath(); // reset work path to exe path
 
@@ -89,10 +98,10 @@ int main(int argc, char* argv[])
 	verify();
 #endif
 
-    Init();
+	Qi::init();
 
-    qputenv("QT_QPA_PLATFORM", "windows:darkmode=0");
-	QApplication application(argc, argv);
+	qputenv("QT_QPA_PLATFORM", "windows:darkmode=0");
+	QApplication application(argc, u_argv);
 	QApplication::setWindowIcon(QIcon(":/icon.png"));
 	Qi::application = &application;
 	Qi::popText = new QPopText;

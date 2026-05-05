@@ -15,11 +15,10 @@ EditUi::EditUi(Macro* macro) : macro(macro), actionsRoot(&macro->acRun), actions
 		setGeometry(centeredRect);
 	}
 
-	Forward(QString::fromUtf8("编辑 - ") + macro->name, actionsRoot);
 	Init();
 	Event();
 	StyleGroup();
-	Reload();
+	Forward(QString::fromUtf8("编辑 - ") + macro->name, actionsRoot);
 }
 
 void EditUi::Init()
@@ -1219,6 +1218,7 @@ void EditUi::SelectWindow()
 void EditUi::Reload()
 {
 	setWindowTitle(layers.last().title);
+	actionsHistory = *actions;
 	if (layers.size() > 1)
 	{
 		ui.action_running_radio->setVisible(false);
@@ -2736,7 +2736,7 @@ void EditUi::ListBlockReload()
 void EditUi::Back()
 {
 	layers.removeLast();
-	if (layers.empty())
+	if (layers.isEmpty())
 	{
 		Qi::popText->Show("正在保存宏");
 		QTimer::singleShot(32, [] { Qi::widget.editClose(); });
@@ -2744,7 +2744,6 @@ void EditUi::Back()
 	else
 	{
 		actions = layers.last().actions;
-		actionsHistory = *actions;
 		setWindowTitle(layers.last().title);
 		Reload();
 		ItemSelect(layers.last().items);
@@ -2753,17 +2752,17 @@ void EditUi::Back()
 void EditUi::Forward(const QString& title, Actions* next)
 {
 	actions = next;
-	actionsHistory = *actions;
 	if (layers.isEmpty()) layers.append({ title, next });
 	else
 	{
 		layers.last().items = tableCurrent;
 		layers.append({ title, next });
-		Reload();
 	}
+	Reload();
 }
 void EditUi::Exit(bool save)
 {
+	actionsHistory.clear();
 	Qi::widget.macroEdited(save);
 	QiJson::SaveJson();
 	close();

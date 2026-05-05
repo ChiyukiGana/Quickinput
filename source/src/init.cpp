@@ -904,20 +904,29 @@ QToolTip,
         }
     }
 }
-void Init()
+
+std::once_flag init_once;
+void Qi::init()
 {
-    Qi::screen = System::screenSize();
-    Qi::display_update.start();
+    std::call_once(init_once, [] {
+        Qi::screen = System::screenSize();
+        Qi::display_update.start();
+        QiJson::LoadJson();
+        Init_Sound();
+        Init_Style();
+        if (Qi::set.theme >= Qi::ui.themes.size()) Qi::set.theme = 0;
 
-    QiJson::LoadJson();
-
-    Init_Sound();
-
-    Init_Style();
-    if (Qi::set.theme >= Qi::ui.themes.size()) Qi::set.theme = 0;
-
-    QiFn::InitOcr(false);
+        QiFn::InitOcr(false);
 #ifdef Q_RAWINPUT
-    if (Qi::set.rawInput) QiFn::InitRawInput(false);
+        if (Qi::set.rawInput) QiFn::InitRawInput(false);
 #endif
+
+        QiScriptInterpreter::init();
+       });
+}
+
+[[noreturn]] void Qi::exit(int code)
+{
+    QiScriptInterpreter::exit();
+    ExitProcess(static_cast<UINT>(code));
 }

@@ -19,6 +19,7 @@
 #include <src/thread.h>
 #include <src/var.h>
 #include <src/mutex.h>
+#include <src/typepack/typepack.h>
 
 class QiScriptInterpreter;
 struct QiFunc
@@ -138,17 +139,18 @@ private:
 	using QiCustomFuncMap = std::map<std::string, std::unique_ptr<QiCustomFunc>>;
 
 	static inline const QiFuncMap functions;
-	static inline QiVarMap globalVariables;
+
 	static inline QiCustomFuncMap customFunctions;
-	static inline std::mutex globalVariablesMutex;
 	static inline std::mutex customFunctionsMutex;
-	static inline QiMutex mutex;
+
+	static inline QiVarMap globalVariables;
+	static inline std::mutex globalVariablesMutex;
 
 	std::mutex this_mutex;
 	QiVarMap localVariables;
 	std::mutex localVariablesMutex;
-	Property propertys;
-	QiWorker* workerPtr = nullptr;
+	QiWorker* workerPtr{}; // single-threaded
+	Property propertys; // single-threaded
 
 	auto trim(const std::string& s) -> std::string
 	{
@@ -779,15 +781,6 @@ public:
 	}
 	QiScriptInterpreter& operator=(const QiScriptInterpreter&) { return *this; };
 
-	void clear()
-	{
-		this_mutex.lock();
-		localVariables.clear();
-		propertys.clear();
-		workerPtr = nullptr;
-		this_mutex.unlock();
-	}
-
 	auto execute(const std::string& code, QiVarMap* local = nullptr) -> QiVar
 	{
 		auto tokens = tokenize(code);
@@ -1041,12 +1034,126 @@ public:
 	std::mutex* localMutex() { return &localVariablesMutex; }
 	std::mutex* thisMutex() { return &this_mutex; }
 
+private:
+	static inline QiMutex mutex;
+public:
 	static QiMutex* mutex_map() { return &mutex; }
 
-	static void clearGlobal() { std::unique_lock<std::mutex> lock(globalVariablesMutex); globalVariables.clear(); }
+private:
+	static inline typepack::object savedVariables;
+	static inline std::once_flag savedVariables_InitCall;
+	static inline std::once_flag savedVariables_StopCall;
+	static inline std::atomic_bool savedVariables_Stop{};
+	static inline bool savedVariables_Save{};
+	static inline std::mutex savedVariables_Mutex;
+	static inline std::thread savedVariables_Thread;
+	static inline std::condition_variable savedVariables_Condition;
+public:
+	static void initSavedVariable()
+	{
+		std::call_once(savedVariables_InitCall, [] {
+			savedVariables_Mutex.lock();
+			auto data = File::FileReadAll(Qi::savedVarFile.toStdWString());
+			if (!data.empty()) savedVariables = typepack::object::fromBinary(data);
+			savedVariables_Mutex.unlock();
+
+			savedVariables_Thread = std::thread([] {
+				while (true)
+				{
+					{
+						std::unique_lock lock(savedVariables_Mutex);
+						savedVariables_Condition.wait(lock, [&] { return savedVariables_Save || savedVariables_Stop; });
+						if (savedVariables_Stop) break;
+					}
+
+					savedVariables_Mutex.lock();
+					if (savedVariables_Save)
+					{
+						savedVariables_Save = false;
+						if (!savedVariables.empty())
+						{
+							auto data = savedVariables.toBinary();
+							File::FileSave(Qi::savedVarFile.toStdWString(), data.data(), data.size());
+						}
+						savedVariables_Mutex.unlock();
+						Sleep(500);
+					}
+					else savedVariables_Mutex.unlock();
+				}
+				savedVariables_Mutex.lock();
+				if (!savedVariables.empty())
+				{
+					auto data = savedVariables.toBinary();
+					File::FileSave(Qi::savedVarFile.toStdWString(), data.data(), data.size());
+				}
+				savedVariables_Mutex.unlock();
+				});
+		});
+	}
+	static void stopSavedVariable()
+	{
+		std::call_once(savedVariables_StopCall, [] {
+			if (!savedVariables_Thread.joinable()) return;
+			savedVariables_Stop = true;
+			savedVariables_Condition.notify_all();
+			savedVariables_Thread.join();
+		});
+	}
+	static QiVar getSavedVariable(const std::string name)
+	{
+		typepack::value v;
+		{
+			std::unique_lock<std::mutex> lock(savedVariables_Mutex);
+			auto i = savedVariables.find(name);
+			if (i != savedVariables.end()) v = i->second;
+		}
+		switch (v.index())
+		{
+		case typepack::value::Type::Bool: return v.toBool();
+		case typepack::value::Type::Int: return v.toInt();
+		case typepack::value::Type::UInt: return v.toUInt();
+		case typepack::value::Type::Number: return v.toNumber();
+		case typepack::value::Type::String: return v.toString();
+		}
+		return {};
+	}
+	static void setSavedVariable(const std::string name, const QiVar& value)
+	{
+		typepack::value v;
+		switch (value.type())
+		{
+		case QiVar::t_bool: v = value.toBool(); break;
+		case QiVar::t_int: v = value.toInteger(); break;
+		case QiVar::t_num: v = value.toNumber(); break;
+		case QiVar::t_str: v = value.toString(); break;
+		}
+		if (v.isNull()) return;
+		{
+			std::unique_lock<std::mutex> lock(savedVariables_Mutex);
+			savedVariables_Save = true;
+			savedVariables[name] = std::move(v);
+		}
+		savedVariables_Condition.notify_all();
+	}
+
+	void clearLocals()
+	{
+		{
+			std::unique_lock<std::mutex> lock(localVariablesMutex);
+			localVariables.clear();
+		}
+		{
+			std::unique_lock<std::mutex> lock(this_mutex);
+			propertys.clear();
+			workerPtr = nullptr;
+		}
+	}
 	void clearLocal() { std::unique_lock<std::mutex> lock(localVariablesMutex); localVariables.clear(); }
-	void clearProperty() { std::unique_lock<std::mutex> lock(this_mutex); propertys.clear(); }
+	static void clearGlobal() { std::unique_lock<std::mutex> lock(globalVariablesMutex); globalVariables.clear(); }
+	void clearFunc() { std::unique_lock<std::mutex> lock(customFunctionsMutex); customFunctions.clear(); }
 	static void clearMutex() { mutex.clean_up(); }
+	void clearProperty() { std::unique_lock<std::mutex> lock(this_mutex); propertys.clear(); }
+	static void clearSaved() { std::unique_lock<std::mutex> lock(savedVariables_Mutex); savedVariables.clear(); savedVariables_Save = true; }
 
 	static auto makeString(const std::string str) -> std::string
 	{
@@ -1114,5 +1221,14 @@ public:
 			text = L"函数参数无效";
 		}
 		MessageBoxW(nullptr, (String::toWString(msg) + std::wstring(L"\n\n") + text + std::wstring(L"\n\n") + String::toWString(addition)).c_str(), L"Quickinput script", MB_ICONERROR | MB_TOPMOST);
+	}
+
+	static void init()
+	{
+		initSavedVariable();
+	}
+	static void exit()
+	{
+		stopSavedVariable();
 	}
 };

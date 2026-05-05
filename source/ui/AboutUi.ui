@@ -69,7 +69,7 @@
       <string notr="true">font-size:20px</string>
      </property>
      <property name="text">
-      <string>2026-4-29</string>
+      <string>2026-5-5</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
@@ -85,9 +85,9 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>增加获取窗口名称函数
-修复低版本系统使用后台识别崩溃
-优化sub函数判断中文位置问题</string>
+      <string>增加清空函数
+增加变量保存函数
+修复编辑结束时崩溃</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>

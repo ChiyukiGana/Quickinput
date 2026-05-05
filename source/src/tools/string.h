@@ -1,11 +1,12 @@
 #pragma once
 #include <windows.h>
 #include <string>
-#define CP_GB2312 10008
+#define CP_GB2312 936
 namespace QiTools {
 	class String
 	{
 	public:
+		static UINT systemCode() { return GetACP(); }
 		static std::string recode(const std::string& res, UINT resCodePage, UINT desCodePage) { return toString(toWString(res, resCodePage), desCodePage); }
 
 		// string convert

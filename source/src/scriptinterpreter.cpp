@@ -561,6 +561,80 @@ struct QiFunc_is_str : public QiFunc
 	}
 };
 
+struct QiFunc_clear : public QiFunc
+{
+	QiFunc_clear() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter* inter) const override
+	{
+		inter->clearLocal();
+		inter->clearGlobal();
+		return {};
+	}
+};
+struct QiFunc_clear_local : public QiFunc
+{
+	QiFunc_clear_local() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter* inter) const override
+	{
+		inter->clearLocal();
+		return {};
+	}
+};
+struct QiFunc_clear_global : public QiFunc
+{
+	QiFunc_clear_global() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter* inter) const override
+	{
+		inter->clearGlobal();
+		return {};
+	}
+};
+struct QiFunc_clear_save : public QiFunc
+{
+	QiFunc_clear_save() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter* inter) const override
+	{
+		inter->clearSaved();
+		return {};
+	}
+};
+struct QiFunc_clear_func : public QiFunc
+{
+	QiFunc_clear_func() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter* inter) const override
+	{
+		inter->clearFunc();
+		return {};
+	}
+};
+
+/*
+save a var
+1: name
+2: value
+*/
+struct QiFunc_save : public QiFunc
+{
+	QiFunc_save() : QiFunc(2) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter* inter) const override
+	{
+		inter->setSavedVariable(args[0].toString(), args[1]);
+		return args[1];
+	}
+};
+/*
+load a var
+1: name
+*/
+struct QiFunc_load : public QiFunc
+{
+	QiFunc_load() : QiFunc(1) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter* inter) const override
+	{
+		return inter->getSavedVariable(args[0].toString());
+	}
+};
+
 struct QiFunc_str : public QiFunc
 {
 	QiFunc_str() : QiFunc(1) {}
@@ -1376,7 +1450,7 @@ struct QiFunc_proc_close : public QiFunc
 	QiFunc_proc_close() : QiFunc(0, 1) {}
 	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
 	{
-		if (args.empty()) ExitProcess(0);
+		if (args.empty()) Qi::exit(0);
 		return Process::close(args[0].toWString());
 	}
 };
@@ -1990,6 +2064,14 @@ QiFuncMap::QiFuncMap()
 	insert({ "exist", std::make_unique<QiFunc_exist>() });
 	insert({ "value", std::make_unique<QiFunc_value>() });
 	insert({ "type", std::make_unique<QiFunc_type>() });
+	insert({ "save", std::make_unique<QiFunc_save>() });
+	insert({ "load", std::make_unique<QiFunc_load>() });
+
+	insert({ "clear", std::make_unique<QiFunc_clear>() });
+	insert({ "clear_local", std::make_unique<QiFunc_clear_local>() });
+	insert({ "clear_global", std::make_unique<QiFunc_clear_global>() });
+	insert({ "clear_save", std::make_unique<QiFunc_clear_save>() });
+	insert({ "clear_func", std::make_unique<QiFunc_clear_func>() });
 
 	insert({ "is_null", std::make_unique<QiFunc_is_null>() });
 	insert({ "is_int", std::make_unique<QiFunc_is_int>() });

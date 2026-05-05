@@ -42,7 +42,10 @@ namespace Qi
 	inline const QString macroType = ".json";
 	inline const QString macroQimType = ".qim";
 	inline const QString emacroType = ".emacro";
+	inline const QString savedVarFile = "QuickInput.var";
 	inline const QString configFile = "QuickInput.json";
 	inline QString version;
 	inline HICON ico = LoadIconW(GetModuleHandleW(nullptr), L"ICOAPP");
+	void init();
+	[[noreturn]] void exit(int code = 0);
 }

@@ -17,7 +17,7 @@ struct QiMacroWorker : public QiWorkerWithArgs<bool,Macro*,std::condition_variab
 		this->macro = macro;
 		ready.notify_all();
 
-		macro->script_interpreter.clear();
+		macro->script_interpreter.clearLocals();
 		macro->script_interpreter.setWorker(this);
 		macro->script_interpreter.setValue(QiScriptInterpreter::var_macro_name, macro->name.toStdString());
 
