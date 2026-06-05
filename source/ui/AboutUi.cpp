@@ -4,25 +4,21 @@ AboutUi::AboutUi(QWidget* parent) : QWidget(parent)
 	ui.setupUi(this);
 	setWindowFlags(Qt::FramelessWindowHint);
 	if (!Qi::about.isEmpty()) ui.update_label->setText(Qi::about);
-	version_res = ui.version_label->text();
+	version_current = ui.version_label->text();
 	ui.url_label->installEventFilter(this);
 	ui.license_label->installEventFilter(this);
 #ifdef Q_UPDATE
-	update = new QiUpdate(this, version_res);
-	if (update->good()) update->getlatest();
+	update = std::make_unique<QiUpdate>(this, version_current);
+	update->getlatest();
 #endif
 #ifdef Q_URL_HIDE
 	ui.url_label->setHidden(true);
 #endif
 #ifdef Q_COPYRIGHT_HIDE
-	ui.copyright_dec_label->setHidden(true);
 	ui.copyright_widget->setHidden(true);
 #endif
 }
-QString AboutUi::Version() const
-{
-	return version_res;
-}
+QString AboutUi::Version() const { return version_current; }
 
 bool AboutUi::eventFilter(QObject* obj, QEvent* e)
 {
@@ -99,14 +95,13 @@ bool AboutUi::eventFilter(QObject* obj, QEvent* e)
 	}
 	return QWidget::eventFilter(obj, e);
 }
+#ifdef Q_UPDATE
 void AboutUi::customEvent(QEvent*)
 {
-#ifdef Q_UPDATE
-	if (update->check(version, content))
-	{
-		ui.version_label->setText(ui.version_label->text() + "（有新版本）");
-		ui.version_label->setCursor(QCursor(Qt::CursorShape::WhatsThisCursor));
-		ui.version_label->installEventFilter(this);
-	}
-#endif
+	version = update->version();
+	content = update->content();
+	ui.version_label->setText(ui.version_label->text() + "（有新版本）");
+	ui.version_label->setCursor(QCursor(Qt::CursorShape::WhatsThisCursor));
+	ui.version_label->installEventFilter(this);
 }
+#endif

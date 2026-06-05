@@ -15,14 +15,6 @@
 #include <QTextDialog.h>
 // modules
 #include <src/ocr/QiOcrInterface.h>
-#ifdef Q_RAWINPUT
-#include <rawin/QiRawInput.h>
-#endif
-
-// for curl release
-#ifdef DEBUG
-#pragma comment(lib,"msvcrtd.lib")
-#endif
 
 // quickinput
 namespace Qi

@@ -6,6 +6,7 @@
 #include <qtimer.h>
 #include <qscreen.h>
 #include <windows.h>
+#include <iostream>
 
 class PopTextEvent : public QEvent
 {
@@ -46,8 +47,6 @@ class QPopText : public QDialog
 	QTimer* timer;
 	int time;
 	int size;
-public:
-
 public:
 	QPopText() : QDialog()
 	{
@@ -106,6 +105,7 @@ private:
 
 	void customEvent(QEvent* e)
 	{
+		std::cout << "QPopText::customEvent\n\n";
 		PopTextEvent* popText = (PopTextEvent*)e;
 		if (popText->type() == PopTextEvent::pop)
 		{
@@ -131,7 +131,6 @@ private:
 		{
 			timer->stop();
 			setWindowOpacity(0.0);
-			repaint();
 		}
 		else if (popText->type() == PopTextEvent::setPos)
 		{
@@ -167,6 +166,8 @@ private:
 private Q_SLOTS:
 	void OnTimer()
 	{
+		std::cout << "QPopText::OnTimer\n";
+		std::cout << "----Opacity: " << windowOpacity() << "\n\n";
 		if (time < 1000)
 		{
 			double opacity = ((double)time) / 1000.0;

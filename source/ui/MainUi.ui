@@ -24,8 +24,8 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>640</width>
-    <height>510</height>
+    <width>642</width>
+    <height>2000</height>
    </size>
   </property>
   <property name="contextMenuPolicy">

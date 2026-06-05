@@ -1070,7 +1070,8 @@ public:
 					if (savedVariables_Save)
 					{
 						savedVariables_Save = false;
-						if (!savedVariables.empty())
+						if (savedVariables.empty()) DeleteFileW(Qi::savedVarFile.toStdWString().c_str());
+						else
 						{
 							auto data = savedVariables.toBinary();
 							File::FileSave(Qi::savedVarFile.toStdWString(), data.data(), data.size());
@@ -1081,7 +1082,8 @@ public:
 					else savedVariables_Mutex.unlock();
 				}
 				savedVariables_Mutex.lock();
-				if (!savedVariables.empty())
+				if (savedVariables.empty()) DeleteFileW(Qi::savedVarFile.toStdWString().c_str());
+				else
 				{
 					auto data = savedVariables.toBinary();
 					File::FileSave(Qi::savedVarFile.toStdWString(), data.data(), data.size());
@@ -1153,7 +1155,7 @@ public:
 	void clearFunc() { std::unique_lock<std::mutex> lock(customFunctionsMutex); customFunctions.clear(); }
 	static void clearMutex() { mutex.clean_up(); }
 	void clearProperty() { std::unique_lock<std::mutex> lock(this_mutex); propertys.clear(); }
-	static void clearSaved() { std::unique_lock<std::mutex> lock(savedVariables_Mutex); savedVariables.clear(); savedVariables_Save = true; }
+	static void clearSaved() { std::unique_lock<std::mutex> lock(savedVariables_Mutex); savedVariables.clear(); savedVariables_Save = true; savedVariables_Condition.notify_all(); }
 
 	static auto makeString(const std::string str) -> std::string
 	{

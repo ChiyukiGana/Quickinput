@@ -1,72 +1,12 @@
-﻿// 通过config.props配置预处理宏控制编译条件
-#pragma message("编译配置：")
-
-#ifdef Q_COPYRIGHT_HIDE
-#pragma message("版权信息=0")
-#else
-#pragma message("版权信息=1")
-#endif
-
-#ifdef Q_URL_HIDE
-#pragma message("显示网址=0")
-#else
-#pragma message("显示网址=1")
-#endif
-
-#ifdef Q_KEYEDIT_PAD_ENABLED
-#pragma message("手柄识别=1")
-#else
-#pragma message("手柄识别=0")
-#endif
-
-#ifdef Q_INTEGRITY_VERIFY
-#pragma message("修改验证=1")
-#else
-#pragma message("修改验证=0")
-#endif
-
-#ifdef Q_UPDATE
-#pragma message("更新检查=1")
-#else
-#pragma message("更新检查=0")
-#endif
-
-#ifdef Q_RAWINPUT
-#pragma message("驱动输入=1")
-#else
-#pragma message("驱动输入=0")
-#endif
-
-#ifdef Q_ENCRYPT
-#pragma message("文件加密=1")
-#else
-#pragma message("文件加密=0")
-#endif
-
-#ifdef Q_VERIFY
-#pragma message("网络验证=1")
-#else
-#pragma message("网络验证=0")
-#endif
+﻿#pragma message("======== 设置编译条件在config.props ========")
 
 #include <ui/MainUi.h>
 #include <src/inc_header.h>
 
-#ifndef DEBUG
-
-#ifdef Q_INTEGRITY_VERIFY
-#define INTEGRITY_VERIFY_EXEC
-#include <src/integrity_verify.h>
-#endif
-
-#ifdef Q_VERIFY
-#define VERIFY_EXEC
+#if !defined(DEBUG) && defined(Q_VERIFY)
 #include <verify/verify.h>
 #endif
 
-#endif
-
-void Init();
 int main(int argc, char* argv[])
 {
 	puts("QUICKINPUT_(C)CHIYUKIGANA");
@@ -91,10 +31,7 @@ int main(int argc, char* argv[])
 	}
 	else CreateMutexW(0, 0, mutex.c_str());
 
-#ifdef INTEGRITY_VERIFY_EXEC
-	integrity_verify();
-#endif
-#ifdef VERIFY_EXEC
+#if !defined(DEBUG) && defined(Q_VERIFY)
 	verify();
 #endif
 

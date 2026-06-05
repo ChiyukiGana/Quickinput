@@ -11,7 +11,9 @@
 #include <atomic>
 #include <mutex>
 #include <optional>
+#include <dxgi.h>
 #pragma comment(lib, "pdh.lib")
+#pragma comment(lib, "dxgi.lib")
 
 class ResMonitor
 {
@@ -25,6 +27,14 @@ class ResMonitor
 	{
 		std::wstring name;
 		uint32_t memory = 0;
+	};
+
+	enum ValueType
+	{
+		_avg,
+		_max,
+		_sum,
+		_first
 	};
 
 	static constexpr const wchar_t* c_path_cpu_usage = L"\\Processor Information(_Total)\\% Processor Utility";
@@ -77,17 +87,45 @@ class ResMonitor
 		}
 		return true;
 	}
-	bool queryCounter(const HCOUNTER& count, DWORD fmt, PDH_FMT_COUNTERVALUE& value)
+	bool queryCounter(const HCOUNTER& count, double& value)
+	{
+		PDH_FMT_COUNTERVALUE countValue{};
+		if (PdhGetFormattedCounterValue(count, PDH_FMT_DOUBLE, NULL, &countValue) == ERROR_SUCCESS)
+		{
+			value = countValue.doubleValue;
+			return true;
+		}
+		return false;
+	}
+	bool queryCounterArray(const HCOUNTER& count, double& value, ValueType type)
 	{
 		std::unique_lock<std::mutex> _(m_query_mutex);
-		DWORD valueBytes{}, valueCount{};
-		if (PdhGetFormattedCounterArrayW(count, PDH_FMT_DOUBLE, &valueBytes, &valueCount, nullptr) != PDH_MORE_DATA) return false;
-		auto values = std::make_unique<char[]>(valueBytes);
-		PdhGetFormattedCounterArrayW(count, PDH_FMT_DOUBLE, &valueBytes, &valueCount, reinterpret_cast<PDH_FMT_COUNTERVALUE_ITEM_W*>(values.get()));
-		if (valueCount < 1) return false;
+		DWORD bytes{}, itemCount{};
+		if (PdhGetFormattedCounterArrayW(count, PDH_FMT_DOUBLE, &bytes, &itemCount, nullptr) != PDH_MORE_DATA) return false;
+
+		auto __ = std::make_unique<char[]>(bytes);
+		auto items = reinterpret_cast<PDH_FMT_COUNTERVALUE_ITEM_W*>(__.get());
+
+		PdhGetFormattedCounterArrayW(count, PDH_FMT_DOUBLE, &bytes, &itemCount, items);
+		if (itemCount < 1) return false;
 		value = {};
-		for (DWORD i = 0; i < valueCount; i++) value.doubleValue += reinterpret_cast<PDH_FMT_COUNTERVALUE_ITEM_W*>(values.get())[i].FmtValue.doubleValue;
-		value.doubleValue /= valueCount;
+		if (type == _max)
+		{
+			for (DWORD i = 0; i < itemCount; i++) if (items[i].FmtValue.doubleValue > value) value = items[i].FmtValue.doubleValue;
+		}
+		else if (type == _sum)
+		{
+			for (DWORD i = 0; i < itemCount; i++) value += items[i].FmtValue.doubleValue;
+		}
+		else if (type == _first)
+		{
+			value = items->FmtValue.doubleValue;
+		}
+		else
+		{
+			for (DWORD i = 0; i < itemCount; i++) value += items[i].FmtValue.doubleValue;
+			value /= itemCount;
+		}
 		return true;
 	}
 public:
@@ -107,60 +145,61 @@ public:
 	bool setGpuMemoryUsage(bool query) { return setCounter(c_path_gpu_mem_usage, m_count_gpu_mem_usage, !query); }
 	bool setDisk(bool query) { return setCounter(c_path_disk_read, m_count_disk_read, !query) && setCounter(c_path_disk_write, m_count_disk_write, !query); }
 	bool setNetwork(bool query) { return setCounter(c_path_network_receive, m_count_network_receive, !query) && setCounter(c_path_network_send, m_count_network_send, !query); }
-	void setInterval(uint32_t interval = 1000) { m_interval = interval > 100 ? interval : 100; }
+	void setInterval(uint32_t interval = 1000) { m_interval = interval > 1000 ? interval : 1000; }
+	uint32_t interval() const { return m_interval; }
 
 	std::optional<double> queryCpuUsage()
 	{
-		PDH_FMT_COUNTERVALUE value;
-		if (queryCounter(m_count_cpu_usage, PDH_FMT_DOUBLE, value)) return std::clamp(value.doubleValue, 0.0, 100.0);
+		double value{};
+		if (queryCounter(m_count_cpu_usage, value)) return std::clamp(value, 0.0, 100.0);
 		return std::nullopt;
 	}
 	std::optional<double> queryCpuClock()
 	{
-		PDH_FMT_COUNTERVALUE value;
-		if (queryCounter(m_count_cpu_clock, PDH_FMT_DOUBLE, value)) return value.doubleValue;
+		double value{};
+		if (queryCounter(m_count_cpu_clock, value)) return value;
 		return std::nullopt;
 	}
 	std::optional<double> queryCpuBaseClock()
 	{
-		PDH_FMT_COUNTERVALUE value;
-		if (queryCounter(m_count_cpu_base_clock, PDH_FMT_DOUBLE, value)) return value.doubleValue;
+		double value{};
+		if (queryCounter(m_count_cpu_base_clock, value)) return value;
 		return std::nullopt;
 	}
 	std::optional<double> queryGpuUsage()
 	{
-		PDH_FMT_COUNTERVALUE value;
-		if (queryCounter(m_count_gpu_usage, PDH_FMT_DOUBLE, value)) return std::clamp(value.doubleValue * 100.0, 0.0, 100.0);
+		double value{};
+		if (queryCounterArray(m_count_gpu_usage, value, _max)) return std::clamp(value, 0.0, 100.0);
 		return std::nullopt;
 	}
 	std::optional<double> queryGpuMemoryUsage()
 	{
-		PDH_FMT_COUNTERVALUE value;
-		if (queryCounter(m_count_gpu_mem_usage, PDH_FMT_DOUBLE, value)) return value.doubleValue * 2.0;
+		double value{};
+		if (queryCounterArray(m_count_gpu_mem_usage, value, _max)) return value;
 		return std::nullopt;
 	}
 	std::optional<double> queryDiskRead()
 	{
-		PDH_FMT_COUNTERVALUE value;
-		if (queryCounter(m_count_disk_read, PDH_FMT_DOUBLE, value)) return value.doubleValue;
+		double value{};
+		if (queryCounter(m_count_disk_read, value)) return value;
 		return std::nullopt;
 	}
 	std::optional<double> queryDiskWrite()
 	{
-		PDH_FMT_COUNTERVALUE value;
-		if (queryCounter(m_count_disk_write, PDH_FMT_DOUBLE, value)) return value.doubleValue;
+		double value{};
+		if (queryCounter(m_count_disk_write, value)) return value;
 		return std::nullopt;
 	}
 	std::optional<double> queryNetworkReceive()
 	{
-		PDH_FMT_COUNTERVALUE value;
-		if (queryCounter(m_count_network_receive, PDH_FMT_DOUBLE, value)) return value.doubleValue;
+		double value{};
+		if (queryCounterArray(m_count_network_receive, value, _avg)) return value;
 		return std::nullopt;
 	}
 	std::optional<double> queryNetworkSend()
 	{
-		PDH_FMT_COUNTERVALUE value;
-		if (queryCounter(m_count_network_send, PDH_FMT_DOUBLE, value)) return value.doubleValue;
+		double value{};
+		if (queryCounterArray(m_count_network_send, value, _avg)) return value;
 		return std::nullopt;
 	}
 
@@ -277,6 +316,8 @@ public:
 		{
 			std::unique_lock<std::mutex> _(m_query_mutex);
 			if (PdhCollectQueryData(m_query) != ERROR_SUCCESS) return false;
+			sleep(100);
+			PdhCollectQueryData(m_query);
 		}
 		std::unique_lock<std::mutex> _(m_thread_mutex);
 		if (m_thread.joinable()) return true;

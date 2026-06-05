@@ -11,10 +11,6 @@ SettingsUi::SettingsUi(QWidget* parent) : QWidget(parent)
 	ui.pad_label->setHidden(true);
 	ui.pad_check->setHidden(true);
 #endif
-#ifndef Q_RAWINPUT
-	ui.rawInput_label->setHidden(true);
-	ui.rawInput_check->setHidden(true);
-#endif
 #ifdef QIOCR_INTERNAL
 	ui.ocr_lang_label->setHidden(true);
 	ui.ocr_lang_combo->setHidden(true);
@@ -208,9 +204,6 @@ void SettingsUi::Event()
 	connect(ui.showState_check, &QCheckBox::toggled, this, [this](bool state) { sets->showTips = state; QiJson::SaveJson(); });
 	connect(ui.sound_check, &QCheckBox::toggled, this, [this](bool state) { sets->audFx = state; QiJson::SaveJson(); });
 	connect(ui.hideDefault_check, &QCheckBox::toggled, this, [this](bool state) { sets->minMode = state; QiJson::SaveJson(); });
-#ifdef Q_RAWINPUT
-	connect(ui.rawInput_check, &QCheckBox::toggled, this, [this](bool state) { sets->rawInput = state; if (state && !Qi::rawInput.isInit()) QiFn::InitRawInput(); QiJson::SaveJson(); });
-#endif
 	connect(ui.pad_check, &QCheckBox::toggled, this, [this](bool state) { sets->pad = state; Qi::widget.keyEditReload(); QiJson::SaveJson(); });
 	connect(ui.start_check, &QCheckBox::toggled, this, [this] {
 		if (Task::Find(L"QuickInput"))

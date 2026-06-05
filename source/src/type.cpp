@@ -30,9 +30,6 @@ namespace Qi
 			json.insert("theme", (int)set.theme);
 			json.insert("ocr_thread", (int)set.ocr_thread);
 			json.insert("ocr_current", (QString)set.ocr_current);
-#ifdef Q_RAWINPUT
-			json.insert("rawInput", (bool)Qi::set.rawInput);
-#endif
 			json.insert("saveType", (int)Qi::set.save_type);
 			json.insert("key", (int)(static_cast<int>(set.key1) | (static_cast<int>(set.key2) << 16)));
 			json.insert("key1", (int)set.key1);
@@ -47,6 +44,8 @@ namespace Qi
 			json.insert("tabLock", (bool)set.tabLock);
 			json.insert("tabHideTip", (bool)set.tabHideTip);
 			json.insert("markPoint", (bool)set.markPoint);
+			json.insert("mainWidth", (int)set.mainSize.width());
+			json.insert("mainHeight", (int)set.mainSize.height());
 			json.insert("editWidth", (int)set.editSize.width());
 			json.insert("editHeight", (int)set.editSize.height());
 			json.insert("quickClickKey", (int)fun.quickClick.key);
@@ -189,9 +188,6 @@ namespace Qi
 				set.theme = json.value("theme").toInt();
 				set.ocr_thread = std::clamp(json.value("ocr_thread").toInt(), 0, 16);
 				set.ocr_current = json.value("ocr_current").toString();
-#ifdef Q_RAWINPUT
-				Qi::set.rawInput = json.value("rawInput").toBool();
-#endif
 				set.save_type = json.value("saveType").toInt();
 
 				if (json.contains("key1"))
@@ -216,6 +212,7 @@ namespace Qi
 				set.tabLock = json.value("tabLock").toBool();
 				set.tabHideTip = json.value("tabHideTip").toBool();
 				set.markPoint = json.value("markPoint").toBool();
+				set.mainSize = QSize(json.value("mainWidth").toInt(), json.value("mainHeight").toInt());
 				set.editSize = QSize(json.value("editWidth").toInt(), json.value("editHeight").toInt());
 				fun.quickClick.state = json.value("quickClickState").toBool();
 				fun.quickClick.key = json.value("quickClickKey").toInt();

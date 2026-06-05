@@ -10,9 +10,9 @@ class AboutUi : public QWidget
 	Q_OBJECT;
 	Ui::AboutUiClass ui;
 #ifdef Q_UPDATE
-	QiUpdate* update;
+	std::unique_ptr<QiUpdate> update;
 #endif
-	QString version_res;
+	QString version_current;
 	std::string version, content;
 
 public:
@@ -21,5 +21,7 @@ public:
 
 private:
 	bool eventFilter(QObject*, QEvent*);
+#ifdef Q_UPDATE
 	void customEvent(QEvent*);
+#endif
 };

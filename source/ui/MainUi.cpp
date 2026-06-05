@@ -11,6 +11,17 @@ MainUi::MainUi(int tab)
 	Qi::widget.settings = ui.tab_settings;
 	if (!Qi::title.isEmpty()) setWindowTitle(Qi::title), ui.title_label->setText(Qi::title);
 
+	QRect screenGeometry = QGuiApplication::primaryScreen()->geometry();
+	setMaximumHeight(screenGeometry.height());
+	if (Qi::set.mainSize.width() >= minimumWidth() && Qi::set.mainSize.height() >= minimumHeight())
+	{
+		Qi::set.mainSize.setWidth(std::clamp(Qi::set.mainSize.width(), minimumWidth(), screenGeometry.width()));
+		Qi::set.mainSize.setHeight(std::clamp(Qi::set.mainSize.height(), minimumHeight(), screenGeometry.height()));
+		QRect centeredRect(QPoint(0, 0), Qi::set.mainSize);
+		centeredRect.moveCenter(screenGeometry.center());
+		setGeometry(centeredRect);
+	}
+
 #ifdef Q_MACRO_HIDE
 	ui.tabWidget->removeTab(0);
 #endif
@@ -62,7 +73,7 @@ void MainUi::Init()
 		menu->addAction(ac_hide);
 		menu->addAction(ac_exit);
 		tray->setContextMenu(menu);
-		tray->setToolTip("Quickinput");
+		tray->setToolTip(windowTitle());
 	}
 }
 void MainUi::Event()
@@ -125,4 +136,8 @@ bool MainUi::eventFilter(QObject* obj, QEvent* e)
 void MainUi::showEvent(QShowEvent*)
 {
 	SetForegroundWindow((HWND)QWidget::winId());
+}
+void MainUi::resizeEvent(QResizeEvent* e)
+{
+	Qi::set.mainSize = e->size();
 }

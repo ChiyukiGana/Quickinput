@@ -35,17 +35,10 @@ void TriggerUi::Init()
 	}
 	if ("table")
 	{
-		ui.macroGroup_table->setColumnCount(4);
-		ui.macroGroup_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
-		ui.macroGroup_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Stretch);
-		ui.macroGroup_table->setColumnWidth(1, 120);
-		ui.macroGroup_table->setColumnWidth(2, 80);
-		ui.macroGroup_table->setColumnWidth(3, 60);
-		ui.macroGroup_table->setHorizontalHeaderItem(0, new QTableWidgetItem("名称"));
-		ui.macroGroup_table->setHorizontalHeaderItem(1, new QTableWidgetItem("按键"));
-		ui.macroGroup_table->setHorizontalHeaderItem(2, new QTableWidgetItem("模式"));
-		ui.macroGroup_table->setHorizontalHeaderItem(3, new QTableWidgetItem("状态"));
+		ui.macroGroup_table->horizontalHeader()->setHidden(true);
+		ui.macroGroup_table->verticalHeader()->setHidden(true);
 		ui.macroGroup_table->setAutoScroll(false);
+		ui.macroGroup_table->setEditTriggers(QAbstractItemView::EditTrigger::DoubleClicked);
 	}
 	if ("clear shortcut")
 	{
@@ -176,6 +169,7 @@ void TriggerUi::Event()
 		if (!ItemCurrented()) return;
 		currentMacro->count = QiRange::Restricted(value, Macro::range_count);
 		(*currentMacro).save();
+		SetTableItem(currentTable, currentRow, *currentMacro);
 		});
 	connect(ui.speed_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 		if (!ItemCurrented()) return;

@@ -50,10 +50,13 @@ void MacroUi::Init()
 		ui.delete_group_button->installEventFilter(this);
 		ui.delete_button->installEventFilter(this);
 	}
-	ui.macroGroup_table->horizontalHeader()->setHidden(true);
-	ui.macroGroup_table->verticalHeader()->setHidden(true);
-	ui.macroGroup_table->setAutoScroll(false);
-	ui.macroGroup_table->setEditTriggers(QAbstractItemView::EditTrigger::DoubleClicked);
+	if ("table")
+	{
+		ui.macroGroup_table->horizontalHeader()->setHidden(true);
+		ui.macroGroup_table->verticalHeader()->setHidden(true);
+		ui.macroGroup_table->setAutoScroll(false);
+		ui.macroGroup_table->setEditTriggers(QAbstractItemView::EditTrigger::DoubleClicked);
+	}
 }
 void MacroUi::Event()
 {

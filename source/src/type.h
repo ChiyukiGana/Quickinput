@@ -109,6 +109,7 @@ struct SettingsData
 	bool tabHideTip = false;
 	bool markPoint = false;
 	QSize editSize;
+	QSize mainSize;
 };
 struct GroupData
 {
@@ -211,9 +212,6 @@ namespace Qi
 	inline QString about;
 	inline size_t ocr_ver = 0;
 	inline QiOcrModule ocr;
-#ifdef Q_RAWINPUT
-	inline QiRawInputModule rawInput;
-#endif
 	// for setStyle
 	inline QApplication* application = nullptr;
 	inline QiUi::QuickInputUi ui;

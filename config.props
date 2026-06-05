@@ -10,13 +10,14 @@
 			Q_ABOUT_HIDE 隐藏关于
 			
 			Q_UPDATE	更新检查
-			Q_INTEGRITY_VERIFY	程序修改验证
-			
 			Q_OSC	OSC功能
 			Q_WINRT	使用WinRT功能
 			Q_GRAPHICS_CAPTURE	窗口捕捉优化
 			Q_KEYEDIT_PAD_ENABLED	启用XBox手柄
+			
+			如果没有配置OpenSSL可以关闭Q_UPDATE
+			如果出现Qt和WinRT版本冲突可以关闭Q_WINRT
 		-->
-			<QiPreprocessorDefinitions>Q_UPDATE; Q_INTEGRITY_VERIFY; Q_OSC; Q_WINRT; Q_GRAPHICS_CAPTURE; Q_KEYEDIT_PAD_ENABLED;</QiPreprocessorDefinitions>
+			<QiPreprocessorDefinitions>Q_UPDATE; Q_OSC; Q_KEYEDIT_PAD_ENABLED;</QiPreprocessorDefinitions>
 	</PropertyGroup>
 </Project>

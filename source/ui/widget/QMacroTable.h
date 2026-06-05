@@ -60,7 +60,6 @@ public:
 				}
 			}
 		}
-
 	}
 
 	void setRowCount(int count)
@@ -293,16 +292,16 @@ private:
 
 	bool eventFilter(QObject* sender, QEvent* event)
 	{
-		if (event->type() == QEvent::Timer) setReSize();
-		if (event->type() == QEvent::MouseButtonRelease)
-		{
-			QVariant var = sender->property("parent_table");
-			if (var.isValid())
+			if (event->type() == QEvent::Timer) setReSize();
+			else if (event->type() == QEvent::MouseButtonRelease)
 			{
-				tableVisable(var.value<QTableWidget*>());
-				setReSize();
+				QVariant var = sender->property("parent_table");
+				if (var.isValid())
+				{
+					tableVisable(var.value<QTableWidget*>());
+					setReSize();
+				}
 			}
-		}
 		return QTableWidget::eventFilter(sender, event);
 	}
 Q_SIGNALS:

@@ -16,12 +16,6 @@
     <height>440</height>
    </size>
   </property>
-  <property name="maximumSize">
-   <size>
-    <width>640</width>
-    <height>440</height>
-   </size>
-  </property>
   <property name="font">
    <font>
     <family>Microsoft YaHei</family>
@@ -69,7 +63,7 @@
       <string notr="true">font-size:20px</string>
      </property>
      <property name="text">
-      <string>2026-5-5</string>
+      <string>2026-6-5</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
@@ -85,9 +79,8 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>增加清空函数
-增加变量保存函数
-修复编辑结束时崩溃</string>
+      <string>增加主窗口大小调节
+修复clear_save无效</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
@@ -97,22 +90,6 @@
      </property>
      <property name="wordWrap">
       <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="copyright_dec_label">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>此软件个人免费，商用需联系作者，欢迎反馈未经授权的商用行为</string>
-     </property>
-     <property name="textFormat">
-      <enum>Qt::TextFormat::PlainText</enum>
      </property>
     </widget>
    </item>
@@ -168,7 +145,7 @@
          </sizepolicy>
         </property>
         <property name="text">
-         <string>© 2023-2025 ChiyukiGana</string>
+         <string>© 2023-2026 ChiyukiGana</string>
         </property>
         <property name="textFormat">
          <enum>Qt::TextFormat::PlainText</enum>

@@ -22,12 +22,6 @@
     <height>440</height>
    </size>
   </property>
-  <property name="maximumSize">
-   <size>
-    <width>640</width>
-    <height>440</height>
-   </size>
-  </property>
   <property name="windowTitle">
    <string>Trigger</string>
   </property>
@@ -73,6 +67,12 @@
      <property name="focusPolicy">
       <enum>Qt::FocusPolicy::ClickFocus</enum>
      </property>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+     </property>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
+     </property>
      <property name="editTriggers">
       <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
      </property>
@@ -98,9 +98,6 @@
    </item>
    <item>
     <widget class="QScrollArea" name="scrollArea">
-     <property name="verticalScrollBarPolicy">
-      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
-     </property>
      <property name="horizontalScrollBarPolicy">
       <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
      </property>
@@ -111,9 +108,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-168</y>
+        <y>-149</y>
         <width>134</width>
-        <height>810</height>
+        <height>806</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -595,9 +592,12 @@
              <property name="orientation">
               <enum>Qt::Orientation::Horizontal</enum>
              </property>
+             <property name="sizeType">
+              <enum>QSizePolicy::Policy::Fixed</enum>
+             </property>
              <property name="sizeHint" stdset="0">
               <size>
-               <width>40</width>
+               <width>15</width>
                <height>20</height>
               </size>
              </property>
@@ -613,14 +613,14 @@
              </property>
              <property name="minimumSize">
               <size>
-               <width>24</width>
-               <height>24</height>
+               <width>20</width>
+               <height>20</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>24</width>
-               <height>24</height>
+               <width>20</width>
+               <height>20</height>
               </size>
              </property>
              <property name="focusPolicy">

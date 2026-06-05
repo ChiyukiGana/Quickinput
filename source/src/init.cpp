@@ -917,9 +917,6 @@ void Qi::init()
         if (Qi::set.theme >= Qi::ui.themes.size()) Qi::set.theme = 0;
 
         QiFn::InitOcr(false);
-#ifdef Q_RAWINPUT
-        if (Qi::set.rawInput) QiFn::InitRawInput(false);
-#endif
 
         QiScriptInterpreter::init();
        });

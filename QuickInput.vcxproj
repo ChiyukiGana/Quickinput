@@ -42,14 +42,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(ProjectDir).app_d\</OutDir>
     <IntDir>$(ProjectDir).build_d\</IntDir>
-    <IncludePath>$(ProjectDir);$(ProjectDir)source;$(ProjectDir)source\src\libcurl\include;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget;$(ProjectDir)source\src\ignore</IncludePath>
-    <LibraryPath>$(ProjectDir)source\src\libcurl\x64;$(ProjectDir)source\src\ignore\ocr;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)source;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget;$(ProjectDir)source\src\ignore;$(ProjectDir)source\src\ignore\openssl\include</IncludePath>
+    <LibraryPath>$(ProjectDir)source\src\ignore\ocr;$(ProjectDir)source\src\ignore\openssl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir).app\</OutDir>
     <IntDir>$(ProjectDir).build\</IntDir>
-    <IncludePath>$(ProjectDir);$(ProjectDir)source;$(ProjectDir)source\src\libcurl\include;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget;$(ProjectDir)source\src\ignore</IncludePath>
-    <LibraryPath>$(ProjectDir)source\src\libcurl\x64;$(ProjectDir)source\src\ignore\ocr;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir);$(ProjectDir)source;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget;$(ProjectDir)source\src\ignore;$(ProjectDir)source\src\ignore\openssl\include</IncludePath>
+    <LibraryPath>$(ProjectDir)source\src\ignore\ocr;$(ProjectDir)source\src\ignore\openssl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtModules>core;widgets</QtModules>
@@ -62,7 +62,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <PreprocessorDefinitions>_WINSOCKAPI_;QIOCR_SHARED;QIOCR_INTERNALx;$(QiPreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -74,13 +74,13 @@
       <AdditionalManifestFiles>manifest.xml %(AdditionalManifestFiles)</AdditionalManifestFiles>
     </Manifest>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -108,12 +108,10 @@
     <ClCompile Include="source\src\func.cpp" />
     <ClCompile Include="source\src\init.cpp" />
     <ClCompile Include="source\src\input.cpp" />
-    <ClCompile Include="source\src\integrity_verify.cpp" />
     <ClCompile Include="source\src\interpreter.cpp" />
     <ClCompile Include="source\src\json.cpp" />
     <ClCompile Include="source\src\macro.cpp" />
     <ClCompile Include="source\src\scriptinterpreter.cpp" />
-    <ClCompile Include="source\src\sha256.cpp" />
     <ClCompile Include="source\src\thread.cpp" />
     <ClCompile Include="source\src\trigger.cpp" />
     <ClCompile Include="source\src\type.cpp" />
@@ -199,7 +197,6 @@
     <ClInclude Include="source\src\inc_external.h" />
     <ClInclude Include="source\src\inc_header.h" />
     <ClInclude Include="source\src\inc_project.h" />
-    <ClInclude Include="source\src\integrity_verify.h" />
     <ClInclude Include="source\src\interpreter.h" />
     <ClInclude Include="source\src\json.h" />
     <ClInclude Include="source\src\macro.h" />

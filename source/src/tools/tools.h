@@ -28,4 +28,6 @@
 #include "csvtool.h"
 #include "restool.h"
 #include "ntp.h"
+#include "code.h"
+#include "aes.h"
 using namespace QiTools;

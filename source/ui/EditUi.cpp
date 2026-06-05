@@ -4,14 +4,14 @@ EditUi::EditUi(Macro* macro) : macro(macro), actionsRoot(&macro->acRun), actions
 {
 	ui.setupUi(this);
 
-	QRect screen = QGuiApplication::primaryScreen()->geometry();
-	setMaximumSize(screen.size());
+	QRect screenGeometry = QGuiApplication::primaryScreen()->geometry();
+	setMaximumSize(screenGeometry.size());
 	if (Qi::set.editSize.width() >= minimumWidth() && Qi::set.editSize.height() >= minimumHeight())
 	{
-		Qi::set.editSize.setWidth(std::clamp(Qi::set.editSize.width(), minimumWidth(), screen.width()));
-		Qi::set.editSize.setHeight(std::clamp(Qi::set.editSize.height(), minimumHeight(), screen.height()));
+		Qi::set.editSize.setWidth(std::clamp(Qi::set.editSize.width(), minimumWidth(), screenGeometry.width()));
+		Qi::set.editSize.setHeight(std::clamp(Qi::set.editSize.height(), minimumHeight(), screenGeometry.height()));
 		QRect centeredRect(QPoint(0, 0), Qi::set.editSize);
-		centeredRect.moveCenter(screen.center());
+		centeredRect.moveCenter(screenGeometry.center());
 		setGeometry(centeredRect);
 	}
 

@@ -50,9 +50,6 @@
     <Filter Include="5_Module\proc">
       <UniqueIdentifier>{4a6c4394-461f-4d02-87f1-e545628421a2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="5_Module\verify">
-      <UniqueIdentifier>{47acb2d0-dcb8-4048-9909-d05e1d88fb70}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\ui\EditUi.cpp">
@@ -122,12 +119,6 @@
     <ClCompile Include="source\src\thread.cpp">
       <Filter>5_Module\proc</Filter>
     </ClCompile>
-    <ClCompile Include="source\src\integrity_verify.cpp">
-      <Filter>5_Module\verify</Filter>
-    </ClCompile>
-    <ClCompile Include="source\src\sha256.cpp">
-      <Filter>5_Module\verify</Filter>
-    </ClCompile>
     <ClCompile Include="source\src\init.cpp">
       <Filter>4_SourceOnly</Filter>
     </ClCompile>
@@ -177,9 +168,6 @@
     </ClInclude>
     <ClInclude Include="source\src\update.h">
       <Filter>3_HeaderOnly</Filter>
-    </ClInclude>
-    <ClInclude Include="source\src\integrity_verify.h">
-      <Filter>5_Module\verify</Filter>
     </ClInclude>
     <ClInclude Include="source\src\cvt.h">
       <Filter>3_HeaderOnly</Filter>
