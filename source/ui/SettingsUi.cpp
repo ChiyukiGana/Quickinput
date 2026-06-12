@@ -109,7 +109,6 @@ void SettingsUi::Init()
 	ui.showState_check->setChecked(sets->showTips);
 	ui.sound_check->setChecked(sets->audFx);
 	ui.hideDefault_check->setChecked(sets->minMode);
-	ui.rawInput_check->setChecked(sets->rawInput);
 	ui.pad_check->setChecked(sets->pad);
 	ui.start_check->setChecked(Task::Find(L"QuickInput"));
 	if ("clear shortcut")
@@ -234,7 +233,6 @@ void SettingsUi::StyleGroup()
 	ui.showState_check->setProperty("group", "check");
 	ui.sound_check->setProperty("group", "check");
 	ui.hideDefault_check->setProperty("group", "check");
-	ui.rawInput_check->setProperty("group", "check");
 	ui.pad_check->setProperty("group", "check");
 	ui.start_check->setProperty("group", "check");
 	ui.ocr_lang_combo->setProperty("group", "combo");

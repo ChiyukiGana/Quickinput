@@ -37,7 +37,7 @@ bool AboutUi::eventFilter(QObject* obj, QEvent* e)
 			MessageBoxW((HWND)Qi::widget.main->winId(), LR"(软件许可证
 
 软件：Quickinput 键盘鼠标宏
-版权所属：©2023-2025 ChiyukiGana
+版权所属：©2023-2026 ChiyukiGana
 
 以下内容中将 "Quickinput键盘鼠标宏" 称为 "此软件"
 

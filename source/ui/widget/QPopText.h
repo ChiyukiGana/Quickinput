@@ -93,23 +93,24 @@ private:
 		}
 		return str;
 	}
-	void TopMost()
+
+	void changeEvent(QEvent* e) override
 	{
-		HWND wnd = reinterpret_cast<HWND>(winId());
-		if (IsWindow(wnd))
+		if (windowState() & Qt::WindowMinimized)
 		{
-			LONG style = GetWindowLongW(wnd, GWL_EXSTYLE);
-			if (!(style & WS_EX_TOPMOST)) SetWindowLongW(wnd, GWL_EXSTYLE, style | WS_EX_TOPMOST);
+			setWindowState(Qt::WindowNoState);
+			//setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+			HWND wnd = reinterpret_cast<HWND>(winId());
+			if (wnd)
+				SetWindowPos(wnd, HWND_TOP, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
+			//SetWindowLongW(wnd, GWL_EXSTYLE, GetWindowLongW(wnd, GWL_EXSTYLE) | WS_EX_TOPMOST);
 		}
 	}
-
-	void customEvent(QEvent* e)
+	void customEvent(QEvent* e) override
 	{
-		std::cout << "QPopText::customEvent\n\n";
 		PopTextEvent* popText = (PopTextEvent*)e;
 		if (popText->type() == PopTextEvent::pop)
 		{
-			TopMost();
 			timer->stop();
 			color = popText->color();
 			text = FoldText(popText->text(), 256, false);
@@ -120,7 +121,6 @@ private:
 		}
 		else if (popText->type() == PopTextEvent::show)
 		{
-			TopMost();
 			timer->stop();
 			color = popText->color();
 			text = FoldText(popText->text(), 256, false);
@@ -143,7 +143,7 @@ private:
 			else if (size > 72) size = 72;
 		}
 	}
-	void paintEvent(QPaintEvent*)
+	void paintEvent(QPaintEvent*) override
 	{
 		QPainter painter(this);
 		QFont font("Microsoft YaHei"); font.setPixelSize(size); font.setBold(true);
@@ -166,8 +166,6 @@ private:
 private Q_SLOTS:
 	void OnTimer()
 	{
-		std::cout << "QPopText::OnTimer\n";
-		std::cout << "----Opacity: " << windowOpacity() << "\n\n";
 		if (time < 1000)
 		{
 			double opacity = ((double)time) / 1000.0;

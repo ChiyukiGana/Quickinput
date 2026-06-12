@@ -93,7 +93,6 @@ struct SettingsData
 	QString ocr_current;
 	int ocr_thread = 0;
 	int save_type = Macro::StorageType::JSON;
-	bool rawInput = false;
 	int theme = 0;
 	short key1 = 0;
 	short key2 = 0;
