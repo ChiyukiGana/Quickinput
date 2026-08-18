@@ -155,7 +155,17 @@ void MainUi::resizeEvent(QResizeEvent* e)
 }
 void MainUi::customEvent(QEvent* e)
 {
-	if (e->type() == static_cast<int>(QiEvent::lang_reload))
+	if (e->type() == static_cast<int>(QiEvent::main_show))
+	{
+		Qi::widget.main->setAttribute(Qt::WA_ShowWithoutActivating, true);
+		show();
+		Qi::widget.main->setAttribute(Qt::WA_ShowWithoutActivating, false);
+	}
+	else if (e->type() == static_cast<int>(QiEvent::main_hide))
+	{
+		hide();
+	}
+	else if (e->type() == static_cast<int>(QiEvent::lang_reload))
 	{
 		LoadLanguage();
 	}

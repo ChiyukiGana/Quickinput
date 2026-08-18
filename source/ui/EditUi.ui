@@ -2578,12 +2578,7 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>结束循环或结束运行
-
-结束循环
-　　如果在循环内，循环停止，如果在循环外，宏停止
-结束运行
-　　任意位置让宏停止运行</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;结束循环&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;如果在循环内，循环停止，如果在循环外，宏停止&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="styleSheet">
                 <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
@@ -2700,12 +2695,7 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>结束循环或结束运行
-
-结束循环
-　　如果在循环内，循环停止，如果在循环外，宏停止
-结束运行
-　　任意位置让宏停止运行</string>
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;结束运行&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;任意位置让宏停止运行&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                </property>
                <property name="styleSheet">
                 <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
@@ -3877,7 +3867,7 @@
                 <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
-                <string>音量检测</string>
+                <string>音量检测（执行里面的内容）</string>
                </property>
                <layout class="QVBoxLayout" name="grp_volume_layout">
                 <property name="spacing">
@@ -4230,13 +4220,7 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>跳转到指定位置
-
-点击锚点添加一个位置
-
-在需要跳转的位置选择跳转列表中的锚点
-
-当运行到跳转时会跳转到对应的锚点</string>
+                <string>设置一个跳转位置</string>
                </property>
                <property name="styleSheet">
                 <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
@@ -4715,13 +4699,7 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>保存内容以便使用
-
-点击块添加后点击编辑，在里面添加需要的内容
-
-在需要的位置选择执行列表中的块
-
-当运行到执行时会执行到对应的块</string>
+                <string>执行一个块</string>
                </property>
                <property name="styleSheet">
                 <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
@@ -5035,7 +5013,7 @@
                 </font>
                </property>
                <property name="toolTip">
-                <string>显示文本窗口便于记录大量数据</string>
+                <string>记录文字信息，不会执行</string>
                </property>
                <property name="styleSheet">
                 <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
@@ -5570,8 +5548,8 @@
 
 选择拆分处理会在已找到里循环每个文字块
 
-匹配文字执行已找到
-否则执行未找到
+匹配文字执行成功
+否则执行失败
 
 如果错误提示请检查是否有OCR文件夹并且解压了语言</string>
                </property>
@@ -7649,7 +7627,7 @@
                 <string notr="true">QGroupBox{border:1px solid gray;border-radius:5px}</string>
                </property>
                <property name="title">
-                <string>对话框</string>
+                <string>对话框（执行里面的内容）</string>
                </property>
                <layout class="QVBoxLayout" name="grp_dialog_layout">
                 <property name="spacing">

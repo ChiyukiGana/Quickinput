@@ -1,5 +1,11 @@
 ﻿#include "trigger.h"
 
+#ifdef DEBUG
+#define InputHookT InputState
+#else
+#define InputHookT InputHook
+#endif
+
 namespace QiTr
 {
 	void Trigger(short vk, const bool* state)
@@ -135,12 +141,12 @@ namespace QiTr
 		if (state)
 		{
 			memset(Qi::keyState, 0, sizeof(Qi::keyState));
-			if (!InputHook::State())
+			if (!InputHookT::State())
 			{
 				timeBeginPeriod(1);
-#ifndef DEBUG
-				if (!InputHook::Start()) MsgBox::Error(L"创建输入Hook失败，检查是否管理员身份运行 或 是否被安全软件拦截。");
-#endif
+
+				if (!InputHookT::Start()) MsgBox::Error(L"创建输入Hook失败，检查是否管理员身份运行 或 是否被安全软件拦截。");
+
 #ifdef Q_KEYEDIT_PAD_ENABLED
 				if (Qi::set.pad) Qi::xboxpad.setStateEvent([](short keyCode, short state) { Qi::keyState[keyCode] = (bool)state; Trigger(keyCode, Qi::keyState); }, true);
 #endif
@@ -148,12 +154,10 @@ namespace QiTr
 		}
 		else
 		{
-			if (InputHook::State())
+			if (InputHookT::State())
 			{
 				timeEndPeriod(1);
-#ifndef DEBUG
-				InputHook::Close();
-#endif
+				InputHookT::Close();
 #ifdef Q_KEYEDIT_PAD_ENABLED
 				if (Qi::set.pad) Qi::xboxpad.closeStateEvent();
 #endif

@@ -5,7 +5,7 @@ Language Language::load(const QString& file)
 {
 	QByteArray data;
 	if (!File::LoadText(file, data)) return {};
-	auto pairmap = Format::pairmap(data.constData(), data.size(), '-');
+	auto pairmap = Format::pairmap(data.constData(), data.size(), '-', '\\');
 	if (pairmap.empty()) return {};
 	Language lang;
 	lang.name = QFileInfo(file).baseName();

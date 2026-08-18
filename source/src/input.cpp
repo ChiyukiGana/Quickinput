@@ -1,5 +1,12 @@
 ﻿#include <src/inc_header.h>
 #include "../ui/RecordUi.h"
+
+#ifdef DEBUG
+#define InputHookT InputState
+#else
+#define InputHookT InputHook
+#endif
+
 QiMouseTrack mouseTrack;
 clock_t mouseTrack_prev = 0;
 void RecordInput(BYTE vk, bool state, POINT pt)
@@ -120,7 +127,7 @@ void InputTask(BYTE key, bool press, POINT cursor, KeyState keyState)
 }
 
 ThreadQueue inputQueue;
-bool _stdcall InputHook::InputProc(BYTE key, bool press, POINT cursor, PULONG_PTR param)
+bool _stdcall InputHookT::InputProc(BYTE key, bool press, POINT cursor, PULONG_PTR param)
 {
 	// is self
 	if (*param == Qi::key_info)

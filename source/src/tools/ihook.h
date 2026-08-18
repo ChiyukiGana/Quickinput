@@ -215,4 +215,108 @@ namespace QiTools
 			if (s_thread) WaitForSingleObject(s_thread, INFINITE);
 		}
 	};
+
+	class InputState
+	{
+		inline static std::mutex s_mutex;
+		inline static HANDLE s_thread = nullptr;
+		inline static std::atomic<bool> s_createFlag{ false };
+		inline static std::atomic<bool> s_mouseState{ false };
+		inline static std::atomic<bool> s_keybdState{ false };
+		inline static DWORD s_threadId = 0;
+
+		static bool isMouse(int keyCode) { return ((keyCode >= VK_LBUTTON && keyCode <= VK_XBUTTON2) || keyCode == VK_WHEELUP || keyCode == VK_WHEELDOWN); }
+		static bool isKeyboard(int keyCode) { return ((keyCode >= VK_CLEAR && keyCode <= VK_OEM_CLEAR) || keyCode == VK_BACK || keyCode == VK_TAB); }
+
+		static bool __stdcall InputProc(BYTE key, bool press, POINT cursor, PULONG_PTR param);
+
+		static DWORD __stdcall HookThread(LPVOID)
+		{
+			s_createFlag.store(true, std::memory_order_release);
+			std::array<BYTE, 256> state{}, state_prev{};
+			for (size_t i = 0; i < state.size(); i++) state[i] = static_cast<bool>(GetAsyncKeyState(i) & 0x8000);
+			state_prev = state;
+			while (true)
+			{
+				MSG msg;
+				PeekMessageW(&msg, nullptr, 0, 0, PM_REMOVE);
+				if (msg.message == WM_QUIT) break;
+
+				for (size_t i = 0; i < state.size(); i++) state[i] = static_cast<bool>(GetAsyncKeyState(i) & 0x8000);
+				for (size_t i = 0; i < state.size(); i++)
+				{
+					if ((isMouse(i) && s_mouseState.load(std::memory_order_acquire)) || (!isMouse(i) && s_keybdState.load(std::memory_order_acquire)))
+					{
+						if (state[i] != state_prev[i])
+						{
+							ULONG_PTR info = 0;
+							InputProc(i, state[i], {}, &info);
+						}
+					}
+				}
+				state_prev = state;
+				Sleep(16);
+			}
+			return 0;
+		}
+
+	public:
+		typedef unsigned __int8 Type;
+		enum Types { none = 0, mouse = 1, keybd = 2, all = mouse | keybd };
+
+		static bool IsRunning()
+		{
+			std::lock_guard lock(s_mutex);
+			return s_thread != nullptr;
+		}
+
+		static bool State()
+		{
+			return s_mouseState || s_keybdState;
+		}
+
+		static bool Start(Type flags = Types::all)
+		{
+			std::lock_guard lock(s_mutex);
+			if (!s_thread)
+			{
+				s_thread = CreateThread(nullptr, 0, HookThread, nullptr, 0, &s_threadId);
+				if (!s_thread) return false;
+
+				while (!s_createFlag.load(std::memory_order_acquire)) Sleep(1);
+			}
+			s_mouseState.store(flags & mouse, std::memory_order_relaxed);
+			s_keybdState.store(flags & keybd, std::memory_order_relaxed);
+			return true;
+		}
+
+		static void Stop(Type flags = Types::all)
+		{
+			std::lock_guard lock(s_mutex);
+			if (flags & mouse) s_mouseState.store(false, std::memory_order_relaxed);
+			if (flags & keybd) s_keybdState.store(false, std::memory_order_relaxed);
+		}
+
+		static void Close()
+		{
+			std::lock_guard lock(s_mutex);
+			if (s_thread)
+			{
+				PostThreadMessageW(s_threadId, WM_QUIT, 0, 0);
+				WaitForSingleObject(s_thread, 1000);
+				CloseHandle(s_thread);
+				s_thread = nullptr;
+			}
+			s_createFlag.store(false, std::memory_order_relaxed);
+			s_mouseState.store(false, std::memory_order_relaxed);
+			s_keybdState.store(false, std::memory_order_relaxed);
+			s_threadId = 0;
+		}
+
+		static void Wait()
+		{
+			std::lock_guard lock(s_mutex);
+			if (s_thread) WaitForSingleObject(s_thread, INFINITE);
+		}
+	};
 }

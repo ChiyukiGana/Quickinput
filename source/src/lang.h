@@ -50,6 +50,14 @@ struct Language
 		if (i != map.end()) return i->second;
 		return text;
 	}
+	QString translate(const QString& text, const QString& fail) const
+	{
+		if (text.isEmpty()) return {};
+		if (map.empty()) return fail;
+		auto i = map.find(text);
+		if (i != map.end()) return i->second;
+		return fail;
+	}
 	static QString makePath(const QString& name);
 	static Language load(const QString& file);
 };
@@ -62,9 +70,19 @@ namespace Qi
 		if (text.isEmpty()) return {};
 		return lang.translate(text);
 	}
+	static QString translate(const QString& text, const QString& fail)
+	{
+		if (text.isEmpty()) return {};
+		return lang.translate(text, fail);
+	}
 	static std::wstring translate(const std::wstring& text)
 	{
 		if (text.empty()) return {};
 		return lang.translate(QString::fromStdWString(text)).toStdWString();
+	}
+	static std::wstring translate(const std::wstring& text, const std::wstring& fail)
+	{
+		if (text.empty()) return {};
+		return lang.translate(QString::fromStdWString(text), QString::fromStdWString(fail)).toStdWString();
 	}
 }

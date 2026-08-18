@@ -1175,6 +1175,8 @@ void EditUi::LoadLanguage()
 	lang_trans_t(ui.tab_range_check);
 	BindSafeIter(bind_tab_button, [this](QPushButton* p, size_t i) { lang_trans_t(p); });
 	auto trans = [](QGroupBox* p, size_t i) {
+		QString tip = Qi::translate(p->title() + "-说明", {});
+		if (!tip.isEmpty()) p->setToolTip(tip);
 		lang_trans_ti(p);
 		for (auto& object : p->children())
 		{
@@ -2255,13 +2257,13 @@ QiDelay EditUi::WidgetGetDelay() {
 	{
 		QString v = ui.delay_min_edit->text();
 		if (v.isEmpty()) delay.min = 10;
-		else if (QiVar::isInteger(v.toStdString())) delay.min = QiRange::Restricted(v.toInt(), QiDelay::range_time);
+		else if (QiVar::isNumber(v.toStdString())) delay.min = QiRange::Restricted(v.toDouble(), QiDelay::range_time);
 		else delay.v_min = v;
 	}
 	{
 		QString v = ui.delay_max_edit->text();
 		if (v.isEmpty()) delay.max = delay.min, delay.v_max = delay.v_min;
-		else if (QiVar::isInteger(v.toStdString())) delay.max = QiRange::Restricted(v.toInt(), QiDelay::range_time);
+		else if (QiVar::isNumber(v.toStdString())) delay.max = QiRange::Restricted(v.toDouble(), QiDelay::range_time);
 		else delay.v_max = v;
 	}
 	return delay;
@@ -2510,7 +2512,7 @@ QiEditDialog EditUi::WidgetGetEditDialog()
 QiVolume EditUi::WidgetGetVolume()
 {
 	QiVolume volume;
-	volume.volume = QiRange::Restricted(ui.volume_edit->value(), QiVolume::range_volume);
+	volume.volume = QiRange::Restricted(static_cast<float>(ui.volume_edit->value()), QiVolume::range_volume);
 	volume.time = QiRange::Restricted(ui.volume_time_edit->value(), QiVolume::range_time);
 	volume.max = ui.volume_max_check->isChecked();
 	return volume;

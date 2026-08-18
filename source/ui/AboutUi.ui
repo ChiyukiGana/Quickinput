@@ -63,7 +63,7 @@
       <string notr="true">font-size:20px</string>
      </property>
      <property name="text">
-      <string>2026-7-11</string>
+      <string>2026-8-18</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
@@ -79,9 +79,8 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>增加自定义语言
-增加运行前宏
-增加文件函数</string>
+      <string>翻译编辑说明
+优化高精度等待</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>

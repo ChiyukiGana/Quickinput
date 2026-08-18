@@ -98,8 +98,8 @@ void Macro::fromJson(const QJsonObject& json)
 	if (moveScaleY == 0) moveScaleY = 1.0f;
 	else moveScaleY = QiRange::Restricted(moveScaleY, Macro::range_moveScale);
 
-	posScaleX = QiRange::Restricted(json.value("posScaleX").toDouble(), Macro::range_posScale);
-	posScaleY = QiRange::Restricted(json.value("posScaleY").toDouble(), Macro::range_posScale);
+	posScaleX = QiRange::Restricted(static_cast<float>(json.value("posScaleX").toDouble()), Macro::range_posScale);
+	posScaleY = QiRange::Restricted(static_cast<float>(json.value("posScaleY").toDouble()), Macro::range_posScale);
 
 	acRun.fromJson(json.value("actions").toArray());
 	acEnd.fromJson(json.value("actionsEnding").toArray());
@@ -186,8 +186,8 @@ void Macro::fromPack(const typepack::object& pack)
 	if (moveScaleY == 0) moveScaleY = 1.0f;
 	else moveScaleY = QiRange::Restricted(moveScaleY, Macro::range_moveScale);
 
-	posScaleX = QiRange::Restricted(pack.get("posScaleX").toFloat64(), Macro::range_posScale);
-	posScaleY = QiRange::Restricted(pack.get("posScaleY").toFloat64(), Macro::range_posScale);
+	posScaleX = QiRange::Restricted(static_cast<float>(pack.get("posScaleX").toFloat64()), Macro::range_posScale);
+	posScaleY = QiRange::Restricted(static_cast<float>(pack.get("posScaleY").toFloat64()), Macro::range_posScale);
 
 	acRun.fromPack(pack.get("actions").toArray());
 	acEnd.fromPack(pack.get("actionsEnding").toArray());

@@ -10,16 +10,22 @@ struct QiWorker
 	std::mutex m_mutex;
 	std::atomic_bool m_stop;
 	QiWorker() noexcept : m_stop(false) {}
-	void sleep(clock_t ms)
+	void sleep(double ms)
 	{
-		clock_t end = clock() + ms;
-		if (ms > 5)
+		if (ms < 0.0) return;
+		auto begin = std::chrono::steady_clock::now();
+		auto i = static_cast<long long>((ms - 2.0) * 1000000.0);
+		if (i > 0)
 		{
-			while (!m_stop && (clock() < end)) std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			auto stop = std::chrono::steady_clock::now() + std::chrono::nanoseconds(i);
+			while (!m_stop && std::chrono::steady_clock::now() < stop) Sleep(1);
 		}
-		else
+		auto delta = (std::chrono::steady_clock::now() - begin).count();
+		auto left = static_cast<long long>(ms * 1000000.0) - delta;
+		if (left > 0)
 		{
-			while (!m_stop && (clock() < end)) std::this_thread::yield();;
+			auto stop = std::chrono::steady_clock::now() + std::chrono::nanoseconds(left);
+			while (!m_stop && std::chrono::steady_clock::now() < stop) Sleep(0);
 		}
 	}
 	virtual void run() = 0;

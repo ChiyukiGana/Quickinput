@@ -174,7 +174,7 @@ void TriggerUi::Event()
 		});
 	connect(ui.speed_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 		if (!ItemCurrented()) return;
-		currentMacro->speed = QiRange::Restricted(value, Macro::range_speed);
+		currentMacro->speed = QiRange::Restricted(static_cast<float>(value), Macro::range_speed);
 		(*currentMacro).save();
 		});
 
@@ -198,23 +198,23 @@ void TriggerUi::Event()
 
 	connect(ui.moveScale_x_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 		if (!ItemCurrented()) return;
-		currentMacro->moveScaleX = QiRange::Restricted(value, Macro::range_moveScale);
+		currentMacro->moveScaleX = QiRange::Restricted(static_cast<float>(value), Macro::range_moveScale);
 		(*currentMacro).save();
 		});
 	connect(ui.moveScale_y_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 		if (!ItemCurrented()) return;
-		currentMacro->moveScaleY = QiRange::Restricted(value, Macro::range_moveScale);
+		currentMacro->moveScaleY = QiRange::Restricted(static_cast<float>(value), Macro::range_moveScale);
 		(*currentMacro).save();
 		});
 
 	connect(ui.posScale_x_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 		if (!ItemCurrented()) return;
-		currentMacro->posScaleX = QiRange::Restricted(value, Macro::range_posScale);
+		currentMacro->posScaleX = QiRange::Restricted(static_cast<float>(value), Macro::range_posScale);
 		(*currentMacro).save();
 		});
 	connect(ui.posScale_y_edit, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double value) {
 		if (!ItemCurrented()) return;
-		currentMacro->posScaleY = QiRange::Restricted(value, Macro::range_posScale);
+		currentMacro->posScaleY = QiRange::Restricted(static_cast<float>(value), Macro::range_posScale);
 		(*currentMacro).save();
 		});
 

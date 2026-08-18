@@ -25,6 +25,7 @@ class QiInterpreter
 public:
 	QiInterpreter(Macro& macro, bool isRunning, QiWorker& worker);
 	int rand(int max, int min = 0);
+	double rand(double max, double min = 0);
 	void setActions(Actions& actions);
 	void setValue(const std::string& var, const QiVar& val);
 	void setCount(int i);
@@ -32,7 +33,7 @@ public:
 	void setLastPos(int x, int y);
 	bool isInvalid();
 	void DebugContinue();
-	bool PeekSleep(clock_t ms);
+	bool Sleep(double ms);
 	InterpreterResult ActionInterpreter(Actions& current);
 	QString makePath();
 	std::string errPath();

@@ -43,4 +43,42 @@ namespace QiTools
 	static SIZE RectSize(RECT rect) { return { Distance(rect.left, rect.right), Distance(rect.top, rect.bottom) }; }
 	static int RectArea(const RECT& rect) { SIZE size = RectSize(rect); return size.cx * size.cy; }
 	static int Rand(int max, int min = 0) { if (min > max) std::swap(max, min); return min + (rand() % (max - min + 1)); }
+	static double Rand(double max, double min = 0.0) { if (min > max) std::swap(max, min); return min + (rand() / (double)RAND_MAX) * (max - min); }
+	static void AccurateSleep(double ms)
+	{
+		if (ms < 0.0) return;
+		auto begin = std::chrono::steady_clock::now();
+		auto i = static_cast<long long>((ms - 2.0) * 1000000.0);
+		if (i > 0)
+		{
+			auto stop = std::chrono::steady_clock::now() + std::chrono::nanoseconds(i);
+			while (std::chrono::steady_clock::now() < stop) Sleep(1);
+		}
+		auto delta = (std::chrono::steady_clock::now() - begin).count();
+		auto left = static_cast<long long>(ms * 1000000.0) - delta;
+		if (left > 0)
+		{
+			auto stop = std::chrono::steady_clock::now() + std::chrono::nanoseconds(left);
+			while (std::chrono::steady_clock::now() < stop) Sleep(0);
+		}
+	}
+	static bool AccurateSleep(double ms, std::function<bool()> c)
+	{
+		if (ms < 0.0) return c();
+		auto begin = std::chrono::steady_clock::now();
+		auto i = static_cast<long long>((ms - 2.0) * 1000000.0);
+		if (i > 0)
+		{
+			auto stop = std::chrono::steady_clock::now() + std::chrono::nanoseconds(i);
+			while (c() && std::chrono::steady_clock::now() < stop) Sleep(1);
+		}
+		auto delta = (std::chrono::steady_clock::now() - begin).count();
+		auto left = static_cast<long long>(ms * 1000000.0) - delta;
+		if (left > 0)
+		{
+			auto stop = std::chrono::steady_clock::now() + std::chrono::nanoseconds(left);
+			while (c() && std::chrono::steady_clock::now() < stop) Sleep(0);
+		}
+		return c();
+	}
 }

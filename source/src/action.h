@@ -228,9 +228,9 @@ struct QiEnd : QiBase
 };
 struct QiDelay : QiBase
 {
-	static constexpr QiIntRange range_time = { 0, (~unsigned int(0)) >> 1 };
+	static constexpr QiDoubleRange range_time = { 0.0, 1000000000.0 };
 
-	int min = 0, max = 0;
+	double min = 0, max = 0;
 	QString v_min, v_max;
 	QiDelay() : QiBase(QiType::delay, QiTypeNext::none) {}
 	QString name() const override { return lang_trans("等待"); }
@@ -244,10 +244,8 @@ struct QiDelay : QiBase
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
-		min = json.value("min").toInt(), v_min = json.value("v_min").toString();
-		max = json.value("max").toInt(), v_max = json.value("v_max").toString();
-		if (!min) min = json.value("ms").toInt();
-		if (!max) max = json.value("ex").toInt();
+		min = json.value("min").toDouble(), v_min = json.value("v_min").toString();
+		max = json.value("max").toDouble(), v_max = json.value("v_max").toString();
 	}
 	typepack::object toPack() const override
 	{
@@ -259,8 +257,8 @@ struct QiDelay : QiBase
 	void fromPack(const typepack::object pack) override
 	{
 		QiBase::fromPack(pack);
-		min = pack.get("mn").toInt(), v_min = QString::fromStdString(pack.get("_mn").toString());
-		max = pack.get("mx").toInt(), v_max = QString::fromStdString(pack.get("_mx").toString());
+		min = pack.get("mn").toFloat64(), v_min = QString::fromStdString(pack.get("_mn").toString());
+		max = pack.get("mx").toFloat64(), v_max = QString::fromStdString(pack.get("_mx").toString());
 	}
 	bool paramEquals(const QiDelay& other) const
 	{
@@ -520,16 +518,8 @@ struct QiLoop : QiBase
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
-		if (json.contains("count") || json.contains("rand"))
-		{
-			min = json.value("count").toInt();
-			max = json.value("rand").toInt();
-		}
-		else
-		{
-			min = json.value("min").toInt(), v_min = json.value("v_min").toString();
-			max = json.value("max").toInt(), v_max = json.value("v_max").toString();
-		}
+		min = json.value("min").toInt(), v_min = json.value("v_min").toString();
+		max = json.value("max").toInt(), v_max = json.value("v_max").toString();
 		next.fromJson(json.value("next").toArray());
 	}
 	typepack::object toPack() const override
@@ -883,16 +873,8 @@ struct QiTimer : QiBase
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
-		if (json.contains("count") || json.contains("rand"))
-		{
-			min = json.value("count").toInt();
-			max = json.value("rand").toInt();
-		}
-		else
-		{
-			min = json.value("min").toInt(), v_min = json.value("v_min").toString();
-			max = json.value("max").toInt(), v_max = json.value("v_max").toString();
-		}
+		min = json.value("min").toInt(), v_min = json.value("v_min").toString();
+		max = json.value("max").toInt(), v_max = json.value("v_max").toString();
 		next.fromJson(json.value("next").toArray());
 		next2.fromJson(json.value("next2").toArray());
 	}

@@ -15,6 +15,8 @@ enum class InterpreterResult
 enum class QiEvent
 {
 	wid_close = QEvent::User + 1,
+	main_show,
+	main_hide,
 	rec_start,
 	rec_stop,
 	rec_close,
@@ -135,6 +137,14 @@ struct Widget
 	bool active() const
 	{
 		return mainActive || dialogActive || moreActive;
+	}
+	void show() const
+	{
+		if (main) QApplication::postEvent(main, new QEvent(static_cast<QEvent::Type>(QiEvent::main_show)));
+	}
+	void hide() const
+	{
+		if (main) QApplication::postEvent(main, new QEvent(static_cast<QEvent::Type>(QiEvent::main_hide)));
 	}
 	void recordStart() const
 	{

@@ -31,6 +31,13 @@ int QiInterpreter::rand(int max, int min)
 	Qi::widget.varViewReload();
 	return min;
 }
+double QiInterpreter::rand(double max, double min)
+{
+	min = Rand(max, min);
+	macro.script_interpreter.setValue(QiScriptInterpreter::var_rand_last, min);
+	Qi::widget.varViewReload();
+	return min;
+}
 
 void QiInterpreter::setActions(Actions& actions)
 {
@@ -74,17 +81,9 @@ void QiInterpreter::DebugContinue()
 	debug_condition.notify_all();
 }
 
-bool QiInterpreter::PeekSleep(clock_t ms)
+bool QiInterpreter::Sleep(double ms)
 {
-	clock_t end = clock() + (ms / speed);
-	if (ms > 5)
-	{
-		while (!worker.m_stop && (clock() < end)) std::this_thread::sleep_for(std::chrono::milliseconds(1));
-	}
-	else
-	{
-		while (!worker.m_stop && (clock() < end)) std::this_thread::yield();
-	}
+	worker.sleep(ms);
 	return worker.m_stop;
 }
 
@@ -169,9 +168,9 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 			case QiType::delay:
 			{
 				const QiDelay& ref = action.to<QiDelay>();
-				const int min = ref.v_min.isEmpty() ? ref.min : macro.script_interpreter.value(ref.v_min.toStdString()).toInteger();
-				const int max = ref.v_max.isEmpty() ? ref.max : macro.script_interpreter.value(ref.v_max.toStdString()).toInteger();
-				if (PeekSleep(rand(max, min))) return InterpreterResult::r_exit;
+				const double min = ref.v_min.isEmpty() ? ref.min : macro.script_interpreter.value(ref.v_min.toStdString()).toNumber();
+				const double max = ref.v_max.isEmpty() ? ref.max : macro.script_interpreter.value(ref.v_max.toStdString()).toNumber();
+				if (Sleep(rand(max, min))) return InterpreterResult::r_exit;
 			} break;
 			case QiType::key:
 			{
@@ -250,7 +249,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 					{
 						QiFn::SmoothMove(wndInput->pt.x, wndInput->pt.y, wndInput->pt.x, wndInput->pt.y, ref.speed, [this](int, int, int stepx, int stepy) {
 							Input::MoveTo(wndInput->wnd, stepx, stepy, wndInput->mk);
-							PeekSleep(10);
+							Sleep(10);
 							});
 					}
 					else Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
@@ -263,7 +262,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 						{
 							QiFn::SmoothMove(0, 0, x * moveScaleX, y * moveScaleY, ref.speed, [this](int, int, int stepx, int stepy) {
 								QiFn::Move(stepx, stepy);
-								PeekSleep(10);
+								Sleep(10);
 								});
 						}
 						else QiFn::Move(x * moveScaleX, y * moveScaleY);
@@ -277,7 +276,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 							POINT spt = QiCvt::SP_RtA(Input::pos());
 							QiFn::SmoothMove(spt.x, spt.y, dpt.x, dpt.y, ref.speed, [this](int x, int y, int, int) {
 								QiFn::MoveToA(x, y);
-								PeekSleep(10);
+								Sleep(10);
 								});
 						}
 						else QiFn::MoveToA(dpt.x, dpt.y);
@@ -469,7 +468,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 					Qi::popText->Popup(ref.time, text.c_str(), RGB(223, 223, 223));
 					if (ref.sync)
 					{
-						if (ref.sync && PeekSleep(ref.time)) r_result = InterpreterResult::r_exit;
+						if (ref.sync && Sleep(ref.time)) r_result = InterpreterResult::r_exit;
 					}
 					Sleep(1);
 				}
@@ -481,7 +480,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 				QiTimer& ref = action.to<QiTimer>();
 				clock_t min = ref.v_min.isEmpty() ? ref.min : macro.script_interpreter.value(ref.v_min.toStdString()).toInteger();
 				clock_t max = ref.v_max.isEmpty() ? ref.max : macro.script_interpreter.value(ref.v_max.toStdString()).toInteger();
-				clock_t time = rand(max, min);
+				clock_t time = rand(static_cast<int>(max), static_cast<int>(min));
 				clock_t begin = clock();
 				while (!isInvalid())
 				{

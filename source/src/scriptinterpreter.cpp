@@ -802,10 +802,9 @@ struct QiFunc_sleep : public QiFunc
 	QiFunc_sleep() : QiFunc(1) {}
 	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter* inter) const override
 	{
-		long long ms = args[0].toInteger();
 		inter->thisMutex()->lock();
 		QiWorker* worker = inter->worker();
-		worker ? worker->sleep(ms) : Sleep(ms);
+		worker ? worker->sleep(args[0].toNumber()) : AccurateSleep(args[0].toNumber());
 		inter->thisMutex()->unlock();
 		return {};
 	}
@@ -865,6 +864,24 @@ struct QiFunc_index : public QiFunc
 	QiVar exec(const std::vector<QiVar>&, QiScriptInterpreter* inter) const override
 	{
 		return inter->localValue(QiScriptInterpreter::var_index);
+	}
+};
+struct QiFunc_show : public QiFunc
+{
+	QiFunc_show() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>&, QiScriptInterpreter* inter) const override
+	{
+		if (!Qi::debug) Qi::widget.show();
+		return QiVar();
+	}
+};
+struct QiFunc_hide : public QiFunc
+{
+	QiFunc_hide() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>&, QiScriptInterpreter* inter) const override
+	{
+		if (!Qi::debug) Qi::widget.hide();
+		return QiVar();
 	}
 };
 
@@ -2238,6 +2255,8 @@ QiFuncMap::QiFuncMap()
 	insert({ "rand_last", std::make_unique<QiFunc_rand_last>() });
 	insert({ "count", std::make_unique<QiFunc_count>() });
 	insert({ "index", std::make_unique<QiFunc_index>() });
+	insert({ "show", std::make_unique<QiFunc_show>() });
+	insert({ "hide", std::make_unique<QiFunc_hide>() });
 
 	insert({ "cur_to", std::make_unique<QiFunc_cur_to>() });
 	insert({ "cur_move", std::make_unique<QiFunc_cur_move>() });
