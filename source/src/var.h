@@ -25,7 +25,6 @@ public:
 	using VariantType = std::variant<nul_t, int_t, num_t, str_t, ptr_t, bool>;
 	VariantType var;
 
-	static inline const std::string error_invalid_character = "QiVar: type is invalid";
 	enum Type
 	{
 		t_nul,
@@ -162,14 +161,16 @@ public:
 	}
 	QiVar operator+(const QiVar& other) const
 	{
-		if (isPointer() && (other.isInteger() || other.isPointer())) return reinterpret_cast<ptr_t>(toInteger() + other.toInteger());
-		if (isInteger() && (other.isInteger() || other.isPointer())) return toInteger() + other.toInteger();
+		if (isString() || other.isString()) return toString() + other.toString();
+		if (isPointer() && (other.isInteger() || other.isPointer() || other.isBool())) return reinterpret_cast<ptr_t>(toInteger() + other.toInteger());
+		if ((isInteger() || isBool()) && (other.isInteger() || other.isPointer() || other.isBool())) return toInteger() + other.toInteger();
 		return toNumber() + other.toNumber();
 	}
 	QiVar operator-(const QiVar& other) const
 	{
-		if (isPointer() && (other.isInteger() || other.isPointer())) return reinterpret_cast<ptr_t>(toInteger() - other.toInteger());
-		if (isInteger() && (other.isInteger() || other.isPointer())) return toInteger() - other.toInteger();
+		if (isString() || other.isString()) return QiVar::removeStr(toString(), other.toString());
+		if (isPointer() && (other.isInteger() || other.isPointer() || other.isBool())) return reinterpret_cast<ptr_t>(toInteger() - other.toInteger());
+		if ((isInteger() || isBool()) && (other.isInteger() || other.isPointer() || other.isBool())) return toInteger() - other.toInteger();
 		return toNumber() - other.toNumber();
 	}
 	QiVar operator*(const QiVar& other) const
@@ -180,7 +181,6 @@ public:
 	QiVar operator/(const QiVar& other) const
 	{
 		if (other.toNumber() == 0.0) return 0.0;
-		if ((isPointer() || isInteger()) && (other.isInteger() || other.isPointer())) return toInteger() / other.toInteger();
 		return toNumber() / other.toNumber();
 	}
 	QiVar operator%(const QiVar& other) const
@@ -297,7 +297,7 @@ public:
 		if (str.empty()) return std::string();
 		size_t i = 0;
 		std::string c;
-		iterateStrX(str, [&c, &i, where](const std::string& ch) -> bool {
+		iterateStrX(str, [&c, &i, where](const std::string& ch, size_t, size_t) -> bool {
 			if (where == i)
 			{
 				c = ch;
@@ -314,8 +314,8 @@ public:
 		size_t p = 0;
 		const size_t e = length == ~size_t(0) ? ~size_t(0) : where + length;
 		std::string s;
-		iterateStrX(str, [&p, &e, &s, where, length](const std::string& ch) -> bool {
-			if (p >= e) return true;;
+		iterateStrX(str, [&p, &e, &s, where, length](const std::string& ch, size_t, size_t) -> bool {
+			if (p >= e) return true;
 			if (p >= where) s += ch;
 			p++;
 			return true;
@@ -332,8 +332,30 @@ public:
 		if (begin >= size) begin = 0;
 		return sub(str, begin, end - begin + 1);
 	}
-	static void iterateStr(const std::string& str, std::function<void(const std::string& ch)> call) {
-		for (size_t i = 0; i < str.size(); )
+	static std::string insert(const std::string& str, size_t where, const std::string& str_in)
+	{
+		if (str_in.empty()) return str;
+		if (where > str.size()) where = str.size();
+		std::string s = str;
+		s.insert(where, str_in);
+		return s;
+	}
+	static size_t find(const std::string& str, const std::string& find, size_t offset = 0)
+	{
+		size_t p = str.find(find, offset);
+		if (p == std::string::npos) return std::string::npos;
+		if (!iterateStrX(str, [&p](const std::string& c, size_t bytes, size_t pos) {
+			if (bytes == p)
+			{
+				p = pos;
+				return false;
+			}
+			return true;
+			})) return p;
+		return std::string::npos;
+	}
+	static void iterateStr(const std::string& str, std::function<void(const std::string& ch, size_t bytes, size_t pos)> call) {
+		for (size_t i = 0, j = 0; i < str.size();)
 		{
 			const unsigned char& c = str[i];
 			size_t charLen = 0;
@@ -346,13 +368,14 @@ public:
 				i++;
 				continue;
 			}
-			call(str.substr(i, charLen));
+			call(str.substr(i, charLen), i, j);
 			i += charLen;
+			j++;
 		}
 	}
 	// return false to break;
-	static bool iterateStrX(const std::string& str, std::function<bool(const std::string& ch)> call) {
-		for (size_t i = 0; i < str.size(); )
+	static bool iterateStrX(const std::string& str, std::function<bool(const std::string& ch, size_t bytes, size_t pos)> call) {
+		for (size_t i = 0, j = 0; i < str.size();)
 		{
 			const unsigned char& c = str[i];
 			size_t charLen = 0;
@@ -365,8 +388,9 @@ public:
 				i++;
 				continue;
 			}
-			if (!call(str.substr(i, charLen))) return false;
+			if (!call(str.substr(i, charLen), i, j)) return false;
 			i += charLen;
+			j++;
 		}
 		return true;
 	}
@@ -392,7 +416,7 @@ public:
 	static std::string removeChars(const std::string& str, const std::string& chs_rm)
 	{
 		std::string result = str;
-		iterateStr(chs_rm, [&result](const std::string& ch) {
+		iterateStr(chs_rm, [&result](const std::string& ch, size_t, size_t) {
 			if (ch.empty()) return;
 			size_t pos = 0;
 			while ((pos = result.find(ch, pos)) != std::string::npos) result.erase(pos, ch.length());
@@ -401,7 +425,7 @@ public:
 	}
 	static std::string removeChars(const std::string& str) {
 		std::string result;
-		iterateStr(str, [&result](const std::string& ch)
+		iterateStr(str, [&result](const std::string& ch, size_t, size_t)
 			{
 				if (ch.size() == 1 && std::isdigit(ch[0])) result += ch;
 			});
@@ -409,7 +433,7 @@ public:
 	}
 	static std::string removeNums(const std::string& str) {
 		std::string result;
-		iterateStr(str, [&result](const std::string& ch)
+		iterateStr(str, [&result](const std::string& ch, size_t, size_t)
 			{
 				if (ch.size() == 1 && std::isdigit(ch[0])) return;
 				result += ch;
@@ -520,7 +544,7 @@ public:
 	{
 		if (str_rp.length() > 1) return replace(str, str_rp, str_new);
 		std::string result;
-		iterateStr(str, [&](const std::string& ch) {
+		iterateStr(str, [&](const std::string& ch, size_t, size_t) {
 			if (ch == str_rp) result += str_new;
 			else result += ch;
 			});
@@ -530,7 +554,7 @@ public:
 	{
 		std::string result;
 		bool escapeMode = false;
-		iterateStr(str, [&](const std::string& ch) {
+		iterateStr(str, [&](const std::string& ch, size_t, size_t) {
 			if (escapeMode)
 			{
 				if (ch == "n") result += '\n';

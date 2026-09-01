@@ -54,6 +54,7 @@ namespace typepack
 	public:
 		void toBinary(binary& bin) const;
 		binary toBinary() const;
+		static object fromBinary(const char* data, size_t size);
 		static object fromBinary(const binary& bin);
 		bool exist(const base::key_type& key) const;
 		value get(const base::key_type& key) const;
@@ -68,6 +69,7 @@ namespace typepack
 	public:
 		void toBinary(binary& bin) const;
 		binary toBinary() const;
+		static array fromBinary(const char* data, size_t size);
 		static array fromBinary(const binary& bin);
 	};
 
@@ -602,18 +604,15 @@ namespace typepack
 			return bin;
 		}
 
-		static value fromBinary(const char*& data, const char* end)
+		static value fromBinary(const char* data, size_t size)
 		{
-			auto r = deserialize(data, end);
+			auto r = deserialize(data, data + size);
 			if (r) return std::move(*r);
 			return {};
 		}
 		static value fromBinary(const binary& bin)
 		{
-			const char* data = bin.data();
-			auto r = deserialize(data, data + bin.size());
-			if (r) return std::move(*r);
-			return {};
+			return fromBinary(bin.data(), bin.size());
 		}
 	};
 }
@@ -656,13 +655,17 @@ namespace typepack
 	{
 		return pack::toBinary(*this);
 	}
-	inline object object::fromBinary(const binary& bin)
+	inline object object::fromBinary(const char* data, size_t size)
 	{
-		if (bin.empty()) return {};
-		if ((static_cast<uint8_t>(bin.front()) & static_cast<uint8_t>(0b00001111)) != static_cast<uint8_t>(pack::Type::Object8)) return {};
-		value v = pack::fromBinary(bin);
+		if (!data || !size) return {};
+		if ((static_cast<uint8_t>(data[0]) & static_cast<uint8_t>(0b00001111)) != static_cast<uint8_t>(pack::Type::Object8)) return {};
+		value v = pack::fromBinary(data, size);
 		if (v.isObject()) return std::move(v.to<object>());
 		return {};
+	}
+	inline object object::fromBinary(const binary& bin)
+	{
+		return fromBinary(bin.data(), bin.size());
 	}
 
 	inline void array::toBinary(binary& bin) const
@@ -673,13 +676,17 @@ namespace typepack
 	{
 		return pack::toBinary(*this);
 	}
-	inline array array::fromBinary(const binary& bin)
+	inline array array::fromBinary(const char* data, size_t size)
 	{
-		if (bin.empty()) return {};
-		if ((static_cast<uint8_t>(bin.front()) & static_cast<uint8_t>(0b00001111)) != static_cast<uint8_t>(pack::Type::Array8)) return {};
-		value v = pack::fromBinary(bin);
+		if (!data || !size) return {};
+		if ((static_cast<uint8_t>(data[0]) & static_cast<uint8_t>(0b00001111)) != static_cast<uint8_t>(pack::Type::Array8)) return {};
+		value v = pack::fromBinary(data, size);
 		if (v.isArray()) return std::move(v.to<array>());
 		return {};
+	}
+	inline array array::fromBinary(const binary& bin)
+	{
+		return fromBinary(bin.data(), bin.size());
 	}
 }
 

@@ -7,7 +7,6 @@ struct QiMacroWorker : public QiWorkerWithArgs<bool,Macro*,std::condition_variab
 	using QiWorkerWithArgs::QiWorkerWithArgs;
 	bool invalid()
 	{
-		if (Qi::debug) return m_stop;
 		return !Qi::run || m_stop || (macro->timer && !QiTime::in(macro->timerStart, macro->timerEnd));
 	}
 	void run(bool isRunning, Macro* macro, std::condition_variable& ready) override
@@ -19,6 +18,7 @@ struct QiMacroWorker : public QiWorkerWithArgs<bool,Macro*,std::condition_variab
 
 		macro->script_interpreter.clearLocals();
 		macro->script_interpreter.setWorker(this);
+		macro->script_interpreter.setForceStop(macro->force_stop);
 		macro->script_interpreter.setValue(QiScriptInterpreter::var_macro_name, macro->name.toStdString());
 		Qi::widget.varViewReload();
 
@@ -33,7 +33,7 @@ struct QiMacroWorker : public QiWorkerWithArgs<bool,Macro*,std::condition_variab
 					{
 						if (macro->timer)
 						{
-							Qi::popText->Popup(QString("宏：") + macro->name + QString(timerOnce ? "已超时结束，等待下一次运行" : "等待运行"));
+							Qi::popText->Popup(lang_trans("宏") + "：" + macro->name + QString(timerOnce ? lang_trans("已超时结束，等待下一次运行") : lang_trans("等待运行")));
 							while (Qi::run && !m_stop && (macro->timer && !(QiTime::in(macro->timerStart, macro->timerEnd)))) Sleep(1);
 						}
 
@@ -59,7 +59,7 @@ struct QiMacroWorker : public QiWorkerWithArgs<bool,Macro*,std::condition_variab
 						Qi::curBlock -= macro->curBlock;
 						
 						// end actions
-						if (!invalid()) macro->thread.end_start(macro);
+						if (Qi::run) macro->thread.end_start(macro);
 
 						timerOnce = true;
 					} while (Qi::run && !m_stop && macro->timer);
@@ -85,7 +85,7 @@ struct QiMacroWorker : public QiWorkerWithArgs<bool,Macro*,std::condition_variab
 				Qi::curBlock -= macro->curBlock;
 			}
 		}
-		catch (std::runtime_error e) { QiTr::UnBlock(); macro->script_interpreter.showError(e.what(), std::string("位于初始化脚本")); }
+		catch (const ScriptException& e) { QiTr::UnBlock(); e.show(lang_trans("初始化脚本").toStdString()); }
 
 		macro->script_interpreter.clearProperty();
 		macro->script_interpreter.setWorker(nullptr);
@@ -101,10 +101,10 @@ void QiMacroThread::start(Macro* macro, bool running)
 		{
 			macro->wndInfo.update_fromName();
 			macro->wndInput.wnd = macro->wndInfo.wnd;
-			if (!macro->wndInput.wnd) macro->wndInput.wnd = (macro->wndInfo = QiFn::WindowSelection()).wnd;
+			if (!macro->wndInput.wnd) macro->wndInput.wnd = (macro->wndInfo = QiFn::WindowSelector()).wnd;
 			if (!macro->wndInput.wnd)
 			{
-				Qi::popText->Popup("窗口失效");
+				Qi::popText->Popup(lang_trans("窗口失效"));
 				return;
 			}
 		}

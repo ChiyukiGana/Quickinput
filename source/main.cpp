@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
 	Qi::popText = new QPopText;
 	Qi::popText->setPosition(Qi::ui.pop.x, Qi::ui.pop.y);
 	Qi::popText->setSize(Qi::ui.pop.size);
-	Qi::windowSelection = new QWindowSelection;
+	Qi::windowSelector = new QWindowSelector;
 
 	MainUi mainWindow;
 	application.exec();

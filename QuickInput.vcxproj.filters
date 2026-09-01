@@ -190,9 +190,6 @@
     <ClInclude Include="source\src\trigger.h">
       <Filter>5_Module\proc</Filter>
     </ClInclude>
-    <ClInclude Include="source\src\var.h">
-      <Filter>3_HeaderOnly</Filter>
-    </ClInclude>
     <ClInclude Include="source\src\mutex.h">
       <Filter>3_HeaderOnly</Filter>
     </ClInclude>
@@ -298,6 +295,9 @@
     <ClInclude Include="source\src\lang.h">
       <Filter>5_Module\proc</Filter>
     </ClInclude>
+    <ClInclude Include="source\src\var.h">
+      <Filter>5_Module\interpreter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="source\ui\AboutUi.ui">
@@ -359,16 +359,16 @@
     <QtMoc Include="source\ui\TriggerUi.h">
       <Filter>2_Widget\header</Filter>
     </QtMoc>
-    <QtMoc Include="source\ui\widget\QColorSelection.h">
+    <QtMoc Include="source\ui\widget\QColorSelector.h">
       <Filter>2_Widget\widget</Filter>
     </QtMoc>
-    <QtMoc Include="source\ui\widget\QPointSelection.h">
+    <QtMoc Include="source\ui\widget\QPointSelector.h">
       <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QPointView.h">
       <Filter>2_Widget\widget</Filter>
     </QtMoc>
-    <QtMoc Include="source\ui\widget\QRectSelection.h">
+    <QtMoc Include="source\ui\widget\QRectSelector.h">
       <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QRectView.h">
@@ -380,7 +380,7 @@
     <QtMoc Include="source\ui\widget\QPopText.h">
       <Filter>2_Widget\widget</Filter>
     </QtMoc>
-    <QtMoc Include="source\ui\widget\QWindowSelection.h">
+    <QtMoc Include="source\ui\widget\QWindowSelector.h">
       <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QMacroTable.h">
@@ -392,7 +392,7 @@
     <QtMoc Include="source\ui\widget\QTextDialog.h">
       <Filter>2_Widget\widget</Filter>
     </QtMoc>
-    <QtMoc Include="source\ui\widget\QDistanceSelection.h">
+    <QtMoc Include="source\ui\widget\QDistanceSelector.h">
       <Filter>2_Widget\widget</Filter>
     </QtMoc>
     <QtMoc Include="source\ui\widget\QFileEdit.h">

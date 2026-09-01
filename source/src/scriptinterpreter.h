@@ -21,6 +21,69 @@
 #include <src/mutex.h>
 #include <src/typepack/typepack.h>
 
+class ScriptException : public std::exception
+{
+public:
+	enum Type
+	{
+		error_invalid_character,
+		error_invalid_expression,
+		error_invalid_functions_parameter,
+		error_not_enough_operands,
+		error_unknown_operator,
+		error_unknown_functions,
+		size
+	};
+	static constexpr std::array<const char*, size> text{
+		"error_invalid_character",
+		"error_invalid_expression",
+		"error_invalid_functions_parameter",
+		"error_not_enough_operands",
+		"error_unknown_operator",
+		"error_unknown_functions"
+	};
+private:
+	Type m_type;
+	std::string m_msg;
+	std::string m_code;
+	std::string m_token;
+public:
+	ScriptException(Type type, const std::string& code, const std::string& token, const std::string& msg = {}) : std::exception(msg.c_str()), m_type(type), m_code(code), m_token(token), m_msg(msg) {}
+	Type type() const { return m_type; }
+	const std::string& msg() const { return m_msg; }
+	const std::string& code() const { return m_code; }
+	const std::string& token() const { return m_token; }
+	std::wstring info() const
+	{
+		std::wstring text;
+		if (m_msg.empty())
+		{
+			switch (m_type)
+			{
+			case ScriptException::error_invalid_character: text = lang_trans(L"无效的字符"); break;
+			case ScriptException::error_invalid_expression: text = lang_trans(L"语法无效"); break;
+			case ScriptException::error_invalid_functions_parameter: text = lang_trans(L"无效的参数"); break;
+			case ScriptException::error_not_enough_operands: text = lang_trans(L"变量参数缺少或过多"); break;
+			case ScriptException::error_unknown_operator: text = lang_trans(L"未知操作符"); break;
+			case ScriptException::error_unknown_functions: text = lang_trans(L"未知函数"); break;
+			case ScriptException::size: text = lang_trans(L"无效的字符"); break;
+			}
+		}
+		else if (!m_msg.empty()) text = String::toWString(m_msg);
+		return (text.empty() ? lang_trans(L"错误") : text) + L": " + String::toWString(m_token) + L"\n" + lang_trans(L"代码") + L": " + String::toWString(m_code);
+	}
+	void show(std::string addition = std::string()) const
+	{
+		if (addition.empty()) MessageBoxW(nullptr, info().c_str(), L"Quickinput script", MB_ICONERROR | MB_TOPMOST);
+		else MessageBoxW(nullptr, (info() + std::wstring(L"\n\n") + String::toWString(addition)).c_str(), L"Quickinput script", MB_ICONERROR | MB_TOPMOST);
+	}
+	static void show(const ScriptException& e, std::string addition = std::string())
+	{
+		if (addition.empty()) MessageBoxW(nullptr, e.info().c_str(), L"Quickinput script", MB_ICONERROR | MB_TOPMOST);
+		else MessageBoxW(nullptr, (e.info() + std::wstring(L"\n\n") + String::toWString(addition)).c_str(), L"Quickinput script", MB_ICONERROR | MB_TOPMOST);
+	}
+};
+
 class QiScriptInterpreter;
 struct QiFunc
 {
@@ -44,13 +107,6 @@ public:
 	static inline const std::string var_cur_last_y = "_cur_last_y";
 	static inline const std::string var_cur_last_ax = "_cur_last_ax";
 	static inline const std::string var_cur_last_ay = "_cur_last_ay";
-
-	static inline const std::string error_invalid_character = "error_invalid_character";
-	static inline const std::string error_not_enough_operands = "error_not_enough_operands";
-	static inline const std::string error_functions_parameter_invalid = "error_functions_parameter_invalid";
-	static inline const std::string error_unknown_operator = "error_unknown_operator";
-	static inline const std::string error_invalid_expression = "error_invalid_expression";
-	static inline const std::string error_unknown_functions = "error_unknown_functions";
 
 private:
 	using Property = std::map<std::string, std::any>;
@@ -151,6 +207,7 @@ private:
 	std::mutex localVariablesMutex;
 	QiWorker* workerPtr{}; // single-threaded
 	Property propertys; // single-threaded
+	bool force_stop{};
 
 	auto trim(const std::string& s) -> std::string
 	{
@@ -279,7 +336,7 @@ private:
 				pos++;
 			}
 			// Operators
-			else if (c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '>' || c == '<' || c == '=' || c == '%' || c == '~' || c == '&' || c == '|' || c == '!')
+			else if (c == '+' || c == '-' || c == '*' || c == '/' || c == ':' || c == '>' || c == '<' || c == '=' || c == '%' || c == '!' || c == '~' || c == '&' || c == '|' || c == '^')
 			{
 				bool isUnaryMinus = (c == '-') && (tokens.empty() || tokens.back().type == OPERATOR || tokens.back().value == "(" || tokens.back().type == ARG_SEPARATOR);
 				if (isUnaryMinus)
@@ -298,7 +355,7 @@ private:
 					char next_c = expr[pos + 1];
 					std::string dual_op = op + next_c;
 
-					if ((dual_op == "<<" || dual_op == ">>") || (dual_op == ">=" || dual_op == "<=" || dual_op == "!=" || dual_op == "==" || dual_op == "&&" || dual_op == "||" || dual_op == "^^"))
+					if ((dual_op == "<<" || dual_op == ">>") || (dual_op == ">=" || dual_op == "<=" || dual_op == "!=" || dual_op == "==" || dual_op == "&&" || dual_op == "||"))
 					{
 						op = dual_op;
 						pos++;
@@ -306,7 +363,7 @@ private:
 					}
 				}
 
-				if (op == "!" || op == "~" || op == "^")
+				if (op == "!" || op == "~" || op == ":")
 					prec = 4;
 				else if (op == "*" || op == "/" || op == "%")
 					prec = 3;
@@ -314,7 +371,7 @@ private:
 					prec = 2;
 				else if (op == "<<" || op == ">>")
 					prec = 1;
-				else if (op == "|" || op == "&" || op == "^^")
+				else if (op == "|" || op == "&" || op == "^")
 					prec = 1;
 				else if (op == "==" || op == "!=" || op == ">" || op == "<" || op == ">=" || op == "<=")
 					prec = 1;
@@ -336,7 +393,7 @@ private:
 				tokens.emplace_back(ARG_SEPARATOR, ",");
 				pos++;
 			}
-			else throw std::runtime_error(error_invalid_character + std::string(": ") + std::string(1, c) + std::string("\n\nat: ") + expr);
+			else throw ScriptException(ScriptException::error_invalid_character, {}, std::string(1, c));
 		}
 		return tokens;
 	}
@@ -450,65 +507,54 @@ private:
 			else if (token.type == OPERATOR)
 			{
 				QiVar result;
-				try
+				if (token.value == "return")
 				{
-					if (token.value == "return")
+					QiVar right;
+					if (!stack.empty())
 					{
-						QiVar right;
-						if (!stack.empty())
-						{
-							right = stack.back();
-							stack.pop_back();
-						}
-						throw ReturnException(right);
-					}
-					else if (token.value == "!" || token.value == "~" || token.value == "_-")
-					{
-						if (stack.size() < 1) throw std::runtime_error(error_not_enough_operands + std::string(": ") + token.value);
-						QiVar right = stack.back();
+						right = stack.back();
 						stack.pop_back();
-
-						if (token.value == "!") result = !right;
-						else if (token.value == "~") result = ~right;
-						else if (token.value == "_-") result = (right.type() == QiVar::t_num) ? QiVar(0.0) - right : QiVar(0) - right;
 					}
-					else
-					{
-						if (stack.size() < 2) throw std::runtime_error(error_not_enough_operands + std::string(": ") + token.value);
-						QiVar right = stack.back();
-						stack.pop_back();
-						QiVar left = stack.back();
-						stack.pop_back();
-
-						if (token.value == "^") result = left.merge(right);
-						else if (token.value == "+") result = left + right;
-						else if (token.value == "-") result = left - right;
-						else if (token.value == "*") result = left * right;
-						else if (token.value == "/") result = left / right;
-						else if (token.value == "%") result = left % right;
-						else if (token.value == "&") result = left & right;
-						else if (token.value == "|") result = left | right;
-						else if (token.value == "^^") result = left ^ right;
-						else if (token.value == "<<") result = left << right;
-						else if (token.value == ">>") result = left >> right;
-						else if (token.value == ">") result = left > right;
-						else if (token.value == "<") result = left < right;
-						else if (token.value == ">=") result = left >= right;
-						else if (token.value == "<=") result = left <= right;
-						else if (token.value == "==") result = left == right;
-						else if (token.value == "!=") result = left != right;
-						else if (token.value == "&&") result = left && right;
-						else if (token.value == "||") result = left || right;
-						else throw std::runtime_error(error_unknown_operator + std::string(": ") + token.value);
-					}
+					throw ReturnException(right);
 				}
-				catch (const ReturnException&)
+				else if (token.value == "!" || token.value == "~" || token.value == "_-")
 				{
-					throw;
+					if (stack.size() < 1) throw ScriptException(ScriptException::error_not_enough_operands, {}, token.value);
+					QiVar right = stack.back();
+					stack.pop_back();
+
+					if (token.value == "!") result = !right;
+					else if (token.value == "~") result = ~right;
+					else if (token.value == "_-") result = (right.type() == QiVar::t_num) ? QiVar(0.0) - right : QiVar(0) - right;
 				}
-				catch (const std::runtime_error&)
+				else
 				{
-					throw;
+					if (stack.size() < 2) throw ScriptException(ScriptException::error_not_enough_operands, {}, token.value);
+					QiVar right = stack.back();
+					stack.pop_back();
+					QiVar left = stack.back();
+					stack.pop_back();
+
+					if (token.value == ":") result = left.merge(right);
+					else if (token.value == "+") result = left + right;
+					else if (token.value == "-") result = left - right;
+					else if (token.value == "*") result = left * right;
+					else if (token.value == "/") result = left / right;
+					else if (token.value == "%") result = left % right;
+					else if (token.value == "&") result = left & right;
+					else if (token.value == "|") result = left | right;
+					else if (token.value == "^") result = left ^ right;
+					else if (token.value == "<<") result = left << right;
+					else if (token.value == ">>") result = left >> right;
+					else if (token.value == ">") result = left > right;
+					else if (token.value == "<") result = left < right;
+					else if (token.value == ">=") result = left >= right;
+					else if (token.value == "<=") result = left <= right;
+					else if (token.value == "==") result = left == right;
+					else if (token.value == "!=") result = left != right;
+					else if (token.value == "&&") result = left && right;
+					else if (token.value == "||") result = left || right;
+					else throw ScriptException(ScriptException::error_unknown_operator, {}, token.value);
 				}
 				stack.push_back(result);
 			}
@@ -522,7 +568,7 @@ private:
 					std::vector<QiVar> args;
 					for (int j = 0; j < token.argCount; j++)
 					{
-						if (stack.empty()) throw std::runtime_error(error_functions_parameter_invalid + std::string(": ") + token.value);
+						if (stack.empty()) throw ScriptException(ScriptException::error_invalid_functions_parameter, {}, token.value);
 						args.insert(args.begin(), stack.back());
 						stack.pop_back();
 					}
@@ -532,7 +578,7 @@ private:
 						QiVar result = func->exec(args, this);
 						stack.push_back(result);
 					}
-					else throw std::runtime_error(error_functions_parameter_invalid + std::string(": ") + token.value);
+					else throw ScriptException(ScriptException::error_invalid_functions_parameter, {}, token.value);
 				}
 				else
 				{
@@ -555,25 +601,22 @@ private:
 								executeStatementList(func.statementList, &funcLocal);
 								stack.push_back(QiVar(0));
 							}
-							catch (const ReturnException& e)
-							{
-								stack.push_back(e.returnValue);
-							}
+							catch (const ReturnException& e) { stack.push_back(e.returnValue); }
 						}
-						else throw std::runtime_error(error_functions_parameter_invalid + std::string(": ") + token.value);
+						else throw ScriptException(ScriptException::error_invalid_functions_parameter, {}, token.value);
 					}
 					else
 					{
 						customFunctionsMutex.unlock();
-						throw std::runtime_error(error_unknown_functions + std::string(": ") + token.value);
+						throw ScriptException(ScriptException::error_unknown_functions, {}, token.value);
 					}
 				}
 			}
 		}
 		if (stack.size() != 1)
 		{
-			std::string exc; for (const auto& i : postfix) exc += i.value;
-			throw std::runtime_error(error_invalid_expression + std::string(": ") + exc);
+			std::string exc; for (const auto& token : postfix) exc += token.value;
+			throw ScriptException(ScriptException::error_invalid_expression, {}, exc);
 		}
 		return stack.back();
 	}
@@ -747,7 +790,7 @@ private:
 			}
 			else if (std::holds_alternative<Loop>(stmt)) {
 				const Loop& loopStmt = std::get<Loop>(stmt);
-				while ((workerPtr ? (!workerPtr->m_stop) : true) && execute(loopStmt.condition).toBool()) executeStatementList(loopStmt.body, local);
+				while (((force_stop && workerPtr) ? !workerPtr->m_stop : Qi::run.load()) && execute(loopStmt.condition).toBool()) executeStatementList(loopStmt.body, local);
 			}
 			else if (std::holds_alternative<FunctionDef>(stmt)) {
 				const FunctionDef& funcDef = std::get<FunctionDef>(stmt);
@@ -783,10 +826,13 @@ public:
 
 	auto execute(const std::string& code, QiVarMap* local = nullptr) -> QiVar
 	{
-		auto tokens = tokenize(code);
+		std::vector<Token> tokens;
+		try { tokens = tokenize(code); }
+		catch (const ScriptException& e) { throw ScriptException(e.type(), code, e.token(), e.msg()); }
 		auto postfix = infixToPostfix(tokens);
 		try { return evaluatePostfix(postfix, local); }
 		catch (const ReturnException& e) { return e.returnValue; }
+		catch (const ScriptException& e) { throw ScriptException(e.type(), code, e.token(), e.msg()); }
 	}
 	void interpret(const std::string& code, QiVarMap* local = nullptr)
 	{
@@ -841,15 +887,18 @@ public:
 				if (trimmedCode[eqPos - 1] == '-') oper = 2;
 				if (trimmedCode[eqPos - 1] == '*') oper = 3;
 				if (trimmedCode[eqPos - 1] == '/') oper = 4;
-				if (trimmedCode[eqPos - 1] == '^') oper = 5;
+				if (trimmedCode[eqPos - 1] == ':') oper = 5;
 			}
 		}
 
-		auto tokens = tokenize(trimmedCode.substr(eqPos + 1));
-		auto postfix = infixToPostfix(tokens);
 		QiVar result;
+		std::vector<Token> tokens;
+		try { tokens = tokenize(trimmedCode.substr(eqPos + 1)); }
+		catch (const ScriptException& e) { throw ScriptException(e.type(), code, e.token(), e.msg()); }
+		auto postfix = infixToPostfix(tokens);
 		try { result = evaluatePostfix(postfix, local); }
 		catch (const ReturnException& e) { result = e.returnValue; }
+		catch (const ScriptException& e) { throw ScriptException(e.type(), code, e.token(), e.msg()); }
 
 		std::string left = trim(trimmedCode.substr(0, oper ? eqPos - 1 : eqPos));
 		if (!left.empty())
@@ -1033,6 +1082,9 @@ public:
 	static std::mutex* globalMutex() { return &globalVariablesMutex; }
 	std::mutex* localMutex() { return &localVariablesMutex; }
 	std::mutex* thisMutex() { return &this_mutex; }
+	
+	bool forceStop() const { return force_stop; }
+	void setForceStop(bool force) { force_stop = force; }
 
 private:
 	static inline QiMutex mutex;
@@ -1090,7 +1142,7 @@ public:
 				}
 				savedVariables_Mutex.unlock();
 				});
-		});
+			});
 	}
 	static void stopSavedVariable()
 	{
@@ -1099,7 +1151,7 @@ public:
 			savedVariables_Stop = true;
 			savedVariables_Condition.notify_all();
 			savedVariables_Thread.join();
-		});
+			});
 	}
 	static QiVar getSavedVariable(const std::string name)
 	{
@@ -1182,7 +1234,7 @@ public:
 		bool global = name[0] == '$';
 		if (global && name.size() < 2) return false;
 		if (!isValidVariableFirst(global ? name[1] : name[0])) return false;
-		return QiVar::iterateStrX(name.substr(global ? 1 : 0), [](const std::string& ch) {
+		return QiVar::iterateStrX(name.substr(global ? 1 : 0), [](const std::string& ch, size_t, size_t) {
 			if (ch.size() == 1 && !isValidVariableChar(ch[0])) return false;
 			return true;
 			});
@@ -1190,39 +1242,6 @@ public:
 	static bool isGlobalVariable(const std::string& name)
 	{
 		return isValidVariableName(name) && name.front() == '$';
-	}
-	static void showError(std::string msg, std::string addition = std::string())
-	{
-		std::wstring text;
-		if (msg.find(QiScriptInterpreter::error_invalid_character) != std::string::npos)
-		{
-			text = lang_trans(L"无效的字符");
-		}
-		else if (msg.find(QiScriptInterpreter::error_invalid_expression) != std::string::npos)
-		{
-			text = lang_trans(L"语法无效");
-		}
-		else if (msg.find(QiScriptInterpreter::error_not_enough_operands) != std::string::npos)
-		{
-			text = lang_trans(L"变量参数缺少或过多");
-		}
-		else if (msg.find("==") != std::string::npos)
-		{
-			text = lang_trans(L"操作符使用错误");
-		}
-		else if (msg.find(QiScriptInterpreter::error_unknown_operator) != std::string::npos)
-		{
-			text = lang_trans(L"未知操作符");
-		}
-		else if (msg.find(QiScriptInterpreter::error_unknown_functions) != std::string::npos)
-		{
-			text = lang_trans(L"未知函数");
-		}
-		else if (msg.find(QiScriptInterpreter::error_functions_parameter_invalid) != std::string::npos)
-		{
-			text = lang_trans(L"函数参数无效");
-		}
-		MessageBoxW(nullptr, (String::toWString(msg) + std::wstring(L"\n\n") + text + std::wstring(L"\n\n") + String::toWString(addition)).c_str(), L"Quickinput script", MB_ICONERROR | MB_TOPMOST);
 	}
 
 	static void init()

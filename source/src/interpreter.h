@@ -7,6 +7,7 @@ class QiInterpreter
 	Macro& macro;
 	POINT& cursor;
 	Actions* actions;
+	const bool force_stop;
 	const bool timer;
 	const time_t timerStart;
 	const time_t timerEnd;

@@ -349,7 +349,7 @@ void EditUi::Event()
 		connect(ui.rec_window_button, &QPushButton::clicked, this, [this] {
 			Qi::widget.dialogActive = true;
 			hide();
-			WndInfo wndInfo = QiFn::WindowSelection();
+			WndInfo wndInfo = QiFn::WindowSelector();
 			if (wndInfo.wnd)
 			{
 				RecordUi rw(&wndInfo);
@@ -626,7 +626,7 @@ void EditUi::Event_Action_Widget()
 	// move
 	connect(ui.mouse_position_button, &QPushButton::clicked, this, [this] {
 		hide();
-		QPointSelection ps;
+		QPointSelector ps;
 		POINT pt;
 		if (macro->wndState)
 		{
@@ -708,7 +708,7 @@ void EditUi::Event_Action_Widget()
 	// color
 	connect(ui.color_rect_button, &QPushButton::clicked, this, [this] {
 		hide();
-		QRectSelection rs;
+		QRectSelector rs;
 		RECT rect;
 		Rgba rgba;
 		if (macro->wndState)
@@ -753,7 +753,7 @@ void EditUi::Event_Action_Widget()
 		});
 	connect(ui.color_rgb_button, &QPushButton::clicked, this, [this] {
 		hide();
-		QColorSelection cs;
+		QColorSelector cs;
 		QColor c = cs.Start();
 		QColorDialog cd(c, this);
 		cd.setStyleSheet(QiUi::color_dialog_style);
@@ -768,7 +768,7 @@ void EditUi::Event_Action_Widget()
 	// image
 	connect(ui.image_rect_button, &QPushButton::clicked, this, [this] {
 		hide();
-		QRectSelection rs;
+		QRectSelector rs;
 		RECT rect;
 		if (macro->wndState)
 		{
@@ -792,7 +792,7 @@ void EditUi::Event_Action_Widget()
 		});
 	connect(ui.image_shot_button, &QPushButton::clicked, this, [this] {
 		hide();
-		QRectSelection rs;
+		QRectSelector rs;
 		RECT rect = rs.Start();
 		if (rect.right && rect.bottom)
 		{
@@ -806,7 +806,7 @@ void EditUi::Event_Action_Widget()
 	// ocr
 	connect(ui.ocr_rect_button, &QPushButton::clicked, this, [this] {
 		hide();
-		QRectSelection rs;
+		QRectSelector rs;
 		RECT rect;
 		if (macro->wndState)
 		{
@@ -857,14 +857,8 @@ void EditUi::Event_Action_Widget()
 	connect(ui.varOperator_test_button, &QPushButton::clicked, this, [this] {
 		setDisabled(true);
 		varop = std::async([code = ui.varOperator_textedit->toPlainText().toStdString(), pMacro = macro]() {
-			try
-			{
-				pMacro->script_interpreter.interpretAll(code);
-			}
-			catch (std::exception e)
-			{
-				QiScriptInterpreter::showError(e.what());
-			}
+			try { pMacro->script_interpreter.interpretAll(code); }
+			catch (const ScriptException& e) { e.show(e); }
 			Qi::widget.editVaropStop();
 			});
 		});
@@ -875,7 +869,7 @@ void EditUi::Event_Action_Widget()
 	// range
 	connect(ui.range_rect_button, &QPushButton::clicked, this, [this] {
 		hide();
-		QRectSelection rs;
+		QRectSelector rs;
 		RECT rect;
 		Rgba rgba;
 		if (macro->wndState)
@@ -914,7 +908,7 @@ void EditUi::Event_Action_Widget()
 		});
 	connect(ui.range_wnd_button, &QPushButton::clicked, this, [this] {
 		hide();
-		WndInfo w = QiFn::WindowSelection();
+		WndInfo w = QiFn::WindowSelector();
 		if (w.wnd)
 		{
 			QiRangeSet range;
@@ -1273,7 +1267,7 @@ void EditUi::SelectWindow()
 {
 	QPoint pt = pos();
 	hide();
-	macro->wndInfo = QiFn::WindowSelection();
+	macro->wndInfo = QiFn::WindowSelector();
 	show();
 	SetWindowMode();
 }

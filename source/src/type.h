@@ -245,11 +245,11 @@ namespace Qi
 #ifdef Q_DRIVER
 	inline QiDriverModule driver;
 #endif
-	// for setStyle
+	// style
 	inline QApplication* application = nullptr;
 	inline QiUi::QuickInputUi ui;
 	// state
-	inline bool state = false;
+	inline std::atomic_bool state = false; // state toggle flag
 	// record
 	inline bool recordState = false;
 	inline bool recording = false;
@@ -266,11 +266,11 @@ namespace Qi
 	inline GroupData group;
 	inline Widget widget;
 	inline QPopText* popText = nullptr;
-	inline QWindowSelection* windowSelection = nullptr;
+	inline QWindowSelector* windowSelector = nullptr;
 	// input
 	inline bool keyState[key_size];
-	inline bool keyBlock[key_size];
-	inline int curBlock = 0;
+	inline std::atomic_bool keyBlock[key_size];
+	inline std::atomic_int curBlock = 0;
 #ifdef Q_KEYEDIT_PAD_ENABLED
 	inline XBoxPad xboxpad;
 #endif

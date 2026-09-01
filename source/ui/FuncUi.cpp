@@ -79,7 +79,7 @@ void FuncUi::Event()
 	connect(ui.window_select_button, &QPushButton::clicked, this, [this] {
 		Qi::widget.dialogActive = true;
 		Qi::widget.main->hide();
-		func->wndActive.wndInfo = QiFn::WindowSelection();
+		func->wndActive.wndInfo = QiFn::WindowSelector();
 		func->wndActive.wndInfo.update_fromHwnd();
 
 		ui.window_name_edit->blockSignals(true);

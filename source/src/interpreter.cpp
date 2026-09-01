@@ -7,8 +7,9 @@ constexpr int interpreter_max_stack = 256;
 QiInterpreter::QiInterpreter(Macro& macro, bool isRunning, QiWorker& worker) :
 	worker(worker),
 	macro(macro),
-	actions(nullptr),
 	cursor(macro.cursor),
+	actions(nullptr),
+	force_stop(macro.force_stop),
 	speed(macro.speed),
 	timer(macro.timer),
 	timerStart(macro.timerStart),
@@ -73,7 +74,8 @@ void QiInterpreter::setLastPos(int x, int y)
 bool QiInterpreter::isInvalid()
 {
 	if (Qi::debug) return worker.m_stop;
-	return !Qi::run || worker.m_stop || (timer && !QiTime::in(timerStart, timerEnd));
+	if (force_stop) return !Qi::run || worker.m_stop || (timer && !QiTime::in(timerStart, timerEnd));
+	return !Qi::run || (timer && !QiTime::in(timerStart, timerEnd));
 }
 
 void QiInterpreter::DebugContinue()
@@ -83,8 +85,13 @@ void QiInterpreter::DebugContinue()
 
 bool QiInterpreter::Sleep(double ms)
 {
-	worker.sleep(ms);
-	return worker.m_stop;
+	if (force_stop)
+	{
+		worker.sleep(ms);
+		return worker.m_stop;
+	}
+	AccurateSleep(ms, [] { return Qi::run.load(); });
+	return !Qi::run.load();
 }
 
 QString QiInterpreter::makePath()
@@ -129,7 +136,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 		{
 			Action& action = current[i];
 			if (isInvalid()) return InterpreterResult::r_exit;
-			if (wndInput && !IsWindow(wndInput->wnd)) { Qi::popText->Popup("窗口失效"); return InterpreterResult::r_exit; }
+			if (wndInput && !IsWindow(wndInput->wnd)) { Qi::popText->Popup(lang_trans("窗口失效")); return InterpreterResult::r_exit; }
 
 			if (debug_entry)
 			{
@@ -291,7 +298,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 					std::string text = macro.script_interpreter.execute(macro.script_interpreter.makeString(ref.text.toStdString())).toString();
 					System::ClipBoardText(String::toWString(text).c_str());
 				}
-				catch (std::exception e) { QiTr::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return InterpreterResult::r_exit; }
+				catch (const ScriptException& e) { QiTr::UnBlock(); e.show(errPath()); return InterpreterResult::r_exit; }
 			} break;
 			case QiType::color:
 			{
@@ -472,7 +479,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 					}
 					Sleep(1);
 				}
-				catch (std::exception e) { QiTr::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return InterpreterResult::r_exit; }
+				catch (const ScriptException& e) { QiTr::UnBlock(); e.show(errPath()); return InterpreterResult::r_exit; }
 			} break;
 			case QiType::savePos: cursor = Input::pos(); break;
 			case QiType::timer:
@@ -527,7 +534,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 					if (MessageBoxW(nullptr, String::toWString(text).c_str(), String::toWString(title).c_str(), style) == IDYES) r_result = ActionInterpreter(ref.next);
 					else r_result = ActionInterpreter(ref.next2);
 				}
-				catch (std::exception e) { QiTr::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return InterpreterResult::r_exit; }
+				catch (const ScriptException& e) { QiTr::UnBlock(); e.show(errPath()); return InterpreterResult::r_exit; }
 			} break;
 			case QiType::blockExec:
 			{
@@ -573,7 +580,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 						}
 					}
 				}
-				catch (std::exception e) { QiTr::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return InterpreterResult::r_exit; }
+				catch (const ScriptException& e) { QiTr::UnBlock(); e.show(errPath()); return InterpreterResult::r_exit; }
 			} break;
 			case QiType::keyBlock:
 			{
@@ -721,13 +728,13 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 						MsgBox::Error(lang_trans(L"未安装OCR组件") + werrPath(), L"Quickinput Interpreter"); return InterpreterResult::r_exit;
 					}
 				}
-				catch (std::exception e) { QiTr::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return InterpreterResult::r_exit; }
+				catch (const ScriptException& e) { QiTr::UnBlock(); e.show(errPath()); return InterpreterResult::r_exit; }
 			} break;
 			case QiType::varOperator:
 			{
 				const QiVarOperator& ref = action.to<QiVarOperator>();
 				try { macro.script_interpreter.interpretAll(ref.script.toStdString()); }
-				catch (std::runtime_error e) { QiTr::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return InterpreterResult::r_exit; }
+				catch (const ScriptException& e) { QiTr::UnBlock(); e.show(errPath()); return InterpreterResult::r_exit; }
 				Qi::widget.varViewReload();
 			} break;
 			case QiType::varCondition:
@@ -741,7 +748,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 					if (var.toBool()) r_result = ActionInterpreter(ref.next);
 					else r_result = ActionInterpreter(ref.next2);
 				}
-				catch (std::runtime_error e) { QiTr::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return InterpreterResult::r_exit; }
+				catch (const ScriptException& e) { QiTr::UnBlock(); e.show(errPath()); return InterpreterResult::r_exit; }
 				Qi::widget.varViewReload();
 			} break;
 			case QiType::mouseTrack:
@@ -794,7 +801,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 					text = String::toString(TextEditBox(nullptr, String::toWString(title).c_str(), String::toWString(text).c_str(), ref.mult, WS_EX_TOPMOST, Qi::ico));
 					if (!text.empty()) setValue(ref.var.toStdString(), text);
 				}
-				catch (std::exception e) { QiTr::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return InterpreterResult::r_exit; }
+				catch (const ScriptException& e) { QiTr::UnBlock(); e.show(errPath()); return InterpreterResult::r_exit; }
 			} break;
 			case QiType::volume:
 			{
@@ -856,7 +863,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 					else if (ref.option == QiMsgView::hide) Qi::widget.msgViewHide();
 					Sleep(1);
 				}
-				catch (std::exception e) { QiTr::UnBlock(); QiScriptInterpreter::showError(e.what(), errPath()); return InterpreterResult::r_exit; }
+				catch (const ScriptException& e) { QiTr::UnBlock(); e.show(errPath()); return InterpreterResult::r_exit; }
 			} break;
 			case QiType::range:
 			{
@@ -869,7 +876,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 					h = true;
 					if (IsWindow(ref.w)) ok = true;
 					else ok = ref.w = reinterpret_cast<HWND>(macro.script_interpreter.value(ref.var.toStdString()).toPointer());
-					
+
 				}
 				if (!ok && (!ref.title.isEmpty() || !ref.clas.isEmpty() || !ref.proc.isEmpty()))
 				{

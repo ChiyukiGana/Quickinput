@@ -19,7 +19,7 @@ protected:
 	void paintEvent(QPaintEvent*) { QPainter pa(this); pa.fillRect(this->rect(), color); }
 };
 
-class QColorSelection : public QDialog
+class QColorSelector : public QDialog
 {
 	Q_OBJECT;
 	QColorBox colorBox;
@@ -30,7 +30,7 @@ class QColorSelection : public QDialog
 
 public:
 
-	QColorSelection()
+	QColorSelector()
 	{
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setAttribute(Qt::WA_TranslucentBackground);

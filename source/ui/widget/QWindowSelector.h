@@ -7,10 +7,10 @@
 #include <qapplication.h>
 #include <src/inc_project.h>
 
-class QWindowSelection : public QDialog
+class QWindowSelector : public QDialog
 {
 	Q_OBJECT;
-	using This = QWindowSelection;
+	using This = QWindowSelector;
 
 	enum Event
 	{
@@ -45,7 +45,7 @@ public:
 	}
 	static RECT screenRect() { SIZE size = screenSize(); return { 0, 0, size.cx - 1, size.cy - 1 }; }
 
-	QWindowSelection()
+	QWindowSelector()
 	{
 		setAttribute(Qt::WA_TranslucentBackground, true);
 		setAttribute(Qt::WA_TransparentForMouseEvents, true);

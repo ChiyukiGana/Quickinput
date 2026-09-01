@@ -81,7 +81,7 @@ namespace QiTr
 				{
 					if (macro.thread.run_active())
 					{
-						macro.thread.end_start(&macro);
+						macro.thread.stop();
 						if (Qi::set.showTips && !Qi::ui.pop.swd.t.isEmpty()) QiFn::MacroPop(&macro, false);
 						if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.swd.s, false);
 					}
@@ -107,7 +107,7 @@ namespace QiTr
 				{
 					if (macro.count == 0 && macro.thread.run_active())
 					{
-						macro.thread.end_start(&macro);
+						macro.thread.stop();
 						if (Qi::set.showTips && !Qi::ui.pop.dwd.t.isEmpty()) QiFn::MacroPop(&macro, false);
 						if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.dwd.s, false);
 					}
@@ -121,7 +121,7 @@ namespace QiTr
 				{
 					if (macro.count == 0 && macro.thread.run_active())
 					{
-						macro.thread.end_start(&macro);
+						macro.thread.stop();
 						if (Qi::set.showTips && !Qi::ui.pop.upd.t.isEmpty()) QiFn::MacroPop(&macro, false);
 						if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.upd.s, false);
 					}
@@ -170,23 +170,17 @@ namespace QiTr
 		if (state)
 		{
 			Qi::curBlock = 0;
-			memset(Qi::keyBlock, 0, sizeof(Qi::keyBlock));
+			for (size_t i = 0; i < sizeof(Qi::keyBlock); i++) Qi::keyBlock[i] = false;
 			Qi::macroActive.clear();
-			for (auto& g : Qi::macroGroups)
+			for (auto& g : Qi::macroGroups) for (auto& m : g.macros) if (m.state && (m.key1 || m.key2))
 			{
-				for (auto& m : g.macros)
+				if (m.keyBlock)
 				{
-					if (m.state && (m.key1 || m.key2))
-					{
-						if (m.keyBlock)
-						{
-							if (m.key1) Qi::keyBlock[m.key1] = true;
-							if (m.key2) Qi::keyBlock[m.key2] = true;
-						}
-						m.range = { 0,0,10000,10000 };
-						Qi::macroActive.append(&m);
-					}
+					if (m.key1) Qi::keyBlock[m.key1] = true;
+					if (m.key2) Qi::keyBlock[m.key2] = true;
 				}
+				m.range = { 0,0,10000,10000 };
+				Qi::macroActive.append(&m);
 			}
 
 			Qi::state = true;
@@ -198,6 +192,7 @@ namespace QiTr
 		else
 		{
 			Qi::state = false, Qi::run = false;
+			for (auto& m : Qi::macroActive) m->thread.stop();
 			if (Qi::fun.wndActive.state) { if (Qi::fun.wndActive.thread.active()) Qi::fun.wndActive.thread.stop(); }
 			if (Qi::set.showTips && !Qi::ui.pop.qd.t.isEmpty()) QiFn::StatePop(false);
 			if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.qd.s, false);
@@ -207,6 +202,6 @@ namespace QiTr
 	void UnBlock()
 	{
 		Qi::curBlock = 0;
-		memset(Qi::keyBlock, 0, sizeof Qi::keyBlock);
+		for (size_t i = 0; i < sizeof(Qi::keyBlock); i++) Qi::keyBlock[i] = false;
 	}
 }

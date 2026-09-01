@@ -7,7 +7,7 @@
 #include <qapplication.h>
 #include <qguiapplication.h>
 
-class QRectSelection : public QDialog
+class QRectSelector : public QDialog
 {
 	Q_OBJECT;
 	QWidget wid;
@@ -19,7 +19,7 @@ class QRectSelection : public QDialog
 	RECT mrect = { 0 };
 
 public:
-	QRectSelection() : wid(QWidget(this))
+	QRectSelector() : wid(QWidget(this))
 	{
 		setWindowFlags(Qt::Tool | Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint);
 		setAttribute(Qt::WA_TranslucentBackground);

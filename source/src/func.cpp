@@ -165,10 +165,10 @@ namespace QiFn
 			}
 		}
 	}
-	WndInfo WindowSelection()
+	WndInfo WindowSelector()
 	{
 		WndInfo wndInfo;
-		wndInfo.wnd = Qi::windowSelection->Start();
+		wndInfo.wnd = Qi::windowSelector->Start();
 		wndInfo.update_fromHwnd();
 		return wndInfo;
 	}

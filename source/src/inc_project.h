@@ -5,11 +5,11 @@
 #include <QFrameless.h>
 #include <QKeyEdit.h>
 #include <QPopText.h>
-#include <QWindowSelection.h>
-#include <QColorSelection.h>
-#include <QPointSelection.h>
-#include <QRectSelection.h>
-#include <QDistanceSelection.h>
+#include <QWindowSelector.h>
+#include <QColorSelector.h>
+#include <QPointSelector.h>
+#include <QRectSelector.h>
+#include <QDistanceSelector.h>
 #include <QPointView.h>
 #include <QRectView.h>
 #include <QTextDialog.h>
@@ -49,8 +49,8 @@ namespace Qi
 	constexpr int key_size = 255;
 #endif
 	constexpr int ocr_thread_max = 8;
-	inline bool run = false;
-	inline int debug = 0;
+	inline std::atomic_bool run = false; // is macro runable
+	inline std::atomic_int debug = 0;
 	inline const QString dir = QDir::fromNativeSeparators(QString::fromStdWString(Path::RemoveFile(Process::exePath())));
 	inline const QString folder = dir.mid(dir.lastIndexOf('/') + 1);
 	inline const QString macroDir = dir + "/macro/";

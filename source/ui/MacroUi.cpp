@@ -329,7 +329,7 @@ void MacroUi::RecStart(bool wnd)
 	WndInfo wndInfo;
 	if (wnd)
 	{
-		wndInfo = QiFn::WindowSelection();
+		wndInfo = QiFn::WindowSelector();
 		if (!wndInfo.wnd)
 		{
 			Qi::popText->Popup(2000, lang_trans("窗口已失效"));

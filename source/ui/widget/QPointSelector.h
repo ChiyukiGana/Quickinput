@@ -8,7 +8,7 @@
 #include <qapplication.h>
 #include <qguiapplication.h>
 
-class QPointSelection : public QDialog
+class QPointSelector : public QDialog
 {
 	Q_OBJECT;
 	QLabel lb;
@@ -37,7 +37,7 @@ public:
 	}
 	static RECT screenRect() { SIZE size = screenSize(); return { 0, 0, size.cx - 1, size.cy - 1 }; }
 
-	QPointSelection() : lb(QLabel(this))
+	QPointSelector() : lb(QLabel(this))
 	{
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setAttribute(Qt::WA_TranslucentBackground);
