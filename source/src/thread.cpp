@@ -1,6 +1,6 @@
 ﻿#include "inc_header.h"
 
-struct QiMacroWorker : public QiWorkerWithArgs<bool,Macro*,std::condition_variable&>
+struct QiMacroWorker : QiWorkerWithArgs<bool,Macro*,std::condition_variable&>
 {
 	bool running = true;
 	Macro* macro = nullptr;
@@ -111,7 +111,7 @@ void QiMacroThread::start(Macro* macro, bool running)
 	}
 	std::mutex mutex;
 	std::condition_variable cv;
-	std::unique_lock<std::mutex> lock(mutex);
+	std::unique_lock lock(mutex);
 	QiThreadManager::start<QiMacroWorker>(static_cast<bool>(running), reinterpret_cast<Macro*>(macro), reinterpret_cast<std::condition_variable&>(cv));
 	cv.wait(lock);
 }
@@ -195,6 +195,27 @@ struct QiWindowBindWorker : QiWorker
 void QiWindowBindThread::start()
 {
 	QiThreadManager::start<QiWindowBindWorker>();
+}
+
+
+struct QiScriptTestWorker : QiWorkerWithArgs<const std::string&, std::condition_variable&>
+{
+	using QiWorkerWithArgs::QiWorkerWithArgs;
+	void run(const std::string& code, std::condition_variable& cv) override
+	{
+		std::string c = code;
+		cv.notify_all();
+		try { AutoUnique<QiScriptInterpreter> inter; inter->setWorker(this); inter->interpretAll(c); }
+		catch (const ScriptException& e) { e.show(e); }
+	}
+};
+void QiScriptTestThread::start(const std::string& code)
+{
+	std::mutex mutex;
+	std::condition_variable cv;
+	std::unique_lock lock(mutex);
+	QiThreadManager::start<QiScriptTestWorker>(code, reinterpret_cast<std::condition_variable&>(cv));
+	cv.wait(lock);
 }
 
 

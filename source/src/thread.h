@@ -134,13 +134,18 @@ public:
 class QiWindowBindThread : public QiThreadManager
 {
 public:
-	using QiThreadManager::QiThreadManager;
 	void start();
+};
+
+class QiScriptTestThread : public QiThreadManager
+{
+public:
+	void start(const std::string& code);
+	using QiThreadManager::active;
 };
 
 class QiDisplayUpdateThread : public QiThreadManager
 {
 public:
-	using QiThreadManager::QiThreadManager;
 	void start();
 };

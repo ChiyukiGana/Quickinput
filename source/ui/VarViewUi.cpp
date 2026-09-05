@@ -110,8 +110,8 @@ void VarViewUi::TableUpdate()
 		else if (edit)
 		{
 			edit = false;
-			varMap = Qi::widget.editMacro.script_interpreter.local();
-			table->horizontalHeaderItem(tableColumn_name)->setText(Qi::widget.editMacro.name + "(" + lang_trans("编辑") + ")");
+			varMap = Qi::widget.editMacro->script_interpreter.local();
+			table->horizontalHeaderItem(tableColumn_name)->setText(Qi::widget.editMacro->name + "(" + lang_trans("编辑") + ")");
 		}
 		else
 		{

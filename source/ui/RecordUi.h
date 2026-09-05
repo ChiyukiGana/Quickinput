@@ -7,11 +7,11 @@ class RecordUi : public QDialogFrameless
 	using This = RecordUi;
 	Ui::RecordUiClass ui;
 	WndInfo* wndInfo;
-	Macro macro;
+	AutoUnique<Macro> macro;
 
 public:
 	RecordUi(WndInfo* wndInfo);
-	Macro Start();
+	Macro& Start();
 
 private:
 	void StyleGroup();

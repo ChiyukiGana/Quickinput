@@ -248,6 +248,7 @@ struct Macro
 	QiInterpreter* interpreter;
 	QiScriptInterpreter script_interpreter;
 	QiMacroThread thread;
+
 	QJsonObject toJson() const;
 	void fromJson(const QJsonObject& json);
 	typepack::object toPack() const;
@@ -287,13 +288,13 @@ struct Macro
 	}
 	bool exist() const { return QFile::exists(makePath()); }
 	bool remove() const { return QFile::moveToTrash(makePath()); }
+	bool force_remove() const { return QFile::remove(makePath()); }
 #ifdef Q_ENCRYPT
 	bool save(StorageType type = StorageType::CURRENT) const;
 #else
 	bool save(StorageType type = StorageType::CURRENT)
 	{
 		if (!createPath()) return false;
-		remove();
 
 		if (type != StorageType::CURRENT) storageType = static_cast<int>(type);
 

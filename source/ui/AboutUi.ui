@@ -63,7 +63,7 @@
       <string notr="true">font-size:20px</string>
      </property>
      <property name="text">
-      <string>2026-9-4</string>
+      <string>2026-9-5</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
@@ -79,9 +79,10 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>增加彩色代码编辑
-增加屏幕缩放率函数
-增加触发停止模式</string>
+      <string>增加代码测试停止快捷键
+增加else if判断
+修复保存宏会放入回收站
+优化代码块格式{}可不换行</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>

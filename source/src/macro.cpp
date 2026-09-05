@@ -276,10 +276,10 @@ void Macro::loadAll()
 		for (const QFileInfo& file : File::Find(path, QString("*") + Qi::emacroType))
 		{
 			if (file.fileName().compare(Qi::configFile, Qt::CaseInsensitive) == 0) continue;
-			Macro macro;
-			macro.groupName = group->name;
-			macro.groupBase = group->base;
-			if (LoadEMacro(macro, file.filePath(), file.baseName())) group->macros.append(std::move(macro));
+			AutoUnique<Macro> macro;
+			macro->groupName = group->name;
+			macro->groupBase = group->base;
+			if (LoadEMacro(*macro, file.filePath(), file.baseName())) group->macros.append(std::move(*macro));
 		}
 #endif
 #if !defined(Q_ENCRYPT) || defined(Q_ENCRYPT_CVT)
@@ -291,25 +291,25 @@ void Macro::loadAll()
 			{
 				if (file.fileName().compare(Qi::configFile, Qt::CaseInsensitive) == 0) continue;
 
-				Macro macro;
-				macro.groupName = group->name;
-				macro.groupBase = group->base;
+				AutoUnique<Macro> macro;
+				macro->groupName = group->name;
+				macro->groupBase = group->base;
 
 				bool load = false;
-				if (i == Macro::StorageType::QIM) load = LoadQimMacro(macro, file.filePath(), file.baseName());
-				else load = LoadJsonMacro(macro, file.filePath(), file.baseName());
+				if (i == Macro::StorageType::QIM) load = LoadQimMacro(*macro, file.filePath(), file.baseName());
+				else load = LoadJsonMacro(*macro, file.filePath(), file.baseName());
 
 				if (load)
 				{
-					const QString old_path = macro.makePath();
-					macro.name = group->makeName(macro.name);
-					const QString new_path = macro.makePath();
+					const QString old_path = macro->makePath();
+					macro->name = group->makeName(macro->name);
+					const QString new_path = macro->makePath();
 					if (old_path != new_path && MoveFileW(reinterpret_cast<const wchar_t*>(old_path.utf16()), reinterpret_cast<const wchar_t*>(new_path.utf16())) == FALSE) MsgBox::Error(file.fileName().toStdWString(), lang_trans("重命名文件失败").toStdWString());
 #if defined(Q_ENCRYPT) && defined(Q_ENCRYPT_CVT)
 					macro.remove();
 					macro.save();
 #endif
-					group->macros.append(std::move(macro));
+					group->macros.append(std::move(*macro));
 				}
 			}
 		}

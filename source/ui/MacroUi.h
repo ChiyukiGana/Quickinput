@@ -10,6 +10,7 @@ class MacroUi : public QWidget
 	MacroGroups* groups = &Qi::macroGroups;
 	MacroGroup* currentGroup = nullptr;
 	MacroPointers currentMacros;
+	Macro* currentEdit = nullptr;
 	bool updating = false;
 
 public:

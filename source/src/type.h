@@ -25,11 +25,26 @@ enum class QiEvent
 	mac_edit_exit_d,
 	mac_load,
 	edt_debug_pause,
-	edt_varop_stop,
 	var_reload,
 	key_reset,
 	lang_notify,
 	lang_reload
+};
+
+template<class T>
+class AutoUnique : public std::unique_ptr<T>
+{
+	using base = std::unique_ptr<T>;
+public:
+	AutoUnique() : base(std::make_unique<T>()) {}
+	AutoUnique(const base& u) : base(std::make_unique<T>(*u)) {}
+	AutoUnique(const AutoUnique& u) : base(std::make_unique<T>(*u)) {}
+	AutoUnique(base&& u) : base(std::move(u)) {}
+	AutoUnique(AutoUnique&& u) : base(std::move(u)) {}
+	AutoUnique& operator=(const base& u) { base::operator=(std::make_unique<T>(*u)); }
+	AutoUnique& operator=(const AutoUnique& u) { base::operator=(std::make_unique<T>(*u)); }
+	AutoUnique& operator=(base&& u) { base::operator=(std::move(u)); }
+	AutoUnique& operator=(AutoUnique&& u) { base::operator=(std::move(u)); }
 };
 
 struct MsgViewInfo
@@ -133,7 +148,7 @@ struct Widget
 	QWidget* help = nullptr;
 	QWidget* varView = nullptr;
 	QWidget* msgView = nullptr;
-	Macro editMacro;
+	AutoUnique<Macro> editMacro;
 	bool active() const
 	{
 		return mainActive || dialogActive || moreActive;
@@ -177,10 +192,6 @@ struct Widget
 	void editDebugPause() const
 	{
 		if (edit) QApplication::postEvent(edit, new QEvent(static_cast<QEvent::Type>(QiEvent::edt_debug_pause)));
-	}
-	void editVaropStop() const
-	{
-		if (edit) QApplication::postEvent(edit, new QEvent(static_cast<QEvent::Type>(QiEvent::edt_varop_stop)));
 	}
 	void varViewReload() const
 	{

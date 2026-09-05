@@ -26,7 +26,7 @@ void RecordUi::StyleGroup()
 	style_set_group(ui.close_button, "record-button");
 }
 
-Macro RecordUi::Start()
+Macro& RecordUi::Start()
 {
 	Qi::widget.record = this;
 	Qi::recordState = true;
@@ -39,14 +39,14 @@ Macro RecordUi::Start()
 		text += lang_trans("开始录制");
 		Qi::popText->Show(text, QColor(0x20, 0xFF, 0x20));
 	}
-	macro.mode = Macro::down;
-	macro.count = 1;
+	macro->mode = Macro::down;
+	macro->count = 1;
 	if (wndInfo)
 	{
 		Qi::recordWindow = wndInfo->wnd;
-		macro.wndInfo = *wndInfo;
-		macro.wndState = true;
-		macro.name = lang_trans("窗口录制");
+		macro->wndInfo = *wndInfo;
+		macro->wndState = true;
+		macro->name = lang_trans("窗口录制");
 		POINT wpt = Window::pos(Qi::recordWindow);
 		move(wpt.x, wpt.y);
 		WndLock::Lock(Qi::recordWindow);
@@ -55,13 +55,13 @@ Macro RecordUi::Start()
 	}
 	else
 	{
-		macro.name = lang_trans("录制");
+		macro->name = lang_trans("录制");
 		exec();
 	}
 	QiTr::QiHook(false);
 	Qi::recordState = false;
 	Qi::widget.record = nullptr;
-	return std::move(macro);
+	return *macro;
 }
 
 void RecordUi::RecStart()
@@ -82,7 +82,7 @@ void RecordUi::RecStart()
 void RecordUi::RecStop()
 {
 	Qi::recording = false;
-	if (Qi::record.size()) macro.acRun = std::move(Qi::record);
+	if (Qi::record.size()) macro->acRun = std::move(Qi::record);
 	Qi::popText->Hide();
 	close();
 }

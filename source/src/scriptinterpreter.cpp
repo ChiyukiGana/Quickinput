@@ -817,7 +817,7 @@ struct QiFunc_sleep : public QiFunc
 	QiFunc_sleep() : QiFunc(1) {}
 	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter* inter) const override
 	{
-		if (inter->forceStop())
+		if (inter->forceStop() || Qi::debug.load())
 		{
 			inter->thisMutex()->lock();
 			QiWorker* worker = inter->worker();

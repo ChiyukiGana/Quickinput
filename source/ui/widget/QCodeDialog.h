@@ -50,13 +50,13 @@ public:
 
 		if (editable)
 		{
-			setWindowTitle(title.isEmpty() ? QString("TextEdit") : title);
+			setWindowTitle(title.isEmpty() ? QString("CodeEdit") : title);
 			textEdit->setReadOnly(false);
 			saveButton->setHidden(false);
 		}
 		else
 		{
-			setWindowTitle(title.isEmpty() ? QString("TextView") : title);
+			setWindowTitle(title.isEmpty() ? QString("CodeView") : title);
 			textEdit->setReadOnly(true);
 			saveButton->setHidden(true);
 		}
@@ -82,6 +82,6 @@ public:
 	}
 	void closeEvent(QCloseEvent*)
 	{
-		if (editable && !save && text != textEdit->toPlainText() && MessageBoxW(nullptr, lang_trans("是否保存？").toStdWString().c_str(), L"TextEdit", MB_YESNO) == IDYES) save = true;
+		if (editable && !save && text != textEdit->toPlainText() && MessageBoxW(nullptr, lang_trans("是否保存？").toStdWString().c_str(), L"CodeEdit", MB_YESNO) == IDYES) save = true;
 	}
 };

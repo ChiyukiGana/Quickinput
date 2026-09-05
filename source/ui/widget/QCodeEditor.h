@@ -29,8 +29,9 @@ public:
     {
         initDefaultFormats();
         addKeyword1("if");
+        addKeyword1("else");
         addKeyword1("loop");
-        addKeyword1("func");
+        addKeyword1("fn");
         addKeyword1("return");
         addKeyword2("true");
         addKeyword2("false");

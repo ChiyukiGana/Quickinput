@@ -215,43 +215,6 @@ private:
 		auto end = s.find_last_not_of(" \t");
 		return (start == std::string::npos) ? "" : s.substr(start, end - start + 1);
 	}
-	auto splitLines(const std::string& code) -> std::vector<std::string>
-	{
-		std::vector<std::string> lines;
-		std::istringstream stream(code);
-		std::string line;
-		while (std::getline(stream, line)) {
-			line = trim(line);
-			if (!line.empty()) {
-				lines.push_back(line);
-			}
-		}
-		return lines;
-	}
-	auto splitBySemicolonAndNewline(const std::string& code) -> std::vector<std::string>
-	{
-		std::vector<std::string> result;
-		size_t start = 0;
-		size_t end = code.find_first_of(";\n");
-
-		while (end != std::string::npos)
-		{
-			std::string statement = trim(code.substr(start, end - start));
-			if (!statement.empty())
-			{
-				result.push_back(statement);
-			}
-			start = end + 1;
-			end = code.find_first_of(";\n", start);
-		}
-		std::string lastStatement = trim(code.substr(start));
-		if (!lastStatement.empty())
-		{
-			result.push_back(lastStatement);
-		}
-
-		return result;
-	}
 
 	auto tokenize(const std::string& expr) -> std::vector<Token>
 	{
@@ -295,10 +258,7 @@ private:
 							else if (expr[currentPos] == ')') parenCount--;
 							else if (expr[currentPos] == ',' && parenCount == 1) argCount++;
 
-							if (parenCount == 1 && !std::isspace(expr[currentPos]) &&
-								expr[currentPos] != ',' && expr[currentPos] != ')') {
-								hasNonSpaceContent = true;
-							}
+							if (parenCount == 1 && !std::isspace(expr[currentPos]) && expr[currentPos] != ',' && expr[currentPos] != ')') hasNonSpaceContent = true;
 						}
 						currentPos++;
 					}
@@ -321,8 +281,7 @@ private:
 				bool hasDot = (c == '.');
 				while (pos < expr.length() && (isdigit(expr[pos]) || (expr[pos] == '.' && !hasDot)))
 				{
-					if (expr[pos] == '.')
-						hasDot = true;
+					if (expr[pos] == '.') hasDot = true;
 					pos++;
 				}
 				tokens.emplace_back(NUMBER, expr.substr(start, pos - start));
@@ -624,7 +583,8 @@ private:
 	std::pair<StatementList, size_t> parseTopLevel(const std::vector<std::string>& lines, size_t start_index) {
 		StatementList block;
 		size_t index = start_index;
-		while (index < lines.size()) {
+		while (index < lines.size())
+		{
 			auto [stmt, next_index] = parseStatement(lines, index);
 			block.push_back(stmt);
 			index = next_index;
@@ -632,63 +592,54 @@ private:
 		return { block, index };
 	}
 	std::pair<Statement, size_t> parseStatement(const std::vector<std::string>& lines, size_t start_index) {
-		if (start_index >= lines.size()) {
-			return { Node(""), start_index };
-		}
+		if (start_index >= lines.size()) return { Node(""), start_index };
 
 		std::string line = lines[start_index];
 
-		if (line.substr(0, 2) == "fn") {
+		if (line.substr(0, 2) == "fn")
+		{
 			size_t end_pos = line.find('(', 2);
-			if (end_pos == std::string::npos) {
-				return { Node(line), start_index + 1 };
-			}
+			if (end_pos == std::string::npos) return { Node(line), start_index + 1 };
 
 			std::string func_name = trim(line.substr(2, end_pos - 2));
 			std::string params_str = line.substr(end_pos);
 
 			size_t paren_start = params_str.find('(');
 			size_t paren_end = params_str.find(')');
-			if (paren_start == std::string::npos || paren_end == std::string::npos) {
-				return { Node(line), start_index + 1 };
-			}
+			if (paren_start == std::string::npos || paren_end == std::string::npos) return { Node(line), start_index + 1 };
 
 			std::string params = params_str.substr(paren_start + 1, paren_end - paren_start - 1);
 			std::vector<std::string> parameters;
 			std::istringstream param_stream(params);
 			std::string param;
-			while (std::getline(param_stream, param, ',')) {
-				parameters.push_back(trim(param));
-			}
+			while (std::getline(param_stream, param, ',')) parameters.push_back(trim(param));
 
-			if (start_index + 1 >= lines.size() || lines[start_index + 1] != "{") {
-				return { Node(line), start_index + 1 };
-			}
+			if (start_index + 1 >= lines.size() || lines[start_index + 1] != "{") return { Node(line), start_index + 1 };
 
 			auto [body, next_index] = parseBlock(lines, start_index + 2);
 			return { FunctionDef{func_name, parameters, body}, next_index };
 		}
-		else if (line.substr(0, 6) == "return") {
+		else if (line.substr(0, 6) == "return")
+		{
 			std::string expr = trim(line.substr(6));
 			return { ReturnStmt{expr}, start_index + 1 };
 		}
 		else if (line.substr(0, 2) == "if") {
 			size_t start_paren = line.find('(');
-			if (start_paren == std::string::npos) {
-				return { Node(line), start_index + 1 };
-			}
+			if (start_paren == std::string::npos) return { Node(line), start_index + 1 };
 
 			int paren_count = 1;
 			size_t current_pos = start_paren + 1;
 			size_t end_paren = std::string::npos;
 
-			while (current_pos < line.length()) {
-				if (line[current_pos] == '(') {
-					paren_count++;
-				}
-				else if (line[current_pos] == ')') {
+			while (current_pos < line.length())
+			{
+				if (line[current_pos] == '(') paren_count++;
+				else if (line[current_pos] == ')')
+				{
 					paren_count--;
-					if (paren_count == 0) {
+					if (paren_count == 0)
+					{
 						end_paren = current_pos;
 						break;
 					}
@@ -696,81 +647,108 @@ private:
 				current_pos++;
 			}
 
-			if (end_paren == std::string::npos) {
-				return { Node(line), start_index + 1 };
-			}
+			if (end_paren == std::string::npos) return { Node(line), start_index + 1 };
 
 			std::string condition = line.substr(start_paren + 1, end_paren - start_paren - 1);
 
-			if (start_index + 1 >= lines.size() || lines[start_index + 1] != "{") {
-				return { Node(line), start_index + 1 };
-			}
+			if (start_index + 1 >= lines.size() || lines[start_index + 1] != "{") return { Node(line), start_index + 1 };
 
 			auto [trueBlock, index_after_true] = parseBlock(lines, start_index + 2);
 			StatementList falseBlock;
 			size_t next_index = index_after_true;
 
-			if (index_after_true < lines.size() && lines[index_after_true] == "else") {
-				if (index_after_true + 1 < lines.size() && lines[index_after_true + 1] == "{") {
-					auto [fb, idx] = parseBlock(lines, index_after_true + 2);
-					falseBlock = fb;
+			If root_if{ condition, trueBlock, falseBlock };
+			If* current_if = &root_if;
+
+			while (next_index < lines.size())
+			{
+				if (lines[next_index] == "else")
+				{
+					if (next_index + 1 < lines.size() && lines[next_index + 1] == "{")
+					{
+						auto [fb, idx] = parseBlock(lines, next_index + 2);
+						current_if->falseBlock = fb;
+						next_index = idx;
+					}
+					else next_index++;
+					break;
+				}
+				else if (lines[next_index].substr(0, 7) == "else if")
+				{
+					std::string elif_line = lines[next_index];
+					size_t e_start_paren = elif_line.find('(');
+					if (e_start_paren == std::string::npos) { next_index++; break; }
+
+					int e_paren_count = 1;
+					size_t e_current_pos = e_start_paren + 1;
+					size_t e_end_paren = std::string::npos;
+					while (e_current_pos < elif_line.length())
+					{
+						if (elif_line[e_current_pos] == '(') e_paren_count++;
+						else if (elif_line[e_current_pos] == ')')
+						{
+							e_paren_count--;
+							if (e_paren_count == 0) { e_end_paren = e_current_pos; break; }
+						}
+						e_current_pos++;
+					}
+					if (e_end_paren == std::string::npos) { next_index++; break; }
+
+					std::string elif_cond = elif_line.substr(e_start_paren + 1, e_end_paren - e_start_paren - 1);
+
+					if (next_index + 1 >= lines.size() || lines[next_index + 1] != "{") { next_index++; break; }
+
+					auto [elif_trueBlock, idx] = parseBlock(lines, next_index + 2);
+
+					If elif_stmt{ elif_cond, elif_trueBlock, StatementList{} };
+					current_if->falseBlock.push_back(elif_stmt);
+					current_if = &std::get<If>(current_if->falseBlock.back());
+
 					next_index = idx;
 				}
-				else {
-					next_index = index_after_true + 1;
-				}
+				else break;
 			}
 
-			return { If{ condition, trueBlock, falseBlock }, next_index };
+			return { root_if, next_index };
 		}
-		else if (line.substr(0, 4) == "loop") {
+		else if (line.substr(0, 4) == "loop")
+		{
 			size_t start_paren = line.find('(');
-			if (start_paren == std::string::npos) {
-				return { Node(line), start_index + 1 };
-			}
+			if (start_paren == std::string::npos) return { Node(line), start_index + 1 };
 
 			int paren_count = 1;
 			size_t current_pos = start_paren + 1;
 			size_t end_paren = std::string::npos;
 
-			while (current_pos < line.length()) {
-				if (line[current_pos] == '(') {
-					paren_count++;
-				}
-				else if (line[current_pos] == ')') {
+			while (current_pos < line.length())
+			{
+				if (line[current_pos] == '(') paren_count++;
+				else if (line[current_pos] == ')')
+				{
 					paren_count--;
-					if (paren_count == 0) {
-						end_paren = current_pos;
-						break;
-					}
+					if (paren_count == 0) { end_paren = current_pos; break; }
 				}
 				current_pos++;
 			}
 
-			if (end_paren == std::string::npos) {
-				return { Node(line), start_index + 1 };
-			}
+			if (end_paren == std::string::npos) return { Node(line), start_index + 1 };
 
 			std::string condition = line.substr(start_paren + 1, end_paren - start_paren - 1);
 
-			if (start_index + 1 >= lines.size() || lines[start_index + 1] != "{") {
-				return { Node(line), start_index + 1 };
-			}
+			if (start_index + 1 >= lines.size() || lines[start_index + 1] != "{") return { Node(line), start_index + 1 };
 
 			auto [body, next_index] = parseBlock(lines, start_index + 2);
-			return { Loop{ condition, body }, next_index };
+			return { Loop{condition, body}, next_index };
 		}
-		else {
-			return { Node(line), start_index + 1 };
-		}
+
+		return { Node(line), start_index + 1 };
 	}
 	std::pair<StatementList, size_t> parseBlock(const std::vector<std::string>& lines, size_t start_index) {
 		StatementList block;
 		size_t index = start_index;
-		while (index < lines.size()) {
-			if (lines[index] == "}") {
-				return { block, index + 1 };
-			}
+		while (index < lines.size())
+		{
+			if (lines[index] == "}") return { block, index + 1 };
 			auto [stmt, next_index] = parseStatement(lines, index);
 			block.push_back(stmt);
 			index = next_index;
@@ -778,26 +756,45 @@ private:
 		return { block, index };
 	}
 	void executeStatementList(const StatementList& statements, QiVarMap* local) {
-		for (const auto& stmt : statements) {
-			if (std::holds_alternative<Node>(stmt)) {
+		for (const auto& stmt : statements)
+		{
+			if (std::holds_alternative<Node>(stmt))
+			{
 				std::string code = std::get<Node>(stmt);
 				if (!code.empty()) interpret(code, local);
 			}
-			else if (std::holds_alternative<If>(stmt)) {
+			else if (std::holds_alternative<If>(stmt))
+			{
 				const If& ifStmt = std::get<If>(stmt);
 				if (execute(ifStmt.condition, local).toBool()) executeStatementList(ifStmt.trueBlock, local);
 				else executeStatementList(ifStmt.falseBlock, local);
 			}
-			else if (std::holds_alternative<Loop>(stmt)) {
+			else if (std::holds_alternative<Loop>(stmt))
+			{
 				const Loop& loopStmt = std::get<Loop>(stmt);
-				while (((force_stop && workerPtr) ? !workerPtr->m_stop : Qi::run.load()) && execute(loopStmt.condition).toBool()) executeStatementList(loopStmt.body, local);
+				while (true)
+				{
+					if (force_stop || Qi::debug.load())
+					{
+						if (workerPtr)
+						{
+							if (workerPtr->m_stop.load()) break;
+						}
+						else if (!Qi::run.load()) break;
+					}
+					else if (!Qi::run.load()) break;
+					if (!execute(loopStmt.condition).toBool()) break;
+					executeStatementList(loopStmt.body, local);
+				}
 			}
-			else if (std::holds_alternative<FunctionDef>(stmt)) {
+			else if (std::holds_alternative<FunctionDef>(stmt))
+			{
 				const FunctionDef& funcDef = std::get<FunctionDef>(stmt);
 				std::unique_lock<std::mutex> lock(customFunctionsMutex);
 				customFunctions[funcDef.name] = std::make_unique<QiCustomFunc>(funcDef.parameters, funcDef.body);
 			}
-			else if (std::holds_alternative<ReturnStmt>(stmt)) {
+			else if (std::holds_alternative<ReturnStmt>(stmt))
+			{
 				const ReturnStmt& returnStmt = std::get<ReturnStmt>(stmt);
 				throw ReturnException(returnStmt.expression.empty() ? QiVar() : execute(returnStmt.expression, local));
 			}
@@ -924,54 +921,46 @@ public:
 		while (std::getline(codeStream, rawLine)) rawLines.push_back(rawLine);
 
 		std::vector<std::string> lines;
-		for (const auto& rawLine : rawLines) {
-			std::string line = rawLine;
+		for (const auto& rawLine : rawLines)
+		{
+			std::string current_stmt;
 			bool in_string = false;
 			bool escape_next = false;
 
-			for (size_t i = 0; i < line.length(); i++) {
-				char c = line[i];
-				if (in_string) {
-					if (escape_next) {
-						escape_next = false;
-					}
-					else {
-						if (c == '\\') {
-							escape_next = true;
-						}
-						else if (c == '\'') {
-							in_string = false;
-						}
+			for (size_t i = 0; i < rawLine.length(); i++)
+			{
+				char c = rawLine[i];
+				if (in_string)
+				{
+					current_stmt += c;
+					if (escape_next) escape_next = false;
+					else
+					{
+						if (c == '\\') escape_next = true;
+						else if (c == '\'') in_string = false;
 					}
 				}
-				else {
-					if (c == '\'') {
+				else
+				{
+					if (c == '\'')
+					{
 						in_string = true;
+						current_stmt += c;
 					}
-					else if (c == '#') {
-						line = line.substr(0, i);
-						break;
+					else if (c == '#') break;
+					else if (c == ';' || c == '{' || c == '}')
+					{
+						std::string stmt = trim(current_stmt);
+						if (!stmt.empty()) lines.push_back(stmt);
+						if (c == '{' || c == '}') lines.push_back(std::string(1, c));
+						current_stmt.clear();
 					}
+					else current_stmt += c;
 				}
 			}
 
-			if (!line.empty()) {
-				std::vector<std::string> statements;
-				size_t start = 0;
-				size_t end = line.find(';');
-				while (end != std::string::npos) {
-					std::string stmt = trim(line.substr(start, end - start));
-					if (!stmt.empty()) {
-						statements.push_back(stmt);
-					}
-					start = end + 1;
-					end = line.find(';', start);
-				}
-				std::string lastStmt = trim(line.substr(start));
-				if (!lastStmt.empty()) statements.push_back(lastStmt);
-
-				for (const auto& stmt : statements) lines.push_back(stmt);
-			}
+			std::string lastStmt = trim(current_stmt);
+			if (!lastStmt.empty()) lines.push_back(lastStmt);
 		}
 		try { executeStatementList(parseTopLevel(lines, 0).first, local); }
 		catch (const ReturnException&) {}

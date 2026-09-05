@@ -1,5 +1,6 @@
 ﻿#include <EditUi.h>
 #include <RecordUi.h>
+
 EditUi::EditUi(Macro* macro) : macro(macro), actionsRoot(&macro->acRun), actionsHistory(30), idChecker(jumpIds, blockIds)
 {
 	ui.setupUi(this);
@@ -186,8 +187,10 @@ void EditUi::Init()
 	{
 		testTimer = new QTimer(this);
 		markPointTimer = new QTimer(this);
+		scriptTestTimer = new QTimer(this);
 		testTimer->setInterval(32);
 		markPointTimer->setInterval(32);
+		scriptTestTimer->setInterval(32);
 		if (Qi::set.markPoint) markPointTimer->start();
 	}
 	if ("check")
@@ -570,7 +573,7 @@ void EditUi::Event()
 					if (Input::state(VK_SHIFT)) macro->thread.stop();
 					macro->interpreter->DebugContinue();
 					SetDebugState(debug_run);
-					Input::Loop(VK_F10, 1);
+					Input::Loop(VK_F10);
 				}
 			}
 			else
@@ -595,6 +598,25 @@ void EditUi::Event()
 				}
 			}
 			else if (isPress) isPress = false;
+			});
+		connect(scriptTestTimer, &QTimer::timeout, this, [this] {
+			if (scriptTest->active())
+			{
+				if (Input::state(VK_SHIFT) && Input::state(VK_F10))
+				{
+					scriptTest->stop();
+					Input::Loop(VK_SHIFT);
+					Input::Loop(VK_F10);
+				}
+			}
+			else
+			{
+				scriptTestTimer->stop();
+				timeEndPeriod(1);
+				Qi::debug = 0;
+				setDisabled(false);
+				ui.varOperator_test_button->setText(ui.varOperator_test_button->property("normal_text").toString());
+			}
 			});
 	}
 }
@@ -855,12 +877,13 @@ void EditUi::Event_Action_Widget()
 		});
 	// varOperator
 	connect(ui.varOperator_test_button, &QPushButton::clicked, this, [this] {
+		ui.varOperator_test_button->setText(lang_trans("停止") + "(Shift F10)");
 		setDisabled(true);
-		varop = std::async([code = ui.varOperator_textedit->toPlainText().toStdString(), pMacro = macro]() {
-			try { pMacro->script_interpreter.interpretAll(code); }
-			catch (const ScriptException& e) { e.show(e); }
-			Qi::widget.editVaropStop();
-			});
+		timeBeginPeriod(1);
+		Qi::debug = 1;
+		if (!scriptTest) scriptTest = std::make_unique<QiScriptTestThread>();
+		scriptTest->start(ui.varOperator_textedit->toPlainText().toStdString());
+		scriptTestTimer->start();
 		});
 	connect(ui.varOperator_edit_wnd_button, &QPushButton::clicked, this, [this] {
 		QCodeDialog edit(true);
@@ -1192,11 +1215,13 @@ void EditUi::LoadLanguage()
 	BindSafeIter(bind_type_group, trans);
 	trans(ui.grp_window, 0);
 	trans(ui.grp_rec, 0);
+	ui.varOperator_test_button->setProperty("normal_text", ui.varOperator_test_button->text());
 }
 
 
 void EditUi::Disable(bool disable)
 {
+	ui.action_entry_radio->setDisabled(disable);
 	ui.action_running_radio->setDisabled(disable);
 	ui.action_ending_radio->setDisabled(disable);
 	ui.title_close_button->setDisabled(disable);
@@ -2951,5 +2976,4 @@ void EditUi::customEvent(QEvent* e)
 {
 	if (e->type() == static_cast<int>(QiEvent::wid_close)) Exit();
 	else if (e->type() == static_cast<int>(QiEvent::edt_debug_pause)) SetDebugState(debug_pause);
-	else if (e->type() == static_cast<int>(QiEvent::edt_varop_stop)) setDisabled(false);
 }

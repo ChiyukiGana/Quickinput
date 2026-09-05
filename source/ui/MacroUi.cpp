@@ -251,7 +251,7 @@ void MacroUi::LoadLanguage()
 		lang_save_t(ui.add_group_button);
 		lang_save_t(ui.delete_group_button);
 		lang_save_t(ui.delete_button);
-	});
+		});
 	lang_load_t(ui.record_button);
 	lang_load_t(ui.record_window_button);
 	lang_load_t(ui.add_button);
@@ -336,33 +336,16 @@ void MacroUi::RecStart(bool wnd)
 			return;
 		}
 	}
-	if (wndInfo.wnd)
+	RecordUi rec(wndInfo.wnd ? &wndInfo : nullptr);
+	Macro& macro = rec.Start();
+	macro.groupName = currentGroup->name;
+	macro.groupBase = currentGroup->base;
+	macro.name = currentGroup->makeName(lang_trans(wndInfo.wnd ? "窗口录制" : "录制"));
+	macro.storageType = Qi::set.save_type;
+	if (macro.acRun)
 	{
-		RecordUi rw(&wndInfo);
-		Macro macro = rw.Start();
-		macro.groupName = currentGroup->name;
-		macro.groupBase = currentGroup->base;
-		macro.name = currentGroup->makeName(lang_trans("窗口录制"));
-		macro.storageType = Qi::set.save_type;
-		if (macro.acRun)
-		{
-			currentGroup->macros.append(std::move(macro)).save();
-			TableUpdate();
-		}
-	}
-	else
-	{
-		RecordUi rw(nullptr);
-		Macro macro = rw.Start();
-		macro.groupName = currentGroup->name;
-		macro.groupBase = currentGroup->base;
-		macro.name = currentGroup->makeName(lang_trans("录制"));
-		macro.storageType = Qi::set.save_type;
-		if (macro.acRun)
-		{
-			currentGroup->macros.append(std::move(macro)).save();
-			TableUpdate();
-		}
+		currentGroup->macros.append(std::move(macro)).save();
+		TableUpdate();
 	}
 	Qi::widget.dialogActive = false;
 	Qi::widget.main->show();
@@ -406,13 +389,12 @@ void MacroUi::showEvent(QShowEvent*)
 }
 void MacroUi::customEvent(QEvent* e)
 {
-	static Macro* edit;
 	if (e->type() == static_cast<int>(QiEvent::mac_edit_enter))
 	{
 		if (!isSold()) return;
-		edit = currentMacros.front();
-		Qi::widget.editMacro = *edit;
-		Qi::widget.edit = new EditUi(&Qi::widget.editMacro);
+		currentEdit = currentMacros.front();
+		*Qi::widget.editMacro = *currentEdit;
+		Qi::widget.edit = new EditUi(Qi::widget.editMacro.get());
 		Qi::widget.dialogActive = true;
 		Qi::widget.main->hide();
 		Qi::widget.main->setDisabled(true);
@@ -439,8 +421,8 @@ void MacroUi::customEvent(QEvent* e)
 		Qi::widget.dialogActive = false;
 		if (Qi::widget.edit) delete Qi::widget.edit;
 		Qi::widget.edit = nullptr;
-		*edit = std::move(Qi::widget.editMacro);
-		(*edit).save();
+		*currentEdit = std::move(*Qi::widget.editMacro);
+		currentEdit->save();
 		Qi::popText->Hide();
 		ResetWidget();
 		DisableWidget();

@@ -56,8 +56,9 @@ class EditUi : public QDialogFrameless
 	// debug run
 	QTimer* testTimer;
 	QTimer* markPointTimer;
+	QTimer* scriptTestTimer;
 	int debugState = debug_idel;
-	std::future<void> varop;
+	std::unique_ptr<QiScriptTestThread> scriptTest;
 
 	// context menu
 	class TitleMenu : public QMenu
