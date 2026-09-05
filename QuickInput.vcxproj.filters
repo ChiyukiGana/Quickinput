@@ -422,6 +422,12 @@
     <QtMoc Include="source\ui\VarViewUi.h">
       <Filter>2_Widget\header\dialog</Filter>
     </QtMoc>
+    <QtMoc Include="source\ui\widget\QCodeEditor.h">
+      <Filter>2_Widget\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\widget\QCodeDialog.h">
+      <Filter>2_Widget\widget</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="source\res\QuickInput.rc">

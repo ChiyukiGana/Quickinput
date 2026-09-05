@@ -13,6 +13,7 @@
 #include <QPointView.h>
 #include <QRectView.h>
 #include <QTextDialog.h>
+#include <QCodeDialog.h>
 // modules
 #include <src/ocr/QiOcrInterface.h>
 #ifdef Q_DRIVER

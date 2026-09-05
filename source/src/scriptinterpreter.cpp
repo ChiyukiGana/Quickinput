@@ -970,6 +970,14 @@ struct QiFunc_scr_cy : public QiFunc
 		return System::screenSize().cy;
 	}
 };
+struct QiFunc_scr_scale : public QiFunc
+{
+	QiFunc_scr_scale() : QiFunc(0) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		return System::screenScaleRote();
+	}
+};
 
 /*
 any text
@@ -2218,6 +2226,7 @@ QiFuncMap::QiFuncMap()
 
 	insert({ "scr_cx", std::make_unique<QiFunc_scr_cx>() });
 	insert({ "scr_cy", std::make_unique<QiFunc_scr_cy>() });
+	insert({ "scr_scale", std::make_unique<QiFunc_scr_scale>() });
 
 	insert({ "pop", std::make_unique<QiFunc_pop>() });
 	insert({ "text_box", std::make_unique<QiFunc_text_box>() });

@@ -27,6 +27,7 @@ QJsonObject Macro::toJson() const
 	json.insert("state", (bool)state);
 	json.insert("keyBlock", (bool)keyBlock);
 	json.insert("curBlock", (bool)curBlock);
+	json.insert("forceStop", (bool)forceStop);
 	json.insert("key", (int)(static_cast<int>(key1) | (static_cast<int>(key2) << 16)));
 	json.insert("key1", (int)key1);
 	json.insert("key2", (int)key2);
@@ -65,6 +66,7 @@ void Macro::fromJson(const QJsonObject& json)
 	state = json.value("state").toBool();
 	keyBlock = json.value("keyBlock").toBool();
 	curBlock = json.value("curBlock").toBool();
+	forceStop = json.value("forceStop").toBool();
 
 	if (json.contains("key1"))
 	{
@@ -124,6 +126,7 @@ typepack::object Macro::toPack() const
 	pack.set("state", (bool)state);
 	pack.set("keyBlock", (bool)keyBlock);
 	pack.set("curBlock", (bool)curBlock);
+	pack.set("forceStop", (bool)forceStop);
 	pack.set("key", (int)(static_cast<int>(key1) | (static_cast<int>(key2) << 16)));
 	pack.set("key1", (int)key1);
 	pack.set("key2", (int)key2);
@@ -162,6 +165,7 @@ void Macro::fromPack(const typepack::object& pack)
 	state = pack.get("state").toBool();
 	keyBlock = pack.get("keyBlock").toBool();
 	curBlock = pack.get("curBlock").toBool();
+	forceStop = pack.get("forceStop").toBool();
 
 	key1 = pack.get("key1").toInt();
 	key2 = pack.get("key2").toInt();

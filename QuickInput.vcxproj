@@ -244,6 +244,8 @@
     <ClInclude Include="source\src\ui.h" />
     <ClInclude Include="source\src\update.h" />
     <ClInclude Include="source\src\var.h" />
+    <QtMoc Include="source\ui\widget\QCodeDialog.h" />
+    <QtMoc Include="source\ui\widget\QCodeEditor.h" />
     <QtMoc Include="source\ui\MsgViewUi.h" />
     <QtMoc Include="source\ui\widget\QFrameless.h" />
     <QtMoc Include="source\ui\widget\QFileEdit.h" />

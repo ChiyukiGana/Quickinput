@@ -9,7 +9,7 @@ QiInterpreter::QiInterpreter(Macro& macro, bool isRunning, QiWorker& worker) :
 	macro(macro),
 	cursor(macro.cursor),
 	actions(nullptr),
-	force_stop(macro.force_stop),
+	force_stop(macro.forceStop),
 	speed(macro.speed),
 	timer(macro.timer),
 	timerStart(macro.timerStart),

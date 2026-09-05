@@ -212,7 +212,7 @@ struct Macro
 	static constexpr QiFloatRange range_posScale = { -1.0f, 1.0f };
 
 	bool state = false;
-	bool force_stop = false; // stop and break macro when the stop signal is triggered
+	bool forceStop = false; // stop and break macro when the stop signal is triggered
 	bool keyBlock = false;
 	bool curBlock = false;
 	bool wndState = false;

@@ -6,25 +6,26 @@
 #include <qlayout.h>
 #include <windows.h>
 #include <src/lang.h>
-class QTextDialog : public QDialog
+#include "QCodeEditor.h"
+class QCodeDialog : public QDialog
 {
 	Q_OBJECT;
 	const bool editable = false;
-	QPlainTextEdit* textEdit;
+	QCodeEditor* textEdit;
 	QPushButton* saveButton;
 	QVBoxLayout* layout;
 	QHBoxLayout* buttonLayout;
 	QString text;
 	bool save = false;
 public:
-	QTextDialog(bool editable = false, const QString& title = QString(), const QIcon& icon = QIcon()) : editable(editable)
+	QCodeDialog(bool editable = false, const QString& title = QString(), const QIcon& icon = QIcon()) : editable(editable)
 	{
 		setWindowFlags(Qt::WindowCloseButtonHint);
 		setWindowIcon(icon.isNull() ? QApplication::windowIcon() : icon);
 		setGeometry(QRect(100, 100, 500, 380));
-		setStyleSheet("color:black");
+		setStyleSheet("background-color:#888;color:white");
 
-		textEdit = new QPlainTextEdit(this);
+		textEdit = new QCodeEditor(this);
 		textEdit->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		textEdit->setTabStopDistance(QFontMetrics(QFont("Microsoft YaHei")).horizontalAdvance("    "));
 
@@ -32,7 +33,7 @@ public:
 		saveButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 		saveButton->setMinimumSize(QSize(60, 24));
 		saveButton->setMaximumSize(QSize(60, 24));
-		saveButton->setStyleSheet("background-color:white;border:1px solid gray;border-radius:4px");
+		saveButton->setStyleSheet("background-color:#333;color:white;border:1px solid #AAA;border-radius:4px");
 		saveButton->setText(lang_trans("保存"));
 
 		layout = new QVBoxLayout(this);

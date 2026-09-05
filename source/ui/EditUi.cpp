@@ -161,8 +161,9 @@ void EditUi::Init()
 	if ("text edit")
 	{
 		ui.copyText_textedit->setTabStopDistance(QFontMetrics(QFont("Microsoft YaHei")).horizontalAdvance("    "));
-		ui.varOperator_textedit->setTabStopDistance(QFontMetrics(QFont("Microsoft YaHei")).horizontalAdvance("    "));
 		ui.msgView_textedit->setTabStopDistance(QFontMetrics(QFont("Microsoft YaHei")).horizontalAdvance("    "));
+		ui.varOperator_textedit->setTabStopDistance(QFontMetrics(QFont("Microsoft YaHei")).horizontalAdvance("    "));
+		ui.varOperator_textedit->setStyleSheet("background-color:#222;color:white");
 	}
 	if ("key edit")
 	{
@@ -850,7 +851,6 @@ void EditUi::Event_Action_Widget()
 	// textPad
 	connect(ui.textPad_button, &QPushButton::clicked, this, [this] {
 		QTextDialog td(true);
-		td.button()->setStyleSheet("background-color:white;border:1px solid gray;border-radius:4px");
 		ui.textPad_edit->setText(td.Start(ui.textPad_edit->text()));
 		});
 	// varOperator
@@ -861,6 +861,11 @@ void EditUi::Event_Action_Widget()
 			catch (const ScriptException& e) { e.show(e); }
 			Qi::widget.editVaropStop();
 			});
+		});
+	connect(ui.varOperator_edit_wnd_button, &QPushButton::clicked, this, [this] {
+		QCodeDialog edit(true);
+		QString text = edit.Start(ui.varOperator_textedit->toPlainText());
+		ui.varOperator_textedit->setPlainText(text);
 		});
 	// msgWindow
 	connect(ui.msgView_level_msg_radio, &QRadioButton::clicked, [this] { ui.msgView_type_add_radio->setChecked(true); });
@@ -1067,6 +1072,7 @@ void EditUi::StyleGroup()
 		style_set_group(ui.rec_window_button, "edit-add_button");
 		style_set_group(ui.ocr_test_button, "edit-add_button");
 		style_set_group(ui.varOperator_test_button, "edit-add_button");
+		style_set_group(ui.varOperator_edit_wnd_button, "edit-add_button");
 		style_set_group(ui.range_wnd_button, "edit-add_button");
 	}
 	if ("check box")

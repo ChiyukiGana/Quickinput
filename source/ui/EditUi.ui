@@ -9140,7 +9140,7 @@
                  <number>5</number>
                 </property>
                 <item>
-                 <widget class="QPlainTextEdit" name="varOperator_textedit">
+                 <widget class="QCodeEditor" name="varOperator_textedit">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -9165,38 +9165,85 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="varOperator_test_button">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
+                 <layout class="QHBoxLayout" name="varOperator_edit_box">
+                  <property name="spacing">
+                   <number>0</number>
                   </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>30</height>
-                   </size>
-                  </property>
-                  <property name="font">
-                   <font>
-                    <family>Microsoft YaHei</family>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="focusPolicy">
-                   <enum>Qt::FocusPolicy::ClickFocus</enum>
-                  </property>
-                  <property name="toolTip">
-                   <string/>
-                  </property>
-                  <property name="text">
-                   <string>测试</string>
-                  </property>
-                  <property name="autoDefault">
-                   <bool>false</bool>
-                  </property>
-                 </widget>
+                  <item>
+                   <widget class="QPushButton" name="varOperator_test_button">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Microsoft YaHei</family>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="focusPolicy">
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
+                    </property>
+                    <property name="toolTip">
+                     <string/>
+                    </property>
+                    <property name="text">
+                     <string>测试</string>
+                    </property>
+                    <property name="autoDefault">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QPushButton" name="varOperator_edit_wnd_button">
+                    <property name="sizePolicy">
+                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                     </sizepolicy>
+                    </property>
+                    <property name="minimumSize">
+                     <size>
+                      <width>0</width>
+                      <height>30</height>
+                     </size>
+                    </property>
+                    <property name="maximumSize">
+                     <size>
+                      <width>50</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
+                    <property name="font">
+                     <font>
+                      <family>Microsoft YaHei</family>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="focusPolicy">
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
+                    </property>
+                    <property name="toolTip">
+                     <string/>
+                    </property>
+                    <property name="text">
+                     <string>编辑</string>
+                    </property>
+                    <property name="autoDefault">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
                 <item>
                  <layout class="QHBoxLayout" name="varOperator_button_box">
@@ -10579,6 +10626,11 @@
    <class>QFileEdit</class>
    <extends>QLineEdit</extends>
    <header location="global">qfileedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QCodeEditor</class>
+   <extends>QPlainTextEdit</extends>
+   <header location="global">qcodeeditor.h</header>
   </customwidget>
  </customwidgets>
  <resources>

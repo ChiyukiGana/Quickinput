@@ -75,6 +75,10 @@ void TriggerUi::Event()
 			ui.block_cur_check->setChecked(macro.curBlock);
 			ui.block_cur_check->blockSignals(false);
 
+			ui.force_stop_check->blockSignals(true);
+			ui.force_stop_check->setChecked(macro.forceStop);
+			ui.force_stop_check->blockSignals(false);
+
 			ui.mode_combo->blockSignals(true);
 			ui.mode_combo->setCurrentIndex(macro.mode);
 			ui.mode_combo->blockSignals(false);
@@ -152,7 +156,7 @@ void TriggerUi::Event()
 		});
 	connect(ui.force_stop_check, &QCheckBox::toggled, this, [this](bool state) {
 		if (!ItemCurrented()) return;
-		currentMacro->force_stop = state;
+		currentMacro->forceStop = state;
 		(*currentMacro).save();
 		});
 	connect(ui.mode_combo, &QComboBox::currentIndexChanged, this, [this](int index) {
@@ -185,8 +189,7 @@ void TriggerUi::Event()
 
 	connect(ui.var_button, &QPushButton::clicked, this, [this] {
 		if (!ItemCurrented()) return;
-		QTextDialog edit(true);
-		edit.button()->setStyleSheet("background-color:white;border:1px solid gray;border-radius:4px");
+		QCodeDialog edit(true);
 		QString text = edit.Start(currentMacro->script);
 		if (text != currentMacro->script)
 		{

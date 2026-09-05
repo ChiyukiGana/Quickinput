@@ -18,7 +18,7 @@ struct QiMacroWorker : public QiWorkerWithArgs<bool,Macro*,std::condition_variab
 
 		macro->script_interpreter.clearLocals();
 		macro->script_interpreter.setWorker(this);
-		macro->script_interpreter.setForceStop(macro->force_stop);
+		macro->script_interpreter.setForceStop(macro->forceStop);
 		macro->script_interpreter.setValue(QiScriptInterpreter::var_macro_name, macro->name.toStdString());
 		Qi::widget.varViewReload();
 
