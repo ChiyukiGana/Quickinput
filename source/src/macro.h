@@ -245,7 +245,7 @@ struct Macro
 #if defined(Q_WINRT) && defined(Q_GRAPHICS_CAPTURE)
 	std::shared_ptr<QiGraphicsCapture> capture;
 #endif
-	QiInterpreter* interpreter;
+	QiInterpreter* interpreter = nullptr;
 	QiScriptInterpreter script_interpreter;
 	QiMacroThread thread;
 

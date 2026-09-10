@@ -133,10 +133,10 @@ struct GroupData
 };
 struct Widget
 {
-	bool dialogActive = false;
+	bool dialogActive = false; // pop settings
 	bool mainActive = false;
-	bool moreActive = false;
-	bool onload = false;
+	bool helpActive = false;
+	bool onload = false; // prevent status toggle if macros is not loaded
 	QWidget* main = nullptr;
 	QWidget* macro = nullptr;
 	QWidget* trigger = nullptr;
@@ -148,10 +148,12 @@ struct Widget
 	QWidget* help = nullptr;
 	QWidget* varView = nullptr;
 	QWidget* msgView = nullptr;
-	AutoUnique<Macro> editMacro;
+	AutoUnique<Macro> editMacro; // used by EditUi
+
+	// prevent status toggle
 	bool active() const
 	{
-		return mainActive || dialogActive || moreActive;
+		return mainActive || dialogActive || helpActive;
 	}
 	void show() const
 	{
@@ -247,6 +249,23 @@ struct Widget
 	}
 };
 
+class KeyState : protected std::array<bool, Qi::key_size>
+{
+	using base = std::array<bool, Qi::key_size>;
+	std::mutex m;
+public:
+	KeyState() { base::fill(false); };
+	KeyState(const KeyState&) { base::fill(false); };
+	KeyState(KeyState&) { base::fill(false); };
+	KeyState& operator=(const KeyState&) { fill(false); };
+	KeyState& operator=(KeyState&) { fill(false); };
+	void set(size_t key, bool state) { m.lock(); base::operator[](key) = state; m.unlock(); }
+	bool get(size_t key) { m.lock(); bool state = base::operator[](key); m.unlock(); return state; }
+	bool operator[](size_t key) { m.lock(); bool state = base::operator[](key); m.unlock(); return state; }
+	void fill(bool state) { m.lock(); base::fill(state); m.unlock(); };
+	void clear() { fill(false); };
+};
+
 namespace Qi
 {
 	inline QString title;
@@ -262,8 +281,8 @@ namespace Qi
 	// state
 	inline std::atomic_bool state = false; // state toggle flag
 	// record
-	inline bool recordState = false;
-	inline bool recording = false;
+	inline std::atomic_bool recordState = false;
+	inline std::atomic_bool recording = false;
 	inline clock_t recordClock = 0;
 	inline HWND recordWindow = 0;
 	// macro
@@ -279,8 +298,8 @@ namespace Qi
 	inline QPopText* popText = nullptr;
 	inline QWindowSelector* windowSelector = nullptr;
 	// input
-	inline bool keyState[key_size];
-	inline std::atomic_bool keyBlock[key_size];
+	inline std::array<bool, Qi::key_size> keyState; // use for trigger, single threaded
+	inline KeyState keyBlock;
 	inline std::atomic_int curBlock = 0;
 #ifdef Q_KEYEDIT_PAD_ENABLED
 	inline XBoxPad xboxpad;

@@ -32,7 +32,8 @@ public:
 	void setCount(int i);
 	void setIndex(int i);
 	void setLastPos(int x, int y);
-	bool isInvalid();
+	bool isTimrout();
+	bool isInvalid(bool check_timer = true);
 	void DebugContinue();
 	bool Sleep(double ms);
 	InterpreterResult ActionInterpreter(Actions& current);

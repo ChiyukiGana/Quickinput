@@ -310,6 +310,7 @@ void SettingsUi::StyleGroup()
 	style_set_group(ui.start_check, "check");
 	style_set_group(ui.lang_combo, "combo");
 	ui.lang_combo->setView(new QListView());
+	style_set_group(ui.lang_combo->view(), "combo_body");
 	style_set_group(ui.ocr_lang_combo, "combo");
 	ui.ocr_lang_combo->setView(new QListView());
 	style_set_group(ui.ocr_lang_combo->view(), "combo_body");

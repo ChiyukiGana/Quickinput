@@ -33,6 +33,7 @@ public:
         addKeyword1("loop");
         addKeyword1("fn");
         addKeyword1("return");
+        addKeyword2("null");
         addKeyword2("true");
         addKeyword2("false");
         addKeyword2("_macro_name");

@@ -71,11 +71,16 @@ void QiInterpreter::setLastPos(int x, int y)
 	Qi::widget.varViewReload();
 }
 
-bool QiInterpreter::isInvalid()
+bool QiInterpreter::isTimrout()
+{
+	return timer && !QiTime::in(timerStart, timerEnd);
+}
+
+bool QiInterpreter::isInvalid(bool check_timer)
 {
 	if (Qi::debug) return worker.m_stop;
-	if (force_stop) return !Qi::run || worker.m_stop || (timer && !QiTime::in(timerStart, timerEnd));
-	return !Qi::run || (timer && !QiTime::in(timerStart, timerEnd));
+	if (force_stop) return !Qi::run || worker.m_stop || (check_timer && isTimrout());
+	return !Qi::run || (check_timer && timer && isTimrout());
 }
 
 void QiInterpreter::DebugContinue()
@@ -85,13 +90,14 @@ void QiInterpreter::DebugContinue()
 
 bool QiInterpreter::Sleep(double ms)
 {
+	if (ms < 0.0) return isInvalid(false);
 	if (force_stop)
 	{
-		worker.sleep(ms);
+		worker.sleep(ms / speed);
 		return worker.m_stop;
 	}
-	AccurateSleep(ms, [] { return Qi::run.load(); });
-	return !Qi::run.load();
+	AccurateSleep(ms / speed, [this] { return !isInvalid(false); });
+	return isInvalid(false);
 }
 
 QString QiInterpreter::makePath()
@@ -585,8 +591,8 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 			case QiType::keyBlock:
 			{
 				const QiKeyBlock& ref = action.to<QiKeyBlock>();
-				if (ref.vk == QiKeyBlock::all) memset(Qi::keyBlock, ref.block, sizeof(Qi::keyBlock));
-				else Qi::keyBlock[ref.vk] = ref.block;
+				if (ref.vk == QiKeyBlock::all) Qi::keyBlock.fill(ref.block);
+				else Qi::keyBlock.set(ref.vk, ref.block);
 			} break;
 			case QiType::clock:
 			{

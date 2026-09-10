@@ -19,13 +19,13 @@ bool HelpUi::event(QEvent* e)
 {
 	if (e->type() == QEvent::WindowActivate)
 	{
-		Qi::widget.moreActive = true;
+		Qi::widget.helpActive = true;
 		if (Qi::state) QiTr::QiState(false);
 		QiTr::QiHook(false);
 	}
 	else if (e->type() == QEvent::WindowDeactivate)
 	{
-		Qi::widget.moreActive = false;
+		Qi::widget.helpActive = false;
 		if (!Qi::widget.active())
 		{
 			if (Qi::set.defOn) QiTr::QiState(true);

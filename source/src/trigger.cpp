@@ -140,7 +140,7 @@ namespace QiTr
 	{
 		if (state)
 		{
-			memset(Qi::keyState, 0, sizeof(Qi::keyState));
+			Qi::keyBlock.clear();
 			if (!InputHookT::State())
 			{
 				timeBeginPeriod(1);
@@ -148,7 +148,11 @@ namespace QiTr
 				if (!InputHookT::Start()) MsgBox::Error(L"创建输入Hook失败，检查是否管理员身份运行 或 是否被安全软件拦截。");
 
 #ifdef Q_KEYEDIT_PAD_ENABLED
-				if (Qi::set.pad) Qi::xboxpad.setStateEvent([](short keyCode, short state) { Qi::keyState[keyCode] = (bool)state; Trigger(keyCode, Qi::keyState); }, true);
+				if (Qi::set.pad) Qi::xboxpad.setStateEvent([](short keyCode, short state) {
+					Qi::keyState[keyCode] = (bool)state;
+					std::array<bool, Qi::key_size> t(Qi::keyState);
+					Trigger(keyCode, t.data());
+					}, true);
 #endif
 			}
 		}
@@ -170,14 +174,14 @@ namespace QiTr
 		if (state)
 		{
 			Qi::curBlock = 0;
-			for (size_t i = 0; i < sizeof(Qi::keyBlock); i++) Qi::keyBlock[i] = false;
+			Qi::keyBlock.clear();
 			Qi::macroActive.clear();
 			for (auto& g : Qi::macroGroups) for (auto& m : g.macros) if (m.state && (m.key1 || m.key2))
 			{
 				if (m.keyBlock)
 				{
-					if (m.key1) Qi::keyBlock[m.key1] = true;
-					if (m.key2) Qi::keyBlock[m.key2] = true;
+					if (m.key1) Qi::keyBlock.set(m.key1, true);
+					if (m.key2) Qi::keyBlock.set(m.key2, true);
 				}
 				m.range = { 0,0,10000,10000 };
 				Qi::macroActive.append(&m);
@@ -202,6 +206,6 @@ namespace QiTr
 	void UnBlock()
 	{
 		Qi::curBlock = 0;
-		for (size_t i = 0; i < sizeof(Qi::keyBlock); i++) Qi::keyBlock[i] = false;
+		Qi::keyBlock.clear();
 	}
 }

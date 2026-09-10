@@ -94,7 +94,7 @@ void VarViewUi::TableUpdate()
 			table->setColumnCount(3);
 			table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeMode::Fixed);
 			table->horizontalHeader()->setSectionResizeMode(tableColumn_value, QHeaderView::ResizeMode::Stretch);
-			table->setColumnWidth(tableColumn_name, 120);
+			table->setColumnWidth(tableColumn_name, 180);
 			table->setColumnWidth(tableColumn_type, 60);
 			table->setHorizontalHeaderItem(tableColumn_name, new QTableWidgetItem(lang_trans("全局")));
 			table->setHorizontalHeaderItem(tableColumn_type, new QTableWidgetItem(lang_trans("类型")));
@@ -110,6 +110,7 @@ void VarViewUi::TableUpdate()
 		else if (edit)
 		{
 			edit = false;
+			macro = Qi::widget.editMacro.get();
 			varMap = Qi::widget.editMacro->script_interpreter.local();
 			table->horizontalHeaderItem(tableColumn_name)->setText(Qi::widget.editMacro->name + "(" + lang_trans("编辑") + ")");
 		}
@@ -131,16 +132,16 @@ void VarViewUi::TableUpdate()
 			QString name = table->item(row, tableColumn_name)->text();
 			QString text = table->item(row, tableColumn_value)->text();
 
-			if (QiVar::isNumber(text.toStdString()))
-			{
-				if (macro) macro->script_interpreter.setLocalValue(name.toStdString(), QiVar::toNumber(text.toStdString()));
-				else QiScriptInterpreter::setGlobalValue(name.toStdString(), QiVar::toNumber(text.toStdString()));
-			}
-			else
-			{
-				if (macro) macro->script_interpreter.setLocalValue(name.toStdString(), text.toStdString());
-				else QiScriptInterpreter::setGlobalValue(name.toStdString(), text.toStdString());
-			}
+			QiVar var;
+			if (text == "true") var = true;
+			else if (text == "false") var = false;
+			else if (text == "null");
+			else if (QiVar::isInteger(text.toStdString())) var = QiVar::toInteger(text.toStdString());
+			else if (QiVar::isNumber(text.toStdString())) var = QiVar::toNumber(text.toStdString());
+			else if (!text.isEmpty()) var = text.toStdString();
+
+			if (macro) macro->script_interpreter.setLocalValue(name.toStdString(), var);
+			else QiScriptInterpreter::setGlobalValue(name.toStdString(), var);
 
 			TableUpdate(table, *varMap);
 			});

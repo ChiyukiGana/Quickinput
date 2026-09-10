@@ -1,10 +1,11 @@
 ﻿#include <src/inc_header.h>
 #include "../ui/RecordUi.h"
 
+// if used LL Hooks in debug mode, it will be cause mouse lag
 #ifdef DEBUG
-#define InputHookT InputState
+#define InputHookT InputState // GetAsyncKeyState besed
 #else
-#define InputHookT InputHook
+#define InputHookT InputHook // LL Hooks besed
 #endif
 
 QiMouseTrack mouseTrack;
@@ -92,15 +93,8 @@ void RecordInput(BYTE vk, bool state, POINT pt)
 		}
 	}
 }
-struct KeyState
-{
-	bool state[Qi::key_size];
-	KeyState(bool* keyState)
-	{
-		memcpy(state, keyState, Qi::key_size);
-	}
-};
-void InputTask(BYTE key, bool press, POINT cursor, KeyState keyState)
+
+void InputTask(BYTE key, bool press, POINT cursor, std::array<bool, Qi::key_size> keyState)
 {
 	if (Qi::recordState)
 	{
@@ -122,7 +116,7 @@ void InputTask(BYTE key, bool press, POINT cursor, KeyState keyState)
 	}
 	else
 	{
-		QiTr::Trigger(key, keyState.state);
+		QiTr::Trigger(key, keyState.data());
 	}
 }
 
@@ -143,13 +137,13 @@ bool _stdcall InputHookT::InputProc(BYTE key, bool press, POINT cursor, PULONG_P
 			if (!Qi::keyState[key])
 			{
 				Qi::keyState[key] = press;
-				inputQueue.enqueue(InputTask, key, press, cursor, KeyState(Qi::keyState));
+				inputQueue.enqueue(InputTask, key, press, cursor, Qi::keyState);
 			}
 		}
 		else
 		{
 			Qi::keyState[key] = press;
-			inputQueue.enqueue(InputTask, key, press, cursor, KeyState(Qi::keyState));
+			inputQueue.enqueue(InputTask, key, press, cursor, Qi::keyState);
 		}
 		// block
 		if (Qi::run && Qi::keyBlock[key]) return true;
@@ -157,7 +151,7 @@ bool _stdcall InputHookT::InputProc(BYTE key, bool press, POINT cursor, PULONG_P
 	// cursor
 	else
 	{
-		if (Qi::recording) inputQueue.enqueue(InputTask, 0, 0, cursor, KeyState(Qi::keyState));
+		if (Qi::recording) inputQueue.enqueue(InputTask, 0, 0, cursor, Qi::keyState);
 		// block
 		if (Qi::run && (Qi::curBlock > 0 || Qi::keyBlock[0])) return true;
 	}
