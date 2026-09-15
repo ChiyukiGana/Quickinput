@@ -90,7 +90,7 @@ void QiInterpreter::DebugContinue()
 
 bool QiInterpreter::Sleep(double ms)
 {
-	if (ms < 0.0) return isInvalid(false);
+	if (ms < 0.0 || speed < 0.0) return isInvalid(false);
 	if (force_stop)
 	{
 		worker.sleep(ms / speed);
