@@ -44,13 +44,13 @@
     <OutDir>$(ProjectDir).app_d\</OutDir>
     <IntDir>$(ProjectDir).build_d\</IntDir>
     <IncludePath>$(ProjectDir);$(ProjectDir)source;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget;$(ProjectDir)source\src\ignore;$(ProjectDir)source\src\ignore\openssl\include</IncludePath>
-    <LibraryPath>$(ProjectDir)source\src\ignore\ocr;$(ProjectDir)source\src\ignore\openssl\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)source\src\ocr\lib;$(ProjectDir)source\src\ignore\openssl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(ProjectDir).app\</OutDir>
     <IntDir>$(ProjectDir).build\</IntDir>
     <IncludePath>$(ProjectDir);$(ProjectDir)source;$(ProjectDir)source\ui;$(ProjectDir)source\ui\widget;$(ProjectDir)source\src\ignore;$(ProjectDir)source\src\ignore\openssl\include</IncludePath>
-    <LibraryPath>$(ProjectDir)source\src\ignore\ocr;$(ProjectDir)source\src\ignore\openssl\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)source\src\ocr\lib;$(ProjectDir)source\src\ignore\openssl\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QtModules>core;widgets</QtModules>
@@ -66,7 +66,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
-      <PreprocessorDefinitions>_WINSOCKAPI_;QIOCR_SHARED;QIOCR_INTERNALx;$(QiPreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>QIOCR_SHARED;_WINSOCKAPI_;$(QiPreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
@@ -85,11 +85,10 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <PreprocessorDefinitions>_WINSOCKAPI_;QIOCR_SHARED;QIOCR_INTERNALx;$(QiPreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>QIOCR_SHARED;QIOCR_INTERNALx;_WINSOCKAPI_;$(QiPreprocessorDefinitions);%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WarningLevel>TurnOffAllWarnings</WarningLevel>
     </ClCompile>
     <Link>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
@@ -192,6 +191,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="source\res\QuickInput.h" />
     <ClInclude Include="source\src\action.h" />
     <ClInclude Include="source\src\capture.h" />
     <ClInclude Include="source\src\cvt.h" />

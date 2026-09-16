@@ -1,0 +1,1 @@
+//#define QIOCR_INTERNAL

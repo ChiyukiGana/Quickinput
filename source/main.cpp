@@ -23,14 +23,14 @@ int main(int argc, char* argv[])
 
 	Process::RunPath(); // reset work path to exe path
 
-	std::wstring mutex = Path::toSlash(Process::runPath()); // mutex name, the current directory is only running one
-	if (Process::isRunning(mutex.c_str()))
+	const std::wstring mutex = String::toWString("QIACTIVE_PATH_HEX_" + Code::Sha256::en_hex(String::toString(Process::runPath()))); // 改用16进制避免路径有特殊符号导致失败
+	if (Process::isRunning(mutex))
 	{
 		MsgBox::Warning(L"当前文件夹的程序已经运行，点击任务栏小图标显示窗口\n\n若运行更多程序请复制此文件夹", L"提示");
 		return -1;
 	}
 	else CreateMutexW(0, 0, mutex.c_str());
-
+	
 #if !defined(DEBUG) && defined(Q_VERIFY)
 	verify();
 #endif

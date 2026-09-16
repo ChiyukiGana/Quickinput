@@ -1,4 +1,6 @@
-﻿ICOAPP ICON "icon.ico"
+﻿#include "Quickinput.h"
+
+ICOAPP ICON "icon.ico"
 
 SND_ON WAVE "sound\\on.wav"
 SND_OFF WAVE "sound\\off.wav"

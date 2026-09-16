@@ -207,9 +207,9 @@ namespace QiFn
 			return;
 		}
 		Qi::ocr_ver = QiOcrVersion(dll);
-		if (Qi::ocr_ver < 3)
+		if (Qi::ocr_ver < 5)
 		{
-			MsgBox::Warning(L"文字识别版本低于3，需要更新");
+			MsgBox::Warning(L"文字识别模块版本低于5，需要更新");
 			return;
 		}
 #endif

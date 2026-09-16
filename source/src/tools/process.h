@@ -21,7 +21,7 @@ namespace QiTools
 		static bool RunPath(std::wstring path = L"") { if (path.size()) return SetCurrentDirectoryW(path.c_str()); else return SetCurrentDirectoryW(Path::RemoveFile(exePath()).c_str()); }
 		static std::wstring exePath() { PATH_BUFFERW(path); GetModuleFileNameW(0, path, PATH_BUFFER_SIZE); return path; }
 		static std::wstring exeName() { return Path::GetFile(exePath()); }
-		static bool isRunning(LPCWSTR mutexName) { HANDLE handle = CreateMutexW(0, 0, mutexName); if (GetLastError() == ERROR_ALREADY_EXISTS) { CloseHandle(handle); return true; } CloseHandle(handle); return false; }
+		static bool isRunning(const std::wstring& mutexName) { HANDLE handle = CreateMutexW(0, 0, mutexName.c_str()); if (GetLastError() == ERROR_ALREADY_EXISTS) { CloseHandle(handle); return true; } if (handle) CloseHandle(handle); return false; }
 		static void RunOnce(LPCWSTR mutexName) { HANDLE handle = CreateMutexW(0, 0, mutexName); if (GetLastError() == ERROR_ALREADY_EXISTS) { CloseHandle(handle); exit(0); } }
 		static bool open(const std::wstring& url)
 		{

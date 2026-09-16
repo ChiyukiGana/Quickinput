@@ -63,7 +63,7 @@
       <string notr="true">font-size:20px</string>
      </property>
      <property name="text">
-      <string>2026-9-10</string>
+      <string>2026-9-17</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
@@ -79,9 +79,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>修复速度设置无效
-修复调试等待导致结束
-优化变量管理修改类型</string>
+      <string>更新PPOCRv6检测模型（需更新模块）</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>

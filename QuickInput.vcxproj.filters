@@ -298,6 +298,9 @@
     <ClInclude Include="source\src\var.h">
       <Filter>5_Module\interpreter</Filter>
     </ClInclude>
+    <ClInclude Include="source\res\QuickInput.h">
+      <Filter>1_Resource</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="source\ui\AboutUi.ui">

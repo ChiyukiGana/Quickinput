@@ -6,5 +6,6 @@
 /.build_t
 /.build_d
 /source/src/ignore
-/source/res/ocr
+/source/src/ocr/lib/*
+/source/res/ocr/*
 /source/res/QuickInput.aps

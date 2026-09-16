@@ -32,6 +32,8 @@ public:
 		error_not_enough_operands,
 		error_unknown_operator,
 		error_unknown_functions,
+		error_interpreter_not_init,
+		error_interpreter_exited,
 		size
 	};
 	static constexpr std::array<const char*, size> text{
@@ -40,7 +42,9 @@ public:
 		"error_invalid_functions_parameter",
 		"error_not_enough_operands",
 		"error_unknown_operator",
-		"error_unknown_functions"
+		"error_unknown_functions",
+		"error_interpreter_not_init"
+		"error_interpreter_exited"
 	};
 private:
 	Type m_type;
@@ -201,6 +205,8 @@ private:
 
 	static inline QiVarMap globalVariables;
 	static inline std::mutex globalVariablesMutex;
+
+	static inline HANDLE initMutex = nullptr;
 
 	std::mutex this_mutex;
 	QiVarMap localVariables;
@@ -823,6 +829,8 @@ public:
 
 	auto execute(const std::string& code, QiVarMap* local = nullptr) -> QiVar
 	{
+		if (!initMutex) { ScriptException(ScriptException::error_interpreter_not_init, {}, {}); }
+		else if (initMutex == INVALID_HANDLE_VALUE) { ScriptException(ScriptException::error_interpreter_exited, {}, {}); }
 		std::vector<Token> tokens;
 		try { tokens = tokenize(code); }
 		catch (const ScriptException& e) { throw ScriptException(e.type(), code, e.token(), e.msg()); }
@@ -833,6 +841,8 @@ public:
 	}
 	void interpret(const std::string& code, QiVarMap* local = nullptr)
 	{
+		if (!initMutex) { ScriptException(ScriptException::error_interpreter_not_init, {}, {}); }
+		else if (initMutex == INVALID_HANDLE_VALUE) { ScriptException(ScriptException::error_interpreter_exited, {}, {}); }
 		std::string trimmedCode = trim(code);
 		size_t incPos = trimmedCode.find("++");
 		size_t decPos = trimmedCode.find("--");
@@ -913,6 +923,8 @@ public:
 	}
 	void interpretAll(const std::string& code, QiVarMap* local = nullptr)
 	{
+		if (!initMutex) { ScriptException(ScriptException::error_interpreter_not_init, {}, {}); }
+		else if (initMutex == INVALID_HANDLE_VALUE) { ScriptException(ScriptException::error_interpreter_exited, {}, {}); }
 		if (code.empty()) return;
 
 		std::vector<std::string> rawLines;
@@ -1092,7 +1104,9 @@ private:
 public:
 	static void initSavedVariable()
 	{
+		if (initMutex == INVALID_HANDLE_VALUE) { ScriptException(ScriptException::error_interpreter_exited, {}, {}); }
 		std::call_once(savedVariables_InitCall, [] {
+			initMutex = CreateMutexW(0, 0, L"QISCRIPTINTERPRETER_INIT_MUTEX");
 			savedVariables_Mutex.lock();
 			auto data = File::FileReadAll(Qi::savedVarFile.toStdWString());
 			if (!data.empty()) savedVariables = typepack::object::fromBinary(data);
@@ -1136,6 +1150,7 @@ public:
 	static void stopSavedVariable()
 	{
 		std::call_once(savedVariables_StopCall, [] {
+			if (initMutex && initMutex != INVALID_HANDLE_VALUE) { initMutex = INVALID_HANDLE_VALUE; }
 			if (!savedVariables_Thread.joinable()) return;
 			savedVariables_Stop = true;
 			savedVariables_Condition.notify_all();
@@ -1144,6 +1159,8 @@ public:
 	}
 	static QiVar getSavedVariable(const std::string name)
 	{
+		if (!initMutex) { ScriptException(ScriptException::error_interpreter_not_init, {}, {}); }
+		else if (initMutex == INVALID_HANDLE_VALUE) { ScriptException(ScriptException::error_interpreter_exited, {}, {}); }
 		typepack::value v;
 		{
 			std::unique_lock<std::mutex> lock(savedVariables_Mutex);
@@ -1162,6 +1179,8 @@ public:
 	}
 	static void setSavedVariable(const std::string name, const QiVar& value)
 	{
+		if (!initMutex) { ScriptException(ScriptException::error_interpreter_not_init, {}, {}); }
+		else if (initMutex == INVALID_HANDLE_VALUE) { ScriptException(ScriptException::error_interpreter_exited, {}, {}); }
 		typepack::value v;
 		switch (value.type())
 		{
