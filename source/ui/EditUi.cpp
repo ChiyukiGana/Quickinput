@@ -1298,7 +1298,9 @@ void EditUi::SelectWindow()
 {
 	QPoint pt = pos();
 	hide();
+	bool child = macro->wndInfo.child;
 	macro->wndInfo = QiFn::WindowSelector();
+	macro->wndInfo.child = child;
 	show();
 	SetWindowMode();
 }

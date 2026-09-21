@@ -72,4 +72,55 @@ namespace QiTools {
 			return children;
 		}
 	};
+
+	struct WindowItem;
+	struct WindowItems : public std::vector<WindowItem>
+	{
+		WindowItem* iter(std::function<bool(WindowItem& item)> f);
+		const WindowItem* iter(std::function<bool(const WindowItem& item)> f) const;
+	};
+	struct WindowItem
+	{
+		HWND wnd;
+		WindowItems child;
+		WindowItem* iter(std::function<bool(WindowItem& item)> f);
+		const WindowItem* iter(std::function<bool(const WindowItem& item)> f) const;
+		static WindowItem find(HWND parent)
+		{
+			WindowItem current;
+			current.wnd = parent;
+			auto children = Window::FindChild(current.wnd);
+			for (auto i : children) current.child.push_back(find(i));
+			return current;
+		}
+	};
+
+	inline WindowItem* WindowItem::iter(std::function<bool(WindowItem& item)> f)
+	{
+		return child.iter(f);
+	}
+	inline const WindowItem* WindowItem::iter(std::function<bool(const WindowItem& item)> f) const
+	{
+		return child.iter(f);
+	}
+	inline WindowItem* WindowItems::iter(std::function<bool(WindowItem& item)> f)
+	{
+		for (auto& i : *this)
+		{
+			if (f(i)) return &i;
+			auto* r = i.iter(f);
+			if (r) return r;
+		}
+		return nullptr;
+	}
+	inline const WindowItem* WindowItems::iter(std::function<bool(const WindowItem& item)> f) const
+	{
+		for (const auto& i : *this)
+		{
+			if (f(i)) return &i;
+			const auto* r = i.iter(f);
+			if (r) return r;
+		}
+		return nullptr;
+	}
 }

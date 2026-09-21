@@ -7,6 +7,20 @@
 #include "scriptinterpreter.h"
 #include "inc_project.h"
 
+struct WndRect
+{
+	HWND wnd;
+	RECT rect;
+	WndRect() : wnd(nullptr), rect({}) {}
+	WndRect(HWND wnd) : wnd(wnd), rect({}) {}
+	WndRect(HWND wnd, const RECT& rect) : wnd(wnd), rect(rect) {}
+	bool operator>(const WndRect& other) const { return RectArea(rect) > RectArea(other.rect); }
+	bool operator>=(const WndRect& other) const { return RectArea(rect) >= RectArea(other.rect); }
+	bool operator<(const WndRect& other) const { return RectArea(rect) < RectArea(other.rect); }
+	bool operator<=(const WndRect& other) const { return RectArea(rect) <= RectArea(other.rect); }
+	bool operator==(const WndRect& other) const { return RectArea(rect) == RectArea(other.rect); }
+};
+
 struct WndMatch
 {
 	HWND wnd = nullptr;
@@ -103,6 +117,7 @@ struct WndMatch
 };
 struct WndInput
 {
+
 	HWND wnd = nullptr; // parent
 	bool child = false; // select child
 	POINT pt = {}; // prev point
@@ -113,28 +128,28 @@ struct WndInput
 		if (!active()) return nullptr;
 		if (child)
 		{
-			QList<HWND> children = Window::FindChild(wnd);
-			int minArea = INT_MAX;
-			RECT minRect = {};
-			HWND minWnd = nullptr;
-			for (auto i = children.rbegin(); i != children.rend(); i++)
+			do
 			{
-				minRect = Window::childRect(wnd, *i);
-				if (InRect(minRect, pt))
-				{
-					int area = RectArea(minRect);
-					if (area < minArea)
-					{
-						minArea = area;
-						minWnd = *i;
-					}
-				}
+				// get children
+				auto windowTree = WindowItem::find(wnd);
+				if (windowTree.child.empty()) break;
+
+				// tree to vector and get rect
+				std::vector<WndRect> children;
+				windowTree.iter([&children, &pt, this](const WindowItem& i) {
+					WndRect rect(i.wnd, Window::childRect(wnd, i.wnd));
+					if (InRect(rect.rect, pt)) children.push_back(std::move(rect));
+					return false;
+				});
+
+				// get min hwnd
+				auto minIter = std::min_element(children.begin(), children.end());
+				if (minIter == children.end()) break;
+
+				ptrel = InRectPos(minIter->rect, pt);
+				return minIter->wnd;
 			}
-			if (minWnd)
-			{
-				ptrel = InRectPos(minRect, pt);
-				return minWnd;
-			}
+			while (false);
 		}
 		ptrel = InRectPos(Window::sizeRect(wnd), pt);
 		return wnd;
