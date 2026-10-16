@@ -9453,7 +9453,7 @@
                      <string/>
                     </property>
                     <property name="text">
-                     <string>编辑（是）</string>
+                     <string>编辑（成立）</string>
                     </property>
                     <property name="autoDefault">
                      <bool>false</bool>
@@ -9487,7 +9487,7 @@
                      <string/>
                     </property>
                     <property name="text">
-                     <string>编辑（否）</string>
+                     <string>编辑（不成立）</string>
                     </property>
                     <property name="autoDefault">
                      <bool>false</bool>

@@ -214,6 +214,7 @@ struct WndLock
 };
 
 class QiInterpreter;
+// 内存占用过大，不建议在栈上分配
 struct Macro
 {
 	enum TriggerMode { sw, down, up };

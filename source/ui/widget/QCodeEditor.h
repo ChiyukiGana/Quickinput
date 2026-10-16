@@ -96,11 +96,11 @@ public:
         highlightingRules.clear();
         HighlightingRule rule;
 
-        rule.pattern = QRegularExpression(QStringLiteral("\\b[A-Za-z_][A-Za-z0-9_]*\\b"));
+        rule.pattern = QRegularExpression(QStringLiteral("(?<![\\p{L}\\p{N}_])[\\p{L}_][\\p{L}\\p{N}_]*(?![\\p{L}\\p{N}_])"));
         rule.format = formats[Variable];
         highlightingRules.append(rule);
 
-        rule.pattern = QRegularExpression(QStringLiteral("\\b[A-Za-z_][A-Za-z0-9_]*(?=\\s*\\()"));
+        rule.pattern = QRegularExpression(QStringLiteral("(?<![\\p{L}\\p{N}_])[\\p{L}_][\\p{L}\\p{N}_]*(?=\\s*\\()"));
         rule.format = formats[Function];
         highlightingRules.append(rule);
 

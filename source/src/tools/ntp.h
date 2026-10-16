@@ -41,9 +41,10 @@ public:
     {
         WSACleanup();
     }
-    std::optional<NtpTimestamp> get(std::string server, int port = 123, int timeout = 5000)
+    std::optional<time_t> get(std::string server, int port = 123, int timeout = 5000)
     {
         error = 0;
+        auto begin = std::chrono::steady_clock::now();
         SOCKET sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
         if (sock == INVALID_SOCKET)
         {
@@ -90,26 +91,26 @@ public:
         }
 
         closesocket(sock);
-        return packet.transTimestamp;
+        auto end = std::chrono::steady_clock::now();
+        auto delay = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+        return toUnixMs(packet.transTimestamp) + std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
     }
     std::optional<time_t> unix(std::string server, int port = 123, int timeout = 5000)
     {
         auto result = get(server, port, timeout);
-        if (result) return toUnix(*result);
-        return {};
+        if (!result) return {};
+        return result.value() / 1000;
     }
-    std::optional<time_t> unix64(std::string server, int port = 123, int timeout = 5000)
+    std::optional<time_t> unix_ms(std::string server, int port = 123, int timeout = 5000)
     {
-        auto result = get(server, port, timeout);
-        if (result) return toUnix64(*result);
-        return {};
-    }
-    static time_t toUnix64(const NtpTimestamp& ntp)
-    {
-        return ((static_cast<time_t>(ntohl(ntp.seconds)) - 2208988800ULL) * 1000ULL) + ((static_cast<time_t>(ntohl(ntp.fraction)) * 1000ULL) / UINT_MAX);
+        return get(server, port, timeout);
     }
     static time_t toUnix(const NtpTimestamp& ntp)
     {
         return static_cast<time_t>(ntohl(ntp.seconds)) - 2208988800ULL;
+    }
+    static time_t toUnixMs(const NtpTimestamp& ntp)
+    {
+        return ((static_cast<time_t>(ntohl(ntp.seconds)) - 2208988800ULL) * 1000ULL) + ((static_cast<time_t>(ntohl(ntp.fraction)) * 1000ULL) / UINT_MAX);
     }
 };

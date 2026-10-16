@@ -344,7 +344,7 @@ void EditUi::Event()
 			Qi::widget.dialogActive = true;
 			hide();
 			RecordUi rw(nullptr);
-			Macro macro = rw.Start();
+			Macro& macro = rw.Start();
 			if (macro.acRun) actions->append(std::move(macro.acRun));
 			show();
 			Qi::widget.dialogActive = false;
@@ -357,7 +357,7 @@ void EditUi::Event()
 			if (wndInfo.wnd)
 			{
 				RecordUi rw(&wndInfo);
-				Macro macro = rw.Start();
+				Macro& macro = rw.Start();
 				if (macro.acRun) actions->append(std::move(macro.acRun));
 			}
 			else Qi::popText->Popup(2000, lang_trans("窗口已失效"));

@@ -18,14 +18,33 @@ time_t sys_last_time = 0;
 time_t sys_last_clock = 0;
 std::mutex sys_last_mutex;
 
-bool SetSystemTime_UnixMs(time_t msec)
+time_t set_time_delta = 0;
+std::mutex set_time_mutex;
+
+bool SetSystemTime_UnixMs_(time_t msec)
 {
+	if (msec < 1) return false;
 	ULONGLONG totalTicks = 0x019DB1DED53E8000ULL + msec * 10000;
 	FILETIME ft = {};
 	ft.dwLowDateTime = (DWORD)(totalTicks & 0xFFFFFFFF);
 	ft.dwHighDateTime = (DWORD)(totalTicks >> 32);
 	SYSTEMTIME st;
 	if (FileTimeToSystemTime(&ft, &st)) return SetSystemTime(&st);
+	return false;
+}
+bool SetSystemTime_UnixMs(time_t msec)
+{
+	if (msec < 1) return false;
+	std::unique_lock _(set_time_mutex);
+	if (set_time_delta) SetSystemTime_UnixMs_(msec + set_time_delta);
+	else
+	{
+		auto begin = std::chrono::steady_clock::now();
+		bool s = SetSystemTime_UnixMs_(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
+		auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begin).count();
+		if (s) set_time_delta = delta;
+		return SetSystemTime_UnixMs_(msec + set_time_delta + delta + delta);
+	}
 	return false;
 }
 
@@ -469,13 +488,13 @@ struct QiFunc_time_ntp_ms : public QiFunc
 		{
 			for (auto& s : ntp_servers)
 			{
-				auto t = ntp.unix64(s, 123, 500);
+				auto t = ntp.unix_ms(s, 123, 500);
 				if (t) return *t;
 			}
 		}
 		else
 		{
-			auto t = ntp.unix64(args[0].toString(), 123, 500);
+			auto t = ntp.unix_ms(args[0].toString(), 123, 500);
 			if (t) return *t;
 		}
 		return {};
@@ -511,7 +530,7 @@ struct QiFunc_value : public QiFunc
 			inter->setValue(args[0].toString(), args[1]);
 			return args[1];
 		}
-		return inter->localValue(args[0].toString());
+		return inter->value(args[0].toString());
 	}
 };
 /*

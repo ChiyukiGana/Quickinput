@@ -124,14 +124,14 @@ void MacroUi::Event()
 		});
 	connect(ui.add_button, &QPushButton::clicked, this, [this] {
 		if (!SelectGroup()) return;
-		Macro macro;
-		macro.mode = Macro::down;
-		macro.count = 1;
-		macro.name = currentGroup->makeName(lang_trans("宏"));
-		macro.groupName = currentGroup->name;
-		macro.groupBase = currentGroup->base;
-		macro.storageType = Qi::set.save_type;
-		currentGroup->macros.append(std::move(macro)).save();
+		AutoUnique<Macro> macro;
+		macro->mode = Macro::down;
+		macro->count = 1;
+		macro->name = currentGroup->makeName(lang_trans("宏"));
+		macro->groupName = currentGroup->name;
+		macro->groupBase = currentGroup->base;
+		macro->storageType = Qi::set.save_type;
+		currentGroup->macros.append(std::move(*macro)).save();
 		TableUpdate();
 		ResetWidget();
 		DisableWidget();

@@ -660,6 +660,7 @@ QJsonArray Actions::toJson() const
 void Actions::fromJson(const QJsonArray& json)
 {
 	clear();
+	reserve(json.size());
 	for (const auto& i : json)
 	{
 		Action a;
@@ -670,13 +671,14 @@ void Actions::fromJson(const QJsonArray& json)
 typepack::array Actions::toPack() const
 {
 	typepack::array array;
-	array.resize(size());
-	for (size_t i = 0; i < array.size(); i++) array[i] = operator[](i).toPack();
+	array.reserve(size());
+	for (const auto& i : *this) array.push_back(i.toPack());
 	return array;
 }
 void Actions::fromPack(const typepack::array& pack)
 {
 	clear();
+	reserve(pack.size());
 	for (const auto& i : pack)
 	{
 		Action a;

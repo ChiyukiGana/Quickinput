@@ -490,6 +490,7 @@ public:
 
 	static bool toBool(const std::string& str)
 	{
+		if (str.empty()) return false;
 		return str != "0" && stricmp(str.c_str(), "false") != 0;
 	}
 	static int toInteger(const std::string& str)
