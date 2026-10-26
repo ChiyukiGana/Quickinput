@@ -82,13 +82,13 @@ namespace QiTr
 					if (macro.thread.run_active())
 					{
 						macro.thread.stop();
-						if (Qi::set.showTips && !Qi::ui.pop.swd.t.isEmpty()) QiFn::MacroPop(&macro, false);
+						if (Qi::set.showTips && !macro.hideState && !Qi::ui.pop.swd.t.isEmpty()) QiFn::MacroPop(&macro, false);
 						if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.swd.s, false);
 					}
 					else
 					{
 						macro.thread.run_start(&macro);
-						if (Qi::set.showTips && !Qi::ui.pop.swe.t.isEmpty()) QiFn::MacroPop(&macro, true);
+						if (Qi::set.showTips && !macro.hideState && !Qi::ui.pop.swe.t.isEmpty()) QiFn::MacroPop(&macro, true);
 						if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.swe.s, false);
 					}
 				}
@@ -100,7 +100,7 @@ namespace QiTr
 				if (k1 && k2)
 				{
 					macro.thread.run_start(&macro);
-					if (Qi::set.showTips && !Qi::ui.pop.dwe.t.isEmpty()) QiFn::MacroPop(&macro, true);
+					if (Qi::set.showTips && !macro.hideState && !Qi::ui.pop.dwe.t.isEmpty()) QiFn::MacroPop(&macro, true);
 					if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.dwe.s, false);
 				}
 				else
@@ -108,28 +108,30 @@ namespace QiTr
 					if (macro.count == 0 && macro.thread.run_active())
 					{
 						macro.thread.stop();
-						if (Qi::set.showTips && !Qi::ui.pop.dwd.t.isEmpty()) QiFn::MacroPop(&macro, false);
+						if (Qi::set.showTips && !macro.hideState && !Qi::ui.pop.dwd.t.isEmpty()) QiFn::MacroPop(&macro, false);
 						if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.dwd.s, false);
 					}
 				}
 			} break;
 			case Macro::up:
 			{
-				const bool k1 = macro.key1 ? state[macro.key1] : false;
-				const bool k2 = macro.key2 ? state[macro.key2] : false;
-				if (k1 || k2)
+				const bool k1 = macro.key1 ? state[macro.key1] : true;
+				const bool k2 = macro.key2 ? state[macro.key2] : true;
+				if (k1 && k2)
 				{
+					macro.keyAll = true;
 					if (macro.count == 0 && macro.thread.run_active())
 					{
 						macro.thread.stop();
-						if (Qi::set.showTips && !Qi::ui.pop.upd.t.isEmpty()) QiFn::MacroPop(&macro, false);
+						if (Qi::set.showTips && !macro.hideState && !Qi::ui.pop.upd.t.isEmpty()) QiFn::MacroPop(&macro, false);
 						if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.upd.s, false);
 					}
 				}
-				else
+				else if (macro.keyAll)
 				{
+					macro.keyAll = false;
 					macro.thread.run_start(&macro);
-					if (Qi::set.showTips && !Qi::ui.pop.upe.t.isEmpty()) QiFn::MacroPop(&macro, true);
+					if (Qi::set.showTips && !macro.hideState && !Qi::ui.pop.upe.t.isEmpty()) QiFn::MacroPop(&macro, true);
 					if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.upe.s, false);
 				}
 			} break;
@@ -178,6 +180,7 @@ namespace QiTr
 			Qi::macroActive.clear();
 			for (auto& g : Qi::macroGroups) for (auto& m : g.macros) if (m.state && (m.key1 || m.key2))
 			{
+				m.keyAll = false;
 				if (m.keyBlock)
 				{
 					if (m.key1) Qi::keyBlock.set(m.key1, true);

@@ -223,6 +223,7 @@
     <ClInclude Include="source\src\tools\msgbox.h" />
     <ClInclude Include="source\src\tools\ntp.h" />
     <ClInclude Include="source\src\tools\path.h" />
+    <ClInclude Include="source\src\tools\ping.h" />
     <ClInclude Include="source\src\tools\process.h" />
     <ClInclude Include="source\src\tools\resmonitor.h" />
     <ClInclude Include="source\src\tools\restool.h" />

@@ -63,7 +63,7 @@
       <string notr="true">font-size:20px</string>
      </property>
      <property name="text">
-      <string>2026-10-16</string>
+      <string>2026-10-26</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
@@ -79,9 +79,9 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>修复空字符串判断为true
-修复value无法读取全局变量
-修复代码编辑非英文字符颜色错误</string>
+      <string>增加ping函数
+增加单独隐藏宏的状态
+优化松开模式同时按住后才可触发</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>

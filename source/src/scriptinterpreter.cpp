@@ -18,34 +18,21 @@ time_t sys_last_time = 0;
 time_t sys_last_clock = 0;
 std::mutex sys_last_mutex;
 
-time_t set_time_delta = 0;
-std::mutex set_time_mutex;
-
-bool SetSystemTime_UnixMs_(time_t msec)
+time_t SetSystemTime_UnixMs(time_t msec)
 {
-	if (msec < 1) return false;
+	if (msec < 1) return -1;
+	auto begin = std::chrono::steady_clock::now();
 	ULONGLONG totalTicks = 0x019DB1DED53E8000ULL + msec * 10000;
 	FILETIME ft = {};
 	ft.dwLowDateTime = (DWORD)(totalTicks & 0xFFFFFFFF);
 	ft.dwHighDateTime = (DWORD)(totalTicks >> 32);
 	SYSTEMTIME st;
-	if (FileTimeToSystemTime(&ft, &st)) return SetSystemTime(&st);
-	return false;
-}
-bool SetSystemTime_UnixMs(time_t msec)
-{
-	if (msec < 1) return false;
-	std::unique_lock _(set_time_mutex);
-	if (set_time_delta) SetSystemTime_UnixMs_(msec + set_time_delta);
-	else
+	if (FileTimeToSystemTime(&ft, &st))
 	{
-		auto begin = std::chrono::steady_clock::now();
-		bool s = SetSystemTime_UnixMs_(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count());
-		auto delta = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begin).count();
-		if (s) set_time_delta = delta;
-		return SetSystemTime_UnixMs_(msec + set_time_delta + delta + delta);
+		bool r = SetSystemTime(&st);
+		if (r) return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - begin).count();
 	}
-	return false;
+	return -1;
 }
 
 time_t TimeToS(time_t hour, time_t min, time_t sec, time_t msec)
@@ -1834,6 +1821,28 @@ struct QiFunc_cmd : public QiFunc
 		return output;
 	}
 };
+/*
+str url/ip
+int count
+int byte
+int timeout
+
+num return: ok = avg, fail = -1
+*/
+struct QiFunc_ping : public QiFunc
+{
+	QiFunc_ping() : QiFunc(1, 4) {}
+	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
+	{
+		std::wstring ip = args[0].toWString();
+		int count = args.size() > 1 ? args[1].toInteger() : 2;
+		int byte = args.size() > 2 ? args[2].toInteger() : 32;
+		int timeout = args.size() > 3 ? args[3].toInteger() : 1000;
+		auto result = PingHost(ip, count, byte, timeout, 128);
+		if (result.ok) return result.avgMs;
+		return -1;
+	}
+};
 
 /*
 [0] use time as file name
@@ -2316,6 +2325,7 @@ QiFuncMap::QiFuncMap()
 	insert({ "sound_output", std::make_unique<QiFunc_sound_output>() });
 	insert({ "power", std::make_unique<QiFunc_power>() });
 	insert({ "cmd", std::make_unique<QiFunc_cmd>() });
+	insert({ "ping", std::make_unique<QiFunc_ping>() });
 
 	insert({ "capture_screen", std::make_unique<QiFunc_capture_screen>() });
 

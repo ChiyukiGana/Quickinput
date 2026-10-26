@@ -229,12 +229,14 @@ struct Macro
 
 	bool state = false;
 	bool forceStop = false; // stop and break macro when the stop signal is triggered
+	bool hideState = false;
 	bool keyBlock = false;
 	bool curBlock = false;
 	bool wndState = false;
 	bool matchState = false;
 	bool timer = false;
 	bool groupBase = false;
+	bool keyAll = false;
 	short key1 = 0;
 	short key2 = 0;
 	int storageType = 0;

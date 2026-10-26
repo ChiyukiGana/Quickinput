@@ -159,6 +159,12 @@ void TriggerUi::Event()
 		currentMacro->forceStop = state;
 		(*currentMacro).save();
 		});
+	connect(ui.hide_state_check, &QCheckBox::toggled, this, [this](bool state) {
+		if (!ItemCurrented()) return;
+		currentMacro->hideState = state;
+		(*currentMacro).save();
+		});
+
 	connect(ui.mode_combo, &QComboBox::currentIndexChanged, this, [this](int index) {
 		if (!ItemCurrented()) return;
 		if (currentMacro->mode == index) return;
@@ -293,6 +299,7 @@ void TriggerUi::StyleGroup()
 	style_set_group(ui.block_check, "check");
 	style_set_group(ui.block_cur_check, "check");
 	style_set_group(ui.force_stop_check, "check");
+	style_set_group(ui.hide_state_check, "check");
 	style_set_group(ui.var_button, "get_button");
 	style_set_group(ui.var_edit, "line_edit");
 	ui.mode_combo->setView(new QListView());
@@ -323,6 +330,7 @@ void TriggerUi::LoadLanguage()
 		lang_save_t(ui.block_check);
 		lang_save_t(ui.block_cur_check);
 		lang_save_t(ui.force_stop_check);
+		lang_save_t(ui.hide_state_check);
 		lang_save_t(ui.var_label);
 		lang_save_t(ui.mode_label);
 		lang_save_cmb(ui.mode_combo);
@@ -340,6 +348,7 @@ void TriggerUi::LoadLanguage()
 	lang_load_t(ui.block_check);
 	lang_load_t(ui.block_cur_check);
 	lang_load_t(ui.force_stop_check);
+	lang_load_t(ui.hide_state_check);
 	lang_load_t(ui.var_label);
 	lang_load_t(ui.mode_label);
 	lang_load_cmb(ui.mode_combo);

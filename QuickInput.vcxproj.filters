@@ -301,6 +301,9 @@
     <ClInclude Include="source\res\QuickInput.h">
       <Filter>1_Resource</Filter>
     </ClInclude>
+    <ClInclude Include="source\src\tools\ping.h">
+      <Filter>3_HeaderOnly\tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="source\ui\AboutUi.ui">
