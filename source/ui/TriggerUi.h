@@ -42,7 +42,6 @@ private:
 	void VarEditUpdate(const Macro*);
 
 	bool event(QEvent*);
-	bool eventFilter(QObject*, QEvent*);
 	void showEvent(QShowEvent*);
 	void customEvent(QEvent*);
 };

@@ -28,7 +28,7 @@
   <property name="styleSheet">
    <string notr="true">#AboutUiClass{background:transparent}*{font-family:&quot;Microsoft YaHei&quot;;font-size:18px}</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="about_box">
    <property name="spacing">
     <number>20</number>
    </property>
@@ -63,7 +63,7 @@
       <string notr="true">font-size:20px</string>
      </property>
      <property name="text">
-      <string>2026-10-26</string>
+      <string>2026-11-9</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
@@ -79,9 +79,8 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>增加ping函数
-增加单独隐藏宏的状态
-优化松开模式同时按住后才可触发</string>
+      <string>增加可自定义多个连点
+优化变量解释速度</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>

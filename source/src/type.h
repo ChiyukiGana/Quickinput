@@ -47,6 +47,18 @@ public:
 	AutoUnique& operator=(AutoUnique&& u) { base::operator=(std::move(u)); }
 };
 
+struct Clicker
+{
+	enum Mode { press, toggle };
+	bool state = false;
+	short key1 = VK_LBUTTON;
+	short key2 = VK_LBUTTON;
+	int interval = 100;
+	int mode = press;
+	QiClickerThread thread;
+};
+using Clickers = QiVector<Clicker>;
+
 struct MsgViewInfo
 {
 	enum
@@ -82,16 +94,16 @@ struct FuncData
 {
 	struct QuickClick
 	{
-		bool state = 0;
+		bool state = false;
 		int mode = 0;
-		int key = 0;
-		int delay = 10;
+		int key = VK_LBUTTON;
+		int delay = 200;
 		QiQuickClickThread thread;
 	} quickClick;
 	struct ShowClock
 	{
 		bool state = false;
-		int key = 0;
+		int key = VK_MENU;
 	} showClock;
 	struct WndActive
 	{
@@ -100,6 +112,10 @@ struct FuncData
 		QiWindowBindThread thread;
 	} wndActive;
 };
+struct ClickData
+{
+	Clickers clickers;
+};
 struct SettingsData
 {
 	QString lang;
@@ -107,14 +123,14 @@ struct SettingsData
 	int ocr_thread = 0;
 	int save_type = Macro::StorageType::JSON;
 	int theme = 0;
-	short key1 = 0;
+	short key1 = VK_F8;
 	short key2 = 0;
-	short recKey = 0;
+	short recKey = VK_F8;
 #ifdef Q_DRIVER
 	bool driver = false;
 #endif
-	bool recTrack = false;
-	bool defOn = false;
+	bool recTrack = true;
+	bool defOn = true;
 	bool showTips = false;
 	bool audFx = false;
 	bool minMode = false;
@@ -141,6 +157,7 @@ struct Widget
 	QWidget* macro = nullptr;
 	QWidget* trigger = nullptr;
 	QWidget* func = nullptr;
+	QWidget* click = nullptr;
 	QWidget* settings = nullptr;
 	QWidget* about = nullptr;
 	QWidget* record = nullptr;
@@ -241,6 +258,7 @@ struct Widget
 		if (macro) QApplication::postEvent(macro, new QEvent(static_cast<QEvent::Type>(QiEvent::lang_reload)));
 		if (trigger) QApplication::postEvent(trigger, new QEvent(static_cast<QEvent::Type>(QiEvent::lang_reload)));
 		if (func) QApplication::postEvent(func, new QEvent(static_cast<QEvent::Type>(QiEvent::lang_reload)));
+		if (click) QApplication::postEvent(click, new QEvent(static_cast<QEvent::Type>(QiEvent::lang_reload)));
 		if (settings) QApplication::postEvent(settings, new QEvent(static_cast<QEvent::Type>(QiEvent::lang_reload)));
 		if (about) QApplication::postEvent(about, new QEvent(static_cast<QEvent::Type>(QiEvent::lang_reload)));
 		if (help) QApplication::postEvent(help, new QEvent(static_cast<QEvent::Type>(QiEvent::lang_reload)));
@@ -292,6 +310,7 @@ namespace Qi
 	inline MacroPointers macroActive;
 	// data
 	inline FuncData fun;
+	inline ClickData click;
 	inline SettingsData set;
 	inline GroupData group;
 	inline Widget widget;

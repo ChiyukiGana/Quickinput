@@ -50,7 +50,7 @@ void SettingsUi::Init()
 		ui.ocr_thread_combo->lineEdit()->setAlignment(Qt::AlignCenter);
 		ui.ocr_thread_combo->addItem("最高速度");
 		for (size_t i = 0; i < Qi::ocr_thread_max; i++) ui.ocr_thread_combo->addItem(QString::number(i + 1));
-		QStandardItemModel* model = (QStandardItemModel*)ui.ocr_thread_combo->view()->model();
+		QStandardItemModel* model = reinterpret_cast<QStandardItemModel*>(ui.ocr_thread_combo->view()->model());
 		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
 		ui.ocr_thread_combo->setCurrentIndex(std::clamp(Qi::set.ocr_thread, 0, Qi::ocr_thread_max));
 	}
@@ -77,7 +77,7 @@ void SettingsUi::Init()
 				}
 			}
 		}
-		QStandardItemModel* model = (QStandardItemModel*)ui.ocr_thread_combo->view()->model();
+		QStandardItemModel* model = reinterpret_cast<QStandardItemModel*>(ui.ocr_thread_combo->view()->model());
 		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
 	}
 	if ("theme")
@@ -86,7 +86,7 @@ void SettingsUi::Init()
 		ui.theme_combo->lineEdit()->setReadOnly(true);
 		ui.theme_combo->lineEdit()->setAlignment(Qt::AlignCenter);
 		for (size_t i = 0; i < Qi::ui.themes.size(); i++) ui.theme_combo->addItem(Qi::ui.themes[i].name);
-		QStandardItemModel* model = (QStandardItemModel*)ui.theme_combo->view()->model();
+		QStandardItemModel* model = reinterpret_cast<QStandardItemModel*>(ui.theme_combo->view()->model());
 		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
 		if (Qi::set.theme >= Qi::ui.themes.size()) Qi::set.theme = 0;
 		ui.theme_combo->setCurrentIndex(Qi::set.theme);
@@ -145,21 +145,6 @@ void SettingsUi::Init()
 	ui.hideDefault_check->setChecked(sets.minMode);
 	ui.pad_check->setChecked(sets.pad);
 	ui.start_check->setChecked(Task::Find(L"QuickInput"));
-	if ("clear shortcut")
-	{
-		ui.readme_button->installEventFilter(this);
-		ui.popText_button->installEventFilter(this);
-#ifdef Q_DRIVER
-		ui.driver_check->installEventFilter(this);
-#endif
-		ui.recordTrack_check->installEventFilter(this);
-		ui.enableDefault_check->installEventFilter(this);
-		ui.showState_check->installEventFilter(this);
-		ui.sound_check->installEventFilter(this);
-		ui.hideDefault_check->installEventFilter(this);
-		ui.pad_check->installEventFilter(this);
-		ui.start_check->installEventFilter(this);
-	}
 }
 void SettingsUi::Event()
 {
@@ -400,11 +385,6 @@ bool SettingsUi::event(QEvent* e)
 		if ((keyEvent->key() == Qt::Key_Return) || (keyEvent->key() == Qt::Key_Space)) return true;
 	}
 	return QWidget::event(e);
-}
-bool SettingsUi::eventFilter(QObject* obj, QEvent* e)
-{
-	if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease)) return true;
-	return QWidget::eventFilter(obj, e);
 }
 void SettingsUi::customEvent(QEvent* e)
 {

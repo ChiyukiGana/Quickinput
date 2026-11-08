@@ -492,12 +492,6 @@
       </property>
       <item>
        <widget class="QTableWidget" name="action_table">
-        <property name="font">
-         <font>
-          <family>Microsoft YaHei</family>
-          <bold>true</bold>
-         </font>
-        </property>
         <property name="focusPolicy">
          <enum>Qt::FocusPolicy::ClickFocus</enum>
         </property>

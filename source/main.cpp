@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 	puts("QUICKINPUT_(C)CHIYUKIGANA");
 	std::locale::global(std::locale(".UTF8")); // set utf8 for all std streams
 
-	// recode ascii to unicode
+	// recode ansi to unicode
 	auto u_argv = new char*[argc];
 	for (size_t i{};i < argc; i++)
 	{

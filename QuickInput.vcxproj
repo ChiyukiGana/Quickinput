@@ -116,6 +116,7 @@
     <ClCompile Include="source\src\thread.cpp" />
     <ClCompile Include="source\src\trigger.cpp" />
     <ClCompile Include="source\src\type.cpp" />
+    <ClCompile Include="source\ui\ClickUi.cpp" />
     <ClCompile Include="source\ui\MsgViewUi.cpp" />
     <ClCompile Include="source\ui\VarViewUi.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
@@ -245,6 +246,7 @@
     <ClInclude Include="source\src\ui.h" />
     <ClInclude Include="source\src\update.h" />
     <ClInclude Include="source\src\var.h" />
+    <QtMoc Include="source\ui\ClickUi.h" />
     <QtMoc Include="source\ui\widget\QCodeDialog.h" />
     <QtMoc Include="source\ui\widget\QCodeEditor.h" />
     <QtMoc Include="source\ui\MsgViewUi.h" />
@@ -277,6 +279,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="source\ui\AboutUi.ui" />
+    <QtUic Include="source\ui\ClickUi.ui" />
     <QtUic Include="source\ui\EditUi.ui" />
     <QtUic Include="source\ui\FuncUi.ui" />
     <QtUic Include="source\ui\MacroUi.ui" />

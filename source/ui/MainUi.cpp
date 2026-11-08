@@ -1,4 +1,15 @@
 ﻿#include "MainUi.h"
+
+enum TabIndex
+{
+	TabIndex_macro,
+	TabIndex_trigger,
+	TabIndex_func,
+	TabIndex_click,
+	TabIndex_settings,
+	TabIndex_about
+};
+
 MainUi::MainUi(int tab)
 {
 	Qi::widget.main = this;
@@ -17,15 +28,24 @@ MainUi::MainUi(int tab)
 		centeredRect.moveCenter(screenGeometry.center());
 		setGeometry(centeredRect);
 	}
-
+#if defined(Q_MACRO_HIDE) || defined(Q_FUNC_HIDE) || defined(Q_CLICK_HIDE) || defined(Q_ABOUT_HIDE)
+	int hide_count = 0;
 #ifdef Q_MACRO_HIDE
-	ui.tabWidget->removeTab(0);
+	ui.tabWidget->removeTab(static_cast<int>(TabIndex_macro) - hide_count);
+	hide_count++;
 #endif
 #ifdef Q_FUNC_HIDE
-	ui.tabWidget->removeTab(2);
+	ui.tabWidget->removeTab(static_cast<int>(TabIndex_func) - hide_count);
+	hide_count++;
+#endif
+#ifdef Q_CLICK_HIDE
+	ui.tabWidget->removeTab(static_cast<int>(TabIndex_click) - hide_count);
+	hide_count++;
 #endif
 #ifdef Q_ABOUT_HIDE
-	ui.tabWidget->removeTab(4);
+	ui.tabWidget->removeTab(static_cast<int>(TabIndex_about) - hide_count);
+	hide_count++;
+#endif
 #endif
 
 	Init();

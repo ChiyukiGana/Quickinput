@@ -22,6 +22,5 @@ private:
 	void LoadLanguage();
 
 	bool event(QEvent*);
-	bool eventFilter(QObject*, QEvent*);
 	void customEvent(QEvent*);
 };

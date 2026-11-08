@@ -22,15 +22,6 @@ class EditUi : public QDialogFrameless
 		tab_window,
 		tab_count
 	};
-	enum TableColumn
-	{
-		tableColumn_debug,
-		tableColumn_disable,
-		tableColumn_type,
-		tableColumn_param,
-		tableColumn_mark,
-		tableColumn_count
-	};
 	enum DebugState
 	{
 		debug_idel,
@@ -57,82 +48,12 @@ class EditUi : public QDialogFrameless
 	QTimer* testTimer;
 	QTimer* markPointTimer;
 	QTimer* scriptTestTimer;
-	int debugState = debug_idel;
+	DebugState debugState = debug_idel;
 	std::unique_ptr<QiScriptTestThread> scriptTest;
 
 	// context menu
-	class TitleMenu : public QMenu
-	{
-	public:
-		QAction* back;
-		QAction* save;
-		QAction* discard;
-		TitleMenu(QWidget* parent = nullptr) : QMenu(parent)
-		{
-			back = addAction("返回");
-			save = addAction("保存更改");
-			discard = addAction("放弃更改");
-		}
-	};
-	class ListMenu : public QMenu
-	{
-		class PasteMenu : public QMenu
-		{
-		public:
-			QAction* front;
-			QAction* back;
-			QAction* replace;
-			PasteMenu(QWidget* parent = nullptr) : QMenu(parent)
-			{
-				front = addAction(lang_trans("每项前"));
-				back = addAction(lang_trans("每项后"));
-				replace = addAction(lang_trans("覆盖所选"));
-			}
-		};
-		class SelectMenu : public QMenu
-		{
-		public:
-			QAction* all;
-			QAction* similar;
-			QAction* identical_param;
-			QAction* identical_full;
-			SelectMenu(QWidget* parent = nullptr) : QMenu(parent)
-			{
-				all = addAction(lang_trans("全选"));
-				similar = addAction(lang_trans("相似-同类型"));
-				identical_param = addAction(lang_trans("相同-仅参数"));
-				identical_full = addAction(lang_trans("相同-包括内容"));
-			}
-		};
-		public:
-		QAction* del;
-		QAction* cut;
-		QAction* copy;
-		QAction* paste;
-		QAction* redo;
-		QAction* undo;
-		QAction* edit;
-		QAction* edit2;
-		PasteMenu* adv_paste;
-		SelectMenu* select;
-		ListMenu(QWidget* parent = nullptr) : QMenu(parent)
-		{
-			del = addAction(lang_trans("删除"));
-			cut = addAction(lang_trans("剪切"));
-			copy = addAction(lang_trans("复制"));
-			paste = addAction(lang_trans("粘贴"));
-			redo = addAction(lang_trans("还原"));
-			undo = addAction(lang_trans("撤销"));
-			edit = addAction(lang_trans("编辑"));
-			edit2 = addAction(lang_trans("编辑2"));
-			adv_paste = new PasteMenu(this);
-			select = new SelectMenu(this);
-			addMenu(adv_paste)->setText(lang_trans("高级粘贴"));
-			addMenu(select)->setText(lang_trans("选择"));
-		}
-	};
-	TitleMenu* titleMenu;
-	ListMenu* listMenu;
+	class TitleMenu* titleMenu;
+	class ListMenu* listMenu;
 
 	// widget bind
 	QiVector<size_t> bind_type_tab = QiVector<size_t>(static_cast<size_t>(QiType::count), 0);
@@ -243,7 +164,7 @@ private:
 	void SetTabCurrent(int index);
 	void SetGroupCurrent(QiType type = QiType::none);
 	void SetEditCurrent(QiType type = QiType::none);
-	void SetDebugState(int debugState);
+	void SetDebugState(DebugState debugState);
 	void SetWindowMode();
 
 	void SelectWindow();

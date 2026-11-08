@@ -35,19 +35,6 @@ enum
 
 void MacroUi::Init()
 {
-	if ("clear shortcut")
-	{
-		ui.record_button->installEventFilter(this);
-		ui.record_window_button->installEventFilter(this);
-		ui.add_button->installEventFilter(this);
-		ui.edit_button->installEventFilter(this);
-		ui.export_button->installEventFilter(this);
-		ui.import_button->installEventFilter(this);
-		ui.reload_button->installEventFilter(this);
-		ui.add_group_button->installEventFilter(this);
-		ui.delete_group_button->installEventFilter(this);
-		ui.delete_button->installEventFilter(this);
-	}
 	if ("table")
 	{
 		ui.macroGroup_table->horizontalHeader()->setHidden(true);

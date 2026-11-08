@@ -63,6 +63,21 @@ namespace Qi
 			json.insert("wndActiveClass", (QString)fun.wndActive.wndInfo.clas);
 			json.insert("wndActiveProc", (QString)fun.wndActive.wndInfo.proc);
 		}
+		if ("click")
+		{
+			QJsonArray clicks;
+			for (const auto& i : Qi::click.clickers)
+			{
+				QJsonObject click;
+				click.insert("state", (bool)i.state);
+				click.insert("key1", (int)i.key1);
+				click.insert("key2", (int)i.key2);
+				click.insert("intv", (int)i.interval);
+				click.insert("mode", (int)i.mode);
+				clicks.append(std::move(click));
+			}
+			json.insert("click", clicks);
+		}
 		if ("pop config")
 		{
 			QJsonObject pop;
@@ -116,76 +131,7 @@ namespace Qi
 	}
 	void fromJson(const QJsonObject& json)
 	{
-		std::function<void()> DefaultConfig = [] {
-			set.theme = 0;
-			set.ocr_thread = 0;
-			set.save_type = Macro::StorageType::JSON;
-			set.key1 = VK_F8;
-			set.key2 = 0;
-			set.recKey = VK_F8;
-			set.recTrack = true;
-			set.defOn = true;
-			set.showTips = true;
-			set.audFx = false;
-			set.minMode = false;
-			set.tabLock = false;
-			set.tabHideTip = false;
-			fun.quickClick.state = false;
-			fun.quickClick.key = VK_LBUTTON;
-			fun.quickClick.delay = 200;
-			fun.quickClick.mode = 0;
-			fun.showClock.state = false;
-			fun.showClock.key = VK_MENU;
-			fun.wndActive.state = false;
-			};
-		std::function<void()> DefaultPop = [] {
-			ui.pop.qe.t = ui.pop.qe_.t = QiUi::Text::popOn_;
-			ui.pop.qd.t = ui.pop.qd_.t = QiUi::Text::popOff_;
-			ui.pop.we.t = ui.pop.we_.t = QiUi::Text::popWndOn_;
-			ui.pop.wd.t = ui.pop.wd_.t = QiUi::Text::popWndOff_;
-			ui.pop.qce.t = ui.pop.qce_.t = QiUi::Text::popClickOn_;
-			ui.pop.qcd.t = ui.pop.qcd_.t = QiUi::Text::popClickOff_;
-			ui.pop.swe.t = ui.pop.swe_.t = QiUi::Text::popSwOn_;
-			ui.pop.swd.t = ui.pop.swd_.t = QiUi::Text::popSwOff_;
-			ui.pop.dwe.t = ui.pop.dwe_.t = QiUi::Text::popDownOn_;
-			ui.pop.dwd.t = ui.pop.dwd_.t = QiUi::Text::popDownOff_;
-			ui.pop.upe.t = ui.pop.upe_.t = QiUi::Text::popUpOn_;
-			ui.pop.upd.t = ui.pop.upd_.t = QiUi::Text::popUpOff_;
-			ui.pop.qe.s = ui.pop.qe_.s = "SND_ON";
-			ui.pop.qd.s = ui.pop.qd_.s = "SND_OFF";
-			ui.pop.we.s = ui.pop.we_.s = "SND_ON";
-			ui.pop.wd.s = ui.pop.wd_.s = "SND_OFF";
-			ui.pop.qce.s = ui.pop.qce_.s = "SND_RUN";
-			ui.pop.qcd.s = ui.pop.qcd_.s = "SND_STOP";
-			ui.pop.swe.s = ui.pop.swe_.s = "SND_RUN";
-			ui.pop.swd.s = ui.pop.swd_.s = "SND_STOP";
-			ui.pop.dwe.s = ui.pop.dwe_.s = "SND_RUN";
-			ui.pop.dwd.s = ui.pop.dwd_.s = "SND_STOP";
-			ui.pop.upe.s = ui.pop.upe_.s = "SND_RUN";
-			ui.pop.upd.s = ui.pop.upd_.s = "SND_STOP";
-			ui.pop.qe.c = ui.pop.qe_.c = QColor(0xC0, 0xE0, 0xFF);
-			ui.pop.qd.c = ui.pop.qd_.c = QColor(0xFF, 0x50, 0x50);
-			ui.pop.we.c = ui.pop.we_.c = QColor(0xAA, 0xBB, 0xFF);
-			ui.pop.wd.c = ui.pop.wd_.c = QColor(0xFF, 0xA0, 0xA0);
-			ui.pop.qce.c = ui.pop.qce_.c = QColor(0x20, 0xFF, 0x40);
-			ui.pop.qcd.c = ui.pop.qcd_.c = QColor(0xFF, 0xFF, 0x60);
-			ui.pop.swe.c = ui.pop.swe_.c = QColor(0x20, 0xFF, 0x40);
-			ui.pop.swd.c = ui.pop.swd_.c = QColor(0xFF, 0xFF, 0x60);
-			ui.pop.dwe.c = ui.pop.dwe_.c = QColor(0x20, 0xFF, 0x40);
-			ui.pop.dwd.c = ui.pop.dwd_.c = QColor(0xFF, 0xFF, 0x60);
-			ui.pop.upe.c = ui.pop.upe_.c = QColor(0x20, 0xFF, 0x40);
-			ui.pop.upd.c = ui.pop.upd_.c = QColor(0xFF, 0xFF, 0x60);
-			ui.pop.x = 5000;
-			ui.pop.y = 0;
-			ui.pop.size = 20;
-			ui.pop.time = 1000;
-			};
-		if (json.isEmpty())
-		{
-			DefaultConfig();
-			DefaultPop();
-		}
-		else
+		if (!json.isEmpty())
 		{
 			if ("settings")
 			{
@@ -233,14 +179,26 @@ namespace Qi
 				fun.wndActive.wndInfo.clas = json.value("wndActiveClass").toString();
 				fun.wndActive.wndInfo.proc = json.value("wndActiveProc").toString();
 			}
+			if ("click")
+			{
+				Qi::click.clickers.clear();
+				for (const auto& i : json.value("click").toArray())
+				{
+					const QJsonObject click = i.toObject();
+					Clicker clicker;
+					clicker.state = click.value("state").toBool();
+					clicker.key1 = click.value("key1").toInt();
+					clicker.key2 = click.value("key2").toInt();
+					clicker.interval = click.value("intv").toInt();
+					clicker.mode = click.value("mode").toInt();
+					Qi::click.clickers.append(std::move(clicker));
+				}
+
+			}
 			if ("pop config")
 			{
-				QJsonObject pop = json.value("popbox").toObject();
-				if (pop.isEmpty())
-				{
-					DefaultPop();
-				}
-				else
+				const QJsonObject pop = json.value("popbox").toObject();
+				if (!pop.isEmpty())
 				{
 					ui.pop.qe = ui.pop.qe_ = LoadPopTextInfo(pop.value("qe").toObject());
 					ui.pop.qd = ui.pop.qd_ = LoadPopTextInfo(pop.value("qd").toObject());
@@ -262,20 +220,19 @@ namespace Qi
 			}
 			if ("group fold")
 			{
-				QJsonArray groupFolds = json.value("groupFold").toArray();
-				for (const auto& i : groupFolds)
+				group.fold.clear();
+				for (const auto& i : json.value("groupFold").toArray())
 				{
-					QJsonObject groupFold = i.toObject();
+					const QJsonObject groupFold = i.toObject();
 					group.fold[groupFold.value("name").toString()] = groupFold.value("fold").toBool();
 				}
 			}
 			if ("group sort")
 			{
-				Qi::group.sort.clear();
-				QJsonArray groupSort = json.value("groupSort").toArray();
-				for (const auto& i : groupSort)
+				group.sort.clear();
+				for (const auto& i : json.value("groupSort").toArray())
 				{
-					Qi::group.sort.append(i.toString());
+					group.sort.append(i.toString());
 				}
 			}
 		}

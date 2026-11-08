@@ -140,6 +140,9 @@
     <ClCompile Include="source\ui\TriggerUi.cpp">
       <Filter>2_Widget\source</Filter>
     </ClCompile>
+    <ClCompile Include="source\ui\ClickUi.cpp">
+      <Filter>2_Widget\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="source\src\inc_external.h">
@@ -345,6 +348,9 @@
     <QtUic Include="source\ui\VarViewUi.ui">
       <Filter>2_Widget\ui\dialog</Filter>
     </QtUic>
+    <QtUic Include="source\ui\ClickUi.ui">
+      <Filter>2_Widget\ui</Filter>
+    </QtUic>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="source\ui\AboutUi.h">
@@ -433,6 +439,9 @@
     </QtMoc>
     <QtMoc Include="source\ui\widget\QCodeDialog.h">
       <Filter>2_Widget\widget</Filter>
+    </QtMoc>
+    <QtMoc Include="source\ui\ClickUi.h">
+      <Filter>2_Widget\header</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

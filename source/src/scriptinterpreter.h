@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <unordered_map>
+#include <memory>
+#include <utility>
 #include <variant>
 #include <any>
 #include <mutex>
@@ -179,6 +182,8 @@ private:
 		std::string value;
 		int precedence;
 		int argCount;
+		const QiFunc* builtin = nullptr;
+		QiVar numberValue; // Numeric literals are converted once, when tokenized.
 		Token(TokenType t, const std::string& v = std::string(), int p = -1, int ac = 0) : type(t), value(v), precedence(p), argCount(ac) {}
 	};
 
@@ -196,7 +201,7 @@ private:
 		QiCustomFunc(const std::vector<std::string>& params, const StatementList& body) : parameters(params), statementList(body) {}
 	};
 
-	using QiCustomFuncMap = std::map<std::string, std::unique_ptr<QiCustomFunc>>;
+	using QiCustomFuncMap = std::map<std::string, std::shared_ptr<const QiCustomFunc>>;
 
 	static inline const QiFuncMap functions;
 
@@ -214,6 +219,35 @@ private:
 	QiWorker* workerPtr{}; // single-threaded
 	Property propertys; // single-threaded
 	bool force_stop{};
+
+	template<class Parsed, class Parse>
+	static std::shared_ptr<const Parsed> cachedParse(const std::string& code, size_t maxEntries, size_t maxSourceBytes, size_t maxEntryBytes, Parse parse)
+	{
+		struct Cache
+		{
+			std::unordered_map<std::string, std::shared_ptr<const Parsed>> entries;
+			size_t sourceBytes = 0;
+		};
+		static thread_local Cache cache;
+		auto found = cache.entries.find(code);
+		if (found != cache.entries.end()) return found->second;
+		auto parsed = std::make_shared<const Parsed>(parse());
+		if (code.size() <= maxEntryBytes)
+		{
+			if (cache.entries.size() >= maxEntries || code.size() > maxSourceBytes - cache.sourceBytes)
+			{
+				cache.entries.clear();
+				cache.sourceBytes = 0;
+			}
+			cache.entries.emplace(code, parsed);
+			cache.sourceBytes += code.size();
+		}
+		return parsed;
+	}
+	std::shared_ptr<const std::vector<Token>> compiledExpression(const std::string& code)
+	{
+		return cachedParse<std::vector<Token>>(code, 256, 256 * 1024, 16 * 1024, [&] { return infixToPostfix(tokenize(code)); });
+	}
 
 	auto trim(const std::string& s) -> std::string
 	{
@@ -273,6 +307,8 @@ private:
 					{
 						if (argCount > 0 || hasNonSpaceContent) argCount++;
 						tokens.emplace_back(FUNCTION, identifier, 4, argCount);
+						auto builtin = functions.find(identifier);
+						if (builtin != functions.end()) tokens.back().builtin = builtin->second.get();
 						continue;
 					}
 					else tokens.emplace_back(VARIABLE, identifier);
@@ -291,6 +327,9 @@ private:
 					pos++;
 				}
 				tokens.emplace_back(NUMBER, expr.substr(start, pos - start));
+				auto& token = tokens.back();
+				token.numberValue = QiVar::isInteger(token.value, false)
+					? QiVar(QiVar::toInteger(token.value)) : QiVar(QiVar::toNumber(token.value));
 			}
 			// Strings
 			else if (c == '\'')
@@ -366,6 +405,8 @@ private:
 	{
 		std::vector<Token> output;
 		std::vector<Token> opStack;
+		output.reserve(tokens.size());
+		opStack.reserve(tokens.size());
 
 		for (const auto& token : tokens)
 		{
@@ -432,7 +473,9 @@ private:
 	}
 	auto processInterpolation(const std::string& str, QiVarMap* local) -> std::string
 	{
+		if (str.find('{') == std::string::npos) return str;
 		std::string result;
+		result.reserve(str.size());
 		size_t pos = 0;
 		while (pos < str.length())
 		{
@@ -457,15 +500,12 @@ private:
 	auto evaluatePostfix(const std::vector<Token>& postfix, QiVarMap* local) -> QiVar
 	{
 		std::vector<QiVar> stack;
+		stack.reserve(postfix.size());
 		for (const auto& token : postfix)
 		{
 			if (token.type == VARIABLE) stack.push_back(value(token.value, local));
 			else if (token.type == NULLOPT) stack.push_back(QiVar());
-			else if (token.type == NUMBER)
-			{
-				if (QiVar::isInteger(token.value, false)) stack.push_back(QiVar(QiVar::toInteger(token.value)));
-				else stack.push_back(QiVar(QiVar::toNumber(token.value)));
-			}
+			else if (token.type == NUMBER) stack.push_back(token.numberValue);
 			else if (token.type == STRING) stack.push_back(QiVar(processInterpolation(token.value, local)));
 			else if (token.type == TRUE_) stack.push_back(QiVar(true));
 			else if (token.type == FALSE_) stack.push_back(QiVar(false));
@@ -525,16 +565,15 @@ private:
 			}
 			else if (token.type == FUNCTION)
 			{
-				QiFuncMap::const_iterator i = functions.find(token.value);
-				if (i != functions.end())
+				if (token.builtin)
 				{
-					const std::unique_ptr<QiFunc>& func = i->second;
-
-					std::vector<QiVar> args;
-					for (int j = 0; j < token.argCount; j++)
+					const QiFunc* func = token.builtin;
+					if (stack.size() < static_cast<size_t>(token.argCount))
+						throw ScriptException(ScriptException::error_invalid_functions_parameter, {}, token.value);
+					std::vector<QiVar> args(static_cast<size_t>(token.argCount));
+					for (size_t j = args.size(); j > 0; --j)
 					{
-						if (stack.empty()) throw ScriptException(ScriptException::error_invalid_functions_parameter, {}, token.value);
-						args.insert(args.begin(), stack.back());
+						args[j - 1] = std::move(stack.back());
 						stack.pop_back();
 					}
 
@@ -547,12 +586,15 @@ private:
 				}
 				else
 				{
-					customFunctionsMutex.lock();
-					auto customIt = customFunctions.find(token.value);
-					if (customIt != customFunctions.end())
+					std::shared_ptr<const QiCustomFunc> definition;
 					{
-						QiCustomFunc func = *customIt->second;
-						customFunctionsMutex.unlock();
+						std::lock_guard<std::mutex> lock(customFunctionsMutex);
+						auto customIt = customFunctions.find(token.value);
+						if (customIt != customFunctions.end()) definition = customIt->second;
+					}
+					if (definition)
+					{
+						const QiCustomFunc& func = *definition;
 						if (stack.size() >= func.parameters.size())
 						{
 							QiVarMap funcLocal;
@@ -572,7 +614,6 @@ private:
 					}
 					else
 					{
-						customFunctionsMutex.unlock();
 						throw ScriptException(ScriptException::error_unknown_functions, {}, token.value);
 					}
 				}
@@ -623,12 +664,12 @@ private:
 			if (start_index + 1 >= lines.size() || lines[start_index + 1] != "{") return { Node(line), start_index + 1 };
 
 			auto [body, next_index] = parseBlock(lines, start_index + 2);
-			return { FunctionDef{func_name, parameters, body}, next_index };
+			return { FunctionDef{ func_name, parameters, body }, next_index };
 		}
 		else if (line.substr(0, 6) == "return")
 		{
 			std::string expr = trim(line.substr(6));
-			return { ReturnStmt{expr}, start_index + 1 };
+			return { ReturnStmt{ expr }, start_index + 1 };
 		}
 		else if (line.substr(0, 2) == "if") {
 			size_t start_paren = line.find('(');
@@ -744,7 +785,7 @@ private:
 			if (start_index + 1 >= lines.size() || lines[start_index + 1] != "{") return { Node(line), start_index + 1 };
 
 			auto [body, next_index] = parseBlock(lines, start_index + 2);
-			return { Loop{condition, body}, next_index };
+			return { Loop{ condition, body }, next_index };
 		}
 
 		return { Node(line), start_index + 1 };
@@ -766,7 +807,7 @@ private:
 		{
 			if (std::holds_alternative<Node>(stmt))
 			{
-				std::string code = std::get<Node>(stmt);
+				const std::string& code = std::get<Node>(stmt);
 				if (!code.empty()) interpret(code, local);
 			}
 			else if (std::holds_alternative<If>(stmt))
@@ -797,7 +838,7 @@ private:
 			{
 				const FunctionDef& funcDef = std::get<FunctionDef>(stmt);
 				std::unique_lock<std::mutex> lock(customFunctionsMutex);
-				customFunctions[funcDef.name] = std::make_unique<QiCustomFunc>(funcDef.parameters, funcDef.body);
+				customFunctions[funcDef.name] = std::make_shared<const QiCustomFunc>(funcDef.parameters, funcDef.body);
 			}
 			else if (std::holds_alternative<ReturnStmt>(stmt))
 			{
@@ -831,11 +872,11 @@ public:
 	{
 		if (!initMutex) { ScriptException(ScriptException::error_interpreter_not_init, {}, {}); }
 		else if (initMutex == INVALID_HANDLE_VALUE) { ScriptException(ScriptException::error_interpreter_exited, {}, {}); }
-		std::vector<Token> tokens;
-		try { tokens = tokenize(code); }
-		catch (const ScriptException& e) { throw ScriptException(e.type(), code, e.token(), e.msg()); }
-		auto postfix = infixToPostfix(tokens);
-		try { return evaluatePostfix(postfix, local); }
+		try
+		{
+			auto postfix = compiledExpression(code);
+			return evaluatePostfix(*postfix, local);
+		}
 		catch (const ReturnException& e) { return e.returnValue; }
 		catch (const ScriptException& e) { throw ScriptException(e.type(), code, e.token(), e.msg()); }
 	}
@@ -899,11 +940,11 @@ public:
 		}
 
 		QiVar result;
-		std::vector<Token> tokens;
-		try { tokens = tokenize(trimmedCode.substr(eqPos + 1)); }
-		catch (const ScriptException& e) { throw ScriptException(e.type(), code, e.token(), e.msg()); }
-		auto postfix = infixToPostfix(tokens);
-		try { result = evaluatePostfix(postfix, local); }
+		try
+		{
+			auto postfix = compiledExpression(trimmedCode.substr(eqPos + 1));
+			result = evaluatePostfix(*postfix, local);
+		}
 		catch (const ReturnException& e) { result = e.returnValue; }
 		catch (const ScriptException& e) { throw ScriptException(e.type(), code, e.token(), e.msg()); }
 
@@ -927,54 +968,54 @@ public:
 		else if (initMutex == INVALID_HANDLE_VALUE) { ScriptException(ScriptException::error_interpreter_exited, {}, {}); }
 		if (code.empty()) return;
 
-		std::vector<std::string> rawLines;
-		std::istringstream codeStream(code);
-		std::string rawLine;
-		while (std::getline(codeStream, rawLine)) rawLines.push_back(rawLine);
-
-		std::vector<std::string> lines;
-		for (const auto& rawLine : rawLines)
-		{
-			std::string current_stmt;
-			bool in_string = false;
-			bool escape_next = false;
-
-			for (size_t i = 0; i < rawLine.length(); i++)
+		auto statements = cachedParse<StatementList>(code, 32, 256 * 1024, 64 * 1024, [&] {
+			std::istringstream codeStream(code);
+			std::string rawLine;
+			std::vector<std::string> lines;
+			while (std::getline(codeStream, rawLine))
 			{
-				char c = rawLine[i];
-				if (in_string)
+				std::string current_stmt;
+				bool in_string = false;
+				bool escape_next = false;
+
+				for (size_t i = 0; i < rawLine.length(); i++)
 				{
-					current_stmt += c;
-					if (escape_next) escape_next = false;
+					char c = rawLine[i];
+					if (in_string)
+					{
+						current_stmt += c;
+						if (escape_next) escape_next = false;
+						else
+						{
+							if (c == '\\') escape_next = true;
+							else if (c == '\'') in_string = false;
+						}
+					}
 					else
 					{
-						if (c == '\\') escape_next = true;
-						else if (c == '\'') in_string = false;
+						if (c == '\'')
+						{
+							in_string = true;
+							current_stmt += c;
+						}
+						else if (c == '#') break;
+						else if (c == ';' || c == '{' || c == '}')
+						{
+							std::string stmt = trim(current_stmt);
+							if (!stmt.empty()) lines.push_back(stmt);
+							if (c == '{' || c == '}') lines.push_back(std::string(1, c));
+							current_stmt.clear();
+						}
+						else current_stmt += c;
 					}
 				}
-				else
-				{
-					if (c == '\'')
-					{
-						in_string = true;
-						current_stmt += c;
-					}
-					else if (c == '#') break;
-					else if (c == ';' || c == '{' || c == '}')
-					{
-						std::string stmt = trim(current_stmt);
-						if (!stmt.empty()) lines.push_back(stmt);
-						if (c == '{' || c == '}') lines.push_back(std::string(1, c));
-						current_stmt.clear();
-					}
-					else current_stmt += c;
-				}
-			}
 
-			std::string lastStmt = trim(current_stmt);
-			if (!lastStmt.empty()) lines.push_back(lastStmt);
-		}
-		try { executeStatementList(parseTopLevel(lines, 0).first, local); }
+				std::string lastStmt = trim(current_stmt);
+				if (!lastStmt.empty()) lines.push_back(lastStmt);
+			}
+			return parseTopLevel(lines, 0).first;
+			});
+		try { executeStatementList(*statements, local); }
 		catch (const ReturnException&) {}
 	}
 
@@ -982,7 +1023,7 @@ public:
 	{
 		if (isValidVariableName(var))
 		{
-			if (isGlobalVariable(var)) return globalExist(var);
+			if (var.front() == '$') return globalExist(var);
 			else return localExist(var, local);
 		}
 		return false;
@@ -1009,7 +1050,7 @@ public:
 	{
 		if (isValidVariableName(var))
 		{
-			if (isGlobalVariable(var)) return globalValue(var);
+			if (var.front() == '$') return globalValue(var);
 			else return localValue(var, local);
 		}
 		return QiVar();
@@ -1018,7 +1059,7 @@ public:
 	{
 		if (isValidVariableName(var))
 		{
-			if (isGlobalVariable(var))
+			if (var.front() == '$')
 			{
 				std::unique_lock<std::mutex> lock(globalVariablesMutex);
 				globalVariables[var] = value;
@@ -1083,7 +1124,7 @@ public:
 	static std::mutex* globalMutex() { return &globalVariablesMutex; }
 	std::mutex* localMutex() { return &localVariablesMutex; }
 	std::mutex* thisMutex() { return &this_mutex; }
-	
+
 	bool forceStop() const { return force_stop; }
 	void setForceStop(bool force) { force_stop = force; }
 
@@ -1242,6 +1283,14 @@ public:
 		bool global = name[0] == '$';
 		if (global && name.size() < 2) return false;
 		if (!isValidVariableFirst(global ? name[1] : name[0])) return false;
+		bool ascii = true;
+		for (size_t i = global ? 1 : 0; i < name.size(); ++i)
+		{
+			unsigned char ch = static_cast<unsigned char>(name[i]);
+			if (ch >= 0x80) { ascii = false; break; }
+			if (!isValidVariableChar(ch)) return false;
+		}
+		if (ascii) return true;
 		return QiVar::iterateStrX(name.substr(global ? 1 : 0), [](const std::string& ch, size_t, size_t) {
 			if (ch.size() == 1 && !isValidVariableChar(ch[0])) return false;
 			return true;

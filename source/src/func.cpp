@@ -89,12 +89,12 @@ namespace QiFn
 		if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseWindow(Qi::ui.pop.we.t, window), Qi::ui.pop.we.c);
 		else Qi::popText->Popup(Qi::ui.pop.time, ParseWindow(Qi::ui.pop.wd.t, window), Qi::ui.pop.wd.c);
 	}
-	void QuickClickPop(bool state)
+	void QuickClickPop(const Clicker* clicker, bool state)
 	{
-		if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseQuickClick(Qi::ui.pop.qce.t, Qi::fun.quickClick.key), Qi::ui.pop.qce.c);
-		else Qi::popText->Popup(Qi::ui.pop.time, ParseQuickClick(Qi::ui.pop.qcd.t, Qi::fun.quickClick.key), Qi::ui.pop.qcd.c);
+		if (state) Qi::popText->Popup(Qi::ui.pop.time, ParseQuickClick(Qi::ui.pop.qce.t, clicker->key2), Qi::ui.pop.qce.c);
+		else Qi::popText->Popup(Qi::ui.pop.time, ParseQuickClick(Qi::ui.pop.qcd.t, clicker->key2), Qi::ui.pop.qcd.c);
 	}
-	void MacroPop(Macro* macro, bool state)
+	void MacroPop(const Macro* macro, bool state)
 	{
 		if (macro->mode == Macro::sw)
 		{

@@ -17,8 +17,8 @@ namespace QiFn
 	QString ParseMacro(QString text, QString macro, int count);
 	void StatePop(bool state);
 	void WindowPop(const QString& window, bool state);
-	void QuickClickPop(bool state);
-	void MacroPop(Macro* macro, bool state);
+	void QuickClickPop(const Clicker* clicker, bool state);
+	void MacroPop(const Macro* macro, bool state);
 	void SoundPlay(const QString& sound, bool sync);
 
 	void SmoothMove(const int sx, const int sy, const int dx, const int dy, const int speed, std::function<void(int x, int y, int stepx, int stepy)> CallBack);

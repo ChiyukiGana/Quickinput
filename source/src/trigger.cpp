@@ -15,45 +15,46 @@ namespace QiTr
 		// show clock
 		if (Qi::fun.showClock.state && Qi::fun.showClock.key == vk && state[Qi::fun.showClock.key]) Qi::popText->Popup(QDateTime::currentDateTime().toString(L"hh:mm:ss"));
 		if (!Qi::run) return;
-		// quick click
-		if (Qi::fun.quickClick.state && Qi::fun.quickClick.key == vk)
+		// click
+		for (auto& c : Qi::click.clickers)
 		{
-			if (state[Qi::fun.quickClick.key]) // key down
+			if (!c.state || !c.key1 || !c.key2) continue;
+			if (c.mode == Clicker::press)
 			{
-				if (Qi::fun.quickClick.mode) // switch mode
+				if (state[c.key1])
 				{
-					if (Qi::fun.quickClick.thread.active())
+					if (!c.thread.active())
 					{
-						Qi::fun.quickClick.thread.stop();
-						if (Qi::set.showTips && !Qi::ui.pop.qcd.t.isEmpty()) QiFn::QuickClickPop(false);
+						c.thread.start(&c);
+						if (Qi::set.showTips && !Qi::ui.pop.qce.t.isEmpty()) QiFn::QuickClickPop(&c, true);
+						if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.qce.s, false);
+					}
+				}
+				else
+				{
+					if (c.thread.active())
+					{
+						c.thread.stop();
+						if (Qi::set.showTips && !Qi::ui.pop.qcd.t.isEmpty()) QiFn::QuickClickPop(&c, false);
+						if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.qcd.s, false);
+					}
+				}
+			}
+			else if (c.mode == Clicker::toggle)
+			{
+				if (state[c.key1])
+				{
+					if (c.thread.active())
+					{
+						c.thread.stop();
+						if (Qi::set.showTips && !Qi::ui.pop.qcd.t.isEmpty()) QiFn::QuickClickPop(&c, false);
 						if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.qcd.s, false);
 					}
 					else
 					{
-						Qi::fun.quickClick.thread.start();
-						if (Qi::set.showTips && !Qi::ui.pop.qce.t.isEmpty()) QiFn::QuickClickPop(true);
+						c.thread.start(&c);
+						if (Qi::set.showTips && !Qi::ui.pop.qce.t.isEmpty()) QiFn::QuickClickPop(&c, true);
 						if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.qce.s, false);
-					}
-				}
-				else // press mode
-				{
-					if (!Qi::fun.quickClick.thread.active())
-					{
-						Qi::fun.quickClick.thread.start();
-						if (Qi::set.showTips && !Qi::ui.pop.qce.t.isEmpty()) QiFn::QuickClickPop(true);
-						if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.qce.s, false);
-					}
-				}
-			}
-			else // key up
-			{
-				if (!Qi::fun.quickClick.mode) // press mode
-				{
-					if (Qi::fun.quickClick.thread.active())
-					{
-						Qi::fun.quickClick.thread.stop();
-						if (Qi::set.showTips && !Qi::ui.pop.qcd.t.isEmpty()) QiFn::QuickClickPop(false);
-						if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.qcd.s, false);
 					}
 				}
 			}
@@ -71,9 +72,7 @@ namespace QiTr
 				if (!wm.match(macro.wndMatch.name, macro.wndMatch.clas, macro.wndMatch.proc)) continue;
 			}
 
-			switch (macro.mode)
-			{
-			case Macro::sw:
+			if (macro.mode == Macro::sw)
 			{
 				const bool k1 = macro.key1 ? state[macro.key1] : true;
 				const bool k2 = macro.key2 ? state[macro.key2] : true;
@@ -92,8 +91,8 @@ namespace QiTr
 						if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.swe.s, false);
 					}
 				}
-			} break;
-			case Macro::down:
+			}
+			else if (macro.mode == Macro::down)
 			{
 				const bool k1 = macro.key1 ? state[macro.key1] : true;
 				const bool k2 = macro.key2 ? state[macro.key2] : true;
@@ -112,8 +111,8 @@ namespace QiTr
 						if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.dwd.s, false);
 					}
 				}
-			} break;
-			case Macro::up:
+			}
+			else if (macro.mode == Macro::up)
 			{
 				const bool k1 = macro.key1 ? state[macro.key1] : true;
 				const bool k2 = macro.key2 ? state[macro.key2] : true;
@@ -134,7 +133,6 @@ namespace QiTr
 					if (Qi::set.showTips && !macro.hideState && !Qi::ui.pop.upe.t.isEmpty()) QiFn::MacroPop(&macro, true);
 					if (Qi::set.audFx) QiFn::SoundPlay(Qi::ui.pop.upe.s, false);
 				}
-			} break;
 			}
 		}
 	}

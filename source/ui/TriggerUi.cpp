@@ -31,7 +31,7 @@ void TriggerUi::Init()
 		ui.mode_combo->addItem("切换");
 		ui.mode_combo->addItem("按下");
 		ui.mode_combo->addItem("松开");
-		QStandardItemModel* model = (QStandardItemModel*)ui.mode_combo->view()->model();
+		QStandardItemModel* model = reinterpret_cast<QStandardItemModel*>(ui.mode_combo->view()->model());
 		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
 	}
 	if ("table")
@@ -41,13 +41,7 @@ void TriggerUi::Init()
 		ui.macroGroup_table->setAutoScroll(false);
 		ui.macroGroup_table->setEditTriggers(QAbstractItemView::EditTrigger::DoubleClicked);
 	}
-	if ("clear shortcut")
-	{
-		ui.block_check->installEventFilter(this);
-		ui.block_cur_check->installEventFilter(this);
-		ui.mode_combo->installEventFilter(this);
-	}
-}
+}	
 void TriggerUi::Event()
 {
 	std::function currentChanged = [this](int table_index) {
@@ -78,6 +72,10 @@ void TriggerUi::Event()
 			ui.force_stop_check->blockSignals(true);
 			ui.force_stop_check->setChecked(macro.forceStop);
 			ui.force_stop_check->blockSignals(false);
+
+			ui.hide_state_check->blockSignals(true);
+			ui.hide_state_check->setChecked(macro.forceStop);
+			ui.hide_state_check->blockSignals(false);
 
 			ui.mode_combo->blockSignals(true);
 			ui.mode_combo->setCurrentIndex(macro.mode);
@@ -494,11 +492,6 @@ bool TriggerUi::event(QEvent* e)
 		if ((keyEvent->key() == Qt::Key_Return) || (keyEvent->key() == Qt::Key_Space)) return true;
 	}
 	return QWidget::event(e);
-}
-bool TriggerUi::eventFilter(QObject* obj, QEvent* e)
-{
-	if ((e->type() == QEvent::KeyPress) || (e->type() == QEvent::KeyRelease)) return true;
-	return QWidget::eventFilter(obj, e);
 }
 void TriggerUi::showEvent(QShowEvent*)
 {

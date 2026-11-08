@@ -165,6 +165,38 @@ void QiQuickClickThread::start()
 	QiThreadManager::start<QiQuickClickWorker>();
 }
 
+struct QiClickerWorker : QiWorkerWithArgs<Clicker*>
+{
+	using QiWorkerWithArgs::QiWorkerWithArgs;
+	bool isInvalid()
+	{
+		return !Qi::run || m_stop;
+	}
+	void sleep(double ms)
+	{
+		if (ms <= 0.0) return;
+		AccurateSleep(ms, [this] { return !isInvalid(); });
+	}
+	void run(Clicker* clicker) override
+	{
+		srand(clock());
+		int dmax = 0, dmin = 0, umax = 0, umin = 0;
+		if (clicker->interval > 200) dmax = 70, dmin = 30, umax = umin = clicker->interval - 200;
+		else if (clicker->interval > 1) dmax = umax = (clicker->interval >> 1) + (clicker->interval >> 2), dmin = umin = (clicker->interval >> 1) - (clicker->interval >> 2);
+		else if (clicker->interval == 1) dmax = umax = 1, dmin = umin = 0;
+		while (Qi::run && !m_stop)
+		{
+			Input::State(clicker->key2, true, Qi::key_info);
+			sleep(Rand(dmax, dmin));
+			Input::State(clicker->key2, false, Qi::key_info);
+			sleep(Rand(umax, umin));
+		}
+	}
+};
+void QiClickerThread::start(Clicker* self)
+{
+	QiThreadManager::start<QiClickerWorker>(reinterpret_cast<Clicker*>(self));
+}
 
 struct QiWindowBindWorker : QiWorker
 {

@@ -121,14 +121,18 @@ public:
 	void end_start(struct Macro* self);
 	bool run_active();
 	bool end_active();
-	using QiThreadManager::active;
 };
 
 class QiQuickClickThread : public QiThreadManager
 {
 public:
-	using QiThreadManager::QiThreadManager;
 	void start();
+};
+
+class QiClickerThread : public QiThreadManager
+{
+public:
+	void start(struct Clicker* self);
 };
 
 class QiWindowBindThread : public QiThreadManager
@@ -141,7 +145,6 @@ class QiScriptTestThread : public QiThreadManager
 {
 public:
 	void start(const std::string& code);
-	using QiThreadManager::active;
 };
 
 class QiDisplayUpdateThread : public QiThreadManager

@@ -20,6 +20,10 @@
 #define lang_load_tp(Obj) lang_load_(Obj, setToolTip)
 #define lang_trans_tp(Obj) lang_trans_(Obj, toolTip, setToolTip)
 
+#define lang_save_tpl(Obj) lang_save_(Obj, toolTip)
+#define lang_load_tpl(Obj,Key) Obj->setToolTip(Qi::set.lang.isEmpty()?Obj->property(Prop::lang_save).toString():lang_trans(Key))
+#define lang_trans_tpl(Obj) lang_trans_(Obj, toolTip, setToolTip)
+
 #define lang_save_pht(Obj) lang_save_(Obj, placeholderText)
 #define lang_load_pht(Obj) lang_load_(Obj, setPlaceholderText)
 #define lang_trans_pht(Obj) lang_trans_(Obj, placeholderText, setPlaceholderText)

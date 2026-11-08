@@ -28,7 +28,7 @@
   <property name="styleSheet">
    <string notr="true">#SettingsUiClass{background:transparent}</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
+  <layout class="QVBoxLayout" name="settings_box">
    <property name="spacing">
     <number>0</number>
    </property>
@@ -58,7 +58,7 @@
         <height>584</height>
        </rect>
       </property>
-      <layout class="QGridLayout" name="gridLayout">
+      <layout class="QGridLayout" name="scroll_box">
        <property name="leftMargin">
         <number>60</number>
        </property>
