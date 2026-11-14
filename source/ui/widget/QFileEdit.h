@@ -48,7 +48,7 @@ public:
 			QAction* action = new QAction(i);
 			m_actions.append(action);
 			m_menu.addAction(action);
-			connect(action, &QAction::triggered, this, [this, i] { if (!i.isEmpty()) QLineEdit::setText(i); });
+			connect(action, &QAction::triggered, this, [this, i] { if (!i.isEmpty()) QLineEdit::setText(i); textEdited(QLineEdit::text()); });
 		}
 	}
 	QList<QString> files() const

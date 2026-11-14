@@ -87,8 +87,8 @@ void Macro::fromJson(const QJsonObject& json)
 
 	timer = json.value("timer").toBool();
 
-	timerStart = QiRange::Restricted((int)json.value("timerStart").toInt(), Macro::range_timer);
-	timerEnd = QiRange::Restricted((int)json.value("timerEnd").toInt(), Macro::range_timer);
+	timerStart = QiRange::Restricted(json.value("timerStart").toInt(), Macro::range_timer);
+	timerEnd = QiRange::Restricted(json.value("timerEnd").toInt(), Macro::range_timer);
 
 	speed = json.value("speed").toDouble();
 	if (speed == 0) speed = 1.0f;
@@ -179,8 +179,8 @@ void Macro::fromPack(const typepack::object& pack)
 
 	timer = pack.get("timer").toBool();
 
-	timerStart = QiRange::Restricted((int)pack.get("timerStart").toInt(), Macro::range_timer);
-	timerEnd = QiRange::Restricted((int)pack.get("timerEnd").toInt(), Macro::range_timer);
+	timerStart = QiRange::Restricted(static_cast<int>(pack.get("timerStart").toInt()), Macro::range_timer);
+	timerEnd = QiRange::Restricted(static_cast<int>(pack.get("timerEnd").toInt()), Macro::range_timer);
 
 	speed = pack.get("speed").toFloat64();
 	if (speed == 0) speed = 1.0f;

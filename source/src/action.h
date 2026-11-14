@@ -149,7 +149,7 @@ struct QiBase
 		if (!mark.isEmpty()) pack.set("m", mark.toStdString());
 		return pack;
 	}
-	virtual void fromPack(const typepack::object pack)
+	virtual void fromPack(const typepack::object& pack)
 	{
 		type = static_cast<QiType>(pack.get("t").toInt());
 		disable = pack.get("d").toBool();
@@ -254,7 +254,7 @@ struct QiDelay : QiBase
 		v_max.isEmpty() ? pack.set("mx", max) : pack.set("_mx", v_max.toStdString());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		min = pack.get("mn").toFloat64(), v_min = QString::fromStdString(pack.get("_mn").toString());
@@ -302,7 +302,7 @@ struct QiKey : QiBase
 		pack.set("st", state);
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		vk = pack.get("vk").toInt();
@@ -362,7 +362,7 @@ struct QiMouse : QiBase
 		if (move) pack.set("mv", move);
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		x = pack.get("x").toInt(), v_x = QString::fromStdString(pack.get("_x").toString());
@@ -408,7 +408,7 @@ struct QiCopyText : QiBase
 		pack.set("tx", text.toStdString());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		text = QString::fromStdString(pack.get("tx").toString());
@@ -473,7 +473,7 @@ struct QiColor : QiBase
 		if (next2) pack.set("n2", next2.toPack());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		rect = QiBase::RectUnpack(pack.get("rt").toArray());
@@ -530,7 +530,7 @@ struct QiLoop : QiBase
 		if (next) pack.set("n1", next.toPack());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		min = pack.get("mn").toInt(), v_min = QString::fromStdString(pack.get("_mn").toString());
@@ -582,7 +582,7 @@ struct QiKeyState : QiBase
 		if (next2) pack.set("n2", next2.toPack());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		vk = pack.get("vk").toInt();
@@ -672,7 +672,7 @@ struct QiImage : QiBase
 		if (next2) pack.set("n2", next2.toPack());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		rect = QiBase::RectUnpack(pack.get("rt").toArray());
@@ -830,7 +830,7 @@ struct QiPopText : QiBase
 		if (sync) pack.set("sy", sync);
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		text = QString::fromStdString(pack.get("tx").toString());
@@ -887,7 +887,7 @@ struct QiTimer : QiBase
 		if (next2) pack.set("n2", next2.toPack());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		min = pack.get("mn").toInt(), v_min = QString::fromStdString(pack.get("_mn").toString());
@@ -927,7 +927,7 @@ struct QiJump : QiBase
 		pack.set("id", id);
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		id = pack.get("id").toInt();
@@ -955,7 +955,7 @@ struct QiJumpPoint : QiBase
 		pack.set("id", id);
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		id = pack.get("id").toInt();
@@ -1006,7 +1006,7 @@ struct QiDialog : QiBase
 		if (next2) pack.set("n2", next2.toPack());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		style = pack.get("st").toInt();
@@ -1049,7 +1049,7 @@ struct QiBlock : QiBase
 		if (next) pack.set("n1", next.toPack());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		id = pack.get("id").toInt();
@@ -1078,7 +1078,7 @@ struct QiBlockExec : QiBase
 		pack.set("id", id);
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		id = pack.get("id").toInt();
@@ -1088,7 +1088,6 @@ struct QiBlockExec : QiBase
 struct QiQuickInput : QiBase
 {
 	QString text;
-	QiVector<unsigned char> chars;
 	QiQuickInput() : QiBase(QiType::quickInput, QiTypeNext::none) {}
 	QString name() const override { return lang_trans("输入字符"); }
 	QJsonObject toJson() const override
@@ -1100,8 +1099,7 @@ struct QiQuickInput : QiBase
 	void fromJson(const QJsonObject& json) override
 	{
 		QiBase::fromJson(json);
-		if (json.contains("c")) for (const auto& c : json.value("c").toArray()) text += static_cast<char>(c.toInt());
-		else text = json.value("s").toString();
+		text = json.value("s").toString();
 	}
 	typepack::object toPack() const override
 	{
@@ -1109,120 +1107,10 @@ struct QiQuickInput : QiBase
 		pack.set("ss", text.toStdString());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		text = QString::fromStdString(pack.get("ss").toString());
-	}
-	static QiVector<unsigned char> toKey(const std::string& str)
-	{
-		QiVector<unsigned char> keys;
-		for (auto i : str)
-		{
-			unsigned char c = i;
-			unsigned char converted = 0;
-			if (InRange(char(c), '0', '9', char(0)) || InRange(char(c), 'A', 'Z', char(0))) converted = c;
-			else if (InRange(char(c), 'a', 'z', char(0)))  converted = toupper(c);
-			else
-			{
-				switch (c)
-				{
-				case '`': converted = VK_OEM_3; break;
-				case '~': converted = VK_OEM_3; break;
-				case '-': converted = VK_OEM_MINUS; break;
-				case '_': converted = VK_OEM_MINUS; break;
-				case '=': converted = VK_OEM_PLUS; break;
-				case '+': converted = VK_OEM_PLUS; break;
-				case '[': converted = VK_OEM_4; break;
-				case '{': converted = VK_OEM_4; break;
-				case ']': converted = VK_OEM_6; break;
-				case '}': converted = VK_OEM_6; break;
-				case ';': converted = VK_OEM_1; break;
-				case ':': converted = VK_OEM_1; break;
-				case '\'': converted = VK_OEM_7; break;
-				case '\"': converted = VK_OEM_7; break;
-				case ',': converted = VK_OEM_COMMA; break;
-				case '<': converted = VK_OEM_COMMA; break;
-				case '.': converted = VK_OEM_PERIOD; break;
-				case '>': converted = VK_OEM_PERIOD; break;
-				case '/': converted = VK_OEM_2; break;
-				case '?': converted = VK_OEM_2; break;
-				case '\\': converted = VK_OEM_5; break;
-				case '|': converted = VK_OEM_5; break;
-				}
-			}
-			if (converted) keys.append(converted);
-		}
-		return keys;
-	}
-	static QiVector<unsigned char> toKey(const QString& str)
-	{
-		QiVector<unsigned char> keys;
-		for (auto i : str)
-		{
-			unsigned char c = i.toLatin1();
-			unsigned char converted = 0;
-			if (InRange(char(c), '0', '9', char(0)) || InRange(char(c), 'A', 'Z', char(0))) converted = c;
-			else if (InRange(char(c), 'a', 'z', char(0)))  converted = toupper(c);
-			else
-			{
-				switch (c)
-				{
-				case '`': converted = VK_OEM_3; break;
-				case '~': converted = VK_OEM_3; break;
-				case '-': converted = VK_OEM_MINUS; break;
-				case '_': converted = VK_OEM_MINUS; break;
-				case '=': converted = VK_OEM_PLUS; break;
-				case '+': converted = VK_OEM_PLUS; break;
-				case '[': converted = VK_OEM_4; break;
-				case '{': converted = VK_OEM_4; break;
-				case ']': converted = VK_OEM_6; break;
-				case '}': converted = VK_OEM_6; break;
-				case ';': converted = VK_OEM_1; break;
-				case ':': converted = VK_OEM_1; break;
-				case '\'': converted = VK_OEM_7; break;
-				case '\"': converted = VK_OEM_7; break;
-				case ',': converted = VK_OEM_COMMA; break;
-				case '<': converted = VK_OEM_COMMA; break;
-				case '.': converted = VK_OEM_PERIOD; break;
-				case '>': converted = VK_OEM_PERIOD; break;
-				case '/': converted = VK_OEM_2; break;
-				case '?': converted = VK_OEM_2; break;
-				case '\\': converted = VK_OEM_5; break;
-				case '|': converted = VK_OEM_5; break;
-				}
-			}
-			if (converted) keys.append(converted);
-		}
-		return keys;
-	}
-	static QString toString(const QiVector<unsigned char>& keys)
-	{
-		QString str;
-		for (auto& i : keys)
-		{
-			unsigned char c = 0;
-			if (InRange(char(i), '0', '9', char()) || InRange(char(i), 'A', 'Z', char())) c = i;
-			else
-			{
-				switch (i)
-				{
-				case VK_OEM_3: c = '`'; break;
-				case VK_OEM_MINUS: c = '-'; break;
-				case VK_OEM_PLUS: c = '='; break;
-				case VK_OEM_4: c = '['; break;
-				case VK_OEM_6: c = ']'; break;
-				case VK_OEM_1:c = ';'; break;
-				case VK_OEM_7: c = '\''; break;
-				case VK_OEM_COMMA: c = ','; break;
-				case VK_OEM_PERIOD: c = '.'; break;
-				case VK_OEM_2: c = '/'; break;
-				case VK_OEM_5: c = '\\'; break;
-				}
-			}
-			if (c) str += QChar(c);
-		}
-		return str;
 	}
 	bool paramEquals(const QiQuickInput& other) const
 	{
@@ -1258,7 +1146,7 @@ struct QiKeyBlock : QiBase
 		pack.set("bk", block);
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		vk = pack.get("vk").toInt();
@@ -1302,7 +1190,7 @@ struct QiClock : QiBase
 		if (next2) pack.set("n2", next2.toPack());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		time = pack.get("tm").toInt();
@@ -1381,7 +1269,7 @@ struct QiOcr : QiBase
 		if (next2) pack.set("n2", next2.toPack());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		rect = QiBase::RectUnpack(pack.get("rt").toArray());
@@ -1437,7 +1325,7 @@ struct QiVarOperator : QiBase
 		pack.set("sc", script.toStdString());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		script = QString::fromStdString(pack.get("sc").toString());
@@ -1477,7 +1365,7 @@ struct QiVarCondition : QiBase
 		if (next2) pack.set("n2", next2.toPack());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		script = QString::fromStdString(pack.get("sc").toString());
@@ -1542,7 +1430,7 @@ struct QiMouseTrack : QiBase
 		}
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		typepack::array arr = pack.get("ps").toArray();
@@ -1623,7 +1511,7 @@ struct QiOpen : QiBase
 		pack.set("ul", url.toStdString());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		url = QString::fromStdString(pack.get("ul").toString());
@@ -1656,7 +1544,7 @@ struct QiTextPad : QiBase
 		pack.set("tx", text.toStdString());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		text = QString::fromStdString(pack.get("tx").toString());
@@ -1702,7 +1590,7 @@ struct QiEditDialog : QiBase
 		if (mult) pack.set("mt", mult);
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		title = QString::fromStdString(pack.get("tt").toString());
@@ -1759,7 +1647,7 @@ struct QiVolume : QiBase
 		if (next2) pack.set("n2", next2.toPack());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		volume = pack.get("vl").toFloat64();
@@ -1809,7 +1697,7 @@ struct QiSoundPlay : QiBase
 		if (sync) pack.set("sy", sync);
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		file = QString::fromStdString(pack.get("fl").toString());
@@ -1856,7 +1744,7 @@ struct QiMsgView : QiBase
 		pack.set("lv", level);
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		text = QString::fromStdString(pack.get("tx").toString());
@@ -1920,7 +1808,7 @@ struct QiRangeSet : QiBase
 		pack.set("va", var.toStdString());
 		return pack;
 	}
-	void fromPack(const typepack::object pack) override
+	void fromPack(const typepack::object& pack) override
 	{
 		QiBase::fromPack(pack);
 		rect = QiBase::RectUnpack(pack.get("rt").toArray());

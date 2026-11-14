@@ -396,7 +396,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 				QiKeyState& ref = action.to<QiKeyState>();
 				if (debug_entry) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && debug_entry) r_result = ActionInterpreter(ref.next2); continue; }
 				else if (jumpId) { if (ref.next.not_empty()) r_result = ActionInterpreter(ref.next); if (ref.next2.not_empty() && jumpId) r_result = ActionInterpreter(ref.next2); continue; }
-				if (Input::stateEx(ref.vk)) r_result = ActionInterpreter(ref.next);
+				if (Input::isPressEx(ref.vk)) r_result = ActionInterpreter(ref.next);
 				else r_result = ActionInterpreter(ref.next2);
 			} break;
 			case QiType::resetPos: QiFn::MoveTo(cursor.x, cursor.y); break;
@@ -553,38 +553,9 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 				const QiQuickInput& ref = action.to<QiQuickInput>();
 				try
 				{
-					QiVector<unsigned char> chars = ref.chars;
-					if (ref.chars.empty())
-					{
-						std::string text = macro.script_interpreter.execute(macro.script_interpreter.makeString(ref.text.toStdString())).toString();
-						chars = QiQuickInput::toKey(text);
-					}
-					for (auto& i : chars)
-					{
-						if (wndInput)
-						{
-							POINT pt;
-							HWND current_wnd = wndInput->find(wndInput->pt, pt);
-							if (current_wnd)
-							{
-								Input::Click(current_wnd, i, pt, 10);
-								if (i == VK_LBUTTON) wndInput->mk |= MK_LBUTTON;
-								else if (i == VK_RBUTTON) wndInput->mk |= MK_RBUTTON;
-								else if (i == VK_MBUTTON) wndInput->mk |= MK_MBUTTON;
-								else if (i == VK_XBUTTON1) wndInput->mk |= MK_XBUTTON1;
-								else if (i == VK_XBUTTON2) wndInput->mk |= MK_XBUTTON2;
-								else if (i == VK_CONTROL) wndInput->mk |= MK_CONTROL;
-								else if (i == VK_SHIFT) wndInput->mk |= MK_SHIFT;
-							}
-						}
-						else
-						{
-							QiFn::Key(i, true);
-							Sleep(Rand(20, 10));
-							QiFn::Key(i, false);
-							Sleep(Rand(20, 10));
-						}
-					}
+					std::wstring text = macro.script_interpreter.execute(macro.script_interpreter.makeString(ref.text.toStdString())).toWString();
+					if (wndInput) Input::String(wndInput->wnd, text);
+					else Input::String(text);
 				}
 				catch (const ScriptException& e) { QiTr::UnBlock(); e.show(errPath()); return InterpreterResult::r_exit; }
 			} break;

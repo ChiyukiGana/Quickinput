@@ -535,13 +535,13 @@ void EditUi::Event()
 			else if (column == tableColumn_debug)
 			{
 				QiBase& base = actions->at(row).base();
-				if (Input::state(VK_CONTROL))
+				if (Input::isPress(VK_CONTROL))
 				{
 					actionsRoot->iter([](Action& action) { if (action.base().debug_entry) action.base().debug_entry = false; return false; });
 					base.debug_entry = true;
 					base.debug_break = base.debug_exit = false;
 				}
-				else if (Input::state(VK_SHIFT))
+				else if (Input::isPress(VK_SHIFT))
 				{
 					actionsRoot->iter([](Action& action) { if (action.base().debug_exit) action.base().debug_exit = false; return false; });
 					base.debug_exit = true;
@@ -650,12 +650,12 @@ void EditUi::Event()
 		connect(testTimer, &QTimer::timeout, this, [this] {
 			if (macro->thread.active())
 			{
-				if (Input::state(VK_F10))
+				if (Input::isPress(VK_F10))
 				{
-					if (Input::state(VK_SHIFT)) macro->thread.stop();
+					if (Input::isPress(VK_SHIFT)) macro->thread.stop();
 					macro->interpreter->DebugContinue();
 					SetDebugState(debug_run);
-					Input::Loop(VK_F10);
+					Input::LoopDown(VK_F10);
 				}
 			}
 			else
@@ -684,11 +684,11 @@ void EditUi::Event()
 		connect(scriptTestTimer, &QTimer::timeout, this, [this] {
 			if (scriptTest->active())
 			{
-				if (Input::state(VK_SHIFT) && Input::state(VK_F10))
+				if (Input::isPress(VK_SHIFT) && Input::isPress(VK_F10))
 				{
 					scriptTest->stop();
-					Input::Loop(VK_SHIFT);
-					Input::Loop(VK_F10);
+					Input::LoopDown(VK_SHIFT);
+					Input::LoopDown(VK_F10);
 				}
 			}
 			else
@@ -2531,7 +2531,7 @@ QiBlockExec EditUi::WidgetGetBlockExec()
 QiQuickInput EditUi::WidgetGetQuickInput()
 {
 	QiQuickInput quickInput;
-	quickInput.text = ui.quickInput_text_edit->text();
+	quickInput.text = ui.quickInput_textedit->toPlainText();
 	return quickInput;
 }
 QiKeyBlock EditUi::WidgetGetKeyBlock()
@@ -2753,7 +2753,7 @@ void EditUi::WidgetSet(const QiDialog& dialog)
 }
 void EditUi::WidgetSet(const QiQuickInput& quickInput)
 {
-	ui.quickInput_text_edit->setText(quickInput.text);
+	ui.quickInput_textedit->setPlainText(quickInput.text);
 }
 void EditUi::WidgetSet(const QiKeyBlock& keyBlock)
 {

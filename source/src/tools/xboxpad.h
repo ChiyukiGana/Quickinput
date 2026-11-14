@@ -95,7 +95,7 @@ namespace QiTools {
 			}
 			return L"None";
 		}
-		static bool state(State* pPadState)
+		static bool isPress(State* pPadState)
 		{
 			memset(pPadState, 0, sizeof(State));
 			XINPUT_STATE state = {};
@@ -129,7 +129,7 @@ namespace QiTools {
 			}
 			return false;
 		}
-		static short state(short bnCode)
+		static short isPress(short bnCode)
 		{
 			XINPUT_STATE state = {};
 			if (XInputGetState(0, &state) == NO_ERROR)
@@ -170,11 +170,11 @@ namespace QiTools {
 			EventCallback* callBack = (EventCallback*)pParam;
 			State prev = {};
 			State next = {};
-			XBoxPad::state(&next);
+			XBoxPad::isPress(&next);
 			prev = next;
 			while (!PeekMessageW(&msg, 0, msg_exit, msg_exit, PM_REMOVE))
 			{
-				if (XBoxPad::state(&next))
+				if (XBoxPad::isPress(&next))
 				{
 					if (next.start != prev.start) callBack(start, next.start);
 					if (next.back != prev.back) callBack(back, next.back);
@@ -212,11 +212,11 @@ namespace QiTools {
 			EventCallback* callBack = (EventCallback*)pParam;
 			State prev = {};
 			State next = {};
-			XBoxPad::state(&next);
+			XBoxPad::isPress(&next);
 			prev = next;
 			while (!PeekMessageW(&msg, 0, msg_exit, msg_exit, PM_REMOVE))
 			{
-				if (XBoxPad::state(&next))
+				if (XBoxPad::isPress(&next))
 				{
 					if ((bool)next.start != ((bool)prev.start)) callBack(start, (bool)next.start);
 					if ((bool)next.back != ((bool)prev.back)) callBack(back, (bool)next.back);
