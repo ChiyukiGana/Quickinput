@@ -5,7 +5,7 @@
 # 使用方法
 
 * 打开Quick input设置页面查看说明
-* 帮助文档：http://help\_qinput.cyk.moe
+* 帮助文档：http://help_qinput.cyk.moe
 * 观看视频：https://space.bilibili.com/398923924/lists/1777662
 
 # 下载

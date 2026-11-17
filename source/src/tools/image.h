@@ -1,24 +1,33 @@
 ﻿#pragma once
+#ifndef CG_IMAGE_H
+#define CG_IMAGE_H
+
+#include <optional>
 #include <windows.h>
+#include <atlimage.h>
+#include "file.h"
 #include "color.h"
 #include "system.h"
+
 namespace QiTools {
 	class Image
 	{
 	public:
 		using Result = std::optional<POINT>;
 		using Results = std::vector<POINT>;
+
 		static constexpr LONG npos = LONG_MAX;
 		static constexpr RECT full = { 0, 0, npos, npos };
 
 		static HBITMAP toBmp24(HDC hdc, const RECT& rect)
 		{
-			if (((rect.right - rect.left) < 1) || ((rect.bottom - rect.top) < 1)) return nullptr;
+			SIZE size = RectSize(rect);
+			if (size.cx < 1 || size.cy < 1) return nullptr;
 			BITMAPINFO bitmapInfo = {};
 			bitmapInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 			bitmapInfo.bmiHeader.biBitCount = 24;
-			bitmapInfo.bmiHeader.biWidth = rect.right - rect.left;
-			bitmapInfo.bmiHeader.biHeight = rect.bottom - rect.top;
+			bitmapInfo.bmiHeader.biWidth = size.cx;
+			bitmapInfo.bmiHeader.biHeight = size.cy;
 			bitmapInfo.bmiHeader.biSizeImage = bitmapInfo.bmiHeader.biWidth * bitmapInfo.bmiHeader.biHeight * 3;
 			bitmapInfo.bmiHeader.biPlanes = 1;
 			void* unuse;
@@ -38,12 +47,13 @@ namespace QiTools {
 		}
 		static HBITMAP toBmp32(HDC hdc, const RECT& rect)
 		{
-			if (((rect.right - rect.left) < 1) || ((rect.bottom - rect.top) < 1)) return nullptr;
+			SIZE size = RectSize(rect);
+			if (size.cx < 1 || size.cy < 1) return nullptr;
 			BITMAPINFO bitmapInfo = {};
 			bitmapInfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
 			bitmapInfo.bmiHeader.biBitCount = 32;
-			bitmapInfo.bmiHeader.biWidth = rect.right - rect.left;
-			bitmapInfo.bmiHeader.biHeight = rect.bottom - rect.top;
+			bitmapInfo.bmiHeader.biWidth = size.cx;
+			bitmapInfo.bmiHeader.biHeight = size.cy;
 			bitmapInfo.bmiHeader.biSizeImage = bitmapInfo.bmiHeader.biWidth * bitmapInfo.bmiHeader.biHeight * 4;
 			bitmapInfo.bmiHeader.biPlanes = 1;
 			void* unuse;
@@ -99,10 +109,10 @@ namespace QiTools {
 			bitmapInfo.bmiHeader.biSizeImage = map.bytes();
 			bitmapInfo.bmiHeader.biPlanes = 1;
 
-			_RGBA_* buffer = new _RGBA_[map.width() * map.height()];
+			_ABGR_* buffer = new _ABGR_[map.width() * map.height()];
 			for (size_t i = 0; i < map.size(); i++)
 			{
-				_RGBA_* ptr = buffer + i;
+				_ABGR_* ptr = buffer + i;
 				const Rgba& rgba = map.at(i);
 				ptr->r = rgba.r, ptr->g = rgba.g, ptr->b = rgba.b, ptr->a = rgba.a;
 			}
@@ -114,24 +124,22 @@ namespace QiTools {
 
 		static CImage toCImage24(HDC hdc, const RECT& rect)
 		{
-			int w = rect.right - rect.left;
-			int h = rect.bottom - rect.top;
-			if (w < 1 || h < 1) return CImage();
+			SIZE size = RectSize(rect);
+			if (size.cx < 1 || size.cy < 1) return {};
 
 			CImage image;
-			image.Create(w, h, 24);
-			if (BitBlt(image.GetDC(), 0, 0, w, h, hdc, rect.left, rect.top, SRCCOPY)) return image;
+			image.Create(size.cx, size.cy, 24);
+			if (BitBlt(image.GetDC(), 0, 0, size.cx, size.cy, hdc, rect.left, rect.top, SRCCOPY)) return image;
 			return CImage();
 		}
 		static CImage toCImage32(HDC hdc, const RECT& rect)
 		{
-			int w = rect.right - rect.left;
-			int h = rect.bottom - rect.top;
-			if (w < 1 || h < 1) return CImage();
+			SIZE size = RectSize(rect);
+			if (size.cx < 1 || size.cy < 1) return {};
 
 			CImage image;
-			image.Create(w, h, 32);
-			if (BitBlt(image.GetDC(), 0, 0, w, h, hdc, rect.left, rect.top, SRCCOPY)) return image;
+			image.Create(size.cx, size.cy, 32);
+			if (BitBlt(image.GetDC(), 0, 0, size.cx, size.cy, hdc, rect.left, rect.top, SRCCOPY)) return image;
 			return CImage();
 		}
 
@@ -205,7 +213,7 @@ namespace QiTools {
 					for (size_t x = 0; x < bmp.bmWidth; x++)
 					{
 						const _ABGR_* ptr = py + x;
-						iter->r = ptr->r, iter->g = ptr->g, iter->b = ptr->b, iter->a = ptr->a;;
+						iter->r = ptr->r, iter->g = ptr->g, iter->b = ptr->b, iter->a = ptr->a;
 						iter++;
 					}
 				}
@@ -242,55 +250,35 @@ namespace QiTools {
 			return {};
 		}
 
-		static HBITMAP ScreenBmp24(RECT rect = full)
+		static HBITMAP ScreenBmp24(const RECT& rect = System::physPrimaryScreenRect())
 		{
 			HDC hdc = GetDC(0);
-			SIZE size = System::screenSize();
-			rect.left = std::clamp((int)rect.left, 0, (int)size.cx);
-			rect.right = std::clamp((int)rect.right, 0, (int)size.cx);
-			rect.top = std::clamp((int)rect.top, 0, (int)size.cy);
-			rect.bottom = std::clamp((int)rect.bottom, 0, (int)size.cy);
 			HBITMAP hbmp = toBmp24(hdc, rect);
 			ReleaseDC(0, hdc);
 			return hbmp;
 		}
-		static HBITMAP ScreenBmp32(RECT rect = full)
+		static HBITMAP ScreenBmp32(const RECT& rect = System::physPrimaryScreenRect())
 		{
 			HDC hdc = GetDC(0);
-			SIZE size = System::screenSize();
-			rect.left = std::clamp((int)rect.left, 0, (int)size.cx);
-			rect.right = std::clamp((int)rect.right, 0, (int)size.cx);
-			rect.top = std::clamp((int)rect.top, 0, (int)size.cy);
-			rect.bottom = std::clamp((int)rect.bottom, 0, (int)size.cy);
 			HBITMAP hbmp = toBmp32(hdc, rect);
 			ReleaseDC(0, hdc);
 			return hbmp;
 		}
-		static CImage ScreenCImage24(RECT rect = full)
+		static CImage ScreenCImage24(const RECT& rect = System::physPrimaryScreenRect())
 		{
 			HDC hdc = GetDC(0);
-			SIZE size = System::screenSize();
-			rect.left = std::clamp((int)rect.left, 0, (int)size.cx);
-			rect.right = std::clamp((int)rect.right, 0, (int)size.cx);
-			rect.top = std::clamp((int)rect.top, 0, (int)size.cy);
-			rect.bottom = std::clamp((int)rect.bottom, 0, (int)size.cy);
 			CImage image = toCImage24(hdc, rect);
 			ReleaseDC(0, hdc);
 			return image;
 		}
-		static CImage ScreenCImage32(RECT rect = full)
+		static CImage ScreenCImage32(const RECT& rect = System::physPrimaryScreenRect())
 		{
 			HDC hdc = GetDC(0);
-			SIZE size = System::screenSize();
-			rect.left = std::clamp((int)rect.left, 0, (int)size.cx);
-			rect.right = std::clamp((int)rect.right, 0, (int)size.cx);
-			rect.top = std::clamp((int)rect.top, 0, (int)size.cy);
-			rect.bottom = std::clamp((int)rect.bottom, 0, (int)size.cy);
 			CImage image = toCImage32(hdc, rect);
 			ReleaseDC(0, hdc);
 			return image;
 		}
-		static bool ScreenRgbMap(RgbMap& map, const RECT& rect = full)
+		static bool ScreenRgbMap(RgbMap& map, const RECT& rect = System::physPrimaryScreenRect())
 		{
 			HBITMAP hbmp = ScreenBmp24(rect);
 			if (hbmp)
@@ -304,7 +292,7 @@ namespace QiTools {
 			}
 			return false;
 		}
-		static bool ScreenRgbaMap(RgbaMap& map, const RECT& rect = full)
+		static bool ScreenRgbaMap(RgbaMap& map, const RECT& rect = System::physPrimaryScreenRect())
 		{
 			HBITMAP hbmp = ScreenBmp32(rect);
 			if (hbmp)
@@ -581,3 +569,4 @@ namespace QiTools {
 		}
 	};
 }
+#endif

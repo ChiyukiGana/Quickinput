@@ -10,57 +10,48 @@
 class QRectView : public QWidget
 {
 	Q_OBJECT;
-	QRect rect;
-	QColor color = QColor(255, 0, 0);
-	quint32 weight = 2;
-	RECT arect = { 0 };
-	float scale = 1.0f;
+	QRect m_rect;
+	QColor m_color = QColor(255, 0, 0);
+	int m_weight = 2;
 
 public:
-	static SIZE screenSize()
-	{
-		HWND wnd = GetDesktopWindow();
-		HMONITOR mt = MonitorFromWindow(wnd, MONITOR_DEFAULTTONEAREST);
-
-		MONITORINFOEXW mti;
-		mti.cbSize = sizeof(MONITORINFOEXW);
-		GetMonitorInfoW(mt, &mti);
-
-		DEVMODEW dm;
-		dm.dmSize = sizeof(DEVMODEW);
-		dm.dmDriverExtra = 0;
-		EnumDisplaySettingsW(mti.szDevice, ENUM_CURRENT_SETTINGS, &dm);
-
-		return { (LONG)dm.dmPelsWidth, (LONG)dm.dmPelsHeight };
-	}
-	static RECT screenRect() { SIZE size = screenSize(); return { 0, 0, size.cx - 1, size.cy - 1 }; }
-
 	QRectView()
 	{
 		setAttribute(Qt::WA_TransparentForMouseEvents);
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setAttribute(Qt::WA_TranslucentBackground);
-		scale = (float)(screenSize().cx) / (float)(QGuiApplication::primaryScreen()->geometry().width());
-		Move();
+		move();
 	}
 
-	void ARect(RECT arect) { this->arect = arect; rect.setLeft(arect.left / scale), rect.setTop(arect.top / scale), rect.setRight(arect.right / scale), rect.setBottom(arect.bottom / scale); }
-	void Rect(QRect rect) { this->rect = rect; }
-	void Weight(quint32 weight) { this->weight = weight; }
-	void Color(QColor color) { this->color = color; }
-	void Move() { setGeometry(rect); }
-
-	void Show(RECT arect, quint32 weight = 2, QColor color = QColor(255, 0, 0))
+	void setRect(const RECT& arect) { m_rect.setLeft(arect.left), m_rect.setTop(arect.top), m_rect.setRight(arect.right), m_rect.setBottom(arect.bottom); }
+	void setRect(const QRect& rect) { m_rect = rect; }
+	void setWeight(int weight) { m_weight = weight; }
+	void setColor(const QColor& color) { m_color = color; }
+	void move()
 	{
-		ARect(arect), Weight(weight), Color(color);
-		Move();
-		show();
+		setGeometry(m_rect);
+		SetWindowPos(reinterpret_cast<HWND>(winId()), 0, m_rect.left(), m_rect.top(), m_rect.width(), m_rect.height(), SWP_NOZORDER);
+		update();
+	}
+
+	void show(const RECT& rect, int weight = 2, const QColor& color = QColor(255, 0, 0))
+	{
+		setRect(rect), setWeight(weight), setColor(color);
+		QWidget::show();
+		move();
+	}
+	void show(const QRect& rect, int weight = 2, const QColor& color = QColor(255, 0, 0))
+	{
+		setRect(rect), setWeight(weight), setColor(color);
+		QWidget::show();
+		move();
 	}
 
 protected:
-	void paintEvent(QPaintEvent*) {
+	void paintEvent(QPaintEvent*)
+	{
 		QPainter ptr(this);
-		QPen pen(color); pen.setWidth(weight); ptr.setPen(pen);
-		ptr.drawRect(QRect(1, 1, rect.width() - 2, rect.height() - 2));
+		QPen pen(m_color); pen.setWidth(m_weight); ptr.setPen(pen);
+		ptr.drawRect(QRect(1, 1, m_rect.width() - 2, m_rect.height() - 2));
 	}
 };

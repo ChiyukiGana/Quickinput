@@ -46,13 +46,14 @@ namespace QiFn
 #ifdef Q_DRIVER
 		if (Qi::set.driver && Qi::driver.isInit())
 		{
-			POINT pt = QiCvt::SP_AtR({ x, y });
+			POINT pt = QiCvt::SP_A_R({ x, y });
 			Qi::driver.move_to(pt.x, pt.y, Qi::key_info);
 		}
 		else
 #endif
 		{
-			Input::MoveToA(x * 6.5535f, y * 6.5535f, Qi::key_info);
+			if (Qi::set.allScreen) Input::MoveToVA(x * 6.5535f, y * 6.5535f, Qi::key_info);
+			else Input::MoveToA(x * 6.5535f, y * 6.5535f, Qi::key_info);
 		}
 	}
 
@@ -200,7 +201,7 @@ namespace QiFn
 	{
 #ifndef DEBUG
 #ifdef QIOCR_SHARED
-		std::wstring dll = L"OCR\\qiocr.dll";
+		const std::wstring dll = QDir::toNativeSeparators(Qi::ocrDll).toStdWString();
 		if (!File::FileExist(dll))
 		{
 			if (warning) MsgBox::Warning(L"没有安装文字识别功能");
@@ -214,19 +215,20 @@ namespace QiFn
 		}
 #endif
 #ifndef QIOCR_INTERNAL
-		std::wstring rec = L"ppocr.onnx";
-		std::wstring keys = L"ppocr.keys";
-		std::wstring det = L"OCR\\ppdet.onnx";
+		const std::wstring dir = QDir::toNativeSeparators(Qi::ocrDir).toStdWString();
+		const std::wstring det = dir + Qi::ocrDet;
+		std::wstring rec = Qi::ocrRec;
+		std::wstring keys = Qi::ocrKeys;
 		if (Qi::set.ocr_current.isEmpty())
 		{
-			rec = std::wstring(L"OCR\\") + rec;
-			keys = std::wstring(L"OCR\\") + keys;
+			rec = dir + rec;
+			keys = dir + keys;
 		}
 		else
 		{
 			std::wstring lang = Qi::set.ocr_current.toStdWString() + L"\\";
-			rec = std::wstring(L"OCR\\") + lang + rec;
-			keys = std::wstring(L"OCR\\") + lang + keys;
+			rec = dir + lang + rec;
+			keys = dir + lang + keys;
 		}
 
 #ifdef QIOCR_SHARED

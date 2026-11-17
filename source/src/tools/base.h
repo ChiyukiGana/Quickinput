@@ -25,23 +25,36 @@ namespace QiTools
 			}
 		}
 	}
+	template <class SRC_T, class DES_T>
+	constexpr DES_T ConvertRange(const SRC_T& src_val, const SRC_T& src_min, const SRC_T& src_max, const DES_T& des_min, const DES_T& des_max)
+	{
+		const double s_val = static_cast<double>(std::clamp(src_val, src_min, src_max));
+		const double s_min = static_cast<double>((std::min)(src_min, src_max));
+		const double s_max = static_cast<double>((std::max)(src_min, src_max));
+		const double d_min = static_cast<double>((std::min)(des_min, des_max));
+		const double d_max = static_cast<double>((std::max)(des_min, des_max));
+		const double src_range = s_max - s_min;
+		const double des_range = d_max - d_min;
+		const double ratio = (s_val - s_min) / src_range;
+		return static_cast<DES_T>(ratio * des_range + d_min);
+	}
 	template <class num>
-	static num Distance(num left, num right) { return (left > right) ? left - right : right - left; }
+	constexpr num Distance(num left, num right) { return (left > right) ? left - right : right - left; }
 	template <class num>
-	static double Distance(num x1, num y1, num x2, num y2) { return std::sqrt(std::pow((double)x1 - (double)x2, 2.0) + std::pow((double)y1 - (double)y2, 2.0)); }
-	static double Distance(POINT pt1, POINT pt2) { return Distance(pt1.x, pt1.y, pt2.x, pt2.y); }
+	constexpr double Distance(num x1, num y1, num x2, num y2) { return std::sqrt(std::pow((double)x1 - (double)x2, 2.0) + std::pow((double)y1 - (double)y2, 2.0)); }
+	constexpr double Distance(POINT pt1, POINT pt2) { return Distance(pt1.x, pt1.y, pt2.x, pt2.y); }
 	template <class num>
-	static bool InRange(num value, num _min, num _max, num ex) { return ((value >= (std::min)(_max, _min) - ex) && (value <= (std::max)(_max, _min) + ex)); }
+	constexpr bool InRange(num value, num _min, num _max, num ex) { return ((value >= (std::min)(_max, _min) - ex) && (value <= (std::max)(_max, _min) + ex)); }
 	template <class num>
-	static bool InRange(num value, num refer, num ex) { return (value <= (refer + ex)) && (value >= (refer - ex)); }
+	constexpr bool InRange(num value, num refer, num ex) { return (value <= (refer + ex)) && (value >= (refer - ex)); }
 	template <class num>
-	static bool InRect(const RECT& rect, num x, num y) { if ((LONG)x < rect.left || (LONG)x > rect.right || (LONG)y < rect.top || (LONG)y > rect.bottom) return false; return true; }
-	static bool InRect(const RECT& rect, const POINT& pt) { if (pt.x < rect.left || pt.x > rect.right && pt.y < rect.top || pt.y > rect.bottom) return false; return true; }
-	static bool InRect(const RECT& rectParent, const RECT& rectChild) { if (rectChild.left < rectParent.left || rectChild.top < rectParent.top || rectChild.right > rectParent.right || rectChild.bottom > rectParent.bottom) return false; return true; }
-	static POINT InRectPos(const RECT& rect, const POINT& pt) { if (pt.x >= rect.left && pt.x <= rect.right && pt.y >= rect.top && pt.y <= rect.bottom) return { pt.x - rect.left, pt.y - rect.top }; return { -1, -1 }; }
-	static RECT RectAbs(const RECT& rect) { return { (std::min)(rect.left, rect.right),(std::min)(rect.top, rect.bottom),(std::max)(rect.left, rect.right),(std::max)(rect.top, rect.bottom) }; }
-	static SIZE RectSize(RECT rect) { return { Distance(rect.left, rect.right), Distance(rect.top, rect.bottom) }; }
-	static int RectArea(const RECT& rect) { SIZE size = RectSize(rect); return size.cx * size.cy; }
+	constexpr bool InRect(const RECT& rect, num x, num y) { if ((LONG)x < rect.left || (LONG)x > rect.right || (LONG)y < rect.top || (LONG)y > rect.bottom) return false; return true; }
+	constexpr bool InRect(const RECT& rect, const POINT& pt) { if (pt.x < rect.left || pt.x > rect.right && pt.y < rect.top || pt.y > rect.bottom) return false; return true; }
+	constexpr bool InRect(const RECT& rectParent, const RECT& rectChild) { if (rectChild.left < rectParent.left || rectChild.top < rectParent.top || rectChild.right > rectParent.right || rectChild.bottom > rectParent.bottom) return false; return true; }
+	constexpr POINT InRectPos(const RECT& rect, const POINT& pt) { if (pt.x >= rect.left && pt.x <= rect.right && pt.y >= rect.top && pt.y <= rect.bottom) return { pt.x - rect.left, pt.y - rect.top }; return { -1, -1 }; }
+	constexpr RECT RectAbs(const RECT& rect) { return { (std::min)(rect.left, rect.right),(std::min)(rect.top, rect.bottom),(std::max)(rect.left, rect.right),(std::max)(rect.top, rect.bottom) }; }
+	constexpr SIZE RectSize(RECT rect) { return { Distance(rect.left, rect.right), Distance(rect.top, rect.bottom) }; }
+	constexpr int RectArea(const RECT& rect) { SIZE size = RectSize(rect); return size.cx * size.cy; }
 	static int Rand(int max, int min = 0) { if (min > max) std::swap(max, min); return min + (rand() % (max - min + 1)); }
 	static double Rand(double max, double min = 0.0) { if (min > max) std::swap(max, min); return min + (rand() / (double)RAND_MAX) * (max - min); }
 	static void AccurateSleep(double ms)

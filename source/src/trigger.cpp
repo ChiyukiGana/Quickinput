@@ -184,7 +184,7 @@ namespace QiTr
 					if (m.key1) Qi::keyBlock.set(m.key1, true);
 					if (m.key2) Qi::keyBlock.set(m.key2, true);
 				}
-				m.range = { 0,0,10000,10000 };
+				m.range = QiCvt::FULL_RANGER;
 				Qi::macroActive.append(&m);
 			}
 

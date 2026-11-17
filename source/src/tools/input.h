@@ -110,6 +110,8 @@ namespace QiTools {
 		static void MoveTo(HWND wnd, int x, int y, WORD mk = 0) { PostMessageW(wnd, WM_MOUSEMOVE, mk, (LONGLONG)(y << 16 | x)); }
 		// param: x, y = 0~65535
 		static void MoveToA(LONG x, LONG y, ULONG_PTR info = 0) { INPUT input = { 0 }; input.type = INPUT_MOUSE; input.mi = { x, y, 0, MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE, 0, info }; SendInput(1, &input, sizeof(input)); }
+		// param: x, y = 0~65535
+		static void MoveToVA(LONG x, LONG y, ULONG_PTR info = 0) { INPUT input = { 0 }; input.type = INPUT_MOUSE; input.mi = { x, y, 0, MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_VIRTUALDESK, 0, info }; SendInput(1, &input, sizeof(input)); }
 		// param: x, y = 0~ScreenPixel
 		static void MoveClick(BYTE vk, int x, int y, UINT delay = 10) { MoveTo(x, y); MoveLock(); Click(vk, delay); MoveLock(0); }
 		// param: x, y = 0~65535

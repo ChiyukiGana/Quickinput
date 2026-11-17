@@ -43,42 +43,62 @@ void SettingsUi::Init()
 	ui.recordKey_keyedit->setPadEnabled(Qi::set.pad);
 #endif
 
-	if ("ocr thraed")
-	{
-		ui.ocr_thread_combo->setEditable(true);
-		ui.ocr_thread_combo->lineEdit()->setReadOnly(true);
-		ui.ocr_thread_combo->lineEdit()->setAlignment(Qt::AlignCenter);
-		ui.ocr_thread_combo->addItem("最高速度");
-		for (size_t i = 0; i < Qi::ocr_thread_max; i++) ui.ocr_thread_combo->addItem(QString::number(i + 1));
-		QStandardItemModel* model = reinterpret_cast<QStandardItemModel*>(ui.ocr_thread_combo->view()->model());
-		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
-		ui.ocr_thread_combo->setCurrentIndex(std::clamp(Qi::set.ocr_thread, 0, Qi::ocr_thread_max));
-	}
+	const QString ocr_dll = QDir::toNativeSeparators(Qi::ocrDll);
+	bool ocr_exist = File::FileExist(ocr_dll.toStdWString());
 	if ("ocr lang")
 	{
-		ui.ocr_lang_combo->setEditable(true);
-		ui.ocr_lang_combo->lineEdit()->setReadOnly(true);
-		ui.ocr_lang_combo->lineEdit()->setAlignment(Qt::AlignCenter);
-		ui.ocr_lang_combo->addItem(lang_trans("默认"));
-		QDir dir("OCR");
-		dir.setFilter(QDir::Filter::Dirs);
-		QFileInfoList dirInfos = dir.entryInfoList();
-		if (!dirInfos.isEmpty())
+		if (ocr_exist)
 		{
-			for (auto& i : dirInfos) if (i.fileName() != "." && i.fileName() != "..")
+			ui.ocr_lang_combo->setEditable(true);
+			ui.ocr_lang_combo->lineEdit()->setReadOnly(true);
+			ui.ocr_lang_combo->lineEdit()->setAlignment(Qt::AlignCenter);
+			ui.ocr_lang_combo->addItem(lang_trans("默认"));
+			QDir dir(Qi::ocrDir);
+			dir.setFilter(QDir::Filter::Dirs);
+			QFileInfoList dirInfos = dir.entryInfoList();
+			if (dirInfos.isEmpty())
 			{
-				std::wstring lang = i.fileName().toStdWString() + L"\\";
-				std::wstring rec = std::wstring(L"OCR\\") + lang + L"ppocr.onnx";
-				std::wstring keys = std::wstring(L"OCR\\") + lang + L"ppocr.keys";
-				if (File::FileExist(rec) && File::FileExist(keys))
+				for (auto& i : dirInfos) if (i.fileName() != "." && i.fileName() != "..")
 				{
-					ui.ocr_lang_combo->addItem(i.fileName());
-					if (i.fileName() == Qi::set.ocr_current) ui.ocr_lang_combo->setCurrentIndex(ui.ocr_lang_combo->count() - 1);
+					const std::wstring ocr_dir = QDir::toNativeSeparators(Qi::ocrDir).toStdWString();
+					const std::wstring lang = i.fileName().toStdWString() + L"\\";
+					std::wstring rec = ocr_dir + lang + Qi::ocrRec;
+					std::wstring keys = ocr_dir + lang + Qi::ocrKeys;
+					if (File::FileExist(rec) && File::FileExist(keys))
+					{
+						ui.ocr_lang_combo->addItem(i.fileName());
+						if (i.fileName() == Qi::set.ocr_current) ui.ocr_lang_combo->setCurrentIndex(ui.ocr_lang_combo->count() - 1);
+					}
 				}
 			}
 		}
+		else
+		{
+			ui.ocr_lang_combo->addItem(lang_trans("未安装"));
+			ui.ocr_lang_combo->setDisabled(true);
+		}
 		QStandardItemModel* model = reinterpret_cast<QStandardItemModel*>(ui.ocr_thread_combo->view()->model());
 		for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
+	}
+	if ("ocr thraed")
+	{
+		if (ocr_exist)
+		{
+			ui.ocr_thread_combo->setEditable(true);
+			ui.ocr_thread_combo->lineEdit()->setReadOnly(true);
+			ui.ocr_thread_combo->lineEdit()->setAlignment(Qt::AlignCenter);
+			ui.ocr_thread_combo->addItem("最高速度");
+			for (size_t i = 0; i < Qi::ocr_thread_max; i++) ui.ocr_thread_combo->addItem(QString::number(i + 1));
+			QStandardItemModel* model = reinterpret_cast<QStandardItemModel*>(ui.ocr_thread_combo->view()->model());
+			for (size_t i = 0; i < model->rowCount(); i++) model->item(i)->setTextAlignment(Qt::AlignCenter);
+			ui.ocr_thread_combo->setCurrentIndex(std::clamp(Qi::set.ocr_thread, 0, Qi::ocr_thread_max));
+		}
+		else
+		{
+			ui.ocr_thread_combo->setDisabled(true);
+			ui.ocr_thread_combo->setHidden(true);
+			ui.ocr_thread_label->setHidden(true);
+		}
 	}
 	if ("theme")
 	{
@@ -144,6 +164,7 @@ void SettingsUi::Init()
 	ui.sound_check->setChecked(sets.audFx);
 	ui.hideDefault_check->setChecked(sets.minMode);
 	ui.pad_check->setChecked(sets.pad);
+	ui.allScreen_check->setChecked(sets.allScreen);
 	ui.start_check->setChecked(Task::Find(L"QuickInput"));
 }
 void SettingsUi::Event()
@@ -259,6 +280,7 @@ void SettingsUi::Event()
 	connect(ui.sound_check, &QCheckBox::toggled, this, [this](bool state) { sets.audFx = state; QiJson::SaveJson(); });
 	connect(ui.hideDefault_check, &QCheckBox::toggled, this, [this](bool state) { sets.minMode = state; QiJson::SaveJson(); });
 	connect(ui.pad_check, &QCheckBox::toggled, this, [this](bool state) { sets.pad = state; Qi::widget.keyEditReload(); QiJson::SaveJson(); });
+	connect(ui.allScreen_check, &QCheckBox::toggled, this, [this](bool state) { sets.allScreen = state; QiJson::SaveJson(); });
 	connect(ui.start_check, &QCheckBox::toggled, this, [this] {
 		if (Task::Find(L"QuickInput"))
 		{
@@ -292,6 +314,7 @@ void SettingsUi::StyleGroup()
 	style_set_group(ui.sound_check, "check");
 	style_set_group(ui.hideDefault_check, "check");
 	style_set_group(ui.pad_check, "check");
+	style_set_group(ui.allScreen_check, "check");
 	style_set_group(ui.start_check, "check");
 	style_set_group(ui.lang_combo, "combo");
 	ui.lang_combo->setView(new QListView());
@@ -343,6 +366,7 @@ void SettingsUi::LoadLanguage()
 #ifdef Q_KEYEDIT_PAD_ENABLED
 		lang_save_t(ui.pad_label);
 #endif
+		lang_save_t(ui.allScreen_label);
 		lang_save_t(ui.start_label);
 	});
 	lang_load_t(ui.readme_label);
@@ -374,6 +398,7 @@ void SettingsUi::LoadLanguage()
 #ifdef Q_KEYEDIT_PAD_ENABLED
 	lang_load_t(ui.pad_label);
 #endif
+	lang_load_t(ui.allScreen_label);
 	lang_load_t(ui.start_label);
 }
 

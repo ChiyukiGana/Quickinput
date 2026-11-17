@@ -255,7 +255,12 @@ struct QiDisplayUpdateWorker : QiWorker
 {
 	static LRESULT _stdcall DisplayUpdateProcess(HWND w, UINT m, WPARAM wp, LPARAM lp)
 	{
-		if (m == WM_DISPLAYCHANGE) Qi::screen = System::screenSize();
+		if (m == WM_DISPLAYCHANGE)
+		{
+			auto size = System::physPrimaryScreenSize();
+			Qi::primaryScreen = { 0, 0, size.cx - 1, size.cy - 1 };
+			Qi::virtualScreen = System::virtualScreenRect();
+		}
 		return DefWindowProcW(w, m, wp, lp);
 	}
 	void run() override

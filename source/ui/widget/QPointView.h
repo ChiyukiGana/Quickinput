@@ -10,66 +10,52 @@
 class QPointView : public QWidget
 {
 	Q_OBJECT;
-	QPoint pt;
-	QColor color = QColor(255, 0, 0);
-	quint32 weight = 2;
-	quint32 size = 20;
-	float scale;
+	QPoint m_point;
+	QColor m_color = QColor(255, 0, 0);
+	int m_weight = 2;
+	int m_size = 20;
 
 public:
-	static SIZE screenSize()
-	{
-		HWND wnd = GetDesktopWindow();
-		HMONITOR mt = MonitorFromWindow(wnd, MONITOR_DEFAULTTONEAREST);
-
-		MONITORINFOEXW mti;
-		mti.cbSize = sizeof(MONITORINFOEXW);
-		GetMonitorInfoW(mt, &mti);
-
-		DEVMODEW dm;
-		dm.dmSize = sizeof(DEVMODEW);
-		dm.dmDriverExtra = 0;
-		EnumDisplaySettingsW(mti.szDevice, ENUM_CURRENT_SETTINGS, &dm);
-
-		return { (LONG)dm.dmPelsWidth, (LONG)dm.dmPelsHeight };
-	}
-	static RECT screenRect() { SIZE size = screenSize(); return { 0, 0, size.cx - 1, size.cy - 1 }; }
-
 	QPointView()
 	{
 		setAttribute(Qt::WA_TransparentForMouseEvents);
 		setWindowFlags(Qt::Tool | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
 		setAttribute(Qt::WA_TranslucentBackground);
-		scale = (float)(screenSize().cx) / (float)(QGuiApplication::primaryScreen()->geometry().width());
-		Move();
+		move();
 	}
 
-	void APoint(POINT apt) { pt.setX(apt.x / scale), pt.setY(apt.y / scale); }
-	void Point(QPoint pt) { this->pt = pt; }
-	void Size(quint32 size) { this->size = size; }
-	void Weight(quint32 weight) { this->weight = weight; }
-	void Color(QColor color) { this->color = color; }
-	void Move() { setGeometry(QRect(pt.x() - size / 2, pt.y() - size / 2, size, size)); }
-
-	void Show(POINT apt, const quint32 size = 30, const quint32 weight = 2, QColor color = QColor(255, 0, 0))
+	void setPoint(const POINT& apt) { m_point.setX(apt.x), m_point.setY(apt.y); }
+	void setPoint(const QPoint& pt) { m_point = pt; }
+	void setSize(int size) { m_size = size; }
+	void setWeight(int weight) { m_weight = weight; }
+	void setColor(const QColor& color) { m_color = color; }
+	void move()
 	{
-		APoint(apt), Size(size), Weight(weight), Color(color);
-		Move();
-		show();
+		setGeometry(QRect(0, 0, m_size, m_size));
+		SetWindowPos(reinterpret_cast<HWND>(winId()), 0, m_point.x() - m_size / 2, m_point.y() - m_size / 2, 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+		update();
 	}
 
-	void Show(QPoint pt, const quint32 size = 30, const quint32 weight = 2, QColor color = QColor(255, 0, 0))
+	void show(const POINT& apt, const int size = 30, const int weight = 2, const QColor& color = QColor(255, 0, 0))
 	{
-		Point(pt), Size(size), Weight(weight), Color(color);
-		Move();
-		show();
+		setPoint(apt), setSize(size), setWeight(weight), setColor(color);
+		QWidget::show();
+		move();
+	}
+
+	void show(const QPoint& pt, const int size = 30, const int weight = 2, const QColor& color = QColor(255, 0, 0))
+	{
+		setPoint(pt), setSize(size), setWeight(weight), setColor(color);
+		QWidget::show();
+		move();
 	}
 
 protected:
-	void paintEvent(QPaintEvent*) {
+	void paintEvent(QPaintEvent*)
+	{
 		QPainter ptr(this);
-		QPen pen(color); pen.setWidth(weight); ptr.setPen(pen);
-		ptr.drawLine(QPoint(0, size / 2), QPoint(size * 2, size / 2));
-		ptr.drawLine(QPoint(size / 2, 0), QPoint(size / 2, size * 2));
+		QPen pen(m_color); pen.setWidth(m_weight); ptr.setPen(pen);
+		ptr.drawLine(QPoint(0, m_size / 2), QPoint(m_size * 2, m_size / 2));
+		ptr.drawLine(QPoint(m_size / 2, 0), QPoint(m_size / 2, m_size * 2));
 	}
 };

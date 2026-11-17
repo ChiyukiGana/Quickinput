@@ -45,6 +45,7 @@ namespace Qi
 			json.insert("audFx", (bool)set.audFx);
 			json.insert("minMode", (bool)set.minMode);
 			json.insert("pad", (bool)set.pad);
+			json.insert("allScreen", (bool)set.allScreen);
 			json.insert("tabLock", (bool)set.tabLock);
 			json.insert("tabHideTip", (bool)set.tabHideTip);
 			json.insert("markPoint", (bool)set.markPoint);
@@ -163,6 +164,7 @@ namespace Qi
 				set.audFx = json.value("audFx").toBool();
 				set.minMode = json.value("minMode").toBool();
 				set.pad = json.value("pad").toBool();
+				set.allScreen = json.value("allScreen").toBool();
 				set.tabLock = json.value("tabLock").toBool();
 				set.tabHideTip = json.value("tabHideTip").toBool();
 				set.markPoint = json.value("markPoint").toBool();

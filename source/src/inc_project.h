@@ -58,6 +58,11 @@ namespace Qi
 	inline const QString macroType = ".json";
 	inline const QString macroQimType = ".qim";
 	inline const QString emacroType = ".emacro";
+	inline const QString ocrDir = dir + "/OCR/";
+	inline const QString ocrDll = dir + "/OCR/qiocr.dll";
+	inline const std::wstring ocrDet = L"ppdet.onnx";
+	inline const std::wstring ocrRec = L"ppocr.onnx";
+	inline const std::wstring ocrKeys = L"ppocr.keys";
 	inline const QString langType = ".qit";
 	inline const QString langDir = dir + "/lang/";
 	inline const QString savedVarFile = "QuickInput.var";

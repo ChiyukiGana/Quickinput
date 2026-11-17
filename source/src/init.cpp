@@ -909,7 +909,9 @@ std::once_flag init_once;
 void Qi::init()
 {
     std::call_once(init_once, [] {
-        Qi::screen = System::screenSize();
+        auto size = System::physPrimaryScreenSize();
+        Qi::primaryScreen = { 0, 0, size.cx - 1, size.cy - 1 };
+        Qi::virtualScreen = System::virtualScreenRect();
         Qi::display_update.start();
         QiJson::LoadJson();
         

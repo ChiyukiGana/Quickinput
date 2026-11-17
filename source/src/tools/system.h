@@ -1,42 +1,103 @@
 ﻿#pragma once
-#pragma warning(disable:4996)
 #include <windows.h>
-#include <VersionHelpers.h>
 #include <Shlobj.h>
-#include <time.h>
 #include <string>
 namespace QiTools
 {
 	class System
 	{
 	public:
-		// need manifest to support
-		static OSVERSIONINFOW Version()
+		static void enumScreen(std::function<bool(HMONITOR h, const MONITORINFOEXW& m)> f)
 		{
-			OSVERSIONINFOW info = { sizeof(OSVERSIONINFOW) };
-			GetVersionExW(&info);
-			return info;
+			using pf = std::function<bool(HMONITOR, const MONITORINFOEXW&)>*;
+			EnumDisplayMonitors(nullptr, nullptr, [](HMONITOR hm, HDC, LPRECT, LPARAM p) {
+				MONITORINFOEXW mti{};
+				mti.cbSize = sizeof(MONITORINFOEXW);
+				GetMonitorInfoW(hm, &mti);
+				if (mti.szDevice[0] != 0 && (*reinterpret_cast<pf>(p))(hm, mti)) return FALSE;
+				return TRUE;
+				}, reinterpret_cast<LPARAM>(&f));
 		}
-		static SIZE screenSize()
+		static SIZE physPrimaryScreenSize()
 		{
-			HMONITOR hmt = MonitorFromWindow(nullptr, MONITOR_DEFAULTTOPRIMARY);
-			MONITORINFOEXW mti = {};
-			mti.cbSize = sizeof(MONITORINFOEXW);
-			GetMonitorInfoW(hmt, &mti);
-			DEVMODEW dm = { sizeof(DEVMODEW) };
-			EnumDisplaySettingsW(mti.szDevice, ENUM_CURRENT_SETTINGS, &dm);
-			return { (LONG)dm.dmPelsWidth, (LONG)dm.dmPelsHeight };
+			SIZE size{};
+			enumScreen([&size](HMONITOR h, const MONITORINFOEXW& m) {
+				if (m.dwFlags & MONITORINFOF_PRIMARY)
+				{
+					DEVMODEW dm{};
+					dm.dmSize = sizeof(DEVMODEW);
+					EnumDisplaySettingsW(m.szDevice, ENUM_CURRENT_SETTINGS, &dm);
+					size = { (LONG)dm.dmPelsWidth, (LONG)dm.dmPelsHeight };
+					return true;
+				}
+				return false;
+				});
+			return size;
 		}
-		static SIZE screenSize(DWORD id)
+		static RECT physPrimaryScreenRect()
 		{
-			DISPLAY_DEVICEW device = { sizeof(DISPLAY_DEVICEW) };
-			EnumDisplayDevicesW(nullptr, id, &device, 0);
-			DEVMODEW dm = { sizeof(DEVMODEW) };
-			EnumDisplaySettingsW(device.DeviceName, ENUM_CURRENT_SETTINGS, &dm);
-			return { (LONG)dm.dmPelsWidth, (LONG)dm.dmPelsHeight };
+			SIZE size{};
+			enumScreen([&size](HMONITOR h, const MONITORINFOEXW& m) {
+				if (m.dwFlags & MONITORINFOF_PRIMARY)
+				{
+					DEVMODEW dm{};
+					dm.dmSize = sizeof(DEVMODEW);
+					EnumDisplaySettingsW(m.szDevice, ENUM_CURRENT_SETTINGS, &dm);
+					size = { (LONG)dm.dmPelsWidth, (LONG)dm.dmPelsHeight };
+					return true;
+				}
+				return false;
+				});
+			return { 0, 0, size.cx, size.cy };
 		}
-		static SIZE screenVSize() { return { GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN) }; }
-		static SIZE screenVSize(HDC dc) { return { GetDeviceCaps(dc, HORZRES), GetDeviceCaps(dc, VERTRES) }; }
+		static SIZE logicPrimaryScreenSize()
+		{
+			SIZE size{};
+			enumScreen([&size](HMONITOR h, const MONITORINFOEXW& m) {
+				if (m.dwFlags & MONITORINFOF_PRIMARY)
+				{
+					size = { m.rcMonitor.right - m.rcMonitor.left, m.rcMonitor.bottom - m.rcMonitor.top };
+					return true;
+				}
+				return false;
+				});
+			return size;
+		}
+		static RECT logicPrimaryScreenRect()
+		{
+			RECT rect{};
+			enumScreen([&rect](HMONITOR h, const MONITORINFOEXW& m) {
+				if (m.dwFlags & MONITORINFOF_PRIMARY)
+				{
+					rect = m.rcMonitor;
+					return true;
+				}
+				return false;
+				});
+			return rect;
+		}
+		static RECT virtualScreenRect()
+		{
+			const int x = GetSystemMetrics(SM_XVIRTUALSCREEN);
+			const int y = GetSystemMetrics(SM_YVIRTUALSCREEN);
+			return { x, y, x + GetSystemMetrics(SM_CXVIRTUALSCREEN) - 1, y + GetSystemMetrics(SM_CYVIRTUALSCREEN) - 1 };
+		}
+		static float primaryScreenScale()
+		{
+			float scale{};
+			enumScreen([&scale](HMONITOR h, const MONITORINFOEXW& m) {
+				if (m.dwFlags & MONITORINFOF_PRIMARY)
+				{
+					DEVMODEW dm{};
+					dm.dmSize = sizeof(DEVMODEW);
+					EnumDisplaySettingsW(m.szDevice, ENUM_CURRENT_SETTINGS, &dm);
+					scale = static_cast<float>(dm.dmPelsWidth) / (m.rcMonitor.right - m.rcMonitor.left);
+					return true;
+				}
+				return false;
+				});
+			return scale;
+		}
 		static float screenScaleRote() {
 			HMONITOR hmt = MonitorFromWindow(nullptr, MONITOR_DEFAULTTOPRIMARY);
 			MONITORINFOEXW mti = {}; mti.cbSize = sizeof(MONITORINFOEXW); GetMonitorInfoW(hmt, &mti);

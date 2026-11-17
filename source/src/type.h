@@ -135,6 +135,7 @@ struct SettingsData
 	bool audFx = false;
 	bool minMode = false;
 	bool pad = false;
+	bool allScreen = false;
 	// eidt
 	bool tabLock = false;
 	bool tabHideTip = false;
@@ -325,7 +326,8 @@ namespace Qi
 #endif
 	// other
 	inline QiDisplayUpdateThread display_update;
-	inline SIZE screen = {};
+	inline RECT primaryScreen = {};
+	inline RECT virtualScreen = {};
 
 	QJsonObject toJson();
 	void fromJson(const QJsonObject& json);

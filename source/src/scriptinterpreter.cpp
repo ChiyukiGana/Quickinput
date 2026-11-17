@@ -897,7 +897,7 @@ struct QiFunc_cur_to : public QiFunc
 	QiFunc_cur_to() : QiFunc(2) {}
 	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
 	{
-		SIZE screen = System::screenSize();
+		SIZE screen = System::physPrimaryScreenSize();
 		double x = args[0].toNumber();
 		double y = args[1].toNumber();
 
@@ -926,7 +926,7 @@ struct QiFunc_cur_move : public QiFunc
 	QiFunc_cur_move() : QiFunc(2) {}
 	QiVar exec(const std::vector<QiVar>& args, QiScriptInterpreter*) const override
 	{
-		SIZE screen = System::screenSize();
+		SIZE screen = System::physPrimaryScreenSize();
 		double x = args[0].toNumber();
 		double y = args[1].toNumber();
 		int ix;
@@ -965,7 +965,7 @@ struct QiFunc_scr_cx : public QiFunc
 	QiFunc_scr_cx() : QiFunc(0) {}
 	QiVar exec(const std::vector<QiVar>&, QiScriptInterpreter*) const override
 	{
-		return System::screenSize().cx;
+		return System::physPrimaryScreenSize().cx;
 	}
 };
 struct QiFunc_scr_cy : public QiFunc
@@ -973,7 +973,7 @@ struct QiFunc_scr_cy : public QiFunc
 	QiFunc_scr_cy() : QiFunc(0) {}
 	QiVar exec(const std::vector<QiVar>&, QiScriptInterpreter*) const override
 	{
-		return System::screenSize().cy;
+		return System::physPrimaryScreenSize().cy;
 	}
 };
 struct QiFunc_scr_scale : public QiFunc

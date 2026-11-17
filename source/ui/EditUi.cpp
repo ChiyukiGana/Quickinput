@@ -676,7 +676,7 @@ void EditUi::Event()
 				{
 					isPress = true;
 					POINT cur; GetCursorPos(&cur);
-					widget_mkpv.Show(cur, 30, 2, QColor(0, 160, 0));
+					widget_mkpv.show(cur, 30, 2, QColor(0, 160, 0));
 				}
 			}
 			else if (isPress) isPress = false;
@@ -731,7 +731,6 @@ void EditUi::Event_Action_Widget()
 	// move
 	connect(ui.mouse_position_button, &QPushButton::clicked, this, [this] {
 		hide();
-		QPointSelector ps;
 		POINT pt;
 		if (macro->wndState)
 		{
@@ -740,13 +739,13 @@ void EditUi::Event_Action_Widget()
 				SelectWindow();
 			}
 			RECT wrect = Window::rect(macro->wndInfo.wnd);
-			pt = ps.Start(wrect);
-			pt = QiCvt::WP_RtA({ pt.x, pt.y }, macro->wndInfo.wnd, macro->range);
+			pt = QPointSelector::SelectPrimaryScreen(wrect);
+			pt = QiCvt::WP_R_A({ pt.x, pt.y }, macro->wndInfo.wnd, macro->range);
 		}
 		else
 		{
-			pt = ps.Start();
-			pt = QiCvt::SP_RtA({ pt.x, pt.y }, macro->range);
+			pt = Qi::set.allScreen ? QPointSelector::SelectVirtualScreen() : QPointSelector::SelectPrimaryScreen();
+			pt = QiCvt::SP_R_A({ pt.x, pt.y }, macro->range);
 		}
 		QiMouse mouse(WidgetGetMouse());
 		mouse.x = pt.x;
@@ -813,7 +812,6 @@ void EditUi::Event_Action_Widget()
 	// color
 	connect(ui.color_rect_button, &QPushButton::clicked, this, [this] {
 		hide();
-		QRectSelector rs;
 		RECT rect;
 		Rgba rgba;
 		if (macro->wndState)
@@ -823,7 +821,7 @@ void EditUi::Event_Action_Widget()
 				SelectWindow();
 			}
 			RECT wrect = Window::rect(macro->wndInfo.wnd);
-			rect = rs.Start(wrect);
+			rect = QRectSelector::SelectPrimaryScreen(wrect);
 			if ((rect.right - rect.left == 0) && (rect.bottom - rect.top == 0))
 			{
 				HDC hdc = GetDC(nullptr);
@@ -831,11 +829,11 @@ void EditUi::Event_Action_Widget()
 				rgba.a = 1;
 				ReleaseDC(nullptr, hdc);
 			}
-			rect = QiCvt::WR_RtA(rect, macro->wndInfo.wnd, macro->range);
+			rect = QiCvt::WR_R_A(rect, macro->wndInfo.wnd, macro->range);
 		}
 		else
 		{
-			rect = rs.Start();
+			rect = Qi::set.allScreen ? QRectSelector::SelectVirtualScreen() : QRectSelector::SelectPrimaryScreen();
 			if ((rect.right - rect.left == 0) && (rect.bottom - rect.top == 0))
 			{
 				HDC hdc = GetDC(nullptr);
@@ -843,7 +841,7 @@ void EditUi::Event_Action_Widget()
 				rgba.a = 1;
 				ReleaseDC(nullptr, hdc);
 			}
-			rect = QiCvt::SR_RtA(rect, macro->range);
+			rect = QiCvt::SR_R_A(rect, macro->range);
 		}
 		QiColor color(WidgetGetColor());
 		color.rect = rect;
@@ -873,7 +871,6 @@ void EditUi::Event_Action_Widget()
 	// image
 	connect(ui.image_rect_button, &QPushButton::clicked, this, [this] {
 		hide();
-		QRectSelector rs;
 		RECT rect;
 		if (macro->wndState)
 		{
@@ -882,13 +879,13 @@ void EditUi::Event_Action_Widget()
 				SelectWindow();
 			}
 			RECT wrect = Window::rect(macro->wndInfo.wnd);
-			rect = rs.Start(wrect);
-			rect = QiCvt::WR_RtA(rect, macro->wndInfo.wnd, macro->range);
+			rect = QRectSelector::SelectPrimaryScreen(wrect);
+			rect = QiCvt::WR_R_A(rect, macro->wndInfo.wnd, macro->range);
 		}
 		else
 		{
-			rect = rs.Start();
-			rect = QiCvt::SR_RtA(rect, macro->range);
+			rect = Qi::set.allScreen ? QRectSelector::SelectVirtualScreen() : QRectSelector::SelectPrimaryScreen();
+			rect = QiCvt::SR_R_A(rect, macro->range);
 		}
 		QiImage image(WidgetGetImage());
 		image.rect = rect;
@@ -897,8 +894,7 @@ void EditUi::Event_Action_Widget()
 		});
 	connect(ui.image_shot_button, &QPushButton::clicked, this, [this] {
 		hide();
-		QRectSelector rs;
-		RECT rect = rs.Start();
+		RECT rect = Qi::set.allScreen ? QRectSelector::SelectVirtualScreen() : QRectSelector::SelectPrimaryScreen();
 		if (rect.right && rect.bottom)
 		{
 			QiImage image(WidgetGetImage());
@@ -911,7 +907,6 @@ void EditUi::Event_Action_Widget()
 	// ocr
 	connect(ui.ocr_rect_button, &QPushButton::clicked, this, [this] {
 		hide();
-		QRectSelector rs;
 		RECT rect;
 		if (macro->wndState)
 		{
@@ -920,13 +915,13 @@ void EditUi::Event_Action_Widget()
 				SelectWindow();
 			}
 			RECT wrect = Window::rect(macro->wndInfo.wnd);
-			rect = rs.Start(wrect);
-			rect = QiCvt::WR_RtA(rect, macro->wndInfo.wnd, macro->range);
+			rect = QRectSelector::SelectPrimaryScreen(wrect);
+			rect = QiCvt::WR_R_A(rect, macro->wndInfo.wnd, macro->range);
 		}
 		else
 		{
-			rect = rs.Start();
-			rect = QiCvt::SR_RtA(rect, macro->range);
+			rect = Qi::set.allScreen ? QRectSelector::SelectVirtualScreen() : QRectSelector::SelectPrimaryScreen();
+			rect = QiCvt::SR_R_A(rect, macro->range);
 		}
 		QiOcr ocr(WidgetGetOcr());
 		ocr.rect = rect;
@@ -940,7 +935,7 @@ void EditUi::Event_Action_Widget()
 			return;
 		}
 		const QiOcr& ocr = WidgetGetOcr();
-		std::string text = Qi::ocr.scan(QiCvt::SR_AtR(ocr.rect, macro->range), ocr.row);
+		std::string text = Qi::ocr.scan(QiCvt::SR_A_R(ocr.rect, macro->range), ocr.row);
 		if (text.empty())
 		{
 			Qi::popText->Popup(lang_trans("没有识别到内容"));
@@ -979,7 +974,6 @@ void EditUi::Event_Action_Widget()
 	// range
 	connect(ui.range_rect_button, &QPushButton::clicked, this, [this] {
 		hide();
-		QRectSelector rs;
 		RECT rect;
 		Rgba rgba;
 		if (macro->wndState)
@@ -989,7 +983,7 @@ void EditUi::Event_Action_Widget()
 				SelectWindow();
 			}
 			RECT wrect = Window::rect(macro->wndInfo.wnd);
-			rect = rs.Start(wrect);
+			rect = QRectSelector::SelectPrimaryScreen(wrect);
 			if ((rect.right - rect.left == 0) && (rect.bottom - rect.top == 0))
 			{
 				HDC hdc = GetDC(nullptr);
@@ -997,11 +991,11 @@ void EditUi::Event_Action_Widget()
 				rgba.a = 1;
 				ReleaseDC(nullptr, hdc);
 			}
-			rect = QiCvt::WR_RtA(rect, macro->wndInfo.wnd);
+			rect = QiCvt::WR_R_A(rect, macro->wndInfo.wnd);
 		}
 		else
 		{
-			rect = rs.Start();
+			rect = Qi::set.allScreen ? QRectSelector::SelectVirtualScreen() : QRectSelector::SelectPrimaryScreen();
 			if ((rect.right - rect.left == 0) && (rect.bottom - rect.top == 0))
 			{
 				HDC hdc = GetDC(nullptr);
@@ -1009,7 +1003,7 @@ void EditUi::Event_Action_Widget()
 				rgba.a = 1;
 				ReleaseDC(nullptr, hdc);
 			}
-			rect = QiCvt::SR_RtA(rect);
+			rect = QiCvt::SR_R_A(rect);
 		}
 		QiRangeSet range;
 		range.rect = rect;
@@ -1022,7 +1016,7 @@ void EditUi::Event_Action_Widget()
 		if (w.wnd)
 		{
 			QiRangeSet range;
-			range.rect = QiCvt::SR_RtA(Window::rect(w.wnd));
+			range.rect = QiCvt::SR_R_A(Window::rect(w.wnd));
 			range.title = w.name;
 			range.clas = w.clas;
 			range.proc = w.proc;
@@ -1068,12 +1062,12 @@ void EditUi::Event_Table_Selection()
 					if (macro->wndState)
 					{
 						if (!macro->wndInfo.update_fromName()) SelectWindow();
-						POINT rpt = QiCvt::WP_AtR({ ref.x, ref.y }, macro->wndInfo.wnd, macro->range);
+						POINT rpt = QiCvt::WP_A_R({ ref.x, ref.y }, macro->wndInfo.wnd, macro->range);
 						pt = Window::pos(macro->wndInfo.wnd);
 						pt.x += rpt.x, pt.y += rpt.y;
 					}
-					else pt = QiCvt::SP_AtR({ ref.x, ref.y }, macro->range);
-					widget_pv.Show(pt);
+					else pt = QiCvt::SP_A_R({ ref.x, ref.y }, macro->range);
+					widget_pv.show(pt);
 				}
 			} break;
 			case QiType::color:
@@ -1083,12 +1077,12 @@ void EditUi::Event_Table_Selection()
 				if (macro->wndState)
 				{
 					if (!macro->wndInfo.update_fromName()) SelectWindow();
-					rect = QiCvt::WR_AtR(ref.rect, macro->wndInfo.wnd, macro->range);
+					rect = QiCvt::WR_A_R(ref.rect, macro->wndInfo.wnd, macro->range);
 					POINT pt = Window::pos(macro->wndInfo.wnd);
 					rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 				}
-				else rect = QiCvt::SR_AtR(ref.rect, macro->range);
-				widget_rv.Show(rect);
+				else rect = QiCvt::SR_A_R(ref.rect, macro->range);
+				widget_rv.show(rect);
 			} break;
 			case QiType::image:
 			{
@@ -1097,12 +1091,12 @@ void EditUi::Event_Table_Selection()
 				if (macro->wndState)
 				{
 					if (!macro->wndInfo.update_fromName()) SelectWindow();
-					rect = QiCvt::WR_AtR(ref.rect, macro->wndInfo.wnd, macro->range);
+					rect = QiCvt::WR_A_R(ref.rect, macro->wndInfo.wnd, macro->range);
 					POINT pt = Window::pos(macro->wndInfo.wnd);
 					rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 				}
-				else rect = QiCvt::SR_AtR(ref.rect, macro->range);
-				widget_rv.Show(rect);
+				else rect = QiCvt::SR_A_R(ref.rect, macro->range);
+				widget_rv.show(rect);
 				WidgetSet(ref);
 			} break;
 			case QiType::ocr:
@@ -1112,12 +1106,12 @@ void EditUi::Event_Table_Selection()
 				if (macro->wndState)
 				{
 					if (!macro->wndInfo.update_fromName()) SelectWindow();
-					rect = QiCvt::WR_AtR(ref.rect, macro->wndInfo.wnd, macro->range);
+					rect = QiCvt::WR_A_R(ref.rect, macro->wndInfo.wnd, macro->range);
 					POINT pt = Window::pos(macro->wndInfo.wnd);
 					rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 				}
-				else rect = QiCvt::SR_AtR(ref.rect, macro->range);
-				widget_rv.Show(rect);
+				else rect = QiCvt::SR_A_R(ref.rect, macro->range);
+				widget_rv.show(rect);
 			} break;
 			case QiType::textPad:
 			{
@@ -1133,12 +1127,12 @@ void EditUi::Event_Table_Selection()
 				if (macro->wndState)
 				{
 					if (!macro->wndInfo.update_fromName()) SelectWindow();
-					rect = QiCvt::WR_AtR(ref.rect, macro->wndInfo.wnd);
+					rect = QiCvt::WR_A_R(ref.rect, macro->wndInfo.wnd);
 					POINT pt = Window::pos(macro->wndInfo.wnd);
 					rect.left += pt.x, rect.top += pt.y, rect.right += pt.x, rect.bottom += pt.y;
 				}
-				else rect = QiCvt::SR_AtR(ref.rect);
-				range_rv.Show(rect, 2, QColor(0, 127, 192));
+				else rect = QiCvt::SR_A_R(ref.rect);
+				range_rv.show(rect, 2, QColor(0, 127, 192));
 			} break;
 			}
 		}

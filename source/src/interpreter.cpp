@@ -65,7 +65,7 @@ void QiInterpreter::setLastPos(int x, int y)
 {
 	macro.script_interpreter.setValue(QiScriptInterpreter::var_cur_last_x, x);
 	macro.script_interpreter.setValue(QiScriptInterpreter::var_cur_last_y, y);
-	POINT p = wndInput ? QiCvt::WP_RtA(POINT({ x, y }), wndInput->wnd, macro.range) : QiCvt::SP_RtA(POINT({ x, y }), macro.range);
+	POINT p = wndInput ? QiCvt::WP_R_A(POINT({ x, y }), wndInput->wnd, macro.range) : QiCvt::SP_R_A(POINT({ x, y }), macro.range);
 	macro.script_interpreter.setValue(QiScriptInterpreter::var_cur_last_ax, p.x);
 	macro.script_interpreter.setValue(QiScriptInterpreter::var_cur_last_ay, p.y);
 	Qi::widget.varViewReload();
@@ -255,8 +255,8 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 				{
 					POINT pt = { x, y };
 					if (ref.move) pt.x += wndInput->pt.x * moveScaleX, pt.y += wndInput->pt.y * moveScaleY;
-					else pt = QiCvt::WP_AtR(pt, wndInput->wnd, macro.range);
-					POINT scale = QiCvt::WPF_AtR(POINTF({ posScaleX, posScaleY }), wndInput->wnd, macro.range);
+					else pt = QiCvt::WP_A_R(pt, wndInput->wnd, macro.range);
+					POINT scale = QiCvt::WPf_A_R(POINTF({ posScaleX, posScaleY }), wndInput->wnd, macro.range);
 					wndInput->pt = { pt.x + scale.x, pt.y + scale.y };
 					if (ref.track)
 					{
@@ -282,11 +282,11 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 					}
 					else
 					{
-						POINT scale = QiCvt::P_FtI(POINTF({ posScaleX, posScaleY }));
-						POINT dpt = QiCvt::Clip(POINT({ x + scale.x, y + scale.y }), macro.range);
+						POINT scale = QiCvt::P_Af_A(POINTF({ posScaleX, posScaleY }));
+						POINT dpt = QiCvt::Scale({ x + scale.x, y + scale.y }, macro.range);
 						if (ref.track)
 						{
-							POINT spt = QiCvt::SP_RtA(Input::pos());
+							POINT spt = QiCvt::SP_R_A(Input::pos());
 							QiFn::SmoothMove(spt.x, spt.y, dpt.x, dpt.y, ref.speed, [this](int x, int y, int, int) {
 								QiFn::MoveToA(x, y);
 								Sleep(10);
@@ -321,7 +321,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 				};
 				if (wndInput)
 				{
-					rect = QiCvt::WR_AtR(rect, wndInput->wnd, macro.range);
+					rect = QiCvt::WR_A_R(rect, wndInput->wnd, macro.range);
 #if defined(Q_WINRT) && defined(Q_GRAPHICS_CAPTURE)
 					bool capture = false;
 					if (!macro.capture) macro.capture = std::make_shared<QiGraphicsCapture>();
@@ -346,7 +346,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 				else
 				{
 					hdc = GetDC(nullptr);
-					rect = QiCvt::SR_AtR(rect, macro.range);
+					rect = QiCvt::SR_A_R(rect, macro.range);
 					Image::toRgbMap(hdc, rect, rgbMap);
 					ReleaseDC(nullptr, hdc);
 				}
@@ -414,7 +414,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 				};
 				if (wndInput)
 				{
-					rect = QiCvt::WR_AtR(rect, wndInput->wnd, macro.range);
+					rect = QiCvt::WR_A_R(rect, wndInput->wnd, macro.range);
 #if defined(Q_WINRT) && defined(Q_GRAPHICS_CAPTURE)
 					bool capture = false;
 					if (!macro.capture) macro.capture = std::make_shared<QiGraphicsCapture>();
@@ -439,7 +439,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 				else
 				{
 					hdc = GetDC(nullptr);
-					rect = QiCvt::SR_AtR(rect, macro.range);
+					rect = QiCvt::SR_A_R(rect, macro.range);
 					Image::toRgbMap(hdc, rect, rgbMap);
 					ReleaseDC(nullptr, hdc);
 				}
@@ -592,7 +592,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 						HDC hdc;
 						if (wndInput)
 						{
-							rect = QiCvt::WR_AtR(rect, wndInput->wnd, macro.range);
+							rect = QiCvt::WR_A_R(rect, wndInput->wnd, macro.range);
 #if defined(Q_WINRT) && defined(Q_GRAPHICS_CAPTURE)
 							bool capture = false;
 							if (!macro.capture) macro.capture = std::make_shared<QiGraphicsCapture>();
@@ -617,7 +617,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 						else
 						{
 							hdc = GetDC(nullptr);
-							rect = QiCvt::SR_AtR(rect, macro.range);
+							rect = QiCvt::SR_A_R(rect, macro.range);
 							image = Image::toCImage32(hdc, rect);
 							ReleaseDC(nullptr, hdc);
 						}
@@ -734,14 +734,14 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 				const clock_t begin = clock();
 				if (wndInput)
 				{
-					POINT scale = QiCvt::WPF_AtR(POINTF({ posScaleX, posScaleY }), wndInput->wnd, macro.range);
+					POINT scale = QiCvt::WPf_A_R(POINTF({ posScaleX, posScaleY }), wndInput->wnd, macro.range);
 					for (const auto& i : ref.s)
 					{
 						while (!isInvalid())
 						{
 							if ((i.t / speed) <= (clock() - begin))
 							{
-								POINT pt = QiCvt::WP_AtR({ i.x, i.y }, wndInput->wnd, macro.range);
+								POINT pt = QiCvt::WP_A_R({ i.x, i.y }, wndInput->wnd, macro.range);
 								wndInput->pt = { pt.x + scale.x, pt.y + scale.y };
 								Input::MoveTo(wndInput->wnd, wndInput->pt.x, wndInput->pt.y, wndInput->mk);
 								break;
@@ -752,7 +752,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 				}
 				else
 				{
-					POINT scale = QiCvt::P_FtI(POINTF({ posScaleX, posScaleY }));
+					POINT scale = QiCvt::P_Af_A(POINTF({ posScaleX, posScaleY }));
 					for (const auto& i : ref.s)
 					{
 						while (!isInvalid())
@@ -863,7 +863,7 @@ InterpreterResult QiInterpreter::ActionInterpreter(Actions& current)
 				}
 				if (ok)
 				{
-					macro.range = QiCvt::SR_RtAnClip(Window::rect(ref.w));
+					macro.range = QiCvt::SR_R_A(Window::rect(ref.w));
 				}
 				else if (h)
 				{
