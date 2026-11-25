@@ -19,4 +19,4 @@
 * PaddlePaddle ocr https://github.com/PaddlePaddle/PaddleOCR
 * httplib https://github.com/yhirose/cpp-httplib
 * osc http://www.rossbencina.com/code/oscpack
-
+* ddhid https://github.com/ddxoft/master

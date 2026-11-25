@@ -53,7 +53,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-178</y>
+        <y>0</y>
         <width>624</width>
         <height>616</height>
        </rect>
@@ -945,7 +945,7 @@
           </font>
          </property>
          <property name="text">
-          <string>使用驱动鼠标</string>
+          <string>使用驱动输入</string>
          </property>
         </widget>
        </item>

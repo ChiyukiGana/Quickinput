@@ -7,6 +7,7 @@ class ClickUi : public QWidget
 	Q_OBJECT;
 	Ui::ClickUiClass ui;
 	std::once_flag lang_once;
+	bool updating = false;
 
 public:
 	ClickUi(QWidget* parent = nullptr);

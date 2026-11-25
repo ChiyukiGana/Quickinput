@@ -103,16 +103,14 @@ namespace Qi
 		if ("group fold")
 		{
 			QJsonArray groupFolds;
-			size_t groupFoldIndex = 0;
 			for (const auto& i : group.fold)
 			{
-				if (macroGroups.find([&i](const MacroGroup& group) { if (group.name == i.first) return true; return false; }))
+				if (macroGroups.find([&i](const MacroGroup& group) { return group.name == i.first; }))
 				{
 					QJsonObject groupFold;
 					groupFold.insert("name", (QString)i.first);
 					groupFold.insert("fold", (bool)i.second);
-					groupFolds.insert(groupFoldIndex, groupFold);
-					groupFoldIndex++;
+					groupFolds.append(groupFold);
 				}
 			}
 			json.insert("groupFold", groupFolds);
@@ -120,12 +118,7 @@ namespace Qi
 		if ("group sort")
 		{
 			QJsonArray groupSort;
-			size_t groupSortIndex = 0;
-			for (const auto& i : macroGroups)
-			{
-				groupSort.append((QString)i.name);
-				groupSortIndex++;
-			}
+			for (const auto& i : macroGroups) groupSort.append((QString)i.name);
 			json.insert("groupSort", groupSort);
 		}
 		return json;

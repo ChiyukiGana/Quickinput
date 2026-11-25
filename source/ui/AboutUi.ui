@@ -63,7 +63,7 @@
       <string notr="true">font-size:20px</string>
      </property>
      <property name="text">
-      <string>2026-11-18</string>
+      <string>2026-11-26</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>
@@ -79,7 +79,8 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>增加全屏幕控制模式，支持多屏幕</string>
+      <string>增加驱动输入功能
+修复添加点击配置后折叠失效</string>
      </property>
      <property name="textFormat">
       <enum>Qt::TextFormat::PlainText</enum>

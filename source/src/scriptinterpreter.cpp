@@ -5,13 +5,6 @@
 #include <src/osc/ip/IpEndpointName.h>
 #include <src/osc/osc/OscPacketListener.h>
 #include <src/osc/osc/OscOutboundPacketStream.h>
-#include <src/osc/ip/UdpSocket.cpp>
-#include <src/osc/ip/IpEndpointName.cpp>
-#include <src/osc/ip/NetworkingUtils.cpp>
-#include <src/osc/osc/OscTypes.cpp>
-#include <src/osc/osc/OscReceivedElements.cpp>
-#include <src/osc/osc/OscPrintReceivedElements.cpp>
-#include <src/osc/osc/OscOutboundPacketStream.cpp>
 #endif
 
 time_t sys_last_time = 0;

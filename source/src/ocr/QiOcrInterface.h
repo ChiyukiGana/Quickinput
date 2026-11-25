@@ -1,4 +1,16 @@
-﻿#pragma once
+﻿/*
+
+静态OCR库配置：
+解压 source/src/ocr/lib.7z
+删除预处理宏 QIOCR_SHARED
+
+内置OCR模型配置：
+放置 {ppdet.onnx, ppocr.keys, ppocr.onnx} 到 source/res/ocr
+取消注释 source/res/QuickInput.h 的 QIOCR_INTERNAL
+
+*/
+
+#pragma once
 #ifndef QIOCR_H
 #define QIOCR_H
 #include <vector>

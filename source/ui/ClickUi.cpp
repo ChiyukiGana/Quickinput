@@ -47,12 +47,14 @@ void ClickUi::Init()
 void ClickUi::Event()
 {
 	connect(ui.table->horizontalHeader(), &QHeaderView::sectionClicked, this, [this](int index) {
+		if (updating) return;
 		if (index != TableColumn_add) return;
 		Qi::click.clickers.append(Clicker());
 		TableAppend(Qi::click.clickers.size() - 1);
 		QiJson::SaveJson();
 		});
 	connect(ui.table, &QTableWidget::cellClicked, this, [this](int row, int col) {
+		if (updating) return;
 		if (row < 0) return;
 		if (col == TableColumn_add)
 		{
@@ -103,6 +105,7 @@ void ClickUi::TableRemove(int index)
 void ClickUi::TableUpdate(int index)
 {
 	const Clicker& click = Qi::click.clickers[index];
+	updating = true;
 	{
 		QKeyEdit* key = reinterpret_cast<QKeyEdit*>(ui.table->cellWidget(index, TableColumn_control));
 		if (!key)
@@ -117,7 +120,7 @@ void ClickUi::TableUpdate(int index)
 			key->update();
 			key->setStyleSheet("margin-left:5px;margin-right:5px;margin-top:2px;margin-bottom:2px");
 
-			connect(key, &QKeyEdit::changed, this, [this, key, index] { Qi::click.clickers[index].key1 = key->key(); QiJson::SaveJson(); });
+			connect(key, &QKeyEdit::changed, this, [this, key, index] { if (updating) return; Qi::click.clickers[index].key1 = key->key(); QiJson::SaveJson(); });
 		}
 		key->setKey(click.key1);
 	}
@@ -135,7 +138,7 @@ void ClickUi::TableUpdate(int index)
 			key->update();
 			key->setStyleSheet("margin-left:5px;margin-right:5px;margin-top:2px;margin-bottom:2px");
 
-			connect(key, &QKeyEdit::changed, this, [this, key, index] { Qi::click.clickers[index].key2 = key->key(); QiJson::SaveJson(); });
+			connect(key, &QKeyEdit::changed, this, [this, key, index] { if (updating) return; Qi::click.clickers[index].key2 = key->key(); QiJson::SaveJson(); });
 		}
 		key->setKey(click.key2);
 	}
@@ -162,7 +165,7 @@ void ClickUi::TableUpdate(int index)
 			mode->style()->polish(mode);
 			mode->update();
 
-			connect(mode, &QComboBox::currentIndexChanged, this, [this, index](int value) { if (index < 0) return; Qi::click.clickers[index].mode = value; QiJson::SaveJson(); });
+			connect(mode, &QComboBox::currentIndexChanged, this, [this, index](int value) { if (updating) return; if (index < 0) return; Qi::click.clickers[index].mode = value; QiJson::SaveJson(); });
 		}
 		mode->setCurrentIndex(click.mode);
 	}
@@ -180,7 +183,7 @@ void ClickUi::TableUpdate(int index)
 			interval->update();
 			interval->setStyleSheet("margin-left:5px;margin-right:5px;margin-top:2px;margin-bottom:2px");
 
-			connect(interval, &QSpinBox::valueChanged, this, [this, index](int value) { Qi::click.clickers[index].interval = value; QiJson::SaveJson(); });
+			connect(interval, &QSpinBox::valueChanged, this, [this, index](int value) { if (updating) return; Qi::click.clickers[index].interval = value; QiJson::SaveJson(); });
 		}
 		interval->setValue(click.interval);
 	}
@@ -196,6 +199,7 @@ void ClickUi::TableUpdate(int index)
 		item->setTextAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
 		item->setText("x");
 	}
+	updating = false;
 }
 
 void ClickUi::TableAppend(int index)

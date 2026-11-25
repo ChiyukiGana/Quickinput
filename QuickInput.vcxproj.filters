@@ -62,6 +62,30 @@
     <Filter Include="2_Widget\ui\dialog">
       <UniqueIdentifier>{b0369c5f-4ec5-432c-bde5-31da8e219b01}</UniqueIdentifier>
     </Filter>
+    <Filter Include="6_Lib">
+      <UniqueIdentifier>{495b8fd5-e2bd-4bf9-b280-e711600821ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="6_Lib\httplib">
+      <UniqueIdentifier>{0c35835d-be3e-4e47-be7b-d34be7074a32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="6_Lib\driver">
+      <UniqueIdentifier>{67c56a75-ccbe-4f36-b4d3-eeff8b65620d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="6_Lib\ocr">
+      <UniqueIdentifier>{f78d49b6-fc6f-460d-85a8-39edde031b96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="6_Lib\osc">
+      <UniqueIdentifier>{17bbf03a-dc80-424a-8234-881c16b34b0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="6_Lib\osc\ip">
+      <UniqueIdentifier>{7b46e00a-4cf0-4eda-bb6c-de84de726dac}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="6_Lib\osc\osc">
+      <UniqueIdentifier>{d2c22159-7bd2-494d-99ce-80085ab7c864}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="6_Lib\typepack">
+      <UniqueIdentifier>{efa9c7a9-2d9c-4de0-a5c9-1cf4ac412583}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\main.cpp" />
@@ -142,6 +166,27 @@
     </ClCompile>
     <ClCompile Include="source\ui\ClickUi.cpp">
       <Filter>2_Widget\source</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\osc\ip\IpEndpointName.cpp">
+      <Filter>6_Lib\osc\ip</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\osc\ip\NetworkingUtils.cpp">
+      <Filter>6_Lib\osc\ip</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\osc\ip\UdpSocket.cpp">
+      <Filter>6_Lib\osc\ip</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\osc\osc\OscOutboundPacketStream.cpp">
+      <Filter>6_Lib\osc\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\osc\osc\OscPrintReceivedElements.cpp">
+      <Filter>6_Lib\osc\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\osc\osc\OscReceivedElements.cpp">
+      <Filter>6_Lib\osc\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="source\src\osc\osc\OscTypes.cpp">
+      <Filter>6_Lib\osc\osc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -306,6 +351,57 @@
     </ClInclude>
     <ClInclude Include="source\src\tools\ping.h">
       <Filter>3_HeaderOnly\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\driver\QiDriver.h">
+      <Filter>6_Lib\driver</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\httplib\httplib.h">
+      <Filter>6_Lib\httplib</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\ocr\QiOcrInterface.h">
+      <Filter>6_Lib\ocr</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\osc\ip\IpEndpointName.h">
+      <Filter>6_Lib\osc\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\osc\ip\NetworkingUtils.h">
+      <Filter>6_Lib\osc\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\osc\ip\PacketListener.h">
+      <Filter>6_Lib\osc\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\osc\ip\TimerListener.h">
+      <Filter>6_Lib\osc\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\osc\ip\UdpSocket.h">
+      <Filter>6_Lib\osc\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\osc\osc\MessageMappingOscPacketListener.h">
+      <Filter>6_Lib\osc\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\osc\osc\OscException.h">
+      <Filter>6_Lib\osc\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\osc\osc\OscHostEndianness.h">
+      <Filter>6_Lib\osc\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\osc\osc\OscOutboundPacketStream.h">
+      <Filter>6_Lib\osc\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\osc\osc\OscPacketListener.h">
+      <Filter>6_Lib\osc\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\osc\osc\OscPrintReceivedElements.h">
+      <Filter>6_Lib\osc\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\osc\osc\OscReceivedElements.h">
+      <Filter>6_Lib\osc\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\osc\osc\OscTypes.h">
+      <Filter>6_Lib\osc\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="source\src\typepack\TypePack.h">
+      <Filter>6_Lib\typepack</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

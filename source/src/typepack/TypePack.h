@@ -42,19 +42,20 @@ namespace typepack
 {
 	class value;
 	using null = std::nullopt_t;
+	using byte = uint8_t;
 	using integer = int64_t;
 	using uinteger = uint64_t;
 	using float32 = float;
 	using float64 = double;
 	using string = std::string;
-	using binary = std::vector<char>;
+	using binary = std::vector<byte>;
 	class object : public std::unordered_map<string, value>
 	{
 		using base = std::unordered_map<string, value>;
 	public:
 		void toBinary(binary& bin) const;
 		binary toBinary() const;
-		static object fromBinary(const char* data, size_t size);
+		static object fromBinary(const byte* data, size_t size);
 		static object fromBinary(const binary& bin);
 		bool exist(const base::key_type& key) const;
 		value get(const base::key_type& key) const;
@@ -69,7 +70,7 @@ namespace typepack
 	public:
 		void toBinary(binary& bin) const;
 		binary toBinary() const;
-		static array fromBinary(const char* data, size_t size);
+		static array fromBinary(const byte* data, size_t size);
 		static array fromBinary(const binary& bin);
 	};
 
@@ -77,7 +78,7 @@ namespace typepack
 	{
 		using base = std::variant<null, bool, object, array, integer, uinteger, float32, float64, string, binary>;
 	public:
-		enum Type
+		enum Type : byte
 		{
 			Null,
 			Bool,
@@ -99,12 +100,16 @@ namespace typepack
 		value(int8_t v) : base(static_cast<integer>(v)) {}
 		value(int16_t v) : base(static_cast<integer>(v)) {}
 		value(int32_t v) : base(static_cast<integer>(v)) {}
+#ifdef _WIN32
 		value(long v) : base(static_cast<integer>(v)) {}
+#endif
 		value(int64_t v) : base(static_cast<integer>(v)) {}
-		value(uint8_t v) : base(static_cast<uinteger>(v)) {}
+		value(byte v) : base(static_cast<uinteger>(v)) {}
 		value(uint16_t v) : base(static_cast<uinteger>(v)) {}
 		value(uint32_t v) : base(static_cast<uinteger>(v)) {}
+#ifdef _WIN32
 		value(unsigned long v) : base(static_cast<uinteger>(v)) {}
+#endif
 		value(uint64_t v) : base(static_cast<uinteger>(v)) {}
 		value(float v) : base(static_cast<float32>(v)) {}
 		value(double v) : base(static_cast<float64>(v)) {}
@@ -121,12 +126,16 @@ namespace typepack
 		value& operator=(int8_t v) { base::operator=(static_cast<integer>(v)); return *this; }
 		value& operator=(int16_t v) { base::operator=(static_cast<integer>(v)); return *this; }
 		value& operator=(int32_t v) { base::operator=(static_cast<integer>(v)); return *this; }
+#ifdef _WIN32
 		value& operator=(long v) { base::operator=(static_cast<integer>(v)); return *this; }
+#endif
 		value& operator=(int64_t v) { base::operator=(static_cast<integer>(v)); return *this; }
-		value& operator=(uint8_t v) { base::operator=(static_cast<uinteger>(v)); return *this; }
+		value& operator=(byte v) { base::operator=(static_cast<uinteger>(v)); return *this; }
 		value& operator=(uint16_t v) { base::operator=(static_cast<uinteger>(v)); return *this; }
 		value& operator=(uint32_t v) { base::operator=(static_cast<uinteger>(v)); return *this; }
+#ifdef _WIN32
 		value& operator=(unsigned long v) { base::operator=(static_cast<uinteger>(v)); return *this; }
+#endif
 		value& operator=(uint64_t v) { base::operator=(static_cast<uinteger>(v)); return *this; }
 		value& operator=(float v) { base::operator=(static_cast<float32>(v)); return *this; }
 		value& operator=(double v) { base::operator=(static_cast<float64>(v)); return *this; }
@@ -250,7 +259,7 @@ namespace typepack
 	class pack
 	{
 	public:
-		enum Type
+		enum Type : byte
 		{
 			False = 0,
 			True = 1,
@@ -283,8 +292,11 @@ namespace typepack
 			Binary32 = 0b10001000,
 			Binary64 = 0b11001000
 		};
+		static constexpr byte TYPEBIT = 0b00111111;
+		static constexpr byte SIZEBIT = 0b11000000;
 	private:
-		static constexpr size_t tag_bytes(Type t) {
+		static constexpr size_t tag_bytes(Type t)
+		{
 			switch (t) {
 			case Type::False: case Type::True: return 0;
 			case Type::Object8: case Type::Array8: case Type::Int8: case Type::UInt8:
@@ -307,10 +319,10 @@ namespace typepack
 				value >>= 8;
 			}
 		}
-		static constexpr uint64_t read_uint64(const char*& data, size_t bytes)
+		static constexpr uint64_t read_uint64(const byte*& data, size_t bytes)
 		{
 			uint64_t result = 0;
-			for (size_t i = 0; i < bytes; i++) result |= (static_cast<uint64_t>(static_cast<uint8_t>(*data++)) << (i * 8));
+			for (size_t i = 0; i < bytes; i++) result |= (static_cast<uint64_t>(static_cast<byte>(*data++)) << (i * 8));
 			return result;
 		}
 
@@ -443,22 +455,22 @@ namespace typepack
 			}
 		}
 
-		static std::optional<string> deserialize_string(const char*& data, const char* end)
+		static std::optional<string> deserialize_string(const byte*& data, const byte* end)
 		{
 			if (data >= end) return std::nullopt;
-			const Type t = static_cast<Type>(static_cast<uint8_t>(*data++));
+			const Type t = static_cast<Type>(static_cast<byte>(*data++));
 			const size_t bytes = tag_bytes(t);
 			if (data + bytes > end) return std::nullopt;
 			const size_t len = read_uint64(data, bytes);
 			if (data + len > end) return std::nullopt;
-			string result(data, len);
+			string result(reinterpret_cast<const char*>(data), len);
 			data += len;
 			return result;
 		}
-		static std::optional<binary> deserialize_binary(const char*& data, const char* end)
+		static std::optional<binary> deserialize_binary(const byte*& data, const byte* end)
 		{
 			if (data >= end) return std::nullopt;
-			const Type t = static_cast<Type>(static_cast<uint8_t>(*data++));
+			const Type t = static_cast<Type>(static_cast<byte>(*data++));
 			const size_t bytes = tag_bytes(t);
 			if (data + bytes > end) return std::nullopt;
 			const size_t len = read_uint64(data, bytes);
@@ -467,10 +479,10 @@ namespace typepack
 			data += len;
 			return result;
 		}
-		static std::optional<integer> deserialize_integer(const char*& data, const char* end)
+		static std::optional<integer> deserialize_integer(const byte*& data, const byte* end)
 		{
 			if (data >= end) return std::nullopt;
-			const Type t = static_cast<Type>(static_cast<uint8_t>(*data++));
+			const Type t = static_cast<Type>(static_cast<byte>(*data++));
 			const size_t bytes = tag_bytes(t);
 			if (data + bytes > end) return std::nullopt;
 			const uint64_t u = read_uint64(data, bytes);
@@ -482,18 +494,18 @@ namespace typepack
 			default: return std::nullopt;
 			}
 		}
-		static std::optional<uinteger> deserialize_uinteger(const char*& data, const char* end)
+		static std::optional<uinteger> deserialize_uinteger(const byte*& data, const byte* end)
 		{
 			if (data >= end) return std::nullopt;
-			const Type t = static_cast<Type>(static_cast<uint8_t>(*data++));
+			const Type t = static_cast<Type>(static_cast<byte>(*data++));
 			const size_t bytes = tag_bytes(t);
 			if (data + bytes > end) return std::nullopt;
 			return read_uint64(data, bytes);
 		}
-		static std::optional<float32> deserialize_float32(const char*& data, const char* end)
+		static std::optional<float32> deserialize_float32(const byte*& data, const byte* end)
 		{
 			if (data >= end) return std::nullopt;
-			const Type t = static_cast<Type>(static_cast<uint8_t>(*data++));
+			const Type t = static_cast<Type>(static_cast<byte>(*data++));
 			if (t != Type::Float32) return std::nullopt;
 			if (data + sizeof(float) > end) return std::nullopt;
 			const uint64_t u = read_uint64(data, sizeof(float));
@@ -501,10 +513,10 @@ namespace typepack
 			std::memcpy(&f, &u, sizeof(float));
 			return f;
 		}
-		static std::optional<float64> deserialize_float64(const char*& data, const char* end)
+		static std::optional<float64> deserialize_float64(const byte*& data, const byte* end)
 		{
 			if (data >= end) return std::nullopt;
-			const Type t = static_cast<Type>(static_cast<uint8_t>(*data++));
+			const Type t = static_cast<Type>(static_cast<byte>(*data++));
 			if (t != Type::Float64) return std::nullopt;
 			if (data + sizeof(double) > end) return std::nullopt;
 			const uint64_t u = read_uint64(data, sizeof(double));
@@ -512,10 +524,10 @@ namespace typepack
 			std::memcpy(&d, &u, sizeof(double));
 			return d;
 		}
-		static std::optional<value> deserialize(const char*& data, const char* end)
+		static std::optional<value> deserialize(const byte*& data, const byte* end)
 		{
 			if (data >= end) return std::nullopt;
-			const Type t = static_cast<Type>(static_cast<uint8_t>(*data++));
+			const Type t = static_cast<Type>(static_cast<byte>(*data++));
 			switch (t) {
 			case Type::False: return false;
 			case Type::True:  return true;
@@ -604,7 +616,7 @@ namespace typepack
 			return bin;
 		}
 
-		static value fromBinary(const char* data, size_t size)
+		static value fromBinary(const byte* data, size_t size)
 		{
 			auto r = deserialize(data, data + size);
 			if (r) return std::move(*r);
@@ -655,10 +667,10 @@ namespace typepack
 	{
 		return pack::toBinary(*this);
 	}
-	inline object object::fromBinary(const char* data, size_t size)
+	inline object object::fromBinary(const byte* data, size_t size)
 	{
 		if (!data || !size) return {};
-		if ((static_cast<uint8_t>(data[0]) & static_cast<uint8_t>(0b00001111)) != static_cast<uint8_t>(pack::Type::Object8)) return {};
+		if ((data[0] & pack::TYPEBIT) != pack::Type::Object8) return {};
 		value v = pack::fromBinary(data, size);
 		if (v.isObject()) return std::move(v.to<object>());
 		return {};
@@ -676,10 +688,10 @@ namespace typepack
 	{
 		return pack::toBinary(*this);
 	}
-	inline array array::fromBinary(const char* data, size_t size)
+	inline array array::fromBinary(const byte* data, size_t size)
 	{
 		if (!data || !size) return {};
-		if ((static_cast<uint8_t>(data[0]) & static_cast<uint8_t>(0b00001111)) != static_cast<uint8_t>(pack::Type::Array8)) return {};
+		if ((data[0] & pack::TYPEBIT) != pack::Type::Array8) return {};
 		value v = pack::fromBinary(data, size);
 		if (v.isArray()) return std::move(v.to<array>());
 		return {};
@@ -690,4 +702,4 @@ namespace typepack
 	}
 }
 
-#endif TYPE_PACK
+#endif

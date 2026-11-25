@@ -358,6 +358,9 @@ void SettingsUi::LoadLanguage()
 
 		lang_save_t(ui.stateKey_label);
 		lang_save_t(ui.recordKey_label);
+#ifdef Q_DRIVER
+		lang_save_t(ui.driver_label);
+#endif
 		lang_save_t(ui.recordTrack_label);
 		lang_save_t(ui.enableDefault_label);
 		lang_save_t(ui.showState_label);
@@ -390,6 +393,9 @@ void SettingsUi::LoadLanguage()
 	lang_load_ke(ui.stateKey_keyedit);
 	lang_load_t(ui.recordKey_label);
 	lang_load_ke(ui.recordKey_keyedit);
+#ifdef Q_DRIVER
+	lang_load_t(ui.driver_label);
+#endif
 	lang_load_t(ui.recordTrack_label);
 	lang_load_t(ui.enableDefault_label);
 	lang_load_t(ui.showState_label);

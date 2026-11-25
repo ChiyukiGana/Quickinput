@@ -230,7 +230,7 @@ bool LoadQimMacro(Macro& macro, const QString& path, const QString& name)
 		MsgBox::Error(reinterpret_cast<const wchar_t*>(name.utf16()), lang_trans("加载宏失败").toStdWString());
 		return false;
 	}
-	typepack::object pack = typepack::object::fromBinary(data);
+	typepack::object pack = typepack::object::fromBinary(reinterpret_cast<const typepack::byte*>(data.data()), data.size());
 	if (pack.empty())
 	{
 		MsgBox::Error(reinterpret_cast<const wchar_t*>(name.utf16()), lang_trans("宏数据错误").toStdWString());

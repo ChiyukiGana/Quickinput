@@ -1150,7 +1150,7 @@ public:
 			initMutex = CreateMutexW(0, 0, L"QISCRIPTINTERPRETER_INIT_MUTEX");
 			savedVariables_Mutex.lock();
 			auto data = File::FileReadAll(Qi::savedVarFile.toStdWString());
-			if (!data.empty()) savedVariables = typepack::object::fromBinary(data);
+			if (!data.empty()) savedVariables = typepack::object::fromBinary(reinterpret_cast<const typepack::byte*>(data.data()), data.size());
 			savedVariables_Mutex.unlock();
 
 			savedVariables_Thread = std::thread([] {

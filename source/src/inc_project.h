@@ -14,10 +14,14 @@
 #include <QRectView.h>
 #include <QTextDialog.h>
 #include <QCodeDialog.h>
+
+// resource
+#include <res/QuickInput.h>
+
 // modules
 #include <src/ocr/QiOcrInterface.h>
 #ifdef Q_DRIVER
-#include <driver/QiDriver.h>
+#include <src/driver/QiDriver.h>
 #endif
 
 #include "ui.h"

@@ -792,7 +792,7 @@ struct QiImage : QiBase
 	static QImage fromBinaryImage(const typepack::binary bin)
 	{
 		if (bin.empty()) return{};
-		QByteArray data(bin.data(), bin.size());
+		QByteArray data(reinterpret_cast<const char*>(bin.data()), bin.size());
 		QImage img;
 		img.loadFromData(data, "PNG");
 		return img;
